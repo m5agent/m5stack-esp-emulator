@@ -1,0 +1,295 @@
+--- a/platform/web/model-shell.js
++++ b/platform/web/model-shell.js
+@@ -1,4 +1,5 @@
+ import { DeviceViewer } from './vendor/m5stack-models/src/core/DeviceViewer.js';
++import {UnitAnnotations} from './unit-annotations.js';
+ import { loadModel, loadGroveModule } from './vendor/m5stack-models/src/loaders.js';
+ import { MODEL_METADATA, MODEL_DEVICES, UNIT_MODELS } from './vendor/m5stack-models/runtime-index.js';
+ 
+@@ -101,6 +102,7 @@
+         minDistance: 25, maxDistance: 2500,
+       });
+       this.viewer.mount(model);
++      this.unitAnnotations = new UnitAnnotations({container: this.stage, root: this.root, viewer: this.viewer, model});
+       this.installButtonFeedback(model);
+       this.display = model.find('lcd', 'display');
+       // No demo or made-up sensor/frame values. Wait for the real runtime.
+@@ -110,6 +112,7 @@
+       this.viewer.fit({ padding: 1.15, duration: 0 });
+       this.setViewMode(!live && device.shell?.reference_image ? 'photo' : 'shell');
+     } catch (error) {
++      this.unitAnnotations?.dispose();
+       this.viewer?.dispose();
+       this.root.remove();
+       throw error;
+@@ -337,6 +340,10 @@
+     }));
+   }
+ 
++  updateUnitAnnotation(unit, {port, definition, running, source, frozenDefinitions}) {
++    this.unitAnnotations?.set(port, unit, definition, {running, source, frozenDefinitions});
++  }
++
+   clearDriveActivities(port = null) {
+     for (const [target, activity] of this.driveActivities) {
+       if (port !== null && !target.startsWith(`${port}/`)) continue;
+@@ -360,6 +367,7 @@
+     }
+     try {
+       this.clearDriveActivities(port);
++      this.unitAnnotations?.clear(port);
+       target.attach(module);
+       this.installButtonFeedback(module);
+       this.viewer.fit();
+@@ -370,6 +378,7 @@
+   detachUnit(port = 'grove') {
+     this.attachVersions.set(port, (this.attachVersions.get(port) || 0) + 1);
+     this.clearDriveActivities(port);
++    this.unitAnnotations?.clear(port);
+     const result = this.model.port(port).detach();
+     this.viewer.fit();
+     return result;
+@@ -380,6 +389,7 @@
+   dispose() {
+     if (this.disposed) return;
+     // Viewer cancellation emits matching releases before removing subscriptions.
++    this.unitAnnotations?.dispose();
+     this.viewer.dispose();
+     this.disposed = true;
+     this.clearDriveActivities();
+--- /dev/null
++++ b/platform/web/unit-annotations.js
+@@ -0,0 +1,174 @@
++// Read-only controller readouts in a rail outside the interactive canvas.
++import {Vector3} from 'three';
++
++export const ANNOTATED_UNITS = new Set([
++  'env-iii', 'pir', 'ultrasonic-i2c', 'color', 'tof', 'light', 'relay',
++  'ncir', 'heart', 'thermal', 'tvoc', 'buzzer',
++]);
++
++// Field origin is audited explicitly; inputs/outputs/readOnly are not origin.
++const FIELD_SOURCE = {
++  relay: {'output-level': '固件输出'},
++  buzzer: {'frequency-hz': '固件输出', 'duty-pct': '固件输出'},
++  thermal: {'raw-fixture-ready': '模型状态', 'control-word': '控制寄存器状态'},
++};
++const scalar = (value, schema) => (schema.type === 'boolean' ? typeof value === 'boolean'
++  : ['number', 'integer'].includes(schema.type) && Number.isFinite(value)
++    && (schema.type !== 'integer' || Number.isInteger(value)))
++  && (schema.minimum === undefined || value >= schema.minimum)
++  && (schema.maximum === undefined || value <= schema.maximum)
++  && (!schema.enum || schema.enum.includes(value));
++const text = (tag, className, value) => {
++  const node = document.createElement(tag);
++  if (className) node.className = className;
++  if (value !== undefined) node.textContent = value;
++  return node;
++};
++let helpSequence = 0;
++
++// Schema defaults, mutable inventory and local pending input are not readback.
++export function annotationReadback(unit, definition, {running, source, frozenDefinitions} = {}) {
++  if (!ANNOTATED_UNITS.has(unit?.unit_id) || definition?.id !== unit.unit_id) return null;
++  const live = running === true && source === 'live' && unit.source === 'guest-qom'
++    && frozenDefinitions === true && unit.available === true
++    && (!unit.errors || Object.keys(unit.errors).length === 0);
++  const result = {title: definition.name || unit.unit_id, groups: [],
++    status: !running ? '会话未运行 · 数值见面板' : !frozenDefinitions ? '读数契约不可用'
++      : !live ? '状态不可用 · 数值未确认' : ''};
++  if (!live) return result;
++  const groups = new Map();
++  let rejected = false;
++  for (const direction of ['inputs', 'outputs']) {
++    for (const [field, schema] of Object.entries(definition[direction] || {})) {
++      if (!['boolean', 'number', 'integer'].includes(schema.type)) continue;
++      if (!Object.hasOwn(unit.properties || {}, field)) continue;
++      const value = unit.properties[field];
++      if (!scalar(value, schema)) { rejected = true; continue; }
++      const label = FIELD_SOURCE[unit.unit_id]?.[field] || (direction === 'inputs' ? '模拟输入' : '控制器状态');
++      if (!groups.has(label)) groups.set(label, {direction, label, rows: []});
++      groups.get(label).rows.push({field, label: schema.label || field, value: String(value),
++        unit: schema.unit === 'degC' ? '°C' : schema.unit || ''});
++    }
++  }
++  result.groups = [...groups.values()];
++  if (rejected) result.status = '部分读数超出契约 · 请核对面板';
++  else if (!result.groups.length) result.status = '无可用标量读数 · 详见面板';
++  return result;
++}
++
++export class UnitAnnotations {
++  constructor({container, root = container.parentElement, viewer, model}) {
++    Object.assign(this, {container, root, viewer, model});
++    this.items = new Map();
++    this.point = new Vector3();
++    this.layer = text('div', 'unit-annotation-layer');
++    this.layer.setAttribute('aria-hidden', 'true');
++    this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
++    this.svg.classList.add('unit-annotation-leaders');
++    this.layer.append(this.svg);
++    this.rail = text('section', 'unit-readout-rail');
++    this.rail.setAttribute('aria-label', '实时读数');
++    this.rail.setAttribute('aria-live', 'off');
++    const help = text('p', 'unit-readout-help', '仿真读数，标号与模型中的外设对应。');
++    help.id = `unit-readout-help-${++helpSequence}`;
++    this.rail.setAttribute('aria-describedby', help.id);
++    this.cards = text('div', 'unit-readout-cards');
++    this.rail.append(text('h4', 'unit-readout-heading', '实时读数'), help, this.cards);
++    this.layer.hidden = this.rail.hidden = true;
++    root.append(this.layer, this.rail);
++    this.offRender = viewer.on('render', () => this.layout());
++    this.resize = new ResizeObserver(() => this.layout());
++    this.resize.observe(root);
++    this.disposed = false;
++  }
++
++  active() {
++    const active = this.items.size > 0;
++    if (active && !this.root.classList.contains('has-unit-readouts') && !this.root.closest('.session-visual')) {
++      this.root.style.setProperty('--unit-annotation-canvas-height', `${this.viewer.renderer.domElement.clientHeight || 420}px`);
++      this.ownsHeight = true;
++    }
++    this.root.classList.toggle('has-unit-readouts', active);
++    this.layer.hidden = this.rail.hidden = !active;
++    if (!active && this.ownsHeight) { this.root.style.removeProperty('--unit-annotation-canvas-height'); this.ownsHeight = false; }
++  }
++
++  set(port, unit, definition, options) {
++    if (this.disposed) return;
++    const value = annotationReadback(unit, definition, options);
++    const target = `${port}/sensor`, anchor = this.model.find(target);
++    if (!value || anchor?.meta?.role !== 'visual-anchor') { this.clear(port, {descendants: false}); return; }
++    let item = this.items.get(port);
++    if (!item) {
++      const marker = text('div', 'unit-annotation-marker');
++      const leader = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
++      leader.classList.add('unit-annotation-leader');
++      const note = text('aside', 'unit-annotation');
++      note.setAttribute('role', 'note');
++      note.dataset.annotationPort = port; note.dataset.annotationAnchor = target;
++      this.layer.append(marker); this.svg.append(leader); this.cards.append(note);
++      item = {marker, leader, note, anchor, signature: null}; this.items.set(port, item);
++    }
++    item.anchor = anchor;
++    const signature = JSON.stringify(value);
++    if (item.signature !== signature) {
++      item.signature = signature;
++      item.badge = text('span', 'unit-annotation-index');
++      const title = text('strong', 'unit-annotation-title');
++      title.append(item.badge, document.createTextNode(value.title));
++      item.note.replaceChildren(title);
++      if (value.status) item.note.append(text('p', 'unit-annotation-status', value.status));
++      for (const group of value.groups) {
++        item.note.append(text('small', 'unit-annotation-source', group.label));
++        const list = text('dl', 'unit-annotation-values');
++        for (const row of group.rows) {
++          const observed = text('dd', '', row.value + (row.unit ? ` ${row.unit}` : ''));
++          observed.dataset.annotationField = row.field;
++          list.append(text('dt', '', row.label), observed);
++        }
++        item.note.append(list);
++      }
++    }
++    this.active(); this.viewer.requestRender(); this.layout();
++  }
++
++  layout() {
++    if (this.disposed || !this.items.size) return;
++    const canvas = this.viewer.renderer.domElement, rect = canvas.getBoundingClientRect();
++    const origin = this.root.getBoundingClientRect();
++    let index = 0;
++    for (const [port, {anchor, marker, leader, note, badge}] of [...this.items]) {
++      if (this.model.find(note.dataset.annotationAnchor) !== anchor) { this.clear(port, {descendants: false}); continue; }
++      const number = String(++index); marker.textContent = badge.textContent = number;
++      note.dataset.annotationIndex = number; marker.dataset.annotationPort = port;
++      anchor.object3d.getWorldPosition(this.point).project(this.viewer.camera);
++      const visible = rect.width > 0 && rect.height > 0 && this.point.z >= -1 && this.point.z <= 1
++        && Math.abs(this.point.x) <= 1 && Math.abs(this.point.y) <= 1;
++      marker.hidden = !visible; leader.toggleAttribute('hidden', !visible);
++      note.dataset.anchorVisible = String(visible);
++      // Readouts remain readable in the rail even when the camera faces away.
++      if (!visible) continue;
++      const x = rect.left - origin.left + (this.point.x + 1) * rect.width / 2;
++      const y = rect.top - origin.top + (1 - this.point.y) * rect.height / 2;
++      marker.style.left = `${x}px`; marker.style.top = `${y}px`;
++      const end = badge.getBoundingClientRect();
++      const endX = end.left - origin.left + end.width / 2, endY = end.top - origin.top + end.height / 2;
++      const edge = x < rect.left - origin.left + rect.width / 2 ? rect.left - origin.left + 8 : rect.right - origin.left - 8;
++      leader.setAttribute('points', `${x},${y} ${edge},${y} ${edge},${endY} ${endX},${endY}`);
++    }
++  }
++
++  clear(port = null, {descendants = true} = {}) {
++    for (const [key, item] of [...this.items]) {
++      if (port !== null && key !== port && !(descendants && key.startsWith(`${port}/`))) continue;
++      item.marker.remove(); item.leader.remove(); item.note.remove(); this.items.delete(key);
++    }
++    this.active();
++  }
++
++  dispose() {
++    if (this.disposed) return;
++    this.disposed = true; this.offRender(); this.resize.disconnect();
++    this.clear(); this.layer.remove(); this.rail.remove();
++  }
++}
+--- a/platform/web/unit-panel.css
++++ b/platform/web/unit-panel.css
+@@ -26,3 +26,30 @@
+ .unit-rgb-value { display: inline-flex; align-items: center; justify-content: end; gap: var(--m5-space-xs); }
+ .unit-rgb-swatch { display: inline-block; width: 1em; height: 1em; border: 1px solid var(--m5-line); border-radius: var(--m5-radius-sm); background: var(--unit-led-color); flex: 0 0 auto; }
+ .unit-control button:focus-visible, .unit-control input:focus-visible, .unit-control textarea:focus-visible { outline: 2px solid var(--m5-blue); outline-offset: 2px; }
++
++/* Exact controller values stay outside the interactive WebGL canvas. */
++.device-shell-root.has-unit-readouts { height: auto; min-height: 0; --unit-annotation-canvas-height: 420px; }
++.has-unit-readouts > .three-device-stage { height: var(--unit-annotation-canvas-height); min-height: var(--unit-annotation-canvas-height); }
++.has-unit-readouts > .three-device-hint { top: calc(var(--unit-annotation-canvas-height) - var(--m5-space-2xl)); bottom: auto; }
++.has-unit-readouts > .three-device-overlay { height: var(--unit-annotation-canvas-height); bottom: auto; box-sizing: border-box; }
++.session-visual.is-three:has(.has-unit-readouts) { height: auto; display: block; align-self: start; }
++.session-visual.is-three .has-unit-readouts { height: auto; min-height: 0; }
++.session-visual.is-three .has-unit-readouts > .three-device-stage { height: var(--unit-annotation-canvas-height); min-height: var(--unit-annotation-canvas-height); }
++.unit-annotation-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
++.unit-annotation-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
++.unit-annotation-leader { fill: none; stroke: var(--m5-line-strong); stroke-width: 1; pointer-events: none; }
++.unit-annotation-marker { position: absolute; display: grid; place-items: center; width: var(--m5-space-xl); height: var(--m5-space-xl); box-sizing: border-box; border: 1px solid var(--m5-blue-deep); border-radius: var(--m5-radius-pill); background: var(--m5-surface); color: var(--m5-blue-deep); font: 700 var(--m5-font-caption)/1 var(--m5-font); transform: translate(-50%, -50%); pointer-events: none; }
++.unit-readout-rail { position: relative; box-sizing: border-box; padding: var(--m5-space-m); background: var(--m5-surface-subtle); border-top: 1px solid var(--m5-line); color: var(--m5-ink); text-align: left; touch-action: pan-y; user-select: text; -webkit-user-select: text; }
++.unit-readout-heading { margin: 0; color: var(--m5-ink); font: 700 var(--m5-font-body)/1.4 var(--m5-font); }
++.unit-readout-help { margin: var(--m5-space-xs) 0 var(--m5-space-s); color: var(--m5-ink-muted); font: var(--m5-font-caption)/1.4 var(--m5-font); }
++.unit-readout-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--m5-space-s); }
++.unit-annotation { position: relative; z-index: 2; box-sizing: border-box; padding: var(--m5-space-s); min-width: 0; border: 1px solid var(--m5-line); border-radius: var(--m5-radius-md); background: var(--m5-surface); color: var(--m5-ink); font: var(--m5-font-body)/1.4 var(--m5-font); overflow-wrap: anywhere; }
++.unit-annotation-title { display: flex; gap: var(--m5-space-s); align-items: center; color: var(--m5-blue-deep); font-size: var(--m5-font-body); }
++.unit-annotation-index { display: inline-grid; place-items: center; width: var(--m5-space-xl); height: var(--m5-space-xl); flex: 0 0 auto; border: 1px solid var(--m5-line); border-radius: var(--m5-radius-pill); font-size: var(--m5-font-caption); }
++.unit-annotation-source, .unit-annotation-status { display: block; color: var(--m5-ink-muted); font-size: var(--m5-font-caption); margin: var(--m5-space-xs) 0; }
++.unit-annotation-values { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--m5-space-xs) var(--m5-space-s); margin: var(--m5-space-xs) 0 0; }
++.unit-annotation-values dt, .unit-annotation-values dd { margin: 0; }
++.unit-annotation-values dt { font-size: var(--m5-font-caption); align-self: center; }
++.unit-annotation-values dd { text-align: right; font-variant-numeric: tabular-nums; }
++.unit-annotation-layer[hidden], .unit-readout-rail[hidden], .unit-annotation-marker[hidden], .unit-annotation-leader[hidden] { display: none; }
++@media (max-width: 900px) { .session-visual.is-three .has-unit-readouts { --unit-annotation-canvas-height: 460px; } }
+--- a/platform/web/unit-panel.js
++++ b/platform/web/unit-panel.js
+@@ -174,7 +174,7 @@
+       this.schedule();
+     }
+     this.enableControls();
+-    for (const state of this.states.values()) if (state.unit_id === 'fan') this.paint(state);
++    for (const state of this.states.values()) this.paint(state);
+   }
+ 
+   enableControls() {
+@@ -444,11 +444,14 @@
+   paint(unit) {
+     const mounted = this.mounted.get(unit.id);
+     if (!mounted) return;
++    try { mounted.shell.updateUnitAnnotation?.(unit, {port: mounted.port, definition: this.definitions.get(unit.unit_id), running: this.session.state === 'running', source: this.stateSource, frozenDefinitions: this.frozenDefinitions === true}); }
++    catch (error) { this.note(unit.id, `读数显示失败：${error.message}`); }
+     try { mounted.shell.applyVisualState(visualCommands(unit, mounted.port, {bindings: this.bindingsByUnit[unit.unit_id], running: this.session.state === 'running'})); }
+     catch (error) { this.note(unit.id, `外壳状态更新失败：${error.message}`); }
+   }
+ 
+   apply(payload) {
++    this.stateSource = payload.source || 'unavailable';
+     if (Array.isArray(payload.definitions) && !this.frozenDefinitions) {
+       this.releaseHeld();
+       this.definitions = new Map(payload.definitions.map(unit => [unit.id, unit]));

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-10-26T01:50:19.684129+00:00",
+  "scope": "0037 implementation/documentation/contract-test inputs frozen after root review; no new build tree inspection or mutation.",
+  "files": {
+    "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+    "scripts/bootstrap-unit-runtime.py": "ca6cf6faa9abb830e9a6d2f4d93f8d3294bf807381634072a363baf2f6d50bae",
+    "patches/qemu-m5stack-peripherals/README.md": "18e55c2cbae975c8f4fb08ace9cda8f116821d068c4399f2e222c33e5246028b",
+    "patches/qemu-unit-runtime/README.md": "2ec7f6becc2ab5301953fe36df5433d1bfdbcb7465379a7db40462b2e2be9765",
+    "platform/tests/test_unit_ledc_readback_patch.py": "9f1f315d66f903b5c497f2c976996a236c40347effedd45071fd2217f477d8c2"
+  },
+  "receipts": {
+    "source-before.json": "839ed1c5eb66700e6d015411dbb604f107a32d90d074472056e9fd89a0b45dd0",
+    "source-after.json": "963637621711a46810cfd2625a429a5e56aa76c28ae9e09809727f840dd481f2",
+    "single-file-replay.json": "5f8ec3bbe20fd147c462e202237678c62494a9d314d2de9f8e32d277aaf7d7af",
+    "official-sources.json": "facb37eef174f6adc6b0d34c60a4955e1a1641fcedc372df77afc8c4a9df1aa8"
+  },
+  "targeted_tests": {
+    "command": "PYTHONPATH=platform/tools /opt/miniconda3/bin/python3.12 -m unittest discover -s platform/tests -p test_unit_ledc_readback_patch.py",
+    "observed_exit_code": 0,
+    "observed_tests": 4,
+    "scope": "Static contracts and isolated added-C-fragment behavior only; no firmware execution."
+  },
+  "runtime_execution": "NOT RUN BY THIS AGENT",
+  "hardware_execution": "NOT RUN"
+}

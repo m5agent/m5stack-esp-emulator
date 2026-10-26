@@ -1,0 +1,8 @@
+Adding SPI flash device
+qemu-system-xtensa: terminating on signal 15 from pid 74009 (<unknown process>)
+Traceback (most recent call last):
+  File "tests/uiflow2/run_profile_ui_test.py", line 803, in <module>
+    main()
+  File "tests/uiflow2/run_profile_ui_test.py", line 774, in main
+    raise RuntimeError(
+RuntimeError: missing serial markers: STICKS3_IMU_TYPE 6, STICKS3_BATTERY 87 4000 0, STICKS3_BTN_A 1, STICKS3_BTN_B 1, STICKS3_BTN_PWR 1, STICKS3_IMU 0.250 -0.500 0.750

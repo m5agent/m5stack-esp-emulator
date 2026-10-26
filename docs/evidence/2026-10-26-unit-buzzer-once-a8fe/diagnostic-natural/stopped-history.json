@@ -1,0 +1,84 @@
+{
+  "session_id": "665b4232a88c462ea89b3cfd7272164f",
+  "device_id": "cores3",
+  "state": "stopped",
+  "pid": 57681,
+  "firmware_id": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "firmware_sha256": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "firmware_source": "uploaded",
+  "artifact_sha256": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "source_artifacts": [
+    "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e"
+  ],
+  "runtime_env": {},
+  "runtime": "qemu",
+  "runtime_memory": {
+    "requested_psram_mib": null,
+    "cli_requested_psram_mib": null,
+    "effective_psram_mib": null,
+    "effective_source": "qemu-cli-request",
+    "policy": "not-configured",
+    "claim": "qemu-memory-configuration-only",
+    "physical_cache_psram_timing": "NOT RUN"
+  },
+  "network": null,
+  "storage": null,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "nvs": null,
+  "flash": {
+    "transport": "esp-emu-esptool",
+    "chip": "esp32s3",
+    "flash_size": 16777216,
+    "verified": true,
+    "session_isolated_copy": true
+  },
+  "flash_retained": false,
+  "serial_bytes": 10289,
+  "created_at": "2026-10-25T23:45:58.193248+00:00",
+  "expires_at": "2026-10-25T23:47:58.193252+00:00",
+  "error": null,
+  "display": {
+    "driver": "ILI9342C / ILI9342E",
+    "width": 320,
+    "height": 240,
+    "shape": "rect",
+    "touch": true
+  },
+  "display_available": true,
+  "last_frame_available": true,
+  "last_frame_captured_at": "2026-10-25T23:46:36.361284+00:00",
+  "device_state_supported": true,
+  "last_device_state_available": true,
+  "last_device_state_at": "2026-10-25T23:46:36.363491+00:00",
+  "completed_at": "2026-10-25T23:46:36.370237+00:00",
+  "event_count": 12,
+  "restored": false,
+  "interrupted": false,
+  "reattached_process": false,
+  "recovery_scope": null,
+  "companions": {
+    "http_fixture": {
+      "required": false
+    },
+    "ble_probe": {
+      "required": false
+    }
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 9,
+    "lease_active": false
+  }
+}

@@ -1,0 +1,5134 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "58aedc1f5d554e86b61a7503403a1245",
+  "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "encoder",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T18:23:04.744Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "1028a56802e443d483a91f23ec082fe7aeb1f8b832dd5c3e25fa83211d18d757",
+    "tests/units/web_ui_bridge.py": "5cd188a829d8ebf139fc4f5d2547854d8c1919d4c11ad31e8da3c1a641eb19be",
+    "tests/units/run_service_cases.py": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b"
+  },
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T18:23:18.419Z",
+      "instance": "external1",
+      "field": "counter",
+      "kind": "fill-and-tab",
+      "value": -12345,
+      "request": {
+        "id": "external1",
+        "values": {
+          "counter": -12345
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:23:18.905Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-down",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:23:19.014Z",
+      "instance": "external1",
+      "field": "counter",
+      "kind": "fill-and-tab",
+      "value": 32767,
+      "request": {
+        "id": "external1",
+        "values": {
+          "counter": 32767
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:23:19.264Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-up",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T18:23:18.417Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:18.366815+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": -12345,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 471,
+              "read-bytes": 466,
+              "written-bytes": 248,
+              "input-events": 1,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "counter": -12345
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:18.904Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:18.804222+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": -12345,
+              "pressed": true,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 483,
+              "read-bytes": 478,
+              "written-bytes": 254,
+              "input-events": 2,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:19.009Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:18.959614+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": true,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 487,
+              "read-bytes": 482,
+              "written-bytes": 256,
+              "input-events": 3,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "counter": 32767
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:19.262Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:19.248478+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 495,
+              "read-bytes": 490,
+              "written-bytes": 260,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T18:23:04.839Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:04.822999+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 0,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 27,
+              "read-bytes": 22,
+              "written-bytes": 26,
+              "input-events": 0,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:17.375Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:17.093911+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 0,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 427,
+              "read-bytes": 422,
+              "written-bytes": 226,
+              "input-events": 0,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:18.350Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:18.341200+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 0,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 467,
+              "read-bytes": 462,
+              "written-bytes": 246,
+              "input-events": 0,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:18.914Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:18.906177+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": -12345,
+              "pressed": true,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 487,
+              "read-bytes": 482,
+              "written-bytes": 256,
+              "input-events": 2,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:19.420Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:19.416318+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 503,
+              "read-bytes": 498,
+              "written-bytes": 264,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:19.924Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:19.921017+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 519,
+              "read-bytes": 514,
+              "written-bytes": 272,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:20.430Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:20.426735+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 535,
+              "read-bytes": 530,
+              "written-bytes": 280,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:20.939Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:20.931816+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 551,
+              "read-bytes": 546,
+              "written-bytes": 288,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:21.447Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:21.441638+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 567,
+              "read-bytes": 562,
+              "written-bytes": 296,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:22.177Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:22.169671+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 591,
+              "read-bytes": 586,
+              "written-bytes": 308,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:22.685Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:22.679322+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 607,
+              "read-bytes": 602,
+              "written-bytes": 316,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:23:23.202Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/58aedc1f5d554e86b61a7503403a1245/units",
+      "status": 200,
+      "response": {
+        "session_id": "58aedc1f5d554e86b61a7503403a1245",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:23:23.195486+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 623,
+              "read-bytes": 618,
+              "written-bytes": 324,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "encoder",
+            "name": "Encoder",
+            "sku": "U135",
+            "visual_asset": {
+              "entry": "src/units/encoder/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/encoder",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "STM32F030F4P6",
+                "status": "officially-documented"
+              },
+              {
+                "part": "30-position encoder",
+                "status": "officially-documented"
+              },
+              {
+                "part": "SK6812 x2",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                64
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "I2C 0x40 uses a register pointer then reads/writes. Counter at 0x10 is signed 16-bit little-endian; button at 0x20 is active low; RGB writes at 0x30 contain LED index followed by three RGB bytes.",
+              "registers": [
+                {
+                  "counter": "0x10, int16 LE",
+                  "button": "0x20, byte0=0 pressed",
+                  "rgb": "0x30: index,R,G,B"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "counter": {
+                "type": "integer",
+                "label": "编码计数",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "count",
+                "minimum": -32768,
+                "maximum": 32767,
+                "readOnly": false
+              },
+              "pressed": {
+                "type": "boolean",
+                "label": "旋钮按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "两颗灯颜色",
+                "default": [
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/encoder",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/encoder.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/Unit-Encoder_Protocol.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "counter": {
+                  "property": "counter"
+                },
+                "pressed": {
+                  "property": "pressed"
+                },
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "mode": {
+                  "property": "mode"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+                "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T18:23:18.939Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": -12345,
+              "pressed": true,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 487,
+              "read-bytes": 482,
+              "written-bytes": 256,
+              "input-events": 2,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "counter",
+              "source": "输入 fixture",
+              "text": "-12345",
+              "rgb": []
+            },
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "led-rgb",
+              "source": "固件输出观测",
+              "text": "LED[0] #112233LED[1] #445566",
+              "rgb": [
+                "LED[0] #112233",
+                "LED[1] #445566"
+              ]
+            },
+            {
+              "field": "mode",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "487",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "482",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "256",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "64",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": true
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0.35,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/led0",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/led1",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:23:19.295Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 495,
+              "read-bytes": 490,
+              "written-bytes": 260,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "counter",
+              "source": "输入 fixture",
+              "text": "32767",
+              "rgb": []
+            },
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "led-rgb",
+              "source": "固件输出观测",
+              "text": "LED[0] #112233LED[1] #445566",
+              "rgb": [
+                "LED[0] #112233",
+                "LED[1] #445566"
+              ]
+            },
+            {
+              "field": "mode",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "495",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "490",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "260",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "64",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0.17874016417815794,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/led0",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/led1",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:23:19.452Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 503,
+              "read-bytes": 498,
+              "written-bytes": 264,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "counter",
+              "source": "输入 fixture",
+              "text": "32767",
+              "rgb": []
+            },
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "led-rgb",
+              "source": "固件输出观测",
+              "text": "LED[0] #112233LED[1] #445566",
+              "rgb": [
+                "LED[0] #112233",
+                "LED[1] #445566"
+              ]
+            },
+            {
+              "field": "mode",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "503",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "498",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "264",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "64",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0.0016852824139585582,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/led0",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/led1",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:23:21.481Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "encoder",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "counter": 32767,
+              "pressed": false,
+              "led-rgb": [
+                1122867,
+                4478310
+              ],
+              "mode": 0,
+              "transactions": 567,
+              "read-bytes": 562,
+              "written-bytes": 296,
+              "input-events": 4,
+              "output-transitions": 2,
+              "i2c-address": 64
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "counter",
+              "source": "输入 fixture",
+              "text": "32767",
+              "rgb": []
+            },
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "led-rgb",
+              "source": "固件输出观测",
+              "text": "LED[0] #112233LED[1] #445566",
+              "rgb": [
+                "LED[0] #112233",
+                "LED[1] #445566"
+              ]
+            },
+            {
+              "field": "mode",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "567",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "562",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "296",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "64",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/led0",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/led1",
+              "kind": "led",
+              "state": {
+                "color": "#ff2020",
+                "brightness": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ],
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "closed_at": "2026-10-25T18:23:23.521Z"
+}

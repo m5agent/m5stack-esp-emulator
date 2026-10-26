@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "guest-boot-control",
+  "status": "PASS",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "scope": "Three device-local firmware boot controls with no external Units. Neither external Unit behavior nor host admission is established.",
+  "host_admission_modified": false,
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "status": "PASS",
+      "report": "atoms3r/result.json",
+      "runtime_proof": "atoms3r/runtime-provenance.json",
+      "session_id": "c6aec1706d7e4ac0b12b0908f6f1ae26",
+      "firmware_sha256": "aea58934e041b8eabddbc9d313eacb1699e58ab65652eebe3d89f0057c9b8417",
+      "evidence_sha256": "20cb383529a5173724ee5f9e2f54731e0e6b4957e15ee5c895d240b616eb06f6",
+      "pid": 32914,
+      "guest_canvas": [
+        128,
+        128
+      ],
+      "rotation": 0,
+      "native_frame": [
+        128,
+        128
+      ],
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true,
+        "live_runtime_pid_sha_verified": true,
+        "no_unit_boot_control": true,
+        "onboard_identity_after_external_operations": true,
+        "nonblank_host_application_frame": true,
+        "evidence_before_stop": true,
+        "purge_zero_history_and_frame_retained": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "status": "PASS",
+      "report": "sticks3/result.json",
+      "runtime_proof": "sticks3/runtime-provenance.json",
+      "session_id": "c226f79ce5bc4bf1adf9a92107f9f534",
+      "firmware_sha256": "d5947c7e8a8a83bfd3d9febe4f33d1342f375fd66da7f50885a7921bea15325c",
+      "evidence_sha256": "d658fb1e4079f667e1b240b212882bf43e8da37ad96d7bdea2402a75039575bd",
+      "pid": 32201,
+      "guest_canvas": [
+        135,
+        240
+      ],
+      "rotation": 0,
+      "native_frame": [
+        135,
+        240
+      ],
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true,
+        "live_runtime_pid_sha_verified": true,
+        "no_unit_boot_control": true,
+        "onboard_identity_after_external_operations": true,
+        "nonblank_host_application_frame": true,
+        "evidence_before_stop": true,
+        "purge_zero_history_and_frame_retained": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "status": "PASS",
+      "report": "stopwatch/result.json",
+      "runtime_proof": "stopwatch/runtime-provenance.json",
+      "session_id": "2156a5ae5b1b4896be2b729f642b15ec",
+      "firmware_sha256": "70cf3362d37c4ac48886cebecc3ea4996f2bfde123af109d2739c6ca271d93c0",
+      "evidence_sha256": "f36c5bd7adae6fb3ade7f92c7230adc880cc52be5981da6e6fc3c2db0ade0035",
+      "pid": 33682,
+      "guest_canvas": [
+        468,
+        468
+      ],
+      "rotation": 0,
+      "native_frame": [
+        466,
+        466
+      ],
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true,
+        "live_runtime_pid_sha_verified": true,
+        "explicit_guest_canvas_geometry": true,
+        "no_unit_boot_control": true,
+        "onboard_identity_after_external_operations": true,
+        "nonblank_host_application_frame": true,
+        "evidence_before_stop": true,
+        "purge_zero_history_and_frame_retained": true
+      }
+    }
+  ],
+  "attempts": [
+    "attempts/atoms3r-qmp-ready-failure/result.json",
+    "attempts/stopwatch-geometry-assertion/result.json",
+    "attempts/stopwatch-observed-canvas-468/result.json"
+  ],
+  "hardware_validation": "NOT RUN",
+  "checks": {
+    "three_boot_controls_pass": true,
+    "all_zip_members_and_hashes_verified": true,
+    "all_live_pid_sha_match_1880": true,
+    "no_external_units_in_all_zip_manifests": true,
+    "exact_guest_python_bytes_archived": true
+  }
+}

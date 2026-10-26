@@ -33,6 +33,7 @@ from device_service import (
 )
 from peripheral_inventory import build_inventory
 from runtime_interfaces import build_interfaces
+from unit_runtime import UnitError, UnitRegistry
 from transport_security import (
     TransportSecurityError,
     build_server_tls_context,
@@ -396,6 +397,16 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.get_device(parts[1])
             elif method == "GET" and parts == ["capacity"]:
                 response = service.capacity()
+            elif method == "GET" and parts == ["units"]:
+                try:
+                    response = UnitRegistry().inventory(query.get("device_id", [None])[0])
+                except UnitError as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
+            elif method == "GET" and len(parts) == 2 and parts[0] == "units":
+                try:
+                    response = UnitRegistry().unit(parts[1])
+                except UnitError as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
             elif method == "GET" and parts == ["storage"]:
                 response = service.storage_stats()
             elif method == "GET" and parts == ["worker"]:
@@ -451,6 +462,11 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.list_sessions(include_stopped=include_stopped)
             elif method == "GET" and len(parts) == 2 and parts[0] == "sessions":
                 response = service.get_session(parts[1]).snapshot()
+            elif (
+                method == "GET" and len(parts) == 3
+                and parts[0] == "sessions" and parts[2] == "units"
+            ):
+                response = service.get_session(parts[1]).unit_state()
             elif (
                 method == "GET"
                 and len(parts) == 3
@@ -812,6 +828,8 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = self._read_json(required=False)
                 if action == "input":
                     response = session.inject(payload)
+                elif action == "unit-input":
+                    response = session.unit_input(payload)
                 elif action == "qom":
                     response = session.qom_set(payload)
                 elif action == "network-fault":

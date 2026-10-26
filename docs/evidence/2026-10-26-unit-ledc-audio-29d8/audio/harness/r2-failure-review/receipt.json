@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "status": "CONFIRMED_FAILED_RUN_TIMING_EXPLANATION",
+  "captured_at": "2026-10-26T02:02:22.070369+00:00",
+  "old_result_preserved": "FAIL",
+  "session_id": "909fd370e46c4e2eb03c3da48f63c1d3",
+  "old_harness_sha256": "824d399ae15a97ce1eb2e6f11efeeb243d718fd103d5e65fc6199802e30a9e1d",
+  "browser_receipt_sha256": "47e92535126a4e01dc8d5c946271555777db1af57e26cf3ed80f74d7c53b336e",
+  "root_report_sha256": "1d9ba177754951710794cb5f7f147faaface5ae936188e0a1b0f0df37c1b4fe5",
+  "root_observations_sha256": "194d99f0442b51d69626b120b257f9e02e89af1c84725c3d248631cd9b3f0cf9",
+  "root_raw_observations": 97,
+  "stable_bracket_groups": [
+    {
+      "phase": null,
+      "frequency": 2000,
+      "duty": 0,
+      "count": 1
+    },
+    {
+      "phase": [
+        "0",
+        "zero",
+        "0"
+      ],
+      "frequency": 2000,
+      "duty": 0,
+      "count": 15
+    },
+    {
+      "phase": [
+        "0",
+        "zero",
+        "0"
+      ],
+      "frequency": 2000,
+      "duty": 25,
+      "count": 1
+    },
+    {
+      "phase": [
+        "1",
+        "quarter",
+        "16384"
+      ],
+      "frequency": 2000,
+      "duty": 25,
+      "count": 15
+    },
+    {
+      "phase": [
+        "1",
+        "quarter",
+        "16384"
+      ],
+      "frequency": 2000,
+      "duty": 50,
+      "count": 1
+    },
+    {
+      "phase": [
+        "2",
+        "half",
+        "32768"
+      ],
+      "frequency": 2000,
+      "duty": 50,
+      "count": 15
+    },
+    {
+      "phase": [
+        "2",
+        "half",
+        "32768"
+      ],
+      "frequency": 2000,
+      "duty": 75,
+      "count": 1
+    },
+    {
+      "phase": [
+        "3",
+        "three_quarters",
+        "49152"
+      ],
+      "frequency": 2000,
+      "duty": 75,
+      "count": 16
+    },
+    {
+      "phase": [
+        "4",
+        "full",
+        "65535"
+      ],
+      "frequency": 2000,
+      "duty": 100,
+      "count": 16
+    },
+    {
+      "phase": [
+        "5",
+        "off",
+        "0"
+      ],
+      "frequency": 2000,
+      "duty": 0,
+      "count": 16
+    }
+  ],
+  "cross_phase_observations": 0,
+  "browser_raw_sequence": [
+    {
+      "at": "2026-10-26T01:56:07.787Z",
+      "body": "units-0000.json",
+      "body_sha256": "795d08cd70ce105a8953197d11a026e9efab32ac7790b71b4d1f7ffd4b099721",
+      "state": "booting",
+      "source": "live",
+      "frequency": 0,
+      "duty": 0
+    },
+    {
+      "at": "2026-10-26T01:56:17.397Z",
+      "body": "units-0001.json",
+      "body_sha256": "9d33b7b24853670ab6645f72528a4f048d35db64fae7acb6f8ac82bad1a8ee4a",
+      "state": "running",
+      "source": "live",
+      "frequency": 2000,
+      "duty": 25
+    },
+    {
+      "at": "2026-10-26T01:56:25.513Z",
+      "body": "units-0017.json",
+      "body_sha256": "bc494c617bf19444b24d1a5dd2d82577c5a2b89696d0d8c2d22814c14dae92f0",
+      "state": "running",
+      "source": "live",
+      "frequency": 2000,
+      "duty": 50
+    },
+    {
+      "at": "2026-10-26T01:56:33.649Z",
+      "body": "units-0033.json",
+      "body_sha256": "0f586103e7f15a636a4a47d89d7fb72da4239174c1f569c05fa15969e8f5903b",
+      "state": "running",
+      "source": "live",
+      "frequency": 2000,
+      "duty": 75
+    },
+    {
+      "at": "2026-10-26T01:56:41.789Z",
+      "body": "units-0049.json",
+      "body_sha256": "259a23c9e4f2c9c68890282f64a808034d34ae98463ef3c23498912c5bbef80e",
+      "state": "running",
+      "source": "live",
+      "frequency": 2000,
+      "duty": 100
+    },
+    {
+      "at": "2026-10-26T01:56:49.909Z",
+      "body": "units-0065.json",
+      "body_sha256": "eb2c68d3e557e38856b170d8347023592e727f968decc2e4d3ab43971809c439",
+      "state": "running",
+      "source": "live",
+      "frequency": 2000,
+      "duty": 0
+    },
+    {
+      "at": "2026-10-26T01:57:33.130Z",
+      "body": "units-0150.json",
+      "body_sha256": "a23f412f8376fbbe780906af556e666430a3c2604fcf8f81dcaf8e9731a2bda5",
+      "state": "stopped",
+      "source": "persisted",
+      "frequency": 2000,
+      "duty": 0
+    }
+  ],
+  "session_created_at": "2026-10-26T01:56:06.796866+00:00",
+  "default_muted_at": "2026-10-26T01:56:17.955Z",
+  "default_muted_mounted": true,
+  "enable_click_at": "2026-10-26T01:56:19.765Z",
+  "old_phase0_accepted_at": "2026-10-26T01:56:49.960Z",
+  "final_snapshot": {
+    "at": "2026-10-26T01:57:33.513Z",
+    "source": "persisted",
+    "audio": {
+      "enabled": false,
+      "pending": false,
+      "disposed": false,
+      "signal": null,
+      "message": "观测未确认 · 静音",
+      "context_state": null,
+      "sample_rate": null,
+      "oscillator": null,
+      "frequency": null,
+      "gain": null
+    },
+    "context_states": [
+      "closed"
+    ]
+  },
+  "findings": [
+    "First browser Units GET is booting,0Hz/0%; next live running response is already 2000Hz/25%.",
+    "Old harness requires leading zero after enable; only final off=0 is accepted as phase0, so required sequence cannot complete.",
+    "The terminal Units reply is stopped/persisted before session-list metadata updates from running; old live assertion rejects this legal cross-channel ordering.",
+    "At that terminal observation audio is already disabled, no context/oscillator/gain remains, and retained native context is closed.",
+    "Root has 97 separately bracketed actual QOM observations including all six guest phase identities; overall audio result remains FAIL.",
+    "No synthesis or rewriting of missed browser stages is allowed."
+  ],
+  "api_contacted_by_this_review": false,
+  "original_files_modified": 0
+}

@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_at": "2026-10-26T02:13:10.479962+00:00",
+  "scope": "Read-only review of collected virtual-device evidence; no API/session/guest/QEMU execution.",
+  "firmware_sha256": "3ce76c8033131c6e0773406475c4b7342ae5f46d1e22240d690e6e61f9bba251",
+  "runs": [
+    {
+      "label": "baseline-r1",
+      "runtime_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "worker_generation": 9,
+      "direct_pid_proof_sha256": "e681e92f03545216100158f071d077f15be9740c45348d25f64c55a1d190b9c9",
+      "report_sha256": "694daac5e565afbc53ccc1da2eb520961536093a1138b6ff093c1f5e2fbb0b50",
+      "analysis_sha256": "670a7cff83518de78ebd05097d33d9aa9dfc3ad0974c06163fc78439a01a1c83",
+      "artifact_hashes_verified": 118,
+      "zip": {
+        "members": 10,
+        "sha256": "54a0ce912958a570242aa411769bd9c0ef544746f56c146cf71f3fc1540d7ead",
+        "runtime_config_sha256": "1bdeb9ea345ea69e62cdd4fd761f701d5188a03a2beca2971088e28a1cb7e138",
+        "frames": {
+          "running_zip": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5",
+          "external": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5",
+          "history": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5"
+        }
+      },
+      "samples": 60,
+      "raw_channel_records": 480,
+      "globals": 60,
+      "timer_records": 240,
+      "unique_complete_grids": true,
+      "stable_qom": 76,
+      "excluded_qom": 21,
+      "phase_only_transition_rows_excluded": [
+        {
+          "index": 32,
+          "phase_marker": 1,
+          "actual_duty_pct": 50
+        },
+        {
+          "index": 48,
+          "phase_marker": 2,
+          "actual_duty_pct": 75
+        },
+        {
+          "index": 64,
+          "phase_marker": 3,
+          "actual_duty_pct": 100
+        },
+        {
+          "index": 80,
+          "phase_marker": 4,
+          "actual_duty_pct": 0
+        }
+      ],
+      "phase_results": [
+        {
+          "phase": 0,
+          "requested": 0,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 1,
+          "requested": 16384,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 2,
+          "requested": 32768,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 3,
+          "requested": 49152,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 4,
+          "requested": 65535,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 5,
+          "requested": 0,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        }
+      ],
+      "resolution": 13,
+      "gpio2_route": 73,
+      "global_clock_selector": 1,
+      "history_stopped_flash_released": true
+    },
+    {
+      "label": "readback-mmio-r1",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 10,
+      "direct_pid_proof_sha256": "46902fec9710835c687925181567b43321cfffd44eb91e920bcb2e78982c2bb8",
+      "report_sha256": "a1d0eaf56a34cf8ed43395f6b28b8ec5d6eb57a12354be9901398d400112a3f3",
+      "analysis_sha256": "516976653a3876dc66f001bc14ca9a1987aba411a4cfbc5f67c8260e07e58bd8",
+      "artifact_hashes_verified": 118,
+      "zip": {
+        "members": 10,
+        "sha256": "f4003002ea06c6e3d5da1763df9c726acc7908dc9951d782c07a7900d221e8d5",
+        "runtime_config_sha256": "1bdeb9ea345ea69e62cdd4fd761f701d5188a03a2beca2971088e28a1cb7e138",
+        "frames": {
+          "running_zip": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5",
+          "external": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5",
+          "history": "3ee22925f8e36ece51259218a4a929e2fe80592fd70147bb04c8dd8f5a3994b5"
+        }
+      },
+      "samples": 60,
+      "raw_channel_records": 480,
+      "globals": 60,
+      "timer_records": 240,
+      "unique_complete_grids": true,
+      "stable_qom": 75,
+      "excluded_qom": 22,
+      "phase_only_transition_rows_excluded": [
+        {
+          "index": 32,
+          "phase_marker": 1,
+          "actual_duty_pct": 50
+        },
+        {
+          "index": 48,
+          "phase_marker": 2,
+          "actual_duty_pct": 75
+        },
+        {
+          "index": 64,
+          "phase_marker": 3,
+          "actual_duty_pct": 100
+        },
+        {
+          "index": 80,
+          "phase_marker": 4,
+          "actual_duty_pct": 0
+        }
+      ],
+      "phase_results": [
+        {
+          "phase": 0,
+          "requested": 0,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        },
+        {
+          "phase": 1,
+          "requested": 16384,
+          "samples": 10,
+          "duty_raw": 32768,
+          "duty_count": 2048,
+          "getter": 16384,
+          "resolution": 13
+        },
+        {
+          "phase": 2,
+          "requested": 32768,
+          "samples": 10,
+          "duty_raw": 65536,
+          "duty_count": 4096,
+          "getter": 32768,
+          "resolution": 13
+        },
+        {
+          "phase": 3,
+          "requested": 49152,
+          "samples": 10,
+          "duty_raw": 98304,
+          "duty_count": 6144,
+          "getter": 49152,
+          "resolution": 13
+        },
+        {
+          "phase": 4,
+          "requested": 65535,
+          "samples": 10,
+          "duty_raw": 131072,
+          "duty_count": 8192,
+          "getter": 65535,
+          "resolution": 13
+        },
+        {
+          "phase": 5,
+          "requested": 0,
+          "samples": 10,
+          "duty_raw": 0,
+          "duty_count": 0,
+          "getter": 0,
+          "resolution": 13
+        }
+      ],
+      "resolution": 13,
+      "gpio2_route": 73,
+      "global_clock_selector": 1,
+      "history_stopped_flash_released": true
+    }
+  ],
+  "finished_at": "2026-10-26T02:13:10.623800+00:00",
+  "findings": [],
+  "identical_firmware_bytes": true,
+  "identical_packaged_guest_hashes": true,
+  "identical_controller_attachment_bytes": true,
+  "runner_change_only_compiled_source_snapshot_path": true,
+  "existing_freeze_receipts_unchanged": true,
+  "cold_build_source_replay_receipt_sha256": "3732ffd99ae7adf451cd3c19e6a7cf5b8af8cc085939b91d8dfa3cb43535f8d9",
+  "source_attribution": "New runtime SHA matches the separately frozen cold build and 106-file replay receipt. Runtime execution proof is direct-PID/worker identity, not an assumption from a source path.",
+  "allowed_conclusion": "Same custom diagnostic firmware on the new runtime reads the existing settled set+update duty correctly; old runtime readback is zero despite nonzero QOM output.",
+  "boundaries": [
+    "Not the original Buzzer.once functional path.",
+    "Pending/current-cycle distinctions, active-latch/fade/HPOINT timing remain untested model gaps.",
+    "No physical PWM, acoustic or electrical claim.",
+    "No exact private dirty-SDK source attribution.",
+    "Stable serial brackets do not make independent frame captures atomic."
+  ]
+}

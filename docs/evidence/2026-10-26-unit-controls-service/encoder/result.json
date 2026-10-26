@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "encoder",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+  "probe_sha256": {
+    "control_drivers/__init__.py": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "control_drivers/cardkb.py": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+    "control_drivers/encoder.py": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+    "control_drivers/encoder8.py": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+    "control_drivers/joystick.py": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "control_drivers/mfrc522/__init__.py": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+    "control_drivers/mfrc522/cmd.py": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+    "control_drivers/mfrc522/firmware.py": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+    "control_drivers/mfrc522/reg.py": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+    "control_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "control_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "main.py": "587ef8ecc653feb5a6f4ebf7acad2bdf13da689db878dfb32da8a80ff6668699",
+    "probe_config.py": "703f5801ad12826af33fa1e661431384aa42616802b04c88f09a1574a3aa1107"
+  },
+  "checks": {
+    "exact_official_driver_ready": true,
+    "signed_int16_and_active_low_driver": true,
+    "same_guest_i2c_controller_counters": true,
+    "guest_led_writes_read_back": true,
+    "stopped_with_history": true
+  },
+  "session_id": "640e0ca7036c466d81ed33637fdb7e67",
+  "unit_state": {
+    "session_id": "640e0ca7036c466d81ed33637fdb7e67",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:01:51.509455+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "encoder",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "counter": 32767,
+          "pressed": false,
+          "led-rgb": [
+            1122867,
+            4478310
+          ],
+          "mode": 0,
+          "transactions": 35,
+          "read-bytes": 30,
+          "written-bytes": 30,
+          "input-events": 4,
+          "output-transitions": 2,
+          "i2c-address": 64
+        },
+        "errors": {}
+      }
+    ]
+  },
+  "frame_sha256": "f7d60a6d63fa7eb2412df4a1511a191e27f7617a8d32f7b5f9ad99eaad9e8480",
+  "evidence_sha256": "e432b1aad4f3b527c97c301c33070e2306061b3da3835320bf2abe205355979b"
+}

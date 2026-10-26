@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "scope": "Independent offline replay and archive checks; no API/session/QEMU execution",
+  "pair_review": [
+    {
+      "mode": "original",
+      "status": "FAIL",
+      "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+      "phases": [
+        "buzzer-0",
+        "buzzer-1",
+        "buzzer-2",
+        "buzzer-once"
+      ],
+      "artifacts_verified": 56,
+      "zip_members": 10,
+      "direct_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 61330,
+        "worker_generation_observed": 9
+      },
+      "fresh_get_and_raw_body_alignment_replayed": true,
+      "history_retained_flash_released": true
+    },
+    {
+      "mode": "custom",
+      "status": "PASS",
+      "firmware_sha256": "1be665305135da208b078dd079c6837558cce5ddc4eefbde4eff902080d2b880",
+      "phases": [
+        "buzzer-0",
+        "buzzer-1",
+        "buzzer-2",
+        "buzzer-once",
+        "buzzer-timer-zero",
+        "buzzer-off"
+      ],
+      "artifacts_verified": 61,
+      "zip_members": 10,
+      "direct_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 61088,
+        "worker_generation_observed": 9
+      },
+      "fresh_get_and_raw_body_alignment_replayed": true,
+      "history_retained_flash_released": true
+    }
+  ],
+  "raw_inputs_modified": false,
+  "source_files_modified_by_archiver": false,
+  "runtime_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "hardware_execution": "NOT RUN",
+  "getter_gap": "OPEN",
+  "http_archive": "explicit observation subset"
+}

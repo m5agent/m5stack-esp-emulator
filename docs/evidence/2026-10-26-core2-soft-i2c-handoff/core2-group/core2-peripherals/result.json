@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "ft6336_touch",
+      "status": "PASS",
+      "evidence": [
+        "serial.log",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "pcf8563_rtc_write_read",
+      "status": "PASS",
+      "evidence": [
+        "serial.log",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "power_key",
+      "status": "PASS",
+      "evidence": [
+        "serial.log",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_peripheral_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "serial.log",
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PASS serial markers: CORE2_PERIPHERAL_MAIN, CORE2_RTC 2026-10-22 06:07:08, CORE2_TOUCH, CORE2_PWR\nPASS Core2 peripherals marker rgb=(0,255,0)\n",
+  "reason": "Core2 FT6336-compatible touch, PCF8563-compatible RTC and the power key are exercised through the official UIFlow2 APIs.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "f4e1fde7b426ebff34a2b2ca849acbe776fde5f7544f53ca2bd58a07e829b6be"
+}

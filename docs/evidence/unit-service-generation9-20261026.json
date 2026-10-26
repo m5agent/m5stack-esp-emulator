@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-25T19:40:40.620064+00:00",
+  "scope": "Current runtime/research status disambiguation, scoped CoreS3 validation metadata and staged 9 host/Unit admissions; no host9 runtime PASS claim",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 9,
+    "instance_id": "264ace1b3cf447ab89e13b5c41021a4b",
+    "state": "ready",
+    "pid": 26320,
+    "started_at": "2026-10-25T19:40:39.424326+00:00"
+  },
+  "qemu_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "source_sha256": {
+    "platform/tools/device_service.py": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+    "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+    "platform/tools/unit_runtime.py": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+    "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/runtime-profiles.json": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+    "platform/web/unit-panel.css": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+    "platform/tests/unit_web_bridge.mjs": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+  },
+  "hardware_validation": "NOT RUN",
+  "predecessor_receipt": "docs/evidence/unit-service-generation8-20261026.json",
+  "admission": {
+    "unit_ids": [
+      "button",
+      "relay",
+      "env-iii"
+    ],
+    "added_hosts": [
+      "atoms3r",
+      "sticks3",
+      "stopwatch"
+    ],
+    "device_local_validation": "NOT RUN",
+    "inherited_validation": false
+  },
+  "cores3_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+  "cores3_selection_sha256": "5612e67bbea7804f26db2402dce070a73da9b19960bda444d0c3bcc382c637de"
+}

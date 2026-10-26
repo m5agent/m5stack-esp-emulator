@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "independent-read-only-recovery-evidence-review",
+  "checked_at": "2026-10-25T20:15:34.304024+00:00",
+  "subject": "docs/evidence/2026-10-26-unit-web-recovery-a8fe",
+  "review_source_sha256": "82ff0e0c53f899e922e82004e4ad0b92a2a54f6d02238bb0d3285c1e15a6eaba",
+  "checks": {
+    "raw_copy:result.json": true,
+    "raw_copy:source-freeze.json": true,
+    "raw_copy:frame.png": true,
+    "raw_copy:evidence.zip": true,
+    "raw_copy:serial.txt": true,
+    "raw_copy:browser.stdout": true,
+    "raw_copy:browser.stderr": true,
+    "raw_copy:browser/recovered-page.png": true,
+    "raw_copy:browser/report.json": true,
+    "raw_copy:browser/stale-load-2d.png": true,
+    "raw_copy:tool-sources/platform/tests/test_live_unit_recovery.mjs.txt": true,
+    "raw_copy:tool-sources/platform/tools/device_service.py.txt": true,
+    "raw_copy:tool-sources/platform/tools/firmware_analysis.py.txt": true,
+    "raw_copy:tool-sources/platform/tools/serve.py.txt": true,
+    "raw_copy:tool-sources/platform/tools/unit_runtime.py.txt": true,
+    "raw_copy:tool-sources/platform/tools/user_firmware_matrix.py.txt": true,
+    "raw_copy:tool-sources/platform/units/catalog.json.txt": true,
+    "raw_copy:tool-sources/platform/units/host-ports.json.txt": true,
+    "raw_copy:tool-sources/platform/units/runtime-profiles.json.txt": true,
+    "raw_copy:tool-sources/platform/web/device-shell-factory.js.txt": true,
+    "raw_copy:tool-sources/platform/web/model-shell.js.txt": true,
+    "raw_copy:tool-sources/platform/web/sessions.css.txt": true,
+    "raw_copy:tool-sources/platform/web/sessions.html.txt": true,
+    "raw_copy:tool-sources/platform/web/sessions.js.txt": true,
+    "raw_copy:tool-sources/platform/web/unit-panel.css.txt": true,
+    "raw_copy:tool-sources/platform/web/unit-panel.js.txt": true,
+    "raw_copy:tool-sources/platform/web/unit-visual-mappings.js.txt": true,
+    "raw_copy:tool-sources/platform/web/vendor/m5stack-models/src/devices/cores3/index.js.txt": true,
+    "raw_copy:tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": true,
+    "raw_copy:tool-sources/tests/units/check_batch_evidence.py.txt": true,
+    "raw_copy:tool-sources/tests/units/run_service_cases.py.txt": true,
+    "raw_copy:tool-sources/tests/units/run_web_recovery.py.txt": true,
+    "raw_copy:tool-sources/tests/units/web_ui_bridge.py.txt": true,
+    "public_result_browser_pass": true,
+    "same_browser_result_identity": true,
+    "freeze_exact_result_mapping": true,
+    "frozen_snapshot:platform/web/sessions.js": true,
+    "current_source:platform/web/sessions.js": true,
+    "frozen_snapshot:platform/web/sessions.css": true,
+    "current_source:platform/web/sessions.css": true,
+    "frozen_snapshot:platform/web/unit-panel.js": true,
+    "current_source:platform/web/unit-panel.js": true,
+    "frozen_snapshot:platform/web/unit-panel.css": true,
+    "current_source:platform/web/unit-panel.css": true,
+    "frozen_snapshot:platform/web/unit-visual-mappings.js": true,
+    "current_source:platform/web/unit-visual-mappings.js": true,
+    "frozen_snapshot:platform/web/model-shell.js": true,
+    "current_source:platform/web/model-shell.js": true,
+    "frozen_snapshot:platform/web/device-shell-factory.js": true,
+    "current_source:platform/web/device-shell-factory.js": true,
+    "frozen_snapshot:platform/web/sessions.html": true,
+    "current_source:platform/web/sessions.html": true,
+    "frozen_snapshot:platform/web/vendor/m5stack-models/src/devices/cores3/index.js": true,
+    "current_source:platform/web/vendor/m5stack-models/src/devices/cores3/index.js": true,
+    "frozen_snapshot:platform/tests/test_live_unit_recovery.mjs": true,
+    "current_source:platform/tests/test_live_unit_recovery.mjs": true,
+    "frozen_snapshot:tests/units/run_web_recovery.py": true,
+    "current_source:tests/units/run_web_recovery.py": true,
+    "frozen_snapshot:tests/units/run_service_cases.py": true,
+    "current_source:tests/units/run_service_cases.py": true,
+    "frozen_snapshot:tests/units/web_ui_bridge.py": true,
+    "current_source:tests/units/web_ui_bridge.py": true,
+    "frozen_snapshot:tests/units/check_batch_evidence.py": true,
+    "current_source:tests/units/check_batch_evidence.py": true,
+    "frozen_snapshot:tests/uiflow2/run_profile_ui_test.py": true,
+    "current_source:tests/uiflow2/run_profile_ui_test.py": true,
+    "frozen_snapshot:platform/tools/firmware_analysis.py": true,
+    "current_source:platform/tools/firmware_analysis.py": true,
+    "frozen_snapshot:platform/tools/user_firmware_matrix.py": true,
+    "current_source:platform/tools/user_firmware_matrix.py": true,
+    "frozen_snapshot:platform/tools/serve.py": true,
+    "current_source:platform/tools/serve.py": true,
+    "frozen_snapshot:platform/tools/device_service.py": true,
+    "current_source:platform/tools/device_service.py": true,
+    "frozen_snapshot:platform/tools/unit_runtime.py": true,
+    "current_source:platform/tools/unit_runtime.py": true,
+    "frozen_snapshot:platform/units/catalog.json": true,
+    "current_source:platform/units/catalog.json": true,
+    "frozen_snapshot:platform/units/runtime-profiles.json": true,
+    "current_source:platform/units/runtime-profiles.json": true,
+    "frozen_snapshot:platform/units/host-ports.json": true,
+    "current_source:platform/units/host-ports.json": true,
+    "browser_sources_subset_matches": true,
+    "frozen_runner_orders_freeze_before_firmware_and_session": true,
+    "frozen_runner_post_source_comparison_retained": true,
+    "initial_direct_identity": true,
+    "initial_session_identity": true,
+    "raw_firmware_hash": true,
+    "probe_hashes": true,
+    "whole_zip_hash": true,
+    "zip_crc": true,
+    "zip_no_duplicate_members": true,
+    "zip_exact_manifest_members": true,
+    "zip_member:units/contract.json": true,
+    "zip_member:units/runtime.json": true,
+    "zip_member:units/state.json": true,
+    "zip_member:serial.log": true,
+    "zip_member:serial1.log": true,
+    "zip_member:qemu.stdout": true,
+    "zip_member:qemu.stderr": true,
+    "zip_member:frames/current.png": true,
+    "zip_member:qom/snapshot.json": true,
+    "zip_member_count": true,
+    "end_manifest_identity": true,
+    "end_manifest_pid_worker": true,
+    "zip_serial_export_same": true,
+    "zip_frame_export_same": true,
+    "zip_unit_binding": true,
+    "zip_contract_source_bindings": true,
+    "zip_final_controller_released": true,
+    "zip_timeline_exact_four_inputs": true,
+    "posts_exact_successful_four": true,
+    "aborted_release_exact": true,
+    "fault_order": true,
+    "live_pressed_before_compensation": true,
+    "post_identity_and_controller:1": true,
+    "post_identity_and_controller:2": true,
+    "post_identity_and_controller:3": true,
+    "post_identity_and_controller:4": true,
+    "readback_same_session:0": true,
+    "readback_same_session:1": true,
+    "readback_same_session:2": true,
+    "readback_same_session:3": true,
+    "readback_same_session:4": true,
+    "readback_same_session:5": true,
+    "readback_same_session:6": true,
+    "readback_same_session:7": true,
+    "readback_same_session:8": true,
+    "readback_same_session:9": true,
+    "readback_same_session:10": true,
+    "browser_recovered_holds_clear": true,
+    "browser_final_holds_clear": true,
+    "guest_serial_two_press_release_cycles": true,
+    "stale_real_frame_preserved": true,
+    "independent_live_history_stopped": true,
+    "independent_live_no_active_sessions": true
+  },
+  "details": {
+    "zip": {
+      "sha256": "44218223ea370f9118af8d399688b75cc5dfb39991ddaac502357a49167b85ca",
+      "members": 10,
+      "hashed_payload_members": 9,
+      "generated_at": "2026-10-25T20:09:10.495982+00:00"
+    },
+    "server_unit_input_timeline": [
+      {
+        "at": "2026-10-25T20:09:06.703205+00:00",
+        "event": "unit_input",
+        "unit_id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      {
+        "at": "2026-10-25T20:09:07.010587+00:00",
+        "event": "unit_input",
+        "unit_id": "external1",
+        "values": {
+          "pressed": false
+        }
+      },
+      {
+        "at": "2026-10-25T20:09:08.341338+00:00",
+        "event": "unit_input",
+        "unit_id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      {
+        "at": "2026-10-25T20:09:08.609910+00:00",
+        "event": "unit_input",
+        "unit_id": "external1",
+        "values": {
+          "pressed": false
+        }
+      }
+    ],
+    "pngs_decoded": [
+      {
+        "path": "browser/recovered-page.png",
+        "size": [
+          1440,
+          10797
+        ],
+        "sha256": "8b0c3940f1c7b890b16f64b80c7f20d123f9b99ed88d27cc5f1dd77cffd271b6"
+      },
+      {
+        "path": "browser/stale-load-2d.png",
+        "size": [
+          440,
+          1021
+        ],
+        "sha256": "7fc8c52640d1043614587ffed6e8cde0cf72d655393471f38983ae7eb4e8e1f7"
+      },
+      {
+        "path": "frame.png",
+        "size": [
+          320,
+          240
+        ],
+        "sha256": "4e23f47688af8ec9986413576e48cf442cafff25f8657635cf42ab479c008a17"
+      }
+    ],
+    "identity": {
+      "session_id": "70b0beb8577d4c499869c6a1ad350efb",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+      "pid": 33946,
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047"
+    },
+    "source_count": 23,
+    "browser_source_count": 6,
+    "copied_files_verified": 33,
+    "http_post_values": [
+      true,
+      false,
+      true,
+      false
+    ],
+    "aborted_release": {
+      "at": "2026-10-25T20:09:06.810Z",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      }
+    },
+    "controller_observation_at": "2026-10-25T20:09:06.813309+00:00",
+    "readback_count": 11,
+    "independent_live_history": {
+      "state": "stopped",
+      "flash_retained": false,
+      "active_sessions": 0
+    }
+  },
+  "findings": [],
+  "limitations": [
+    "The pre-execution source-freeze JSON has no timestamp; timing is supported by the frozen runner ordering and its retained post-run comparison, not an independently timestamped execution receipt.",
+    "Six browser-local file hashes match the freeze; the frozen harness verifies actual fetched sessions.js and model module body hashes. The other imported browser source bodies are not independently retained as HTTP response bytes.",
+    "The frame-retention scenario calls the real presentation lifecycle after delaying an unmodified model HTTP response. It does not demonstrate a user naturally crossing the four-preview budget.",
+    "Polling/no-echo observation is bounded to this one session and its recorded wait windows. Multiple-client ownership, other hosts/Units and hardware remain outside scope.",
+    "The recovered full-page screenshot contains historical cards and is context only. The stale 2D image visibly retains Unit: button / raw=1; the native PNG shows the same released guest frame."
+  ],
+  "hardware_execution": "NOT RUN",
+  "mutation_scope": "Only this independent review script and JSON were written; product files, subject archive and live session state were not changed."
+}

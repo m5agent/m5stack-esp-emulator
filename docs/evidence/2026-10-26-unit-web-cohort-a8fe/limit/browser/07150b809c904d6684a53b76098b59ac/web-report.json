@@ -1,0 +1,3257 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "07150b809c904d6684a53b76098b59ac",
+  "firmware_sha256": "6ca87eee44b7b467e7b12958c3e6d81fbea784a7158957ffa91aed2a1bbe40c9",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "limit",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T19:13:16.214Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "0f1a4f7e38c8fdc3057e21a84748de0c997d49a22c70335fd96b1ec1f58d6dba",
+    "tests/units/web_ui_bridge.py": "4584944062c88eeede458383842580f10e9e794d9f758c2494f4d84cc6b40c0e",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:13:16.105Z",
+  "session_created_at": "2026-10-25T19:13:16.186723+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:13:33.391Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-down",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:13:33.894Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-up",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:13:34.525Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-down",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:13:34.986Z",
+      "instance": "external1",
+      "field": "pressed",
+      "kind": "trusted-touch-up",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:13:33.390Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:33.290724+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:33.892Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:33.680473+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:34.361Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:34.267077+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:34.984Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:34.765655+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:13:29.606Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:29.145948+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:32.719Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:32.714976+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:33.224Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:33.221274+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:33.898Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:33.895015+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:34.530Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:34.527262+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:35.035Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:35.032392+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:13:35.541Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/07150b809c904d6684a53b76098b59ac/units",
+      "status": 200,
+      "response": {
+        "session_id": "07150b809c904d6684a53b76098b59ac",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:13:35.538781+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "limit",
+            "name": "Unit Limit",
+            "sku": "U145",
+            "visual_asset": {
+              "entry": "src/units/limit/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "mechanical lever switch",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "digital output",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire active-low digital limit output: released 3.3V, pressed 0V according to the product. Driver provides active-low Button semantics and optional edge counting.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "pressed": {
+                "type": "boolean",
+                "label": "限位触发",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/Unit_Limit",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "pressed": {
+                  "property": "pressed"
+                }
+              },
+              "state": {
+                "pressed": {
+                  "property": "pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:13:33.425Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": true,
+                "leverAngleDeg": 2.103161190526677,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0.41034067148803144,
+                "targetDepthMm": 0.5566924038402618,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:13:33.926Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false,
+                "leverAngleDeg": 0,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0.5566924038402618,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:13:34.558Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": true,
+                "leverAngleDeg": 0.07542937746342826,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0.5514435336577255,
+                "targetDepthMm": 0.5566924038402618,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:13:35.019Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false,
+                "leverAngleDeg": 0,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0.5566924038402618,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:13:35.069Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false,
+                "leverAngleDeg": 0,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0.5566924038402618,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:13:35.574Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "limit",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false,
+                "leverAngleDeg": 8,
+                "scope": "visual-only"
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -0.75
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/press",
+              "pressed": false
+            }
+          ]
+        }
+      ],
+      "screenshot": "005-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:13:35.919Z"
+}

@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "mic_record",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "esp32_i2s_rx_pcm_injection",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "mic_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PASS Core2 mic marker rgb=(0,255,0)\n",
+  "reason": "Core2 v1.1 Mic uses ESP32 I2S0 PDM RX and the legacy I2S linked-list DMA engine; deterministic host PCM reaches the official UIFlow2 microphone buffer.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "bedc3caac7a3ceb69b78cf07c5dcb90d3e59a5a47a76fc8f31d1bf7a8e079031"
+}

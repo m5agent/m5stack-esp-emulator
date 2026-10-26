@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "category": "captured-final-native-frame-review",
+  "status": "PASS",
+  "scope": "captured-final-native-frame-only",
+  "device_id": "atoms3r",
+  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "independent_execution_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+  "source_freeze_sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+  "post_execution_history_receipt_sha256": "575fc9ab1f4c22ab2f9521483ad79ccd26e1dd22af1d3e3f9beb6682024c711e",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "joystick-v11",
+      "session_id": "341fc99a995741e38de3ed76eb9d401e",
+      "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+      "report_sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3",
+      "native_frame_sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "status": "PASS",
+      "review_image": "native/joystick-v11.png",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "encoder",
+      "session_id": "4f2898598476490495fc371582535e40",
+      "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+      "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+      "native_frame_sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "status": "PASS",
+      "review_image": "native/encoder.png",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 2 39 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER 32767 0"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "8encoder",
+      "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+      "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+      "report_sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf",
+      "native_frame_sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "status": "PASS",
+      "review_image": "native/8encoder.png",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 10 127 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "cardkb",
+      "session_id": "06bdca0887c24ddf9137209a3992b98b",
+      "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+      "report_sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156",
+      "native_frame_sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "status": "PASS",
+      "review_image": "native/cardkb.png",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 1 28 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_CARDKB_LAST 65"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rfid2",
+      "session_id": "a442cb873a484af39f49fa8e868dd997",
+      "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+      "report_sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5",
+      "native_frame_sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "status": "PASS",
+      "review_image": "native/rfid2.png",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_RFID_NO_CARD"
+      ]
+    }
+  ],
+  "limitations": [
+    "Only five exact captured final native frames and their recorded values are reviewed.",
+    "No intermediate-state, all-extrema, other firmware/host or physical-hardware visual PASS is inferred."
+  ],
+  "api_contacted_by_reviewer": false,
+  "sessions_started_by_reviewer": 0
+}

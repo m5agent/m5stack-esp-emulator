@@ -1,0 +1,722 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:操作过程
+产品名:uiflow1 blockly unit joystick2
+分段标题:[Unit Joystick2](/zh_CN/unit/Unit_Joystick2) 案例程序
+分段内容:> 初始化操纵杆模块的 I2C 地址和 LED 亮度，并在循环中连续获取操纵杆的当前位置、ADC 值、按键状态和固件版本，并将这些信息打印出来。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/uiflow1_block_unit_joystick2_demo.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import unit
+
+joystick2_0 = unit.get(unit.JOYSTICKV2, unit.PORTA)
+
+joystick2_0.init_i2c_address(0x63)
+joystick2_0.set_led_brightness(50)
+while True:
+  print(joystick2_0.get_axis_position())
+  print(joystick2_0.get_x_position())
+  print(joystick2_0.get_y_position())
+  print(joystick2_0.get_adc_value())
+  print(joystick2_0.get_x_raw())
+  print(joystick2_0.get_y_raw())
+  print(joystick2_0.get_button_status())
+  print(joystick2_0.get_firmware_version())
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit joystick2
+分段标题:[Unit Joystick2](/zh_CN/unit/Unit_Joystick2) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/1_uiflow1_block_unit_joystick2_init.svg">
+
+```python
+joystick2_0.init_i2c_address(0x63)
+```
+
+- 设置操纵杆模块的 I2C 地址。地址范围为 0x08 到 0x77，默认值为 0x63。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/2_uiflow1_block_unit_joystick2_get_axis_position.svg">
+
+```python
+joystick2_0.get_axis_position()
+```
+
+- 获取操纵杆的当前位置(X 和 Y 坐标)，返回一个元组。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/3_uiflow1_block_unit_joystick2_get_x_position.svg">
+
+```python
+joystick2_0.get_x_position()
+```
+
+- 获取操纵杆的 X 轴位置值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/4_uiflow1_block_unit_joystick2_get_y_position.svg">
+
+```python
+joystick2_0.get_y_position()
+```
+
+- 获取操纵杆的 Y 轴位置值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/5_uiflow1_block_unit_joystick2_get_adc_value.svg">
+
+```python
+joystick2_0.get_adc_value()
+```
+
+- 获取操纵杆的 X 和 Y 轴的 ADC 值(模拟值)，返回一个元组。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/6_uiflow1_block_unit_joystick2_get_x_raw.svg">
+
+```python
+joystick2_0.get_x_raw()
+```
+
+- 获取操纵杆的 X 轴 ADC 值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/7_uiflow1_block_unit_joystick2_get_y_raw.svg">
+
+```python
+joystick2_0.get_y_raw()
+```
+
+- 获取操纵杆的 Y 轴 ADC 值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/8_uiflow1_block_unit_joystick2_get_button_status.svg">
+
+```python
+joystick2_0.get_button_status()
+```
+
+- 获取操纵杆按键的状态。如果按下，返回 True；否则返回 False。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/9_uiflow1_block_unit_joystick2_get_firmware_version.svg">
+
+```python
+joystick2_0.get_firmware_version()
+```
+
+- 获取操纵杆模块的固件版本，返回一个整数值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/10_uiflow1_block_unit_joystick2_set_axis_x_invert.svg">
+
+```python
+joystick2_0.set_axis_x_invert(True)
+```
+
+- 反转 X 轴方向。设置为 True 时，X 轴输出值将被反转。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/11_uiflow1_block_unit_joystick2_set_axis_y_invert.svg">
+
+```python
+joystick2_0.set_axis_y_invert(True)
+```
+
+- 反转 Y 轴方向。设置为 True 时，Y 轴输出值将被反转。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/12_uiflow1_block_unit_joystick2_set_axis_swap.svg">
+
+```python
+joystick2_0.set_axis_swap(True)
+```
+
+- 交换 X 轴和 Y 轴的输出值。设置为 True 时，X 和 Y 轴数据将互换。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/13_uiflow1_block_unit_joystick2_set_deadzone_position.svg">
+
+```python
+joystick2_0.set_deadzone_position(0, 0)
+```
+
+- 设置操纵杆位置的死区范围。死区内的值会被视为中心位置，避免噪声干扰。参数范围为 0 到 4096。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/14_uiflow1_block_unit_joystick2_set_deadzone_adc.svg">
+
+```python
+joystick2_0.set_deadzone_adc(0, 0)
+```
+
+- 设置操纵杆 ADC 值的死区范围。参数范围为 0 到 32768。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/15_uiflow1_block_unit_joystick2_fill_color.svg">
+
+```python
+joystick2_0.fill_color(0xff0000)
+```
+
+- 设置操纵杆 LED 的填充颜色(如模块上的指示灯颜色)。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/16_uiflow1_block_unit_joystick2_set_led_brightness.svg">
+
+```python
+joystick2_0.set_led_brightness(50)
+```
+
+- 设置操纵杆 LED 的亮度，范围为 0% 到 100%。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/17_uiflow1_block_unit_joystick2_set_address.svg">
+
+```python
+joystick2_0.set_i2c_address(0x63)
+```
+
+- 改变操纵杆模块的 I2C 地址。用于在多模块环境下避免地址冲突。
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/18_uiflow1_block_unit_joystick2_set_axis_x_mapping.svg">
+
+```python
+joystick2_0.set_axis_x_mapping(0, 0, 0, 0)
+```
+
+- 设置 X 轴的映射参数：
+  - Min negative ADC value: X 轴负向最小 ADC 值(最左或最下)。
+  - Max negative ADC value: X 轴负向最大 ADC 值。
+  - Min positive ADC value: X 轴正向最小 ADC 值(最右或最上)。
+  - Max positive ADC value: X 轴正向最大 ADC 值。
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/joystick2/19_uiflow1_block_unit_joystick2_set_axis_y_mapping.svg">
+
+```python
+joystick2_0.set_axis_y_mapping(0, 0, 0, 0)
+```
+
+- 设置 Y 轴的映射参数：
+  - Min negative ADC value: Y 轴负向最小 ADC 值(最左或最下)。
+  - Max negative ADC value: Y 轴负向最大 ADC 值。
+  - Min positive ADC value: Y 轴正向最小 ADC 值(最右或最上)。
+  - Max positive ADC value: Y 轴正向最大 ADC 值。
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit joystick
+分段标题:Joystick Unit
+分段内容:The following products are supported:
+
+    JoystickUnit
+
+Micropython Example:
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+from hardware import *
+from unit import JoystickUnit
+
+circle0 = None
+circle1 = None
+label0 = None
+label1 = None
+label2 = None
+label3 = None
+i2c0 = None
+joystick_0 = None
+
+x = None
+value = None
+in_min = None
+in_max = None
+out_min = None
+out_range = None
+y = None
+last_x = None
+last_y = None
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit joystick
+分段标题:Describe this function...
+分段内容:def map_to_range(value, in_min, in_max, out_min, out_range):
+    global x, y, last_x, last_y, circle0, circle1, label0, label1, label2, label3, i2c0, joystick_0
+    return int((value - in_min) * out_range / (in_max - in_min) + out_min)
+
+def setup():
+    global \
+        circle0, \
+        circle1, \
+        label0, \
+        label1, \
+        label2, \
+        label3, \
+        i2c0, \
+        joystick_0, \
+        x, \
+        out_range, \
+        out_min, \
+        y, \
+        value, \
+        in_min, \
+        in_max, \
+        last_x, \
+        last_y
+
+    M5.begin()
+    circle0 = Widgets.Circle(67, 120, 50, 0xFFFFFF, 0x000000)
+    circle1 = Widgets.Circle(67, 120, 4, 0xFFFFFF, 0xFFFFFF)
+    label0 = Widgets.Label("X:", 6, 185, 1.0, 0x74F707, 0x222222, Widgets.FONTS.DejaVu18)
+    label1 = Widgets.Label("Y:", 6, 212, 1.0, 0x74F707, 0x222222, Widgets.FONTS.DejaVu18)
+    label2 = Widgets.Label("0", 25, 185, 1.0, 0x74F707, 0x222222, Widgets.FONTS.DejaVu18)
+    label3 = Widgets.Label("0", 21, 212, 1.0, 0x74F707, 0x222222, Widgets.FONTS.DejaVu18)
+
+    i2c0 = I2C(0, scl=Pin(33), sda=Pin(32), freq=100000)
+    joystick_0 = JoystickUnit(i2c0, 0x52)
+    joystick_0.swap_x(True)
+    last_x = 67
+    last_y = 120
+
+def loop():
+    global \
+        circle0, \
+        circle1, \
+        label0, \
+        label1, \
+        label2, \
+        label3, \
+        i2c0, \
+        joystick_0, \
+        x, \
+        out_range, \
+        out_min, \
+        y, \
+        value, \
+        in_min, \
+        in_max, \
+        last_x, \
+        last_y
+    M5.update()
+    x = last_x + map_to_range(joystick_0.get_x(), -128, 127, -43, 86)
+    y = last_y + map_to_range(joystick_0.get_y(), -128, 127, -43, 86)
+    circle1.setCursor(x=x, y=y)
+    if joystick_0.get_button_status():
+        circle1.setColor(color=0xFF0000, fill_c=0xFF0000)
+    else:
+        circle1.setColor(color=0xFFFFFF, fill_c=0x6600CC)
+    label2.setText(str(joystick_0.get_x()))
+    label3.setText(str(joystick_0.get_y()))
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit joystick
+分段标题:Describe this function... Constructors `class JoystickUnit(i2c, address: int  list  tuple = 0x38)` & bool`
+分段内容:Create a new instance of the JoystickUnit class.
+
+    - Parameter `i2c`: I2C bus
+    - Parameter `address`: I2C address
+
+Get the raw x-axis value.
+
+    - Returns: x-axis value
+
+Get the raw y-axis value.
+
+    - Returns: y-axis value
+
+Get the x-axis value.
+
+    - Returns: x-axis value
+
+Get the y-axis value.
+
+    - Returns: y-axis value
+
+Swap x-axis direction
+
+    - Parameter `swap`: True or False
+
+Swap y-axis direction
+
+    - Parameter `swap`: True or False
+
+Get the button status.
+
+    - Returns: True or False
+---
+文档属性:操作过程
+产品名:uiflow1 blockly module face_joystick
+分段标题:[Faces Joystick](/zh_CN/faces/Faces_Joystick) 案例程序
+分段内容:实时监控操纵杆的反向 X、Y 值和当前 X、Y 值，同时检测按键的按下状态，并设置 LED 灯的颜色为红色
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_face_joystick_demo.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import face
+
+setScreenColor(0x222222)
+
+faces_joystick = face.get(face.JOYSTICK)
+
+while True:
+  print((str('reverse X value：') + str((faces_joystick.InvertX))))
+  print((str('reverse Y value：') + str((faces_joystick.InvertY))))
+  print((str('Status：') + str((faces_joystick.Press))))
+  faces_joystick.setLed(0, 0xff0000)
+  print((str('X value：') + str((faces_joystick.X))))
+  print((str('Y value:') + str((faces_joystick.Y))))
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly module face_joystick
+分段标题:[Faces Joystick](/zh_CN/faces/Faces_Joystick) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_invert_x.svg">
+
+```python
+faces_joystick.InvertX
+```
+
+- 获取 X 轴的反向值。这个函数返回 X 轴的反向数值，通常用于获取操纵杆或传感器的反向输出
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_invert_y.svg">
+
+```python
+faces_joystick.InvertY
+```
+
+- 获取 Y 轴的反向值。类似于 X 轴的反向值，这个函数返回 Y 轴的反向数值
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_press.svg">
+
+```python
+faces_joystick.Press
+```
+
+- 检测按压状态。这个块返回一个布尔值，用于判断按钮是否被按下
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_setLed.svg">
+
+```python
+faces_joystick.setLed(0, 0xff0000)
+```
+
+- 设置 LED 的颜色。这个块允许你设置特定位置 LED 的颜色，有两种选择：使用 RGB 颜色(红、绿、蓝)值或直接从调色板中选择颜色
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_setLed_input.svg">
+
+```python
+faces_joystick.setLed(0, 0xff0000)
+```
+
+- 设置指定位置 LED 的颜色。这一语句使用调色板中的颜色选择
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_x.svg">
+
+```python
+faces_joystick.X
+```
+
+- 获取 X 轴的值。返回操纵杆或传感器在 X 轴上的当前输出
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/face_joystick/uiflow1_block_faces_joystick_y.svg">
+
+```python
+faces_joystick.Y
+```
+
+- 获取 Y 轴的值。返回操纵杆或传感器在 Y 轴上的当前输出
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit button
+分段标题:Button Unit
+分段内容:BUTTON is a single button Unit. The button status can be detected by the input pin by simply capturing the high/low electrical level. If the button is pressed, the signal level will be *high* if the button is released, the signal level will be *low*.
+
+Support the following products:
+
+ButtonUnit
+
+Micropython Example:
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+from unit import ButtonUnit
+
+title0 = None
+label1 = None
+label0 = None
+button_0 = None
+
+def setup():
+    global title0, label1, label0, button_0
+
+    M5.begin()
+    Widgets.fillScreen(0x222222)
+    title0 = Widgets.Title(
+        "ButtonUnit Core2 Example", 3, 0xFFFFFF, 0x0000FF, Widgets.FONTS.DejaVu18
+    )
+    label1 = Widgets.Label(
+        "Button State:", 395, 150, 1.0, 0xFFFFFF, 0x222222, Widgets.FONTS.DejaVu18
+    )
+    label0 = Widgets.Label(
+        "Button Counter Value:", 1, 102, 1.0, 0xFFFFFF, 0x222222, Widgets.FONTS.DejaVu18
+    )
+
+    button_0 = ButtonUnit((33, 32), True, type=2)
+
+def loop():
+    global title0, label1, label0, button_0
+    M5.update()
+    label0.setText(str((str("Button Counter Value:") + str((button_0.count_value)))))
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit button
+分段标题:Button Unit Constructors `class ButtonUnit(pin_num, active_low, pullup_active)`
+分段内容:Initialize a Button instance with the specified pin, active-low configuration, and pull-up resistor state.
+
+    - Parameter `pin_num`: The GPIO pin number connected to the button.
+    - Parameter `active_low` (`bool`): Determines whether the button signal is active-low. Default is True.
+    - Parameter `pullup_active` (`bool`): Specifies whether the internal pull-up resistor is enabled. Default is True.
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit joystick2
+分段标题:Joystick2 Unit
+分段内容:The joystick is an input unit for control, utilizing an I2C communication interface and supporting three-axis control signals (X/Y-axis analog input for displacement and Z-axis digital input for key presses). It is ideal for applications like gaming and robot control.
+
+Support the following products:
+
+Joystick2Unit
+
+Micropython Example:
+```python
+import os, sys, io
+import M5
+from M5 import *
+from unit import Joystick2Unit
+from hardware import *
+i2c = I2C(1, scl=22, sda=21)
+joystick = Joystick2Unit(i2c)
+joystick.read_adc_value()
+joystick.read_button_status()
+joystick.set_rgb_led(255, 0, 0)
+joystick.get_rgb_led()
+joystick.set_deadzone_position(200, 200)
+while True:
+    joystick.read_axis_position()
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit joystick2
+分段标题:Joystick2 Unit Constructors `class Joystick2Unit(i2c, address)` & `Joystick2Unit.set_axis_x_invert(invert)`
+分段内容:Initialize the Joystick Unit.
+
+    - Parameter `i2c` (`I2C`): I2C port to use.
+    - Parameter `address` (`int`): I2C address of the Joystick Unit.
+
+Invert the X-axis of the joystick.
+
+    - Parameter `invert` (`bool`): Whether to invert the X-axis.
+---
+文档属性:产品信息
+产品名:uiflow2-docs hat joyc
+分段标题:Describe this function... Methods `JoyCHat.get_y(channel: int = 0) -> int` & None`
+分段内容:Get the y-axis value.
+
+    - Parameter `channel`: 0 or 1
+
+    - Returns: y-axis value
+
+Swap x-axis direction
+
+    - Parameter `swap`: True or False
+
+Swap y-axis direction
+
+    - Parameter `swap`: True or False
+---
+文档属性:产品信息
+产品名:uiflow2-docs hat joyc
+分段标题:Describe this function... Methods `JoyCHat.get_button_status(channel: int = 0) -> bool` & None`
+分段内容:Get the button status.
+
+    - Parameter `channel`: 0 or 1
+    - Returns: True or False
+
+Fill the screen with a color.
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit button
+分段标题:[Unit Button](/zh_CN/unit/Unit_Button) 案例程序
+分段内容:> 输出按钮状态
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/button/uiflow1_block_example.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import unit
+
+setScreenColor(0x222222)
+button_0 = unit.get(unit.BUTTON, unit.PORTB)
+
+while True:
+  if button_0.wasPressed():
+    print('Pressed')
+  else:
+    print('Released')
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit button
+分段标题:[Unit Button](/zh_CN/unit/Unit_Button) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/button/uiflow1_block_unit_button_callback.svg">
+
+```python
+def button_0_wasPressed_cb():
+  # global params
+  pass
+button_0.wasPressed(button_0_wasPressed_cb)
+
+```
+
+- 回调函数(触发按钮)
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/button/uiflow1_block_unit_button_state.svg">
+
+```python
+print((str('status:') + str((button_0.wasPressed()))))
+```
+
+- 获取按钮触发后的状态
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit dual_button
+分段标题:[Unit Dual Button](/zh_CN/unit/Unit_Dual_Button) 案例程序
+分段内容:> 输出按钮状态
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/dual_button/uiflow1_block_example.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import unit
+
+setScreenColor(0x222222)
+dual_button_0 = unit.get(unit.DUAL_BUTTON, unit.PORTB)
+
+while True:
+  if dual_button_0.btnBlue.wasPressed():
+    rgb.setColorAll(0x000099)
+    print('Blue button pressed')
+  elif dual_button_0.btnRed.wasPressed():
+    rgb.setColorAll(0xcc0000)
+    print('Red button pressed')
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit dual_button
+分段标题:[Unit Dual Button](/zh_CN/unit/Unit_Dual_Button) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/dual_button/uiflow1_block_unit_dual_button_callback.svg">
+
+```python
+def btnRed0_wasPressed():
+  # global params
+  pass
+dual_button_0.btnRed.wasPressed(btnRed0_wasPressed)
+```
+
+- 回调函数(触发按钮)
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/dual_button/uiflow1_block_unit_dual_button_state.svg">
+
+```python
+print((str('status:') + str((dual_button_0.btnRed.wasPressed()))))
+```
+
+- 获取按钮触发后的状态
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit ncir2
+分段标题:NCIR2 Unit **API** `get_rgb_led()` & `set_rgb_led(rgb)`
+分段内容:Get the current RGB LED value
+
+        - Returns: The current RGB LED values in the format [r, g, b]
+        - Return type: list
+
+```python
+unit_ncir2_0.get_rgb_led()
+```
+
+Set the RGB LED value
+
+```python
+unit_ncir2_0.set_rgb_led(rgb)
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit ncir2
+分段标题:NCIR2 Unit **API** `get_button_status()` & `save_config_setting()`
+分段内容:Get the button status
+
+        - Returns: Button status, either 0 (not pressed) or 1 (pressed)
+        - Return type: bool
+
+```python
+unit_ncir2_0.get_button_status()
+```
+
+Save configuration settings
+
+```python
+unit_ncir2_0.save_config_setting()
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit ncir2
+分段标题:NCIR2 Unit **API** `get_chip_temperature()` & `get_device_spec(mode)`
+分段内容:Get the chip temperature
+
+        - Returns: Chip temperature in Celsius (°C)
+        - Return type: float
+
+```python
+unit_ncir2_0.get_chip_temperature()
+```
+
+Get device specifications
+
+        - Returns: Device specifications
+        - Return type: int
+
+```python
+unit_ncir2_0.get_device_spec()
+```
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

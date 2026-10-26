@@ -1,0 +1,1682 @@
+{
+  "schema_version": 1,
+  "category": "browser-only-candidate",
+  "status": "PASS",
+  "scope": "Shadow files only. Browser fixtures/replayed values are not new controller, guest or hardware evidence.",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "promoted": false,
+  "checks": {
+    "exact_present_readback_and_direction": true,
+    "responsive_1440_1024_768_390": true,
+    "canvas_display_controls_not_occluded": true,
+    "follows_real_anchor_rotation": true,
+    "no_defaults_invalid_values_or_persisted_live_readings": true,
+    "schema_range_and_double_source_contract_fail_closed": true,
+    "thermal_register_and_derived_model_origins": true,
+    "unavailable_clears_values": true,
+    "terminal_clears_values": true,
+    "relay_annotation_does_not_create_actuator_or_echo": true,
+    "trusted_display_touch_survives_readout_rail": true,
+    "twelve_real_sensor_anchors": true,
+    "nested_real_paths_and_nonoverlap": true,
+    "all_nested_values_remain_visible_in_rail": true,
+    "detach_dispose_remove_notes": true
+  },
+  "errors": [],
+  "screenshots": [
+    "env-1440.png",
+    "env-1024.png",
+    "env-768.png",
+    "env-390.png",
+    "relay-1440.png",
+    "relay-1024.png",
+    "relay-768.png",
+    "relay-390.png",
+    "nested-1440.png",
+    "nested-1024.png",
+    "nested-768.png",
+    "nested-390.png"
+  ],
+  "viewport_notes": {
+    "390": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            525.578125,
+            343,
+            668.9375
+          ],
+          "host": [
+            356,
+            681.9375
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          372,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          372,
+          719.9375
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              360,
+              707.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              224.71602089020115,
+              215.21190377300783,
+              328.7953783464299,
+              294.25248721960645
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              210.02213874532805,
+              230.49292465257673,
+              214.00620331752654,
+              244.64981029414
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              303.5106076162189,
+              329.33188240162144,
+              321.95477588112925,
+              334.50533027790163
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "768": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            525.578125,
+            721,
+            668.9375
+          ],
+          "host": [
+            734,
+            681.9375
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          750,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          750,
+          719.9375
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              738,
+              707.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              422.4846740573065,
+              199.60194774899946,
+              556.7695212751647,
+              301.58106440760287
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              403.3617134950311,
+              219.43166793576847,
+              408.6094105338299,
+              237.8421486611814
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              523.1665221967687,
+              346.29838753201483,
+              547.4121397722307,
+              353.24257763672614
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1024": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            628.9375
+          ],
+          "host": [
+            440,
+            640.9375
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          679.9375
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              667.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              272.09470240014946,
+              185.63656098821693,
+              394.70260638167207,
+              278.74792837215915
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              254.63460797372406,
+              203.74195768048426,
+              259.4259835308882,
+              220.55152703846997
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              364.0216072231367,
+              319.57678861618746,
+              386.1589102268194,
+              325.9171361030978
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1440": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            628.9375
+          ],
+          "host": [
+            440,
+            640.9375
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          679.9375
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              667.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              272.09470240014946,
+              185.63656098821693,
+              394.70260638167207,
+              278.74792837215915
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              254.63460797372406,
+              203.74195768048426,
+              259.4259835308882,
+              220.55152703846997
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              364.0216072231367,
+              319.57678861618746,
+              386.1589102268194,
+              325.9171361030978
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    }
+  },
+  "relay_viewports": {
+    "390": {
+      "notes": [
+        {
+          "text": "1Relay固件输出继电器驱动电平false",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            525.578125,
+            343,
+            616.15625
+          ],
+          "host": [
+            356,
+            629.15625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "output-level",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          372,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          372,
+          667.15625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              360,
+              655.15625
+            ],
+            "fields": 1,
+            "index": "1",
+            "title": "1Relay"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              239.10911179212027,
+              220.45130714129536,
+              333.05074408825453,
+              291.7926870802283
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              225.43664178963425,
+              234.2169894618282,
+              229.33251474709402,
+              246.96021331194848
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              310.0819176108371,
+              323.5836486944253,
+              326.82677912332474,
+              328.1889972326139
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "768": {
+      "notes": [
+        {
+          "text": "1Relay固件输出继电器驱动电平false",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            525.578125,
+            721,
+            616.15625
+          ],
+          "host": [
+            734,
+            629.15625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "output-level",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          750,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          750,
+          667.15625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              738,
+              655.15625
+            ],
+            "fields": 1,
+            "index": "1",
+            "title": "1Relay"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              441.025121489906,
+              206.39406041583126,
+              562.1680341523479,
+              298.39229681134015
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              423.0970227114025,
+              224.23833465240932,
+              428.3253714730464,
+              240.79041151345467
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              531.6102427887898,
+              338.9451750545393,
+              553.644501251623,
+              345.1046439764183
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1024": {
+      "notes": [
+        {
+          "text": "1Relay固件输出继电器驱动电平false",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            576.15625
+          ],
+          "host": [
+            440,
+            588.15625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "output-level",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          627.15625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              615.15625
+            ],
+            "fields": 1,
+            "index": "1",
+            "title": "1Relay"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              289.0229370125229,
+              191.8380551622807,
+              399.6316833564915,
+              275.8364449147019
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              272.6538033451936,
+              208.13065337828678,
+              277.4275130840859,
+              223.24341920793685
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              371.73109124193854,
+              312.86298591936196,
+              391.8493272297426,
+              318.4868488480341
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1440": {
+      "notes": [
+        {
+          "text": "1Relay固件输出继电器驱动电平false",
+          "anchor": "grove/sensor",
+          "port": "grove",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            576.15625
+          ],
+          "host": [
+            440,
+            588.15625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "output-level",
+              "false"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          627.15625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              615.15625
+            ],
+            "fields": 1,
+            "index": "1",
+            "title": "1Relay"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              289.0229370125229,
+              191.8380551622807,
+              399.6316833564915,
+              275.8364449147019
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              272.6538033451936,
+              208.13065337828678,
+              277.4275130840859,
+              223.24341920793685
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              371.73109124193854,
+              312.86298591936196,
+              391.8493272297426,
+              318.4868488480341
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove",
+            "index": "1",
+            "pointer": "none"
+          }
+        ]
+      }
+    }
+  },
+  "trusted_canvas_interaction": {
+    "touches": [
+      true,
+      false
+    ],
+    "trusted": true
+  },
+  "anchor_inventory": [
+    {
+      "id": "env-iii",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "pir",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "ultrasonic-i2c",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "color",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "tof",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "light",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "relay",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "ncir",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "heart",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "thermal",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "tvoc",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    },
+    {
+      "id": "buzzer",
+      "path": "grove/sensor",
+      "role": "visual-anchor"
+    }
+  ],
+  "nested_notes": {
+    "390": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/grove-1/sensor",
+          "port": "grove/grove-1",
+          "bounds": [
+            12,
+            525.578125,
+            343,
+            668.9375
+          ],
+          "host": [
+            356,
+            958.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        },
+        {
+          "text": "2ToF模拟输入目标距离382 mm",
+          "anchor": "grove/grove-2/sensor",
+          "port": "grove/grove-2",
+          "bounds": [
+            12,
+            676.9375,
+            343,
+            767.515625
+          ],
+          "host": [
+            356,
+            958.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "distance-mm",
+              "382 mm"
+            ]
+          ]
+        },
+        {
+          "text": "3Color模拟输入透明通道1700 raw16红通道430 raw16绿通道530 raw16蓝通道740 raw16",
+          "anchor": "grove/grove-3/sensor",
+          "port": "grove/grove-3",
+          "bounds": [
+            12,
+            775.515625,
+            343,
+            945.265625
+          ],
+          "host": [
+            356,
+            958.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "clear-raw",
+              "1700 raw16"
+            ],
+            [
+              "red-raw",
+              "430 raw16"
+            ],
+            [
+              "green-raw",
+              "530 raw16"
+            ],
+            [
+              "blue-raw",
+              "740 raw16"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          372,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          372,
+          996.265625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              360,
+              707.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          },
+          {
+            "bounds": [
+              29,
+              715.9375,
+              360,
+              806.515625
+            ],
+            "fields": 1,
+            "index": "2",
+            "title": "2ToF"
+          },
+          {
+            "bounds": [
+              29,
+              814.515625,
+              360,
+              984.265625
+            ],
+            "fields": 4,
+            "index": "3",
+            "title": "3Color"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              220.80129712438134,
+              216.35607792285344,
+              307.1852604635397,
+              281.9584043028676
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              208.63936208337563,
+              229.04863508680234,
+              211.9260042031847,
+              240.88128709106195
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              286.5482590801917,
+              311.4417094085593,
+              301.6976750401753,
+              315.54540306049523
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove/grove-1",
+            "index": "1",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-2",
+            "index": "2",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-3",
+            "index": "3",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "768": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/grove-1/sensor",
+          "port": "grove/grove-1",
+          "bounds": [
+            12,
+            525.578125,
+            362.5,
+            668.9375
+          ],
+          "host": [
+            734,
+            859.6875
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        },
+        {
+          "text": "2ToF模拟输入目标距离382 mm",
+          "anchor": "grove/grove-2/sensor",
+          "port": "grove/grove-2",
+          "bounds": [
+            370.5,
+            525.578125,
+            721,
+            668.9375
+          ],
+          "host": [
+            734,
+            859.6875
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "distance-mm",
+              "382 mm"
+            ]
+          ]
+        },
+        {
+          "text": "3Color模拟输入透明通道1700 raw16红通道430 raw16绿通道530 raw16蓝通道740 raw16",
+          "anchor": "grove/grove-3/sensor",
+          "port": "grove/grove-3",
+          "bounds": [
+            12,
+            676.9375,
+            362.5,
+            846.6875
+          ],
+          "host": [
+            734,
+            859.6875
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "clear-raw",
+              "1700 raw16"
+            ],
+            [
+              "red-raw",
+              "430 raw16"
+            ],
+            [
+              "green-raw",
+              "530 raw16"
+            ],
+            [
+              "blue-raw",
+              "740 raw16"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          750,
+          499
+        ],
+        "rail": [
+          17,
+          499,
+          750,
+          897.6875
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              564.578125,
+              379.5,
+              707.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          },
+          {
+            "bounds": [
+              387.5,
+              564.578125,
+              738,
+              707.9375
+            ],
+            "fields": 1,
+            "index": "2",
+            "title": "2ToF"
+          },
+          {
+            "bounds": [
+              29,
+              715.9375,
+              379.5,
+              885.6875
+            ],
+            "fields": 4,
+            "index": "3",
+            "title": "3Color"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              417.4035543844346,
+              201.13904001589626,
+              528.7576033356415,
+              285.7041079227736
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              401.60140333171023,
+              217.59828229798998,
+              405.9204242000814,
+              233.0020419215589
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              501.46805157373973,
+              323.3928349587226,
+              521.3136388810599,
+              328.8389038432823
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove/grove-1",
+            "index": "1",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-2",
+            "index": "2",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-3",
+            "index": "3",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1024": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/grove-1/sensor",
+          "port": "grove/grove-1",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            628.9375
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        },
+        {
+          "text": "2ToF模拟输入目标距离382 mm",
+          "anchor": "grove/grove-2/sensor",
+          "port": "grove/grove-2",
+          "bounds": [
+            12,
+            636.9375,
+            427,
+            727.515625
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "distance-mm",
+              "382 mm"
+            ]
+          ]
+        },
+        {
+          "text": "3Color模拟输入透明通道1700 raw16红通道430 raw16绿通道530 raw16蓝通道740 raw16",
+          "anchor": "grove/grove-3/sensor",
+          "port": "grove/grove-3",
+          "bounds": [
+            12,
+            735.515625,
+            427,
+            905.265625
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "clear-raw",
+              "1700 raw16"
+            ],
+            [
+              "red-raw",
+              "430 raw16"
+            ],
+            [
+              "green-raw",
+              "530 raw16"
+            ],
+            [
+              "blue-raw",
+              "740 raw16"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          956.265625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              667.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          },
+          {
+            "bounds": [
+              29,
+              675.9375,
+              444,
+              766.515625
+            ],
+            "fields": 1,
+            "index": "2",
+            "title": "2ToF"
+          },
+          {
+            "bounds": [
+              29,
+              774.515625,
+              444,
+              944.265625
+            ],
+            "fields": 4,
+            "index": "3",
+            "title": "3Color"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              267.45541922057066,
+              187.03999305799223,
+              369.12650739341177,
+              264.25157679905413
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              253.02736825938763,
+              202.06799688077348,
+              256.97082209572653,
+              216.13229914577116
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              344.20996013254495,
+              298.6630232231815,
+              362.32984419575035,
+              303.6355209003882
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove/grove-1",
+            "index": "1",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-2",
+            "index": "2",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-3",
+            "index": "3",
+            "pointer": "none"
+          }
+        ]
+      }
+    },
+    "1440": {
+      "notes": [
+        {
+          "text": "1ENV III模拟输入温度18.75 °C相对湿度45.5 %RH气压103200 Pa",
+          "anchor": "grove/grove-1/sensor",
+          "port": "grove/grove-1",
+          "bounds": [
+            12,
+            485.578125,
+            427,
+            628.9375
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "temperature-c",
+              "18.75 °C"
+            ],
+            [
+              "humidity-pct",
+              "45.5 %RH"
+            ],
+            [
+              "pressure-pa",
+              "103200 Pa"
+            ]
+          ]
+        },
+        {
+          "text": "2ToF模拟输入目标距离382 mm",
+          "anchor": "grove/grove-2/sensor",
+          "port": "grove/grove-2",
+          "bounds": [
+            12,
+            636.9375,
+            427,
+            727.515625
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "distance-mm",
+              "382 mm"
+            ]
+          ]
+        },
+        {
+          "text": "3Color模拟输入透明通道1700 raw16红通道430 raw16绿通道530 raw16蓝通道740 raw16",
+          "anchor": "grove/grove-3/sensor",
+          "port": "grove/grove-3",
+          "bounds": [
+            12,
+            735.515625,
+            427,
+            905.265625
+          ],
+          "host": [
+            440,
+            917.265625
+          ],
+          "pointer_events": "auto",
+          "font_size": "16px",
+          "fields": [
+            [
+              "clear-raw",
+              "1700 raw16"
+            ],
+            [
+              "red-raw",
+              "430 raw16"
+            ],
+            [
+              "green-raw",
+              "530 raw16"
+            ],
+            [
+              "blue-raw",
+              "740 raw16"
+            ]
+          ]
+        }
+      ],
+      "geometry": {
+        "canvas": [
+          17,
+          39,
+          456,
+          459
+        ],
+        "rail": [
+          17,
+          459,
+          456,
+          956.265625
+        ],
+        "cards": [
+          {
+            "bounds": [
+              29,
+              524.578125,
+              444,
+              667.9375
+            ],
+            "fields": 3,
+            "index": "1",
+            "title": "1ENV III"
+          },
+          {
+            "bounds": [
+              29,
+              675.9375,
+              444,
+              766.515625
+            ],
+            "fields": 1,
+            "index": "2",
+            "title": "2ToF"
+          },
+          {
+            "bounds": [
+              29,
+              774.515625,
+              444,
+              944.265625
+            ],
+            "fields": 4,
+            "index": "3",
+            "title": "3Color"
+          }
+        ],
+        "protectedBoxes": [
+          {
+            "path": "lcd",
+            "kind": "display",
+            "bounds": [
+              267.45541922057066,
+              187.03999305799223,
+              369.12650739341177,
+              264.25157679905413
+            ]
+          },
+          {
+            "path": "power",
+            "kind": "button",
+            "bounds": [
+              253.02736825938763,
+              202.06799688077348,
+              256.97082209572653,
+              216.13229914577116
+            ]
+          },
+          {
+            "path": "reset",
+            "kind": "button",
+            "bounds": [
+              344.20996013254495,
+              298.6630232231815,
+              362.32984419575035,
+              303.6355209003882
+            ]
+          }
+        ],
+        "leaderPointerEvents": "none",
+        "markers": [
+          {
+            "port": "grove/grove-1",
+            "index": "1",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-2",
+            "index": "2",
+            "pointer": "none"
+          },
+          {
+            "port": "grove/grove-3",
+            "index": "3",
+            "pointer": "none"
+          }
+        ]
+      }
+    }
+  },
+  "screenshot_sha256": {
+    "env-1440.png": "f2ca8a8b2a9af5f7696c308e48d14495d8db34bbd87954cac2208f7fde908b5d",
+    "env-1024.png": "9a1157f177fd9da0755b135148aed2427741a42906382cb26998c822d93785f9",
+    "env-768.png": "c5cae5bd6a1d7cf899204075dc4d0a029ea6a03f163ca852479a44fa17bd2b60",
+    "env-390.png": "228900055c2e766cf00b327d26ced03b2dc969604641f22615435814b5f95ee7",
+    "relay-1440.png": "723b3b5eaff4ba4991d54f48be211641ca7b389008620563e1041a4f054cc60a",
+    "relay-1024.png": "b7d4781c4564395c9b11af9542da1ac16a0700a4dc43b47d5dad45869e3c6fbb",
+    "relay-768.png": "c07620ba0924e2334a22e2f2de5c5a8c81131c815f89fc6d61e024d1fb5ed5d1",
+    "relay-390.png": "06fd669771ec8728dd04023b9c0c59ee56caf749bbd7bc35cb7b14d0e40d53e1",
+    "nested-1440.png": "5a41cd8707373be0667c5f2810e10ef40eb436d2ddae5bff22d11f89a7ef7e02",
+    "nested-1024.png": "3aa9ecc1da34fc657f381df7f857db6d8db6df05a7a2ebd06ccceb07c9456108",
+    "nested-768.png": "de4854b1a3a0252c70767f017832649217472d8f23baede59466765cfdb8403a",
+    "nested-390.png": "48323e0e389b2f96a53a797f94b48238c9b23875521d63f18b9231e2ccf19c35"
+  }
+}

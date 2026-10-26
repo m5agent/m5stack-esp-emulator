@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-sensor-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "browser_framing": "NOT REVIEWED",
+  "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/report.json",
+  "report_sha256": "28e99c9e81e80237b862efd1d3beb18033b99fb04ce89c5eb9822484d5ad8fe2",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-before.json",
+    "sha256": "1185aa85b703c7959c60ff133b1195d1b6d2e42f7f43859c0f92c0a6cccd3f57"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/source-reconstruction.json",
+    "sha256": "627dd6948a4cf9e23fd528bf7eb91b564e8ef9627aaaa05523dcfeccf7d7cd98"
+  },
+  "frame_observations": {
+    "scope": "separate-captures-no-atomic-frame-claim",
+    "controller": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/controller/color/frame.png",
+      "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+      "width": 128,
+      "height": 128
+    },
+    "evidence": {
+      "archive_path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/controller/color/evidence.zip",
+      "archive_sha256": "19799835cd84cddb3e9518b9c20459ae3b4cb45bb161b89266ab18126c805d4f",
+      "member": "frames/current.png",
+      "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+      "width": 128,
+      "height": 128
+    },
+    "history": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/history-frame.png",
+      "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+      "width": 128,
+      "height": 128
+    }
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "sha256": "5451f21321d2c40b74611f61d36832210e8a6babbe9050119ca3f24a9db9f5bc"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/history.json",
+    "sha256": "717db722a9f5e737981f82affa38439031600b6c123b31f67a3e44b2335483b9"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "atoms3r",
+      "unit_id": "color"
+    },
+    "meaning": "Historical preparation values retained unchanged; actual execution authority is the same-session raw report."
+  },
+  "visual_limit": "The archiver does not classify native readability or browser framing.",
+  "hardware_execution": "NOT RUN",
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+    "sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0"
+  },
+  "native_readability_scope": "captured-final-native-frames-only",
+  "observed_lines": [
+    "atoms3r",
+    "color",
+    "R 21000",
+    "G 12000",
+    "B 6000",
+    "C 53000"
+  ],
+  "additional_frames": [],
+  "root_review_notes": [
+    "Root visually inspected this actual captured image; headers and all value rows are readable without overlap or clipping. Readability applies only to the captured image."
+  ]
+}

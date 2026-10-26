@@ -1,0 +1,5632 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "2208288394154af6ab7591885c03e120",
+  "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "pir",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T19:21:36.412Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "6e0cc20e47db83c73f254a92a66ac3dfb84580aaad4f97bd2a0e8eedf854cccc",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:21:36.308Z",
+  "session_created_at": "2026-10-25T19:21:36.378676+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:21:53.594Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": true,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:21:53.809Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": false,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:21:55.776Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": true,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:21:55.859Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": false,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:21:57.843Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": true,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:21:57.926Z",
+      "instance": "external1",
+      "field": "motion",
+      "kind": "checkbox",
+      "value": false,
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:21:53.593Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:53.549333+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:53.808Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:53.795546+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:55.775Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:55.760935+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:55.858Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:55.844249+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:57.842Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:57.829168+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 5,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:57.925Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:57.916767+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "motion": false
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:21:51.737Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:48.703991+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:52.979Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:52.971243+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:53.484Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:53.481096+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:53.989Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:53.986571+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:54.495Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:54.491488+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:55.007Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:55.000397+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:55.512Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:55.508748+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:56.017Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:56.014792+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:56.524Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:56.521145+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:57.028Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:57.025823+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:57.536Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:57.531966+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:58.042Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:58.039302+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:58.547Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:58.544715+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:59.055Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:59.051023+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:21:59.563Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:21:59.558798+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:00.069Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:00.066741+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:00.574Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2208288394154af6ab7591885c03e120/units",
+      "status": 200,
+      "response": {
+        "session_id": "2208288394154af6ab7591885c03e120",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:00.571819+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "pir",
+            "name": "PIR",
+            "sku": "U004",
+            "visual_asset": {
+              "entry": "src/units/pir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "AS312",
+                "status": "officially-documented"
+              },
+              {
+                "part": "HT7533",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "motion",
+                  "direction": "unit-to-host",
+                  "active_level": 1
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+              "registers": [],
+              "gaps": [
+                "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+              ]
+            },
+            "inputs": {
+              "motion": {
+                "type": "boolean",
+                "label": "检测到移动",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/PIR",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "motion": {
+                  "property": "motion"
+                }
+              },
+              "state": {
+                "motion": {
+                  "property": "motion"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:21:53.627Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:21:53.842Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:21:55.808Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:21:55.892Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:21:57.876Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": true,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 5,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "5",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:21:57.959Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:00.103Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:00.606Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "motion": false,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 6,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "motion",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "007-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:22:00.954Z"
+}

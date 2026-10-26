@@ -1,0 +1,19 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0xcf8
+load:0x403c8700,len:0xb34
+load:0x403cb700,len:0x2d18
+entry 0x403c8890
+E (770) i2c.master: this port has not been initialized, please initialize it first
+SENSOR_PROBE_START ultrasonic-i2c
+E (1113) i2c.master: this port has not been initialized, please initialize it first
+SENSOR_CHECK ultrasonic_unknown_command_nack PASS
+SENSOR_CHECK ultrasonic_conversion_not_ready PASS
+SENSOR_CHECK ultrasonic_uint24_units PASS
+SENSOR_PROBE_READY ultrasonic-i2c
+SENSOR_ULTRASONIC 1000.000 100.000
+SENSOR_ULTRASONIC 1234.500 123.450
+SENSOR_ULTRASONIC 876.200 87.620

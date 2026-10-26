@@ -1,0 +1,4203 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+  "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "ncir",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    }
+  ],
+  "opened_at": "2026-10-25T18:25:29.137Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "1028a56802e443d483a91f23ec082fe7aeb1f8b832dd5c3e25fa83211d18d757",
+    "tests/units/web_ui_bridge.py": "5cd188a829d8ebf139fc4f5d2547854d8c1919d4c11ad31e8da3c1a641eb19be",
+    "tests/units/run_service_cases.py": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b"
+  },
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T18:25:42.163Z",
+      "instance": "external1",
+      "field": "ambient-c",
+      "kind": "fill-and-tab",
+      "value": 17.3,
+      "request": {
+        "id": "external1",
+        "values": {
+          "ambient-c": 17.3
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:25:42.261Z",
+      "instance": "external1",
+      "field": "object-c",
+      "kind": "fill-and-tab",
+      "value": 37.1,
+      "request": {
+        "id": "external1",
+        "values": {
+          "object-c": 37.1
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:25:42.681Z",
+      "instance": "external1",
+      "field": "ambient-c",
+      "kind": "fill-and-tab",
+      "value": 31.5,
+      "request": {
+        "id": "external1",
+        "values": {
+          "ambient-c": 31.5
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:25:42.779Z",
+      "instance": "external1",
+      "field": "object-c",
+      "kind": "fill-and-tab",
+      "value": 53.2,
+      "request": {
+        "id": "external1",
+        "values": {
+          "object-c": 53.2
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T18:25:42.162Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:42.113666+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 17.3,
+              "object-c": 32,
+              "transactions": 357,
+              "read-bytes": 358,
+              "written-bytes": 180,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 88,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "ambient-c": 17.3
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:42.260Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:42.209253+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 17.3,
+              "object-c": 37.1,
+              "transactions": 361,
+              "read-bytes": 362,
+              "written-bytes": 182,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 89,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "object-c": 37.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:42.680Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:42.629087+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 37.1,
+              "transactions": 369,
+              "read-bytes": 370,
+              "written-bytes": 186,
+              "input-events": 3,
+              "output-transitions": 0,
+              "samples-generated": 91,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "ambient-c": 31.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:42.778Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:42.728696+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 373,
+              "read-bytes": 374,
+              "written-bytes": 188,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 92,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "object-c": 53.2
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T18:25:29.229Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:29.215583+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 25,
+              "object-c": 32,
+              "transactions": 17,
+              "read-bytes": 18,
+              "written-bytes": 10,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 3,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:41.798Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:41.600588+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 25,
+              "object-c": 32,
+              "transactions": 345,
+              "read-bytes": 346,
+              "written-bytes": 174,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 85,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:42.544Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:42.539872+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 17.3,
+              "object-c": 37.1,
+              "transactions": 369,
+              "read-bytes": 370,
+              "written-bytes": 186,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 91,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:43.050Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:43.046180+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 377,
+              "read-bytes": 378,
+              "written-bytes": 190,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 93,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:43.555Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:43.552133+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 393,
+              "read-bytes": 394,
+              "written-bytes": 198,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 97,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:44.061Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:44.058301+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 405,
+              "read-bytes": 406,
+              "written-bytes": 204,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 100,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:44.568Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:44.564895+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 417,
+              "read-bytes": 418,
+              "written-bytes": 210,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 103,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:45.074Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:45.071009+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 433,
+              "read-bytes": 434,
+              "written-bytes": 218,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 107,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:45.580Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:45.576657+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 445,
+              "read-bytes": 446,
+              "written-bytes": 224,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 110,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:46.085Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/2e1fef23937a46f197cfcb30b6d5e965/units",
+      "status": 200,
+      "response": {
+        "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+        "state": "stopped",
+        "source": "persisted",
+        "captured_at": "2026-10-25T18:25:46.076878+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 457,
+              "read-bytes": 458,
+              "written-bytes": 230,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 113,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ncir",
+            "name": "NCIR",
+            "sku": "U028",
+            "visual_asset": {
+              "entry": "src/units/ncir/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MLX90614ESF-BAA",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                90
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+              "registers": [
+                {
+                  "ambient": "0x06",
+                  "object": "0x07",
+                  "encoding": "little-endian uint16 Kelvin in 0.02K units"
+                }
+              ],
+              "gaps": [
+                "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+              ]
+            },
+            "inputs": {
+              "ambient-c": {
+                "type": "number",
+                "label": "环境温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 125,
+                "readOnly": false
+              },
+              "object-c": {
+                "type": "number",
+                "label": "目标温度",
+                "default": 32,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -70,
+                "maximum": 380,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ncir",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                }
+              },
+              "state": {
+                "ambient-c": {
+                  "property": "ambient-c"
+                },
+                "object-c": {
+                  "property": "object-c"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T18:25:42.293Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 17.3,
+              "object-c": 37.1,
+              "transactions": 361,
+              "read-bytes": 362,
+              "written-bytes": 182,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 89,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ambient-c",
+              "source": "输入 fixture",
+              "text": "17.3",
+              "rgb": []
+            },
+            {
+              "field": "object-c",
+              "source": "输入 fixture",
+              "text": "37.1",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "361",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "362",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "182",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "89",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:42.809Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 373,
+              "read-bytes": 374,
+              "written-bytes": 188,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 92,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ambient-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "object-c",
+              "source": "输入 fixture",
+              "text": "53.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "373",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "374",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "188",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "92",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:43.588Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 393,
+              "read-bytes": 394,
+              "written-bytes": 198,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 97,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ambient-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "object-c",
+              "source": "输入 fixture",
+              "text": "53.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "393",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "394",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "198",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "97",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:45.612Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ncir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ambient-c": 25,
+              "object-c": 32
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ambient-c": 31.5,
+              "object-c": 53.2,
+              "transactions": 445,
+              "read-bytes": 446,
+              "written-bytes": 224,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 110,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ambient-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "object-c",
+              "source": "输入 fixture",
+              "text": "53.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "445",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "446",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "224",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "110",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "closed_at": "2026-10-25T18:25:46.086Z"
+}

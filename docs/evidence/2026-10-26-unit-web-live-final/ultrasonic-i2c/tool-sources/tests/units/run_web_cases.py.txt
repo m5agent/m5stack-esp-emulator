@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Run the unchanged guest probes with the optional real-product UI transport.
+
+Each case creates its own visible Device Service lease through its established
+runner. Inputs go through product controls; serial/controller assertions and
+ZIP-before-stop remain in that runner. No extra runtime is launched here.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+GROUPS = {
+    "run_service_cases.py": ("button", "relay", "env-iii"),
+    "run_control_cases.py": ("joystick-v11", "encoder", "8encoder", "cardkb", "rfid2"),
+    "run_sensor_cases.py": ("color", "tof", "ncir", "heart", "tvoc", "ultrasonic-i2c", "thermal"),
+    "run_io_cases.py": ("pir", "dual-button", "limit", "key", "rgb", "angle", "light", "buzzer", "fan", "ir", "rs485", "hub"),
+}
+CASES = {case: runner for runner, cases in GROUPS.items() for case in cases}
+
+
+def run(args, case):
+    directory = args.out_dir / case
+    directory.mkdir(parents=True, exist_ok=True)
+    runner = ROOT / "tests/units" / CASES[case]
+    tool_sources = {}
+    for name in ("tests/units/run_web_cases.py", f"tests/units/{CASES[case]}", "tests/units/run_service_cases.py", "tests/units/web_ui_bridge.py", "platform/tests/unit_web_bridge.mjs"):
+        content = (ROOT / name).read_bytes()
+        snapshot = directory / "tool-sources" / (name + ".txt")
+        snapshot.parent.mkdir(parents=True, exist_ok=True)
+        snapshot.write_bytes(content)
+        tool_sources[name] = hashlib.sha256(content).hexdigest()
+    env = dict(os.environ, M5_UNIT_WEB_BRIDGE="1", M5_UNIT_WEB_BRIDGE_OUT=str(directory / "browser"))
+    command = [sys.executable, str(runner), "--case", case, "--api-url", args.api_url, "--device", args.device, "--out-dir", str(directory / "controller")]
+    if case == "ir" and args.ir_callback_root_patch:
+        command.append("--ir-callback-root-patch")
+    relative_command = ["<python>", str(runner.relative_to(ROOT)), *command[2:]]
+    relative_command = [value.replace(str(args.out_dir), "<output>") for value in relative_command]
+    completed = subprocess.run(command, env=env, cwd=ROOT, check=False)
+    result_path = directory / "controller" / case / "result.json"
+    result = json.loads(result_path.read_text()) if result_path.exists() else {}
+    session_id = result.get("session_id")
+    web_path = directory / "browser" / str(session_id) / "web-report.json"
+    web = json.loads(web_path.read_text()) if web_path.exists() else {}
+    provenance_path = web_path.with_name("runtime-provenance.json")
+    provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else {"status": "NOT VERIFIED"}
+    checks = {
+        "guest_controller_runner_passed": completed.returncode == 0 and result.get("status") == "PASS",
+        "same_session_and_firmware": bool(session_id) and web.get("session_id") == session_id and web.get("firmware_sha256") == result.get("firmware_sha256"),
+        "actual_product_ui_observed": bool(web.get("snapshots")) and not web.get("errors"),
+        "all_output_dom_matches_real_http_readback": bool(web.get("snapshots")) and all(unit.get("dom_matches_product_readback") and unit.get("readback_matches_real_http_response") for snapshot in web["snapshots"] for unit in snapshot["units"]),
+        "evidence_screenshot_saved": any(snapshot.get("phase") == "before-evidence" and snapshot.get("screenshot") for snapshot in web.get("snapshots", [])),
+        "input_actions_use_real_product_posts": not result.get("injections") or bool(web.get("posts")),
+    }
+    report = {
+        "schema_version": 1, "category": "virtual-device-browser-integration", "status": "PASS" if all(checks.values()) else "FAIL",
+        "device_id": args.device, "unit_id": case, "runtime": "qemu", "session_id": session_id,
+        "firmware_sha256": result.get("firmware_sha256"), "evidence_sha256": result.get("evidence_sha256"),
+        "firmware_flavor": result.get("firmware_flavor", "reference-app-with-original-unit-drivers"),
+        **({"ir_callback_patch": result["ir_callback_patch"]} if result.get("ir_callback_patch") else {}),
+        "hardware_execution": "NOT RUN", "checks": checks, "runtime_provenance": provenance,
+        "command": relative_command, "source_sha256": {**web.get("source_sha256", {}), **tool_sources},
+        "controller_result": f"controller/{case}/result.json", "evidence": f"controller/{case}/evidence.zip",
+        "browser_report": f"browser/{session_id}/web-report.json", "controller_error": result.get("error"),
+        "visual_scope": "Only commands with established component mappings are checked on the shell; raw fields and missing physical bindings remain explicit panel presentation.",
+    }
+    report["artifact_sha256"] = {str(path.relative_to(directory)): hashlib.sha256(path.read_bytes()).hexdigest() for path in (result_path, web_path, provenance_path, *sorted((directory / "tool-sources").rglob("*.txt"))) if path.is_file()}
+    (directory / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"WEB {case}: {report['status']} (guest={result.get('status')}, session={session_id})", flush=True)
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--api-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--device", default="cores3")
+    parser.add_argument("--case", choices=(*CASES, "all"), default="all")
+    parser.add_argument("--exclude", nargs="*", choices=tuple(CASES), default=[])
+    parser.add_argument("--ir-callback-root-patch", action="store_true", help="Explicit opt-in for the separately labelled custom IR guest wrapper")
+    parser.add_argument("--out-dir", type=Path, required=True)
+    args = parser.parse_args()
+    args.out_dir = args.out_dir.resolve()
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    cases = [case for case in (CASES if args.case == "all" else (args.case,)) if case not in args.exclude]
+    reports = [run(args, case) for case in cases]
+    (args.out_dir / "summary.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return 0 if all(report["status"] == "PASS" for report in reports) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,1191 @@
+{
+  "schema_version": 2,
+  "ruleset_version": "separate-frame-captures-v2",
+  "scope": "Read-only independent reconciliation of actual retained execution; no API or sessions started.",
+  "initial_failure_retained": "initial-frame-equality-failure-12cases.json",
+  "initial_ruleset_retained": "review_actual_atomic-frame-v1.py",
+  "reviewed_at": "2026-10-26T00:48:55.439932+00:00",
+  "expected_runtime_sha256_source": "Parent root verified executable before execution and supplied exact CLI expected-runtime SHA.",
+  "source_execution_root": ".work/unit-host-sensors-live-20261026-r1",
+  "reviewer_script_sha256": "999f20dd9da7d1942af86e00fc0dd7ef59275d86421cb8365fcd9039e781fea6",
+  "reviewer_dependency_sha256": {
+    "platform/tests/_unit_host_sensor_evidence.py": "8ac53de7ca6b6af22aafe2f9d64e7430effd12d103a8ff700ecb2f7297bc66ed",
+    "platform/tests/_unit_host_control_evidence.py": "343c1c012f634b3eaf859d4573ab9e8cd51ee7ab5f4cab5eab8bd1d05fb7633b",
+    "tests/units/check_batch_evidence.py": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1"
+  },
+  "cases": [
+    {
+      "case": "atoms3r/color",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "28e99c9e81e80237b862efd1d3beb18033b99fb04ce89c5eb9822484d5ad8fe2",
+      "firmware_sha256": "dc3b146f119138c797b4f3da01945b8ab652f925783bb77dc956abc52468f729",
+      "session_id": "0b56216ae1f1440ab8f554066c08e934",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 73224,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "a2acf0a0d0f6a8f34c30b5e617b8e5dffb4a4405e6e0336a7a71dd2910a22aeb",
+        "negative_markers": 4
+      },
+      "controller_assertions": 15,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+          "bytes": 944,
+          "width": 128,
+          "height": 128,
+          "session_id": "0b56216ae1f1440ab8f554066c08e934",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+          "bytes": 944,
+          "width": 128,
+          "height": 128,
+          "session_id": "0b56216ae1f1440ab8f554066c08e934",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "e5966124dcd1318372bd089b07e648bef09de637e3165e2456261ed65c825192",
+          "bytes": 944,
+          "width": 128,
+          "height": 128,
+          "session_id": "0b56216ae1f1440ab8f554066c08e934",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 194,
+        "read-bytes": 157,
+        "written-bytes": 104,
+        "samples-generated": 13,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "19799835cd84cddb3e9518b9c20459ae3b4cb45bb161b89266ab18126c805d4f",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "atoms3r/heart",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "7dd264246bf818e6d1012793ca496cb8cd9ccdfae3a219a6ef3390c8ca93ce8e",
+      "firmware_sha256": "0ccaf22cc877898eba3961029ff8cbbb6c2e55634a8ba5b24c6d7da01aee7cd7",
+      "session_id": "2a144b995ca94deabfe1142fbd54648a",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 73716,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "3594c94b9e832d7c89bbe499462206849232e9e98878e0e75acf3051d3bf10ec",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "6cfb3b8342ce688893ea76b19aff996c8effb5f348d50a7fac0f9685e1f44ea8",
+          "bytes": 756,
+          "width": 128,
+          "height": 128,
+          "session_id": "2a144b995ca94deabfe1142fbd54648a",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "6cfb3b8342ce688893ea76b19aff996c8effb5f348d50a7fac0f9685e1f44ea8",
+          "bytes": 756,
+          "width": 128,
+          "height": 128,
+          "session_id": "2a144b995ca94deabfe1142fbd54648a",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "6cfb3b8342ce688893ea76b19aff996c8effb5f348d50a7fac0f9685e1f44ea8",
+          "bytes": 756,
+          "width": 128,
+          "height": 128,
+          "session_id": "2a144b995ca94deabfe1142fbd54648a",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 923,
+        "read-bytes": 1745,
+        "written-bytes": 476,
+        "samples-generated": 266,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "0c38ab1e45a6fb2a3dcaeba4887147398e26afa3318152a19ea9205f334467c6",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "atoms3r/ncir",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "45943e044e1159d41d008e80abcc5bbf94a7d3f368844288258654606529c9fd",
+      "firmware_sha256": "a872618cdca070c9439268d19c64d4e804bb8c6c65b03aa721404e608ef5f322",
+      "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 73559,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "cd3f7a61b4984e6db73a8a92cf3ad0df3b7f4b377e8bcb1773bd5067636e7bea",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "07684f14a004f5283d78a943b336e75a562058149eb88550fc8e0bf2783d772b",
+          "bytes": 960,
+          "width": 128,
+          "height": 128,
+          "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "07684f14a004f5283d78a943b336e75a562058149eb88550fc8e0bf2783d772b",
+          "bytes": 960,
+          "width": 128,
+          "height": 128,
+          "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "07684f14a004f5283d78a943b336e75a562058149eb88550fc8e0bf2783d772b",
+          "bytes": 960,
+          "width": 128,
+          "height": 128,
+          "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 63,
+        "read-bytes": 62,
+        "written-bytes": 32,
+        "samples-generated": 15,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "53580d6f29cbe45b85ba10336f3938409d1d66ce2cda30fcabc36b905b37ef5a",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "atoms3r/tof",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "71f938ca838b948c6bcd886193b7db0f1270cb70872c85d8db48035fb55f954b",
+      "firmware_sha256": "94e0f31ddbcbb97cdde17a432b055a23e201e06c010d2c92ac5be71db4cbdb9b",
+      "session_id": "488582372a5547cfaec06a8ff0253af0",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 73403,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "1359fb82ef54b80610e273a41352b194dece288f780cc603e4edbfca0568b8d3",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "ab385061e77059d73db8f3234d3f0361488a7a5a56bc0e18bb096f392c88d12e",
+          "bytes": 803,
+          "width": 128,
+          "height": 128,
+          "session_id": "488582372a5547cfaec06a8ff0253af0",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "ab385061e77059d73db8f3234d3f0361488a7a5a56bc0e18bb096f392c88d12e",
+          "bytes": 803,
+          "width": 128,
+          "height": 128,
+          "session_id": "488582372a5547cfaec06a8ff0253af0",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "ab385061e77059d73db8f3234d3f0361488a7a5a56bc0e18bb096f392c88d12e",
+          "bytes": 803,
+          "width": 128,
+          "height": 128,
+          "session_id": "488582372a5547cfaec06a8ff0253af0",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 9481,
+        "read-bytes": 4405,
+        "written-bytes": 5117,
+        "samples-generated": 29,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "095a735618f2e080d22a895f4fdf9f5054c11f739ab042cefa13b905796d7499",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "atoms3r/tvoc",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "4a05ad918a643292790073ca2a1dce708331f7bffe3e7ef15d6b77a1197c526d",
+      "firmware_sha256": "249d0fa06125309d8aa62a5385ae904ba0a7b1ae98ece9da38423010011ff7fc",
+      "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 73943,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "bb7b1550643fad4e3a2c003182015a6b62648e8a5132208abd4a4e3c6fa3351a",
+        "negative_markers": 7
+      },
+      "controller_assertions": 19,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "bd446c82b1b3edd02f38e6e345c4f72d2ce77e4b39d4b3d58483d2e6514a4885",
+          "bytes": 1194,
+          "width": 128,
+          "height": 128,
+          "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "bd446c82b1b3edd02f38e6e345c4f72d2ce77e4b39d4b3d58483d2e6514a4885",
+          "bytes": 1194,
+          "width": 128,
+          "height": 128,
+          "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "bd446c82b1b3edd02f38e6e345c4f72d2ce77e4b39d4b3d58483d2e6514a4885",
+          "bytes": 1194,
+          "width": 128,
+          "height": 128,
+          "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 31,
+        "read-bytes": 60,
+        "written-bytes": 33,
+        "samples-generated": 7,
+        "crc-errors": 1
+      },
+      "zip_members": 10,
+      "evidence_sha256": "d54f110a115316cf3d02fc20f5726082d907ace70dfac4db2b60f9f7cd38deb8",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "atoms3r/ultrasonic-i2c",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "cc65a2dd2d873f3ab33a284b4f3eb169b73b117d2c9b3d921377158fdf564988",
+      "firmware_sha256": "9045392a7d6996250924f41cceae68daba1816f79513741987abc975d3b38b70",
+      "session_id": "3414d111f6cc4e1b80964b1bd7a7f189",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74133,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "c1c0ac000440a925be287d695c1d775f170f23b66a55a1840b033a4dbfe0a34e",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "114fb80a4b3602cea3b55cbbe27edd4ee08908c12ff989630eb4dbfc3cceca1a",
+          "bytes": 931,
+          "width": 128,
+          "height": 128,
+          "session_id": "3414d111f6cc4e1b80964b1bd7a7f189",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "114fb80a4b3602cea3b55cbbe27edd4ee08908c12ff989630eb4dbfc3cceca1a",
+          "bytes": 931,
+          "width": 128,
+          "height": 128,
+          "session_id": "3414d111f6cc4e1b80964b1bd7a7f189",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "114fb80a4b3602cea3b55cbbe27edd4ee08908c12ff989630eb4dbfc3cceca1a",
+          "bytes": 931,
+          "width": 128,
+          "height": 128,
+          "session_id": "3414d111f6cc4e1b80964b1bd7a7f189",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 40,
+        "read-bytes": 51,
+        "written-bytes": 19,
+        "samples-generated": 17,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "67f95eb1b4ab773bcd184e215335335063ff9f6b9311df8ff616509b61ad08bc",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/color",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "1f4dfdb88f9cdf0bb5a0951a8b6412c079316a7ed557f4a087f29329e147e401",
+      "firmware_sha256": "2ba889c3b0b89daee22c38cd7626a3e7080330569d24251f11364e5ec3997c78",
+      "session_id": "909a83ebceaf48c8a898c537436a6c73",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74286,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "29858ae26713cbeccb936b2166b822078e384d8aece9a90bbfc4cd510af39b89",
+        "negative_markers": 4
+      },
+      "controller_assertions": 15,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "de643013f7de28a939d4a3adecc67a6a22c33f706a92666d0b32b925952d85e9",
+          "bytes": 1509,
+          "width": 135,
+          "height": 240,
+          "session_id": "909a83ebceaf48c8a898c537436a6c73",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "de643013f7de28a939d4a3adecc67a6a22c33f706a92666d0b32b925952d85e9",
+          "bytes": 1509,
+          "width": 135,
+          "height": 240,
+          "session_id": "909a83ebceaf48c8a898c537436a6c73",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "de643013f7de28a939d4a3adecc67a6a22c33f706a92666d0b32b925952d85e9",
+          "bytes": 1509,
+          "width": 135,
+          "height": 240,
+          "session_id": "909a83ebceaf48c8a898c537436a6c73",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 224,
+        "read-bytes": 184,
+        "written-bytes": 119,
+        "samples-generated": 17,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "64f3c7327d043a1575242866c6984e98338e3e1cdd1d0fac481ff175f34c323d",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/heart",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+      "firmware_sha256": "b87b5abc3577fdecfb3c222a02fc50d9173d79611af312e10024c0e216330099",
+      "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74814,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "a3cb7e24e82e24908d99fd01f9fc93bdf76fbde57e9c3f1bdab9ba5e27659169",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "ca623e8d4b38c355a6d2019d39664c192b579a03cc79b35756f8faf188717ea4",
+          "bytes": 1191,
+          "width": 135,
+          "height": 240,
+          "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "36de68e7add0ccd41ec705ff806060c992dd8125f711cfcf3905fc1483a7402a",
+          "bytes": 1337,
+          "width": 135,
+          "height": 240,
+          "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "36de68e7add0ccd41ec705ff806060c992dd8125f711cfcf3905fc1483a7402a",
+          "bytes": 1337,
+          "width": 135,
+          "height": 240,
+          "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": false,
+      "controller_counters": {
+        "transactions": 1375,
+        "read-bytes": 2649,
+        "written-bytes": 702,
+        "samples-generated": 405,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "92b0961ba8a041406f580094e3a47f7e32118cb9f19af2833b73ab041e5e07a6",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/ncir",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770",
+      "firmware_sha256": "949612ea1a843cbad1a9c852dab53308268153893d3e3cf53afbe88893d6c4ba",
+      "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74587,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "2a82a45245ab6333ba03a9b02759340ab63f727a1e45f031dbf77b2224274515",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "4c61e20ebba78033bfbd0fcea2ee24f6bee70d31f373067a20fba0f1b16f85f2",
+          "bytes": 1556,
+          "width": 135,
+          "height": 240,
+          "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "4c61e20ebba78033bfbd0fcea2ee24f6bee70d31f373067a20fba0f1b16f85f2",
+          "bytes": 1556,
+          "width": 135,
+          "height": 240,
+          "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "4c61e20ebba78033bfbd0fcea2ee24f6bee70d31f373067a20fba0f1b16f85f2",
+          "bytes": 1556,
+          "width": 135,
+          "height": 240,
+          "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 67,
+        "read-bytes": 66,
+        "written-bytes": 34,
+        "samples-generated": 15,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "5c2b820c03664a5cb91be2cf9a519b6aec02d578ec9473d65f5474545908f278",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/tof",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "d164ad35bc201d4b6329a62ff509082c2616cee732bcfaef34848c14ff4cc4da",
+      "firmware_sha256": "ff43cae33731e055a44a69609877115c1ffc38f886b3290c2fdbd3c0667e523a",
+      "session_id": "d53d503deaf74d6abf8ae55c6796515f",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74423,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "53cde33309a65665dec5243805eb46a30702259af6d5bc98ba9450d06acb102f",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "28a88e08046cae955bfcab39ddbc1545d213cbf6ec93438c332bdaebd76eab46",
+          "bytes": 1323,
+          "width": 135,
+          "height": 240,
+          "session_id": "d53d503deaf74d6abf8ae55c6796515f",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "28a88e08046cae955bfcab39ddbc1545d213cbf6ec93438c332bdaebd76eab46",
+          "bytes": 1323,
+          "width": 135,
+          "height": 240,
+          "session_id": "d53d503deaf74d6abf8ae55c6796515f",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "28a88e08046cae955bfcab39ddbc1545d213cbf6ec93438c332bdaebd76eab46",
+          "bytes": 1323,
+          "width": 135,
+          "height": 240,
+          "session_id": "d53d503deaf74d6abf8ae55c6796515f",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 9247,
+        "read-bytes": 4295,
+        "written-bytes": 5012,
+        "samples-generated": 28,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "289bb32561f906e7f6106978333e16498a83a633f03b9268400e03e2b2aade21",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/tvoc",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab",
+      "firmware_sha256": "ac7662e7540e2e6cc1154d0156f2f3d6a16a3251a735856596edce83b39f933a",
+      "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 74967,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "da1601ecf9ce847b4631cf605c71855eac4e557447ef90e4607c0617d1604f11",
+        "negative_markers": 7
+      },
+      "controller_assertions": 19,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "3e1adc56dcc6d7e370132d64497b0969548a0f07cd9ff11f376fc35e887fda90",
+          "bytes": 2016,
+          "width": 135,
+          "height": 240,
+          "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "3e1adc56dcc6d7e370132d64497b0969548a0f07cd9ff11f376fc35e887fda90",
+          "bytes": 2016,
+          "width": 135,
+          "height": 240,
+          "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "3e1adc56dcc6d7e370132d64497b0969548a0f07cd9ff11f376fc35e887fda90",
+          "bytes": 2016,
+          "width": 135,
+          "height": 240,
+          "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 35,
+        "read-bytes": 72,
+        "written-bytes": 37,
+        "samples-generated": 9,
+        "crc-errors": 1
+      },
+      "zip_members": 10,
+      "evidence_sha256": "288a57ba8331d2f2684d6132c4f891babd5dbe594a08ea2d92744047ce590d4c",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "sticks3/ultrasonic-i2c",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "fe88d350a633ea55d5b1ad94cee7f0358b1ef18e680916a7fb9c92b487b8bb6b",
+      "firmware_sha256": "1ae688df8d12945a418a1434c8d5f0b5da377501b31e964cb995d780283527af",
+      "session_id": "96f2261ab3164363a2df4f2ea9ea62d6",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75135,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "729772475c588079f73c7d0904bc1663b00e65acc000934c69706805edc17ea8",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "4d026090bceeaf4e19e904a3085162c2406101afdba50ff6f37c75a8ee7d1e51",
+          "bytes": 1577,
+          "width": 135,
+          "height": 240,
+          "session_id": "96f2261ab3164363a2df4f2ea9ea62d6",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "4d026090bceeaf4e19e904a3085162c2406101afdba50ff6f37c75a8ee7d1e51",
+          "bytes": 1577,
+          "width": 135,
+          "height": 240,
+          "session_id": "96f2261ab3164363a2df4f2ea9ea62d6",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "4d026090bceeaf4e19e904a3085162c2406101afdba50ff6f37c75a8ee7d1e51",
+          "bytes": 1577,
+          "width": 135,
+          "height": 240,
+          "session_id": "96f2261ab3164363a2df4f2ea9ea62d6",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 34,
+        "read-bytes": 42,
+        "written-bytes": 16,
+        "samples-generated": 14,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "6482eb294570ebd422b94c843ace149474c6f833ff267fb6a7579ca490bd43eb",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/color",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "a764a10211a2eb12b8e8848002feef37a29e7f5580b38b40f7c1878c3a0731a5",
+      "firmware_sha256": "9edcdd679c3f7ef7249d97265cf5e897a42372888dc5b089aa999714a3fd7fd1",
+      "session_id": "68fc639e0623474b8a9d7b87831ed9fb",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75271,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "1dbd28e924b9e4f23e9c7bed8dde9377622545e26d127910cd5cdb85cc6ca003",
+        "negative_markers": 4
+      },
+      "controller_assertions": 15,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "31d3cffd05af9b81a243267ee5ecdc791e0a3fc956c6be1a3c771e90018cc894",
+          "bytes": 3699,
+          "width": 466,
+          "height": 466,
+          "session_id": "68fc639e0623474b8a9d7b87831ed9fb",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "31d3cffd05af9b81a243267ee5ecdc791e0a3fc956c6be1a3c771e90018cc894",
+          "bytes": 3699,
+          "width": 466,
+          "height": 466,
+          "session_id": "68fc639e0623474b8a9d7b87831ed9fb",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "31d3cffd05af9b81a243267ee5ecdc791e0a3fc956c6be1a3c771e90018cc894",
+          "bytes": 3699,
+          "width": 466,
+          "height": 466,
+          "session_id": "68fc639e0623474b8a9d7b87831ed9fb",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 264,
+        "read-bytes": 220,
+        "written-bytes": 139,
+        "samples-generated": 24,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "2ebdedb8f19718ec46cf55609262b18c76e3f1ed16c930bbfe58ff07efc808d1",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/heart",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+      "firmware_sha256": "2bbacb5879ebd36d6bc97171b88108bcc8c988b90f2c676b9a8dd6c63ffa942b",
+      "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75675,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "fcc998df8059a0c9b3763bba67a6a8108e6a49e417bf3977f53404d05fab6c79",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "d7da8b15cd72dd1dad14cf936f666effdd9b5466cde7b74cd418fb504173aa7c",
+          "bytes": 3179,
+          "width": 466,
+          "height": 466,
+          "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "4b3c8e842c169c2566476252c343310f8353b4e31e50d8f0d8589202c3e852d1",
+          "bytes": 3369,
+          "width": 466,
+          "height": 466,
+          "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "4b3c8e842c169c2566476252c343310f8353b4e31e50d8f0d8589202c3e852d1",
+          "bytes": 3369,
+          "width": 466,
+          "height": 466,
+          "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": false,
+      "controller_counters": {
+        "transactions": 967,
+        "read-bytes": 1833,
+        "written-bytes": 497,
+        "samples-generated": 278,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "e489ef7df3e0e10fb3ed769f34f11817fe55bf687d227fe762c54233045f501a",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/ncir",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+      "firmware_sha256": "4740a5647e1178d874ff7e1260fa2f8ad9e6f940237ccbde30066bde58eca2bc",
+      "session_id": "86b54e3a34204535a73183929c2684f2",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75538,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 4,
+        "serial_sha256": "ca6ced2c7b487883f7a7e4a4a291919bf77ca0090b1d9a8d070b9789feadb2dc",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+          "bytes": 3685,
+          "width": 466,
+          "height": 466,
+          "session_id": "86b54e3a34204535a73183929c2684f2",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+          "bytes": 3685,
+          "width": 466,
+          "height": 466,
+          "session_id": "86b54e3a34204535a73183929c2684f2",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+          "bytes": 3685,
+          "width": 466,
+          "height": 466,
+          "session_id": "86b54e3a34204535a73183929c2684f2",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 75,
+        "read-bytes": 74,
+        "written-bytes": 38,
+        "samples-generated": 18,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "9271677c2107a90d1fd518024eb2230952e1f172f37d408a6cd1280fdf7f2325",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/tof",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "d7078932f48d9426151e7a0c9e6367cc422f0476c7044c6a46d5655f9dbb57e1",
+      "firmware_sha256": "29f8e3dcf60dcb9078fde839a77ce78a149595c03c3988ca655f0cc9036445bd",
+      "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75432,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "124e64a153e67921d57bd155cc4396c0f85f89dedbdacb2d33778d20f2628b7e",
+        "negative_markers": 7
+      },
+      "controller_assertions": 18,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "1d5240593c20aed085d8728dfb2a454ffd2adefdfaea57d1195638d1cb1f408c",
+          "bytes": 3460,
+          "width": 466,
+          "height": 466,
+          "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "1d5240593c20aed085d8728dfb2a454ffd2adefdfaea57d1195638d1cb1f408c",
+          "bytes": 3460,
+          "width": 466,
+          "height": 466,
+          "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "1d5240593c20aed085d8728dfb2a454ffd2adefdfaea57d1195638d1cb1f408c",
+          "bytes": 3460,
+          "width": 466,
+          "height": 466,
+          "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 10293,
+        "read-bytes": 4803,
+        "written-bytes": 5554,
+        "samples-generated": 30,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "ce434330e8406e367f5eab65e26f57db2bd6b5f44d5d270ef5740df13a52723e",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/tvoc",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849",
+      "firmware_sha256": "67d90671c7fe1bb8bb9b16fe19fbca049b1dac298b570dbbcc6a90c74fbb2914",
+      "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 75841,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 8,
+        "serial_sha256": "7ec1278f86c3d89e01590c483ea042666d4711958f06f9741917b8e361a424c1",
+        "negative_markers": 7
+      },
+      "controller_assertions": 19,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "2252f04dd06933db0deb0ede9028b8216283138a38d5a5192c1dcb186f632179",
+          "bytes": 4444,
+          "width": 466,
+          "height": 466,
+          "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "2252f04dd06933db0deb0ede9028b8216283138a38d5a5192c1dcb186f632179",
+          "bytes": 4444,
+          "width": 466,
+          "height": 466,
+          "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "2252f04dd06933db0deb0ede9028b8216283138a38d5a5192c1dcb186f632179",
+          "bytes": 4444,
+          "width": 466,
+          "height": 466,
+          "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 35,
+        "read-bytes": 72,
+        "written-bytes": 37,
+        "samples-generated": 9,
+        "crc-errors": 1
+      },
+      "zip_members": 10,
+      "evidence_sha256": "e23a6e345495e079fa8a08afe56ef5b424df85246211ca9a357ccdec84103eed",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    },
+    {
+      "case": "stopwatch/ultrasonic-i2c",
+      "status": "VERIFIED_ACTUAL_EXECUTION",
+      "report_sha256": "741b45aa843eb2766ebf79245fb15b81b5a971d6192fbca7be17c9a88dff80e4",
+      "firmware_sha256": "a0c045f77304da47e3e82d588f7542e713563b07254d3132d329d5c6a4195728",
+      "session_id": "aaf657f07d6d41e0b8e5c3c4612b7459",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid": 76544,
+      "worker_generation": 9,
+      "positive_inputs": {
+        "vectors": 2,
+        "posts": 2,
+        "serial_sha256": "8c15f390f00889f767a2f7ca7198996c4a79242318b2460b0d67c0bdc69fd457",
+        "negative_markers": 3
+      },
+      "controller_assertions": 14,
+      "exact_qom_node_in_general_snapshot": false,
+      "qom_snapshot_scope": "General /machine depth2 max500 may truncate before units; exact /chip counters are separately queried by frozen original runner and included in guest-qom state.",
+      "qom_path_binding": {
+        "explicit_path_in_attachment": false,
+        "contract_template": "/machine/units/{attachment_id}",
+        "derived_manager_path": "/machine/units/external1",
+        "derived_chip_counter_path": "/machine/units/external1/chip",
+        "scope": "Actual live guest-qom values plus retained contract and hash-bound UnitRegistry.state/DeviceService implementation; not an independently retained raw narrow QOM query."
+      },
+      "frame_observations": {
+        "controller": {
+          "sha256": "4d1d834546450e77948cc7d48f5350559209e97a7fa0b9d54d9076a8996f8362",
+          "bytes": 3873,
+          "width": 466,
+          "height": 466,
+          "session_id": "aaf657f07d6d41e0b8e5c3c4612b7459",
+          "nonblank": true
+        },
+        "running_evidence": {
+          "sha256": "4d1d834546450e77948cc7d48f5350559209e97a7fa0b9d54d9076a8996f8362",
+          "bytes": 3873,
+          "width": 466,
+          "height": 466,
+          "session_id": "aaf657f07d6d41e0b8e5c3c4612b7459",
+          "nonblank": true
+        },
+        "stopped_history": {
+          "sha256": "4d1d834546450e77948cc7d48f5350559209e97a7fa0b9d54d9076a8996f8362",
+          "bytes": 3873,
+          "width": 466,
+          "height": 466,
+          "session_id": "aaf657f07d6d41e0b8e5c3c4612b7459",
+          "nonblank": true
+        }
+      },
+      "frame_capture_contract": "separate-captures-no-atomic-frame-claim",
+      "frame_hashes_equal": true,
+      "controller_counters": {
+        "transactions": 38,
+        "read-bytes": 48,
+        "written-bytes": 18,
+        "samples-generated": 16,
+        "crc-errors": 0
+      },
+      "zip_members": 10,
+      "evidence_sha256": "b7ca8fc7089e8a5d9559648f7ee580b96999f255f8aa816d4473e46552de42cf",
+      "native_readability": "NOT REVIEWED",
+      "hardware_execution": "NOT RUN"
+    }
+  ],
+  "pending_finalization": [],
+  "reviewed_count": 18,
+  "verified_count": 18
+}

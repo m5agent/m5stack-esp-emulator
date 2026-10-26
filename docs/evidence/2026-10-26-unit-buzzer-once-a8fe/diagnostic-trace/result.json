@@ -1,0 +1,2512 @@
+{
+  "schema_version": 1,
+  "category": "custom-guest-buzzer-once-diagnostic",
+  "status": "DIAGNOSTIC_COMPLETED",
+  "firmware_flavor": "custom-guest-buzzer-once-diagnostic-v1-trace",
+  "firmware_sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+  "runtime_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "mode": "trace",
+  "hardware_execution": "NOT RUN",
+  "functional_pass_inherited": false,
+  "checks": {
+    "diagnostic_done": true,
+    "natural_phase_preserved": true,
+    "direct_runtime_verified": true,
+    "running_evidence_before_stop": true,
+    "zip_same_firmware": true,
+    "stopped_with_history_and_flash_release": true,
+    "owned_runtime_exited": true,
+    "service_idle_after": true
+  },
+  "observations": [
+    {
+      "at": "2026-10-25T23:49:08.614269+00:00",
+      "units_http_index": 472,
+      "serial_http_index": null,
+      "serial_length": 959,
+      "serial_sha256": "fd93af1eaf3a9b9c4cf93ef46ebce0a1fe93874adba1466039f5e3d5ddd5d22a",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 1840 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:08.735432+00:00",
+      "units_http_index": 475,
+      "serial_http_index": 474,
+      "serial_length": 959,
+      "serial_sha256": "fd93af1eaf3a9b9c4cf93ef46ebce0a1fe93874adba1466039f5e3d5ddd5d22a",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 1840 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:08.866356+00:00",
+      "units_http_index": 478,
+      "serial_http_index": 477,
+      "serial_length": 1092,
+      "serial_sha256": "8a743573915a2b8bac82f0bb4528d9248faa1bddf8406664fbf0250ca522d7af",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2108 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:08.987052+00:00",
+      "units_http_index": 481,
+      "serial_http_index": 480,
+      "serial_length": 1092,
+      "serial_sha256": "8a743573915a2b8bac82f0bb4528d9248faa1bddf8406664fbf0250ca522d7af",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2108 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.108156+00:00",
+      "units_http_index": 484,
+      "serial_http_index": 483,
+      "serial_length": 1225,
+      "serial_sha256": "e108666cea9277ae96a3cc14ed55892f3ac9eeb42c7dcda8fc30ead69565d41e",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2368 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.222078+00:00",
+      "units_http_index": 487,
+      "serial_http_index": 486,
+      "serial_length": 1225,
+      "serial_sha256": "e108666cea9277ae96a3cc14ed55892f3ac9eeb42c7dcda8fc30ead69565d41e",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2368 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.340522+00:00",
+      "units_http_index": 490,
+      "serial_http_index": 489,
+      "serial_length": 1358,
+      "serial_sha256": "8a8f23c364f9b07188798aae5bf17964b5edf86d3fa16855777947084c4d5c7c",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2628 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.459661+00:00",
+      "units_http_index": 493,
+      "serial_http_index": 492,
+      "serial_length": 1358,
+      "serial_sha256": "8a8f23c364f9b07188798aae5bf17964b5edf86d3fa16855777947084c4d5c7c",
+      "qom": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "latest_state": "BUZZER_DIAG_STATE idle-baseline tick 2628 freq 4000 duty-u16 0 timer-dead missing next-delta-ms missing run-flag False registered 0",
+      "natural_started": false,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.571497+00:00",
+      "units_http_index": 496,
+      "serial_http_index": 495,
+      "serial_length": 1783,
+      "serial_sha256": "db9eb8368e8afe03ff3f6645f630bec3825bbf936eb7e92babb049b4fbdc126c",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 2881 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1960 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.696959+00:00",
+      "units_http_index": 500,
+      "serial_http_index": 499,
+      "serial_length": 1783,
+      "serial_sha256": "db9eb8368e8afe03ff3f6645f630bec3825bbf936eb7e92babb049b4fbdc126c",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 2881 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1960 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.817011+00:00",
+      "units_http_index": 503,
+      "serial_http_index": 502,
+      "serial_length": 1783,
+      "serial_sha256": "db9eb8368e8afe03ff3f6645f630bec3825bbf936eb7e92babb049b4fbdc126c",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 2881 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1960 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:09.931369+00:00",
+      "units_http_index": 506,
+      "serial_http_index": 505,
+      "serial_length": 1909,
+      "serial_sha256": "3b1ab7fa07e2857e8e24fd6b282d89c804213f7da29c772a64cbd8a0939a8eea",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3142 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1699 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.052672+00:00",
+      "units_http_index": 509,
+      "serial_http_index": 508,
+      "serial_length": 1909,
+      "serial_sha256": "3b1ab7fa07e2857e8e24fd6b282d89c804213f7da29c772a64cbd8a0939a8eea",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3142 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1699 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.173995+00:00",
+      "units_http_index": 512,
+      "serial_http_index": 511,
+      "serial_length": 2035,
+      "serial_sha256": "8d077e2b52f231611c77113e411a193e9d31041db5aa5a6235657b20bc18b8c1",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3405 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1436 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.294039+00:00",
+      "units_http_index": 515,
+      "serial_http_index": 514,
+      "serial_length": 2035,
+      "serial_sha256": "8d077e2b52f231611c77113e411a193e9d31041db5aa5a6235657b20bc18b8c1",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3405 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1436 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.416072+00:00",
+      "units_http_index": 518,
+      "serial_http_index": 517,
+      "serial_length": 2161,
+      "serial_sha256": "5a25cfd4790c291d413795e016f73588dbc6a93a990f9359471fe8a018918929",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3664 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1177 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.528635+00:00",
+      "units_http_index": 521,
+      "serial_http_index": 520,
+      "serial_length": 2161,
+      "serial_sha256": "5a25cfd4790c291d413795e016f73588dbc6a93a990f9359471fe8a018918929",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3664 freq 2000 duty-u16 0 timer-dead False next-delta-ms 1177 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.640902+00:00",
+      "units_http_index": 524,
+      "serial_http_index": 523,
+      "serial_length": 2286,
+      "serial_sha256": "5acd207f77dcdcf75dc64cf14aeff0b23605748d88951290172650af5adb53b3",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3921 freq 2000 duty-u16 0 timer-dead False next-delta-ms 920 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.758290+00:00",
+      "units_http_index": 527,
+      "serial_http_index": 526,
+      "serial_length": 2286,
+      "serial_sha256": "5acd207f77dcdcf75dc64cf14aeff0b23605748d88951290172650af5adb53b3",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 3921 freq 2000 duty-u16 0 timer-dead False next-delta-ms 920 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.870487+00:00",
+      "units_http_index": 530,
+      "serial_http_index": 529,
+      "serial_length": 2411,
+      "serial_sha256": "63f36dd60c9a83a702ffce797a05b47f8e4ffdc0de6fafcffe92ecc1c8b6da66",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4183 freq 2000 duty-u16 0 timer-dead False next-delta-ms 658 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:10.992264+00:00",
+      "units_http_index": 533,
+      "serial_http_index": 532,
+      "serial_length": 2411,
+      "serial_sha256": "63f36dd60c9a83a702ffce797a05b47f8e4ffdc0de6fafcffe92ecc1c8b6da66",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4183 freq 2000 duty-u16 0 timer-dead False next-delta-ms 658 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.105398+00:00",
+      "units_http_index": 536,
+      "serial_http_index": 535,
+      "serial_length": 2411,
+      "serial_sha256": "63f36dd60c9a83a702ffce797a05b47f8e4ffdc0de6fafcffe92ecc1c8b6da66",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4183 freq 2000 duty-u16 0 timer-dead False next-delta-ms 658 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.227371+00:00",
+      "units_http_index": 539,
+      "serial_http_index": 538,
+      "serial_length": 2536,
+      "serial_sha256": "2b9a44c99907b13d04137dfb7ebe1213a162b471a45c2f282c6815308693acd7",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4441 freq 2000 duty-u16 0 timer-dead False next-delta-ms 400 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.349095+00:00",
+      "units_http_index": 542,
+      "serial_http_index": 541,
+      "serial_length": 2536,
+      "serial_sha256": "2b9a44c99907b13d04137dfb7ebe1213a162b471a45c2f282c6815308693acd7",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4441 freq 2000 duty-u16 0 timer-dead False next-delta-ms 400 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.464131+00:00",
+      "units_http_index": 545,
+      "serial_http_index": 544,
+      "serial_length": 2661,
+      "serial_sha256": "064f7bbf9894e8f31f2867793d5f77b57793eba8ebc2a45fd7b9b63157efb602",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4701 freq 2000 duty-u16 0 timer-dead False next-delta-ms 140 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.586324+00:00",
+      "units_http_index": 548,
+      "serial_http_index": 547,
+      "serial_length": 3270,
+      "serial_sha256": "f0d82347e080983469d3311245bc8210e91a94afa90a885331b1096958a5ad4f",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4701 freq 2000 duty-u16 0 timer-dead False next-delta-ms 140 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.708510+00:00",
+      "units_http_index": 551,
+      "serial_http_index": 550,
+      "serial_length": 3395,
+      "serial_sha256": "99fd956d5c410b35c3a44065bb742687dfea9c3fa80fdf58c4e6459a5ca7302d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4960 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1882 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.823864+00:00",
+      "units_http_index": 554,
+      "serial_http_index": 553,
+      "serial_length": 3395,
+      "serial_sha256": "99fd956d5c410b35c3a44065bb742687dfea9c3fa80fdf58c4e6459a5ca7302d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 4960 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1882 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:11.940459+00:00",
+      "units_http_index": 557,
+      "serial_http_index": 556,
+      "serial_length": 3520,
+      "serial_sha256": "d4453107523585ca3fc274c4e12bd4dc045b0e3f1f25a60e8dcc707d934667ed",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5221 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1621 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.058330+00:00",
+      "units_http_index": 560,
+      "serial_http_index": 559,
+      "serial_length": 3520,
+      "serial_sha256": "d4453107523585ca3fc274c4e12bd4dc045b0e3f1f25a60e8dcc707d934667ed",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5221 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1621 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.174367+00:00",
+      "units_http_index": 563,
+      "serial_http_index": 562,
+      "serial_length": 3645,
+      "serial_sha256": "df8deea71d23e6af73a6ad21d9a993dcbc5743f4ac8c6d9bba614c9b253c3234",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5482 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1360 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.290830+00:00",
+      "units_http_index": 566,
+      "serial_http_index": 565,
+      "serial_length": 3645,
+      "serial_sha256": "df8deea71d23e6af73a6ad21d9a993dcbc5743f4ac8c6d9bba614c9b253c3234",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5482 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1360 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.413170+00:00",
+      "units_http_index": 569,
+      "serial_http_index": 568,
+      "serial_length": 3645,
+      "serial_sha256": "df8deea71d23e6af73a6ad21d9a993dcbc5743f4ac8c6d9bba614c9b253c3234",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5482 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1360 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.533764+00:00",
+      "units_http_index": 572,
+      "serial_http_index": 571,
+      "serial_length": 3770,
+      "serial_sha256": "ea5e5472070799ff173c15aa5e5a0568c3e5d13b6fd1255e3ce01e65b15da3d2",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5742 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1100 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.648043+00:00",
+      "units_http_index": 575,
+      "serial_http_index": 574,
+      "serial_length": 3770,
+      "serial_sha256": "ea5e5472070799ff173c15aa5e5a0568c3e5d13b6fd1255e3ce01e65b15da3d2",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 5742 freq 2000 duty-u16 0 timer-dead True next-delta-ms 1100 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.765724+00:00",
+      "units_http_index": 578,
+      "serial_http_index": 577,
+      "serial_length": 3894,
+      "serial_sha256": "54e0f0fd42eb16c1f1d2a0dff62085ebd6818758cda0918e5163e8d3445b72f4",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 6003 freq 2000 duty-u16 0 timer-dead True next-delta-ms 839 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.883179+00:00",
+      "units_http_index": 581,
+      "serial_http_index": 580,
+      "serial_length": 3894,
+      "serial_sha256": "54e0f0fd42eb16c1f1d2a0dff62085ebd6818758cda0918e5163e8d3445b72f4",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 6003 freq 2000 duty-u16 0 timer-dead True next-delta-ms 839 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:12.999092+00:00",
+      "units_http_index": 584,
+      "serial_http_index": 583,
+      "serial_length": 4018,
+      "serial_sha256": "1f6e07cdf849fc0649b3d708eaaaf190734ee089c5b90df82bda3a9544d2d504",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 6266 freq 2000 duty-u16 0 timer-dead True next-delta-ms 576 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": false
+    },
+    {
+      "at": "2026-10-25T23:49:13.121937+00:00",
+      "units_http_index": 587,
+      "serial_http_index": 586,
+      "serial_length": 4172,
+      "serial_sha256": "bc5146e95c654a1be444605f622c124b66bc32be9521567ad9faadfd9078096e",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE natural-once tick 6396 freq 2000 duty-u16 0 timer-dead True next-delta-ms 446 run-flag True registered 1",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.235547+00:00",
+      "units_http_index": 590,
+      "serial_http_index": 589,
+      "serial_length": 4312,
+      "serial_sha256": "ef6c21386d82ceb2a65ffd27fdcd658d1e24f86bb5d62891280ba12b120f5c03",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6450 freq 2000 duty-u16 0 timer-dead True next-delta-ms 392 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.348823+00:00",
+      "units_http_index": 593,
+      "serial_http_index": 592,
+      "serial_length": 4312,
+      "serial_sha256": "ef6c21386d82ceb2a65ffd27fdcd658d1e24f86bb5d62891280ba12b120f5c03",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6450 freq 2000 duty-u16 0 timer-dead True next-delta-ms 392 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.464588+00:00",
+      "units_http_index": 596,
+      "serial_http_index": 595,
+      "serial_length": 4452,
+      "serial_sha256": "6b2919c30babf61f7cb025e3548ee57f40c3a9fc0ac41fb305db5f9fde0c1c76",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6707 freq 2000 duty-u16 0 timer-dead True next-delta-ms 135 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.584016+00:00",
+      "units_http_index": 599,
+      "serial_http_index": 598,
+      "serial_length": 4452,
+      "serial_sha256": "6b2919c30babf61f7cb025e3548ee57f40c3a9fc0ac41fb305db5f9fde0c1c76",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6707 freq 2000 duty-u16 0 timer-dead True next-delta-ms 135 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.699532+00:00",
+      "units_http_index": 602,
+      "serial_http_index": 601,
+      "serial_length": 4593,
+      "serial_sha256": "c8cb8ff7b103b09c94885a934eede758f47bbe6b86ab5a26d5030709c2c7b796",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6968 freq 2000 duty-u16 0 timer-dead True next-delta-ms -126 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.818230+00:00",
+      "units_http_index": 605,
+      "serial_http_index": 604,
+      "serial_length": 4593,
+      "serial_sha256": "c8cb8ff7b103b09c94885a934eede758f47bbe6b86ab5a26d5030709c2c7b796",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 6968 freq 2000 duty-u16 0 timer-dead True next-delta-ms -126 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:13.931770+00:00",
+      "units_http_index": 608,
+      "serial_http_index": 607,
+      "serial_length": 4734,
+      "serial_sha256": "616b374e90e5541f96ed5990e5c61e6773771b4fee42c68a6412acb05a66281b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7229 freq 2000 duty-u16 0 timer-dead True next-delta-ms -387 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.053548+00:00",
+      "units_http_index": 611,
+      "serial_http_index": 610,
+      "serial_length": 4734,
+      "serial_sha256": "616b374e90e5541f96ed5990e5c61e6773771b4fee42c68a6412acb05a66281b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7229 freq 2000 duty-u16 0 timer-dead True next-delta-ms -387 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.175025+00:00",
+      "units_http_index": 614,
+      "serial_http_index": 613,
+      "serial_length": 4875,
+      "serial_sha256": "2f0f0fda7215038e4de55f43b8438c73836a33ae9cf76b9d537e8f45ccf1c4b9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7485 freq 2000 duty-u16 0 timer-dead True next-delta-ms -643 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.291512+00:00",
+      "units_http_index": 617,
+      "serial_http_index": 616,
+      "serial_length": 4875,
+      "serial_sha256": "2f0f0fda7215038e4de55f43b8438c73836a33ae9cf76b9d537e8f45ccf1c4b9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7485 freq 2000 duty-u16 0 timer-dead True next-delta-ms -643 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.408640+00:00",
+      "units_http_index": 620,
+      "serial_http_index": 619,
+      "serial_length": 4875,
+      "serial_sha256": "2f0f0fda7215038e4de55f43b8438c73836a33ae9cf76b9d537e8f45ccf1c4b9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7485 freq 2000 duty-u16 0 timer-dead True next-delta-ms -643 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.523986+00:00",
+      "units_http_index": 623,
+      "serial_http_index": 622,
+      "serial_length": 5016,
+      "serial_sha256": "7a4669e91385d33968c453bed69a96ce9266dcf9563bd8539ec8585ce81da015",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7753 freq 2000 duty-u16 0 timer-dead True next-delta-ms -911 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.642146+00:00",
+      "units_http_index": 626,
+      "serial_http_index": 625,
+      "serial_length": 5016,
+      "serial_sha256": "7a4669e91385d33968c453bed69a96ce9266dcf9563bd8539ec8585ce81da015",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 49.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 2
+      },
+      "latest_state": "BUZZER_DIAG_STATE async-sentinel-after-natural tick 7753 freq 2000 duty-u16 0 timer-dead True next-delta-ms -911 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.759369+00:00",
+      "units_http_index": 629,
+      "serial_http_index": 628,
+      "serial_length": 5585,
+      "serial_sha256": "9d4a9c9ab31ee4c9a5212e620e315c7de887ae87fc4683cbfb6bc82e4be3076d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8016 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1174 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:14.882350+00:00",
+      "units_http_index": 632,
+      "serial_http_index": 631,
+      "serial_length": 5585,
+      "serial_sha256": "9d4a9c9ab31ee4c9a5212e620e315c7de887ae87fc4683cbfb6bc82e4be3076d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8016 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1174 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.006181+00:00",
+      "units_http_index": 635,
+      "serial_http_index": 634,
+      "serial_length": 5719,
+      "serial_sha256": "5740e10319bb18de6e38350a7c43b65d5b7df0039ff282f2bb28b8baa21d7ec9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8276 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1434 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.130864+00:00",
+      "units_http_index": 638,
+      "serial_http_index": 637,
+      "serial_length": 5719,
+      "serial_sha256": "5740e10319bb18de6e38350a7c43b65d5b7df0039ff282f2bb28b8baa21d7ec9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8276 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1434 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.249170+00:00",
+      "units_http_index": 641,
+      "serial_http_index": 640,
+      "serial_length": 5853,
+      "serial_sha256": "5aa0352f141fe0e6a2c6f7c60e731b4049ae6c6dfde57b135e25166815cac776",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8538 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1696 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.370030+00:00",
+      "units_http_index": 644,
+      "serial_http_index": 643,
+      "serial_length": 5853,
+      "serial_sha256": "5aa0352f141fe0e6a2c6f7c60e731b4049ae6c6dfde57b135e25166815cac776",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8538 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1696 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.491123+00:00",
+      "units_http_index": 647,
+      "serial_http_index": 646,
+      "serial_length": 5987,
+      "serial_sha256": "681f449662a522b6096cf591ab28f0d90ac2bf9e6b5eb9ec5a41f009aaf37928",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8799 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1957 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.607876+00:00",
+      "units_http_index": 650,
+      "serial_http_index": 649,
+      "serial_length": 5987,
+      "serial_sha256": "681f449662a522b6096cf591ab28f0d90ac2bf9e6b5eb9ec5a41f009aaf37928",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 8799 freq 2000 duty-u16 0 timer-dead True next-delta-ms -1957 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.724383+00:00",
+      "units_http_index": 653,
+      "serial_http_index": 652,
+      "serial_length": 6921,
+      "serial_sha256": "f6379c07352b261d18a4557d8ad09d4425d5682866dace4f7b8c960a89de1c00",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-before tick 9034 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2192 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.850178+00:00",
+      "units_http_index": 656,
+      "serial_http_index": 655,
+      "serial_length": 7054,
+      "serial_sha256": "01fb15041670b75f07bc53dd9fe397d8278cc28334cf12c14a9cd6687fc367cc",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9087 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2245 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:15.968289+00:00",
+      "units_http_index": 659,
+      "serial_http_index": 658,
+      "serial_length": 7054,
+      "serial_sha256": "01fb15041670b75f07bc53dd9fe397d8278cc28334cf12c14a9cd6687fc367cc",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9087 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2245 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.091788+00:00",
+      "units_http_index": 662,
+      "serial_http_index": 661,
+      "serial_length": 7187,
+      "serial_sha256": "ce5dbc40cf5744d932d62fb2b8365ce2745dc5823a6ec95c68c0d9151d127a89",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9347 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2505 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.215804+00:00",
+      "units_http_index": 665,
+      "serial_http_index": 664,
+      "serial_length": 7187,
+      "serial_sha256": "ce5dbc40cf5744d932d62fb2b8365ce2745dc5823a6ec95c68c0d9151d127a89",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9347 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2505 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.332963+00:00",
+      "units_http_index": 668,
+      "serial_http_index": 667,
+      "serial_length": 7320,
+      "serial_sha256": "7366383c06fef66e8441c014f98086f27f3664e454401d8358a432fd31feaa5b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9605 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2763 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.451179+00:00",
+      "units_http_index": 671,
+      "serial_http_index": 670,
+      "serial_length": 7320,
+      "serial_sha256": "7366383c06fef66e8441c014f98086f27f3664e454401d8358a432fd31feaa5b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9605 freq 2000 duty-u16 0 timer-dead True next-delta-ms -2763 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.566991+00:00",
+      "units_http_index": 674,
+      "serial_http_index": 673,
+      "serial_length": 7453,
+      "serial_sha256": "01e2bea4b0de9d2fdc8a0653df1bff9e3d4041402cf73ffc2cea0696a1adfbd0",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9864 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3022 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.683277+00:00",
+      "units_http_index": 677,
+      "serial_http_index": 676,
+      "serial_length": 7453,
+      "serial_sha256": "01e2bea4b0de9d2fdc8a0653df1bff9e3d4041402cf73ffc2cea0696a1adfbd0",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9864 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3022 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.807602+00:00",
+      "units_http_index": 680,
+      "serial_http_index": 679,
+      "serial_length": 7453,
+      "serial_sha256": "01e2bea4b0de9d2fdc8a0653df1bff9e3d4041402cf73ffc2cea0696a1adfbd0",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 9864 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3022 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:16.931592+00:00",
+      "units_http_index": 683,
+      "serial_http_index": 682,
+      "serial_length": 7587,
+      "serial_sha256": "c72ab8ae6fa3b332cc18b3863089ae747311dac1e0125ad85daba250e3232a04",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 10126 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3284 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.055469+00:00",
+      "units_http_index": 686,
+      "serial_http_index": 685,
+      "serial_length": 7587,
+      "serial_sha256": "c72ab8ae6fa3b332cc18b3863089ae747311dac1e0125ad85daba250e3232a04",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 10126 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3284 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.170249+00:00",
+      "units_http_index": 689,
+      "serial_http_index": 688,
+      "serial_length": 7721,
+      "serial_sha256": "c2d45538eb4584468717859a52fd168ee6bfeac6da6dd37adcd75dff75ce65e4",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 10386 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3544 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.290757+00:00",
+      "units_http_index": 692,
+      "serial_http_index": 691,
+      "serial_length": 8479,
+      "serial_sha256": "71299e370b9baad82de739b4095d297529be730127738ee82f45ed2b13b1ab2e",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE manual-haptic-after tick 10595 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3753 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.413302+00:00",
+      "units_http_index": 695,
+      "serial_http_index": 694,
+      "serial_length": 8620,
+      "serial_sha256": "17f1e17676e490359dccaaccba2e6cd233f2a9ffabbb2ff7d08f021231c23040",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 10650 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3808 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.533273+00:00",
+      "units_http_index": 698,
+      "serial_http_index": 697,
+      "serial_length": 8620,
+      "serial_sha256": "17f1e17676e490359dccaaccba2e6cd233f2a9ffabbb2ff7d08f021231c23040",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 10650 freq 2000 duty-u16 0 timer-dead True next-delta-ms -3808 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.657435+00:00",
+      "units_http_index": 701,
+      "serial_http_index": 700,
+      "serial_length": 8761,
+      "serial_sha256": "efe9c80f6ccf028d857a6cdf3c3f9697494919de65736ce8046b9bc4f869f831",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 10908 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4066 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.781584+00:00",
+      "units_http_index": 704,
+      "serial_http_index": 703,
+      "serial_length": 8761,
+      "serial_sha256": "efe9c80f6ccf028d857a6cdf3c3f9697494919de65736ce8046b9bc4f869f831",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 10908 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4066 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:17.902030+00:00",
+      "units_http_index": 707,
+      "serial_http_index": 706,
+      "serial_length": 8902,
+      "serial_sha256": "00e3e61966fca59c578ec8dfb9366ecf6a6d82e86343320cd919703f5d2bfdc9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 11170 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4328 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.016622+00:00",
+      "units_http_index": 710,
+      "serial_http_index": 709,
+      "serial_length": 8902,
+      "serial_sha256": "00e3e61966fca59c578ec8dfb9366ecf6a6d82e86343320cd919703f5d2bfdc9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 11170 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4328 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.133836+00:00",
+      "units_http_index": 713,
+      "serial_http_index": 712,
+      "serial_length": 9043,
+      "serial_sha256": "8c69c85fd383b65c176c915942f0c53c4d70c86f06fed9a038c8ca9ae46cb52e",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 11435 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4593 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.258021+00:00",
+      "units_http_index": 716,
+      "serial_http_index": 715,
+      "serial_length": 9043,
+      "serial_sha256": "8c69c85fd383b65c176c915942f0c53c4d70c86f06fed9a038c8ca9ae46cb52e",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 24.98779296875,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 3
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 11435 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4593 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.381062+00:00",
+      "units_http_index": 719,
+      "serial_http_index": 718,
+      "serial_length": 9283,
+      "serial_sha256": "5ea490ac87673f87b053e96b97e86f3f3a0c6cb269bbae12727e6a39841634c7",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-with-timer-after tick 11669 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4827 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.497415+00:00",
+      "units_http_index": 722,
+      "serial_http_index": 721,
+      "serial_length": 9421,
+      "serial_sha256": "e18d2ab58b63fc4a4cb8977c5da1fcd3d511a33c26a8fe3ae4c1c18b58d17790",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 11715 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4873 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.613193+00:00",
+      "units_http_index": 725,
+      "serial_http_index": 724,
+      "serial_length": 9421,
+      "serial_sha256": "e18d2ab58b63fc4a4cb8977c5da1fcd3d511a33c26a8fe3ae4c1c18b58d17790",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 11715 freq 2000 duty-u16 0 timer-dead True next-delta-ms -4873 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.737623+00:00",
+      "units_http_index": 728,
+      "serial_http_index": 727,
+      "serial_length": 9559,
+      "serial_sha256": "5a195784f072f23b2102a803885fada8d7b7449d3b044c6981c68111c88a2f1a",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 11979 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5137 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.856472+00:00",
+      "units_http_index": 731,
+      "serial_http_index": 730,
+      "serial_length": 9559,
+      "serial_sha256": "5a195784f072f23b2102a803885fada8d7b7449d3b044c6981c68111c88a2f1a",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 11979 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5137 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:18.975600+00:00",
+      "units_http_index": 734,
+      "serial_http_index": 733,
+      "serial_length": 9697,
+      "serial_sha256": "5c5b70c52e1dfb7eabf9e7d0dd42a80c058480fa713e9a79ac7a1b6ebde7edf4",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12248 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5406 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.092925+00:00",
+      "units_http_index": 737,
+      "serial_http_index": 736,
+      "serial_length": 9697,
+      "serial_sha256": "5c5b70c52e1dfb7eabf9e7d0dd42a80c058480fa713e9a79ac7a1b6ebde7edf4",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12248 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5406 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.217908+00:00",
+      "units_http_index": 740,
+      "serial_http_index": 739,
+      "serial_length": 9835,
+      "serial_sha256": "eefa445fa506a4e4ce2c0fce97688a67829cd03f462cb22e7eb7c22252ff47f0",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12504 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5662 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.334032+00:00",
+      "units_http_index": 743,
+      "serial_http_index": 742,
+      "serial_length": 9835,
+      "serial_sha256": "eefa445fa506a4e4ce2c0fce97688a67829cd03f462cb22e7eb7c22252ff47f0",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12504 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5662 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.451640+00:00",
+      "units_http_index": 746,
+      "serial_http_index": 745,
+      "serial_length": 9973,
+      "serial_sha256": "218cd8116fb38fd483beba893f255b224e8b2ac65323d70f061336213b83fa2f",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12763 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5921 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.570996+00:00",
+      "units_http_index": 749,
+      "serial_http_index": 748,
+      "serial_length": 9973,
+      "serial_sha256": "218cd8116fb38fd483beba893f255b224e8b2ac65323d70f061336213b83fa2f",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12763 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5921 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.686580+00:00",
+      "units_http_index": 752,
+      "serial_http_index": 751,
+      "serial_length": 9973,
+      "serial_sha256": "218cd8116fb38fd483beba893f255b224e8b2ac65323d70f061336213b83fa2f",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 12763 freq 2000 duty-u16 0 timer-dead True next-delta-ms -5921 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.802286+00:00",
+      "units_http_index": 755,
+      "serial_http_index": 754,
+      "serial_length": 10111,
+      "serial_sha256": "4401a09d88daeb32d95d5dfb11f3b810acb395c6c868a821564f0cfe179db93f",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 13020 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6178 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:19.926046+00:00",
+      "units_http_index": 758,
+      "serial_http_index": 757,
+      "serial_length": 10249,
+      "serial_sha256": "04ce96f7db78f363c7926b988b8e941862786d736b0898c6f83a7dd5783d3724",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE direct-cb-no-args-after tick 13229 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6387 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.052605+00:00",
+      "units_http_index": 761,
+      "serial_http_index": 760,
+      "serial_length": 10387,
+      "serial_sha256": "89aeb1710fc5d53751c55f752ed31067a706de566577adf2ccab7eaf17ad225b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13274 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6432 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.174502+00:00",
+      "units_http_index": 764,
+      "serial_http_index": 763,
+      "serial_length": 10387,
+      "serial_sha256": "89aeb1710fc5d53751c55f752ed31067a706de566577adf2ccab7eaf17ad225b",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13274 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6432 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.298831+00:00",
+      "units_http_index": 767,
+      "serial_http_index": 766,
+      "serial_length": 10525,
+      "serial_sha256": "ad404ac9865fac6e98bda5394355c833dbdc5f1d626fcaca9e6f3be47b00d4a9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13532 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6690 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.414018+00:00",
+      "units_http_index": 770,
+      "serial_http_index": 769,
+      "serial_length": 10525,
+      "serial_sha256": "ad404ac9865fac6e98bda5394355c833dbdc5f1d626fcaca9e6f3be47b00d4a9",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13532 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6690 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.533836+00:00",
+      "units_http_index": 773,
+      "serial_http_index": 772,
+      "serial_length": 10663,
+      "serial_sha256": "3015f90ff47720b33e4528653c3af32def16bf11c782f7b480cd899b2a2d3a8d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13791 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6949 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.656640+00:00",
+      "units_http_index": 776,
+      "serial_http_index": 775,
+      "serial_length": 10663,
+      "serial_sha256": "3015f90ff47720b33e4528653c3af32def16bf11c782f7b480cd899b2a2d3a8d",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 13791 freq 2000 duty-u16 0 timer-dead True next-delta-ms -6949 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.776272+00:00",
+      "units_http_index": 779,
+      "serial_http_index": 778,
+      "serial_length": 10801,
+      "serial_sha256": "bb91f12dadf9ef47507b3a2678db1616e583585844d8ac193806dd61ad7f6eb6",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 14051 freq 2000 duty-u16 0 timer-dead True next-delta-ms -7209 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:20.891764+00:00",
+      "units_http_index": 782,
+      "serial_http_index": 781,
+      "serial_length": 10801,
+      "serial_sha256": "bb91f12dadf9ef47507b3a2678db1616e583585844d8ac193806dd61ad7f6eb6",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 14051 freq 2000 duty-u16 0 timer-dead True next-delta-ms -7209 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:21.016022+00:00",
+      "units_http_index": 785,
+      "serial_http_index": 784,
+      "serial_length": 10939,
+      "serial_sha256": "e6a3931e04e31be3fbff4aee15eeb06cb632288573ef1fbfe652a606302ee9c8",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 14287 freq 2000 duty-u16 0 timer-dead True next-delta-ms -7445 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    },
+    {
+      "at": "2026-10-25T23:49:21.131716+00:00",
+      "units_http_index": 788,
+      "serial_http_index": 787,
+      "serial_length": 10995,
+      "serial_sha256": "750afe90828b45c877541d842c8e0f9bc0b9a0ff50a9cd638dbedd51f5baf591",
+      "qom": {
+        "frequency-hz": 2000,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 4
+      },
+      "latest_state": "BUZZER_DIAG_STATE explicit-turn-off-final tick 14287 freq 2000 duty-u16 0 timer-dead True next-delta-ms -7445 run-flag True registered 2",
+      "natural_started": true,
+      "natural_ended": true
+    }
+  ],
+  "session_id": "cefa6a62ad714cdfb7f13453fa364985",
+  "runtime_provenance": {
+    "status": "VERIFIED",
+    "kind": "direct-pid",
+    "observed_pid": 59839,
+    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "firmware_sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 9,
+      "lease_active": true
+    },
+    "method": "Live API PID / macOS ps executable / SHA256 / same live PID and worker reconfirmed"
+  },
+  "zip_manifest": {
+    "schema_version": 1,
+    "generated_at": "2026-10-25T23:49:21.147573+00:00",
+    "session": {
+      "session_id": "cefa6a62ad714cdfb7f13453fa364985",
+      "device_id": "cores3",
+      "state": "running",
+      "pid": 59839,
+      "firmware_id": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+      "firmware_sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+      "source_artifacts": [
+        "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09"
+      ],
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "buzzer",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "esp-emu-esptool",
+        "chip": "esp32s3",
+        "flash_size": 16777216,
+        "verified": true,
+        "session_isolated_copy": true
+      },
+      "flash_retained": true,
+      "serial_bytes": 10995,
+      "created_at": "2026-10-25T23:48:42.865716+00:00",
+      "expires_at": "2026-10-25T23:50:42.865719+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-25T23:49:21.143340+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": false,
+      "last_device_state_at": null,
+      "completed_at": null,
+      "event_count": 7,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 9,
+        "lease_active": true
+      }
+    },
+    "device": {
+      "device_id": "cores3",
+      "name": "CoreS3",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3",
+      "sku": "K128",
+      "device_codes": [
+        "1897200000000001950"
+      ],
+      "supported": true,
+      "creatable": true,
+      "backend_ready": true,
+      "missing_runtime_files": [],
+      "reference_available": true,
+      "backend": "qemu-esp32s3",
+      "machine": "m5cores3",
+      "flash_size": 16777216,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "peripheral_status": "simulated",
+      "warnings": [
+        "UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct"
+      ],
+      "firmware_families": [
+        "uiflow2",
+        "generic-flash"
+      ],
+      "coverage": {
+        "peripheral_status": "simulated",
+        "complete": true
+      },
+      "features": {
+        "flash": true,
+        "serial": true,
+        "screenshot": true,
+        "input": true,
+        "qom": true,
+        "device_state": true,
+        "storage": false,
+        "network": true,
+        "network_capture": true
+      },
+      "network_profiles": [
+        "uiflow2-cores3-unified",
+        "esp-idf-coex",
+        "esp-idf-http",
+        "esp-idf-smoke",
+        "esp-idf-wrong-password",
+        "generic-observe",
+        "idf-dns-udp"
+      ],
+      "network_console": "auto",
+      "network_status": "validated",
+      "reason": null
+    },
+    "timeline": [
+      {
+        "at": "2026-10-25T23:48:42.865794+00:00",
+        "event": "created",
+        "device_id": "cores3",
+        "firmware_id": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09"
+      },
+      {
+        "at": "2026-10-25T23:48:42.866220+00:00",
+        "event": "worker_lease_reserved",
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 9
+      },
+      {
+        "at": "2026-10-25T23:48:42.866410+00:00",
+        "event": "state",
+        "from": "provisioning",
+        "to": "flashing"
+      },
+      {
+        "at": "2026-10-25T23:49:06.658635+00:00",
+        "event": "flash_prepared",
+        "transport": "esp-emu-esptool",
+        "chip": "esp32s3",
+        "flash_size": 16777216,
+        "verified": true,
+        "session_isolated_copy": true
+      },
+      {
+        "at": "2026-10-25T23:49:06.659487+00:00",
+        "event": "state",
+        "from": "flashing",
+        "to": "booting"
+      },
+      {
+        "at": "2026-10-25T23:49:08.494476+00:00",
+        "event": "serial_marker",
+        "marker": "BUZZER_DIAG_READY"
+      },
+      {
+        "at": "2026-10-25T23:49:08.494775+00:00",
+        "event": "state",
+        "from": "booting",
+        "to": "running"
+      }
+    ],
+    "included": [
+      "frames",
+      "logs",
+      "manifest",
+      "qom",
+      "serial"
+    ],
+    "files": {
+      "units/contract.json": {
+        "size": 6526,
+        "sha256": "9f67e20333988b3a43195ed1273d620502c6b779d89ec37c17c621d7cc276df6"
+      },
+      "units/runtime.json": {
+        "size": 256,
+        "sha256": "1bdeb9ea345ea69e62cdd4fd761f701d5188a03a2beca2971088e28a1cb7e138"
+      },
+      "units/state.json": {
+        "size": 7135,
+        "sha256": "3a1c112084be598adb7b34e3d87501b3af86f0abaecbe7fd549491a499c60ede"
+      },
+      "serial.log": {
+        "size": 10995,
+        "sha256": "750afe90828b45c877541d842c8e0f9bc0b9a0ff50a9cd638dbedd51f5baf591"
+      },
+      "serial1.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "qemu.stdout": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "qemu.stderr": {
+        "size": 24,
+        "sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483"
+      },
+      "frames/current.png": {
+        "size": 3209,
+        "sha256": "9ac2bc9dc2a253842e5e452d8d5d2310e25c35cd630f81546de7d56597bfabc5"
+      },
+      "qom/snapshot.json": {
+        "size": 61400,
+        "sha256": "dcef2ba478763cc31e47be1a0cf2ecc83ca9ee6f9698a390e7e6fae7e1e86493"
+      }
+    },
+    "units": {
+      "session_id": "cefa6a62ad714cdfb7f13453fa364985",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-25T23:49:21.147730+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "buzzer",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "frequency-hz": 2000,
+            "duty-pct": 0,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 0,
+            "output-transitions": 4
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "buzzer",
+          "name": "Buzzer",
+          "sku": "U132",
+          "visual_asset": {
+            "entry": "src/units/buzzer/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/buzzer",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "passive buzzer",
+              "status": "officially-documented"
+            },
+            {
+              "part": "NPN driver",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio-pwm",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "PWM signal",
+                "direction": "host-to-unit"
+              },
+              "white": {
+                "signal": "NC",
+                "direction": "none"
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "Yellow wire accepts a PWM square wave. Official product recommends 4kHz at half duty and explicitly forbids a sustained DC high. Official BuzzerUnit delegates to Haptic at 4000Hz.",
+            "registers": [],
+            "gaps": [
+              "A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+            ]
+          },
+          "inputs": {},
+          "outputs": {
+            "frequency-hz": {
+              "type": "number",
+              "label": "驱动频率",
+              "default": 0,
+              "default_source": "synthetic-test-fixture",
+              "unit": "Hz",
+              "minimum": 0,
+              "readOnly": true
+            },
+            "duty-pct": {
+              "type": "number",
+              "label": "占空比",
+              "default": 0,
+              "default_source": "synthetic-test-fixture",
+              "unit": "%",
+              "minimum": 0,
+              "maximum": 100,
+              "readOnly": true
+            }
+          },
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/buzzer",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/buzzer.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3"
+            ],
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "inputs": {},
+            "state": {
+              "frequency-hz": {
+                "property": "frequency-hz"
+              },
+              "duty-pct": {
+                "property": "duty-pct"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+              "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+              "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            }
+          },
+          "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "ae0431d6075161a4b9cb2b06e71f40e2f8c77fd1c3c9ce3b96043cd5493ce219"
+      },
+      "contract_status": "frozen"
+    },
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "png_bytes": 3209,
+      "source": "live",
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    },
+    "qom": {
+      "snapshot_id": "ba313d58098d4d8983e6afbb9f3a7d80",
+      "path": "/machine",
+      "depth": 2,
+      "created_at": "2026-10-25T23:49:21.162310+00:00"
+    },
+    "flash": {
+      "size": 16777216,
+      "sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+      "retained": true
+    }
+  },
+  "evidence_sha256": "10bfc54b6ac710580be7d99e49b87dc2cbc85715588a7c011eb6e86feb5e5993"
+}

@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser",
+    "bridge_contract"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+        "report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/controller/env-iii/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+        "report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/controller/env-iii/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+        "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/controller/pir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+        "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/controller/pir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+        "report_sha256": "f80d5ab03773e837fa7c34306472623f8b2c15c8b1636c9cd5ee719dc29f4ef1",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+        "report_sha256": "f80d5ab03773e837fa7c34306472623f8b2c15c8b1636c9cd5ee719dc29f4ef1",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+        "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/controller/rgb/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+        "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/controller/rgb/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+        "report_sha256": "032536a141000e72ac532df106f7c85b3f29f5e91e36fc9b0dda0132c2acc2e9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/controller/angle/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+        "report_sha256": "032536a141000e72ac532df106f7c85b3f29f5e91e36fc9b0dda0132c2acc2e9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/controller/angle/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+        "report_sha256": "5185ff4642e9cb4443a4576e58206a5b52b10573bba79895d12b381a33c7cd9a",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/controller/color/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+        "report_sha256": "5185ff4642e9cb4443a4576e58206a5b52b10573bba79895d12b381a33c7cd9a",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/controller/color/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+        "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/controller/tof/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+        "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/controller/tof/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/report.json",
+        "report_sha256": "1f01d560c4af783c0f36820effa93f958d93cc5266fdc544b24032799d40fbe9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/controller/light/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/report.json",
+        "report_sha256": "1f01d560c4af783c0f36820effa93f958d93cc5266fdc544b24032799d40fbe9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/controller/light/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+        "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/controller/relay/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+        "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/controller/relay/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+        "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/controller/joystick-v11/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+        "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/controller/joystick-v11/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/report.json",
+        "report_sha256": "d0079097e2aa4422fb960ae6731efaa2a15758fda4c0b3e0f9aaa52c8adc0f69",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/controller/dual-button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/report.json",
+        "report_sha256": "d0079097e2aa4422fb960ae6731efaa2a15758fda4c0b3e0f9aaa52c8adc0f69",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/controller/dual-button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+        "report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/controller/button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+        "report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/controller/button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+        "report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/controller/ncir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+        "report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/controller/ncir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+        "report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/controller/heart/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+        "report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/controller/heart/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/report.json",
+        "report_sha256": "35155e4e22d819ac0a24706c16dfb60d167bbb5dc79fa4b45c0cf7d112db1046",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/controller/encoder/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/report.json",
+        "report_sha256": "35155e4e22d819ac0a24706c16dfb60d167bbb5dc79fa4b45c0cf7d112db1046",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/controller/encoder/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/report.json",
+        "report_sha256": "588297e3a669f7e2a12d2310331b7a2a7fdae53c76f4c4a07d7b5bf78193845e",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/controller/thermal/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/report.json",
+        "report_sha256": "588297e3a669f7e2a12d2310331b7a2a7fdae53c76f4c4a07d7b5bf78193845e",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/controller/thermal/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+        "report_sha256": "dfb26af771be109f21034ce41d137dc1e85ad398baf912bdd29627cfd5816ee9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/controller/tvoc/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+        "report_sha256": "dfb26af771be109f21034ce41d137dc1e85ad398baf912bdd29627cfd5816ee9",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/controller/tvoc/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/report.json",
+        "report_sha256": "8f9a1dd957d3be2d084e8bcd1336c3d216a6a848467f423a0e9a122b959eda6c",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/controller/ir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "custom-guest-ir-callback-root-patch"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/report.json",
+        "report_sha256": "8f9a1dd957d3be2d084e8bcd1336c3d216a6a848467f423a0e9a122b959eda6c",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/controller/ir/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "custom-guest-ir-callback-root-patch"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run. IR is a custom callback-root guest variant; original published IR-wrapper success is not established."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+        "report_sha256": "22caa9654bdb8f424b0d1bb033de00d82a2fe0bad6bbe3e3a80b13aaf65d7f02",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/controller/hub/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+        "report_sha256": "22caa9654bdb8f424b0d1bb033de00d82a2fe0bad6bbe3e3a80b13aaf65d7f02",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/controller/hub/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/report.json",
+        "report_sha256": "63295d26db12901d78c21fa4c8a886a19c48e8acffd476ef5dda8afcdae65efa",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/controller/rfid2/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/report.json",
+        "report_sha256": "63295d26db12901d78c21fa4c8a886a19c48e8acffd476ef5dda8afcdae65efa",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/controller/rfid2/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/report.json",
+        "report_sha256": "48ca454ecaa3ef97ab0efe75f9e01bd48a1849851d2ce02c2c6c62d49cd183ea",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/controller/rs485/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/report.json",
+        "report_sha256": "48ca454ecaa3ef97ab0efe75f9e01bd48a1849851d2ce02c2c6c62d49cd183ea",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/controller/rs485/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+        "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/controller/buzzer/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+        "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/controller/buzzer/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/report.json",
+        "report_sha256": "27931c994d75f0a4cac3a5253594dac37b9536008a6a8c78f5745a3b56e1ce13",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/controller/fan/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/report.json",
+        "report_sha256": "27931c994d75f0a4cac3a5253594dac37b9536008a6a8c78f5745a3b56e1ce13",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/controller/fan/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/report.json",
+        "report_sha256": "0f82bcc5d98de5002f1ff1aa0e5152c3d76423b0f16926a3488ed94e9ad88442",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/controller/limit/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/report.json",
+        "report_sha256": "0f82bcc5d98de5002f1ff1aa0e5152c3d76423b0f16926a3488ed94e9ad88442",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/controller/limit/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/report.json",
+        "report_sha256": "e2f3ae9aa963904838e0d8d87154f85a72bea93b1a631c25959f047759b8a403",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/controller/cardkb/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/report.json",
+        "report_sha256": "e2f3ae9aa963904838e0d8d87154f85a72bea93b1a631c25959f047759b8a403",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/controller/cardkb/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/report.json",
+        "report_sha256": "012c02e1e17c36e646452d799e6c9bc89dad594a6ac9f908b526b4e73dc9de2f",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/controller/key/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/report.json",
+        "report_sha256": "012c02e1e17c36e646452d799e6c9bc89dad594a6ac9f908b526b4e73dc9de2f",
+        "evidence": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/controller/key/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 8; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/report.json",
+        "report_sha256": "9d7e14cb640317feb34f13861d3557aea909cf511bfd8ceeba60c2d62752b5cb",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/controller/8encoder/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/report.json",
+        "report_sha256": "9d7e14cb640317feb34f13861d3557aea909cf511bfd8ceeba60c2d62752b5cb",
+        "evidence": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/controller/8encoder/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-lifecycle-regression/report.json",
+        "report_sha256": "ef9c486c4a7262f141b94adcb9e2a3031fa2cedd46c429847b0ae75b45ce34f3"
+      },
+      "reason": "Explicit selected evidence from worker generation 7; generation 7 was interrupted and the 27 selected cases are not one clean full-batch run."
+    }
+  ]
+}

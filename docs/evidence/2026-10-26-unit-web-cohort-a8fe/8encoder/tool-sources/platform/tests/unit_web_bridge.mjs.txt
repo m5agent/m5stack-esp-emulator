@@ -1,0 +1,340 @@
+// Test-only transport. Input is submitted exclusively by the actual product's
+// DOM controls. evaluate() is used only to observe DOM/model/readback state.
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {resolve, dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createInterface} from 'node:readline';
+import {setTimeout as delay} from 'node:timers/promises';
+import {chromium} from 'playwright';
+import {visualCommands} from '../web/unit-visual-mappings.js';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const productFiles = ['platform/web/sessions.js', 'platform/web/sessions.html', 'platform/web/unit-panel.js', 'platform/web/unit-panel.css', 'platform/web/unit-visual-mappings.js', 'platform/web/model-shell.js', 'platform/web/device-shell-factory.js'];
+const hashes = async files => Object.fromEntries(await Promise.all(files.map(async name => [name, createHash('sha256').update(await readFile(resolve(root, name))).digest('hex')])));
+const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+const quote = value => JSON.stringify(String(value));
+
+export class UnitWebBridge {
+  constructor(base, output, {requireMounted = true} = {}) {
+    this.base = base.replace(/\/$/, '');
+    this.output = resolve(output);
+    this.sessions = new Map();
+    this.requireMounted = requireMounted;
+  }
+
+  async prepare() {
+    if (this.prepared) return {prepared_at: this.prepared.at};
+    if (!this.browser) this.browser = await chromium.launch({
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+    });
+    const page = await this.browser.newPage({viewport: {width: 1440, height: 1100}, hasTouch: true});
+    page.setDefaultTimeout(30000);
+    const source_sha256 = await hashes([...productFiles, 'platform/tests/unit_web_bridge.mjs', 'tests/units/web_ui_bridge.py', 'tests/units/run_service_cases.py']);
+    await page.route('**/platform/web/sessions.js*', async route => {
+      const response = await route.fetch();
+      const source = await response.text();
+      assert.equal(createHash('sha256').update(source).digest('hex'), source_sha256['platform/web/sessions.js']);
+      await route.fulfill({response, body: `${source}\nwindow.__unitWebBridgeProbe = {state, SessionVisual};\n`});
+    });
+    const response = await page.goto(`${this.base}/platform/web/sessions.html`, {waitUntil: 'domcontentloaded'});
+    assert.equal(response.ok(), true, 'actual sessions page must load');
+    await page.waitForFunction(() => window.__unitWebBridgeProbe?.state?.visuals);
+    this.prepared = {page, source_sha256, at: new Date().toISOString()};
+    return {prepared_at: this.prepared.at};
+  }
+
+  async open(session) {
+    const id = session.session_id;
+    if (this.sessions.has(id)) return {session_id: id};
+    assert.match(id, /^[a-zA-Z0-9_-]+$/);
+    await this.prepare();
+    const prepared = this.prepared;
+    this.prepared = null;
+    const {page, source_sha256} = prepared;
+    const record = {
+      schema_version: 1, category: 'real-product-unit-web-transport', session_id: id,
+      firmware_sha256: session.firmware_sha256, device_id: session.device_id,
+      runtime: session.runtime, attachments: session.units, opened_at: new Date().toISOString(),
+      source_sha256, prepared_at: prepared.at, session_created_at: session.created_at,
+      browser_version: this.browser.version(), hardware_execution: 'NOT RUN',
+      instrumentation: 'Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.',
+      actions: [], posts: [], readbacks: [], snapshots: [], errors: [],
+    };
+    const item = {page, record, directory: resolve(this.output, id), contacts: new Map(), nextTouchId: 1, responseTasks: new Set()};
+    this.sessions.set(id, item);
+    await mkdir(item.directory, {recursive: true});
+    page.on('pageerror', error => record.errors.push(error.message));
+    page.on('response', response => {
+      const url = new URL(response.url());
+      if (!url.pathname.startsWith(`/api/v1/sessions/${id}/`)) return;
+      if (!['units', 'unit-input'].includes(url.pathname.split('/').at(-1))) return;
+      const task = (async () => {
+        try {
+          const event = {at: new Date().toISOString(), method: response.request().method(), path: url.pathname, status: response.status(), response: await response.json()};
+          if (event.method === 'POST') {
+            event.request = response.request().postDataJSON();
+            record.posts.push(event);
+          } else record.readbacks.push(event);
+          item.latestPayload = event.response;
+        } catch (error) { record.errors.push(`response observation: ${error.message}`); }
+      })();
+      item.responseTasks.add(task);
+      task.finally(() => item.responseTasks.delete(task));
+    });
+    const refresh = page.locator('#refreshBtn');
+    if (await refresh.count()) await refresh.click();
+    else assert.equal(this.requireMounted, false, 'actual product refresh control must exist');
+    item.card = page.locator(`[data-session-id=${quote(id)}]`);
+    await item.card.waitFor({state: 'visible', timeout: 90000});
+    record.first_product_session_state = await page.evaluate(id => window.__unitWebBridgeProbe?.state.visuals.get(id)?.session?.state, id);
+    if (process.env.M5_UNIT_REQUIRE_FLASHING_OPEN === '1') assert.equal(record.first_product_session_state, 'flashing', 'new session must be observed in the real product while flashing');
+    if (record.first_product_session_state === 'flashing') {
+      await item.card.screenshot({path: resolve(item.directory, 'opened-flashing.png')});
+      record.opening_screenshot = 'opened-flashing.png';
+    }
+    await page.waitForFunction(({id, count}) => {
+      const card = document.querySelector(`[data-session-id="${id}"]`);
+      return card && card.querySelectorAll('.unit-card').length === count;
+    }, {id, count: session.units?.length || 0}, {timeout: 90000});
+    if (this.requireMounted && session.units?.length) await page.waitForFunction(({id, count}) => {
+      const visual = window.__unitWebBridgeProbe?.state.visuals.get(id);
+      return visual?.shell?.model && visual.unitPanel?.mounted.size === count;
+    }, {id, count: session.units.length}, {timeout: 90000});
+    await this.save(item);
+    return {session_id: id, product_source_sha256: record.source_sha256};
+  }
+
+  item(id) {
+    const item = this.sessions.get(id);
+    if (!item) throw new Error(`UI session is not attached: ${id}`);
+    return item;
+  }
+
+  async postAction(item, instance, field, description, perform) {
+    const responsePromise = item.page.waitForResponse(response => {
+      if (response.request().method() !== 'POST' || !new URL(response.url()).pathname.endsWith(`/${item.record.session_id}/unit-input`)) return false;
+      const request = response.request().postDataJSON();
+      return request.id === instance && Object.hasOwn(request.values || {}, field);
+    }, {timeout: 30000});
+    // Attach rejection handling before an action can throw, avoiding an orphan
+    // wait promise if a control becomes unavailable while the guest stops.
+    responsePromise.catch(() => {});
+    await perform();
+    const response = await responsePromise;
+    const payload = await response.json();
+    item.record.actions.push({at: new Date().toISOString(), instance, field, ...description, request: response.request().postDataJSON(), response_status: response.status()});
+    assert.equal(response.ok(), true, `real UI POST failed: ${JSON.stringify(payload)}`);
+    item.latestPayload = payload;
+    await item.page.waitForTimeout(30);
+    return payload;
+  }
+
+  async press(item, instance, field, index, down) {
+    const key = JSON.stringify([instance, field, index ?? null]);
+    const selector = `[data-press-field=${quote(field)}]${index === undefined ? ':not([data-press-index])' : `[data-press-index="${index}"]`}`;
+    const control = item.card.locator(`[data-unit-id=${quote(instance)}]`).locator(selector);
+    await control.waitFor({state: 'visible'});
+    assert.equal(await control.isEnabled(), true, 'Unit press control must be live');
+    const held = item.contacts.has(key);
+    if (held === down) return false;
+    const releasedContact = item.contacts.get(key);
+    if (down) {
+      await control.scrollIntoViewIfNeeded();
+      const box = await control.boundingBox();
+      assert.ok(box);
+      item.contacts.set(key, {id: item.nextTouchId++, x: box.x + box.width / 2, y: box.y + box.height / 2});
+    } else item.contacts.delete(key);
+    item.cdp ||= await item.page.context().newCDPSession(item.page);
+    await this.postAction(item, instance, field, {kind: down ? 'trusted-touch-down' : 'trusted-touch-up', index}, () => item.cdp.send('Input.dispatchTouchEvent', {
+      type: down ? 'touchStart' : 'touchEnd', touchPoints: down ? [...item.contacts.values()] : [releasedContact],
+    }));
+    return true;
+  }
+
+  async input(id, payload) {
+    const item = this.item(id);
+    const {page, card} = item;
+    const instance = payload.id;
+    const unitCard = card.locator(`[data-unit-id=${quote(instance)}]`);
+    await unitCard.waitFor({state: 'visible'});
+    await page.waitForFunction(({id, instance}) => window.__unitWebBridgeProbe?.state.visuals.get(id)?.unitPanel?.states.get(instance)?.available === true, {id, instance}, {timeout: 180000});
+    let changed = false;
+    for (const [field, value] of Object.entries(payload.values)) {
+      const press = unitCard.locator(`[data-press-field=${quote(field)}]`);
+      if (await press.count()) {
+        if (Array.isArray(value)) {
+          assert.equal(value.length, await press.count());
+          assert.ok(value.every(entry => typeof entry === 'boolean'));
+          // Release first, then add contacts. Each browser-generated contact
+          // goes through hit testing, pointer capture and the product queue.
+          for (const desired of [false, true]) for (let index = 0; index < value.length; index++) if (value[index] === desired) changed = await this.press(item, instance, field, index, desired) || changed;
+        } else {
+          assert.equal(typeof value, 'boolean');
+          changed = await this.press(item, instance, field, undefined, value) || changed;
+        }
+        continue;
+      }
+      const control = unitCard.locator(`[data-input-field=${quote(field)}]`);
+      assert.equal(await control.count(), 1, `positive input has no real product control: ${instance}.${field}`);
+      assert.equal(await control.isEnabled(), true, 'Unit field must be live');
+      const type = await control.getAttribute('type');
+      const before = type === 'checkbox' ? await control.isChecked() : await control.inputValue();
+      const requested = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      if (type === 'checkbox' ? before === value : before === requested) {
+        item.record.actions.push({at: new Date().toISOString(), instance, field, kind: 'already-equal-noop', value});
+        continue;
+      }
+      await this.postAction(item, instance, field, {kind: type === 'checkbox' ? 'checkbox' : 'fill-and-tab', value}, async () => {
+        if (type === 'checkbox') await control.setChecked(value);
+        else { await control.fill(requested); await control.press('Tab'); }
+      });
+      changed = true;
+    }
+    await this.capture(id, changed ? 'after-ui-input' : 'unchanged-ui-input', false);
+    await this.save(item);
+    assert.ok(item.latestPayload?.units, 'real browser response must be available');
+    return item.latestPayload;
+  }
+
+  async doubleTap(id, instance, field, index) {
+    const item = this.item(id);
+    assert.equal(item.contacts.size, 0, 'double-tap gesture requires released touch contacts');
+    const control = item.card.locator(`[data-unit-id=${quote(instance)}] [data-press-field=${quote(field)}][data-press-index="${index}"]`);
+    assert.equal(await control.isEnabled(), true);
+    const before = item.record.posts.length;
+    const started = Date.now();
+    // One browser mouse gesture keeps the firmware's documented double-click
+    // interval. The product itself queues all four ordinary HTTP requests.
+    await control.dblclick({delay: 10});
+    const deadline = Date.now() + 30000;
+    while (item.record.posts.length < before + 4 && Date.now() < deadline) await delay(10);
+    const posts = item.record.posts.slice(before);
+    assert.equal(posts.length, 4, 'double-click must produce down/up/down/up through the real product queue');
+    assert.deepEqual(posts.map(post => post.request.values[field]?.[index]), [true, false, true, false]);
+    assert.ok(posts.every(post => post.request.id === instance && post.status === 200));
+    item.record.actions.push({at: new Date().toISOString(), instance, field, index, kind: 'real-mouse-double-click', posts: 4, elapsed_ms: Date.now() - started});
+    await this.capture(id, 'after-real-double-click', false);
+    return item.latestPayload;
+  }
+
+  async capture(id, phase = 'observed-units', screenshot = false) {
+    const item = this.item(id);
+    await Promise.all([...item.responseTasks]);
+    // Wait for the actual product's next readback, not a test-initiated fetch.
+    // This also exercises output-only Units which never receive an input POST.
+    if (phase === 'observed-units' || phase === 'before-evidence') {
+      await item.page.waitForResponse(response => response.request().method() === 'GET' && new URL(response.url()).pathname === `/api/v1/sessions/${id}/units`, {timeout: 15000});
+      await item.page.waitForTimeout(30);
+      await Promise.all([...item.responseTasks]);
+    }
+    let snapshot;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      snapshot = await item.page.evaluate(({id, phase}) => {
+      const visual = window.__unitWebBridgeProbe?.state.visuals.get(id);
+      const panel = visual?.unitPanel;
+      const root = document.querySelector(`[data-session-id="${id}"]`);
+      const units = [...(root?.querySelectorAll('.unit-card') || [])].map(card => {
+        const instance = card.dataset.unitId;
+        const state = panel?.states.get(instance);
+        const values = [...card.querySelectorAll('[data-unit-values] dt')].map(dt => {
+          const label = dt.cloneNode(true); label.querySelector('small')?.remove();
+          return {field: label.textContent, source: dt.querySelector('small')?.textContent, text: dt.nextElementSibling?.textContent, rgb: [...(dt.nextElementSibling?.querySelectorAll('[data-unit-rgb]') || [])].map(node => node.getAttribute('aria-label'))};
+        });
+        const mounted = panel?.mounted.get(instance);
+        const components = mounted && visual.shell?.model?.list ? visual.shell.model.list().filter(component => component.path.startsWith(`${mounted.port}/`)).map(component => ({path: component.path, kind: component.kind, state: component.getState?.(), actuation: component.getActuationState?.()})) : [];
+        return {instance, readback: state, values, mounted_port: mounted?.port, components};
+      });
+      return {at: new Date().toISOString(), phase, session_state: visual?.session?.state, units};
+      }, {id, phase});
+      // The page may apply a response before Playwright has delivered and
+      // decoded its independent response observation. Re-observe rather than
+      // misclassifying that delivery race as a guest/controller discrepancy.
+      await Promise.all([...item.responseTasks]);
+      if (snapshot.units.every(unit => [...item.record.readbacks, ...item.record.posts].some(event => event.response.units?.some(row => row.id === unit.instance && same(row.properties, unit.readback?.properties))))) break;
+      await delay(20);
+    }
+    const attachments = item.record.attachments || [];
+    assert.ok(attachments.length, 'Unit browser validation requires a nonempty attachment set');
+    assert.deepEqual(snapshot.units.map(unit => unit.instance).sort(), attachments.map(unit => unit.id).sort(), 'DOM snapshot must contain every session attachment exactly once');
+    for (const unit of snapshot.units) {
+      assert.ok(unit.readback, `no product readback for ${unit.instance}`);
+      for (const [field, value] of Object.entries(unit.readback.properties || {})) {
+        const row = unit.values.find(row => row.field === field);
+        assert.ok(row, `missing actual DOM output ${unit.instance}.${field}`);
+        if (field === 'led-rgb' && row.rgb.length) {
+          const colors = Array.isArray(value) ? value : [value];
+          assert.deepEqual(row.rgb, colors.map((color, index) => `LED[${index}] #${color.toString(16).padStart(6, '0')}`));
+        } else assert.equal(row.text, typeof value === 'object' ? JSON.stringify(value) : String(value), `DOM/readback mismatch ${unit.instance}.${field}`);
+      }
+      unit.dom_matches_product_readback = true;
+      unit.readback_matches_real_http_response = [...item.record.readbacks, ...item.record.posts].some(event => event.response.units?.some(row => row.id === unit.instance && same(row.properties, unit.readback.properties)));
+      assert.ok(unit.readback_matches_real_http_response, 'product state must match a captured real HTTP response');
+      unit.verified_visual_commands = [];
+      for (const command of visualCommands(unit.readback, unit.mounted_port, {running: snapshot.session_state === 'running'})) {
+        const component = unit.components.find(component => component.path === command.target);
+        if (command.type === 'button-state') {
+          assert.equal(component?.state?.pressed, command.pressed, `shell button/readback mismatch ${command.target}`);
+          unit.verified_visual_commands.push(command);
+        } else if (command.type === 'led') {
+          assert.equal(component?.state?.color, `#${command.color.toString(16).padStart(6, '0')}`, `shell LED/readback mismatch ${command.target}`);
+          unit.verified_visual_commands.push(command);
+        }
+      }
+    }
+    if (screenshot) {
+      const name = `${String(item.record.snapshots.length).padStart(3, '0')}-${phase}.png`;
+      await item.card.screenshot({path: resolve(item.directory, name), timeout: 30000});
+      snapshot.screenshot = name;
+    }
+    item.record.snapshots.push(snapshot);
+    await this.save(item);
+    return snapshot;
+  }
+
+  async save(item) {
+    await writeFile(resolve(item.directory, 'web-report.json'), JSON.stringify(item.record, null, 2) + '\n');
+  }
+
+  async closeSession(id) {
+    const item = this.sessions.get(id);
+    if (!item) return;
+    item.record.closed_at = new Date().toISOString();
+    await Promise.all([...item.responseTasks]);
+    await this.save(item);
+    await item.page.close();
+    this.sessions.delete(id);
+    if (!this.sessions.size && this.browser) { await this.browser.close(); this.browser = null; }
+  }
+
+  async shutdown() {
+    for (const id of [...this.sessions.keys()]) await this.closeSession(id);
+    if (this.browser) { await this.browser.close(); this.browser = null; }
+    this.prepared = null;
+  }
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const bridge = new UnitWebBridge(process.argv[2], process.argv[3]);
+  for await (const line of createInterface({input: process.stdin, crlfDelay: Infinity})) {
+    try {
+      const {command, ...input} = JSON.parse(line);
+      let result;
+      if (command === 'prepare') result = await bridge.prepare();
+      else if (command === 'open') result = await bridge.open(input.session);
+      else if (command === 'input') result = await bridge.input(input.session_id, input.payload);
+      else if (command === 'double-tap') result = await bridge.doubleTap(input.session_id, input.instance, input.field, input.index);
+      else if (command === 'capture') result = await bridge.capture(input.session_id, input.phase, input.screenshot);
+      else if (command === 'close') result = await bridge.closeSession(input.session_id);
+      else if (command === 'shutdown') await bridge.shutdown();
+      else throw new Error(`Unknown bridge command: ${command}`);
+      process.stdout.write(JSON.stringify({ok: true, result}) + '\n');
+      if (command === 'shutdown') break;
+    } catch (error) {
+      process.stdout.write(JSON.stringify({ok: false, error: String(error.stack || error).replaceAll(root, '<workspace>')}) + '\n');
+    }
+  }
+  await bridge.shutdown();
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "category": "offline-unit-annotation-semantic-contract",
+  "status": "PASS",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3"
+  },
+  "cases": [
+    {
+      "name": "present-readback-keeps-frozen-label-direction-unit-and-value",
+      "status": "PASS"
+    },
+    {
+      "name": "missing-properties-never-fill-schema-defaults",
+      "status": "PASS"
+    },
+    {
+      "name": "nonfinite-wrong-type-and-fractional-integer-values-are-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-boundaries-reject-values-without-clamping-or-mutating",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-enum-is-not-treated-as-an-unrestricted-scalar",
+      "status": "PASS"
+    },
+    {
+      "name": "outer-and-unit-source-must-both-be-live-controller-readback",
+      "status": "PASS"
+    },
+    {
+      "name": "unavailable-errors-terminal-and-unfrozen-contracts-hide-values",
+      "status": "PASS"
+    },
+    {
+      "name": "thermal-readiness-and-control-register-have-explicit-origin-labels",
+      "status": "PASS"
+    },
+    {
+      "name": "relay-and-buzzer-use-firmware-observation-without-physical-inference",
+      "status": "PASS"
+    },
+    {
+      "name": "model-shell-adapter-preserves-the-frozen-definition-and-source-guards",
+      "status": "PASS"
+    },
+    {
+      "name": "panel-uses-session-definitions-instead-of-mutable-inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+      "status": "PASS"
+    },
+    {
+      "name": "pending-local-input-never-replaces-controller-annotation",
+      "status": "PASS"
+    },
+    {
+      "name": "persisted-and-terminal-panel-updates-remove-live-values",
+      "status": "PASS"
+    },
+    {
+      "name": "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+      "status": "PASS"
+    },
+    {
+      "name": "annotation-fault-keeps-one-release-retry-and-no-poll-echo",
+      "status": "PASS"
+    },
+    {
+      "name": "nested-clear-preserves-siblings-and-dispose-unsubscribes-once",
+      "status": "PASS"
+    }
+  ]
+}

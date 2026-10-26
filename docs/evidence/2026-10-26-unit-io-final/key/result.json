@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T17:45:06.622451+00:00",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "key",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "6a671e93d6697148d5baeea96b6431b03aea3ca30732c6cff1b47572282349e0",
+  "expected_size": [
+    320,
+    240
+  ],
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "key",
+      "port_id": "port-a"
+    }
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "a1ad044fbee2cd183cd72babaa75ad913b57a49535d88d74ba6856e044a61587",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "bb9f9aaa225f1722ebddb26e59dd7c6cd67a58f620cda96f5f93b3f36177f18a",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "runner_sha256": {
+    "tests/units/run_io_cases.py": "1211cd57288aead1d026ed9a01fabe8a9e08e6a0bb8d1ecbd2f46b7e5ffaf2eb",
+    "tests/units/run_control_cases.py": "b9e784d2dc1ece008f58d0d69243a1a868d84f492af9f6edffcd6f0e2e81437b",
+    "tests/units/run_sensor_cases.py": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "tests/units/run_service_cases.py": "22a3cf335e0d85ad2ceb7a1ef34c94697f15c01041e08525e380ee4bf99b4c31",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "checks": {
+    "packaged_guest_bytes_verified": true,
+    "official_driver_ready": true,
+    "active_low_key_and_guest_brightness_rgb_frames": true,
+    "nonblank_application_frame": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_and_frame_retained": true,
+    "history_frame_readable": true
+  },
+  "injections": [
+    {
+      "id": "external1",
+      "values": {
+        "pressed": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "pressed": false
+      }
+    }
+  ],
+  "required_markers": [
+    "IO_PROBE_READY key",
+    "IO_KEY_RAW 0",
+    "IO_KEY_RAW 1"
+  ],
+  "session_id": "90f52b3423a24dc9a82070e27725b004",
+  "unit_state": {
+    "session_id": "90f52b3423a24dc9a82070e27725b004",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:45:39.582930+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "key",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": false,
+          "led-rgb": 2386092,
+          "input-level": true,
+          "led-frames": 9,
+          "incomplete-frames": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 2,
+          "output-transitions": 9
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "key",
+        "name": "Unit Key",
+        "sku": "U144",
+        "visual_asset": {
+          "entry": "src/units/key/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/key",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "mechanical blue switch",
+            "status": "officially-documented"
+          },
+          {
+            "part": "SK6812 x1",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-rmt",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "LED data",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "button",
+              "direction": "unit-to-host",
+              "active_level": 0
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire is the active-low key input; yellow wire drives one SK6812 RGB LED. Official KeyUnit combines hardware.Button(active_low=True) with SK6812 on the second UIFlow tuple element.",
+          "registers": [],
+          "gaps": []
+        },
+        "inputs": {
+          "pressed": {
+            "type": "boolean",
+            "label": "按键按下",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {
+          "led-rgb": {
+            "type": "integer",
+            "label": "灯颜色",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "rgb24",
+            "minimum": 0,
+            "maximum": 16777215,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/key",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/key.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/599/SCH_unitKey_V1.0.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "pressed": {
+              "property": "pressed"
+            }
+          },
+          "state": {
+            "pressed": {
+              "property": "pressed"
+            },
+            "led-rgb": {
+              "property": "led-rgb"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "led-frames": {
+              "property": "led-frames"
+            },
+            "incomplete-frames": {
+              "property": "incomplete-frames"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "a2d5dc45361411848100084eed0a59f192e4729ea228cef6accaee84c386fe61",
+  "serial_sha256": "9302ac88bad5cb5e7076178cc8513c7f3d6fdb99dd39b92c9906613444a5bb45",
+  "evidence_sha256": "8984f08a1b45102e5f12b7c1c2967569430bef36ba0a87e2fd54e844745366fc",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "session_id": "90f52b3423a24dc9a82070e27725b004",
+    "frame_sha256": "a2d5dc45361411848100084eed0a59f192e4729ea228cef6accaee84c386fe61"
+  }
+}

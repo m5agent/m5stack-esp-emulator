@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "mpu6886_identity",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "mpu6886_accel",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "mpu6886_gyro",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "imu_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PASS Core2 IMU marker rgb=(0,255,0)\n",
+  "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b"
+}

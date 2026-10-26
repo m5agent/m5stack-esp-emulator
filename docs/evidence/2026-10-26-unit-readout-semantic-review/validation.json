@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "independent-offline-unit-readout-semantic-review",
+  "checked_at": "2026-10-25T20:40:28.435310+00:00",
+  "positive_contract_cases": 17,
+  "p2_recovery_cases": 23,
+  "total_positive_offline_cases": 40,
+  "negative_source_mutations_detected": 5,
+  "source_promotion_checks": [
+    {
+      "path": "platform/web/model-shell.js",
+      "sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "current_candidate_manifest_receipt_match": true
+    },
+    {
+      "path": "platform/web/unit-annotations.js",
+      "sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "current_candidate_manifest_receipt_match": true
+    },
+    {
+      "path": "platform/web/unit-panel.css",
+      "sha256": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+      "current_candidate_manifest_receipt_match": true
+    },
+    {
+      "path": "platform/web/unit-panel.js",
+      "sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "current_candidate_manifest_receipt_match": true
+    }
+  ],
+  "candidate_patch_sha256": "b091eb4638c08921726a559d2e6392489be174abb2206ce7c71f8c8af4778b87",
+  "positive_source_bindings_verified_against_promoted_bytes": true,
+  "negative_controls": [
+    {
+      "mutation": "range_guard",
+      "expected_failure": "schema-boundaries-reject-values-without-clamping-or-mutating",
+      "actual_failed_cases": [
+        "schema-boundaries-reject-values-without-clamping-or-mutating"
+      ],
+      "detected": true
+    },
+    {
+      "mutation": "unit_source_guard",
+      "expected_failure": "outer-and-unit-source-must-both-be-live-controller-readback",
+      "actual_failed_cases": [
+        "outer-and-unit-source-must-both-be-live-controller-readback"
+      ],
+      "detected": true
+    },
+    {
+      "mutation": "frozen_definition_guard",
+      "expected_failure": "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+      "actual_failed_cases": [
+        "unavailable-errors-terminal-and-unfrozen-contracts-hide-values",
+        "legacy-inventory-fallback-cannot-be-presented-as-frozen-values"
+      ],
+      "detected": true
+    },
+    {
+      "mutation": "thermal_origin",
+      "expected_failure": "thermal-readiness-and-control-register-have-explicit-origin-labels",
+      "actual_failed_cases": [
+        "thermal-readiness-and-control-register-have-explicit-origin-labels"
+      ],
+      "detected": true
+    },
+    {
+      "mutation": "annotation_exception_isolation",
+      "expected_failure": "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+      "actual_failed_cases": [
+        "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+        "annotation-fault-keeps-one-release-retry-and-no-poll-echo"
+      ],
+      "detected": true
+    }
+  ],
+  "copy_provenance": [
+    {
+      "path": "promotion/receipt.json",
+      "source_sha256": "6958f3276cabd4b989c7710883e08d433e93c82d34c0afa553302f3975063668",
+      "published_sha256": "6958f3276cabd4b989c7710883e08d433e93c82d34c0afa553302f3975063668",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "promotion/final-candidate-manifest.json",
+      "source_sha256": "9e0694d0ff375347be49b6c7e3fbabecfee364dffbe8f727fcca66145f2af086",
+      "published_sha256": "9e0694d0ff375347be49b6c7e3fbabecfee364dffbe8f727fcca66145f2af086",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "promotion/candidate.patch",
+      "source_sha256": "b091eb4638c08921726a559d2e6392489be174abb2206ce7c71f8c8af4778b87",
+      "published_sha256": "b091eb4638c08921726a559d2e6392489be174abb2206ce7c71f8c8af4778b87",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "published_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/web/unit-panel.css.txt",
+      "source_sha256": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+      "published_sha256": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "published_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/tests/test_unit_annotation_contract.mjs.txt",
+      "source_sha256": "b123faa11c5601afab2df724b2910004144b68400be90d9a01a375d8bcd788f3",
+      "published_sha256": "b123faa11c5601afab2df724b2910004144b68400be90d9a01a375d8bcd788f3",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/tests/test_frontend_recovery.mjs.txt",
+      "source_sha256": "4dcceab673dd5dfba08a289d776076fbeac232beee17c9096f454134a347d471",
+      "published_sha256": "4dcceab673dd5dfba08a289d776076fbeac232beee17c9096f454134a347d471",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/web/sessions.js.txt",
+      "source_sha256": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+      "published_sha256": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "sources/platform/units/catalog.json.txt",
+      "source_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "published_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "initial/exploratory-review.json",
+      "source_sha256": "a5f7c3808c5734ad836db4a17a9502162f2fc176d51f5e2f835af8328da75fd6",
+      "published_sha256": "a5f7c3808c5734ad836db4a17a9502162f2fc176d51f5e2f835af8328da75fd6",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "initial/direction-audit.json",
+      "source_sha256": "0e20521633e5cb4af2c98004c2021fd7bdcb63fec72b3ba843bb41a189929bde",
+      "published_sha256": "0e20521633e5cb4af2c98004c2021fd7bdcb63fec72b3ba843bb41a189929bde",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "positive/annotation-contract.json",
+      "source_sha256": "b0ed82044ec57067b093b50acf281ead1c53b31c6fd7f4d4d125ac6b02785b71",
+      "published_sha256": "b0ed82044ec57067b093b50acf281ead1c53b31c6fd7f4d4d125ac6b02785b71",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "positive/p2-recovery-contract.json",
+      "source_sha256": "ea78f35615ea3893aba3562104280efe89e65b33aded8e37c54c224ae4e04f6f",
+      "published_sha256": "ea78f35615ea3893aba3562104280efe89e65b33aded8e37c54c224ae4e04f6f",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/summary.json",
+      "source_sha256": "815cc142e94fff8e9d313b60596d929e2e9e60a05c00a62a45b604c251333b5d",
+      "published_sha256": "815cc142e94fff8e9d313b60596d929e2e9e60a05c00a62a45b604c251333b5d",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/range_guard/report.json",
+      "source_sha256": "7b55e26d5e70abcee5a29e0d18830c8f53408c9fccb647b814a79d3b7f695c63",
+      "published_sha256": "1e919be4fee0717261e2c46b521bc2fdd6f3f5b19dac32752a2086cf9a8da1aa",
+      "byte_identical": false,
+      "transformation": "workspace path redaction only"
+    },
+    {
+      "path": "negative/range_guard/sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/range_guard/sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "8786a50a50fe1f0e170f8ca724fea930f7a384b15a193c586cf30c35d4ef2cfa",
+      "published_sha256": "8786a50a50fe1f0e170f8ca724fea930f7a384b15a193c586cf30c35d4ef2cfa",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/range_guard/sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "published_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/unit_source_guard/report.json",
+      "source_sha256": "f6697e237cd4a3777087acf4b0f9812bccf81604f41bc38da44e8ffd6f20f783",
+      "published_sha256": "e1637bf3fff7eaecf68eef4b082697662b23a79133910b46dd4cb5c63d1097ad",
+      "byte_identical": false,
+      "transformation": "workspace path redaction only"
+    },
+    {
+      "path": "negative/unit_source_guard/sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/unit_source_guard/sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "859c1f29b29cbfcba3f019349cd584d7ae7c07785d8f8f87e484d95f07e58cf5",
+      "published_sha256": "859c1f29b29cbfcba3f019349cd584d7ae7c07785d8f8f87e484d95f07e58cf5",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/unit_source_guard/sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "published_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/frozen_definition_guard/report.json",
+      "source_sha256": "4c662270ba076f66749b1094fcfa677856aaec32f413fe87b4a55335a279a7ad",
+      "published_sha256": "9795bdfffee950ae618b9addd84cccf699d870705f6d37832a588fe95e34d62c",
+      "byte_identical": false,
+      "transformation": "workspace path redaction only"
+    },
+    {
+      "path": "negative/frozen_definition_guard/sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/frozen_definition_guard/sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "1f25dfbd8fe0bb564ce0f0da60933b124a7437b14874ed6cfddccc281ef8a1e9",
+      "published_sha256": "1f25dfbd8fe0bb564ce0f0da60933b124a7437b14874ed6cfddccc281ef8a1e9",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/frozen_definition_guard/sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "published_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/thermal_origin/report.json",
+      "source_sha256": "20abd30431593ec9e3a78686a2e8418e182b1f591e1c6be698774c0f2f141943",
+      "published_sha256": "40285f32700173774a21042e9b86b9b5d2ea2261680942c3f90f942b3f057cf8",
+      "byte_identical": false,
+      "transformation": "workspace path redaction only"
+    },
+    {
+      "path": "negative/thermal_origin/sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/thermal_origin/sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "d566131b42c8247ff299a2401474dfb79b87fc50d5b858466bead36995c78b44",
+      "published_sha256": "d566131b42c8247ff299a2401474dfb79b87fc50d5b858466bead36995c78b44",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/thermal_origin/sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "published_sha256": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/annotation_exception_isolation/report.json",
+      "source_sha256": "906f41dfc38561dec31399882ae1da7afa213bd7179fb7a747ce3713e7538726",
+      "published_sha256": "14446b84b879cfce8a2d8d6e88e3f6664818304491f4124ff527a83d3fcc0f82",
+      "byte_identical": false,
+      "transformation": "workspace path redaction only"
+    },
+    {
+      "path": "negative/annotation_exception_isolation/sources/platform/web/model-shell.js.txt",
+      "source_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "published_sha256": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/annotation_exception_isolation/sources/platform/web/unit-annotations.js.txt",
+      "source_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "published_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "byte_identical": true,
+      "transformation": "none"
+    },
+    {
+      "path": "negative/annotation_exception_isolation/sources/platform/web/unit-panel.js.txt",
+      "source_sha256": "81a0cabb29a54f43be830b183d3e21d94849ae54d2288e7e5f6f38b94e443119",
+      "published_sha256": "81a0cabb29a54f43be830b183d3e21d94849ae54d2288e7e5f6f38b94e443119",
+      "byte_identical": true,
+      "transformation": "none"
+    }
+  ],
+  "scope": "The 17-case test executed against the final candidate; the23-case test used an isolated merge of that Panel and current sessions source. This audit independently verified those executed bytes match the promoted current sources. Root also reported rerunning both tests after promotion; that separate repetition is not invented as an additional execution here.",
+  "redaction_policy": "Only absolute workspace paths in expected negative assertion stack traces were replaced with <workspace>. Original raw reports were preserved internally and source/published SHA pairs are recorded. No assertion result or observed value changed.",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "visual_scope": "This archive proves offline semantics and regression controls only. Browser placement and the open nested assembly boundary belong to the separate visual review; no scene-wide or hardware PASS is granted.",
+  "archived_source_replay": {
+    "status": "PASS",
+    "source": "Only the published .txt snapshots restored into isolated directories; no current product code or catalog was reread by the replayed tests.",
+    "results": [
+      {
+        "test": "test_unit_annotation_contract.mjs",
+        "cases": 17,
+        "status": "PASS"
+      },
+      {
+        "test": "test_frontend_recovery.mjs",
+        "cases": 23,
+        "status": "PASS"
+      },
+      {
+        "negative_mutations_detected": 5,
+        "status": "PASS"
+      }
+    ],
+    "counting": "Repeat verification of the same40 unique positive contracts and5 negative controls; not additional unique coverage."
+  }
+}

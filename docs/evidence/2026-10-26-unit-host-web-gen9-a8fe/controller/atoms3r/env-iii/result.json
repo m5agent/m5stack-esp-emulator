@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T19:45:23.897335+00:00",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "device_id": "atoms3r",
+  "unit_id": "env-iii",
+  "runtime": "qemu",
+  "port_id": "custom",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "env-iii",
+      "port_id": "custom"
+    }
+  ],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      128,
+      128
+    ],
+    "text": [
+      4,
+      4,
+      120
+    ],
+    "internal_sda": 47,
+    "internal_scl": 0,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      128,
+      128
+    ]
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/AtomS3R",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6557696,
+    "size": 1826816,
+    "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+  },
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "firmware_sha256": "8ae66c45103807b66044e7a508809e8431015824805676cdea5fd636d2bc0a03",
+  "expected_size": [
+    128,
+    128
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "9c04ab235a05322ffccd017455a8d950ecfccce6d1ab0fad1f311610eedb334b",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true,
+    "live_runtime_pid_sha_verified": true,
+    "explicit_guest_canvas_geometry": true,
+    "external_env_two_inputs_and_onboard_i2c_isolation": true,
+    "onboard_identity_after_external_operations": true,
+    "nonblank_host_application_frame": true,
+    "evidence_before_stop": true,
+    "purge_zero_history_and_frame_retained": true
+  },
+  "required_markers": [
+    "HOST_PROBE_READY atoms3r env-iii",
+    "HOST_GEOMETRY 128 128 0",
+    "HOST_INTERNAL before 36 1",
+    "HOST_INTERNAL after_init 36 2",
+    "HOST_EXTERNAL_SCAN 68 112"
+  ],
+  "injections": [
+    {
+      "id": "external1",
+      "values": {
+        "temperature-c": 31.5,
+        "humidity-pct": 67,
+        "pressure-pa": 98765
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "temperature-c": 18.75,
+        "humidity-pct": 45.5,
+        "pressure-pa": 103200
+      }
+    }
+  ],
+  "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+  "runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+    "pid": 27802,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-25T19:45:40.182911+00:00",
+    "expected_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "observed_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "unit_state": {
+    "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T19:45:42.618622+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "env-iii",
+        "port_id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "temperature-c": 18.75,
+          "humidity-pct": 45.5,
+          "pressure-pa": 103200,
+          "transactions": 104,
+          "read-bytes": 206,
+          "written-bytes": 71,
+          "input-events": 6,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "env-iii",
+        "name": "ENV III",
+        "sku": "U001-C",
+        "visual_asset": {
+          "entry": "src/units/env-iii/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "SHT30",
+            "status": "officially-documented"
+          },
+          {
+            "part": "QMP6988",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            68,
+            112
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+          "registers": [
+            {
+              "chip": "SHT30",
+              "commands": {
+                "measure-driver": "0x2C10",
+                "status": "0xF32D",
+                "reset": "0x30A2",
+                "clear-status": "0x3041",
+                "heater-on": "0x306D",
+                "heater-off": "0x3066"
+              },
+              "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+              "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+            },
+            {
+              "chip": "QMP6988",
+              "chip_id": "0xD1 -> 0x5C",
+              "calibration": "0xA0, 25 bytes",
+              "reset": "0xE0 <- 0xE6",
+              "iir": "0xF1",
+              "status": "0xF3 bit3 measuring",
+              "control": "0xF4",
+              "io_setup": "0xF5",
+              "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+            }
+          ],
+          "gaps": [
+            "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+            "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+          ],
+          "offline_reference": "platform/units/qmp6988_reference.py",
+          "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+        },
+        "inputs": {
+          "temperature-c": {
+            "type": "number",
+            "label": "\u6e29\u5ea6",
+            "default": 25,
+            "default_source": "synthetic-test-fixture",
+            "unit": "degC",
+            "minimum": -40,
+            "maximum": 120,
+            "readOnly": false
+          },
+          "humidity-pct": {
+            "type": "number",
+            "label": "\u76f8\u5bf9\u6e7f\u5ea6",
+            "default": 50,
+            "default_source": "synthetic-test-fixture",
+            "unit": "%RH",
+            "minimum": 0,
+            "maximum": 100,
+            "readOnly": false
+          },
+          "pressure-pa": {
+            "type": "number",
+            "label": "\u6c14\u538b",
+            "default": 101325,
+            "default_source": "synthetic-test-fixture",
+            "unit": "Pa",
+            "minimum": 30000,
+            "maximum": 110000,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+          "inputs": {
+            "temperature-c": {
+              "property": "temperature-c"
+            },
+            "humidity-pct": {
+              "property": "humidity-pct"
+            },
+            "pressure-pa": {
+              "property": "pressure-pa"
+            }
+          },
+          "state": {
+            "temperature-c": {
+              "property": "temperature-c"
+            },
+            "humidity-pct": {
+              "property": "humidity-pct"
+            },
+            "pressure-pa": {
+              "property": "pressure-pa"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+            "report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609",
+            "evidence_sha256": "e716be571cac956ec0d34092eb467597d308afb27e934ce22edebf942091e74d",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+            }
+          }
+        },
+        "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "3014e69e5e1319fe509b82939621cb53cfed68de9d1fe6848c53196cd988cd19",
+  "evidence_sha256": "b8ffac6dc9d87b8aec8dd44112165172fbf8fa19030368321e9abd9edab0b060",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "pid": 27802,
+    "session_id": "a2e0a769e927467eb6ed8be27b3cb146"
+  }
+}

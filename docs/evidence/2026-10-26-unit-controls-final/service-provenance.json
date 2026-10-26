@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "recorded_at": "2026-10-25T17:41:18.429100+00:00",
+  "scope": "final CoreS3 Unit Device Service runtime; execution results are recorded separately",
+  "qemu_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "rom_sha256": {
+    "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+  },
+  "tools_and_contract_sha256": {
+    "platform/tools/device_service.py": "245c148c4e521e57ba4667e9eb1f0c322e9db2a23522f4d52d044d626b230dda",
+    "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+    "platform/tools/unit_runtime.py": "9fdafd622067559d2226a4e70c180f5c4f66a328bd52ace23c1aefe2563550af",
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "platform/units/runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+  },
+  "patch_sha256": {
+    "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+    "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+    "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2"
+  },
+  "hardware_validation": "NOT RUN"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "category": "independent-cold-flash-browser-lifecycle",
+  "status": "PASS",
+  "included_in_main_27_selection": false,
+  "hardware_execution": "NOT RUN",
+  "session_id": "1fadac9dd63944768bd15d8131dd9ac7",
+  "firmware_sha256": "c6fa0f2f5fb87b5be8047deba198f50ceb7b8633d4d59feb0be02b3ec37f04fe",
+  "selected_button_firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+  "evidence_sha256": "64e57d5ec0b929a85c8b0f26f2cbaa7638f7bbaa87ba270809c6cc6d0199c61f",
+  "runtime_provenance": {
+    "session_id": "1fadac9dd63944768bd15d8131dd9ac7",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 67426,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 8,
+    "firmware_sha256": "c6fa0f2f5fb87b5be8047deba198f50ceb7b8633d4d59feb0be02b3ec37f04fe",
+    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "cold_flash_transport": "esp-emu-esptool",
+  "checks": {
+    "outer_wrapper_passed": true,
+    "first_product_session_state_flashing": true,
+    "opening_png_hash_bound": true,
+    "running_before_evidence": true,
+    "four_real_button_posts": true,
+    "original_probe_bytes_unchanged": true,
+    "unreferenced_metadata_module_hash_bound": true,
+    "all_bytes_outside_vfs_identical_to_selected_button": true,
+    "normal_cold_flash_transport": true,
+    "same_firmware_in_zip": true,
+    "direct_gen8_a8fe_verified": true
+  },
+  "initial_controls_evidence": "The archived opening screenshot was visually inspected: flashing badge, blank display, waiting Unit state and disabled grey Button control. No separate numeric disabled-DOM receipt was recorded. Later real input gestures assert actual control enabled before POST.",
+  "opening_screenshot": "button/browser/1fadac9dd63944768bd15d8131dd9ac7/opened-flashing.png",
+  "running_screenshot": "button/browser/1fadac9dd63944768bd15d8131dd9ac7/005-before-evidence.png",
+  "metadata_module_sha256": "290fef5ac3e035f979e72ebeb6866c6d12a3bfac53a7804b0c54a12b3603e32d",
+  "outside_vfs": {
+    "offset": 11141120,
+    "size": 4980736,
+    "identical_bytes": 11796480,
+    "sha256": "6c62fd94215db9339784db3f405ca7ee04cd86866534f562efbca419e95ce014"
+  },
+  "report_sha256": "5c9827fdd298cfd13f49b93c5700feb40caada1c771daccd554cc41abd76d42f"
+}

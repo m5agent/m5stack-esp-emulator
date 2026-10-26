@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-25T23:36:29.120202+00:00",
+  "status": "PREPARED_OFFLINE_ONLY",
+  "validation": "custom guest diagnostic; not a firmware PASS",
+  "firmware_flavor": "custom-guest-buzzer-once-diagnostic-v1-trace",
+  "device_id": "cores3",
+  "unit_id": "buzzer",
+  "runtime": "qemu",
+  "mode": "trace",
+  "trace_scheduler": true,
+  "image": ".work/buzzer-once-diagnostic-20261026/prepared-r1/trace/uiflow2-ui-test.bin",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_program.py": "be5fa553a483564ff5ec4a6bd3ae6dacb374d515cd9bbf41a3167b4e119ca310",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "2d8f4946fd159136ad3ea0ab868567e85dca8218f5bbd73c73496f573c7ccbbc",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "official_buzzer_driver": {
+    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+    "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+    "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "license": "MIT (source SPDX)",
+    "checked_at": "2026-10-26"
+  },
+  "ready_marker": "BUZZER_DIAG_READY",
+  "done_marker": "BUZZER_DIAG_DONE",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a"
+    }
+  ],
+  "frozen_modules_overridden": false,
+  "callback_semantics_patched": false,
+  "scheduler_entry_instrumented": true,
+  "service_contacted": false,
+  "session_started": false,
+  "functional_pass_inherited": false,
+  "packaged_guest_bytes_verified": true,
+  "build_helper_sha256": {
+    "tests/units/run_control_cases.py": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "tests/units/run_sensor_cases.py": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557"
+  },
+  "candidate_sha256": "be5fa553a483564ff5ec4a6bd3ae6dacb374d515cd9bbf41a3167b4e119ca310",
+  "build_python_version": "3.12.8"
+}

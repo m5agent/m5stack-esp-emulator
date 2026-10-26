@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "status": "PREPARED_NOT_EXECUTED",
+  "device_id": "atoms3r",
+  "unit_id": "color",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "color",
+      "port_id": "custom",
+      "initial": {
+        "clear-raw": 55000,
+        "red-raw": 12000,
+        "green-raw": 8000,
+        "blue-raw": 4000
+      }
+    }
+  ],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      128,
+      128
+    ],
+    "text": [
+      4,
+      4,
+      120
+    ],
+    "internal_sda": 47,
+    "internal_scl": 0,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      128,
+      128
+    ]
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/AtomS3R",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6557696,
+    "size": 1826816,
+    "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+  },
+  "matrix_vfs_matches_reference": true,
+  "layout_plan": {
+    "x": 4,
+    "y": 4,
+    "width": 120,
+    "headers": [
+      "atoms3r",
+      "color"
+    ],
+    "font_height": 10,
+    "line_height": 11,
+    "body_y": 28,
+    "body_rows": 4,
+    "bottom": 72
+  },
+  "display_font": {
+    "name": "Montserrat12",
+    "scale": 0.7,
+    "height": 10
+  },
+  "width_guard_and_native_readability": "NOT EXECUTED; actual guest fontHeight/textWidth and native frame are required",
+  "firmware_sha256": "dc3b146f119138c797b4f3da01945b8ab652f925783bb77dc956abc52468f729",
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_sensor_layout.py": "2d771e0f82c6159061456f362cd8d302db9fee3c075f9ebf79c1bd23ba37a960",
+    "main.py": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+    "probe_config.py": "18d9d101d10735875c7c7effe481b351cce5f31557ea7d431a46275c0e01e772",
+    "probe_logging.py": "14020aebf640c10f8590d5c6bdcf8fe7e460884de938c37c7029e10d8ded10f2",
+    "sensor_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sensor_drivers/heart.py": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+    "sensor_drivers/mlx90614.py": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+    "sensor_drivers/mlx90640.py": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+    "sensor_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "sensor_drivers/sgp30.py": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+    "sensor_drivers/tcs3472.py": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+    "sensor_drivers/ultrasonic_i2c.py": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+    "sensor_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "sensor_drivers/vl53l0x.py": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+    "sensor_probe.py": "596451237d5eacd3dfcfec45d6e0ea3503364941b5e1a05d8b0f5ea35fa0fd76"
+  },
+  "packaged_full_py_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_sensor_layout.py": "2d771e0f82c6159061456f362cd8d302db9fee3c075f9ebf79c1bd23ba37a960",
+    "main.py": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+    "probe_config.py": "18d9d101d10735875c7c7effe481b351cce5f31557ea7d431a46275c0e01e772",
+    "probe_logging.py": "14020aebf640c10f8590d5c6bdcf8fe7e460884de938c37c7029e10d8ded10f2",
+    "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+    "sensor_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sensor_drivers/heart.py": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+    "sensor_drivers/mlx90614.py": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+    "sensor_drivers/mlx90640.py": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+    "sensor_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "sensor_drivers/sgp30.py": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+    "sensor_drivers/tcs3472.py": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+    "sensor_drivers/ultrasonic_i2c.py": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+    "sensor_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "sensor_drivers/vl53l0x.py": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+    "sensor_probe.py": "596451237d5eacd3dfcfec45d6e0ea3503364941b5e1a05d8b0f5ea35fa0fd76"
+  },
+  "packaged_full_py_sources": {
+    "boot.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/boot.py",
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "role": "prepared-probe-source"
+    },
+    "host_sensor_layout.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/host_sensor_layout.py",
+      "sha256": "2d771e0f82c6159061456f362cd8d302db9fee3c075f9ebf79c1bd23ba37a960",
+      "role": "prepared-probe-source"
+    },
+    "main.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/main.py",
+      "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+      "role": "prepared-probe-source"
+    },
+    "probe_config.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/probe_config.py",
+      "sha256": "18d9d101d10735875c7c7effe481b351cce5f31557ea7d431a46275c0e01e772",
+      "role": "prepared-probe-source"
+    },
+    "probe_logging.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/probe_logging.py",
+      "sha256": "14020aebf640c10f8590d5c6bdcf8fe7e460884de938c37c7029e10d8ded10f2",
+      "role": "prepared-probe-source"
+    },
+    "rtc_probe.py": {
+      "source": "tests/uiflow2/lib/rtc_probe.py",
+      "sha256": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+      "role": "shared-common-injection"
+    },
+    "sensor_drivers/__init__.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/heart.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/heart.py",
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/mlx90614.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/mlx90614.py",
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/mlx90640.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/mlx90640.py",
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/pahub.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/pahub.py",
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/sgp30.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/sgp30.py",
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/tcs3472.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/tcs3472.py",
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/ultrasonic_i2c.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/ultrasonic_i2c.py",
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/unit_helper.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/unit_helper.py",
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+      "role": "prepared-probe-source"
+    },
+    "sensor_drivers/vl53l0x.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_drivers/vl53l0x.py",
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+      "role": "prepared-probe-source"
+    },
+    "sensor_probe.py": {
+      "source": ".work/unit-host-sensors-admitted-20261026-r3/atoms3r/color/files/sensor_probe.py",
+      "sha256": "596451237d5eacd3dfcfec45d6e0ea3503364941b5e1a05d8b0f5ea35fa0fd76",
+      "role": "prepared-probe-source"
+    }
+  },
+  "prepared_file_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "font-source.json": "f0efd9cc85eb5da6bd943754166046832cb9344373b80ccd107cfd08db7b41d9",
+    "host_sensor_layout.py": "2d771e0f82c6159061456f362cd8d302db9fee3c075f9ebf79c1bd23ba37a960",
+    "main.py": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+    "probe_config.py": "18d9d101d10735875c7c7effe481b351cce5f31557ea7d431a46275c0e01e772",
+    "probe_logging.py": "14020aebf640c10f8590d5c6bdcf8fe7e460884de938c37c7029e10d8ded10f2",
+    "sensor_drivers/LICENSE.MIT": "5a38e52b1cc040f87f6fd971ae78c194cd41b0ea0fcba6aa873e1e9a9b3d05f1",
+    "sensor_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sensor_drivers/heart.py": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+    "sensor_drivers/mlx90614.py": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+    "sensor_drivers/mlx90640.py": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+    "sensor_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "sensor_drivers/sgp30.py": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+    "sensor_drivers/source-manifest.json": "5070af10f0003e9034d798a50ecc9468acacfd24cfc1a0fde9d06d9f39d187d6",
+    "sensor_drivers/tcs3472.py": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+    "sensor_drivers/ultrasonic_i2c.py": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+    "sensor_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "sensor_drivers/vl53l0x.py": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+    "sensor_probe.py": "596451237d5eacd3dfcfec45d6e0ea3503364941b5e1a05d8b0f5ea35fa0fd76",
+    "source-evidence.json": "e3eec1ad2519ec8b87a40c2c53f4ec24eaff3a177df1580eec166363cdc32f67"
+  },
+  "admission": {
+    "status": "ADMITTED",
+    "validation": "NOT RUN"
+  },
+  "checks": {
+    "real_reference_partition": true,
+    "complete_vfs_membership_and_bytes": true,
+    "outside_vfs_unchanged": true,
+    "host_pin_sets_disjoint": true,
+    "guest_python_syntax": true
+  },
+  "required_negative_markers": [
+    "color_command_bit_required",
+    "color_identity_read_only",
+    "color_integration_not_ready",
+    "color_adc_saturation"
+  ],
+  "future_input_vectors": [
+    {
+      "clear-raw": 42000,
+      "red-raw": 9000,
+      "green-raw": 6000,
+      "blue-raw": 3000
+    },
+    {
+      "clear-raw": 53000,
+      "red-raw": 21000,
+      "green-raw": 12000,
+      "blue-raw": 6000
+    }
+  ],
+  "guest_execution": "NOT RUN",
+  "web_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "api_contacted": false,
+  "sessions_started": 0,
+  "builtin_symbol_occurrences": {
+    "cdriver": 5,
+    "MAX30100": 8,
+    "get_ir": 4,
+    "get_red": 1
+  },
+  "builtin_symbol_scope": "Static byte occurrences only; not callable API or cdriver algorithm execution proof."
+}

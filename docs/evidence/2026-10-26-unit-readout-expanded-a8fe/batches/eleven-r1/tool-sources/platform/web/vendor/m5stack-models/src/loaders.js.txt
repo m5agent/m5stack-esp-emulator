@@ -1,0 +1,48 @@
+// Generated from catalog/products.json by npm run catalog. No hardware behavior.
+const bindings={
+  "sticks3": {load:()=>import("./devices/sticks3/index.js"),exportName:"StickS3",moduleExport:null},
+  "cores3": {load:()=>import("./devices/cores3/index.js"),exportName:"CoreS3",moduleExport:null},
+  "stopwatch": {load:()=>import("./devices/stopwatch/index.js"),exportName:"default",moduleExport:null},
+  "cardputer-adv": {load:()=>import("./devices/cardputer-adv/index.js"),exportName:"CardputerADV",moduleExport:null},
+  "cardputer-zero": {load:()=>import("./devices/cardputer-zero/index.js"),exportName:"CardputerZero",moduleExport:null},
+  "papermono": {load:()=>import("./devices/papermono/index.js"),exportName:"default",moduleExport:null},
+  "core2": {load:()=>import("./devices/core2/index.js"),exportName:"Core2",moduleExport:null},
+  "papercolor": {load:()=>import("./devices/papercolor/index.js"),exportName:"default",moduleExport:null},
+  "nanoc6": {load:()=>import("./devices/nanoc6/index.js"),exportName:"default",moduleExport:null},
+  "stackchan": {load:()=>import("./devices/stackchan/index.js"),exportName:"StackChan",moduleExport:null},
+  "tab5": {load:()=>import("./devices/tab5/index.js"),exportName:"Tab5",moduleExport:null},
+  "atoms3r": {load:()=>import("./devices/atoms3r/index.js"),exportName:"default",moduleExport:null},
+  "nesso-n1": {load:()=>import("./devices/nesso-n1/index.js"),exportName:"NessoN1",moduleExport:null},
+  "stamplc": {load:()=>import("./devices/stamplc/index.js"),exportName:"StamPLC",moduleExport:null},
+  "env-iii": {load:()=>import("./units/env-iii/index.js"),exportName:"default",moduleExport:"GroveModule"},
+  "pir": {load:()=>import("./units/pir/index.js"),exportName:"default",moduleExport:"GroveModule"},
+  "ultrasonic-i2c": {load:()=>import("./units/ultrasonic-i2c/index.js"),exportName:"default",moduleExport:"GroveModule"},
+  "rgb": {load:()=>import("./units/rgb/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "angle": {load:()=>import("./units/angle/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "color": {load:()=>import("./units/color/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "tof": {load:()=>import("./units/tof/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "light": {load:()=>import("./units/light/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "relay": {load:()=>import("./units/relay/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "joystick-v11": {load:()=>import("./units/joystick-v11/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "dual-button": {load:()=>import("./units/dual-button/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "button": {load:()=>import("./units/button/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "ncir": {load:()=>import("./units/ncir/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "heart": {load:()=>import("./units/heart/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "encoder": {load:()=>import("./units/encoder/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "thermal": {load:()=>import("./units/thermal/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "tvoc": {load:()=>import("./units/tvoc/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "ir": {load:()=>import("./units/ir/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "hub": {load:()=>import("./units/hub/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "rfid2": {load:()=>import("./units/rfid2/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "rs485": {load:()=>import("./units/rs485/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "buzzer": {load:()=>import("./units/buzzer/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "fan": {load:()=>import("./units/fan/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "limit": {load:()=>import("./units/limit/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "cardkb": {load:()=>import("./units/cardkb/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "key": {load:()=>import("./units/key/index.js"),exportName:"Model",moduleExport:"GroveModule"},
+  "8encoder": {load:()=>import("./units/8encoder/index.js"),exportName:"Model",moduleExport:"GroveModule"}
+};
+export const implementedModelIds=Object.freeze(Object.keys(bindings));
+export async function loadModelClass(id){const b=bindings[id];if(!b)throw new Error('Visual model is not implemented: '+id);return (await b.load())[b.exportName];}
+export async function loadModel(id,options={}){const C=await loadModelClass(id);return new C(options);}
+export async function loadGroveModule(id,options={}){const b=bindings[id];if(!b?.moduleExport)throw new Error('No Grove visual module: '+id);const C=(await b.load())[b.moduleExport];return new C(options);}

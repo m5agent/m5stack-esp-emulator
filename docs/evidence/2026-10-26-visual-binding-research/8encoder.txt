@@ -1,0 +1,228 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit 8Encoder |
+| SKU | U153 |
+| 产品 ID | `unit-8encoder-02e2f84d6fb0` |
+| 源文档 | `zh_CN/unit/8Encoder.md` |
+
+Unit 8Encoder 以 U10 STM32F030C8T6 为采集与通信主控，直接读取八个 EC11A 旋转编码器的 A/B 与按压网络以及 SW9 拨动开关。J1 通过 SCL、SDA、VCC_5V 和 GND 接入，U11 BL8075CB5TR33 产生 3V3，I2C 分别连接 MCU 的 PB10/PB11。U1-U9 共九颗 WS2812C-2020 由 PB0 的 RGB 网络串行驱动；板上还提供 J2 SWD 调试口、NRST RC 网络和 BOOT0 下拉。
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 检索关键词
+分段内容:`Unit 8Encoder`、`U153`、`STM32F030C8T6`、`U10`、`BL8075CB5TR33`、`U11`、`WS2812C-2020`、`U1-U9`、`EC11A EH`、`SW1-SW8`、`SS12D07L4B`、`SW9`、`J1`、`GROVE_4P`、`J2`、`SWD`、`MCU_SWDIO`、`MCU_SWCLK`、`NRST`、`BOOT0`、`I2C`、`SCL`、`SDA`、`PB10`、`PB11`、`RGB`、`PB0`、`SW_K1-SW_K9`、`EN S1 A`、`EN S8 B`、`VCC_5V`、`3V3`、`4.7K`、`10K`、`100nF`、`0x41`、`rotary encoder`、`RGB daisy chain`
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| U10 | STM32F030C8T6 | 主控 MCU，采集八路编码器和 SW9，控制 RGB 串行链，并提供 I2C 与 SWD。 | 图 75d0558295a7 / 第 1 页 / 网格 B1-B2，U10 STM32F030C8T6 及 PA/PB/SWD/电源引脚网络 |
+| U11 | BL8075CB5TR33 | VCC_5V 到 3V3 的五引脚稳压器，输入/输出分别配置 C1/C2。 | 图 75d0558295a7 / 第 1 页 / 网格 D2，U11 BL8075CB5TR33，VCC_5V 输入、3V3 输出、C1/C2 |
+| U1-U9 | WS2812C-2020 | 九颗 3V3 RGB LED，U1.DI 接 RGB，按 U1 到 U9 方向串行级联。 | 图 75d0558295a7 / 第 1 页 / 网格 A1-A4，U1-U9 WS2812C-2020 的 DI/DO、3V3、GND 链 |
+| SW1-SW8 | EC11A EH | 八个旋转编码器，每个具有 A/B 正交输出和 SW_K1-SW_K8 按压输出。 | 图 75d0558295a7 / 第 1 页 / 网格 B3-C4，SW1-SW8 EC11A EH，EN Sx A/B 与 SW_Kx 网络 |
+| SW9 | SS12D07L4B | 拨动开关，输出网络为 SW_K9，并由 R11 上拉至 3V3。 | 图 75d0558295a7 / 第 1 页 / 网格 D4，SW9 SS12D07L4B、SW_K9、R11 10K 与 GND |
+| J1 | GROVE_4P | 四针 Grove 接口，针脚 IO2/IO1/5V/GND 分别连接 SCL/SDA/VCC_5V/GND。 | 图 75d0558295a7 / 第 1 页 / 网格 D1，J1 GROVE_4P 的 IO2/IO1/5V/GND 与 SCL/SDA/VCC_5V/GND |
+| J2 | SWD | 五针 MCU 调试连接器，引出 3V3、MCU_SWCLK、MCU_SWDIO、NRST 和 GND。 | 图 75d0558295a7 / 第 1 页 / 网格 C2，J2 SWD 1-5 脚网络 |
+| RP1,RP2 | 10K | SW_K1-SW_K8 八路编码器按压输入的 3V3 上拉电阻阵列。 | 图 75d0558295a7 / 第 1 页 / 网格 C3-C4，RP1/RP2 标注 10K，输出 SW_K1-SW_K8 |
+| RP3-RP6 | 10K | EN S1 A/B 至 EN S8 A/B 十六路编码器相位输入的 3V3 上拉电阻阵列。 | 图 75d0558295a7 / 第 1 页 / 网格 C3-D4，RP3-RP6 标注 10K，输出 EN S1 A/B 至 EN S8 A/B |
+| R3,R4 | 4.7K | SCL 与 SDA 到 3V3 的 I2C 上拉电阻。 | 图 75d0558295a7 / 第 1 页 / 网格 D1，R3/R4 4.7K 从 SCL/SDA 上拉到 3V3 |
+| R1,C14 | 10K / 100nF | NRST 的 3V3 上拉与对地电容复位网络。 | 图 75d0558295a7 / 第 1 页 / 网格 C1-C2，U10 NRST、R1 10K 到 3V3、C14 100nF 到 GND |
+| R2 | 10K | U10 BOOT0 到 GND 的下拉电阻。 | 图 75d0558295a7 / 第 1 页 / 网格 C2，U10 BOOT0 44 脚经 R2 10K 接 GND |
+| R11 | 10K | SW_K9 到 3V3 的上拉电阻。 | 图 75d0558295a7 / 第 1 页 / 网格 D4，R11 10K 连接 3V3 与 SW_K9 |
+| C1,C2 | 1uF/25V | U11 的 VCC_5V 输入与 3V3 输出对地电容。 | 图 75d0558295a7 / 第 1 页 / 网格 D2，U11 两侧 C1/C2，均标注 1uF/25V |
+| C15-C30 | 100nF | 八个编码器 A/B 相位网络各自到 GND 的滤波电容。 | 图 75d0558295a7 / 第 1 页 / 网格 B3-C4，SW1-SW8 两侧 C15-C30，均标注 100nF |
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 系统结构 整板架构
+分段内容:U10 STM32F030C8T6 连接八个 EC11A 编码器、SW9、九颗 WS2812C-2020、J1 I2C/Grove 和 J2 SWD；U11 从 VCC_5V 生成 3V3。
+
+- 参数与网络：`controller=U10 STM32F030C8T6`；`encoders=SW1-SW8 EC11A EH`；`slide_switch=SW9 SS12D07L4B`；`rgb_leds=U1-U9 WS2812C-2020`；`host_interface=J1 I2C`；`debug=J2 SWD`；`regulator=U11 BL8075CB5TR33`
+- 证据：图 75d0558295a7 / 第 1 页 / 第 1 页全图，U10、U11、U1-U9、SW1-SW9、J1、J2 功能分区
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 核心器件 U10 STM32F030C8T6
+分段内容:U10 的 PA0-PA11 与 PB12-PB15 接编码器相位，PB2-PB9 接八个编码器按压，PB1 接 SW_K9，PB0 接 RGB，PB10/PB11 接 SCL/SDA，PA13/PA14 接 SWD。
+
+- 参数与网络：`reference=U10`；`part_number=STM32F030C8T6`；`encoder_phase_ports=PA0-PA11,PB12-PB15`；`encoder_key_ports=PB2-PB9`；`slide_switch_port=PB1`；`rgb_port=PB0`；`i2c_ports=PB10 SCL,PB11 SDA`；`debug_ports=PA13/SWDIO,PA14/SWCLK`
+- 证据：图 75d0558295a7 / 第 1 页 / 网格 B1-B2，U10 左右两侧全部网络与引脚号
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 核心器件 U1-U9 RGB 链
+分段内容:U10 PB0（18 脚）的 RGB 网络连接 U1.DI，随后 U1.DO→U2.DI→U3.DI→U4.DI→U5.DI→U6.DI→U7.DI→U8.DI→U9.DI；各器件 VDD 接 3V3、GND 接地。
+
+- 参数与网络：`driver_pin=U10 PB0 pin18`；`input_net=RGB`；`first_device=U1 DI pin3`；`chain_order=U1,U2,U3,U4,U5,U6,U7,U8,U9`；`last_output=U9 DO pin1`；`supply=3V3`；`ground=GND`
+- 证据：图 75d0558295a7 / 第 1 页 / 网格 A1-A4 U1-U9 DI/DO 串链及网格 B2 U10 PB0 RGB
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 电源 U11 供电转换
+分段内容:J1 的 5V/VCC_5V 网络进入 U11 BL8075CB5TR33，U11 输出 3V3；C1 与 C2 均为 1uF/25V，分别跨接输入/输出到 GND，U11 EN 接输入侧。
+
+- 参数与网络：`input_rail=VCC_5V`；`output_rail=3V3`；`regulator=U11 BL8075CB5TR33`；`input_capacitor=C1 1uF/25V`；`output_capacitor=C2 1uF/25V`；`enable=EN tied to VCC_5V`；`ground_pin=U11.2`
+- 证据：图 75d0558295a7 / 第 1 页 / 网格 D2，VCC_5V-C1-U11-C2-3V3 电源链
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 模拟电路 编码器 A/B 滤波与上拉
+分段内容:EN S1 A/B 至 EN S8 A/B 均由 RP3-RP6 的 10K 电阻上拉到 3V3，并分别由 C15-C30 的 100nF 电容接 GND。
+
+- 参数与网络：`phase_inputs=16`；`pullups=RP3-RP6 10K to 3V3`；`filter_capacitors=C15-C30 100nF to GND`；`encoder_common=SW1-SW8 C pins to GND`
+- 证据：图 75d0558295a7 / 第 1 页 / 网格 B3-D4，SW1-SW8 A/B、C15-C30 与 RP3-RP6
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 参数与信号索引
+分段内容:| 分类 | 对象 | 参数 |
+| --- | --- | --- |
+| 系统结构 | 整板架构 | `controller=U10 STM32F030C8T6`；`encoders=SW1-SW8 EC11A EH`；`slide_switch=SW9 SS12D07L4B`；`rgb_leds=U1-U9 WS2812C-2020`；`host_interface=J1 I2C`；`debug=J2 SWD`；`regulator=U11 BL8075CB5TR33` |
+| 核心器件 | U10 STM32F030C8T6 | `reference=U10`；`part_number=STM32F030C8T6`；`encoder_phase_ports=PA0-PA11,PB12-PB15`；`encoder_key_ports=PB2-PB9`；`slide_switch_port=PB1`；`rgb_port=PB0`；`i2c_ports=PB10 SCL,PB11 SDA`；`debug_ports=PA13/SWDIO,PA14/SWCLK` |
+| 电源 | U11 供电转换 | `input_rail=VCC_5V`；`output_rail=3V3`；`regulator=U11 BL8075CB5TR33`；`input_capacitor=C1 1uF/25V`；`output_capacitor=C2 1uF/25V`；`enable=EN tied to VCC_5V`；`ground_pin=U11.2` |
+| 电源 | 3V3 电源轨 | `mcu_pins=U10.1,U10.9,U10.24,U10.36,U10.48`；`rgb_vdd=U1-U9 pin 4`；`i2c_pullups=R3,R4`；`input_pullups=RP1-RP6,R11`；`reset_pullup=R1`；`debug_pin=J2.1` |
+| 接口 | J1 GROVE_4P | `reference=J1`；`part_number=GROVE_4P`；`io2=SCL`；`io1=SDA`；`power=VCC_5V`；`ground=GND`；`direction=SCL/SDA 双向总线` |
+| 总线 | I2C 总线 | `bus=I2C`；`device=U10 STM32F030C8T6`；`scl_connector=J1 IO2`；`scl_mcu_pin=U10 PB10 pin 21`；`sda_connector=J1 IO1`；`sda_mcu_pin=U10 PB11 pin 22`；`scl_pullup=R3 4.7K to 3V3`；`sda_pullup=R4 4.7K to 3V3` |
+| 总线地址 | Unit 8Encoder I2C 地址 | `bus=I2C`；`documented_candidate=0x41`；`schematic_visible_address=未标注`；`address_straps=未显示`；`firmware_defined=需确认` |
+| 调试与烧录 | J2 SWD 调试接口 | `reference=J2`；`pin_1=3V3`；`pin_2=MCU_SWCLK`；`pin_3=MCU_SWDIO`；`pin_4=NRST`；`pin_5=GND`；`swclk_mcu=PA14/SWCLK pin 37`；`swdio_mcu=PA13/SWDIO pin 34` |
+| 复位 | U10 NRST | `mcu_pin=U10 NRST pin 7`；`pullup=R1 10K to 3V3`；`capacitor=C14 100nF to GND`；`debug_connector=J2.4` |
+| GPIO 与控制信号 | U10 BOOT0 | `mcu_pin=U10 BOOT0 pin 44`；`resistor=R2 10K`；`default_connection=GND` |
+| GPIO 与控制信号 | SW1-SW4 编码器相位映射 | `sw1=EN S1 A=PA10 pin31; EN S1 B=PA11 pin32`；`sw2=EN S2 A=PA8 pin29; EN S2 B=PA9 pin30`；`sw3=EN S3 A=PB14 pin27; EN S3 B=PB15 pin28`；`sw4=EN S4 A=PB12 pin25; EN S4 B=PB13 pin26` |
+| GPIO 与控制信号 | SW5-SW8 编码器相位映射 | `sw5=EN S5 A=PA6 pin16; EN S5 B=PA7 pin17`；`sw6=EN S6 A=PA4 pin14; EN S6 B=PA5 pin15`；`sw7=EN S7 A=PA2 pin12; EN S7 B=PA3 pin13`；`sw8=EN S8 A=PA0 pin10; EN S8 B=PA1 pin11` |
+| GPIO 与控制信号 | SW1-SW8 按压映射 | `sw_k1=PB2 pin20`；`sw_k2=PB3 pin39`；`sw_k3=PB4 pin40`；`sw_k4=PB5 pin41`；`sw_k5=PB6 pin42`；`sw_k6=PB7 pin43`；`sw_k7=PB8 pin45`；`sw_k8=PB9 pin46`；`pullups=RP1,RP2 10K to 3V3` |
+| 模拟电路 | 编码器 A/B 滤波与上拉 | `phase_inputs=16`；`pullups=RP3-RP6 10K to 3V3`；`filter_capacitors=C15-C30 100nF to GND`；`encoder_common=SW1-SW8 C pins to GND` |
+| 核心器件 | U1-U9 RGB 链 | `driver_pin=U10 PB0 pin18`；`input_net=RGB`；`first_device=U1 DI pin3`；`chain_order=U1,U2,U3,U4,U5,U6,U7,U8,U9`；`last_output=U9 DO pin1`；`supply=3V3`；`ground=GND` |
+| 电源 | 3V3 去耦 | `mcu_decoupling=C10,C11,C12 100nF`；`rgb_decoupling=C3,C4,C5,C6,C7,C8,C9,C13 100nF`；`rail=3V3`；`return=GND` |
+| 时钟 | U10 时钟连接 | `high_speed_clock_pins=PF0-OSCIN pin5,PF1-OSCOUT pin6`；`low_speed_clock_pins=PC14-OSC32IN pin3,PC15-OSC32OUT pin4`；`external_crystal=原理图未显示`；`clock_source=本页未标注` |
+| 存储 | 外部存储器 | `external_flash=原理图未显示`；`eeprom=原理图未显示`；`sd_card=原理图未显示`；`controller=U10 STM32F030C8T6` |
+| 保护电路 | J1 外部接口保护 | `connector=J1`；`signals=SCL,SDA,VCC_5V,GND`；`tvs=原理图未显示`；`fuse=原理图未显示`；`reverse_polarity=原理图未显示` |
+| GPIO 与控制信号 | SW9 拨动开关状态 | `switch=SW9 SS12D07L4B`；`signal=SW_K9`；`mcu_pin=U10 PB1 pin19`；`pullup=R11 10K to 3V3`；`ground=GND`；`position_truth_table=未标注` |
+| 核心器件 | RGB 与控件物理对应 | `rgb_devices=U1-U9`；`electrical_order=U1,U2,U3,U4,U5,U6,U7,U8,U9`；`controls=SW1-SW9`；`physical_mapping=未标注` |
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 待确认事项
+分段内容:- `address.i2c-address-undetermined`：原理图没有打印 I2C 从设备地址，也没有显示硬件地址配置电阻或地址选择引脚；仅凭本页不能确认产品正文所列的 0x41。（证据：图 75d0558295a7 / 第 1 页 / 第 1 页 J1 SCL/SDA 至 U10 PB10/PB11 路径，页面无 0x41 或地址选择标注）
+- `gpio.sw9-state-map-undetermined`：SW_K9 连接 U10 PB1（19 脚）并由 R11（10K）上拉到 3V3；SW9 符号显示接地端，但本页没有给出各机械档位对应的 SW_K9 高低电平真值表。（证据：图 75d0558295a7 / 第 1 页 / 网格 D4，SW9、SW_K9、R11 10K、3V3 与 GND；网格 B2 U10 PB1）
+- `component.rgb-control-association-undetermined`：原理图确认 U1-U9 的串行电气顺序，但未标注每颗 RGB 分别对应 SW1-SW8 中哪个编码器或 SW9 拨动开关。（证据：图 75d0558295a7 / 第 1 页 / 网格 A1-A4 的 U1-U9 仅显示串链；SW1-SW9 区域无 RGB 对应编号）
+- `review.i2c-address`：当前固件的 I2C 从设备地址是否固定为 0x41，是否存在可配置地址方式？；原因：地址属于 MCU 固件行为，原理图没有打印 0x41 或地址选择硬件。
+- `review.sw9-truth-table`：SW9 各机械档位分别使 SW_K9 读取高电平还是低电平？；原因：原理图显示上拉与接地连接，但没有档位名称或真值表。
+- `review.rgb-control-mapping`：U1-U9 在 PCB 上分别对应 SW1-SW8 和 SW9 中的哪个实体控件？；原因：原理图只给出 RGB 串行顺序，没有给出物理位置或控件对应表。
+---
+文档属性:产品信息
+产品名:schematic Unit 8Encoder
+分段标题:Unit 8Encoder 原理图描述 原理图来源
+分段内容:| 资源 | 页码 | SHA-256 | 原始地址 |
+| --- | --- | --- | --- |
+| 1 | 1 | `75d0558295a7325c0499d532af4081b0cf764bf37f0287085b962283fccbb332` | `https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/607/SCH_UNIT_8Encoder_V1.01_sch_01.png` |
+
+---
+
+源文档：`zh_CN/unit/8Encoder.md`
+
+源文档 SHA-256：`1a1fe3c044e0e1e8d9688b3446490040d5907ace014a4ffc4f28c574473084f8`
+
+*该文档由专用原理图子智能体基于原理图证据自动生成；无法确认的内容集中列在“待确认事项”章节。*
+---
+文档属性:产品信息
+产品名:Unit 8Encoder (SKU:U153)
+分段标题:Unit 8Encoder
+分段内容:<span class="product-sku">SKU:U153</span>
+
+<PictureViewer>
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-f745fc18-6237-4bc8-8500-6c91ce7e2d75.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-39bbe78d-4415-4a18-92b4-4c0e34dde190.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-b1784732-4389-4ddf-8808-b4f90b6e6d00.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-f58d98c0-09a8-4f57-b884-b75fee80c118.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-d69a78f9-230b-44cc-be35-09c2b50060f9.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-421a38df-45cc-478f-9501-7aba4e9fc29a.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-8dd7a2f6-b40d-4782-a012-4dd6927011f2.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-3f5f0005-ea48-4ab7-9dbc-4f864e935cbc.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-878d09f7-aab2-4fda-a1f6-ecaab4a6cbf6.webp">
+</PictureViewer>
+---
+文档属性:产品信息
+产品名:Unit 8Encoder (SKU:U153)
+分段标题:Unit 8Encoder 描述
+分段内容:**Unit 8Encoder** 是一款集 8 路旋转编码器为一体的输入单元，内部采用 STM32 单片机作为采集及通信处理器，与上位机采用 I2C 通信接口。每路旋转编码器对应着 1 个 RGB LED 灯，编码器除了左右旋转，还能径向按下；另外还有一路物理拨动开关及其对应的 RGB LED 灯，内含 5V->3V3 的 DC-DC 电路。该单元可用于多通道相对控制值的输入，对应的 RGB 灯能显示不同的状态，拨动开关可以用于多通道开关量的输入，可用作多自由度机器人或音乐均衡方面的应用。
+---
+文档属性:产品信息
+产品名:Unit 8Encoder (SKU:U153)
+分段标题:Unit 8Encoder 产品特性 & 规格参数
+分段内容:- 8 通道旋转编码器
+- 8 路对应可调 RGB 灯
+- I2C 通讯
+- 拨动开关可以用于多通道开关量的输入
+- 径向按下功能
+- HY2.0-4P 接口
+- 2 x LEGO 兼容孔
+
+- 1 x Unit 8Encoder
+- 1 x HY2.0-4P Grove 连接线 (20cm)
+
+- 多自由度机器人关节控制
+- 音乐均衡控制方面
+- 多通道灯光控制
+
+| 规格     | 参数                  |
+| -------- | --------------------- |
+| MCU      | STM32F030C8T6         |
+| RGB      | WS2812C-2020          |
+| 输入电压 | 5v                    |
+| 通信接口 | I2C 通信 @ 0x41       |
+| 按压寿命 | ＞50000 次            |
+| 产品尺寸 | 128.0 x 24.0 x 25.0mm |
+| 产品重量 | 43.9g                 |
+| 包装尺寸 | 131.0 x 27.0 x 27.0mm |
+| 毛重     | 52.7g                 |
+---
+文档属性:产品信息
+产品名:Unit 8Encoder (SKU:U153)
+分段标题:Unit 8Encoder 原理图
+分段内容:- [Unit 8Encoder 原理图 PDF](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/607/SCH_UNIT_8Encoder_V1.01.pdf)
+
+<SchViewer>
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/607/SCH_UNIT_8Encoder_V1.01_sch_01.png">
+</SchViewer>
+---
+文档属性:产品信息
+产品名:Unit 8Encoder (SKU:U153)
+分段标题:Unit 8Encoder 管脚映射 Unit 8Encoder & 尺寸图
+分段内容:::grove-table
+| HY2.0-4P | Black | Red | Yellow | White |
+| -------- | ----- | --- | ------ | ----- |
+| PORT.A   | GND   | 5V  | SDA    | SCL   |
+::
+
+<img alt="module size" src="https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-55ebb676-2b3c-4b9a-a192-b85bf0d1a87c.png" width="100%" />
+---
+文档属性:产品信息
+产品名:schematic Unit 8Angle
+分段标题:Unit 8Angle 原理图描述 总线 U10 I2C
+分段内容:SCL 从 J1 连接 U10 PA9 pin 17，SDA 从 J1 连接 U10 PA10 pin 18。
+
+- 参数与网络：`controller=U10 STM32F030F4P6`；`scl_net=SCL`；`scl_pin=PA9 pin 17`；`sda_net=SDA`；`sda_pin=PA10 pin 18`；`connector=J1 GROVE 4P`
+- 证据：图 09ccb8692112 / 第 1 页 / 页 1 网格 A1 与 B1：J1 SCL/SDA 同名网络连接 U10 PA9 pin 17、PA10 pin 18
+---
+文档属性:产品信息
+产品名:schematic Unit 8Angle
+分段标题:Unit 8Angle 原理图描述 总线 U1~U9 RGB 串行链
+分段内容:数据从 RGB 进入 U1 DI，随后按 U1 DO→U2 DI、U2 DO→U3 DI，依次级联至 U9 DI；各器件 DO 为 pin 1、DI 为 pin 3。
+
+- 参数与网络：`devices=U1,U2,U3,U4,U5,U6,U7,U8,U9`；`part_number=SK6812-3535`；`input=RGB to U1 DI pin 3`；`chain_order=U1->U2->U3->U4->U5->U6->U7->U8->U9`；`data_out_pin=pin 1 DO`；`data_in_pin=pin 3 DI`；`device_count=9`
+- 证据：图 09ccb8692112 / 第 1 页 / 页 1 网格 C1-D4：从右侧 U1 的 RGB/DI 开始，经相邻 DO-DI 连线逐级到左侧 U9
+---
+文档属性:产品信息
+产品名:schematic Unit 8Angle
+分段标题:Unit 8Angle 原理图描述 GPIO 与控制信号 U10 模拟输入映射
+分段内容:ad0~ad7 分别连接 U10 PA0 pin 6、PA1 pin 7、PA2 pin 8、PA3 pin 9、PA4 pin 10、PA5 pin 11、PA7 pin 13、PB1 pin 14。
+
+- 参数与网络：`ad0=PA0 pin 6`；`ad1=PA1 pin 7`；`ad2=PA2 pin 8`；`ad3=PA3 pin 9`；`ad4=PA4 pin 10`；`ad5=PA5 pin 11`；`ad6=PA7 pin 13`；`ad7=PB1 pin 14`
+- 证据：图 09ccb8692112 / 第 1 页 / 页 1 网格 B1：U10 左侧 ad0~ad6 与 PA0~PA7，右上 ad7 与 PB1 pin 14
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

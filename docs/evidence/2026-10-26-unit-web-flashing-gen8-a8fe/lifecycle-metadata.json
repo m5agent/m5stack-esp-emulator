@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "category": "cold-flash-lifecycle-metadata",
+  "included_in_main_27_selection": false,
+  "metadata_module": "lifecycle_receipt.py",
+  "metadata_module_sha256": "290fef5ac3e035f979e72ebeb6866c6d12a3bfac53a7804b0c54a12b3603e32d",
+  "metadata_module_content": "\"\"\"Unreferenced VFS metadata for a separately labelled cold-flash observation.\"\"\"\nLIFECYCLE_RECEIPT = 'generation8-a8fe-cold-flash-52c78e33d7c148b88375ca24bed8693e'\n",
+  "unchanged_probe_source_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303"
+  },
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "worker_generation": 8,
+  "purpose": "Create a fresh firmware/cache key using an unreferenced metadata module while keeping all existing probe and driver bytes unchanged. The Device Service performs its normal cold flash; no cache deletion, delay or state injection is used."
+}

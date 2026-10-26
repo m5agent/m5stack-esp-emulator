@@ -1,0 +1,174 @@
+// Read-only controller readouts in a rail outside the interactive canvas.
+import {Vector3} from 'three';
+
+export const ANNOTATED_UNITS = new Set([
+  'env-iii', 'pir', 'ultrasonic-i2c', 'color', 'tof', 'light', 'relay',
+  'ncir', 'heart', 'thermal', 'tvoc', 'buzzer',
+]);
+
+// Field origin is audited explicitly; inputs/outputs/readOnly are not origin.
+const FIELD_SOURCE = {
+  relay: {'output-level': '固件输出'},
+  buzzer: {'frequency-hz': '固件输出', 'duty-pct': '固件输出'},
+  thermal: {'raw-fixture-ready': '模型状态', 'control-word': '控制寄存器状态'},
+};
+const scalar = (value, schema) => (schema.type === 'boolean' ? typeof value === 'boolean'
+  : ['number', 'integer'].includes(schema.type) && Number.isFinite(value)
+    && (schema.type !== 'integer' || Number.isInteger(value)))
+  && (schema.minimum === undefined || value >= schema.minimum)
+  && (schema.maximum === undefined || value <= schema.maximum)
+  && (!schema.enum || schema.enum.includes(value));
+const text = (tag, className, value) => {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (value !== undefined) node.textContent = value;
+  return node;
+};
+let helpSequence = 0;
+
+// Schema defaults, mutable inventory and local pending input are not readback.
+export function annotationReadback(unit, definition, {running, source, frozenDefinitions} = {}) {
+  if (!ANNOTATED_UNITS.has(unit?.unit_id) || definition?.id !== unit.unit_id) return null;
+  const live = running === true && source === 'live' && unit.source === 'guest-qom'
+    && frozenDefinitions === true && unit.available === true
+    && (!unit.errors || Object.keys(unit.errors).length === 0);
+  const result = {title: definition.name || unit.unit_id, groups: [],
+    status: !running ? '会话未运行 · 数值见面板' : !frozenDefinitions ? '读数契约不可用'
+      : !live ? '状态不可用 · 数值未确认' : ''};
+  if (!live) return result;
+  const groups = new Map();
+  let rejected = false;
+  for (const direction of ['inputs', 'outputs']) {
+    for (const [field, schema] of Object.entries(definition[direction] || {})) {
+      if (!['boolean', 'number', 'integer'].includes(schema.type)) continue;
+      if (!Object.hasOwn(unit.properties || {}, field)) continue;
+      const value = unit.properties[field];
+      if (!scalar(value, schema)) { rejected = true; continue; }
+      const label = FIELD_SOURCE[unit.unit_id]?.[field] || (direction === 'inputs' ? '模拟输入' : '控制器状态');
+      if (!groups.has(label)) groups.set(label, {direction, label, rows: []});
+      groups.get(label).rows.push({field, label: schema.label || field, value: String(value),
+        unit: schema.unit === 'degC' ? '°C' : schema.unit || ''});
+    }
+  }
+  result.groups = [...groups.values()];
+  if (rejected) result.status = '部分读数超出契约 · 请核对面板';
+  else if (!result.groups.length) result.status = '无可用标量读数 · 详见面板';
+  return result;
+}
+
+export class UnitAnnotations {
+  constructor({container, root = container.parentElement, viewer, model}) {
+    Object.assign(this, {container, root, viewer, model});
+    this.items = new Map();
+    this.point = new Vector3();
+    this.layer = text('div', 'unit-annotation-layer');
+    this.layer.setAttribute('aria-hidden', 'true');
+    this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    this.svg.classList.add('unit-annotation-leaders');
+    this.layer.append(this.svg);
+    this.rail = text('section', 'unit-readout-rail');
+    this.rail.setAttribute('aria-label', '实时读数');
+    this.rail.setAttribute('aria-live', 'off');
+    const help = text('p', 'unit-readout-help', '仿真读数，标号与模型中的外设对应。');
+    help.id = `unit-readout-help-${++helpSequence}`;
+    this.rail.setAttribute('aria-describedby', help.id);
+    this.cards = text('div', 'unit-readout-cards');
+    this.rail.append(text('h4', 'unit-readout-heading', '实时读数'), help, this.cards);
+    this.layer.hidden = this.rail.hidden = true;
+    root.append(this.layer, this.rail);
+    this.offRender = viewer.on('render', () => this.layout());
+    this.resize = new ResizeObserver(() => this.layout());
+    this.resize.observe(root);
+    this.disposed = false;
+  }
+
+  active() {
+    const active = this.items.size > 0;
+    if (active && !this.root.classList.contains('has-unit-readouts') && !this.root.closest('.session-visual')) {
+      this.root.style.setProperty('--unit-annotation-canvas-height', `${this.viewer.renderer.domElement.clientHeight || 420}px`);
+      this.ownsHeight = true;
+    }
+    this.root.classList.toggle('has-unit-readouts', active);
+    this.layer.hidden = this.rail.hidden = !active;
+    if (!active && this.ownsHeight) { this.root.style.removeProperty('--unit-annotation-canvas-height'); this.ownsHeight = false; }
+  }
+
+  set(port, unit, definition, options) {
+    if (this.disposed) return;
+    const value = annotationReadback(unit, definition, options);
+    const target = `${port}/sensor`, anchor = this.model.find(target);
+    if (!value || anchor?.meta?.role !== 'visual-anchor') { this.clear(port, {descendants: false}); return; }
+    let item = this.items.get(port);
+    if (!item) {
+      const marker = text('div', 'unit-annotation-marker');
+      const leader = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      leader.classList.add('unit-annotation-leader');
+      const note = text('aside', 'unit-annotation');
+      note.setAttribute('role', 'note');
+      note.dataset.annotationPort = port; note.dataset.annotationAnchor = target;
+      this.layer.append(marker); this.svg.append(leader); this.cards.append(note);
+      item = {marker, leader, note, anchor, signature: null}; this.items.set(port, item);
+    }
+    item.anchor = anchor;
+    const signature = JSON.stringify(value);
+    if (item.signature !== signature) {
+      item.signature = signature;
+      item.badge = text('span', 'unit-annotation-index');
+      const title = text('strong', 'unit-annotation-title');
+      title.append(item.badge, document.createTextNode(value.title));
+      item.note.replaceChildren(title);
+      if (value.status) item.note.append(text('p', 'unit-annotation-status', value.status));
+      for (const group of value.groups) {
+        item.note.append(text('small', 'unit-annotation-source', group.label));
+        const list = text('dl', 'unit-annotation-values');
+        for (const row of group.rows) {
+          const observed = text('dd', '', row.value + (row.unit ? ` ${row.unit}` : ''));
+          observed.dataset.annotationField = row.field;
+          list.append(text('dt', '', row.label), observed);
+        }
+        item.note.append(list);
+      }
+    }
+    this.active(); this.viewer.requestRender(); this.layout();
+  }
+
+  layout() {
+    if (this.disposed || !this.items.size) return;
+    const canvas = this.viewer.renderer.domElement, rect = canvas.getBoundingClientRect();
+    const origin = this.root.getBoundingClientRect();
+    let index = 0;
+    for (const [port, {anchor, marker, leader, note, badge}] of [...this.items]) {
+      if (this.model.find(note.dataset.annotationAnchor) !== anchor) { this.clear(port, {descendants: false}); continue; }
+      const number = String(++index); marker.textContent = badge.textContent = number;
+      note.dataset.annotationIndex = number; marker.dataset.annotationPort = port;
+      anchor.object3d.getWorldPosition(this.point).project(this.viewer.camera);
+      const visible = rect.width > 0 && rect.height > 0 && this.point.z >= -1 && this.point.z <= 1
+        && Math.abs(this.point.x) <= 1 && Math.abs(this.point.y) <= 1;
+      marker.hidden = !visible; leader.toggleAttribute('hidden', !visible);
+      note.dataset.anchorVisible = String(visible);
+      // Readouts remain readable in the rail even when the camera faces away.
+      if (!visible) continue;
+      const x = rect.left - origin.left + (this.point.x + 1) * rect.width / 2;
+      const y = rect.top - origin.top + (1 - this.point.y) * rect.height / 2;
+      marker.style.left = `${x}px`; marker.style.top = `${y}px`;
+      const end = badge.getBoundingClientRect();
+      const endX = end.left - origin.left + end.width / 2, endY = end.top - origin.top + end.height / 2;
+      const edge = x < rect.left - origin.left + rect.width / 2 ? rect.left - origin.left + 8 : rect.right - origin.left - 8;
+      leader.setAttribute('points', `${x},${y} ${edge},${y} ${edge},${endY} ${endX},${endY}`);
+    }
+  }
+
+  clear(port = null, {descendants = true} = {}) {
+    for (const [key, item] of [...this.items]) {
+      if (port !== null && key !== port && !(descendants && key.startsWith(`${port}/`))) continue;
+      item.marker.remove(); item.leader.remove(); item.note.remove(); this.items.delete(key);
+    }
+    this.active();
+  }
+
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true; this.offRender(); this.resize.disconnect();
+    this.clear(); this.layer.remove(); this.rail.remove();
+  }
+}

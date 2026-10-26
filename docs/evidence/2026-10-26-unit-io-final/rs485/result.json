@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T17:43:15.402371+00:00",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "rs485",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "187429132c16f775fa2d33448fd7aa4be63e131b9e35a44bfbbbe2750069114a",
+  "expected_size": [
+    320,
+    240
+  ],
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rs485",
+      "port_id": "port-a"
+    }
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "a1ad044fbee2cd183cd72babaa75ad913b57a49535d88d74ba6856e044a61587",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "512df7e2c5d857e396acc6705d6bb4fc68bdc60fd8d706fedada5f1bdace104c",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "runner_sha256": {
+    "tests/units/run_io_cases.py": "1211cd57288aead1d026ed9a01fabe8a9e08e6a0bb8d1ecbd2f46b7e5ffaf2eb",
+    "tests/units/run_control_cases.py": "b9e784d2dc1ece008f58d0d69243a1a868d84f492af9f6edffcd6f0e2e81437b",
+    "tests/units/run_sensor_cases.py": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "tests/units/run_service_cases.py": "22a3cf335e0d85ad2ceb7a1ef34c94697f15c01041e08525e380ee4bf99b4c31",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "checks": {
+    "packaged_guest_bytes_verified": true,
+    "official_driver_ready": true,
+    "uart1_bidirectional_binary_fifo_and_any_read_write": true,
+    "fifo_capacity_rejection_and_uart0_log_separation": true,
+    "nonblank_application_frame": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_and_frame_retained": true,
+    "history_frame_readable": true
+  },
+  "injections": [
+    {
+      "id": "external1",
+      "values": {
+        "rx-hex": "706565722d746f2d6775657374007fff"
+      }
+    }
+  ],
+  "required_markers": [
+    "IO_PROBE_READY rs485",
+    "IO_RS485_RX 706565722d746f2d6775657374007fff",
+    "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff"
+  ],
+  "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+  "uart_fifo_rejection": "POST sessions/f1e3358552ff4050b4b1a8c537d50ebc/unit-input: HTTP 409 {\"error\": {\"code\": \"unit_input_rejected\", \"message\": \"QMP qom-set failed: Unit RX exceeds the UART FIFO's current free capacity\"}}",
+  "unit_state": {
+    "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:43:41.420455+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "rs485",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "rx-hex": "706565722d746f2d6775657374007fff",
+          "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+          "transactions": 0,
+          "read-bytes": 16,
+          "written-bytes": 37,
+          "input-events": 1,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "rs485",
+        "name": "RS485",
+        "sku": "U034",
+        "visual_asset": {
+          "entry": "src/units/rs485/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "MAX485 / SP485EEN",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "uart-rs485",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "Unit UART_RX / host TX",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "Unit UART_TX / host RX",
+              "direction": "unit-to-host"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+          "registers": [],
+          "gaps": [
+            "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+            "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+          ]
+        },
+        "inputs": {
+          "rx-hex": {
+            "type": "string",
+            "label": "对端发送字节",
+            "default": "",
+            "default_source": "synthetic-test-fixture",
+            "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+            "readOnly": false,
+            "maxLength": 8192
+          }
+        },
+        "outputs": {
+          "tx-hex": {
+            "type": "string",
+            "label": "主机发送字节",
+            "default": "",
+            "default_source": "synthetic-test-fixture",
+            "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "rx-hex": {
+              "property": "rx-hex"
+            }
+          },
+          "state": {
+            "rx-hex": {
+              "property": "rx-hex"
+            },
+            "tx-hex": {
+              "property": "tx-hex"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "e375d5da64a3d5ca7250c21b2af35a97b0fd7766ab102ba97e0f358d23679d2b",
+  "serial_sha256": "e14ec949b42f2f8f54fdfb75a5d4335ed18efb1c925b5f2c52fdba8f80fcae37",
+  "evidence_sha256": "74e268c3583038b42efc4b8bd5f638509d5b33527f6741523b872fe6c0f1bd1c",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+    "frame_sha256": "e375d5da64a3d5ca7250c21b2af35a97b0fd7766ab102ba97e0f358d23679d2b"
+  }
+}

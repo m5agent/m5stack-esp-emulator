@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-26T00:42:14.883930+00:00",
+  "scope": "Source-consistent explanation and actual serial observation; no temporal FIFO trace or reference-BIN-to-native-source build mapping; root cause remains unproven.",
+  "official_source_matches_catalog_sha256": {
+    "registers.h": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+    "driver_max30100.c": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+    "max30100.c": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1"
+  },
+  "source_chain": {
+    "official_native_fifo_read": "max30100.c:518-528 unconditionally reads four FIFO_DATA bytes, composes raw IR/red",
+    "official_native_cache": "driver_max30100.c:165-176 unconditionally stores returned raw values; get_ir/get_red read cached self fields",
+    "python_wrapper": "heart.py background update every5ms; guest config selects100Hz and renders cached getters",
+    "model_empty_fifo": "m5_unit_i2c_sensors.c:488 empty FIFO returns0"
+  },
+  "observed_serial": [
+    {
+      "device_id": "atoms3r",
+      "serial_sha256": "3594c94b9e832d7c89bbe499462206849232e9e98878e0e75acf3051d3bf10ec",
+      "reading_counts": {
+        "SENSOR_HEART 0 0": 12,
+        "SENSOR_HEART 40000 35000": 2,
+        "SENSOR_HEART 41000 35000": 1,
+        "SENSOR_HEART 41000 36000": 1,
+        "SENSOR_HEART 12000 36000": 1,
+        "SENSOR_HEART 12000 9000": 12
+      },
+      "last_reading": "SENSOR_HEART 0 0"
+    },
+    {
+      "device_id": "sticks3",
+      "serial_sha256": "a3cb7e24e82e24908d99fd01f9fc93bdf76fbde57e9c3f1bdab9ba5e27659169",
+      "reading_counts": {
+        "SENSOR_HEART 0 0": 18,
+        "SENSOR_HEART 40000 35000": 6,
+        "SENSOR_HEART 41000 36000": 2,
+        "SENSOR_HEART 12000 9000": 11
+      },
+      "last_reading": "SENSOR_HEART 0 0"
+    },
+    {
+      "device_id": "stopwatch",
+      "serial_sha256": "fcc998df8059a0c9b3763bba67a6a8108e6a49e417bf3977f53404d05fab6c79",
+      "reading_counts": {
+        "SENSOR_HEART 0 0": 16,
+        "SENSOR_HEART 40000 35000": 4,
+        "SENSOR_HEART 41000 36000": 1,
+        "SENSOR_HEART 12000 36000": 1,
+        "SENSOR_HEART 12000 9000": 8
+      },
+      "last_reading": "SENSOR_HEART 0 0"
+    }
+  ],
+  "functional_scope": "Two requested vectors need fresh matching guest readings; neither this nor native readability promises a constant final displayed vector."
+}

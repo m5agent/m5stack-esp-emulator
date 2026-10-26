@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "validation": "repository shared-controller regression; virtual-device validation",
+  "run_id": "vfs-targeted",
+  "status": "PASS",
+  "counts": {
+    "PASS": 13
+  },
+  "provenance": "provenance.json",
+  "summary": "cases/summary.json",
+  "recorded_binary_start_sha256": {
+    "xtensa": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d"
+  },
+  "recorded_binary_end_sha256": null,
+  "recorded_rom_inventory": null,
+  "recorded_tools_sha256": {
+    "tests/uiflow2/run_peripheral_matrix.py": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be"
+  },
+  "archive_time_rom_inventory": {
+    ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios": {
+      "QEMU,cgthree.bin": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d",
+      "QEMU,tcx.bin": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7",
+      "bios-256k.bin": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8",
+      "bios-microvm.bin": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee",
+      "bios.bin": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1",
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "kvmvapic.bin": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27",
+      "linuxboot.bin": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce",
+      "linuxboot_dma.bin": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950",
+      "multiboot.bin": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348",
+      "multiboot_dma.bin": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d",
+      "npcm7xx_bootrom.bin": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003",
+      "opensbi-riscv32-generic-fw_dynamic.bin": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51",
+      "opensbi-riscv64-generic-fw_dynamic.bin": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c",
+      "pvh.bin": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d",
+      "slof.bin": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7",
+      "u-boot-sam460-20100605.bin": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03",
+      "vgabios-ati.bin": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e",
+      "vgabios-bochs-display.bin": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff",
+      "vgabios-cirrus.bin": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2",
+      "vgabios-qxl.bin": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7",
+      "vgabios-ramfb.bin": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de",
+      "vgabios-stdvga.bin": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b",
+      "vgabios-virtio.bin": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772",
+      "vgabios-vmware.bin": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11",
+      "vgabios.bin": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57",
+      "vof-nvram.bin": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12",
+      "vof.bin": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+    }
+  },
+  "archive_time_tools_sha256": {
+    "tests/uiflow2/run_peripheral_matrix.py": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "archive_time_hash_boundary": "Archive-time hashes verify retained current files only. Missing execution-time ROM/helper/end-of-run metadata remains not recorded and is not backfilled from another run.",
+  "cases": [
+    {
+      "case_id": "sticks3-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/sticks3-peripherals/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/sticks3-peripherals/serial.log",
+      "case_stdout": "vfs-targeted/cases/sticks3-peripherals.stdout",
+      "case_stderr": "vfs-targeted/cases/sticks3-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "sticks3-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/sticks3-audio/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/sticks3-audio/serial.log",
+      "case_stdout": "vfs-targeted/cases/sticks3-audio.stdout",
+      "case_stderr": "vfs-targeted/cases/sticks3-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "sticks3-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/sticks3-mic/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/sticks3-mic/serial.log",
+      "case_stdout": "vfs-targeted/cases/sticks3-mic.stdout",
+      "case_stderr": "vfs-targeted/cases/sticks3-mic.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-sd",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-sd/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-sd/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-sd.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-sd.stderr",
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-imu/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-imu/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-imu.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-imu.stderr",
+      "checks": [
+        {
+          "name": "cardputer_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-keyboard",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "9cf5a06a7f0da3cd846c4d292b280149dd9cd8ee2683e0d1c6545b1829b3d1c5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9cf5a06a7f0da3cd846c4d292b280149dd9cd8ee2683e0d1c6545b1829b3d1c5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-keyboard/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 32
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-keyboard/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-keyboard.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-keyboard.stderr",
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "9c3f6412803c6232d6447bc779181c7ff9303f8129989df9fa7f0810d3e71ab3",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9c3f6412803c6232d6447bc779181c7ff9303f8129989df9fa7f0810d3e71ab3",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-nfc/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-nfc/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-nfc.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-nfc.stderr",
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-cc1101",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "6cf1d02ed179b31863233baec63805ba04164099632113717a9531640c132cd5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "6cf1d02ed179b31863233baec63805ba04164099632113717a9531640c132cd5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-cc1101/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-cc1101/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-cc1101.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-cc1101.stderr",
+      "checks": [
+        {
+          "name": "cardputer_cc1101_spi_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "3f116209ad2783c71074833ddc3174e9651e5916e768220148990c00f868b2e9",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "3f116209ad2783c71074833ddc3174e9651e5916e768220148990c00f868b2e9",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-audio/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-audio/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-audio.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "14bc120099b3672dd48c5fabbe8eb97647a32b4e535493f676327b4ab13ef45d",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "14bc120099b3672dd48c5fabbe8eb97647a32b4e535493f676327b4ab13ef45d",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-mic/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-mic/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-mic.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-mic.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "sticks3-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "ab17f043675f53ca3f0ad08d62539c21bf25fe7c6fccb61cc0e794fd720efa0e",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "aaf93d4a21879ce96c2203ecdcf142dc49dbb73fc0e071ace4e8fe64b2a9fba4",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/sticks3-ir/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 16
+      },
+      "serial": "vfs-targeted/cases/sticks3-ir/serial.log",
+      "case_stdout": "vfs-targeted/cases/sticks3-ir.stdout",
+      "case_stderr": "vfs-targeted/cases/sticks3-ir.stderr",
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "sticks3-ir-rx",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "eb2ab00292c38032fb26ec7f682df004288563ad2187515740c5feabb784be39",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "343c5ad02b4783d2f43378a4b84d2ddae2e6072e5cd7a79309ac3e54e504da7b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/sticks3-ir-rx/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "vfs-targeted/cases/sticks3-ir-rx/serial.log",
+      "case_stdout": "vfs-targeted/cases/sticks3-ir-rx.stdout",
+      "case_stderr": "vfs-targeted/cases/sticks3-ir-rx.stderr",
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    },
+    {
+      "case_id": "cardputer-adv-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "e2cdced56fb4d9e083ddada0adf1b1dc911397cc6db4410ad86b055656483bcd",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "3b06086940a88636fdef044f247b65e659966378bf15a1a9e7b177492701adeb",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_at_archive": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "frame_after": "vfs-targeted/cases/cardputer-adv-ir/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 16
+      },
+      "serial": "vfs-targeted/cases/cardputer-adv-ir/serial.log",
+      "case_stdout": "vfs-targeted/cases/cardputer-adv-ir.stdout",
+      "case_stderr": "vfs-targeted/cases/cardputer-adv-ir.stderr",
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      }
+    }
+  ]
+}

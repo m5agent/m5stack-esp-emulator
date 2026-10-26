@@ -1,0 +1,198 @@
+// One real guest: delay a model response, then lose exactly one release POST.
+// Presentation demotion calls the actual lifecycle method; input uses trusted DOM events.
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {chromium} from 'playwright';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const [base, sessionFile, output] = process.argv.slice(2);
+const session = JSON.parse(await readFile(sessionFile, 'utf8'));
+const id = session.session_id;
+await mkdir(output, {recursive: true});
+const productFiles = ['platform/web/sessions.js', 'platform/web/unit-panel.js', 'platform/web/model-shell.js',
+  'platform/web/device-shell-factory.js', 'platform/tests/test_live_unit_recovery.mjs',
+  'platform/web/vendor/m5stack-models/src/devices/cores3/index.js'];
+const source_sha256 = Object.fromEntries(await Promise.all(productFiles.map(async name =>
+  [name, createHash('sha256').update(await readFile(resolve(root, name))).digest('hex')])));
+const report = {schema_version: 1, category: 'real-guest-web-recovery', status: 'FAIL',
+  session_id: id, firmware_sha256: session.firmware_sha256, source_sha256,
+  instrumentation: 'Read-only reference to existing module objects; delayed unmodified model HTTP response and subsequent session-list requests during lifecycle observation; actual presentation demotion; one aborted release request. Guest inputs use trusted browser mouse events.',
+  hardware_execution: 'NOT RUN', checks: {}, posts: [], readbacks: [], errors: []};
+const browser = await chromium.launch({
+  executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+});
+const page = await browser.newPage({viewport: {width: 1440, height: 1250}}).catch(async error => {await browser.close(); throw error;});
+page.setDefaultTimeout(30000);
+let releaseModel;
+const modelGate = new Promise(resolve => {releaseModel = resolve;});
+let modelSeen = false, aborted = false, heldRelease;
+const failedRelease = new Promise(resolve => {heldRelease = resolve;});
+let resumeCompensation;
+const compensationGate = new Promise(resolve => {resumeCompensation = resolve;});
+let resumeLists, listRequests = 0;
+const listGate = new Promise(resolve => {resumeLists = resolve;});
+const deadline = async (promise, milliseconds, name) => {
+  let timer;
+  try {return await Promise.race([promise, new Promise((_, reject) => {timer = setTimeout(() => reject(new Error(`${name} timed out`)), milliseconds);})]);}
+  finally {clearTimeout(timer);}
+};
+const watchdog = setTimeout(() => {report.errors.push('Browser recovery exceeded 150 seconds'); browser.close().catch(() => {});}, 150000);
+const responses = new Set();
+page.on('pageerror', error => report.errors.push(error.message));
+page.on('response', response => {
+  const path = new URL(response.url()).pathname;
+  if (!path.startsWith(`/api/v1/sessions/${id}/`) || !['units', 'unit-input'].includes(path.split('/').at(-1))) return;
+  const task = (async () => {
+    const record = {at: new Date().toISOString(), method: response.request().method(), status: response.status(), response: await response.json()};
+    if (record.method === 'POST') {record.request = response.request().postDataJSON(); report.posts.push(record);}
+    else report.readbacks.push(record);
+  })().catch(error => report.errors.push(error.message));
+  responses.add(task); task.finally(() => responses.delete(task));
+});
+const api = async path => {
+  const response = await page.request.get(`${base}/api/v1/sessions/${id}/${path}`, {timeout: 5000});
+  assert.equal(response.ok(), true);
+  return response.json();
+};
+const waitGuest = async (marker, after = 0) => {
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const serial = (await api('serial?limit=262144')).data;
+    if (serial.slice(after).includes(marker)) return serial;
+    await page.waitForTimeout(100);
+  }
+  throw new Error(`guest marker missing after offset ${after}: ${marker}`);
+};
+const snapshot = async () => page.evaluate(id => {
+  const visual = window.__recoveryProbe.state.visuals.get(id);
+  const panel = visual?.unitPanel;
+  const frame = visual?.container.querySelector('img.session-frame');
+  return {session_state: visual?.session.state, allow_three: visual?.allowThree,
+    shell_loading: visual?.shellLoading, shell_present: !!visual?.shell,
+    frame_sha256: visual?.lastFrameHash,
+    frame: frame ? {complete: frame.complete, width: frame.naturalWidth, height: frame.naturalHeight, connected: frame.isConnected} : null,
+    input_held: panel?.pressSources.size, release_intents: panel?.releaseIntents?.size,
+    unit: panel?.states.get('external1'), note: panel?.cards.get('external1')?.querySelector('[data-unit-note]')?.textContent};
+}, id);
+
+try {
+  await page.route('**/platform/web/sessions.js*', async route => {
+    const response = await route.fetch(), body = await response.text();
+    assert.equal(createHash('sha256').update(body).digest('hex'), source_sha256['platform/web/sessions.js']);
+    await route.fulfill({response, body: `${body}\nwindow.__recoveryProbe = {state, SessionVisual};\n`});
+  });
+  await page.route('**/vendor/m5stack-models/src/devices/cores3/index.js', async route => {
+    const response = await route.fetch();
+    assert.equal(createHash('sha256').update(await response.body()).digest('hex'), source_sha256['platform/web/vendor/m5stack-models/src/devices/cores3/index.js']);
+    modelSeen = true;
+    await modelGate;
+    await route.fulfill({response});
+  });
+  await page.route('**/api/v1/sessions', async route => {
+    if (route.request().method() === 'GET' && ++listRequests > 1) await listGate;
+    await route.continue();
+  });
+  await page.goto(`${base}/platform/web/sessions.html`, {waitUntil: 'domcontentloaded'});
+  await page.waitForFunction(id => window.__recoveryProbe?.state.visuals.get(id)?.shellLoading, id);
+  await page.waitForFunction(id => {
+    const v = window.__recoveryProbe?.state.visuals.get(id), image = v?.container.querySelector('img.session-frame');
+    return v?.frameBlob && image?.complete && image.naturalWidth > 0;
+  }, id);
+  assert.equal(modelSeen, true, 'actual model HTTP load was delayed');
+  report.before_demotion = await snapshot();
+  await page.evaluate(id => window.__recoveryProbe.state.visuals.get(id).setThreeAllowed(false), id);
+  releaseModel();
+  await page.waitForFunction(id => !window.__recoveryProbe.state.visuals.get(id).shellLoading, id);
+  report.after_stale_load = await snapshot();
+  assert.equal(report.after_stale_load.allow_three, false);
+  assert.equal(report.after_stale_load.shell_present, false);
+  assert.ok(report.after_stale_load.frame?.complete && report.after_stale_load.frame.width === 320);
+  assert.equal(report.after_stale_load.frame_sha256, report.before_demotion.frame_sha256);
+  report.checks.stale_model_retains_real_frame = true;
+  await page.locator(`[data-session-id="${id}"] .session-visual`).screenshot({path: resolve(output, 'stale-load-2d.png')});
+  await page.evaluate(id => window.__recoveryProbe.state.visuals.get(id).setThreeAllowed(true), id);
+  resumeLists();
+  await page.waitForFunction(id => {
+    const v = window.__recoveryProbe.state.visuals.get(id);
+    return v?.shell?.model && v.unitPanel?.mounted.size === 1 && v.unitPanel.states.get('external1')?.available;
+  }, id);
+  report.checks.real_model_reattaches = true;
+  const control = page.locator(`[data-session-id="${id}"] [data-unit-id="external1"] [data-press-field="pressed"]`);
+  await control.waitFor({state: 'visible'}); assert.equal(await control.isEnabled(), true);
+  await page.route(`**/api/v1/sessions/${id}/unit-input`, async route => {
+    const request = route.request().postDataJSON();
+    if (!aborted && request.id === 'external1' && request.values.pressed === false) {
+      aborted = true;
+      report.aborted_release = {at: new Date().toISOString(), request};
+      await route.abort('connectionreset'); heldRelease();
+    } else {
+      if (aborted && request.id === 'external1' && request.values.pressed === false) await compensationGate;
+      await route.continue();
+    }
+  });
+  let serial = (await api('serial?limit=262144')).data;
+  await control.scrollIntoViewIfNeeded();
+  const box = await control.boundingBox(); assert.ok(box);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  serial = await waitGuest('UNIT_BUTTON 0', serial.length);
+  const releaseOffset = serial.length;
+  await page.mouse.up();
+  await deadline(failedRelease, 15000, 'lost release request');
+  report.after_failed_release = await snapshot();
+  report.controller_after_lost_release = await api('units');
+  assert.equal(report.controller_after_lost_release.source, 'live');
+  assert.equal(report.controller_after_lost_release.units[0].available, true);
+  assert.equal(report.controller_after_lost_release.units[0].properties.pressed, true,
+    'the aborted release must leave the actual controller pressed before compensation');
+  report.checks.lost_release_observed_in_real_controller = true;
+  resumeCompensation();
+  serial = await waitGuest('UNIT_BUTTON 1', releaseOffset);
+  await page.waitForFunction(id => {
+    const panel = window.__recoveryProbe.state.visuals.get(id).unitPanel;
+    return panel.states.get('external1')?.properties.pressed === false && panel.pressSources.size === 0 && panel.releaseIntents.size === 0;
+  }, id);
+  report.after_recovery = await snapshot();
+  await Promise.all([...responses]);
+  assert.equal(aborted, true);
+  assert.deepEqual(report.posts.map(x => x.request.values.pressed), [true, false]);
+  assert.equal(report.controller_after_lost_release.units[0].properties.pressed, true);
+  report.checks.real_guest_release_recovers_after_one_lost_post = true;
+  report.checks.only_one_compensation_post = true;
+  report.checks.released_without_new_user_gesture = true;
+  const recoveredPosts = report.posts.length;
+  await page.waitForTimeout(1200);
+  await Promise.all([...responses]);
+  assert.equal(report.posts.length, recoveredPosts, 'polling must not echo or repeat compensation');
+  serial = (await api('serial?limit=262144')).data;
+  await page.mouse.down();
+  serial = await waitGuest('UNIT_BUTTON 0', serial.length);
+  const normalOffset = serial.length;
+  await page.mouse.up();
+  await waitGuest('UNIT_BUTTON 1', normalOffset);
+  await page.waitForTimeout(700); await Promise.all([...responses]);
+  assert.deepEqual(report.posts.map(x => x.request.values.pressed), [true, false, true, false]);
+  report.checks.normal_gesture_has_exactly_two_posts = true;
+  report.checks.no_poll_echo = true;
+  await page.evaluate(() => window.scrollTo({top: 0, left: 0, behavior: 'instant'}));
+  await page.screenshot({path: resolve(output, 'recovered-page.png'), fullPage: true});
+  report.final = await snapshot();
+  assert.deepEqual(report.errors, []);
+  report.status = 'PASS';
+} catch (error) {
+  report.error = error.message;
+  await page.screenshot({path: resolve(output, 'failure.png'), fullPage: true}).catch(() => {});
+} finally {
+  releaseModel();
+  resumeCompensation();
+  resumeLists();
+  clearTimeout(watchdog);
+  await Promise.all([...responses]);
+  await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
+  await browser.close();
+}
+console.log(`LIVE_RECOVERY_${report.status}`);
+process.exitCode = report.status === 'PASS' ? 0 : 1;

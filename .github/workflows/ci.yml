@@ -13,12 +13,16 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Install image evidence decoder
+        run: python3 -m pip install Pillow
       - name: Run platform tests and contract checks
         env:
           PYTHONPATH: platform/tools
@@ -35,6 +39,25 @@ jobs:
         run: |
           node platform/tests/test_sha256.mjs
           node platform/tests/test_firmware_upload.mjs
+          node platform/tests/test_unit_visual_mappings.mjs
+          node platform/tests/test_frontend_recovery.mjs
+          node platform/tests/test_unit_annotation_contract.mjs
+          node platform/tests/test_unit_annotation_bridge.mjs
+          node platform/tests/test_unit_audio.mjs
+      - name: Run offline Unit evidence fault controls
+        env:
+          PYTHONPATH: platform/tools:tests/units
+        run: |
+          python3 -m unittest discover -s tests/units -p 'test_batch_evidence.py'
+          python3 -m unittest discover -s tests/units -p 'test_sensor_evidence.py'
+          python3 -m unittest discover -s tests/units -p 'test_web_ui_bridge.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_control_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_sensor_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_sensor_execution.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_io_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_io_execution.py'
+          python3 -m unittest discover -s tests/units -p 'test_annotation_cases.py'
+          python3 -m unittest discover -s tests/units -p 'test_buzzer_callback_adapter.py'
       - name: Test worker credential generation migration
         run: |
           python3 tests/network/worker_tls/run_fleet_migration_test.py \
@@ -45,6 +68,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

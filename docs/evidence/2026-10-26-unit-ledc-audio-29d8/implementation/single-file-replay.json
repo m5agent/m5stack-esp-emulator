@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": "Only 0037 replayed on the exact-six-patch target file; root still performs full seven-patch source replay, cold build and runtime validation.",
+  "patch_sha256": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+  "before_sha256": "126e01e11484e180330df360a32cad3ed05f17862f15ade850f0b2355f48d74a",
+  "after_sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+  "reversed_sha256": "126e01e11484e180330df360a32cad3ed05f17862f15ade850f0b2355f48d74a",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "-q"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--reverse",
+        "--check",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--reverse",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+      ],
+      "returncode": 0,
+      "stderr": ""
+    }
+  ],
+  "forward_bytes_match": true,
+  "reverse_restores_exact_before": true,
+  "runtime_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN"
+}

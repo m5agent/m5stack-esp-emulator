@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "category": "independent-archive-time-helper-provenance",
+  "status": "PASS",
+  "recorded_at": "2026-10-25T19:48:29.565672+00:00",
+  "host9_pre_execution_freeze": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json",
+  "host9_pre_execution_freeze_sha256": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+  "hardware_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "scope": "Bounded local helpers for firmware composition/layout/byte verification, frame metrics and flash transport. The original pre-execution freeze remains unchanged. This report does not attempt Python/stdlib/entire-library dependency closure.",
+  "execution_time_helper_coverage": "These helper hashes are archive-time observations, not per-host9 pre-execution hashes. Previously frozen CoreS3 sources and full-matrix provenance are continuity assistance only. Runtime input firmware/probe hashes, direct PID/executable and actual guest/Web observations remain independently bound by the original host9 evidence.",
+  "helpers": {
+    "tests/units/run_control_cases.py": {
+      "role": "Direct host-runner import: generated LittleFS image composition",
+      "sha256_at_archive": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+      "snapshot": "sources/tests/units/run_control_cases.py.txt",
+      "recorded_before_host9_execution": false,
+      "execution_time_claim": false,
+      "continuity": {
+        "kind": "previous-CoreS3-selected-source-snapshot",
+        "source": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/tool-sources/tests/units/run_control_cases.py.txt",
+        "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+        "matches_archive_time_source": true,
+        "boundary": "Matching source bytes support continuity only; this is not a per-host9 pre-execution source observation."
+      }
+    },
+    "tests/units/run_sensor_cases.py": {
+      "role": "Direct host-runner import: exact packaged guest-file byte verification",
+      "sha256_at_archive": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+      "snapshot": "sources/tests/units/run_sensor_cases.py.txt",
+      "recorded_before_host9_execution": false,
+      "execution_time_claim": false,
+      "continuity": {
+        "kind": "previous-CoreS3-selected-source-snapshot",
+        "source": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/tool-sources/tests/units/run_sensor_cases.py.txt",
+        "source_sha256": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+        "matches_archive_time_source": true,
+        "boundary": "Matching source bytes support continuity only; this is not a per-host9 pre-execution source observation."
+      }
+    },
+    "platform/tools/firmware_analysis.py": {
+      "role": "Direct host-runner import: reference partition-table parsing",
+      "sha256_at_archive": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "snapshot": "sources/platform/tools/firmware_analysis.py.txt",
+      "recorded_before_host9_execution": false,
+      "execution_time_claim": false,
+      "continuity": {
+        "kind": "current-repository-HEAD-file",
+        "commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+        "head_file_sha256": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+        "matches_archive_time_source": true,
+        "boundary": "Repository file identity only; not an execution-time observation."
+      }
+    },
+    "platform/tools/user_firmware_matrix.py": {
+      "role": "Shared client import: native frame nonblank/color metrics",
+      "sha256_at_archive": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "snapshot": "sources/platform/tools/user_firmware_matrix.py.txt",
+      "recorded_before_host9_execution": false,
+      "execution_time_claim": false,
+      "continuity": {
+        "kind": "current-repository-HEAD-file",
+        "commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+        "head_file_sha256": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+        "matches_archive_time_source": true,
+        "boundary": "Repository file identity only; not an execution-time observation."
+      }
+    },
+    "tests/uiflow2/esp_flash.py": {
+      "role": "Device-Service flash transport helper; previous shared regression execution hash retained separately",
+      "sha256_at_archive": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979",
+      "snapshot": "sources/tests/uiflow2/esp_flash.py.txt",
+      "recorded_before_host9_execution": false,
+      "execution_time_claim": false,
+      "continuity": {
+        "kind": "previous-independent-full-matrix-execution-provenance",
+        "source": "docs/evidence/2026-10-26-unit-shared-regression/full-core2-compat/provenance.json",
+        "source_sha256": "952d01cb125b4d227008fefe1cecb09b220245797536743a4c8a19eae4352f8b",
+        "recorded_helper_sha256": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979",
+        "matches_archive_time_source": true,
+        "boundary": "Previous full-matrix execution provenance is separate from host9; matching bytes do not backfill host9 startup metadata."
+      }
+    }
+  },
+  "public_copy_boundary": "Only the freeze location is rebased to its byte-identical public copy. Original archive-time audit remains under .work; helper observations remain archive-time, not pre-execution."
+}

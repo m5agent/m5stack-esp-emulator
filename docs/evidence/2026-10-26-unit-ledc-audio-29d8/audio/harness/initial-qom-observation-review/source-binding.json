@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "status": "OWNED_SOURCE_BINDING_CONFIRMED",
+  "captured_at": "2026-10-26T02:16:01.038803+00:00",
+  "owned_receipt": ".work/unit-runtime-source-ledc-readback/qemu/.m5-unit-runtime-source.json",
+  "owned_receipt_sha256": "7361d51ac01b658edc9836771bd7661ebad041da917636493505de97948b66a7",
+  "current_files_equal_owned_hashes": {
+    "hw/misc/esp32_ledc.c": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+    "hw/gpio/esp32_gpio.c": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+    "hw/m5stopwatch/m5_unit_gpio.c": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d"
+  },
+  "primary_receipt": ".work/unit-audio-live-20261026/initial-qom-observation-review/receipt.json",
+  "primary_receipt_sha256": "b5a4a4a6aef448209bacec927822fcc5257181c93a5596eec9684aaf198070fe",
+  "independent_control_review": "Confirmed 160 root artifact hashes and observation body hashes; source route-observer path consistent, actual native MMIO ordering not traced.",
+  "host_issue_document": "docs/unit-integration-host-issues.md",
+  "host_issue_document_sha256": "1d118a85cd1d739205560df5c3fbef0ba9fe6fb917e46ab2cc3310a1216b9b93",
+  "host_issue_status": "UNIT-HOST-20 OPEN",
+  "original_harness_sha256": "824d399ae15a97ce1eb2e6f11efeeb243d718fd103d5e65fc6199802e30a9e1d",
+  "v2_harness_sha256": "4be7d76be81d9d07f06c4a44b92909fa73b4963d664e470b63900aef2aca5dc5",
+  "api_contacted": false,
+  "runtime_or_product_modified": false
+}

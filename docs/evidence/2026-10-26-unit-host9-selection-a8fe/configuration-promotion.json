@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "category": "host-validation-metadata-promotion",
+  "recorded_at": "2026-10-25T20:02:18.091528+00:00",
+  "status": "PASS",
+  "source": "platform/units/runtime-profiles.json",
+  "old_sha256": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+  "new_sha256": "833f6049281dd19c9c1dfd764f9ac933e74f1dbeec164051d414ae1a5f57ed73",
+  "old_source_execution_receipt": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json",
+  "old_source_execution_receipt_sha256": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+  "original_pre_execution_freeze_sha256": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+  "freeze_modified": false,
+  "runtime_status_after": {
+    "implemented": 27
+  },
+  "host_admission_lists_unchanged": true,
+  "other24_unit_profiles_unchanged": true,
+  "updated_host_validation_entries": [
+    {
+      "unit_id": "env-iii",
+      "device_id": "atoms3r",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/env-iii/report.json",
+      "report_sha256": "fdcbd5269a7365d240e3bf87f803d6d43a6188a639be003b4313cc958f250318",
+      "browser_framing": "PARTIAL"
+    },
+    {
+      "unit_id": "relay",
+      "device_id": "atoms3r",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/relay/report.json",
+      "report_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5",
+      "browser_framing": "PASS"
+    },
+    {
+      "unit_id": "button",
+      "device_id": "atoms3r",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/button/report.json",
+      "report_sha256": "604c4fcf1b1c1e95402141de15ca05c582a49df6083a520c2ae84f7b55a36c26",
+      "browser_framing": "PASS"
+    },
+    {
+      "unit_id": "env-iii",
+      "device_id": "sticks3",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json",
+      "report_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8",
+      "browser_framing": "PARTIAL"
+    },
+    {
+      "unit_id": "relay",
+      "device_id": "sticks3",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+      "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+      "browser_framing": "PASS"
+    },
+    {
+      "unit_id": "button",
+      "device_id": "sticks3",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+      "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+      "browser_framing": "PASS"
+    },
+    {
+      "unit_id": "env-iii",
+      "device_id": "stopwatch",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+      "report_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678",
+      "browser_framing": "PARTIAL"
+    },
+    {
+      "unit_id": "relay",
+      "device_id": "stopwatch",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+      "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+      "browser_framing": "PASS"
+    },
+    {
+      "unit_id": "button",
+      "device_id": "stopwatch",
+      "status_before": "NOT RUN",
+      "status_after": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+      "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+      "browser_framing": "PASS"
+    }
+  ],
+  "strict_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+  "strict_aggregate_sha256": "ea3b80d57edbde405df33ba22ba0dd197c1a8954942cd9e0e419c54ee4b9ca8e",
+  "service_restart_performed": false,
+  "operational_boundary": "Source metadata promotion only; no new session or service restart was triggered. Generation9 executed with its original frozen profile SHA. Subsequent inventory reads may read the updated JSON.",
+  "hardware_execution": "NOT RUN"
+}

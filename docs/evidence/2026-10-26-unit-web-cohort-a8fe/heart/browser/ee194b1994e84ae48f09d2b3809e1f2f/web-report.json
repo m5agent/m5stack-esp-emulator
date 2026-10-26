@@ -1,0 +1,4612 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+  "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "heart",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "ir-sample": 40000,
+        "red-sample": 35000
+      }
+    }
+  ],
+  "opened_at": "2026-10-25T19:09:16.698Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "0f1a4f7e38c8fdc3057e21a84748de0c997d49a22c70335fd96b1ec1f58d6dba",
+    "tests/units/web_ui_bridge.py": "4584944062c88eeede458383842580f10e9e794d9f758c2494f4d84cc6b40c0e",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:09:16.661Z",
+  "session_created_at": "2026-10-25T19:09:16.691504+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:09:32.237Z",
+      "instance": "external1",
+      "field": "ir-sample",
+      "kind": "fill-and-tab",
+      "value": 41000,
+      "request": {
+        "id": "external1",
+        "values": {
+          "ir-sample": 41000
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:09:32.306Z",
+      "instance": "external1",
+      "field": "red-sample",
+      "kind": "fill-and-tab",
+      "value": 36000,
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-sample": 36000
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:09:32.673Z",
+      "instance": "external1",
+      "field": "ir-sample",
+      "kind": "fill-and-tab",
+      "value": 12000,
+      "request": {
+        "id": "external1",
+        "values": {
+          "ir-sample": 12000
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:09:32.724Z",
+      "instance": "external1",
+      "field": "red-sample",
+      "kind": "fill-and-tab",
+      "value": 9000,
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-sample": 9000
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:09:32.236Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.185861+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 41000,
+              "red-sample": 35000,
+              "transactions": 4047,
+              "read-bytes": 7969,
+              "written-bytes": 2045,
+              "input-events": 3,
+              "output-transitions": 0,
+              "samples-generated": 1318,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "ir-sample": 41000
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:32.305Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.284756+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 41000,
+              "red-sample": 36000,
+              "transactions": 4083,
+              "read-bytes": 8041,
+              "written-bytes": 2063,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 1328,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-sample": 36000
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:32.672Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.665600+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 36000,
+              "transactions": 4193,
+              "read-bytes": 8261,
+              "written-bytes": 2118,
+              "input-events": 5,
+              "output-transitions": 0,
+              "samples-generated": 1366,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "ir-sample": 12000
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:32.723Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.719490+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4211,
+              "read-bytes": 8297,
+              "written-bytes": 2128,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1372,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-sample": 9000
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:09:28.880Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:28.824026+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 40000,
+              "red-sample": 35000,
+              "transactions": 3007,
+              "read-bytes": 5889,
+              "written-bytes": 1525,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 983,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:31.812Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:31.801784+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 40000,
+              "red-sample": 35000,
+              "transactions": 3925,
+              "read-bytes": 7725,
+              "written-bytes": 1984,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 1280,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:32.318Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.314926+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 41000,
+              "red-sample": 36000,
+              "transactions": 4093,
+              "read-bytes": 8061,
+              "written-bytes": 2068,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 1331,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:32.824Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:32.820577+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4247,
+              "read-bytes": 8369,
+              "written-bytes": 2145,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1381,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:33.349Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:33.327335+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4395,
+              "read-bytes": 8665,
+              "written-bytes": 2219,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1430,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:33.856Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:33.852834+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4561,
+              "read-bytes": 8997,
+              "written-bytes": 2302,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1485,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:34.367Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:34.358340+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4715,
+              "read-bytes": 9305,
+              "written-bytes": 2379,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1534,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:34.876Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:34.869235+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4879,
+              "read-bytes": 9633,
+              "written-bytes": 2461,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1587,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:35.383Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:35.379837+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 5039,
+              "read-bytes": 9953,
+              "written-bytes": 2541,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1638,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:09:35.891Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ee194b1994e84ae48f09d2b3809e1f2f/units",
+      "status": 200,
+      "response": {
+        "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:09:35.886433+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 5195,
+              "read-bytes": 10265,
+              "written-bytes": 2619,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1689,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "heart",
+            "name": "Heart Rate",
+            "sku": "U029",
+            "visual_asset": {
+              "entry": "src/units/heart/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX30100",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+              "registers": [
+                {
+                  "interrupt_status": "0x00",
+                  "interrupt_enable": "0x01",
+                  "fifo_write": "0x02",
+                  "fifo_overflow": "0x03",
+                  "fifo_read": "0x04",
+                  "fifo_data": "0x05",
+                  "mode": "0x06",
+                  "spo2_config": "0x07",
+                  "led_config": "0x09",
+                  "temperature": "0x16/0x17",
+                  "revision": "0xFE",
+                  "part_id": "0xFF",
+                  "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+                }
+              ],
+              "gaps": [
+                "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+                "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+              ]
+            },
+            "inputs": {
+              "ir-sample": {
+                "type": "integer",
+                "label": "红外样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              },
+              "red-sample": {
+                "type": "integer",
+                "label": "红光样本",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw16",
+                "minimum": 0,
+                "maximum": 65535,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/heart",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+                "checked_at": "2026-10-26",
+                "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+                "checked_at": "2026-10-26",
+                "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+                "claims": [
+                  "MAX30100 native driver and FIFO/register behavior"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                }
+              },
+              "state": {
+                "ir-sample": {
+                  "property": "ir-sample"
+                },
+                "red-sample": {
+                  "property": "red-sample"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:09:32.339Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 41000,
+              "red-sample": 36000,
+              "transactions": 4093,
+              "read-bytes": 8061,
+              "written-bytes": 2068,
+              "input-events": 4,
+              "output-transitions": 0,
+              "samples-generated": 1331,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ir-sample",
+              "source": "输入 fixture",
+              "text": "41000",
+              "rgb": []
+            },
+            {
+              "field": "red-sample",
+              "source": "输入 fixture",
+              "text": "36000",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "4093",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "8061",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "2068",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "1331",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:09:32.757Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4211,
+              "read-bytes": 8297,
+              "written-bytes": 2128,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1372,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ir-sample",
+              "source": "输入 fixture",
+              "text": "12000",
+              "rgb": []
+            },
+            {
+              "field": "red-sample",
+              "source": "输入 fixture",
+              "text": "9000",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "4211",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "8297",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "2128",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "1372",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:09:33.384Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 4395,
+              "read-bytes": 8665,
+              "written-bytes": 2219,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1430,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ir-sample",
+              "source": "输入 fixture",
+              "text": "12000",
+              "rgb": []
+            },
+            {
+              "field": "red-sample",
+              "source": "输入 fixture",
+              "text": "9000",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "4395",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "8665",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "2219",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "1430",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:09:35.416Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "heart",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "ir-sample": 40000,
+              "red-sample": 35000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "ir-sample": 12000,
+              "red-sample": 9000,
+              "transactions": 5039,
+              "read-bytes": 9953,
+              "written-bytes": 2541,
+              "input-events": 6,
+              "output-transitions": 0,
+              "samples-generated": 1638,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "ir-sample",
+              "source": "输入 fixture",
+              "text": "12000",
+              "rgb": []
+            },
+            {
+              "field": "red-sample",
+              "source": "输入 fixture",
+              "text": "9000",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "5039",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "9953",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "2541",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "1638",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:09:35.932Z"
+}

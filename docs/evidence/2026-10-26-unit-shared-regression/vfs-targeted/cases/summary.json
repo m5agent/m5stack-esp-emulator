@@ -1,0 +1,1215 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T02:17:03.529641+08:00",
+  "out_dir": ".work/unit-matrix-vfs-targeted-1880/cases",
+  "results": {
+    "sticks3-peripherals": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "tests/uiflow2/sticks3_peripherals",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-peripherals",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--input",
+        "key:b",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--serial-expect",
+        "STICKS3_IMU_TYPE 6",
+        "--serial-expect",
+        "STICKS3_BATTERY 87 4000 0",
+        "--serial-expect",
+        "STICKS3_BTN_A 1",
+        "--serial-expect",
+        "STICKS3_BTN_B 1",
+        "--serial-expect",
+        "STICKS3_BTN_PWR 1",
+        "--serial-expect",
+        "STICKS3_IMU 0.250 -0.500 0.750"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-peripherals",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-peripherals/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-peripherals/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: STICKS3_IMU_TYPE 6, STICKS3_BATTERY 87 4000 0, STICKS3_BTN_A 1, STICKS3_BTN_B 1, STICKS3_BTN_PWR 1, STICKS3_IMU 0.250 -0.500 0.750\n",
+      "reason": "BMI270 accel/gyro, A/B/P buttons and M5PM1 power telemetry are all visible through the UIFlow2 API."
+    },
+    "sticks3-audio": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "tests/uiflow2/sticks3_audio",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-audio",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--qom-expect",
+        "/machine/m5pm1",
+        "pa-enabled",
+        "true",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-audio",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-audio/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-audio/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=67584 samples=33792 nonzero=33782 peak_to_peak=2881\nPASS StickS3 audio marker rgb=(0,255,0)\n",
+      "reason": "Speaker.begin(), ES8311 I2C setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    "sticks3-mic": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "tests/uiflow2/sticks3_mic",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-mic",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-mic",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-mic/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-mic/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StickS3 mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through I2S RX and cyclic GDMA; host PCM injection is returned non-silent to the UIFlow2 buffer."
+    },
+    "cardputer-adv-sd": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_sd",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "22",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--sd-image",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd/sd.img"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "validation": "disk image=.work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-sd/sd.img sector=100 length=512 match=True\nPASS Cardputer-ADV SD marker rgb=(0,255,0)\n",
+      "reason": "The documented Cardputer-ADV SPI SD pins are used with the machine.SDCard block API; a 512-byte write and readback match the raw QEMU SD image."
+    },
+    "cardputer-adv-imu": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_peripherals",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-imu",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-imu",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-imu/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-imu/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV BMI270 marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV BMI270 at I2C 0x69 is initialized by M5Unified and QOM physical values reach Imu.getAccel/getGyro."
+    },
+    "cardputer-adv-keyboard": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_ui_test",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "2",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-keyboard",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-keyboard",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-keyboard/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-keyboard/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV TCA8418 marker rgb=(0,255,0)\n",
+      "reason": "A QMP key event enters the TCA8418 matrix-controller FIFO, raises the controller interrupt path, and is decoded by the official UIFlow2 KeyboardI2C API."
+    },
+    "cardputer-adv-nfc": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_nfc",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-nfc",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-nfc",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-nfc/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-nfc/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV NFC marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV ST25R3916 is reached over the shared SPI2 bus with NFC CS G6; Type 2 UID/page reads and a page-8 write and readback pass."
+    },
+    "cardputer-adv-cc1101": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_cc1101",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-cc1101",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-cc1101",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-cc1101/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-cc1101/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_cc1101_spi_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV CC1101 marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV CC1101 Cap configures over shared SPI2 with CS G5, sends M5CC1101 and receives the chip FIFO loopback through the official cap.CC1101Cap API."
+    },
+    "cardputer-adv-audio": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_audio",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-audio",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-audio/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-audio/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=32768 samples=16384 nonzero=16356 peak_to_peak=46091\nPASS Cardputer-ADV audio marker rgb=(0,255,0)\n",
+      "reason": "The official Speaker API drives ES8311 and NS4150B through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    "cardputer-adv-mic": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/cardputer_adv_mic",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "9",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-mic",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-mic/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-mic/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through ES8311, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "sticks3-ir": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC offset=0 address=0x56 command=0xa3\n",
+      "reason": "The official hardware.IR UIFlow2 API sends NEC address/command through RMT channel 0 and the transmitted RMT symbols decode back to the expected packet."
+    },
+    "sticks3-ir-rx": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "tests/uiflow2/sticks3_ir_rx",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir-rx",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir-rx",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir-rx/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/sticks3-ir-rx/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS IR RX marker rgb=(0,255,0)\n",
+      "reason": "QEMU injects a NEC packet into RMT channel 4 hardware memory; the official hardware.IR callback receives address 0x56 and command 0xA3, and the UIFlow2 UI draws its success marker."
+    },
+    "cardputer-adv-ir": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "python3.12",
+        "tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x651000",
+        "--vfs-size",
+        "0x1ae000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        ".work/unit-runtime-final/qemu-system-xtensa",
+        "--rom-dir",
+        ".work/M5StopWatch-QEMU/build/qemu-source/pc-bios",
+        "--out-dir",
+        ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-ir",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-ir",
+      "before": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-ir/before.png",
+      "after": ".work/unit-matrix-vfs-targeted-1880/cases/cardputer-adv-ir/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC offset=0 address=0x56 command=0xa3\n",
+      "reason": "Cardputer-ADV hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    }
+  }
+}

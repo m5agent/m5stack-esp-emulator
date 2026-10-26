@@ -1,0 +1,46 @@
+{
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "core2_axp192_detect",
+      "status": "FAIL",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_voltage",
+      "status": "FAIL",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_current",
+      "status": "FAIL",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_charging",
+      "status": "FAIL",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_ui_marker",
+      "status": "FAIL",
+      "evidence": [
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "Core2 AXP192 success marker missing: rgb=(255,0,0)\n",
+  "reason": "Core2 UIFlow2 auto-detects the legacy AXP192 model and reads battery voltage, level, current and charging state through Power.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d"
+}

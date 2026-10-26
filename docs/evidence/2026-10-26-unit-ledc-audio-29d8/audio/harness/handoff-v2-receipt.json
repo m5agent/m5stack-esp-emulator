@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "V2_HARNESS_FROZEN_NOT_LIVE_EXECUTED",
+  "captured_at": "2026-10-26T02:02:22.070369+00:00",
+  "script": ".work/unit-audio-live-20261026/observe-live-r2.mjs",
+  "script_sha256": "4be7d76be81d9d07f06c4a44b92909fa73b4963d664e470b63900aef2aca5dc5",
+  "original_harness_unchanged_sha256": "824d399ae15a97ce1eb2e6f11efeeb243d718fd103d5e65fc6199802e30a9e1d",
+  "product_source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a"
+  },
+  "offline_self_check": ".work/unit-audio-live-20261026/self-check-v2-final-r1/receipt.json",
+  "offline_self_check_sha256": "547978be8a598de8481c972c96b3667642f567cc33b905f31d3ae3d62e9a1898",
+  "expected_new_firmware_scope": "Root-owned separate audio-only firmware with explicit 20-second initial zero-duty preparation window; fixed2000Hz and 0,25,50,75,100,0. No claim extending original firmware beep.",
+  "changes": [
+    "Require actual visual.shell.model and mounted Buzzer before user enable.",
+    "Require every observed Units payload to match explicit SID.",
+    "Actual matching-SID terminal Units response begins cleanup even while product session-list still says running.",
+    "Wait for native context closed/audio graph destroyed; final independent session GET must confirm terminal state and PID must have exited.",
+    "Never process persisted properties as a new live phase."
+  ],
+  "api_contacted": false,
+  "sessions_started_or_stopped": 0
+}

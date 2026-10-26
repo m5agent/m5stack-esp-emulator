@@ -1,0 +1,2942 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-25",
+  "scope": "visual-only",
+  "products": [
+    {
+      "id": "sticks3",
+      "emulatorId": "sticks3",
+      "category": "controller",
+      "name": "StickS3",
+      "sku": "K150",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        15
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/sticks3/index.js",
+      "export": "StickS3",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickS3",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789P3",
+        "touch": false,
+        "diagonal_in": 1.14,
+        "effective_mm": [
+          14.864,
+          24.912
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "btnA": "a",
+          "btnB": "b",
+          "btnPWR": "power"
+        },
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "外壳与前键采用所选官方CAD，14mm壳体/15mm含键总厚，LCD有效区采用官方A183尺寸",
+        "已补16个实体Hat2孔、USB包体、IR/喇叭与侧键背衬；局部PCB/电池/隐藏封装尺寸为照片推导",
+        "既有Canvas标签暂留；贴纸原文件未到，不代表最终精细外观已验收"
+      ],
+      "nextAction": "七视图及实体排母/接口/侧键背衬已复核；继续精修照片推导局部尺寸，贴纸等待原文件"
+    },
+    {
+      "id": "cores3",
+      "emulatorId": "cores3",
+      "category": "controller",
+      "name": "CoreS3",
+      "sku": "K128",
+      "scope": "visual-only",
+      "nominalMm": [
+        54,
+        54,
+        15.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/cores3/index.js",
+      "export": "CoreS3",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-5aff2ea4-1943-4349-a70a-5d0c3e8b4214.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/CoreS3",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ILI9342C / ILI9342E",
+        "touch": true,
+        "diagonal_in": 2
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "LCD 物理面积暂按 2.0 英寸与 4:3 推导；尚未找到面板尺寸图"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
+      "configurations": [
+        {
+          "id": "module",
+          "name": "CoreS3 主机",
+          "options": {},
+          "nominalMm": [
+            54,
+            54,
+            15.5
+          ]
+        },
+        {
+          "id": "din",
+          "name": "CoreS3 + DinBase",
+          "options": {
+            "dinBase": true
+          },
+          "nominalMm": [
+            54,
+            69.284,
+            31.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stopwatch",
+      "emulatorId": "stopwatch",
+      "category": "controller",
+      "name": "StopWatch",
+      "sku": "C152",
+      "scope": "visual-only",
+      "nominalMm": [
+        52,
+        52,
+        15.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stopwatch/index.js",
+      "export": "default",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_04.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StopWatch",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "amoled",
+        "width": 466,
+        "height": 466,
+        "shape": "circle",
+        "driver": "CO5300",
+        "touch": true,
+        "diagonal_in": 1.75
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "已按官方照片/CAD纠正总成方向、按钮映射、7+6 排母、两螺钉及右下径向 Grove",
+        "PCB/接口内层有照片推导；旧 Canvas 标签待原文件替换，未做贴纸像素验收"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
+      "cadEnvelopeMm": [
+        51.946,
+        51.947,
+        15
+      ]
+    },
+    {
+      "id": "cardputer-adv",
+      "emulatorId": "cardputer-adv",
+      "category": "controller",
+      "name": "Cardputer-ADV",
+      "sku": "K132-Adv",
+      "scope": "visual-only",
+      "nominalMm": [
+        84,
+        54,
+        19.6
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/cardputer-adv/index.js",
+      "export": "CardputerADV",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_04.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/Cardputer-ADV",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "原官方CAD装配配合真实USB-C、microSD、Grove、音频、IR与喇叭开口；内藏包装/接缝唇口及StampS3A天线尺寸仍部分为照片推导。",
+        "60控件=58瞬时键帽+电源与Grove供电方向两稳定滑块；Grove方向只记录视觉档位，无电气行为。",
+        "LCD有效区仍需面板机械图；贴纸等待用户原文件。"
+      ],
+      "nextAction": "接口深腔、StampS3A、接缝搭接和60控件已检查；继续核对推导包装及LCD有效区，贴纸等待原文件",
+      "cadEnvelopeMm": [
+        84.07,
+        54,
+        19.676
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            26.7,
+            16.47,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 11,
+          "purpose": "Official CAD recessed Stamp button face stays visible at Z=9.175803 mm; detailed board/antenna closure checked separately"
+        }
+      ]
+    },
+    {
+      "id": "cardputer-zero",
+      "emulatorId": "cardputer-zero",
+      "category": "controller",
+      "name": "CardputerZero",
+      "sku": "C154",
+      "scope": "visual-only",
+      "nominalMm": [
+        84,
+        54,
+        23.1
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/cardputer-zero/index.js",
+      "export": "CardputerZero",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_04.jpg",
+      "officialDocs": "https://docs.m5stack.com/en/core/CardputerZero",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "lcd",
+        "width": 320,
+        "height": 170,
+        "shape": "rect",
+        "driver": "ST7789v3",
+        "touch": false,
+        "diagonal_in": 1.9
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "C154 官方资料仍标 WIP，当前无官方 CAD；46键与壳体/端口均依据官方照片和名义尺寸构造",
+        "已校正全尺寸HDMI、9个接口及后置相机；插座和光学件稍凸出名义外壳，保留实际视觉包络",
+        "局部机械尺寸、显示有效区仍需对应机械图，贴纸等待原文件"
+      ],
+      "nextAction": "46键/九接口/后置相机七视图已复核；等待正式机械图，继续精修照片推导尺寸",
+      "visualEnvelopeMm": [
+        84.59,
+        54.23,
+        23.45
+      ]
+    },
+    {
+      "id": "papermono",
+      "emulatorId": "papermono",
+      "category": "controller",
+      "name": "PaperMono",
+      "sku": "C153",
+      "scope": "visual-only",
+      "nominalMm": [
+        62,
+        101,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/papermono/index.js",
+      "export": "default",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_10.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperMono",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "e-paper-mono",
+        "width": 480,
+        "height": 800,
+        "shape": "rect",
+        "driver": "SSD1677",
+        "touch": true,
+        "touch_driver": "FT6336G",
+        "grayscale": 4,
+        "diagonal_in": 3.97
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "选中官方装配体与独立按键；接口位置经过独立 CAD 射线检查"
+      ],
+      "nextAction": "七视图与导光件/MIC/NFC实体盖已复核；继续校准面板与封装尺寸，贴纸等待原文件"
+    },
+    {
+      "id": "core2",
+      "emulatorId": "core2",
+      "category": "controller",
+      "name": "Core2 v1.1",
+      "sku": "K010-V11",
+      "scope": "visual-only",
+      "nominalMm": [
+        54,
+        54,
+        16.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/core2/index.js",
+      "export": "Core2",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-1a949091-da2c-4fbb-bf4f-bce108cb43ec.webp",
+      "officialDocs": "https://docs.m5stack.com/zh_CN/core/Core2_v1.1",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ILI9342C / ILI9342E",
+        "touch": true,
+        "touch_driver": "FT6336U",
+        "diagonal_in": 2
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "版本锁定Core2 v1.1 / K010-V11，对应官方v1.1结构和照片；不是旧v1.0或v1.3",
+        "七视图与真实USB/Grove/底部SD、连体侧帽及后层已复核；局部封装/PCB尺寸为照片推导",
+        "LCD有效区仍按2英寸对角线推导，贴纸等待用户原文件"
+      ],
+      "nextAction": "v1.1版本与七视图已复核；LCD有效区待面板图，局部机械尺寸继续精修",
+      "cadEnvelopeMm": [
+        54,
+        54,
+        16.5
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            16.7,
+            -10,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 13,
+          "purpose": "EXT board/lid closes rear assembly slot"
+        },
+        {
+          "origin": [
+            16.7,
+            10,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 13,
+          "purpose": "EXT board/lid closes rear assembly slot"
+        }
+      ],
+      "revision": "v1.1"
+    },
+    {
+      "id": "papercolor",
+      "emulatorId": "papercolor",
+      "category": "controller",
+      "name": "PaperColor",
+      "sku": "C151",
+      "scope": "visual-only",
+      "nominalMm": [
+        70.8,
+        103.9,
+        8.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/papercolor/index.js",
+      "export": "default",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_10.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperColor",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "e-paper-color",
+        "width": 400,
+        "height": 600,
+        "shape": "rect",
+        "driver": "E Ink Spectra 6",
+        "touch": false,
+        "diagonal_in": 4
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "选中官方装配体与独立按键；接口位置经过独立 CAD 射线检查"
+      ],
+      "nextAction": "七视图与前盖/底槽/声学和传感器内层已复核；继续精修局部尺寸，贴纸等待原文件"
+    },
+    {
+      "id": "nanoc6",
+      "emulatorId": "nanoc6",
+      "category": "controller",
+      "name": "NanoC6",
+      "sku": "C125",
+      "scope": "visual-only",
+      "nominalMm": [
+        12,
+        23.5,
+        9.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/nanoc6/index.js",
+      "export": "default",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-a6ee31bc-623f-4d53-af92-797ccc6a03b4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/NanoC6",
+      "research": "source-manifest.json",
+      "display": null,
+      "integration": {
+        "displayTarget": null,
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "官方结构已分离装配体与重复零件；局部端口、贴花和材质仍待逐面校准"
+      ],
+      "nextAction": "七视图与USB/Grove/背槽内层已复核；继续精修照片推导封装尺寸，贴纸等待原文件",
+      "closureChecks": [
+        {
+          "origin": [
+            20,
+            2.1,
+            0.5
+          ],
+          "direction": [
+            -1,
+            0,
+            0
+          ],
+          "maxDistance": 13.8,
+          "purpose": "right-side IR aperture contains a physical emitter lens"
+        },
+        {
+          "origin": [
+            20,
+            2.45,
+            0.5
+          ],
+          "direction": [
+            -1,
+            0,
+            0
+          ],
+          "maxDistance": 13.8,
+          "purpose": "right-side IR aperture contains a physical emitter lens"
+        },
+        {
+          "origin": [
+            20,
+            2.8,
+            0.5
+          ],
+          "direction": [
+            -1,
+            0,
+            0
+          ],
+          "maxDistance": 13.8,
+          "purpose": "right-side IR aperture contains a physical emitter lens"
+        }
+      ]
+    },
+    {
+      "id": "stackchan",
+      "emulatorId": "stackchan",
+      "category": "controller",
+      "name": "StackChan",
+      "sku": "K151/K151-R",
+      "scope": "visual-only",
+      "nominalMm": [
+        54,
+        70.5,
+        61.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stackchan/index.js",
+      "export": "StackChan",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_03.webp",
+      "officialDocs": "https://docs.m5stack.com/en/StackChan",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ILI9342C / ILI9342E",
+        "touch": true,
+        "touch_driver": "FT6336U",
+        "diagonal_in": 2
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "yaw",
+          "pitch"
+        ]
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "采用官方壳体/舵机盖板，前侧Power板归pitch、下端Adapter归yaw，七线跨关节，底座USB保持固定；后部为真实开放机构。",
+        "隐藏pitch舵机包装与旧照片重建颈座/盖内腔仍有局部体积交叠；保留官方壳/轴，不宣称完整干涉或制造配合通过。线束路线和接头局部尺寸为外观近似。",
+        "yaw/pitch为外部驱动的视觉关节；pitch以当前正视为0、正角抬头，绝对硬件零位未校准；贴纸等待原文件。"
+      ],
+      "nextAction": "继续校准隐藏舵机包装、线束真实走向和硬件零位；保留真实开放机构，贴纸等待原文件。",
+      "cadEnvelopeMm": [
+        54,
+        70.5,
+        61.5
+      ]
+    },
+    {
+      "id": "tab5",
+      "emulatorId": "tab5",
+      "category": "controller",
+      "name": "Tab5",
+      "sku": "C145/K145",
+      "scope": "visual-only",
+      "nominalMm": [
+        128,
+        80,
+        12
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/tab5/index.js",
+      "export": "Tab5",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_03.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/Tab5",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 1280,
+        "height": 720,
+        "shape": "rect",
+        "driver": "ST7121 / ST7123",
+        "touch": true,
+        "diagonal_in": 5
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "选取官方CAD装配零件；已补独立USB-A/C、microSD、音频、GPIO_EXT、双MMCX和三脚架实体",
+        "当前七视图和接口射线已复核；局部器件尺寸为照片推导，LCD有效区仍需对应面板图",
+        "贴纸等待用户原文件；印刷贴图默认关闭，不代表最终精细外观已验收",
+        "保留旧power ID但其几何为后部电池卡扣；侧面reset为真实Reset/Boot开关机键，请按组件label/meta接入"
+      ],
+      "nextAction": "七视图与接口深腔已复核；继续精修照片推导尺寸及LCD有效区，贴纸等待原文件"
+    },
+    {
+      "id": "atoms3r",
+      "emulatorId": "atoms3r",
+      "category": "controller",
+      "name": "AtomS3R",
+      "sku": "C126",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        12.9
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r/index.js",
+      "export": "default",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/12.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "driver": "ST7735 / GC9107",
+        "touch": false,
+        "diagonal_in": 0.85
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "外壳采用官方装配几何；已补显示模组深度、背部 PCB、5+4 排母与天线/接口实体",
+        "显示有效区仍为官方 0.85 英寸推导；局部 PCB 厚度依据照片，贴纸等待原文件"
+      ],
+      "nextAction": "七视图及背面/接口闭合网格已复核；继续精修照片推导局部尺寸，贴纸等待原文件",
+      "closureChecks": [
+        {
+          "origin": [
+            -5.5,
+            -5,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 15,
+          "purpose": "rear PCB closes the assembly window"
+        },
+        {
+          "origin": [
+            5.5,
+            -5,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 15,
+          "purpose": "rear PCB closes the assembly window"
+        },
+        {
+          "origin": [
+            0,
+            8,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 15,
+          "purpose": "rear PCB closes the assembly window"
+        },
+        {
+          "origin": [
+            -7,
+            -30,
+            4.15
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 19,
+          "purpose": "antenna body closes the upper front-edge window"
+        },
+        {
+          "origin": [
+            0,
+            -30,
+            4.15
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 19,
+          "purpose": "antenna body closes the upper front-edge window"
+        },
+        {
+          "origin": [
+            7,
+            -30,
+            4.15
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 19,
+          "purpose": "antenna body closes the upper front-edge window"
+        },
+        {
+          "origin": [
+            0,
+            -10.3,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 14.5,
+          "purpose": "rear Grove housing closes the bottom shell notch"
+        },
+        {
+          "origin": [
+            -4.4,
+            -9.2,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 14.5,
+          "purpose": "rear Grove housing closes the bottom shell notch"
+        },
+        {
+          "origin": [
+            4.4,
+            -9.2,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 14.5,
+          "purpose": "rear Grove housing closes the bottom shell notch"
+        }
+      ]
+    },
+    {
+      "id": "nesso-n1",
+      "emulatorId": "nesso-n1",
+      "category": "controller",
+      "name": "Arduino Nesso N1",
+      "sku": "DK001",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        21.1
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/nesso-n1/index.js",
+      "export": "NessoN1",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_04.jpg",
+      "officialDocs": "https://docs.m5stack.com/en/core/Arduino_Nesso_N1",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789",
+        "touch": true,
+        "touch_driver": "FT6336",
+        "diagonal_in": 1.14
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "单根 LoRa 天线采用后壳收纳姿态；外壳 24×48×21.1 mm，前键另凸0.9 mm",
+        "已补 USB/Qwiic/HAT/RF 内层；局部器件尺寸依据照片，贴纸等待原文件",
+        "M5Stack MMCX 与 Arduino IPEX4 的接口命名冲突已反馈；模型暂用中性 coax-snap 标识"
+      ],
+      "nextAction": "单天线装配及七视图已复核；等待RF接口命名确认，精修局部尺寸，贴纸等待原文件",
+      "cadEnvelopeMm": [
+        24,
+        48,
+        22
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            -30,
+            -8
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 9,
+          "purpose": "antenna adapter or I/O carrier occupies the end opening"
+        },
+        {
+          "origin": [
+            0,
+            -30,
+            3.6
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 9,
+          "purpose": "antenna adapter or I/O carrier occupies the end opening"
+        }
+      ]
+    },
+    {
+      "id": "stamplc",
+      "emulatorId": "stamplc",
+      "category": "controller",
+      "name": "StamPLC",
+      "sku": "K141",
+      "scope": "visual-only",
+      "nominalMm": [
+        72,
+        80,
+        33.4
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stamplc/index.js",
+      "export": "StamPLC",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_04.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StamPLC",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {},
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "已补红3+蓝8+四组灰3实体端子、进线孔、金属夹、槽螺钉及DC5521",
+        "内层夹具/端子座深度依据照片构造；LCD有效区仍需面板图，贴纸等待原文件"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
+      "cadEnvelopeMm": [
+        72,
+        80,
+        33.4
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            20.7,
+            12.5,
+            30
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 16.5,
+          "purpose": "StampS3A module fills its frame"
+        }
+      ]
+    },
+    {
+      "id": "env-iii",
+      "category": "unit",
+      "name": "ENV III",
+      "sku": "U001-C",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/env-iii/index.js",
+      "export": "default",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/envIII/envIII_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/envIII",
+      "research": "source-manifest.json",
+      "display": null,
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "透镜微结构或网罩局部参考照片近似；非生产 CAD"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+    },
+    {
+      "id": "pir",
+      "category": "unit",
+      "name": "PIR",
+      "sku": "U004",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        12.5
+      ],
+      "stage": "modeled",
+      "entry": "src/units/pir/index.js",
+      "export": "default",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/PIR/img-4647c010-1e57-4cc9-85e3-cbd450882074.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/PIR",
+      "research": "source-manifest.json",
+      "display": null,
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "透镜微结构或网罩局部参考照片近似；非生产 CAD"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+    },
+    {
+      "id": "ultrasonic-i2c",
+      "category": "unit",
+      "name": "Ultrasonic-I2C",
+      "sku": "U098-B1",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        56,
+        15.2
+      ],
+      "stage": "modeled",
+      "entry": "src/units/ultrasonic-i2c/index.js",
+      "export": "default",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/ULTRASONIC%20I2C/img-1e58d893-802c-4b8b-ad5e-704933a3c76e.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+      "research": "source-manifest.json",
+      "display": null,
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "透镜微结构或网罩局部参考照片近似；非生产 CAD"
+      ],
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+    },
+    {
+      "id": "rgb",
+      "category": "unit",
+      "name": "RGB LED",
+      "sku": "U003",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/rgb/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rgb",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "angle",
+      "category": "unit",
+      "name": "Angle",
+      "sku": "U005",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        22
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        22
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/angle/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/angle",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "rotation"
+        ]
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为",
+        "视觉角度由外部给定；demo滑条范围不是官方机械限位，不提供传感器换算"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "color",
+      "category": "unit",
+      "name": "Color",
+      "sku": "U009",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/color/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-5e8f77b1-0a2d-4810-8b8d-c2374bd738fb.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/color",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "tof",
+      "category": "unit",
+      "name": "ToF",
+      "sku": "U010",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/tof/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-1389686c-b643-4b4f-a74b-4dc070a32103.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/tof",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "light",
+      "category": "unit",
+      "name": "Light",
+      "sku": "U021",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/light/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-0b6d72e0-3533-4245-9c84-bfe6c24a50a6.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/light",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "relay",
+      "category": "unit",
+      "name": "Relay",
+      "sku": "U023",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        48,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        48,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/relay/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/relay",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -12
+        ],
+        [
+          8,
+          -12
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "joystick-v11",
+      "category": "unit",
+      "name": "Joystick v1.1",
+      "sku": "U024-C",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        32
+      ],
+      "visualEnvelopeMm": [
+        24,
+        48,
+        32
+      ],
+      "cadEnvelopeMm": [
+        24,
+        48,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/joystick-v11/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "tilt-x",
+          "tilt-y",
+          "press"
+        ]
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -12
+        ],
+        [
+          8,
+          -12
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为",
+        "视觉角度由外部给定；demo滑条范围不是官方机械限位，不提供传感器换算"
+      ],
+      "nextAction": "帽面法线、压放和七视图已检查；继续校准帽形与未确认倾斜限位，贴纸等待原文件"
+    },
+    {
+      "id": "dual-button",
+      "category": "unit",
+      "name": "Dual Button",
+      "sku": "U025",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        48,
+        15
+      ],
+      "cadEnvelopeMm": [
+        24,
+        48,
+        12
+      ],
+      "stage": "modeled",
+      "entry": "src/units/dual-button/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/dual_button",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -12
+        ],
+        [
+          8,
+          -12
+        ]
+      ],
+      "limitations": [
+        "官方机械图区分8 mm基壳、12 mm白色按钮座及含帽15 mm总厚；原CAD只含白色按钮座，新增闭合实体彩帽直径11.5 mm、键距14 mm。",
+        "按压行程0.35 mm及内藏开关包装为视觉估计，不实现电气或协议；贴纸等待原文件。"
+      ],
+      "nextAction": "完整彩帽尺寸、压放和七视图已检查；后续校准真实按压行程，贴纸等待原文件"
+    },
+    {
+      "id": "button",
+      "category": "unit",
+      "name": "Button",
+      "sku": "U027",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/button/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/button",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "原CAD的U形开口和三条凹槽完整保留，10.2 mm原生按压片按固定根部和自由端弯曲。",
+        "0.35 mm自由端行程与隐藏开关包装为视觉估计，不是塑料材料/电气模型；贴纸等待原文件。"
+      ],
+      "nextAction": "原生按压片弯曲、精确回位及七视图已检查；后续校准未确认行程和隐藏包装，贴纸等待原文件"
+    },
+    {
+      "id": "ncir",
+      "category": "unit",
+      "name": "NCIR",
+      "sku": "U028",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8.6
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8.6
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/ncir/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ncir",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "heart",
+      "category": "unit",
+      "name": "Heart Rate",
+      "sku": "U029",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/heart/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/heart",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "encoder",
+      "category": "unit",
+      "name": "Encoder",
+      "sku": "U135",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        25.4
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        25.4
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        12
+      ],
+      "stage": "modeled",
+      "entry": "src/units/encoder/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/encoder",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "rotation",
+          "press"
+        ]
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "thermal",
+      "category": "unit",
+      "name": "Thermal",
+      "sku": "U016",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8.6
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8.6
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/thermal/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-92fc4d7d-3b52-4ee6-b483-80d7209289e3.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/thermal",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "tvoc",
+      "category": "unit",
+      "name": "Mini TVOC/eCO2",
+      "sku": "U088",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        24,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/tvoc/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/tvoc",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "limitations": [
+        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
+        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+      ],
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+    },
+    {
+      "id": "ir",
+      "category": "unit",
+      "name": "IR",
+      "sku": "U002",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/ir/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ir",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "官方壳体与5 mm双光学孔采用对应U002结构；透镜、针脚和PCB厚度为官方照片推导，非生产CAD",
+        "贴纸等待用户原文件；仅提供视觉几何，不实现红外接收/发射或GPIO行为"
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -5,
+            8,
+            4.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 0.7,
+          "purpose": "IR transmitter package fills its optical opening"
+        },
+        {
+          "origin": [
+            5,
+            8,
+            4.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 0.7,
+          "purpose": "IR receiver package fills its optical opening"
+        }
+      ],
+      "nextAction": "七视图与双光学封装/接口腔体已复核；精修照片推导透镜尺寸，贴纸等待原文件"
+    },
+    {
+      "id": "hub",
+      "category": "unit",
+      "name": "HUB",
+      "sku": "U006",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        10.8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        10.8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/hub/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/hub",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "limitations": [
+        "对应U006官方CAD为8 mm壳体，另按官方尺寸图装配三只竖式Grove座达到10.8 mm总厚",
+        "1只底端输入座和3只正面输出座均有真实内腔与四针；内部并联电气/协议行为不在本库实现",
+        "局部壁厚和PCB厚度为照片推导，贴纸等待用户原文件"
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -7.5,
+            5.5,
+            7.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 6,
+          "purpose": "HUB upright socket at x=-7.5 has recessed physical backing"
+        },
+        {
+          "origin": [
+            0,
+            5.5,
+            7.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 6,
+          "purpose": "HUB upright socket at x=0 has recessed physical backing"
+        },
+        {
+          "origin": [
+            7.5,
+            5.5,
+            7.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 6,
+          "purpose": "HUB upright socket at x=7.5 has recessed physical backing"
+        }
+      ],
+      "nextAction": "七视图与四接口/16针已复核；精修竖座壁厚及插入深度，贴纸等待原文件"
+    },
+    {
+      "id": "rfid2",
+      "category": "unit",
+      "name": "RFID2",
+      "sku": "U031-B",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        48,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        48,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/rfid2/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rfid2",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -12
+        ],
+        [
+          8,
+          -12
+        ]
+      ],
+      "limitations": [
+        "U031-B专用前/后壳分别选取并按原装配坐标复位；未混用旧RFID/RC522版本",
+        "官方前壳为大开窗，已补有厚度的中性介质面盖与PCB；面盖/板层厚度为照片推导，印刷图案等待用户原文件",
+        "隐藏RF天线走线与IC布局无公开内部照片依据，未编造；不实现RFID或I2C行为"
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            6,
+            4.2
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 0.5,
+          "purpose": "RFID dielectric face fills official front-shell window"
+        }
+      ],
+      "nextAction": "七视图与实体面盖/接口腔体已复核；等待面盖及内部机械依据，贴纸等待原文件"
+    },
+    {
+      "id": "rs485",
+      "category": "unit",
+      "name": "RS485",
+      "sku": "U034",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        10.2
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        10.2
+      ],
+      "stage": "modeled",
+      "entry": "src/units/rs485/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rs485",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -5.94,
+            20,
+            1.3
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 5.1,
+          "purpose": "RS485 fixed terminal exposes a real recessed metal contact"
+        },
+        {
+          "origin": [
+            -1.98,
+            20,
+            1.3
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 5.1,
+          "purpose": "RS485 fixed terminal exposes a real recessed metal contact"
+        },
+        {
+          "origin": [
+            1.98,
+            20,
+            1.3
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 5.1,
+          "purpose": "RS485 fixed terminal exposes a real recessed metal contact"
+        },
+        {
+          "origin": [
+            5.94,
+            20,
+            1.3
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 5.1,
+          "purpose": "RS485 fixed terminal exposes a real recessed metal contact"
+        }
+      ],
+      "limitations": [
+        "对应U034官方CAD仅为8 mm外壳，按官方图补HT3.96-4P固定座至10.2 mm总厚；未把可拆螺钉插头误当固定座",
+        "PCB具有上下接口避让；接插件内壁、针脚/引线尺寸依据官方照片推导，非制造CAD",
+        "UART/RS485与电源行为不在此实现；全部贴纸延期"
+      ],
+      "nextAction": "七视图与4针固定端子深腔已复核；继续精修照片推导壁厚及针脚，贴纸等待原文件"
+    },
+    {
+      "id": "buzzer",
+      "category": "unit",
+      "name": "Buzzer",
+      "sku": "U132",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        8
+      ],
+      "visualEnvelopeMm": [
+        24,
+        24,
+        8
+      ],
+      "stage": "modeled",
+      "entry": "src/units/buzzer/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/buzzer",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -4,
+            9.8,
+            5
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 2.8,
+          "purpose": "Buzzer acoustic vent has a recessed physical package"
+        },
+        {
+          "origin": [
+            -2,
+            9.8,
+            5
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 2.8,
+          "purpose": "Buzzer acoustic vent has a recessed physical package"
+        },
+        {
+          "origin": [
+            0,
+            9.8,
+            5
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 2.8,
+          "purpose": "Buzzer acoustic vent has a recessed physical package"
+        },
+        {
+          "origin": [
+            2,
+            9.8,
+            5
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 2.8,
+          "purpose": "Buzzer acoustic vent has a recessed physical package"
+        },
+        {
+          "origin": [
+            4,
+            9.8,
+            5
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 2.8,
+          "purpose": "Buzzer acoustic vent has a recessed physical package"
+        }
+      ],
+      "limitations": [
+        "对应U132官方外壳保留五条跨前面/顶面的声学缝，内侧补实体无源声学封装",
+        "隐藏封装和PCB厚度为照片推导，贴纸全部延期；没有音频/PWM/蜂鸣器驱动行为",
+        "官方MCP首段标题存在U+FFFD，规格字段不受影响；问题已反馈，保留原始资料"
+      ],
+      "nextAction": "七视图与五条声槽后实体已复核；继续精修隐藏声学封装，贴纸等待原文件"
+    },
+    {
+      "id": "fan",
+      "category": "unit",
+      "name": "Fan",
+      "sku": "U063",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        12.2
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        12.2
+      ],
+      "visualEnvelopeMm": [
+        24,
+        34.6,
+        12.2
+      ],
+      "stage": "modeled",
+      "entry": "src/units/fan/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/fan",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "rotor"
+        ]
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            20,
+            2
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 1.5,
+          "purpose": "Fan motor shaft occupies the actual front bearing opening"
+        },
+        {
+          "origin": [
+            0,
+            20,
+            1
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 4.6,
+          "purpose": "Fan shaft aperture exposes recessed bearing support"
+        }
+      ],
+      "limitations": [
+        "对应U063官方CAD保留高起电机罩；名义32 mm壳长之外的轴按官方机械图外露2.6 mm，故默认可见Y包围为34.6 mm",
+        "默认不装可拆叶片，propeller:true可显示60 mm双叶附件；叶片弦长/扭角与隐藏电机包尺寸为照片推导",
+        "PCB具有电机与Grove避让；rotor由外部角度/rpm驱动视觉旋转，不实现PWM、气流或电气行为，贴纸延期"
+      ],
+      "nextAction": "裸轴及风叶已接入外部视觉运动；继续精修照片推导叶形和电机包装，贴纸等待原文件",
+      "configurations": [
+        {
+          "id": "bare",
+          "name": "裸轴",
+          "options": {}
+        },
+        {
+          "id": "propeller",
+          "name": "安装风叶",
+          "options": {
+            "propeller": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "limit",
+      "category": "unit",
+      "name": "Unit Limit",
+      "sku": "U145",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        9.5
+      ],
+      "cadEnvelopeMm": [
+        24,
+        31.947620391845703,
+        9.5
+      ],
+      "visualEnvelopeMm": [
+        24,
+        35,
+        9.5
+      ],
+      "stage": "modeled",
+      "entry": "src/units/limit/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-7da470fe-12b4-4694-bcd7-62077c1cce2e.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            22,
+            0
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 7,
+          "purpose": "Actual KW4A switch package closes native top shell opening"
+        },
+        {
+          "origin": [
+            9,
+            22,
+            2
+          ],
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "maxDistance": 7,
+          "purpose": "Visible switch side supports the genuine lever opening"
+        }
+      ],
+      "visualControls": [
+        {
+          "id": "press",
+          "kind": "button",
+          "visualMotion": "lever",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "restAngleDeg": 8,
+          "pressedAngleDeg": 0,
+          "rangeEvidence": "Photo-derived visual estimate; rated travel unconfirmed"
+        }
+      ],
+      "limitations": [
+        "官方壳体CAD装配包围为24×31.9476×9.5 mm，与产品名义32 mm壳长的0.0524 mm差异保留原结构；含柄静止可见高度按官方图35 mm。",
+        "柄长16 mm是官方规格；静止8度、按压0度、转轴位置/厚度/宽度及开关隐藏包装为照片推导，未确认额定预行程或超行程。",
+        "Grove连接器使用公共实体插口，并按U145正面图改成开放上盖/短锁扣；PCB绕开Grove与安装孔。",
+        "只输出通用按下/松开/取消输入并驱动外观；不推导开关电平、LED、固件或电气状态，贴纸等待原文件。"
+      ],
+      "nextAction": "原始壳体、七视图与压放动作已检查；等待量产KW4A(S)机械图校准限位与隐藏细节，贴纸等待用户原文件。"
+    },
+    {
+      "id": "cardkb",
+      "category": "unit",
+      "name": "CardKB v1.1",
+      "sku": "U035-B",
+      "scope": "visual-only",
+      "nominalMm": [
+        88,
+        54,
+        5
+      ],
+      "drawingEnvelopeMm": [
+        84,
+        54,
+        6.3
+      ],
+      "visualEnvelopeMm": [
+        84.35,
+        54,
+        6.301
+      ],
+      "stage": "modeled",
+      "entry": "src/units/cardkb/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_02.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_CardKB_v1.1",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -37,
+          22
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -27,
+            16,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            39,
+            16,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            -27,
+            4,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            39,
+            4,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            -21,
+            -8,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            39,
+            -8,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            -21,
+            -20,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            39,
+            -20,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            -33,
+            -11.5,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        },
+        {
+          "origin": [
+            -38.3,
+            -16.5,
+            4
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 4.5,
+          "purpose": "Real moving tactile cap with complete fixed switch body behind it"
+        }
+      ],
+      "limitations": [
+        "准确对应Unit CardKB v1.1 U035-B，50键；不是42键的CardKB2 U215。",
+        "官方规格表88×54×5 mm与机械图84×54 mm、连接器总厚6.3 mm不同，模型按机械图重建，两种口径分别保留。",
+        "没有使用官方STL/STEP；PCB轮廓和键距依据机械图，开关/连接器封装及0.2 mm按压行程为照片估计，不是生产CAD。",
+        "丝印/贴纸等待原文件；各键仅输出实体按压意图，RGB由外部驱动，不扫描矩阵、不生成字符或I2C数据。"
+      ],
+      "nextAction": "当前七视图、50键压放与Grove挂载已检查；继续核对封装细节和官方尺寸冲突，丝印等待原文件"
+    },
+    {
+      "id": "key",
+      "category": "unit",
+      "name": "Unit Key",
+      "sku": "U144",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        40,
+        22.6
+      ],
+      "cadEnvelopeMm": [
+        24,
+        40,
+        8
+      ],
+      "drawingEnvelopeMm": [
+        24,
+        40,
+        24.3
+      ],
+      "visualEnvelopeMm": [
+        24,
+        40,
+        24.335
+      ],
+      "stage": "modeled",
+      "entry": "src/units/key/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_07.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/key",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -8
+        ],
+        [
+          8,
+          -8
+        ]
+      ],
+      "visualControls": [
+        {
+          "id": "press",
+          "kind": "button",
+          "visualMotion": "rigid-keycap-and-stem",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "travelMm": 1.6,
+          "rangeEvidence": "Appearance estimate; official switch part/rated travel unavailable"
+        }
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            6.8,
+            8,
+            12
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 7,
+          "purpose": "Actual clear mechanical switch enclosure fills the native face opening"
+        }
+      ],
+      "limitations": [
+        "Official U144 table height 22.6 mm conflicts with linked drawing 24.3 mm; both retained, visible model follows drawing, feedback 0970e056422246f58f8cc3658ab38e54.",
+        "Only the selected fixed native shell pair is official CAD; sculpted red cap, blue stem, real-thickness clear switch, PCB and port assembly use official photographs/drawing. Local fits are visual estimates.",
+        "Press travel 1.6 mm is an appearance estimate, not rated pretravel/overtravel or a stiffness/electrical model. RGB is independent external visual state.",
+        "Sticker artwork is deferred; geometry/browser evidence do not establish physical fit or rated switch travel.",
+        "Inferred PCB uses open boss notches and a central post clearance; default runtime check samples PCB material and hidden package against both closed native shells in three directions. This is appearance geometry, not a manufacturing fit."
+      ],
+      "nextAction": "核准官方表格/机械图总高冲突与开关额定行程；继续细化照片推导隐藏件，贴纸等待原文件。"
+    },
+    {
+      "id": "8encoder",
+      "category": "unit",
+      "name": "Unit 8Encoder",
+      "sku": "U153",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        128,
+        25
+      ],
+      "cadEnvelopeMm": [
+        24,
+        128,
+        10
+      ],
+      "visualEnvelopeMm": [
+        24,
+        128,
+        25
+      ],
+      "stage": "modeled",
+      "entry": "src/units/8encoder/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-39bbe78d-4415-4a18-92b4-4c0e34dde190.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_8Encoder",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -52
+        ],
+        [
+          8,
+          -52
+        ]
+      ],
+      "closureChecks": [
+        {
+          "origin": [
+            -8.65,
+            -40.6,
+            15
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 13,
+          "purpose": "Native LED opening exposes a recessed physical light pipe"
+        },
+        {
+          "origin": [
+            0,
+            -40.6,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 18,
+          "purpose": "Native back service aperture has an actual PCB behind it"
+        }
+      ],
+      "visualControls": [
+        {
+          "id": "rotation-1",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-2",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-3",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-4",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-5",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-6",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-7",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-8",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "press-1",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-2",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-3",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-4",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-5",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-6",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-7",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "press-8",
+          "kind": "button",
+          "travelMm": 0.35,
+          "rangeEvidence": "visual estimate"
+        },
+        {
+          "id": "switch",
+          "kind": "button",
+          "latching": true,
+          "travelMm": 2.2,
+          "rangeEvidence": "visual estimate"
+        }
+      ],
+      "externalLeds": [
+        "rgb-1",
+        "rgb-2",
+        "rgb-3",
+        "rgb-4",
+        "rgb-5",
+        "rgb-6",
+        "rgb-7",
+        "rgb-8",
+        "rgb-9"
+      ],
+      "limitations": [
+        "Official EC11A fitted variant push pretravel/overtravel and complete cap/shaft CAD are unconfirmed; 0.35mm press and concealed dimensions are visual estimates.",
+        "Official side perimeter base is 8mm, while the original raised-platform shell envelope is 10mm; the assembled cap envelope is 25mm.",
+        "RGB numbering represents physical CH positions; no schematic U1-U9 chain mapping or firmware/electrical interpretation is implemented.",
+        "Only external visual joint/button/LED commands; no encoder counts, registers, bus, firmware, stickers or hardware simulation.",
+        "Hidden PCB outline is an appearance reconstruction with full boss/central relief and narrow bridges, validated by sampled shell-material containment; not fabrication CAD or a tolerance/physical-fit result."
+      ],
+      "nextAction": "核准EC11A实际装配型号/额定压程与隐藏件尺寸；当前旋转、压放、稳定档位和RGB仅为外驱视觉状态。"
+    }
+  ],
+  "artworkPolicy": "Photographic sticker crops disabled by default; awaiting user-supplied originals. Do not use artwork to conceal missing geometry."
+}

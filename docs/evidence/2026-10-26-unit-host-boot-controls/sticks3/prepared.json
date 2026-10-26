@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T18:39:46.411629+00:00",
+  "status": "PREPARED",
+  "validation": "guest-boot-control",
+  "device_id": "sticks3",
+  "unit_id": "boot-control",
+  "runtime": "qemu",
+  "port_id": "custom",
+  "attachments": [],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      135,
+      240
+    ],
+    "text": [
+      4,
+      4,
+      127
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StickS3",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6623232,
+    "size": 1761280,
+    "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+  },
+  "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+  "firmware_sha256": "d5947c7e8a8a83bfd3d9febe4f33d1342f375fd66da7f50885a7921bea15325c",
+  "expected_size": [
+    135,
+    240
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "bc2263441fda58224c159c5effeac66ff333a66da18d2a567167ea8528ec025a",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true
+  },
+  "required_markers": [],
+  "injections": []
+}

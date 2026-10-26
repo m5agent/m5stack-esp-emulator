@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T17:57:37.983131+00:00",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "pir",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "8bb0b9a67a746f5de8bd24855e94ff8e6ac84015d77197b3c6539dfba6ac875f",
+  "expected_size": [
+    320,
+    240
+  ],
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "pir",
+      "port_id": "port-a"
+    }
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "65c20b4a14ce1234e089ff3974ba3e24d510aefac0030dfdabb199ce212ee96e",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "972acdcd4bf0aed0a08d30ea6b5b34efd6399aa8b7d020c3ac89011b8167f773",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "runner_sha256": {
+    "tests/units/run_io_cases.py": "b72f3e63a016cb55149574e0b0587bde3d92deb385797465b7dc86e43ff426e1",
+    "tests/units/run_control_cases.py": "b9e784d2dc1ece008f58d0d69243a1a868d84f492af9f6edffcd6f0e2e81437b",
+    "tests/units/run_sensor_cases.py": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "tests/units/run_service_cases.py": "22a3cf335e0d85ad2ceb7a1ef34c94697f15c01041e08525e380ee4bf99b4c31",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "checks": {
+    "packaged_guest_bytes_verified": true,
+    "official_driver_ready": true,
+    "both_gpio_edges_and_disable_reenable_irq": true,
+    "nonblank_application_frame": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_and_frame_retained": true,
+    "history_frame_readable": true
+  },
+  "injections": [
+    {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    }
+  ],
+  "required_markers": [
+    "IO_PROBE_READY pir",
+    "IO_PIR_CALLBACK 1 1",
+    "IO_PIR_CALLBACK 0 1",
+    "IO_PIR_DISABLED 1 1",
+    "IO_PIR_DISABLED_DONE 1 1",
+    "IO_PIR_REENABLED",
+    "IO_PIR_CALLBACK 1 2",
+    "IO_PIR_CALLBACK 0 2"
+  ],
+  "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+  "unit_state": {
+    "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:58:09.562338+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "pir",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "motion": false,
+          "input-level": false,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 6,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "pir",
+        "name": "PIR",
+        "sku": "U004",
+        "visual_asset": {
+          "entry": "src/units/pir/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "AS312",
+            "status": "officially-documented"
+          },
+          {
+            "part": "HT7533",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "motion",
+              "direction": "unit-to-host",
+              "active_level": 1
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+          "registers": [],
+          "gaps": [
+            "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          ]
+        },
+        "inputs": {
+          "motion": {
+            "type": "boolean",
+            "label": "检测到移动",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "motion": {
+              "property": "motion"
+            }
+          },
+          "state": {
+            "motion": {
+              "property": "motion"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "dc9880b54d3e15efe6da41159e950b7638de65c15e0040ad97f62b7b1d9dbf00",
+  "serial_sha256": "20ecdd0429b9b67542d389c601d09dd3974986a0fe30cf14d930c75d5a9b9349",
+  "evidence_sha256": "92c1bfd8dc0f68549b2755588cb078bd2ce637e9e8d881e52fca1fd485152e59",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+    "frame_sha256": "dc9880b54d3e15efe6da41159e950b7638de65c15e0040ad97f62b7b1d9dbf00"
+  }
+}

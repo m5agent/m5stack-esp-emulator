@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-browser-integration",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "cardkb",
+  "runtime": "qemu",
+  "session_id": "a78b10d19acc4562a4863013212e7276",
+  "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+  "evidence_sha256": "1a746765491cc34dfb28b877249f50bfcaab7447b6dc9c14591fe3abba45651b",
+  "hardware_execution": "NOT RUN",
+  "checks": {
+    "guest_controller_runner_passed": true,
+    "same_session_and_firmware": true,
+    "actual_product_ui_observed": true,
+    "all_output_dom_matches_real_http_readback": true,
+    "evidence_screenshot_saved": true,
+    "input_actions_use_real_product_posts": true
+  },
+  "runtime_provenance": {
+    "session_id": "a78b10d19acc4562a4863013212e7276",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 80431,
+    "worker_id": null,
+    "worker_generation": null,
+    "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+    "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; ps comm; executable SHA256; same-session PID/generation confirmed again after hashing."
+  },
+  "command": [
+    "<python>",
+    "tests/units/run_control_cases.py",
+    "--case",
+    "cardkb",
+    "--api-url",
+    "http://127.0.0.1:8787",
+    "--device",
+    "cores3",
+    "--out-dir",
+    "<output>/cardkb/controller"
+  ],
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "1028a56802e443d483a91f23ec082fe7aeb1f8b832dd5c3e25fa83211d18d757",
+    "tests/units/web_ui_bridge.py": "5cd188a829d8ebf139fc4f5d2547854d8c1919d4c11ad31e8da3c1a641eb19be",
+    "tests/units/run_service_cases.py": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b",
+    "tests/units/run_web_cases.py": "b6a3bab26953a84a0f29e222077c653f62275289ab46feb1ddd6e2bc58a1c06e",
+    "tests/units/run_control_cases.py": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581"
+  },
+  "controller_result": "controller/cardkb/result.json",
+  "evidence": "controller/cardkb/evidence.zip",
+  "browser_report": "browser/a78b10d19acc4562a4863013212e7276/web-report.json",
+  "controller_error": null,
+  "visual_scope": "Only commands with established component mappings are checked on the shell; raw fields and missing physical bindings remain explicit panel presentation.",
+  "artifact_sha256": {
+    "controller/cardkb/result.json": "f60b455247db8547b3e20aeeef00ea0727a1337911fae6101484d8e56f3bc81e",
+    "browser/a78b10d19acc4562a4863013212e7276/web-report.json": "e1214f4309dc5dadb22e713208c30474a5db9290a71cfb51f325996c4c6f8b84",
+    "browser/a78b10d19acc4562a4863013212e7276/runtime-provenance.json": "39d57a89b2bf0f16e7c812c8f04714328ad16ef64c05151acd3c246e24773914",
+    "tool-sources/platform/tests/unit_web_bridge.mjs.txt": "1028a56802e443d483a91f23ec082fe7aeb1f8b832dd5c3e25fa83211d18d757",
+    "tool-sources/tests/units/run_control_cases.py.txt": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "tool-sources/tests/units/run_service_cases.py.txt": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b",
+    "tool-sources/tests/units/run_web_cases.py.txt": "b6a3bab26953a84a0f29e222077c653f62275289ab46feb1ddd6e2bc58a1c06e",
+    "tool-sources/tests/units/web_ui_bridge.py.txt": "5cd188a829d8ebf139fc4f5d2547854d8c1919d4c11ad31e8da3c1a641eb19be"
+  }
+}

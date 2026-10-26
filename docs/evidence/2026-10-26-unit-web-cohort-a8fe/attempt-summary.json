@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "category": "interrupted-unit-web-cohort",
+  "status": "INCOMPLETE",
+  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "worker_generation": 7,
+  "hardware_execution": "NOT RUN",
+  "outer_exit_code": 143,
+  "interruption": "After recurrent readiness and QMP-startup failures, only the outer batch was suspended. The active Angle child completed its ZIP/stop path and the API had zero active sessions before the outer batch was terminated. No next case was launched.",
+  "full_wrapper_reports": 20,
+  "passed": 16,
+  "failed": 4,
+  "child_only": 1,
+  "not_run": 6,
+  "cases": [
+    {
+      "unit_id": "button",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "b89e3b7d270d42bc838a106805dc428f",
+      "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+      "evidence_sha256": "798d3876cc2915f5efdee477652c4e32eaf6c739cff4fe28d26bfe6711cfc3b7",
+      "controller_error": null,
+      "original_report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0"
+    },
+    {
+      "unit_id": "relay",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "fe44b8f8834f40c7a331c02494ec7095",
+      "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "evidence_sha256": "185cb5989db63a65c3f84b7c0c1587a94a3e3fad806d761244951a98ef43440d",
+      "controller_error": null,
+      "original_report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2"
+    },
+    {
+      "unit_id": "env-iii",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+      "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "evidence_sha256": "e716be571cac956ec0d34092eb467597d308afb27e934ce22edebf942091e74d",
+      "controller_error": null,
+      "original_report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609"
+    },
+    {
+      "unit_id": "joystick-v11",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "7dd4a46b19ee42d59c4f26717d22578f",
+      "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+      "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+      "controller_error": null,
+      "original_report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576"
+    },
+    {
+      "unit_id": "encoder",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "c5dbf0a11d1b423c93b13d02461b5c31",
+      "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+      "evidence_sha256": "3e9a724a20b1994f176901580aa72a1f72dc09414366ab8751c6ac3c515ae512",
+      "controller_error": null,
+      "original_report_sha256": "35155e4e22d819ac0a24706c16dfb60d167bbb5dc79fa4b45c0cf7d112db1046"
+    },
+    {
+      "unit_id": "8encoder",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "c9b3258de98e43cea91cc7a8a6c14ebf",
+      "firmware_sha256": "b48ab0c95b8519ed2146ead739794af53e4ab34dd2a2beef447ce80c9c021c0a",
+      "evidence_sha256": "f974f5ef05eba462a3b088ce8a5184acc12b9e4385a021ecc79e296bf1817474",
+      "controller_error": null,
+      "original_report_sha256": "9d7e14cb640317feb34f13861d3557aea909cf511bfd8ceeba60c2d62752b5cb"
+    },
+    {
+      "unit_id": "cardkb",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "841f6c6233264934b657941b3a260bc2",
+      "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+      "evidence_sha256": "8e2162a2122e65f590c856c9cdacbf2c938a18c8c3003e85a483accf87e63f0f",
+      "controller_error": null,
+      "original_report_sha256": "e2f3ae9aa963904838e0d8d87154f85a72bea93b1a631c25959f047759b8a403"
+    },
+    {
+      "unit_id": "rfid2",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "808b92e0e9fc4097aa1a3783ba813477",
+      "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+      "evidence_sha256": "7480768a09731b75b332b123f992636f3d4d1256006882863167ea3a71c5ef18",
+      "controller_error": null,
+      "original_report_sha256": "63295d26db12901d78c21fa4c8a886a19c48e8acffd476ef5dda8afcdae65efa"
+    },
+    {
+      "unit_id": "color",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "55bde85082d24da38ad874006b1a9f25",
+      "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+      "evidence_sha256": "94e67034f75420299f7004c8dae3d82d9e3773f350ca86b28bc6b366301ff4ab",
+      "controller_error": null,
+      "original_report_sha256": "5185ff4642e9cb4443a4576e58206a5b52b10573bba79895d12b381a33c7cd9a"
+    },
+    {
+      "unit_id": "tof",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "85ef9a429efc410bbf73acb0997bf968",
+      "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+      "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+      "controller_error": null,
+      "original_report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0"
+    },
+    {
+      "unit_id": "ncir",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "529fa79852474e16b99c7b9f35fc740a",
+      "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+      "evidence_sha256": "bf23aa8205c1049c5488bb2d9edf8054eb7d7e3c517bcee332a0b504c0aa7be0",
+      "controller_error": null,
+      "original_report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a"
+    },
+    {
+      "unit_id": "heart",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+      "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+      "evidence_sha256": "69dce7487e18d126df94fc7b3a0b5195c82f9d957849e2beff2d486be7381046",
+      "controller_error": null,
+      "original_report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f"
+    },
+    {
+      "unit_id": "tvoc",
+      "status": "FAIL",
+      "wrapper": "COMPLETE",
+      "session_id": "8e47f65406e145c388eceb2ee400a0f6",
+      "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+      "evidence_sha256": "31977077675f1e48167700b69b2386997386c307447a553871bbe83ce8ae0ac5",
+      "controller_error": "RuntimeError: Unit Web bridge: AssertionError [ERR_ASSERTION]: Unit field must be live\n\nfalse !== true\n\n    at UnitWebBridge.input (file://<workspace>/platform/tests/unit_web_bridge.mjs:182:14)\n    at async file://<workspace>/platform/tests/unit_web_bridge.mjs:327:46",
+      "original_report_sha256": "8e39c9eac0343362082cd404e58a034e8ab87476a7613ab0ca0a96e567b6e636"
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+      "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+      "evidence_sha256": "e66a78e60a1ef75ea5c7caa895b5221af55dc4cf1b955e3deb5540297a0589a2",
+      "controller_error": null,
+      "original_report_sha256": "f80d5ab03773e837fa7c34306472623f8b2c15c8b1636c9cd5ee719dc29f4ef1"
+    },
+    {
+      "unit_id": "thermal",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "cac7bc84edf44cfa9e610f5f1ea38c60",
+      "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+      "evidence_sha256": "ae79aadf8aeae84f1761a819317b55451c7bccfae0a82e407efb3fd901fe59b4",
+      "controller_error": null,
+      "original_report_sha256": "588297e3a669f7e2a12d2310331b7a2a7fdae53c76f4c4a07d7b5bf78193845e"
+    },
+    {
+      "unit_id": "pir",
+      "status": "FAIL",
+      "wrapper": "COMPLETE",
+      "session_id": "7e0a5a439c6e4d5bb1b1e25ce0560a7c",
+      "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+      "evidence_sha256": "6e65b881ec8705a2ca2cad485bb5bd6e5de15a987f3eb2ab17eaa2b49663684a",
+      "controller_error": "RuntimeError: Unit Web bridge: AssertionError [ERR_ASSERTION]: Unit field must be live\n\nfalse !== true\n\n    at UnitWebBridge.input (file://<workspace>/platform/tests/unit_web_bridge.mjs:182:14)\n    at async file://<workspace>/platform/tests/unit_web_bridge.mjs:327:46",
+      "original_report_sha256": "4caddf4123807300299b7fb1784c45f459adb1bbbef1630df5a06a499ed9e39a"
+    },
+    {
+      "unit_id": "dual-button",
+      "status": "FAIL",
+      "wrapper": "COMPLETE",
+      "session_id": "75cff5d80c174e9b811fb80a584d9cc8",
+      "firmware_sha256": "7d454d17fd7fbb68a48c73bc9581be6ab53a51910699a7018e61ad4a62db8df9",
+      "evidence_sha256": "cad5090bf7f6751eb188174e1b0d14c7eaeb4a3db55c188456b0a7bb7935d837",
+      "controller_error": "RuntimeError: Unit Web bridge: AssertionError [ERR_ASSERTION]: Unit press control must be live\n\nfalse !== true\n\n    at UnitWebBridge.press (file://<workspace>/platform/tests/unit_web_bridge.mjs:140:12)\n    at async UnitWebBridge.input (file://<workspace>/platform/tests/unit_web_bridge.mjs:176:21)\n    at async file://<workspace>/platform/tests/unit_web_bridge.mjs:327:46",
+      "original_report_sha256": "e5a1350045be45884af932a5f66882988ada375d14c7140df06d9122184c885d"
+    },
+    {
+      "unit_id": "limit",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "07150b809c904d6684a53b76098b59ac",
+      "firmware_sha256": "6ca87eee44b7b467e7b12958c3e6d81fbea784a7158957ffa91aed2a1bbe40c9",
+      "evidence_sha256": "bda03a822811b42539d17c261b9d1accf817703671f9397e746dad70f0eee7a0",
+      "controller_error": null,
+      "original_report_sha256": "0f82bcc5d98de5002f1ff1aa0e5152c3d76423b0f16926a3488ed94e9ad88442"
+    },
+    {
+      "unit_id": "key",
+      "status": "FAIL",
+      "wrapper": "COMPLETE",
+      "session_id": "bf77d3d93e8a4a9e89fa2136d12b3202",
+      "firmware_sha256": "1b437be4008af99e015aea2fe9282a00519d4730d6213e082f062a20b4215bbd",
+      "evidence_sha256": "693f1eac87ed638ce2d05e3fde23dde57736ec5eb6d6981ea960500eda0ba33d",
+      "controller_error": "RuntimeError: QEMU QMP socket did not become ready: QMP socket did not appear: /tmp/m5-service-bf77d3d93e8a4a9e89fa2136d12b3202.sock",
+      "original_report_sha256": "afaac5061a1eb4ee3c731a0e898f04a9f53674aa3233aff4d70651bb844edbdf"
+    },
+    {
+      "unit_id": "rgb",
+      "status": "PASS",
+      "wrapper": "COMPLETE",
+      "session_id": "05aa1831370542b8a42af7c787a7509f",
+      "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+      "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+      "controller_error": null,
+      "original_report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b"
+    },
+    {
+      "unit_id": "angle",
+      "status": "INTERRUPTED",
+      "wrapper": "NOT RUN",
+      "controller_status": "FAIL",
+      "session_id": "4e76a15a491b42b1be8b1920339fd97a",
+      "firmware_sha256": "0f5698216b15f8b492a660f2378e4474c6c7b374494b7016b27939aa9725e286",
+      "evidence_sha256": "ce687404eefaaa5eb9964ba12c92d4468655d3734164aad7fdbbac7cd29b1253",
+      "controller_error": "RuntimeError: QEMU QMP socket did not become ready: QMP socket did not appear: /tmp/m5-service-4e76a15a491b42b1be8b1920339fd97a.sock",
+      "raw_controller_result_sha256": "1e325b57a86f315932d2c6ef8627b9c82396712ae2a9eb789e98f77c3ed9fd7c"
+    },
+    {
+      "unit_id": "light",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    },
+    {
+      "unit_id": "buzzer",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    },
+    {
+      "unit_id": "fan",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    },
+    {
+      "unit_id": "ir",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    },
+    {
+      "unit_id": "rs485",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    },
+    {
+      "unit_id": "hub",
+      "status": "NOT RUN",
+      "wrapper": "NOT RUN"
+    }
+  ]
+}

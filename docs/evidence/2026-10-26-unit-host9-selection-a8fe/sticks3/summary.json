@@ -1,0 +1,1345 @@
+{
+  "schema_version": 1,
+  "generator": "unit-batch-evidence-checker",
+  "checker_sha256": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+  "status": "PARTIAL",
+  "strict_direct": true,
+  "layers": {
+    "guest_controller": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 3,
+        "NOT RUN": 24,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 3,
+      "direct_pid_units": 3,
+      "indirect_service_generation_units": 0
+    },
+    "live_browser": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 3,
+        "NOT RUN": 24,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 3,
+      "direct_pid_units": 3,
+      "indirect_service_generation_units": 0
+    },
+    "bridge_contract": {
+      "status": "PASS",
+      "counts": {
+        "PASS": 27,
+        "NOT RUN": 0,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 27,
+      "direct_pid_units": 0,
+      "indirect_service_generation_units": 0
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json",
+        "report_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/004-before-evidence.png": "8304e1aa98b97c27e17ea19bc643dd930edfc16e7cdd5a52d45e86aad3f742a7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/opened-flashing.png": "5b34e82dbc570c5ff9521c687f3a5a8732c3b51c6398f3d52edd5e9c943b3b9e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/runtime-provenance.json": "971c0f2b05a8cf47fe523d148913b0411ddaba52ebfd13046cdf45da32cde912",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/web-report.json": "1c844f68f94412e91e8b21eb8f881bb1097fb7bdba3f927a0edb0e24016f950d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/browser-source-binding.json": "21b76d4e4b8b24d23ff99af39dfa59bee87581610e410ad3b63838b4a3b4af09",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/evidence.zip": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/probe_config.py": "001a052422661aafe4d8807d7b5d5e0dab5393a06a7e8be9f86869b62363efaa",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/frame.png": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/history-frame.png": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/prepared.json": "cba71958a2255d8bedbee6e76a715decdb796f1afed2b519b5e93f3e5a732d70",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/result.json": "3df61adc986da9360fc7756b07b66e9a2570b68d0b76dd7cb30c2f0bfee9ff3c",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/runner.stdout.txt": "8b30f2b6c9ab05d873b0ab60781bceea00cf1326af05bd5f5c94ef6a3262ac32",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/runtime-provenance.json": "1078a2b82cd32a7b5ece751b4d4dfc20ea9511d75084dbea487bd8791888f84b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/serial.txt": "1f9b2aaa7b7034f1bd792b1c63e5588511729660865073e580222b5a52d7656d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 9,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/result.json",
+          "report_sha256": "3df61adc986da9360fc7756b07b66e9a2570b68d0b76dd7cb30c2f0bfee9ff3c",
+          "assertions": 9
+        },
+        "wrapper_assertions": 6,
+        "session_id": "316a5248034e4759a7da00f7b3969999",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "3d1ac7110af04b0bcfc2ddc52064f818bafe3d6eb740984e35e81ddbfc9c4ea7",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/evidence.zip",
+        "evidence_sha256": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28304,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json",
+        "report_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/004-before-evidence.png": "8304e1aa98b97c27e17ea19bc643dd930edfc16e7cdd5a52d45e86aad3f742a7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/opened-flashing.png": "5b34e82dbc570c5ff9521c687f3a5a8732c3b51c6398f3d52edd5e9c943b3b9e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/runtime-provenance.json": "971c0f2b05a8cf47fe523d148913b0411ddaba52ebfd13046cdf45da32cde912",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/web-report.json": "1c844f68f94412e91e8b21eb8f881bb1097fb7bdba3f927a0edb0e24016f950d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/browser-source-binding.json": "21b76d4e4b8b24d23ff99af39dfa59bee87581610e410ad3b63838b4a3b4af09",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/evidence.zip": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/probe_config.py": "001a052422661aafe4d8807d7b5d5e0dab5393a06a7e8be9f86869b62363efaa",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/frame.png": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/history-frame.png": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/prepared.json": "cba71958a2255d8bedbee6e76a715decdb796f1afed2b519b5e93f3e5a732d70",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/result.json": "3df61adc986da9360fc7756b07b66e9a2570b68d0b76dd7cb30c2f0bfee9ff3c",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/runner.stdout.txt": "8b30f2b6c9ab05d873b0ab60781bceea00cf1326af05bd5f5c94ef6a3262ac32",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/runtime-provenance.json": "1078a2b82cd32a7b5ece751b4d4dfc20ea9511d75084dbea487bd8791888f84b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/serial.txt": "1f9b2aaa7b7034f1bd792b1c63e5588511729660865073e580222b5a52d7656d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/web-report.json",
+          "snapshots": 5,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/004-before-evidence.png": "8304e1aa98b97c27e17ea19bc643dd930edfc16e7cdd5a52d45e86aad3f742a7"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/316a5248034e4759a7da00f7b3969999/004-before-evidence.png": {
+              "width": 980,
+              "height": 1184
+            }
+          }
+        },
+        "session_id": "316a5248034e4759a7da00f7b3969999",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "3d1ac7110af04b0bcfc2ddc52064f818bafe3d6eb740984e35e81ddbfc9c4ea7",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/env-iii/evidence.zip",
+        "evidence_sha256": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28304,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "316a5248034e4759a7da00f7b3969999",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "3d1ac7110af04b0bcfc2ddc52064f818bafe3d6eb740984e35e81ddbfc9c4ea7",
+        "evidence_sha256": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support. ENV browser screenshot framing is PARTIAL although strict functional/DOM/PID/ZIP checks pass."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+        "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/017-before-evidence.png": "d0a63f5a1330cc0e0767a36b1847918daa34872122a7d24914f01ebc16d2d1ca",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/opened-flashing.png": "4954a49da661a56296f51ec2cbda5840dc2151dbbe71644144bafab7feb3c64d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/runtime-provenance.json": "c39fae6e3f15a8e50a68aecebcbafd018aa815c240e903fb6f048e124c1b7158",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/web-report.json": "905e2aa19ca0d03aaa7da8bc01d0be3a50e894a7314d2c081d4785bf51225062",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/browser-source-binding.json": "850ba8116b89e74fdbfc5762bf0dfcd76f4699016abec47fd16722062d80b352",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/evidence.zip": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/probe_config.py": "e2df2df3b015c895699292d7fec86e7af8f6237a27180ee8416c4c33bec1cf6f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/frame.png": "6938a3552796a91832a0b12999a70458ebed1f911d5d234421c4e7483cc448c6",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/history-frame.png": "81aa66a44ac3bae209924530d1d69ed54a570f9643419ae48f10416e28a71ab4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/prepared.json": "55f773095898be5ab374d21f2b6644e9bfb3b132394ff248dec5a25e3c580da4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/result.json": "69d9c041abb1d8ac280969ef49e5f2f5c800016eb796a80d96cdaff23239e6b2",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/runner.stdout.txt": "5e1ce2feba458890699a8c7f878cc27bd304be5faf9a3e4f3c0d9cf37f72ae4e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/runtime-provenance.json": "d57fe82234ba561e5c1f7513185a7e2a5ff41d256a32399073469d60920ea394",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/serial.txt": "e99a70cae216f21363a0a0988542b6a22f41da87ce2323b2e31e6f8b008e7a83",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 9,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/result.json",
+          "report_sha256": "69d9c041abb1d8ac280969ef49e5f2f5c800016eb796a80d96cdaff23239e6b2",
+          "assertions": 9
+        },
+        "wrapper_assertions": 6,
+        "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/evidence.zip",
+        "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28126,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+        "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/017-before-evidence.png": "d0a63f5a1330cc0e0767a36b1847918daa34872122a7d24914f01ebc16d2d1ca",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/opened-flashing.png": "4954a49da661a56296f51ec2cbda5840dc2151dbbe71644144bafab7feb3c64d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/runtime-provenance.json": "c39fae6e3f15a8e50a68aecebcbafd018aa815c240e903fb6f048e124c1b7158",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/web-report.json": "905e2aa19ca0d03aaa7da8bc01d0be3a50e894a7314d2c081d4785bf51225062",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/browser-source-binding.json": "850ba8116b89e74fdbfc5762bf0dfcd76f4699016abec47fd16722062d80b352",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/evidence.zip": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/probe_config.py": "e2df2df3b015c895699292d7fec86e7af8f6237a27180ee8416c4c33bec1cf6f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/frame.png": "6938a3552796a91832a0b12999a70458ebed1f911d5d234421c4e7483cc448c6",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/history-frame.png": "81aa66a44ac3bae209924530d1d69ed54a570f9643419ae48f10416e28a71ab4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/prepared.json": "55f773095898be5ab374d21f2b6644e9bfb3b132394ff248dec5a25e3c580da4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/result.json": "69d9c041abb1d8ac280969ef49e5f2f5c800016eb796a80d96cdaff23239e6b2",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/runner.stdout.txt": "5e1ce2feba458890699a8c7f878cc27bd304be5faf9a3e4f3c0d9cf37f72ae4e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/runtime-provenance.json": "d57fe82234ba561e5c1f7513185a7e2a5ff41d256a32399073469d60920ea394",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/serial.txt": "e99a70cae216f21363a0a0988542b6a22f41da87ce2323b2e31e6f8b008e7a83",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/web-report.json",
+          "snapshots": 18,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/017-before-evidence.png": "d0a63f5a1330cc0e0767a36b1847918daa34872122a7d24914f01ebc16d2d1ca"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/017-before-evidence.png": {
+              "width": 980,
+              "height": 919
+            }
+          }
+        },
+        "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/relay/evidence.zip",
+        "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28126,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+        "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+        "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/005-before-evidence.png": "a1a50cb90676ddbf001965c756bd644876819b280da0c4991e179cd1e4fd8760",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/opened-flashing.png": "cdf3a7681677b53e51a6e71938daecb7c51f89c9232fb4b269ea6273a4cc449e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/runtime-provenance.json": "1bd907f60b805bd78fbd84edb9dfe3b94d281638eb403fc61b062cf60d5cf7a0",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/web-report.json": "3db3ade67401b4965f7744f64f23898ed0632373e6a834fe3f2f698e16a32004",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/browser-source-binding.json": "13a6e5d5577916c72d83cac94cf07182dc8a584a30f62b87f58e79d3b8a921e6",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/evidence.zip": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/probe_config.py": "6df6eb0d0f6d2f36bfdbf4bfb6628daec4ea2d7b52c25e8d25821c8dd1933da7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/frame.png": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/history-frame.png": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/prepared.json": "2bf59768aefea749e824b652fe60e96d5d62dc12642995bfa130067ffaadc471",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/result.json": "078954687cb31d579fba0d926e2946175c323fb8f4c61ff2993bf4e71bb6867b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/runner.stdout.txt": "03f1a0af34592725c2271c5f8305018df459fe1022d58fef23528966f9463736",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/runtime-provenance.json": "a7f9ab17b7a7431ef9f7b20e30ec094c4fadc9d8e17b3e855ad0632f18143d8d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/serial.txt": "7333f9b8e808e72298263aa664d1450fe3937e4abe38b3811cbb48d11a69aae7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 9,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/result.json",
+          "report_sha256": "078954687cb31d579fba0d926e2946175c323fb8f4c61ff2993bf4e71bb6867b",
+          "assertions": 9
+        },
+        "wrapper_assertions": 6,
+        "session_id": "07deec40cec54109a00201b11efdc73e",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/evidence.zip",
+        "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28006,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+        "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/batch-source-provenance.json": "417c4f6114c0bbd9464da26ca4b99ef2dbc355168403df0ea78f5a3ccd338306",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/005-before-evidence.png": "a1a50cb90676ddbf001965c756bd644876819b280da0c4991e179cd1e4fd8760",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/opened-flashing.png": "cdf3a7681677b53e51a6e71938daecb7c51f89c9232fb4b269ea6273a4cc449e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/runtime-provenance.json": "1bd907f60b805bd78fbd84edb9dfe3b94d281638eb403fc61b062cf60d5cf7a0",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/web-report.json": "3db3ade67401b4965f7744f64f23898ed0632373e6a834fe3f2f698e16a32004",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/browser-source-binding.json": "13a6e5d5577916c72d83cac94cf07182dc8a584a30f62b87f58e79d3b8a921e6",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/evidence.zip": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/probe_config.py": "6df6eb0d0f6d2f36bfdbf4bfb6628daec4ea2d7b52c25e8d25821c8dd1933da7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/files/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/frame.png": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/history-frame.png": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/prepared.json": "2bf59768aefea749e824b652fe60e96d5d62dc12642995bfa130067ffaadc471",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/result.json": "078954687cb31d579fba0d926e2946175c323fb8f4c61ff2993bf4e71bb6867b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/runner.stdout.txt": "03f1a0af34592725c2271c5f8305018df459fe1022d58fef23528966f9463736",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/runtime-provenance.json": "a7f9ab17b7a7431ef9f7b20e30ec094c4fadc9d8e17b3e855ad0632f18143d8d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/serial.txt": "7333f9b8e808e72298263aa664d1450fe3937e4abe38b3811cbb48d11a69aae7",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/web-bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/service-provenance.json": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tests/unit_web_bridge.mjs.txt": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/device_service.py.txt": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/serve.py.txt": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/tools/unit_runtime.py.txt": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/catalog.json.txt": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/host-ports.json.txt": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/units/runtime-profiles.json.txt": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/device-shell-factory.js.txt": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/model-shell.js.txt": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.html.txt": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/sessions.js.txt": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.css.txt": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-panel.js.txt": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/platform/web/unit-visual-mappings.js.txt": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/uiflow2/run_profile_ui_test.py.txt": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/check_batch_evidence.py.txt": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/boot.py.txt": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/host_program.py.txt": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/main.py.txt": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/host_probe/probe_logging.py.txt": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_host_cases.py.txt": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_io_cases.py.txt": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/run_service_cases.py.txt": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+          "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/tool-sources/tests/units/web_ui_bridge.py.txt": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "visual_scope": "Button has an established visual press mapping. Relay/ENV output values are verified in the actual panel; no visual actuator or physical equivalence is invented.",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/web-report.json",
+          "snapshots": 6,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/005-before-evidence.png": "a1a50cb90676ddbf001965c756bd644876819b280da0c4991e179cd1e4fd8760"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/browser/sticks3/07deec40cec54109a00201b11efdc73e/005-before-evidence.png": {
+              "width": 980,
+              "height": 1012
+            }
+          }
+        },
+        "session_id": "07deec40cec54109a00201b11efdc73e",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/sticks3/button/evidence.zip",
+        "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 28006,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "07deec40cec54109a00201b11efdc73e",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+        "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83",
+        "artifact_sha256_verified": {},
+        "assertions": 22,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    }
+  ],
+  "errors": [],
+  "catalog": "platform/units/catalog.json",
+  "catalog_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+  "expected_units": 27,
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser",
+    "bridge_contract"
+  ],
+  "selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae"
+}

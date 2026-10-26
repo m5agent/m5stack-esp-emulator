@@ -1,0 +1,62 @@
+"""Offline provenance faults; these tests do not execute firmware or QEMU."""
+import copy
+import json
+import os
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from web_ui_bridge import WebUIBridge
+
+
+class RuntimeProvenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.bridge = WebUIBridge.__new__(WebUIBridge)
+        self.bridge.output = Path(self.directory.name)
+        self.bridge.url = "http://127.0.0.1:8787"
+        self.session = {
+            "session_id": "offline-provenance-fixture", "pid": os.getpid(),
+            "state": "running", "firmware_sha256": "offline-fixture",
+            "worker": {"worker_id": "fixture-worker", "generation": 6},
+        }
+        self.environment = patch.dict(os.environ)
+        self.environment.start()
+        self.addCleanup(self.environment.stop)
+        os.environ.pop("M5_UNIT_EXPECT_RUNTIME_SHA256", None)
+
+    def test_nested_worker_is_sampled_and_confirmed(self):
+        proof = self.bridge.runtime_provenance(self.session, lambda: copy.deepcopy(self.session))
+        self.assertEqual(proof["status"], "VERIFIED")
+        self.assertEqual(proof["worker_id"], "fixture-worker")
+        self.assertEqual(proof["worker_generation"], 6)
+        self.assertRegex(proof["runtime_binary_sha256"], r"^[0-9a-f]{64}$")
+
+    def test_nested_generation_change_is_not_verified(self):
+        confirmed = copy.deepcopy(self.session)
+        confirmed["worker"]["generation"] = 7
+        proof = self.bridge.runtime_provenance(self.session, lambda: confirmed)
+        self.assertEqual(proof["status"], "NOT VERIFIED")
+        self.assertIn("changed", proof["error"])
+
+    def test_missing_worker_stays_unknown(self):
+        self.session.pop("worker")
+        proof = self.bridge.runtime_provenance(self.session, lambda: copy.deepcopy(self.session))
+        self.assertEqual(proof["status"], "VERIFIED")
+        self.assertIsNone(proof["worker_id"])
+        self.assertIsNone(proof["worker_generation"])
+        self.assertIn("Null worker fields remain unknown", proof["method"])
+
+    def test_required_hash_mismatch_fails_and_preserves_receipt(self):
+        os.environ["M5_UNIT_EXPECT_RUNTIME_SHA256"] = "f" * 64
+        with self.assertRaisesRegex(RuntimeError, "required live executable"):
+            self.bridge.runtime_provenance(self.session, lambda: copy.deepcopy(self.session))
+        proof = json.loads((self.bridge.output / self.session["session_id"] / "runtime-provenance.json").read_text())
+        self.assertEqual(proof["status"], "NOT VERIFIED")
+        self.assertIn("differs", proof["error"])
+
+
+if __name__ == "__main__":
+    unittest.main()

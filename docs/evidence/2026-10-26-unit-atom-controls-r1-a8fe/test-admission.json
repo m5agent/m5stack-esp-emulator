@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "changed_at": "2026-10-25T21:18:03.312477+00:00",
+  "before_sha256": "833f6049281dd19c9c1dfd764f9ac933e74f1dbeec164051d414ae1a5f57ed73",
+  "after_sha256": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2",
+  "delta": {
+    "joystick-v11": {
+      "before": [
+        "cores3"
+      ],
+      "after": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "validation": "NOT RUN; controlled local test admission only"
+    },
+    "encoder": {
+      "before": [
+        "cores3"
+      ],
+      "after": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "validation": "NOT RUN; controlled local test admission only"
+    },
+    "8encoder": {
+      "before": [
+        "cores3"
+      ],
+      "after": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "validation": "NOT RUN; controlled local test admission only"
+    },
+    "cardkb": {
+      "before": [
+        "cores3"
+      ],
+      "after": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "validation": "NOT RUN; controlled local test admission only"
+    },
+    "rfid2": {
+      "before": [
+        "cores3"
+      ],
+      "after": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "validation": "NOT RUN; controlled local test admission only"
+    }
+  },
+  "runtime_status_unchanged": "implemented",
+  "guest_validation_metadata_unchanged": true,
+  "new_host_validation": "NOT RUN",
+  "service_restarted": false,
+  "reason": "Same S3 controller paths and official host pin mappings reviewed; admit only the fifteen local validation combinations. Admission is not PASS."
+}

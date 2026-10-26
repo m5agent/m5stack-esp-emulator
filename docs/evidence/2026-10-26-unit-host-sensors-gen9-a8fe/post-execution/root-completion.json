@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "category": "root-observed-tool-result",
+  "status": "PASS",
+  "runner_exit_code": 0,
+  "at": "2026-10-26T00:49:52.938271+00:00",
+  "selection": {
+    "devices": [
+      "atoms3r",
+      "sticks3",
+      "stopwatch"
+    ],
+    "cases": [
+      "color",
+      "tof",
+      "ncir",
+      "heart",
+      "tvoc",
+      "ultrasonic-i2c"
+    ]
+  },
+  "tool_result_reference": {
+    "tool": "tools.write_stdin",
+    "chunk_id": "37bfb7",
+    "observed_exit_code": 0,
+    "session_id": 62477,
+    "raw_result": {
+      "path": ".work/unit-host-sensors-live-intake-20261026-r3/terminal-tool-result.json",
+      "sha256": "465aa80e2a4be83a9a4bb80c2860e54f64671b6d64cab3c16f036e044c8c77d6"
+    }
+  },
+  "summary": {
+    "path": ".work/unit-host-sensors-live-20261026-r1/summary.json",
+    "sha256": "2892246401248b4e635345ac7cc51efed30961c024a90fb5fbf7eab328a5fab5"
+  },
+  "source_before": {
+    "path": ".work/unit-host-sensors-live-20261026-r1/source-before.json",
+    "sha256": "1185aa85b703c7959c60ff133b1195d1b6d2e42f7f43859c0f92c0a6cccd3f57"
+  },
+  "reports": {
+    "atoms3r/color": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/color/report.json",
+      "sha256": "28e99c9e81e80237b862efd1d3beb18033b99fb04ce89c5eb9822484d5ad8fe2"
+    },
+    "atoms3r/tof": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/tof/report.json",
+      "sha256": "71f938ca838b948c6bcd886193b7db0f1270cb70872c85d8db48035fb55f954b"
+    },
+    "atoms3r/ncir": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/ncir/report.json",
+      "sha256": "45943e044e1159d41d008e80abcc5bbf94a7d3f368844288258654606529c9fd"
+    },
+    "atoms3r/heart": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/heart/report.json",
+      "sha256": "7dd264246bf818e6d1012793ca496cb8cd9ccdfae3a219a6ef3390c8ca93ce8e"
+    },
+    "atoms3r/tvoc": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/tvoc/report.json",
+      "sha256": "4a05ad918a643292790073ca2a1dce708331f7bffe3e7ef15d6b77a1197c526d"
+    },
+    "atoms3r/ultrasonic-i2c": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/atoms3r/ultrasonic-i2c/report.json",
+      "sha256": "cc65a2dd2d873f3ab33a284b4f3eb169b73b117d2c9b3d921377158fdf564988"
+    },
+    "sticks3/color": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/color/report.json",
+      "sha256": "1f4dfdb88f9cdf0bb5a0951a8b6412c079316a7ed557f4a087f29329e147e401"
+    },
+    "sticks3/tof": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/tof/report.json",
+      "sha256": "d164ad35bc201d4b6329a62ff509082c2616cee732bcfaef34848c14ff4cc4da"
+    },
+    "sticks3/ncir": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/ncir/report.json",
+      "sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770"
+    },
+    "sticks3/heart": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/heart/report.json",
+      "sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415"
+    },
+    "sticks3/tvoc": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/tvoc/report.json",
+      "sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab"
+    },
+    "sticks3/ultrasonic-i2c": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/ultrasonic-i2c/report.json",
+      "sha256": "fe88d350a633ea55d5b1ad94cee7f0358b1ef18e680916a7fb9c92b487b8bb6b"
+    },
+    "stopwatch/color": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/color/report.json",
+      "sha256": "a764a10211a2eb12b8e8848002feef37a29e7f5580b38b40f7c1878c3a0731a5"
+    },
+    "stopwatch/tof": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/tof/report.json",
+      "sha256": "d7078932f48d9426151e7a0c9e6367cc422f0476c7044c6a46d5655f9dbb57e1"
+    },
+    "stopwatch/ncir": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/ncir/report.json",
+      "sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3"
+    },
+    "stopwatch/heart": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/heart/report.json",
+      "sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939"
+    },
+    "stopwatch/tvoc": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/tvoc/report.json",
+      "sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849"
+    },
+    "stopwatch/ultrasonic-i2c": {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/ultrasonic-i2c/report.json",
+      "sha256": "741b45aa843eb2766ebf79245fb15b81b5a971d6192fbca7be17c9a88dff80e4"
+    }
+  },
+  "scope": "Root observed the terminal tool result for the actual eighteen-case invocation. This is not a separate kernel/process observation."
+}

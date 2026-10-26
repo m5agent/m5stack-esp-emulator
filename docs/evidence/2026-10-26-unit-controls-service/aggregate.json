@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "virtual-device validation",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "qemu_sha256": "732d137bf03acd2cadbe686d182f4ea737bb41193f61b48caaa59a5630794c1f",
+  "status": "PASS",
+  "scope": "earlier five control Unit guest paths, not final rebuilt runtime or whole batch",
+  "cases": [
+    {
+      "unit_id": "joystick-v11",
+      "status": "PASS",
+      "report": "joystick-v11-settled/result.json",
+      "firmware_sha256": "9bfb1329a728619a2436bdf8d643cbd19c53b66eeedd52505bd19dd1694dfd53",
+      "session_id": "a636eef35d1d4d1db645daabbca527f8",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "status": "PASS",
+      "report": "encoder/result.json",
+      "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+      "session_id": "640e0ca7036c466d81ed33637fdb7e67",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "status": "PASS",
+      "report": "8encoder/result.json",
+      "firmware_sha256": "b1f2c8b57a02d9cc3b658bcfe9730894137b9f447a6ce7825989656ce3c5ba19",
+      "session_id": "9dde170bae7b4d09a07a960c89720590",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "status": "PASS",
+      "report": "cardkb/result.json",
+      "firmware_sha256": "5dd0aea55a699d193724fad098915f02c5374aabbd9eac367e1fb2c95049a128",
+      "session_id": "a4b95cd132454e64a9e1795de4575be7",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "status": "PASS",
+      "report": "rfid2/result.json",
+      "firmware_sha256": "0cc559c29c521cacd0444666ea1254c4767f8da73a65b8024e75ea0f4244a1b7",
+      "session_id": "1b0ebd5e4b9c46299033304f78019624",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    }
+  ],
+  "exploration": "rfid2-attempt1 remains FAIL; it is excluded from PASS cases",
+  "hardware": "NOT RUN"
+}

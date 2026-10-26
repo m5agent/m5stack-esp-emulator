@@ -1,6 +1,6 @@
 # QEMU and firmware patch index
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This directory stores replayable patches, not QEMU binaries or the `.work/`
 build tree. Exact base commits, apply order, reverse-check commands and known
@@ -20,6 +20,7 @@ incremental dependencies remain authoritative in each subdirectory README.
 | [`qemu-esp32c6-uiflow2-adapters`](qemu-esp32c6-uiflow2-adapters/README.md) | Espressif C6 backend `febae18` | C6 boot, flash/PMP, board peripherals and WiFi support | Zigbee/802.15.4 remains a model gap |
 | [`qemu-linux-arm64-cardputerzero`](qemu-linux-arm64-cardputerzero/README.md) | after shared M5Stack peripheral snapshot | BCM2837, audio, USB, Ethernet and Linux board data planes | independent Linux backend |
 | [`uiflow2-tab5-emulator`](uiflow2-tab5-emulator/README.md) | UIFlow2/M5GFX/LVGL checkouts | emulator-only Tab5 firmware build guards | simulation infrastructure, not a physical Tab5 PASS |
+| [`uiflow2-unit-buzzer`](uiflow2-unit-buzzer/README.md) | generated copy of the pinned UIFlow2 Buzzer wrapper | explicit SoftTimer callback argument adapter | custom guest only; default driver/frozen firmware/QEMU unchanged; original once failure retained |
 
 ## Build rules
 

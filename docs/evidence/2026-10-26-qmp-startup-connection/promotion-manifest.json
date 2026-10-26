@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "scope": "All original A/B artifacts plus append-only promotion evidence; this index excludes itself",
+  "files": {
+    "README.md": {
+      "size": 4472,
+      "sha256": "83bdd3893558f7bbc979991e45247ae04529234d26db50c9ecb55814fe757166"
+    },
+    "archive-manifest.json": {
+      "size": 3142,
+      "sha256": "7fb83b089c712e2204eab5bce034c5147a215ab10be9a8a38d639692dffa2ece"
+    },
+    "historical/atom/device-state.json": {
+      "size": 769,
+      "sha256": "9d7f66f3b69f61acd7f499c1e1164b514bf7e94983ccc7dafa01cc4257a3e9ae"
+    },
+    "historical/atom/events.json": {
+      "size": 1515,
+      "sha256": "4283fd159e097306e024bbee85248aa6562f3d88c9584f373010f2261ce96095"
+    },
+    "historical/atom/last-frame.json": {
+      "size": 129,
+      "sha256": "b583f71b41d607fd39af4c130d061589059409049acf95133f72e6633df7167a"
+    },
+    "historical/atom/qemu.stderr": {
+      "size": 104,
+      "sha256": "f104a41d810bfefff9e9701cf9a47337ab8e65030d12a104ba744caae55589b8"
+    },
+    "historical/atom/serial.log": {
+      "size": 7034,
+      "sha256": "62c3cadb11d9a8fb25771758efe9d0da60a40ba1c022f0f0321de6145ec29465"
+    },
+    "historical/http-excerpts.txt": {
+      "size": 1130,
+      "sha256": "df6b09dfdf35c1efd7dc14a41abfbdb15dae05c688bad87c6f19244105d5d606"
+    },
+    "historical/limit/device-state.json": {
+      "size": 688,
+      "sha256": "15b329e31156561a5ebbb56e6b00e51692da0cf2eaae8cd235c071d6d9967dac"
+    },
+    "historical/limit/events.json": {
+      "size": 1329,
+      "sha256": "38a35659fd5d784d526057e13eee7872994b60165503d72bc59b5ccaf3211cf8"
+    },
+    "historical/limit/last-frame.json": {
+      "size": 130,
+      "sha256": "7dc39bed35d4b07af5d4af2a8ed3af57ebf9aa05d3f706efc1df3bc171775dfc"
+    },
+    "historical/limit/qemu.stderr": {
+      "size": 104,
+      "sha256": "f104a41d810bfefff9e9701cf9a47337ab8e65030d12a104ba744caae55589b8"
+    },
+    "historical/limit/serial.log": {
+      "size": 872,
+      "sha256": "d8cdb0a6c221744dfd6db86b395387bca825770ed3d8507ddf32bce0acce9e36"
+    },
+    "normal-baseline-regression.json": {
+      "size": 1733,
+      "sha256": "e03b1438d95070a3d66c3a8fdbbe8e71d1e3be63b99ef10321766ea0bd7484bc"
+    },
+    "normal-candidate-regression.json": {
+      "size": 357,
+      "sha256": "a5d84a474280d0f127047c497fe8f243ebd5a2ecd2fca93c93e7a1f4ef40c46e"
+    },
+    "promoted-source/platform/tests/test_device_service_qmp_startup.py.txt": {
+      "size": 10509,
+      "sha256": "9519aeec9fc0bc110a119f143dc0abb4874656e3af0545979b303cfb499a3506"
+    },
+    "promoted-source/tests/uiflow2/run_profile_ui_test.py.txt": {
+      "size": 28770,
+      "sha256": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557"
+    },
+    "promoted-warning-strict.log": {
+      "size": 965,
+      "sha256": "0c89f3aadab345e7f1e6c9acfee95d810a29bb4e80a5be6c9c8c1c9bab3a2cd8"
+    },
+    "promotion.json": {
+      "size": 2159,
+      "sha256": "1d76fbfa7aef4df43c582e133d77142e1f1cd2d6f43e558708319598b2fb5f24"
+    },
+    "review-summary.md": {
+      "size": 4990,
+      "sha256": "29efb57262d13d8f325e1d1ba4dce5396846cf8b379d55164671ffc2ce042029"
+    },
+    "run_normal_ab.py": {
+      "size": 1964,
+      "sha256": "4d01238811de055ca61f139b239efe500a16178d4d93a0f9091ff5b5d3c0a238"
+    },
+    "source/device_service.baseline.py": {
+      "size": 374783,
+      "sha256": "3138b1ff48d7b79d3815d74f78a8bfea1c03a7ec8359787bcf0bd0b85cbc7a93"
+    },
+    "source/device_service.candidate.py": {
+      "size": 374965,
+      "sha256": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516"
+    },
+    "source-evidence-index.json": {
+      "size": 3676,
+      "sha256": "2a26a3b1922e7700112779e931077f169050242c41d0a571ab38844aa7f28744"
+    },
+    "source-sha256.json": {
+      "size": 210,
+      "sha256": "7c32e51d53e2e37e0f2d741675bab2bee841ce2a2f5224d0881870c7eb539814"
+    },
+    "startup-qmp-lock.patch": {
+      "size": 1248,
+      "sha256": "0f1385781d9f13825fcb457a12e54389fcbb530527dda90b0ba241458aa843df"
+    },
+    "test_device_service_qmp_startup.py": {
+      "size": 9905,
+      "sha256": "cf579390c84833c0f9ff6ed0107113540e0a20dc98d66860c6d7b6a66703cf2e"
+    }
+  }
+}

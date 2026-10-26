@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-control-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "native_readability_scope": "captured-final-native-frame-only",
+  "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+  "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/source-reconstruction.json",
+    "sha256": "a82a4c27395a22f84b18eb8a8d0a405f10b97c91baf82c00726564a4a2e076f5"
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/prepared-readiness.json",
+    "sha256": "023bfa85cdf1a0c37332b86cd5679af8c64c0069f439310530f6bd73bdccd662"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/post-execution-history/joystick-v11.json",
+    "sha256": "868d7ac3d5806449001c7aefd1a65367098539f58f2f43b9a7cc5f9de083986a"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "sticks3",
+      "unit_id": "joystick-v11"
+    },
+    "meaning": "Historical offline preparation fields retained verbatim; actual execution authority is the unchanged same-session artifacts."
+  },
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/post-execution-review/native-review.json",
+    "sha256": "bdd6663fa843bdff226e0b5abaa267d14ba62dd390685c6ebda402582269649b"
+  },
+  "observed_final_lines": [
+    "sticks3 joystick-v11",
+    "x 255",
+    "y 0",
+    "button 0"
+  ],
+  "native_review_limit": "Only this actual captured final frame was reviewed. Intermediate states, every numeric extreme and physical display behavior are not inferred."
+}

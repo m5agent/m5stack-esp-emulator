@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node test_ui.mjs",
+    "test:models": "node test_model_shell.mjs",
     "test:units": "node test_sha256.mjs && node test_firmware_upload.mjs"
   },
   "dependencies": {

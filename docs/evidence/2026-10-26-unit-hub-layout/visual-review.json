@@ -1,0 +1,36 @@
+{
+  "scope": "Manual inspection of historical r9 images, identical promoted replay pixels, and actual sticky-capture positive/negative PNGs.",
+  "hub_primary_scene_placement": "PASS",
+  "whole_visual_acceptance": "PARTIAL",
+  "phone_overview_touch_comfort": "PARTIAL",
+  "promoted_hub_pixels_equal_reviewed_candidate": {
+    "before-1440.png": true,
+    "before-1024.png": true,
+    "before-768.png": true,
+    "before-390.png": true,
+    "after-1440.png": true,
+    "after-1024.png": true,
+    "after-768.png": true,
+    "after-390.png": true,
+    "after-button-hitbox-390.png": true,
+    "after-button-focus-390.png": true,
+    "after-snapshot-failure-isolation-390.png": true,
+    "after-restore-failure-isolation-390.png": true
+  },
+  "sticky_positive": {
+    "file": "regression/bridge/bridge-fixture/013-observed-units.png",
+    "title": "visible",
+    "full_card": true
+  },
+  "sticky_negative": {
+    "file": "sticky-negative/result/bridge-fixture/013-observed-units.png",
+    "title": "covered by sticky navigation",
+    "status": "EXPECTED FAIL"
+  },
+  "limitations": [
+    "Desktop HUB harness has an empty right session-body fixture region; this is not a session-page redesign.",
+    "Focus image intentionally crops the broader scene; it proves native hitbox interaction only.",
+    "Fault-injection images prove ownership/input recovery, not successful layout of unsupported newly attached geometry.",
+    "No firmware/controller/hardware equivalence claim."
+  ]
+}

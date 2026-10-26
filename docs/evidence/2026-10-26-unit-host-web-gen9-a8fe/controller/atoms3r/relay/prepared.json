@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T19:44:42.316377+00:00",
+  "status": "PREPARED",
+  "validation": "virtual-device validation",
+  "device_id": "atoms3r",
+  "unit_id": "relay",
+  "runtime": "qemu",
+  "port_id": "custom",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "relay",
+      "port_id": "custom"
+    }
+  ],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      128,
+      128
+    ],
+    "text": [
+      4,
+      4,
+      120
+    ],
+    "internal_sda": 47,
+    "internal_scl": 0,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      128,
+      128
+    ]
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/AtomS3R",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6557696,
+    "size": 1826816,
+    "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+  },
+  "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+  "firmware_sha256": "8e57c552d8d599bb448082f095721cee86ad5a98a04a5c9d582b2076e5b8b72f",
+  "expected_size": [
+    128,
+    128
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "ccedf43c532e7bd9ce264f9f19a91236c819fa0b6b7483c27a60c767190f3057",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true
+  },
+  "required_markers": [],
+  "injections": []
+}

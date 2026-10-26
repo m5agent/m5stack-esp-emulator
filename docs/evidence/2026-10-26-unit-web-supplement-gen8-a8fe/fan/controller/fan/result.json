@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T19:25:36.156531+00:00",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "fan",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "4dcfff91e39fb5420b9fec3312be2236855db3ac57bc528b709e7059770de615",
+  "expected_size": [
+    320,
+    240
+  ],
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "fan",
+      "port_id": "port-a"
+    }
+  ],
+  "firmware_flavor": "reference-app-with-original-unit-drivers",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "5ae65d7ba7d23321ca089a292a146c12b62e33700a5a828f7231d185f6e2adb9",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "0322293eeb596a5a9a6b29160132bd6c26f7767fff1e98784e65d9043658f645",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "runner_sha256": {
+    "tests/units/run_io_cases.py": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+    "tests/units/run_control_cases.py": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "tests/units/run_sensor_cases.py": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+    "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "checks": {
+    "packaged_guest_bytes_verified": true,
+    "official_driver_ready": true,
+    "guest_ledc_frequency_and_duty_registers": true,
+    "nonblank_application_frame": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_and_frame_retained": true,
+    "history_frame_readable": true
+  },
+  "injections": [],
+  "required_markers": [
+    "IO_PROBE_READY fan",
+    "IO_FAN 0 1000 0",
+    "IO_FAN 1 1000 25",
+    "IO_FAN 2 1500 100"
+  ],
+  "session_id": "bdd3f7e9a19e4aeaa04ef6025c563476",
+  "pwm_observations": [
+    {
+      "stage": 0,
+      "frequency-hz": 1000,
+      "duty-pct": 0
+    },
+    {
+      "stage": 1,
+      "frequency-hz": 1000,
+      "duty-pct": 29.39453125
+    },
+    {
+      "stage": 2,
+      "frequency-hz": 1499.7000599880023,
+      "duty-pct": 100
+    }
+  ],
+  "unit_state": {
+    "session_id": "bdd3f7e9a19e4aeaa04ef6025c563476",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T19:26:00.176182+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "fan",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "duty-pct": 100,
+          "frequency-hz": 1499.7000599880023,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 15
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "fan",
+        "name": "Fan",
+        "sku": "U063",
+        "visual_asset": {
+          "entry": "src/units/fan/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/Unit_Fan",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "N20 DC motor",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-pwm",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "DIN/PWM",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "NC",
+              "direction": "none"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Yellow wire drives a single-direction motor through GPIO/PWM. Official driver initializes 250Hz and maps requested speed 1..100 to duty 70..1023 (zero disables). This is control duty, not a calibrated RPM model.",
+          "registers": [],
+          "gaps": [
+            "The verified product text does not identify the motor-driver transistor/IC; no L9110 identity is guessed.",
+            "No-load 8800RPM is a product specification, not a linear PWM-to-RPM transfer function."
+          ]
+        },
+        "inputs": {},
+        "outputs": {
+          "duty-pct": {
+            "type": "number",
+            "label": "占空比",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "readOnly": true
+          },
+          "frequency-hz": {
+            "type": "number",
+            "label": "PWM频率",
+            "default": 250,
+            "default_source": "synthetic-test-fixture",
+            "unit": "Hz",
+            "minimum": 0,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/Unit_Fan",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/fan.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {},
+          "state": {
+            "duty-pct": {
+              "property": "duty-pct"
+            },
+            "frequency-hz": {
+              "property": "frequency-hz"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The verified product text does not identify the motor-driver transistor/IC; no L9110 identity is guessed.; No-load 8800RPM is a product specification, not a linear PWM-to-RPM transfer function.",
+        "visual_source_docs": "https://docs.m5stack.com/en/unit/fan",
+        "limitations": [
+          "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "8935e97bdbb957d0a9efbbcc3f4de2cc3c11702a70bb90fc54df02fde83dceba",
+  "serial_sha256": "0042755ad706e494dd37d8f7a2b04087a13655ae416ae43eadde4548ecec457f",
+  "evidence_sha256": "a88ed47dffe737600d75262deb0f14f931b3b68c380684d31ada562458fae856",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "session_id": "bdd3f7e9a19e4aeaa04ef6025c563476",
+    "frame_sha256": "8935e97bdbb957d0a9efbbcc3f4de2cc3c11702a70bb90fc54df02fde83dceba"
+  }
+}

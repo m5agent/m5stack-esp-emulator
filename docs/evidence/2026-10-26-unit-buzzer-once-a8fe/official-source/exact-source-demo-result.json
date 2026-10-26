@@ -1,0 +1,99 @@
+{
+  "actual_threads_started": 0,
+  "after_due_update": {
+    "clock_ms": 2001,
+    "duty_u16": 32767,
+    "exception": {
+      "message": "Haptic._cb() takes 1 positional argument but 2 were given",
+      "type": "TypeError"
+    },
+    "frequency_hz": 2000,
+    "pwm_calls": [
+      [
+        "construct",
+        2,
+        4000,
+        0
+      ],
+      [
+        "init",
+        2000,
+        32767
+      ]
+    ],
+    "scheduler_run": true,
+    "timer_dead": true,
+    "timer_next_time": 4001
+  },
+  "assertions_passed": true,
+  "at_exact_deadline": {
+    "clock_ms": 2000,
+    "duty_u16": 32767,
+    "exception": null,
+    "timer_dead": false
+  },
+  "before_due": {
+    "clock_ms": 0,
+    "duty_u16": 32767,
+    "frequency_hz": 2000,
+    "pwm_calls": [
+      [
+        "construct",
+        2,
+        4000,
+        0
+      ],
+      [
+        "init",
+        2000,
+        32767
+      ]
+    ],
+    "scheduler_run": true,
+    "timer_dead": false,
+    "timer_next_time": 2000
+  },
+  "classification": "exact-source-offline-demonstration",
+  "device_service_api_contacted": false,
+  "direct_callback": {
+    "duty_u16": 0,
+    "pwm_calls": [
+      [
+        "construct",
+        2,
+        4000,
+        0
+      ],
+      [
+        "init",
+        2000,
+        32767
+      ],
+      [
+        "duty_u16",
+        0
+      ]
+    ]
+  },
+  "firmware_or_qemu_executed": false,
+  "limits": [
+    "CPython with fake PWM/time/thread modules; not MicroPython firmware execution.",
+    "The actual frozen module bytes in the targeted firmware are not bound by this demonstration.",
+    "The scheduler background thread was not run; real thread termination is not observed."
+  ],
+  "network_requests": 0,
+  "python_version": "3.12.8",
+  "real_pwm_operations": 0,
+  "real_sleeps": 0,
+  "source_sha256": {
+    "haptic": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+    "soft_timer": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83"
+  },
+  "thread_requests": [
+    {
+      "argument_count": 0,
+      "function": "SoftTimerScheduler._cb",
+      "started": false
+    }
+  ]
+}

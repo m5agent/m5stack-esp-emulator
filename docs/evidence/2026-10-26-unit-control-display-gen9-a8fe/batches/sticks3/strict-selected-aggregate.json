@@ -1,0 +1,1148 @@
+{
+  "schema_version": 1,
+  "generator": "unit-batch-evidence-checker",
+  "checker_sha256": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+  "status": "PARTIAL",
+  "strict_direct": true,
+  "layers": {
+    "guest_controller": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "live_browser": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "bridge_contract": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 0,
+        "NOT RUN": 27,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 0,
+      "direct_pid_units": 0,
+      "indirect_service_generation_units": 0
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+        "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png": "483146c6b32761a488ac968303cd1383093afb5b5a30fe269f8c2f743241b2ef",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/opened-flashing.png": "376e8216fd1d8c7bf1a92e6ff6a8ec64c2c3350dee81d38447f49060477128a2",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/runtime-provenance.json": "322ce3fd405291a59e98f0d1d71d39d231302255a99052c637905c2176ecbd20",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/web-report.json": "b68bbb26d24d8f780bcccb30302e0a122daff8c966f83426bbc978b14fa7b85d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/frame.png": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/result.json": "46520468c28df8d47e634d526a42a4bb4db16e7343090c4056968e3f5e860025",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/serial.txt": "b84c6aba8a902355d17f3d0c01881c6bc73c736149d1e0cb17263a05b3f2c5bd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/history-frame.png": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+        },
+        "assertions": 4,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/result.json",
+          "report_sha256": "46520468c28df8d47e634d526a42a4bb4db16e7343090c4056968e3f5e860025",
+          "assertions": 4
+        },
+        "wrapper_assertions": 14,
+        "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3639,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+        "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png": "483146c6b32761a488ac968303cd1383093afb5b5a30fe269f8c2f743241b2ef",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/opened-flashing.png": "376e8216fd1d8c7bf1a92e6ff6a8ec64c2c3350dee81d38447f49060477128a2",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/runtime-provenance.json": "322ce3fd405291a59e98f0d1d71d39d231302255a99052c637905c2176ecbd20",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/web-report.json": "b68bbb26d24d8f780bcccb30302e0a122daff8c966f83426bbc978b14fa7b85d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/frame.png": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/result.json": "46520468c28df8d47e634d526a42a4bb4db16e7343090c4056968e3f5e860025",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/serial.txt": "b84c6aba8a902355d17f3d0c01881c6bc73c736149d1e0cb17263a05b3f2c5bd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/history-frame.png": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png": "483146c6b32761a488ac968303cd1383093afb5b5a30fe269f8c2f743241b2ef"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png": {
+              "width": 980,
+              "height": 1229
+            }
+          }
+        },
+        "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3639,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+        "evidence_sha256": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+        "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png": "daf4193cc5ef3fb9c6956e584acb4a529e7002abddb34e63d5d3782455093a9d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/opened-flashing.png": "a5e9b31df06755b449cd56f1a0491f4fdab843f62a3d91948abf5dc3ede721d1",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/runtime-provenance.json": "09d313f5eed23cdec8014a3786f29145a08fe8c3c897b13dcfe34579956d8045",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/web-report.json": "a628cb2716f3b2ffa13a4befe4d390ba792c8eeac9574ffb88019326e5f66dbc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip": "96825db1ccad681bcd356236def852221218a3eb4828c1b8ec8e2d13a87a00f6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/frame.png": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/result.json": "d229956a1dde3424cbcf2a362b1136cb74db6f8941f6f8623c72f88340713b78",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/serial.txt": "2043240ab387264c26a9cf45e75091f09be9fdddaafb6567f976cb1aab83b0e2",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/history-frame.png": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+        },
+        "assertions": 5,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/result.json",
+          "report_sha256": "d229956a1dde3424cbcf2a362b1136cb74db6f8941f6f8623c72f88340713b78",
+          "assertions": 5
+        },
+        "wrapper_assertions": 14,
+        "session_id": "272d68e84e174535a0c19ddbfc1e6b8f",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "a15f3648d00532d971ddc8814676ad174a13759ff3ba2b157b3a3d3af4814c2a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "96825db1ccad681bcd356236def852221218a3eb4828c1b8ec8e2d13a87a00f6",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3844,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+        "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png": "daf4193cc5ef3fb9c6956e584acb4a529e7002abddb34e63d5d3782455093a9d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/opened-flashing.png": "a5e9b31df06755b449cd56f1a0491f4fdab843f62a3d91948abf5dc3ede721d1",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/runtime-provenance.json": "09d313f5eed23cdec8014a3786f29145a08fe8c3c897b13dcfe34579956d8045",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/web-report.json": "a628cb2716f3b2ffa13a4befe4d390ba792c8eeac9574ffb88019326e5f66dbc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip": "96825db1ccad681bcd356236def852221218a3eb4828c1b8ec8e2d13a87a00f6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/frame.png": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/result.json": "d229956a1dde3424cbcf2a362b1136cb74db6f8941f6f8623c72f88340713b78",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/serial.txt": "2043240ab387264c26a9cf45e75091f09be9fdddaafb6567f976cb1aab83b0e2",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/history-frame.png": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png": "daf4193cc5ef3fb9c6956e584acb4a529e7002abddb34e63d5d3782455093a9d"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png": {
+              "width": 980,
+              "height": 1211
+            }
+          }
+        },
+        "session_id": "272d68e84e174535a0c19ddbfc1e6b8f",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "a15f3648d00532d971ddc8814676ad174a13759ff3ba2b157b3a3d3af4814c2a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "96825db1ccad681bcd356236def852221218a3eb4828c1b8ec8e2d13a87a00f6",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3844,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "272d68e84e174535a0c19ddbfc1e6b8f",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "a15f3648d00532d971ddc8814676ad174a13759ff3ba2b157b3a3d3af4814c2a",
+        "evidence_sha256": "96825db1ccad681bcd356236def852221218a3eb4828c1b8ec8e2d13a87a00f6",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+        "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png": "f9b0b74ce78bc9e73bb096127ec2e8da4b5a6364a784ba48925e425b05d68e3f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/opened-flashing.png": "a3cbca476b59421803fdbe3535c43f744b81476293326c97ada7270613b5eede",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/runtime-provenance.json": "5ee83dc6e3f63b9a602bb72a2099914d17dd04cfac94568cab8e899c2aa31efc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/web-report.json": "1419c0e569306f58bb8a2056f4bda3de38d1c5c39d1897f35cd8153873676f3a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip": "ce1c5c8a57bd3032f96d24bf5a191344686def8ed0919f6c6bb58ac63dffd617",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/frame.png": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/result.json": "d981ab362df996a8be1fd261f9e345ef8abef432dded8f7947ff8373faabe876",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/serial.txt": "7beae21ce051c1f818e9585e0c184964bef6ddea805d96b59aa1fae1618cb6ba",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/history-frame.png": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/result.json",
+          "report_sha256": "d981ab362df996a8be1fd261f9e345ef8abef432dded8f7947ff8373faabe876",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "6ef6a3236fe443d394b827be8ad10390",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ee71fa4fecf1268af5bb93d12d6d338277f59d03b69cfe635e7206cbd7eb303a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "ce1c5c8a57bd3032f96d24bf5a191344686def8ed0919f6c6bb58ac63dffd617",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 5968,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+        "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png": "f9b0b74ce78bc9e73bb096127ec2e8da4b5a6364a784ba48925e425b05d68e3f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/opened-flashing.png": "a3cbca476b59421803fdbe3535c43f744b81476293326c97ada7270613b5eede",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/runtime-provenance.json": "5ee83dc6e3f63b9a602bb72a2099914d17dd04cfac94568cab8e899c2aa31efc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/web-report.json": "1419c0e569306f58bb8a2056f4bda3de38d1c5c39d1897f35cd8153873676f3a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip": "ce1c5c8a57bd3032f96d24bf5a191344686def8ed0919f6c6bb58ac63dffd617",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/frame.png": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/result.json": "d981ab362df996a8be1fd261f9e345ef8abef432dded8f7947ff8373faabe876",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/serial.txt": "7beae21ce051c1f818e9585e0c184964bef6ddea805d96b59aa1fae1618cb6ba",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/history-frame.png": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/web-report.json",
+          "snapshots": 6,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png": "f9b0b74ce78bc9e73bb096127ec2e8da4b5a6364a784ba48925e425b05d68e3f"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png": {
+              "width": 980,
+              "height": 1698
+            }
+          }
+        },
+        "session_id": "6ef6a3236fe443d394b827be8ad10390",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ee71fa4fecf1268af5bb93d12d6d338277f59d03b69cfe635e7206cbd7eb303a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "ce1c5c8a57bd3032f96d24bf5a191344686def8ed0919f6c6bb58ac63dffd617",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 5968,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "6ef6a3236fe443d394b827be8ad10390",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "ee71fa4fecf1268af5bb93d12d6d338277f59d03b69cfe635e7206cbd7eb303a",
+        "evidence_sha256": "ce1c5c8a57bd3032f96d24bf5a191344686def8ed0919f6c6bb58ac63dffd617",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+        "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png": "026fb67e7216ea2fdd4b346a432697f1aa0b38194b92dcead2b9745271ce8c8e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/opened-flashing.png": "76c6a2f864377af533e7b57a08eaf97a74a97bd1c9bf689dd08987686e079f68",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/runtime-provenance.json": "4298b5a8c009262aa7a8f0e1db6f3f4ad0edc9d412d9ed95364dc5613a489fb8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/web-report.json": "a97025a72ded5b5bf6555c6b74675370d84e104673e4153c6f62d58ee651e4ec",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip": "e784357caddef9007591591d3e2d161196adf404e9c1ab318c60a6c9749482b5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/frame.png": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/result.json": "0f0e5a5626ea6f18f49b1be3047d08b4789bb28c558585694ef1cb66935e4a95",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/serial.txt": "624904388e60096e327b34d615ca5c96bf5cb5f624386e1fd1304026476d9fda",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/history-frame.png": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/result.json",
+          "report_sha256": "0f0e5a5626ea6f18f49b1be3047d08b4789bb28c558585694ef1cb66935e4a95",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "65b979b649e64c9f8d74832349039f09",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "731cb3a3676f68deef031f4a97bd9c5e58170e47f4220c97b27f3bfc3cfe0db5",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "e784357caddef9007591591d3e2d161196adf404e9c1ab318c60a6c9749482b5",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 4212,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+        "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png": "026fb67e7216ea2fdd4b346a432697f1aa0b38194b92dcead2b9745271ce8c8e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/opened-flashing.png": "76c6a2f864377af533e7b57a08eaf97a74a97bd1c9bf689dd08987686e079f68",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/runtime-provenance.json": "4298b5a8c009262aa7a8f0e1db6f3f4ad0edc9d412d9ed95364dc5613a489fb8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/web-report.json": "a97025a72ded5b5bf6555c6b74675370d84e104673e4153c6f62d58ee651e4ec",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip": "e784357caddef9007591591d3e2d161196adf404e9c1ab318c60a6c9749482b5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/frame.png": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/result.json": "0f0e5a5626ea6f18f49b1be3047d08b4789bb28c558585694ef1cb66935e4a95",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/serial.txt": "624904388e60096e327b34d615ca5c96bf5cb5f624386e1fd1304026476d9fda",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/history-frame.png": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/web-report.json",
+          "snapshots": 412,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png": "026fb67e7216ea2fdd4b346a432697f1aa0b38194b92dcead2b9745271ce8c8e"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png": {
+              "width": 980,
+              "height": 2201
+            }
+          }
+        },
+        "session_id": "65b979b649e64c9f8d74832349039f09",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "731cb3a3676f68deef031f4a97bd9c5e58170e47f4220c97b27f3bfc3cfe0db5",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "e784357caddef9007591591d3e2d161196adf404e9c1ab318c60a6c9749482b5",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 4212,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "65b979b649e64c9f8d74832349039f09",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "731cb3a3676f68deef031f4a97bd9c5e58170e47f4220c97b27f3bfc3cfe0db5",
+        "evidence_sha256": "e784357caddef9007591591d3e2d161196adf404e9c1ab318c60a6c9749482b5",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+        "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png": "253b709213fe52d9923e09d26c7c4fcf6c38f192622dbf36b5d3041507605551",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/opened-flashing.png": "1bc6d201bdf8a57903dccc724604944045e17e900387725f58acecfa38a0f0bd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/runtime-provenance.json": "0f6de59f37e8a623a26420f29a011df294ab1c20937fc1b7cae4e4ab1481f2b3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/web-report.json": "d23a5be30fa53ad17115fd42525dfc548b49e7e767cd02a74c9a3a09979572e5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip": "0a6fdf2296e842885bce2ce3e24f571aeb4d9ab3d7a61a651cf596e162ed159b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/frame.png": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/result.json": "e81f5eecd1870bc0ceda61214375a50ef7adba34f04beb980378aabe1d652afb",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/serial.txt": "12784479b575f3396d3e8f5973ab0803ffe61ee2f10113bb641ad4b148677012",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/history-frame.png": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/result.json",
+          "report_sha256": "e81f5eecd1870bc0ceda61214375a50ef7adba34f04beb980378aabe1d652afb",
+          "assertions": 6
+        },
+        "wrapper_assertions": 14,
+        "session_id": "86a73786b4634bd7ba64ffa3908d97d2",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "f2204b1fa754f37f68d5a098ad19f2ba24eef4cd518b57b333fc1b421fe39131",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "0a6fdf2296e842885bce2ce3e24f571aeb4d9ab3d7a61a651cf596e162ed159b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3990,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+        "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png": "253b709213fe52d9923e09d26c7c4fcf6c38f192622dbf36b5d3041507605551",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/opened-flashing.png": "1bc6d201bdf8a57903dccc724604944045e17e900387725f58acecfa38a0f0bd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/runtime-provenance.json": "0f6de59f37e8a623a26420f29a011df294ab1c20937fc1b7cae4e4ab1481f2b3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/web-report.json": "d23a5be30fa53ad17115fd42525dfc548b49e7e767cd02a74c9a3a09979572e5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip": "0a6fdf2296e842885bce2ce3e24f571aeb4d9ab3d7a61a651cf596e162ed159b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/frame.png": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/result.json": "e81f5eecd1870bc0ceda61214375a50ef7adba34f04beb980378aabe1d652afb",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/serial.txt": "12784479b575f3396d3e8f5973ab0803ffe61ee2f10113bb641ad4b148677012",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/history-frame.png": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/web-report.json",
+          "snapshots": 3,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png": "253b709213fe52d9923e09d26c7c4fcf6c38f192622dbf36b5d3041507605551"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png": {
+              "width": 980,
+              "height": 1542
+            }
+          }
+        },
+        "session_id": "86a73786b4634bd7ba64ffa3908d97d2",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "f2204b1fa754f37f68d5a098ad19f2ba24eef4cd518b57b333fc1b421fe39131",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "0a6fdf2296e842885bce2ce3e24f571aeb4d9ab3d7a61a651cf596e162ed159b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3990,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "86a73786b4634bd7ba64ffa3908d97d2",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "f2204b1fa754f37f68d5a098ad19f2ba24eef4cd518b57b333fc1b421fe39131",
+        "evidence_sha256": "0a6fdf2296e842885bce2ce3e24f571aeb4d9ab3d7a61a651cf596e162ed159b",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    }
+  ],
+  "errors": [],
+  "catalog": "platform/units/catalog.json",
+  "catalog_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+  "expected_units": 27,
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "selection_sha256": "dcb567dd08a3ffe2357eb851b76c1397d498e86b25b94233417cd0aae18ae360"
+}

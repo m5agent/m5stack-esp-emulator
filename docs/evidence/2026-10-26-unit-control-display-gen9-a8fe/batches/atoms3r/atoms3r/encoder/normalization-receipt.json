@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-control-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "native_readability_scope": "captured-final-native-frame-only",
+  "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/report.json",
+  "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/source-reconstruction.json",
+    "sha256": "a82a4c27395a22f84b18eb8a8d0a405f10b97c91baf82c00726564a4a2e076f5"
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/prepared-readiness.json",
+    "sha256": "023bfa85cdf1a0c37332b86cd5679af8c64c0069f439310530f6bd73bdccd662"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/post-execution-history/encoder.json",
+    "sha256": "12306971f49fe5d81136c6bd67f60d01512d092a4a84143812c44965a8a44927"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "atoms3r",
+      "unit_id": "encoder"
+    },
+    "meaning": "Historical offline preparation fields retained verbatim; actual execution authority is the unchanged same-session artifacts."
+  },
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/post-execution-review/native-review.json",
+    "sha256": "0fe3459d8d930cd324d473c48c47a2a6199aba4600de4181cad3eb066cce6c30"
+  },
+  "observed_final_lines": [
+    "atoms3r encoder",
+    "count 32767",
+    "pressed 0"
+  ],
+  "native_review_limit": "Only this actual captured final frame was reviewed. Intermediate states, every numeric extreme and physical display behavior are not inferred."
+}

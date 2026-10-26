@@ -1,0 +1,417 @@
+{
+  "category": "virtual-device-browser-integration",
+  "status": "PASS",
+  "captured_at": "2026-10-25T17:19:43.933Z",
+  "device_id": "cores3",
+  "unit_id": "button",
+  "runtime": "qemu",
+  "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "08b88ac30e541106b642db84632a7ac071e814fb9297aeaeb82897670504f510",
+    "platform/web/unit-panel.css": "7f326e923142d343bdaa3fab4e00a41f0d67a395dd91cc8c3e6f72886c793157",
+    "platform/web/unit-visual-mappings.js": "8bd9375323a0bda7206abc692cd9d7d44e4fbe635ac00dadda7bc226e35034ae",
+    "platform/web/model-shell.js": "35e8ada79096802a816c23397d3855f9c42f314b6da6773dda92bf3a8b0b26cc",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/test_unit_service_browser.mjs": "163f0451a2f5c9ae79d84debefd1c35701fb17a662fa2073c5c74c19b10cf66a"
+  },
+  "checks": {
+    "same_guest_ready": true,
+    "dom_press_same_guest_gpio_qom_and_mechanical_readback": true,
+    "dom_release_same_guest_gpio_qom_and_mechanical_readback": true,
+    "shell_received_real_framebuffer": true,
+    "sessions_webgl_limit_disposes_shell_detaches_units_and_restores": true,
+    "no_readback_input_echo": true,
+    "evidence_requested_before_stop": true,
+    "stopped_with_metadata_serial_and_frame_history": true
+  },
+  "page_errors": [],
+  "unit_posts": [
+    {
+      "id": "external1",
+      "values": {
+        "pressed": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "pressed": false
+      }
+    }
+  ],
+  "instrumentation": "Appends only window.__unitBrowserProbe={state,SessionVisual} to the actual sessions.js response; no function/API behavior replacement.",
+  "session_id": "69eae8d468f94e159e14824f024be400",
+  "browser_version": "156.0.8078.48",
+  "pressed_state": {
+    "session_id": "69eae8d468f94e159e14824f024be400",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:20:14.202041+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "button",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": true,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 1,
+          "output-transitions": 0,
+          "input-level": false
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "button",
+        "name": "Button",
+        "sku": "U027",
+        "visual_asset": {
+          "entry": "src/units/button/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/button",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "momentary switch and resistor divider",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "button",
+              "direction": "unit-to-host",
+              "active_level": 0
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Active-low button output on the white wire; released high and pressed low. UIFlow ButtonUnit aliases LIMITUnit and configures port[0] with pull-up and active_low=True.",
+          "registers": [],
+          "gaps": []
+        },
+        "inputs": {
+          "pressed": {
+            "type": "boolean",
+            "label": "按下",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/button",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/button.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/804/U027_UNIT_BUTTON_SCHE.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "pressed": {
+              "property": "pressed"
+            }
+          },
+          "state": {
+            "pressed": {
+              "property": "pressed"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "input-level": {
+              "property": "input-level"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+    }
+  },
+  "released_state": {
+    "session_id": "69eae8d468f94e159e14824f024be400",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:20:14.966401+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "button",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": false,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 2,
+          "output-transitions": 0,
+          "input-level": true
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "button",
+        "name": "Button",
+        "sku": "U027",
+        "visual_asset": {
+          "entry": "src/units/button/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/button",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "momentary switch and resistor divider",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "button",
+              "direction": "unit-to-host",
+              "active_level": 0
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Active-low button output on the white wire; released high and pressed low. UIFlow ButtonUnit aliases LIMITUnit and configures port[0] with pull-up and active_low=True.",
+          "registers": [],
+          "gaps": []
+        },
+        "inputs": {
+          "pressed": {
+            "type": "boolean",
+            "label": "按下",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/button",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/button.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/804/U027_UNIT_BUTTON_SCHE.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "pressed": {
+              "property": "pressed"
+            }
+          },
+          "state": {
+            "pressed": {
+              "property": "pressed"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "input-level": {
+              "property": "input-level"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+    }
+  },
+  "evidence_sha256": "8e30dd2ba7452f8f64c759498a291646d6e1f18aaa0f617fa0f7712a73a92afd"
+}

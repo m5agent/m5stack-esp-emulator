@@ -1,0 +1,14 @@
+def value_lines(case, value):
+    if case == "joystick-v11":
+        return ("x %d" % value[0], "y %d" % value[1], "button %d" % value[2])
+    if case == "encoder":
+        return ("count %d" % value[0], "pressed %d" % value[1])
+    if case == "8encoder":
+        counts, pressed, switch = value
+        return tuple("%d %d" % (index + 1, count) for index, count in enumerate(counts)) + (
+            "P " + "".join(str(bit) for bit in pressed), "SW %d" % switch)
+    if case == "cardkb":
+        return ("key %d" % value,)
+    if value is None:
+        return ("No card",)
+    return ("UID",) + tuple(value[index:index + 10] for index in range(0, len(value), 10))

@@ -104,14 +104,22 @@ def build_image(args) -> Path:
     return out
 
 
+class QMPCommandError(RuntimeError):
+    """The controller answered with a structured command rejection."""
+
+
 class QMP:
     def __init__(self, path: Path, timeout: float = 10.0):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.sock.settimeout(timeout)
-        self.sock.connect(str(path))
         self.buffer = bytearray()
-        self.readline()
-        self.cmd("qmp_capabilities")
+        try:
+            self.sock.settimeout(timeout)
+            self.sock.connect(str(path))
+            self.readline()
+            self.cmd("qmp_capabilities")
+        except BaseException:
+            self.sock.close()
+            raise
 
     def readline(self):
         while b"\n" not in self.buffer:
@@ -134,7 +142,7 @@ class QMP:
             reply = json.loads(line)
             if "event" not in reply:
                 if "error" in reply:
-                    raise RuntimeError(
+                    raise QMPCommandError(
                         f"QMP {name} failed: {reply['error'].get('desc', reply['error'])}"
                     )
                 return reply

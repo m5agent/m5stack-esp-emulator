@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/platform/web/app.css">
   <link rel="stylesheet" href="/platform/web/sessions.css?v=20261022e">
   <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
+  <link rel="stylesheet" href="/platform/web/unit-panel.css?v=20261026a">
   <link rel="stylesheet" href="/platform/web/m5-tokens.css">
   <link rel="stylesheet" href="/platform/web/m5-brand.css">
   <script type="importmap">
@@ -49,13 +50,14 @@
         <select class="field" id="deviceSelect"></select>
         <label class="field-label" for="ttlInput">Lease TTL (seconds)</label>
         <input class="field" id="ttlInput" type="number" min="30" value="600">
+        <div id="unitPicker"></div>
         <button class="btn primary" id="createBtn" type="button">创建参考设备</button>
         <div class="hint">Tab5 可用烧录、启动、串口、GDB 截图和触摸；外设仍是 partial。</div>
       </div>
 
       <div class="section">
         <div class="section-title">显示说明</div>
-        <div class="hint">通用固件与 UIFlow 功能测试都应在本服务创建可见会话。M5Burner 待审固件审查才进入独立审查工作台。StickS3 和 CoreS3 预览复用完整 3D 外壳；`running` 不代表应用已完成首帧。</div>
+        <div class="hint">通用固件与 UIFlow 功能测试都应在本服务创建可见会话。M5Burner 待审固件审查才进入独立审查工作台。已建模主机预览使用对应 3D 外壳；`running` 不代表应用已完成首帧。Unit 在创建会话时按真实总线配置连接。</div>
         <a class="doc-link" href="/api/v1/openapi.yaml" target="_blank" rel="noreferrer">打开 OpenAPI</a>
         <a class="doc-link" id="reviewDashboardLink" href="#" target="_blank" rel="noreferrer">打开 M5Burner 审查工作台</a>
       </div>
@@ -82,6 +84,6 @@
 
   <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>VIRTUAL DEVICE LEASES</span><span>© 2026 M5Stack</span></div></footer>
 
-  <script type="module" src="/platform/web/sessions.js?v=20261022e"></script>
+  <script type="module" src="/platform/web/sessions.js?v=20261026a"></script>
 </body>
 </html>

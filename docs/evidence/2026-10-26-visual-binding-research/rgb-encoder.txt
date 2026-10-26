@@ -1,0 +1,270 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit RGB |
+| SKU | U003 |
+| 产品 ID | `unit-rgb-c8ad97af0ab8` |
+| 源文档 | `zh_CN/unit/rgb.md` |
+
+Unit RGB（U003）由 LED1~LED3 三颗 SK6812 可寻址 RGB LED 串行连接。DI 网络同时引到 J1 pin 1 和 J2 pin 1，并由 R1 4.7KΩ 上拉到 VCC；数据从 LED3 DIN 进入，依次经过 LED3、LED2、LED1，最终由 LED1 DOUT 送到 J1 pin 2 O。J1 提供 DI、级联输出、VCC、GND，J2 提供并联 DI、VCC、GND且 pin 2 未连接；全部 LED 直接使用 VCC。原理图未标注 VCC 数值、SK6812 的 3535 封装后缀、串行协议时序或亮度/颜色性能，也未显示电源去耦或接口保护。
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 检索关键词
+分段内容:`Unit RGB`、`U003`、`SK6812`、`LED1`、`LED2`、`LED3`、`RGB LED`、`DI`、`DIN`、`DOUT`、`VDD`、`VSS`、`J1 Grove`、`J2 Grove`、`R1 4.7KΩ`、`VCC`、`GND`、`single-wire RGB`、`LED cascade`、`DI pull-up`、`J1 pin 1 DI`、`J1 pin 2 DOUT`、`J2 pin 1 DI`、`J2 pin 2 NC`、`SK6812 3535`、`5V`、`256 brightness levels`、`3 RGB LEDs`
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| LED1-LED3 | SK6812 | 三颗串行级联的可寻址 RGB LED，每颗包含 DOUT、VSS、DIN、VDD | 图 e295890e1675 / 第 1 页 / 第 1 页 B2:B3 LED1/LED2/LED3，均标 SK6812，pins 1~4 DOUT/VSS/DIN/VDD |
+| J1 | Grove | 包含 DI 输入、LED 链 DOUT 输出、VCC 与 GND 的四针接口 | 图 e295890e1675 / 第 1 页 / 第 1 页 B1 J1 Grove，pin 1 I/DI、pin 2 O/LED1 DOUT、pin 3 VCC、pin 4 GND |
+| J2 | Grove | 第二组 DI/VCC/GND 输入接口，pin 2 未连接 | 图 e295890e1675 / 第 1 页 / 第 1 页 B3 J2 Grove，pin 1 I/DI、pin 2 O/NC、pin 3 VCC、pin 4 GND |
+| R1 | 4.7KΩ | DI 输入网络到 VCC 的上拉电阻 | 图 e295890e1675 / 第 1 页 / 第 1 页 B3 VCC-R1 4.7KΩ-DI/J2 pin1/LED3 DIN 节点 |
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 接口 J1 Grove 针脚
+分段内容:J1 pin 1 标注 I 并连接 DI，pin 2 标注 O 并连接 LED1 DOUT，pin 3 为 VCC，pin 4 为 GND。
+
+- 参数与网络：`pin_1=I-DI，数据输入`；`pin_2=O-LED1 DOUT，级联输出`；`pin_3=VCC`；`pin_4=GND`
+- 证据：图 e295890e1675 / 第 1 页 / 第 1 页 B1 J1 pins 1~4 与 DI/DOUT/VCC/GND
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 接口 J2 Grove 针脚 & 串行数据链
+分段内容:J2 pin 1 标注 I 并连接 DI，pin 2 标注 O 且未连接，pin 3 为 VCC，pin 4 为 GND。
+
+- 参数与网络：`pin_1=I-DI，数据输入`；`pin_2=O-NC`；`pin_3=VCC`；`pin_4=GND`
+- 证据：图 e295890e1675 / 第 1 页 / 第 1 页 B3 J2 pins 1~4 与 DI/NC/VCC/GND
+
+DI 连接 LED3 pin 3 DIN，LED3 DOUT 连接 LED2 DIN，LED2 DOUT 连接 LED1 DIN，LED1 pin 1 DOUT 连接 J1 pin 2 O。
+
+- 参数与网络：`input=DI -> LED3 pin3 DIN`；`stage_1=LED3 pin1 DOUT -> LED2 pin3 DIN`；`stage_2=LED2 pin1 DOUT -> LED1 pin3 DIN`；`output=LED1 pin1 DOUT -> J1 pin2 O`；`count=3`
+- 证据：图 e295890e1675 / 第 1 页 / 第 1 页 B1:B3 LED3->LED2->LED1 串行连线及 J1 输出
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 总线 其他总线与地址
+分段内容:原理图未显示 I2C、SPI、UART、CAN、RS-485、USB、SDIO、MIPI 或 I2S，也没有器件地址或片选网络。
+
+- 参数与网络：`led_serial=DI/DOUT`；`i2c=null`；`spi=null`；`uart=null`；`can=null`；`rs485=null`；`usb=null`；`sdio=null`；`mipi=null`；`i2s=null`；`address=null`
+- 证据：图 e295890e1675 / 第 1 页 / 第 1 页全部数据网络仅 DI 与逐级 DOUT
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 待确认事项
+分段内容:- `power.vcc-voltage`：原理图仅使用 VCC 网络名，没有标注电压数值、允许范围或最大电流，不能仅凭本页确认 DC 5V。（证据：图 e295890e1675 / 第 1 页 / 第 1 页 J1/J2/LED 的 VCC 标签，无电压数字）
+- `component.led-package`：原理图只标 SK6812，没有标注 3535 封装、版本或完整订货型号。（证据：图 e295890e1675 / 第 1 页 / 第 1 页 LED1~LED3 下方仅标 SK6812）
+- `other.led-protocol-performance`：原理图未标注 DI/DOUT 时序、位序、刷新率、复位时间、逻辑阈值、亮度级数、颜色数或单灯/全板功耗。（证据：图 e295890e1675 / 第 1 页 / 第 1 页仅 SK6812 型号与 DI/DOUT 电气连接，无协议/性能参数）
+- `interface.connector-role`：电气连接确认 J1/J2 pin 1 都接 DI、只有 J1 pin 2 接链末 DOUT；原理图没有说明两接口的机械方向、命名为输入/输出的产品用法或同时接入时的限制。（证据：图 e295890e1675 / 第 1 页 / 第 1 页 J1/J2 DI 并联与 J1-only DOUT 连接，接口旁无角色说明）
+- `review.vcc-voltage`：Unit RGB 的 VCC 允许范围和最大供电电流是什么？；原因：原理图只标 VCC，需 LED datasheet 与整机电气规范确认。
+- `review.led-package`：LED1~LED3 的完整 SK6812 型号和封装是否为 3535？；原因：原理图只标 SK6812，需 BOM 或实物确认。
+- `review.led-protocol-performance`：该 LED 版本的单线时序、逻辑阈值、亮度/颜色能力和功耗参数是什么？；原因：这些参数不在原理图中，需对应 SK6812 datasheet 和整板测试确认。
+- `review.connector-role`：J1 与 J2 的预期输入/输出和机械方向是什么，是否允许同时向两个 DI 端送信号？；原因：原理图显示 DI 并联且 DOUT 仅在 J1，但没有产品级接口角色说明。
+---
+文档属性:产品信息
+产品名:schematic Unit RGB
+分段标题:Unit RGB 原理图描述 原理图来源
+分段内容:| 资源 | 页码 | SHA-256 | 原始地址 |
+| --- | --- | --- | --- |
+| 1 | 1 | `e295890e167567c6eafc62f1e2fec8199d7c5a70f958ee20a3d318a713cdca81` | `https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE_page_01.png` |
+
+---
+
+源文档：`zh_CN/unit/rgb.md`
+
+源文档 SHA-256：`125060340cb04140672218705e1dd341969023d6793efad2439ce36af0461fa9`
+
+*该文档由专用原理图子智能体基于原理图证据自动生成；无法确认的内容集中列在“待确认事项”章节。*
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit Encoder |
+| SKU | U135 |
+| 产品 ID | `unit-encoder-20eb287ba027` |
+| 源文档 | `zh_CN/unit/encoder.md` |
+
+Unit Encoder 以 STM32F030F4P6（U2）为主控，采集 J2 旋转编码器的 IN_A、IN_B 与 BTN，并通过 J1 的 SCL/SDA 连接外部 I2C 主机。U2 PA0 的 SK6812 网络驱动 LED1、LED2 两颗串行级联 SK6812，LED 由 +5V 供电、数据网由 R1 10KΩ 上拉到 +3.3V。HT7533（U1）将 J1 输入的 +5V 稳压为 +3.3V，为主控、编码器输入上拉和 I2C 上拉供电。板上提供 BOOT0 下拉、NRST RC 网络和 5 针 SWD；原理图未打印 I2C 地址或编码器每圈脉冲数。
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 检索关键词
+分段内容:`Unit Encoder`、`U135`、`STM32F030F4P6`、`HT7533`、`SK6812`、`Rotary encoder`、`IN_A`、`IN_B`、`BTN`、`SCL`、`SDA`、`I2C`、`0x40`、`SWCLK`、`SWDIO`、`NRST`、`BOOT0`、`PA0`、`PA5`、`PA6`、`PA7`、`PA9`、`PA10`、`+5V`、`+3.3V`、`30 pulses`、`R4 10KΩ`、`R8 10KΩ`、`R9 10KΩ`、`100nF`、`HY-2.0_IIC`、`SWD_5p`
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| U2 | STM32F030F4P6 | 采集编码器与按键、驱动 SK6812 并提供 I2C/SWD 的主控 | 图 49167f49ddc2 / 第 1 页 / 页 1 左中 U2 STM32F030F4P6，pins 1~20 与 SK6812/BTN/IN_A/IN_B/SCL/SDA/SWD/NRST 网络 |
+| U1 | HT7533 | 将 +5V 稳压为 +3.3V | 图 49167f49ddc2 / 第 1 页 / 页 1 左上 U1 HT7533，VIN pin 2 接 +5V、VOUT pin 3 接 +3.3V、GND pin 1 接地 |
+| J2 | Rotary encode | A/B 相旋转编码器与按压按键组件 | 图 49167f49ddc2 / 第 1 页 / 页 1 中部 J2 Rotary encode：button pins 1/2 b1/b2 与 rotary pins 3/4/5 A/COM/B |
+| LED1/LED2 | SK6812 | 由 U2 PA0 驱动的两颗串行级联 RGB LED | 图 49167f49ddc2 / 第 1 页 / 页 1 上部 LED1/LED2 SK6812：DIN pin 3、DOUT pin 1、VDD pin 4、VSS pin 2 及级联线 |
+| J1 | HY-2.0_IIC | 外部 I2C、+5V 与 GND 接口 | 图 49167f49ddc2 / 第 1 页 / 页 1 右下 J1 HY-2.0_IIC：pin 1 IIC_SCL、pin 2 IIC_SDA、pin 3 VCC/+5V、pin 4 GND |
+| P1 | SWD_5p | 主控烧录与调试接口 | 图 49167f49ddc2 / 第 1 页 / 页 1 右中 P1 SWD_5p：pins 1~5 为 +3.3V、SWCLK、SWDIO、NRST、GND |
+| R4/C1 | 10KΩ / 100nF | BTN 的 +3.3V 上拉与对地滤波网络 | 图 49167f49ddc2 / 第 1 页 / 页 1 中部 J2 左侧：BTN 节点经 R4 10KΩ 接 +3.3V、经 C1 100nF 接 GND |
+| R8/C6 | 10KΩ / 100nF | IN_A 的 +3.3V 上拉与对地滤波网络 | 图 49167f49ddc2 / 第 1 页 / 页 1 中下 J2 A pin 3/IN_A：R8 10KΩ 到 +3.3V、C6 100nF 到 GND |
+| R9/C7 | 10KΩ / 100nF | IN_B 的 +3.3V 上拉与对地滤波网络 | 图 49167f49ddc2 / 第 1 页 / 页 1 中下 J2 B pin 5/IN_B：R9 10KΩ 到 +3.3V、C7 100nF 到 GND |
+| R6/R7 | 10KΩ | SCL 与 SDA 到 +3.3V 的 I2C 上拉电阻 | 图 49167f49ddc2 / 第 1 页 / 页 1 右下：R6/R7 均 10KΩ，上端 +3.3V，下端分别接 SCL/SDA |
+| R3 | 10KΩ | U2 BOOT0 到 GND 的下拉电阻 | 图 49167f49ddc2 / 第 1 页 / 页 1 左中 U2 BOOT0 pin 1 经 R3 10KΩ 接 GND |
+| R5/C5 | 10KΩ / 100nF | U2 NRST 的 +3.3V 上拉和对地复位电容 | 图 49167f49ddc2 / 第 1 页 / 页 1 左中 U2 NRST pin 4：R5 10KΩ 到 +3.3V、C5 100nF 到 GND |
+| R1 | 10KΩ | SK6812 数据输入网络到 +3.3V 的上拉电阻 | 图 49167f49ddc2 / 第 1 页 / 页 1 上部：U2 PA0/SK6812/LED1 DIN 共网经 R1 10KΩ 接 +3.3V |
+| C2/C3/C4 | 100nF / 22uF / 22uF | 主控 +3.3V 去耦及 HT7533 输入输出滤波 | 图 49167f49ddc2 / 第 1 页 / 页 1 左侧：C2 100nF 跨 +3.3V/GND，C3 22uF 跨 +5V/GND，C4 22uF 跨 +3.3V/GND |
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 系统结构 Unit Encoder
+分段内容:U2 STM32F030F4P6 采集 J2 的 BTN、IN_A、IN_B，驱动 LED1/LED2 SK6812，并通过 J1 SCL/SDA 与外部主机通信；U1 从 +5V 产生 +3.3V。
+
+- 参数与网络：`controller=U2 STM32F030F4P6`；`encoder=J2 Rotary encode`；`inputs=BTN,IN_A,IN_B`；`rgb=LED1,LED2 SK6812`；`communication=J1 SCL,SDA`；`power=+5V->U1 HT7533->+3.3V`
+- 证据：图 49167f49ddc2 / 第 1 页 / 整页：U1/U2/J2/LED1/LED2/J1/P1 与所有同名信号
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 复位 U2 BOOT0 & 与编码器接口保护
+分段内容:U2 BOOT0 pin 1 通过 R3 10KΩ下拉到 GND。
+
+- 参数与网络：`mcu_pin=BOOT0 pin 1`；`resistor=R3 10KΩ`；`strap=GND`
+- 证据：图 49167f49ddc2 / 第 1 页 / 页 1 左中 U2 BOOT0 pin1-R3 10KΩ-GND
+
+本页没有绘出 TVS、ESD 阵列、保险丝或反接保护器件。
+
+- 参数与网络：`grove_esd=null`；`encoder_esd=null`；`fuse=null`；`reverse_polarity=null`
+- 证据：图 49167f49ddc2 / 第 1 页 / 整页所有位号，无 TVS/ESD/FUSE/反接保护元件
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 关键网络 Unit Encoder 关键网络索引
+分段内容:关键路径为 J2 BTN/A/B→BTN/IN_A/IN_B→U2 PA5/PA6/PA7，U2 PA0→SK6812→LED1→LED2，J1 SCL/SDA→U2 PA9/PA10，以及 +5V→U1→+3.3V。
+
+- 参数与网络：`encoder_inputs=J2.1/3/5-U2 PA5/PA6/PA7`；`rgb_path=U2 PA0-LED1-LED2`；`i2c_path=J1.1/2-U2 PA9/PA10`；`power_path=J1.3 +5V-U1-+3.3V`；`debug=P1 SWD`
+- 证据：图 49167f49ddc2 / 第 1 页 / 整页 BTN/IN_A/IN_B/SK6812/SCL/SDA/+5V/+3.3V 同名网络
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 调试与烧录 P1 SWD_5p
+分段内容:P1 pin 1 接 +3.3V，pin 2 接 SWCLK/U2 PA14 pin 20，pin 3 接 SWDIO/U2 PA13 pin 19，pin 4 接 NRST，pin 5 接 GND。
+
+- 参数与网络：`pin_1=+3.3V`；`pin_2=SWCLK,U2 PA14 pin20`；`pin_3=SWDIO,U2 PA13 pin19`；`pin_4=NRST,U2 pin4`；`pin_5=GND`
+- 证据：图 49167f49ddc2 / 第 1 页 / 页 1 右中 P1 pins 1~5 与 U2 SWCLK/SWDIO/NRST 同名网络
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 参数与信号索引
+分段内容:| 分类 | 对象 | 参数 |
+| --- | --- | --- |
+| 系统结构 | Unit Encoder | `controller=U2 STM32F030F4P6`；`encoder=J2 Rotary encode`；`inputs=BTN,IN_A,IN_B`；`rgb=LED1,LED2 SK6812`；`communication=J1 SCL,SDA`；`power=+5V->U1 HT7533->+3.3V` |
+| 电源 | U1 HT7533 | `input=VIN pin 2,+5V`；`output=VOUT pin 3,+3.3V`；`ground=pin 1 GND`；`input_capacitor=C3 22uF`；`output_capacitor=C4 22uF` |
+| 电源 | U2 电源 | `vdda=pin 5,+3.3V`；`vdd=pin 16,+3.3V`；`vss=pin 15,GND`；`decoupling=C2 100nF` |
+| 接口 | J1 HY-2.0_IIC | `pin_1=IIC_SCL,SCL`；`pin_2=IIC_SDA,SDA`；`pin_3=VCC,+5V`；`pin_4=GND` |
+| 总线 | U2 I2C | `controller=U2 STM32F030F4P6`；`scl=PA9 pin 17`；`sda=PA10 pin 18`；`pullups=R6/R7 10KΩ to +3.3V`；`connector=J1` |
+| 总线地址 | Unit Encoder I2C 地址 | `controller=U2 STM32F030F4P6`；`schematic_address=null`；`address_selector=null`；`address_source_needed=internal firmware and protocol documentation` |
+| GPIO 与控制信号 | U2 关键 GPIO | `PA0_pin6=SK6812`；`PA5_pin11=BTN`；`PA6_pin12=IN_A`；`PA7_pin13=IN_B`；`PA9_pin17=SCL`；`PA10_pin18=SDA`；`PA13_pin19=SWDIO`；`PA14_pin20=SWCLK` |
+| 核心器件 | J2 Rotary encode | `pin_1=b1,BTN`；`pin_2=b2,GND`；`pin_3=A,IN_A`；`pin_4=COM,GND`；`pin_5=B,IN_B` |
+| GPIO 与控制信号 | BTN 按键输入 | `mcu_pin=U2 PA5 pin 11`；`pullup=R4 10KΩ to +3.3V`；`capacitor=C1 100nF to GND`；`button_contacts=J2 pins 1/2`；`pressed_logic=low` |
+| GPIO 与控制信号 | IN_A/IN_B 编码输入 | `phase_a=J2.3 IN_A->U2 PA6 pin12`；`phase_a_pullup=R8 10KΩ`；`phase_a_cap=C6 100nF`；`phase_b=J2.5 IN_B->U2 PA7 pin13`；`phase_b_pullup=R9 10KΩ`；`phase_b_cap=C7 100nF`；`common=J2.4 GND` |
+| 核心器件 | 旋转编码器每圈脉冲数 | `component=J2 Rotary encode`；`schematic_pulses_per_revolution=null`；`schematic_detents=null`；`schematic_phase_timing=null`；`specification_source_needed=encoder part specification or mechanical BOM` |
+| 总线 | LED1/LED2 SK6812 级联 | `controller_pin=U2 PA0 pin 6`；`input_net=SK6812`；`first_led=LED1 DIN pin3`；`cascade=LED1 DOUT pin1->LED2 DIN pin3`；`chain_end=LED2 DOUT pin1 no-connect`；`count=2` |
+| 电源 | LED1/LED2 供电 | `devices=LED1,LED2 SK6812`；`vdd=pin 4,+5V`；`vss=pin 2,GND`；`data_pullup=R1 10KΩ to +3.3V` |
+| 复位 | U2 NRST | `mcu_pin=NRST pin 4`；`pullup=R5 10KΩ to +3.3V`；`capacitor=C5 100nF to GND`；`debug_header=P1 pin 4` |
+| 复位 | U2 BOOT0 | `mcu_pin=BOOT0 pin 1`；`resistor=R3 10KΩ`；`strap=GND` |
+| 调试与烧录 | P1 SWD_5p | `pin_1=+3.3V`；`pin_2=SWCLK,U2 PA14 pin20`；`pin_3=SWDIO,U2 PA13 pin19`；`pin_4=NRST,U2 pin4`；`pin_5=GND` |
+| 时钟 | U2 PF0/PF1 时钟引脚 | `osc_in=PF0 pin 2 no-connect`；`osc_out=PF1 pin 3 no-connect`；`external_clock_component=null` |
+| 接口 | 未使用的 U2 GPIO | `unused_pins=PA1.7,PA2.8,PA3.9,PA4.10,PB1.14` |
+| 保护电路 | Grove 与编码器接口保护 | `grove_esd=null`；`encoder_esd=null`；`fuse=null`；`reverse_polarity=null` |
+| 关键网络 | Unit Encoder 关键网络索引 | `encoder_inputs=J2.1/3/5-U2 PA5/PA6/PA7`；`rgb_path=U2 PA0-LED1-LED2`；`i2c_path=J1.1/2-U2 PA9/PA10`；`power_path=J1.3 +5V-U1-+3.3V`；`debug=P1 SWD` |
+---
+文档属性:产品信息
+产品名:schematic Unit Encoder
+分段标题:Unit Encoder 原理图描述 待确认事项
+分段内容:- `address.i2c-not-shown`：原理图显示 STM32 的 SCL/SDA 连接，但页面未打印 I2C 从机地址，且没有硬件地址选择网络。（证据：图 49167f49ddc2 / 第 1 页 / 页 1 U2/J1 SCL/SDA 区域，整页无 0x 地址或 ADDR 引脚）
+- `component.encoder-resolution-not-shown`：原理图只显示 J2 的 A/B/COM 和按键触点，没有打印每圈脉冲数、机械定位数或相位时序。（证据：图 49167f49ddc2 / 第 1 页 / 页 1 J2 符号仅标 Rotary encode 与 A/COM/B/b1/b2，无脉冲数文字）
+- `review.i2c-address`：Unit Encoder 当前固件使用的 I2C 从机地址是否为 0x40？；原因：地址由 STM32 固件实现，原理图未打印地址值或硬件选择电路。
+- `review.encoder-resolution`：J2 编码器每圈脉冲数、机械定位数和 A/B 相时序是什么？；原因：原理图只给出通用 Rotary encode 符号与电气连接，没有器件型号或机械参数。
+---
+文档属性:产品信息
+产品名:Unit Encoder (SKU:U135)
+分段标题:Unit Encoder 描述 & 原理图
+分段内容:**Unit Encoder** 是一款 I2C 通信接口的 **旋转编码器** 拓展单元。集成 30 位脉冲编码旋钮 （ 带按键输入 ） + 2x SK6812 可编程 RGB LED。内置的 STM32F030 主控集成编码器脉冲信号采集固件，用户可通过 I2C 读取操作直接获取编码数值，化繁为简。适用于刻度数值控制 / 音量调整等控制场景。
+
+- 30 位脉冲编码旋钮 (每旋转一周产生 30 个脉冲)
+- 2 x SK6812 可编程 RGB LED
+- 1 x 按键输入
+
+- 1 x Unit Encoder
+- 1 x HY2.0-4P Grove 连接线 (20cm)
+
+- 人机交互
+- 音量旋钮
+
+| 规格           | 参数                           |
+| -------------- | ------------------------------ |
+| MCU            | STM32F030F4P6                  |
+| 通信接口       | I2C 通信 @ 0x40                |
+| 脉冲编码旋钮   | 30 位脉冲编码旋钮 (带按键输入) |
+| 可编程 RGB LED | 2 x SK6812                     |
+| 工作电流       | 编码器工作 (DC 5V@17mA)        |
+| 产品尺寸       | 32.0 x 24.0 x 25.4mm           |
+| 产品重量       | 7.4g                           |
+| 包装尺寸       | 138.0 x 93.0 x 25.0mm          |
+| 毛重           | 12.3g                          |
+
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_sch_01.webp" width="80%">
+---
+文档属性:产品信息
+产品名:Unit Encoder (SKU:U135)
+分段标题:Unit Encoder 管脚映射 Unit Encoder & 尺寸图
+分段内容:::grove-table
+| HY2.0-4P | Black | Red | Yellow | White |
+| -------- | ----- | --- | ------ | ----- |
+| PORT.A   | GND   | 5V  | SDA    | SCL   |
+::
+
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/U135_Model_Size_page_01.png" width="100%">
+---
+文档属性:产品信息
+产品名:Unit Encoder (SKU:U135)
+分段标题:Unit Encoder 结构文件 & Arduino
+分段内容:- [Unit Encoder 结构文件](https://github.com/m5stack/M5_Hardware/tree/master/Products/U135_Unit_Encoder/Structures)
+
+- [Unit Encoder Arduino 驱动库](https://github.com/m5stack/UNIT_ENCODER)
+- [Unit Encoder Test Example with M5Core](https://github.com/m5stack/M5Unit-Encoder/blob/master/examples/Unit_Encoder_M5Core/Unit_Encoder_M5Core.ino)
+- [Unit Encoder Test Example with M5Core2](https://github.com/m5stack/M5Unit-Encoder/blob/master/examples/Unit_Encoder_M5Core2/Unit_Encoder_M5Core2.ino)
+---
+文档属性:产品信息
+产品名:Unit RGB (SKU:U003)
+分段���题:Unit RGB 原理图
+分段内容:- [Unit RGB 原理图 PDF](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf)
+
+<SchViewer>
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE_page_01.png">
+</SchViewer>
+---
+文档属性:产品信息
+产品名:Unit RGB (SKU:U003)
+分段标题:Unit RGB 管脚映射 Unit RGB & 尺寸图
+分段内容:::grove-table
+| HY2.0-4P | Black | Red | Yellow     | White |
+| -------- | ----- | --- | ---------- | ----- |
+| PORT.B   | GND   | 5V  | LED Signal | NC    |
+::
+
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003_Model_Size_sch_01.png" width="80%">
+---
+文档属性:产品信息
+产品名:Unit RGB (SKU:U003)
+分段标题:Unit RGB 结构文件 & Arduino
+分段内容:- [Unit RGB 结构文件](https://github.com/m5stack/M5_Hardware/tree/master/Products/U003_Unit_RGB/Structures)
+
+- [Unit RGB Test Example with M5Core](https://github.com/m5stack/M5Stack/tree/master/examples/Unit/RGB_SK6812)
+- [Unit RGB Test Example with M5CoreS3](https://github.com/m5stack/M5CoreS3/blob/49580074f79832a9929b6b58c28aa7db1b01f7d3/examples/Unit/Unit_RGB_U003/Unit_RGB_U003.ino)
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

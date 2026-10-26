@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T18:44:42.032525+00:00",
+  "status": "PASS",
+  "validation": "guest-boot-control",
+  "device_id": "stopwatch",
+  "unit_id": "boot-control",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "attachments": [],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      466,
+      466
+    ],
+    "canvas_size": [
+      468,
+      468
+    ],
+    "text": [
+      80,
+      110,
+      306
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StopWatch",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 8519680,
+    "size": 8253440,
+    "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+  },
+  "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+  "firmware_sha256": "70cf3362d37c4ac48886cebecc3ea4996f2bfde123af109d2739c6ca271d93c0",
+  "expected_size": [
+    466,
+    466
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "6d0a2a4533fef728b23be5a01e3a6678a42aee4617ab962221a84f95e4b3709c",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "677150cb4ba3007681e1c307b5337e4b2bca6e1409a6e1a70fdbbbe4fae79b6d",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true,
+    "live_runtime_pid_sha_verified": true,
+    "explicit_guest_canvas_geometry": true,
+    "no_unit_boot_control": true,
+    "onboard_identity_after_external_operations": true,
+    "nonblank_host_application_frame": true,
+    "evidence_before_stop": true,
+    "purge_zero_history_and_frame_retained": true
+  },
+  "required_markers": [
+    "HOST_PROBE_READY stopwatch boot-control",
+    "HOST_GEOMETRY 468 468 0",
+    "HOST_INTERNAL before 36 1",
+    "HOST_INTERNAL after_init 36 2",
+    "HOST_BOOT_CONTROL"
+  ],
+  "injections": [],
+  "session_id": "2156a5ae5b1b4896be2b729f642b15ec",
+  "runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "2156a5ae5b1b4896be2b729f642b15ec",
+    "pid": 33682,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-25T18:45:01.360318+00:00",
+    "expected_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+    "observed_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "frame_sha256": "80a0017a5be68b2b124128dd70b04934fbde40b43d7e42024bd7496c433220c6",
+  "evidence_sha256": "f36c5bd7adae6fb3ade7f92c7230adc880cc52be5981da6e6fc3c2db0ade0035",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log"
+    ],
+    "pid": 33682,
+    "session_id": "2156a5ae5b1b4896be2b729f642b15ec"
+  }
+}

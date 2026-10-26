@@ -1,0 +1,75 @@
+--- original-sensor-probe
++++ host-candidate-sensor-probe
+@@ -2,7 +2,8 @@
+ import time
+ import M5
+ from machine import I2C, Pin
+-from probe_config import CASE, WHITE, YELLOW, DEVICE_ID, NO_FIXTURE
++from probe_config import CASE, WHITE, YELLOW, DEVICE_ID, NO_FIXTURE, INTERNAL_CONTROLLER, INTERNAL_SDA, INTERNAL_SCL, EXTERNAL_CONTROLLER, EXPECTED_ADDRESS
++from host_sensor_layout import initialize_display, render_values
+ import probe_logging
+ from probe_logging import emit as print
+ 
+@@ -60,15 +61,30 @@
+ M5.begin()
+ probe_logging.init()
+ screen = M5.Display
+-if DEVICE_ID == "cores3":
+-    screen.setRotation(1)
+-screen.setBrightness(255)
+-screen.fillScreen(0xFFFFFF)
+-screen.setTextColor(0x0282CB, 0xFFFFFF)
+-screen.setTextSize(2)
+-screen.setCursor(6, 6)
+-screen.print("Sensor: " + CASE)
+-bus = I2C(0, scl=Pin(WHITE), sda=Pin(YELLOW), freq=400000)
++layout = initialize_display(screen, DEVICE_ID, CASE, print)
++internal = I2C(INTERNAL_CONTROLLER, scl=Pin(INTERNAL_SCL), sda=Pin(INTERNAL_SDA), freq=100000)
++internal_reads = 0
++last_internal_log = 0
++
++
++def check_internal(phase):
++    global internal_reads, last_internal_log
++    identity = internal.readfrom_mem(0x68, 0, 1)[0]
++    internal_reads += 1
++    if identity != 0x24:
++        raise RuntimeError("onboard BMI270 identity disappeared or leaked between buses")
++    now = time.ticks_ms()
++    if phase != "after_op" or time.ticks_diff(now, last_internal_log) >= 1500:
++        print("HOST_SENSOR_INTERNAL", phase, identity, internal_reads)
++        last_internal_log = now
++
++
++check_internal("before")
++bus = I2C(EXTERNAL_CONTROLLER, scl=Pin(WHITE), sda=Pin(YELLOW), freq=400000)
++addresses = sorted(bus.scan())
++print("HOST_SENSOR_EXTERNAL_SCAN", *addresses)
++if addresses != [EXPECTED_ADDRESS]:
++    raise RuntimeError("external bus must expose only the selected sensor")
+ 
+ if CASE == "color":
+     from sensor_drivers.tcs3472 import TCS3472
+@@ -187,6 +203,11 @@
+ else:
+     raise ValueError("unknown sensor case")
+ 
++check_internal("after_init")
++addresses = sorted(bus.scan())
++print("HOST_SENSOR_EXTERNAL_AFTER_INIT", *addresses)
++if addresses != [EXPECTED_ADDRESS]:
++    raise RuntimeError("external address changed or board bus leaked")
+ print("SENSOR_PROBE_READY", CASE)
+ previous = None
+ while True:
+@@ -227,8 +248,7 @@
+         continue
+     print(marker)
+     if values != previous:
+-        screen.fillRect(0, 38, screen.width(), 120, 0xFFFFFF)
+-        screen.setCursor(6, 42)
+-        screen.print(marker.replace(" ", "\n", 1))
++        render_values(screen, layout, CASE, values)
+         previous = values
++    check_internal("after_op")
+     time.sleep_ms(1000 if CASE == "tvoc" else 150)

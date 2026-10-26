@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "category": "artifact-integrity-and-redaction",
+  "status": "PASS",
+  "raw_artifact_pairs": 950,
+  "original_hashes_verified_against_internal_copies": true,
+  "artifact_hashes_verified": true,
+  "decoded_png_files": 297,
+  "scanned_text_files": 606,
+  "redaction_counts": {
+    "repository-prefix": 1512,
+    "utf8-replacement-characters": 46,
+    "interpreter-path": 147,
+    "local-path": 4
+  },
+  "functional_boundary": "Newest independent full-core2-compat run is 67/67 PASS with 274/274 checks, all one attempt/no retries, provenance exit0, frozen a8fe/ff6 binary start/end hashes. Prior full-initial and vfs-targeted results remain separate and unchanged.",
+  "raw_retention": ".work/internal-evidence/2026-10-26-unit-shared-regression",
+  "work_log_policy_docs": "The configured agent-work-logs directory is absent on this machine; no external work-log publication is asserted.",
+  "prior_run_artifacts_unchanged": 520,
+  "forbidden_binary_artifacts": 0,
+  "latest_full_run": "full-core2-compat",
+  "latest_full_counts": {
+    "PASS": 67
+  },
+  "latest_full_check_counts": {
+    "PASS": 274
+  },
+  "offline_replay_counts": {
+    "serial-markers": 13,
+    "png-ppm-pixel-match": 134,
+    "recorded-qom-readbacks": 3,
+    "frame-marker": 53,
+    "pcm": 10,
+    "disk": 2,
+    "rmt_nec": 6,
+    "rmt_ws2812": 1
+  },
+  "public_text_scan_findings": []
+}

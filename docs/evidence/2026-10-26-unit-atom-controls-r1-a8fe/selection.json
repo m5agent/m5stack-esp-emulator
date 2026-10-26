@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "device_id": "atoms3r",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/report.json",
+        "report_sha256": "85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/report.json",
+        "report_sha256": "85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Original AtomS3R r1 functional case only. Native multirow readability remains PARTIAL. No other host, firmware SHA or physical device inherits this result."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/report.json",
+        "report_sha256": "8f2d78ef9d2bf4df43d118c6af72da9aec663523e2282b1336dcec4a9734b416",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/report.json",
+        "report_sha256": "8f2d78ef9d2bf4df43d118c6af72da9aec663523e2282b1336dcec4a9734b416",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Original AtomS3R r1 functional case only. Native multirow readability remains PARTIAL. No other host, firmware SHA or physical device inherits this result."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/report.json",
+        "report_sha256": "67f674c3d56b752357af3717862de787e88ac3e13afe3f97675bae0bae129b00",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/report.json",
+        "report_sha256": "67f674c3d56b752357af3717862de787e88ac3e13afe3f97675bae0bae129b00",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Original AtomS3R r1 functional case only. Native multirow readability remains PARTIAL. No other host, firmware SHA or physical device inherits this result."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/report.json",
+        "report_sha256": "9db0ba819714f8a8cd43a99f93b1bdb83dca5bdcf5b3be38311c2e33ebf34759",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/report.json",
+        "report_sha256": "9db0ba819714f8a8cd43a99f93b1bdb83dca5bdcf5b3be38311c2e33ebf34759",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Original AtomS3R r1 functional case only. Native multirow readability remains PARTIAL. No other host, firmware SHA or physical device inherits this result."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "Not executed in this five-control AtomS3R r1 cohort; no result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/report.json",
+        "report_sha256": "a1f9585961c3b7f2becdf43122f3c53215b6b1d3da39247670e61e9deb7461d8",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/report.json",
+        "report_sha256": "a1f9585961c3b7f2becdf43122f3c53215b6b1d3da39247670e61e9deb7461d8",
+        "evidence": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Original AtomS3R r1 functional case only. Native multirow readability remains PARTIAL. No other host, firmware SHA or physical device inherits this result."
+    }
+  ]
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import random
 import struct
 import sys
@@ -170,7 +171,7 @@ def build_flash_with_secure_boot_v2(
 
 
 def build_flash_with_littlefs() -> bytes:
-    work_py = ROOT / ".work/py"
+    work_py = Path(os.environ.get("M5_PYTHON_DEPS", ROOT / ".work/py"))
     if not work_py.is_dir():
         raise unittest.SkipTest("littlefs-python test runtime is unavailable")
     if str(work_py) not in sys.path:

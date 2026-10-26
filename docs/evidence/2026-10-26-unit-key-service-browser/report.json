@@ -1,0 +1,480 @@
+{
+  "category": "virtual-device-browser-integration",
+  "status": "PASS",
+  "captured_at": "2026-10-25T17:23:49.194Z",
+  "device_id": "cores3",
+  "unit_id": "key",
+  "runtime": "qemu",
+  "firmware_sha256": "ba0054fceac3d184e78cd1b483c2087580649746d45e0bb47cbb02546c7cfc73",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "a493ba4620ccd2bc42ef844f5cac40f954daf4a6afa1e13767ff0c09be9be2da",
+    "platform/web/unit-panel.css": "7f326e923142d343bdaa3fab4e00a41f0d67a395dd91cc8c3e6f72886c793157",
+    "platform/web/unit-visual-mappings.js": "8bd9375323a0bda7206abc692cd9d7d44e4fbe635ac00dadda7bc226e35034ae",
+    "platform/web/model-shell.js": "35e8ada79096802a816c23397d3855f9c42f314b6da6773dda92bf3a8b0b26cc",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/test_unit_service_browser.mjs": "51a35ed9bdb2a98c9a36f5511988ba0ad6e9bbc99fedc60706718794b044dfb6"
+  },
+  "checks": {
+    "same_guest_ready": true,
+    "dom_press_same_guest_gpio_qom_and_mechanical_readback": true,
+    "dom_release_same_guest_gpio_qom_and_mechanical_readback": true,
+    "guest_rmt_rgb_output_reaches_qom_and_same_shell_led": true,
+    "shell_received_real_framebuffer": true,
+    "sessions_webgl_limit_disposes_shell_detaches_units_and_restores": true,
+    "no_readback_input_echo": true,
+    "evidence_requested_before_stop": true,
+    "stopped_with_metadata_serial_and_frame_history": true
+  },
+  "page_errors": [],
+  "unit_posts": [
+    {
+      "id": "external1",
+      "values": {
+        "pressed": true
+      }
+    },
+    {
+      "id": "external1",
+      "values": {
+        "pressed": false
+      }
+    }
+  ],
+  "instrumentation": "Appends only window.__unitBrowserProbe={state,SessionVisual} to the actual sessions.js response; no function/API behavior replacement.",
+  "session_id": "e050f3a27b0f4e8f9f05543996f5c032",
+  "browser_version": "156.0.8078.48",
+  "pressed_state": {
+    "session_id": "e050f3a27b0f4e8f9f05543996f5c032",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:24:07.326163+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "key",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": true,
+          "led-rgb": 1193046,
+          "input-level": false,
+          "led-frames": 7,
+          "incomplete-frames": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 1,
+          "output-transitions": 7
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "key",
+        "name": "Unit Key",
+        "sku": "U144",
+        "visual_asset": {
+          "entry": "src/units/key/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/key",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "mechanical blue switch",
+            "status": "officially-documented"
+          },
+          {
+            "part": "SK6812 x1",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-rmt",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "LED data",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "button",
+              "direction": "unit-to-host",
+              "active_level": 0
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire is the active-low key input; yellow wire drives one SK6812 RGB LED. Official KeyUnit combines hardware.Button(active_low=True) with SK6812 on the second UIFlow tuple element.",
+          "registers": [],
+          "gaps": []
+        },
+        "inputs": {
+          "pressed": {
+            "type": "boolean",
+            "label": "按键按下",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {
+          "led-rgb": {
+            "type": "integer",
+            "label": "灯颜色",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "rgb24",
+            "minimum": 0,
+            "maximum": 16777215,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/key",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/key.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/599/SCH_unitKey_V1.0.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "pressed": {
+              "property": "pressed"
+            }
+          },
+          "state": {
+            "pressed": {
+              "property": "pressed"
+            },
+            "led-rgb": {
+              "property": "led-rgb"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "led-frames": {
+              "property": "led-frames"
+            },
+            "incomplete-frames": {
+              "property": "incomplete-frames"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+    }
+  },
+  "pressed_led_visual": {
+    "color": "#123456",
+    "brightness": 1
+  },
+  "released_state": {
+    "session_id": "e050f3a27b0f4e8f9f05543996f5c032",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:24:08.334927+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "key",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": false,
+          "led-rgb": 2386092,
+          "input-level": true,
+          "led-frames": 9,
+          "incomplete-frames": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 2,
+          "output-transitions": 9
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "key",
+        "name": "Unit Key",
+        "sku": "U144",
+        "visual_asset": {
+          "entry": "src/units/key/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/key",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "mechanical blue switch",
+            "status": "officially-documented"
+          },
+          {
+            "part": "SK6812 x1",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-rmt",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "LED data",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "button",
+              "direction": "unit-to-host",
+              "active_level": 0
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire is the active-low key input; yellow wire drives one SK6812 RGB LED. Official KeyUnit combines hardware.Button(active_low=True) with SK6812 on the second UIFlow tuple element.",
+          "registers": [],
+          "gaps": []
+        },
+        "inputs": {
+          "pressed": {
+            "type": "boolean",
+            "label": "按键按下",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {
+          "led-rgb": {
+            "type": "integer",
+            "label": "灯颜色",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "rgb24",
+            "minimum": 0,
+            "maximum": 16777215,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/key",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/key.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/599/SCH_unitKey_V1.0.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "pressed": {
+              "property": "pressed"
+            }
+          },
+          "state": {
+            "pressed": {
+              "property": "pressed"
+            },
+            "led-rgb": {
+              "property": "led-rgb"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "led-frames": {
+              "property": "led-frames"
+            },
+            "incomplete-frames": {
+              "property": "incomplete-frames"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+    }
+  },
+  "released_led_visual": {
+    "color": "#2468ac",
+    "brightness": 1
+  },
+  "evidence_sha256": "3ff15199906c47efcf303159321399a118ea12e7cfe88639ffe9ca48fbcd6f7d"
+}

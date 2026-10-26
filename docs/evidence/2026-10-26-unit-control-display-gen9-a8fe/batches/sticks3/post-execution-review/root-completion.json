@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "category": "root-observed-tool-result",
+  "status": "PASS",
+  "device_id": "sticks3",
+  "runner_exit_code": 0,
+  "recorded_at_utc": "2026-10-25T22:04:05.034170+00:00",
+  "scope": "Root records an actual completed unified-exec tool result. This is not a new wrapper-emitted or kernel process observation.",
+  "tool_result_reference": {
+    "tool": "tools.write_stdin",
+    "session_id": 87646,
+    "chunk_id": "770605",
+    "observed_exit_code": 0,
+    "raw_result": {
+      "path": ".work/unit-control-display-stick5-observed-tool-result-20261026.json",
+      "sha256": "c8603134672416927e838736b4356a398a52c351398325d04dfab115160d547a"
+    }
+  },
+  "summary": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "330d28ddf2ac4479a78665e961e3ba53ae7413f29ae9c2428cfea85183f5232f"
+  },
+  "source_before": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "fbdc136f2b373e3e4d992b3e1a49ec943e22eb5e6cc66551edf63b5bdf1ffafa"
+  },
+  "execution_wrapper": {
+    "path": ".work/unit-host-control-display-candidate-20261026/execute_control_display.py",
+    "sha256": "83431e8e300ec5fa43adb8712570a24e44e734c50760545462ef8aafd2cd2158"
+  },
+  "reports": {
+    "joystick-v11": {
+      "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/joystick-v11/report.json",
+      "sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56"
+    },
+    "encoder": {
+      "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/encoder/report.json",
+      "sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737"
+    },
+    "8encoder": {
+      "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/8encoder/report.json",
+      "sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35"
+    },
+    "cardkb": {
+      "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/cardkb/report.json",
+      "sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7"
+    },
+    "rfid2": {
+      "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/rfid2/report.json",
+      "sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479"
+    }
+  }
+}

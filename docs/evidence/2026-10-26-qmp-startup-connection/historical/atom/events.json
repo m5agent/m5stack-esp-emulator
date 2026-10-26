@@ -1,0 +1,63 @@
+[
+  {
+    "at": "2026-10-25T18:38:33.839742+00:00",
+    "event": "created",
+    "device_id": "atoms3r",
+    "firmware_id": "dd5a5981d16a4681a22fc221226d060e9da61d9413793f529ab41ff59160b6d7"
+  },
+  {
+    "at": "2026-10-25T18:38:33.840041+00:00",
+    "event": "worker_lease_reserved",
+    "worker_id": "<redacted-worker-id>",
+    "generation": 6
+  },
+  {
+    "at": "2026-10-25T18:38:33.840211+00:00",
+    "event": "state",
+    "from": "provisioning",
+    "to": "flashing"
+  },
+  {
+    "at": "2026-10-25T18:38:46.057077+00:00",
+    "event": "flash_prepared",
+    "transport": "esp-emu-esptool",
+    "chip": "esp32s3",
+    "flash_size": 8388608,
+    "verified": true,
+    "session_isolated_copy": true
+  },
+  {
+    "at": "2026-10-25T18:38:46.057594+00:00",
+    "event": "state",
+    "from": "flashing",
+    "to": "booting"
+  },
+  {
+    "at": "2026-10-25T18:39:46.108008+00:00",
+    "event": "failed",
+    "error": "QEMU QMP socket did not become ready: QMP socket did not appear: /tmp/m5-service-4c0070b381ad4502ad209e286608c873.sock"
+  },
+  {
+    "at": "2026-10-25T18:39:46.113863+00:00",
+    "event": "worker_lease_released",
+    "worker_id": "<redacted-worker-id>",
+    "generation": 6,
+    "result_state": "failed"
+  },
+  {
+    "at": "2026-10-25T18:39:46.295482+00:00",
+    "event": "evidence_bundle",
+    "included": [
+      "frames",
+      "logs",
+      "manifest",
+      "qom",
+      "serial"
+    ]
+  },
+  {
+    "at": "2026-10-25T18:39:46.297918+00:00",
+    "event": "flash_released",
+    "bytes": 8388608
+  }
+]

@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "category": "historical-unit-web-attempt-summary",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "hardware_execution": "NOT RUN",
+  "aggregation": "Records are aggregated from each immutable per-case report. Original runner summary files had fewer entries after split invocations and remain unchanged with internal raw evidence.",
+  "attempts": [
+    {
+      "id": "r3-record-set",
+      "status": "FAIL",
+      "records": 27,
+      "passed": 25,
+      "failed": 2,
+      "original_summary_entries": 24,
+      "original_summary_sha256": "e45ad3736d97bf0b0c8de6eb544eac465a9d4ede5e859dada5fb772b7b62f124",
+      "cases": [
+        {
+          "unit_id": "8encoder",
+          "status": "PASS",
+          "session_id": "8c4bebf627a345d489a7a5860bbbc0ec",
+          "firmware_sha256": "b48ab0c95b8519ed2146ead739794af53e4ab34dd2a2beef447ce80c9c021c0a",
+          "evidence_sha256": "90832d137cd0b39f1f5325fb855c88e5fcebff251e1bdf4394c6602ea2ceb6ad",
+          "firmware_flavor": null,
+          "controller_error": null,
+          "original_report_sha256": "82df7ec05d8197bfdf4eb2c2f9432ffcfda371dd6ae0de0ee360e8ea7db3c407"
+        },
+        {
+          "unit_id": "angle",
+          "status": "PASS",
+          "session_id": "1409248ddd59415ba88a63ed959012ff",
+          "firmware_sha256": "81a802525b17f635c58eb34d79e43c092d009f99069457cd0b3a4d7cfccfaf0d",
+          "evidence_sha256": "45733abc12f9c2c012ec3ac90e54bb381b53dcc35721c3ce8cff7387e011b0d4",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "d10bcb7e9930388fb352500b4be610ee25dc3bc7e3f44a0a4fb5467d8ae0ca59"
+        },
+        {
+          "unit_id": "button",
+          "status": "PASS",
+          "session_id": "bc4c130eda8e4d01a7856118cc5d0342",
+          "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+          "evidence_sha256": "a2c7c2355086826ac18066291347b89473714be77376964ea1b49c7c8124be21",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "8966d1e09a258a85a89c0ef339377e81594af0aa275ed5c4bc1609cd0478dc1b"
+        },
+        {
+          "unit_id": "buzzer",
+          "status": "PASS",
+          "session_id": "963c5e85648f48c4b9dbd11b5303aa67",
+          "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+          "evidence_sha256": "e720db7897cca74b44bc931b3feca4ddc54bb0ba008e83d9130fb0e187cbc384",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "7b87f1fc90716f8b83975f506af2573b3f7272dbd40ae27ae623f21dfbbbffa0"
+        },
+        {
+          "unit_id": "cardkb",
+          "status": "PASS",
+          "session_id": "a78b10d19acc4562a4863013212e7276",
+          "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+          "evidence_sha256": "1a746765491cc34dfb28b877249f50bfcaab7447b6dc9c14591fe3abba45651b",
+          "firmware_flavor": null,
+          "controller_error": null,
+          "original_report_sha256": "1317aee84194430dbc21dd0e1581770c7ef6cbd0ed6e340149292b5ceafdb660"
+        },
+        {
+          "unit_id": "color",
+          "status": "PASS",
+          "session_id": "396d43b6306946789e3baf3ee252b947",
+          "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+          "evidence_sha256": "2e39a72645ae1f7af28926f6a5f5219330c535d6b4da1fdb58f99f5929cf26fa",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "67eb7a8a983e759185af7a1039966ad7d33cf764da482008c608d746e6508d26"
+        },
+        {
+          "unit_id": "dual-button",
+          "status": "PASS",
+          "session_id": "5da309564c12496bb4a8feea40acbe7a",
+          "firmware_sha256": "1d4dd0e6b0b1c03ad46bf83023ea19ab6561a091b9e7bc8f94e069bc80459c19",
+          "evidence_sha256": "41d87389c0435fba318f41645ad0021355a157ee97c8f428dc4bdcbe8d2ebf13",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "72fbfa28e6cd2abf6e8cd92ce8155b4a6a4a93e537e4d27e1df5e57126cdc894"
+        },
+        {
+          "unit_id": "encoder",
+          "status": "PASS",
+          "session_id": "58aedc1f5d554e86b61a7503403a1245",
+          "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+          "evidence_sha256": "3ad5aa1cdce65a1b2c98815e58aa4f395ed8e15f60e0069dc941223c520699c8",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "f87bb55afd27d738c26654fbbd388c95afc0eec825548514524f732de8e48485"
+        },
+        {
+          "unit_id": "env-iii",
+          "status": "PASS",
+          "session_id": "1df845f230da41ebb0c29c49f7e496ee",
+          "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+          "evidence_sha256": "e4f0d10202a47e2666caedcdf6ea091b34edb913378335e9138b2e4f26830203",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "d88572d51191643bfa82ab25bd246bbb4a4ad564ac93ad29baa959797bffaa46"
+        },
+        {
+          "unit_id": "fan",
+          "status": "PASS",
+          "session_id": "f18233897d0a480790922942c9c4d989",
+          "firmware_sha256": "4dcfff91e39fb5420b9fec3312be2236855db3ac57bc528b709e7059770de615",
+          "evidence_sha256": "c2a27b631a9d10d3edb56e430a0f9eee3f00c96e07a0f29345da24050d7e94c1",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "35d2af8ac46e4dc0fb100d63b9b22154b78e03541a6266158d1c55896bbad418"
+        },
+        {
+          "unit_id": "heart",
+          "status": "PASS",
+          "session_id": "602b2cb2db954ab88157a39745c7612b",
+          "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+          "evidence_sha256": "84d3f05774e71b3110969d90723cf7df256163e21b0f2a66a5758f8a6637a123",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "29fc52e628385ec2b6d8c150239571ccd7f54c8affa5348cff772e96be445817"
+        },
+        {
+          "unit_id": "hub",
+          "status": "PASS",
+          "session_id": "24b36a3d8f1a49ff8e19b0f4dcea19bd",
+          "firmware_sha256": "ff19f03949c99762ecb4c657f4af9417202090747d730a7886fad26bc211743c",
+          "evidence_sha256": "192b53c3f5ed6b5f2fcdc84b7ff59d73880abff30c4aee7a68dcad4dad70c0f8",
+          "firmware_flavor": null,
+          "controller_error": null,
+          "original_report_sha256": "6c9ad26f6b5f691f947a6ea7e91009a10095ec2adf5d1f3d7f2cf405e13d944f"
+        },
+        {
+          "unit_id": "ir",
+          "status": "PASS",
+          "session_id": "b3992a3de4054dd6a2733cd4e8b8d554",
+          "firmware_sha256": "61717ec53987187d1ec67545e833d57ecd3e4ff1b5b63101080a74d9a4300868",
+          "evidence_sha256": "e484e832182b32efb1bf41d2a9725f27c6fce74d6a08f2207b85624ba7862cc2",
+          "firmware_flavor": "custom-guest-ir-callback-root-patch",
+          "controller_error": null,
+          "original_report_sha256": "dd2922c150b9b07dfe42b9fca61a32241800ac82a80aebad092fc0d1118bc64b"
+        },
+        {
+          "unit_id": "joystick-v11",
+          "status": "PASS",
+          "session_id": "30ff2509b74444abbeb91927b2840e82",
+          "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+          "evidence_sha256": "4bbad0412aefc4bcca389131fe6b32d3d078fb7eabe9a4f16c580dd61b9dbef4",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "6b74b23b6370e2b0f7c57f245e7c83cc61473372b38fbb30b9f8e1885f11460b"
+        },
+        {
+          "unit_id": "key",
+          "status": "PASS",
+          "session_id": "a66d17dd10a543168531f7ca2ccbc98e",
+          "firmware_sha256": "10cb37c3001df619c79d4c2dbe25b8e4fb85f2a421bc4d71f2e651a8fe80acb6",
+          "evidence_sha256": "a8b558319887b4004fb2803e9175ae2a3df6e50a28dcc40adb9e1ed3be1bc2fa",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "e2c04b2ce2f7aff64c87af29d6ae7bf2e51ab149a3b30fa0b7da64dbbd766db2"
+        },
+        {
+          "unit_id": "light",
+          "status": "PASS",
+          "session_id": "58eb65b86b75427380e2fa6457d3dce2",
+          "firmware_sha256": "581b50329cdc854a7cfaee5fd5b8ca2637e96cf05c1c19066f176fa1c8c9337e",
+          "evidence_sha256": "58a38533eec366b04e39af993becfec23a82f39c26f2d49048ef3409ec25f8d2",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "212bfda0139dedf0280f293dc637c776e3f5f66e122d5a2e6b4c44fa70f3e4e4"
+        },
+        {
+          "unit_id": "limit",
+          "status": "FAIL",
+          "session_id": "fe0262cb51aa41db868ab2df04dc72c3",
+          "firmware_sha256": "17eb00a0ad4f0266971a0f5bc08901db3d6fe9c67e14e34d8f8a25e41a4ae989",
+          "evidence_sha256": "7bcc30f6d345eeace26d97ac69a30d5386fea49ebda3e090291fcb93ad352997",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": "RuntimeError: guest observation timed out; inspect serial.txt",
+          "original_report_sha256": "6f7de2c6143264be004e42f203fad76a1bf92fff5a58d2d335822ff4a2dbbec4"
+        },
+        {
+          "unit_id": "ncir",
+          "status": "PASS",
+          "session_id": "2e1fef23937a46f197cfcb30b6d5e965",
+          "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+          "evidence_sha256": "04a27f6869e9cb479b3825084afb2bd5912a4ce3260653b715ea94e2e01fdade",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "f6542259452f730e25be6522133ffd0bff9d1aa2d5fe5810531ea2c15e5f2f55"
+        },
+        {
+          "unit_id": "pir",
+          "status": "PASS",
+          "session_id": "ecc6a2d4ac734081a589e982f8fbfb98",
+          "firmware_sha256": "318a9310f75ec9d9103f25ec89f7b6fcbdcd8e0998fd8975a8d26617852fbd5a",
+          "evidence_sha256": "25c4060eb067b40916529134193c585bcb07e6cf0ed73a558fb3d04fad65341c",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "c04f1b00650f2685d1cae7694d9b6af547ca2b2a0135046c9a39746118e3d9d4"
+        },
+        {
+          "unit_id": "relay",
+          "status": "PASS",
+          "session_id": "563e9a22ee8b4cfc992b52cf55dc8aaf",
+          "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+          "evidence_sha256": "2d2b597766817d594c35bcd6690f59ac7392d3622797252452d7953c4326d74a",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "6eaeff5711a5b7bad3c35b2b9cb7771953c965b381c51761d40db4d7221b63d6"
+        },
+        {
+          "unit_id": "rfid2",
+          "status": "PASS",
+          "session_id": "0be82983f42f4793ac3e3515aa44312d",
+          "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+          "evidence_sha256": "1015f7417d01b1d1d303fc1175b61b94ab77533a264896523a5b00322a80bef7",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "59e29309638e88648de0bcdfe3623bc6fb3d2fcbb4d6ea23717a36918e9046db"
+        },
+        {
+          "unit_id": "rgb",
+          "status": "FAIL",
+          "session_id": "361d1acb1f804ee7bea8df86fa758073",
+          "firmware_sha256": "c51348f68a9abcd787f6f8897e6693f563afee08e9e7df8ffac9622318a31fd0",
+          "evidence_sha256": "6854b4d40827c9f7f54ccbfaa8e92c64c12368b7e3faeda0bf9cd2d9e08d222e",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": "RuntimeError: short frame fabricated a complete LED chain",
+          "original_report_sha256": "728590db76c186cded879d0ce5e7d2829efbd45cbe537c602ba2df6fea8a7887"
+        },
+        {
+          "unit_id": "rs485",
+          "status": "PASS",
+          "session_id": "3aa712049eed45c6b00586c3dfd623ad",
+          "firmware_sha256": "69b58693b1523aca682a0dc84103cec54b346bdff66b6dd3c4bc33c9d41854f8",
+          "evidence_sha256": "e602865405223223afa53ab4391eadb286d61ee9b0253af511bfcbdb70513657",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "8fc2d5250e1ef3c377c16b058f2ecdc9bf9420b70252dbf910704e0a485bd255"
+        },
+        {
+          "unit_id": "thermal",
+          "status": "PASS",
+          "session_id": "634419361607405f86355235651596cc",
+          "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+          "evidence_sha256": "68821d28a5da0e48ace9771db8dca5cc92439a74ba73860015f1bd56faa95432",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "e35d67716a46a7eaadc12d44efd5ceb5d6e6c1775b36961ec59b7d7ac80a5dec"
+        },
+        {
+          "unit_id": "tof",
+          "status": "PASS",
+          "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+          "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+          "evidence_sha256": "53198fe905377297e2881f49bd2c8311faf234ff8eef4c63f46a9294aadcbb47",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "8ff373cda1c1d6c2f28ca76812a975d999211cc73f18d9f2f48aacdf84c896cd"
+        },
+        {
+          "unit_id": "tvoc",
+          "status": "PASS",
+          "session_id": "b9a7dbd1823c4d518143fa2cef69f265",
+          "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+          "evidence_sha256": "3fa1d0a33c607b6e8404dddcfd26f3795c49e3eab7601baa700403d8b1f4bf86",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "f4961b5bf2b30c437687c373bc4a772b81a6aae47801d57ced08b2df0cfc908b"
+        },
+        {
+          "unit_id": "ultrasonic-i2c",
+          "status": "PASS",
+          "session_id": "1a6a50943c5049a9876de441ecb89ed4",
+          "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+          "evidence_sha256": "2e06a890c2812d964ef1d698afec6c0b492352fcae28d41d7b76aaa71ff0dfa5",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "85cf1d5c600cb5f442ee570aa4e7c1f2836df4d6372c6bb210ee2fc3dba01d5f"
+        }
+      ]
+    },
+    {
+      "id": "r4-lifecycle-record-set",
+      "status": "FAIL",
+      "records": 2,
+      "passed": 1,
+      "failed": 1,
+      "original_summary_entries": 1,
+      "original_summary_sha256": "9b68e12bbc9f9447ec54b4dd21e0f09c0cc709749bfdfd14268b65e41070b623",
+      "cases": [
+        {
+          "unit_id": "limit",
+          "status": "FAIL",
+          "session_id": "6483673a0bb44c8eb6da3b370f825a75",
+          "firmware_sha256": "6ca87eee44b7b467e7b12958c3e6d81fbea784a7158957ffa91aed2a1bbe40c9",
+          "evidence_sha256": null,
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": "RuntimeError: QEMU QMP socket did not become ready: QMP socket did not appear: /tmp/m5-service-6483673a0bb44c8eb6da3b370f825a75.sock",
+          "original_report_sha256": "5b54178a8865f678f1a512d8204021e8e075b31c3b2ff4e84d7d62fbc11fecce"
+        },
+        {
+          "unit_id": "rgb",
+          "status": "PASS",
+          "session_id": "0547241ae140435cbce0340929d6ae36",
+          "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+          "evidence_sha256": "a6d951ca2952d5f7937779910f58055332a4129e3aac97f1c79f9c2d2984bfed",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "controller_error": null,
+          "original_report_sha256": "299a2b06aae5290549e9c06dfa329e91392cceb143537bf84a48bfb91714cca7"
+        }
+      ]
+    }
+  ]
+}

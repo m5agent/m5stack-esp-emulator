@@ -1,0 +1,1365 @@
+{
+  "schema_version": 1,
+  "generator": "unit-batch-evidence-checker",
+  "checker_sha256": "adda9046f2fa09587715855998926314f8b8630aff237df962abb2dfaf640625",
+  "status": "PARTIAL",
+  "strict_direct": true,
+  "layers": {
+    "guest_controller": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 11,
+        "NOT RUN": 1,
+        "NOT VERIFIED": 15,
+        "FAIL": 0
+      },
+      "functional_pass_units": 26,
+      "direct_pid_units": 11,
+      "indirect_service_generation_units": 15
+    },
+    "live_browser": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 2,
+        "NOT RUN": 24,
+        "NOT VERIFIED": 1,
+        "FAIL": 0
+      },
+      "functional_pass_units": 3,
+      "direct_pid_units": 2,
+      "indirect_service_generation_units": 1
+    },
+    "bridge_contract": {
+      "status": "PASS",
+      "counts": {
+        "PASS": 27,
+        "NOT RUN": 0,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 27,
+      "direct_pid_units": 0,
+      "indirect_service_generation_units": 0
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-first3-final/env-iii/result.json",
+        "report_sha256": "c0604a2b24126903ee4fa957641bc9c0d55bd706daa464a852b07d6f758b5e97",
+        "artifact_sha256_verified": {},
+        "assertions": 6,
+        "firmware_flavor": "not-recorded",
+        "session_id": "194fde51e3194629aa75bc053aaa8aea",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+        "evidence": "docs/evidence/2026-10-26-unit-first3-final/env-iii/evidence.zip",
+        "evidence_sha256": "027a6dd26e2707ddf8cec36cd87da6d1e9f5e9b5ce44d03194629ca439a2901b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 73469,
+          "worker_generation_observed": 5,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/pir/result.json",
+        "report_sha256": "e77c0c5056a91404e4f2e8ca2d7cd5e935eee91c8d18ecfe2a317a4df6e764f1",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8bb0b9a67a746f5de8bd24855e94ff8e6ac84015d77197b3c6539dfba6ac875f",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/pir/evidence.zip",
+        "evidence_sha256": "92c1bfd8dc0f68549b2755588cb078bd2ce637e9e8d881e52fca1fd485152e59",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/ultrasonic-i2c/result.json",
+        "report_sha256": "9aa434960673671491b71797ff022bcfd79935c99f4edb75a69b2d70574fe6de",
+        "artifact_sha256_verified": {},
+        "assertions": 14,
+        "firmware_flavor": "not-recorded",
+        "session_id": "d65a017e860d4a3ca612df8667e7300b",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/ultrasonic-i2c/evidence.zip",
+        "evidence_sha256": "d8db1ba9b8c29ccb2e816f42aa28227dd01779ba19d25c40e01501ce9d0f339d",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 75966,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/ultrasonic-i2c/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/rgb/result.json",
+        "report_sha256": "1659219997e19af857d27e33f3d6510b352810fb81b699c544fd304590de85a1",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "108a0a5d5fc9495ba1f7334038686516",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "bac3310f0349d65f12b7ce673c4a87f2101708d1acc66e2d89d9029d0c9fbd1b",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/rgb/evidence.zip",
+        "evidence_sha256": "b1ab3da050d65e3a5181f7885619b3eaec6f691a4f8127652a4d7586ecae76bd",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/angle/result.json",
+        "report_sha256": "3d83181a3fc92f1434562e31683c38ef40d6d2180167aebafb6dae7684243343",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "session_id": "d02849771ed846e38d2f0a7c633905a6",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "2ae248260fbeaadb320f235da8f7cfdbcbeffd16630f910706b74340584c3fa4",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/angle/evidence.zip",
+        "evidence_sha256": "7864bfe98fcd840df4b61df9539e74c5d063ad98f7cb6a10dd939e09cd6c0e97",
+        "zip_members": 11,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/color/result.json",
+        "report_sha256": "d9a2cca25f18b3a2f4d6dbb785f42023c0bd57ba1186a648c6d57fa773b47357",
+        "artifact_sha256_verified": {},
+        "assertions": 15,
+        "firmware_flavor": "not-recorded",
+        "session_id": "958bb8735d68421790b1b6e6b6610c99",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/color/evidence.zip",
+        "evidence_sha256": "b6c9a7dfbeef137b10ec164ba7072722e57a542c2db35e31058c09198a985dee",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74188,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/color/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/tof/result.json",
+        "report_sha256": "a7ce649940cfeb8313d629b179fac2d88f3efd15cc75b53361cbbe5a30f25c4b",
+        "artifact_sha256_verified": {},
+        "assertions": 18,
+        "firmware_flavor": "not-recorded",
+        "session_id": "3c5aaf45cc80474783d8463b60324543",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/tof/evidence.zip",
+        "evidence_sha256": "50ec8a9808b8af9f55c95fbe6f7d725358a49a776fe38470154d87a525be0bf6",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74264,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/tof/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/light/result.json",
+        "report_sha256": "fb0f5c9ed92244e13e4e78f3297f617b0d083daede20598123b71bcb60e31d0f",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "session_id": "8fa1f57162124dd8be3f059b5a8fd444",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "d4d7cbf4a20a41a0548e84b1eb78e928b8b3698bc9a3e17ab19eac0bcc2924f4",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/light/evidence.zip",
+        "evidence_sha256": "e1780cc88b3ecd9255323a57d0304c0ebba3d55ea41fe7e9aa2b376edb26de14",
+        "zip_members": 11,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-first3-final/relay/result.json",
+        "report_sha256": "f1c94b93d701ead617a0465ad2185906132041ad8d3a395482c811d8882ab6c1",
+        "artifact_sha256_verified": {},
+        "assertions": 6,
+        "firmware_flavor": "not-recorded",
+        "session_id": "c07e78b997964a428dd80e8c35fcf6d9",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+        "evidence": "docs/evidence/2026-10-26-unit-first3-final/relay/evidence.zip",
+        "evidence_sha256": "fb7eaf8813bbd2b257d1cecab13c698fbaa6fea8f45fdd0754c83fe851d2660b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 73416,
+          "worker_generation_observed": 5,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-controls-final/joystick-v11/result.json",
+        "report_sha256": "990736712323b4bb6b5b2b5cefbf97a91e4a8ed8a60e9c36f913cbb433504087",
+        "artifact_sha256_verified": {},
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json",
+        "context_report_sha256": "b9de53dfe500df46c6cbcd3468ea8007f7582c1c918e74f8e5b87803dabe272e",
+        "fields_from_selected_context": [
+          "runtime"
+        ],
+        "assertions": 4,
+        "firmware_flavor": "not-recorded",
+        "session_id": "1f10c0ec6e074f329f0807b3d1605b10",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+        "evidence": "docs/evidence/2026-10-26-unit-controls-final/joystick-v11/evidence.zip",
+        "evidence_sha256": "9a5ac70c2132e86c795b8ae3b1d183934fcae6fb6cdb9c642b5660ca85631903",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/dual-button/result.json",
+        "report_sha256": "6d1c38f28b189f109154318171665c78c3a8bdd482ccf2b0ab5318c89fcbf2d9",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "839f05d01025432eaa80818df75f54d3",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "7d4a9d5fc1e7ae3b580371907495b8aad19087728cd690f14a10b168bf3f9735",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/dual-button/evidence.zip",
+        "evidence_sha256": "c7124fb0dc16374a56f82bd718e7d89296a047d0ffbc5b5d461c30edd94f7d3b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-first3-final/button/result.json",
+        "report_sha256": "48635e9ac610a13e57e821ba588b2ea171f6bb7e655174cbfe7ed87fb9c27bc9",
+        "artifact_sha256_verified": {},
+        "assertions": 6,
+        "firmware_flavor": "not-recorded",
+        "session_id": "4b5bc62948ed4528bd3823f38f5eee41",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+        "evidence": "docs/evidence/2026-10-26-unit-first3-final/button/evidence.zip",
+        "evidence_sha256": "36dfb53ef5ab459b8a79e8a3932f3816b65e3311170c4e895d25e5d55c618c88",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 73388,
+          "worker_generation_observed": 5,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-browser-final/button/report.json",
+        "report_sha256": "99533dbf1954278d5b9d67b481c96f9a17c12b1bed4436b8d0aeb4970ebbeb4e",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "LEGACY INLINE",
+          "scope": "Uses the selected legacy report's embedded browser assertions; no separate detailed snapshot artifact is declared."
+        },
+        "session_id": "71981ac9164942fbb41e1196ec5e3507",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+        "evidence": "docs/evidence/2026-10-26-unit-browser-final/button/evidence.zip",
+        "evidence_sha256": "9193b74c9e2180670e79f28ed20bb94ab0e9913f005b7d9a733fb39418c33555",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/ncir/result.json",
+        "report_sha256": "cb83a47895ee1595ecd4f7e7658899797f04d98fe14fe5ee52c657899b259fa2",
+        "artifact_sha256_verified": {},
+        "assertions": 14,
+        "firmware_flavor": "not-recorded",
+        "session_id": "75aa84b19abb4bd1bc1348078815360d",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/ncir/evidence.zip",
+        "evidence_sha256": "b0a9e8974011546041487cf968a9d790e7b921cad0add027e57e56b8abd6227f",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74300,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/ncir/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/heart/result.json",
+        "report_sha256": "5aac4a0cb8222f8c202063a5af93c013c1d47fccc8dcae15c2d228c62ec9df92",
+        "artifact_sha256_verified": {},
+        "assertions": 18,
+        "firmware_flavor": "not-recorded",
+        "session_id": "046aef50f2b7413a9692b42601b66d34",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/heart/evidence.zip",
+        "evidence_sha256": "54636e48a09031244e2365f7930efd97fbe872bab2fadc75c8b569b7f4dd2f95",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74304,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/heart/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-controls-final/encoder/result.json",
+        "report_sha256": "9ed0a46008cd7d892ce4831d95726bcdec3a30312c8912e1e07c2c7eb30f4b23",
+        "artifact_sha256_verified": {},
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json",
+        "context_report_sha256": "b9de53dfe500df46c6cbcd3468ea8007f7582c1c918e74f8e5b87803dabe272e",
+        "fields_from_selected_context": [
+          "runtime"
+        ],
+        "assertions": 5,
+        "firmware_flavor": "not-recorded",
+        "session_id": "b2f39c8461744978b752bcb694551192",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+        "evidence": "docs/evidence/2026-10-26-unit-controls-final/encoder/evidence.zip",
+        "evidence_sha256": "53661932fead7fd1ffe22c1587ccf6cf5697e81acf50d39d7fec653935077805",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/thermal/result.json",
+        "report_sha256": "72f3698ca9b6213144a45197d022cb42ecaa3aec66003fa2e6b6615e41d91c38",
+        "artifact_sha256_verified": {},
+        "assertions": 16,
+        "firmware_flavor": "not-recorded",
+        "session_id": "258b784ba73c4838a6a432752a519c95",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/thermal/evidence.zip",
+        "evidence_sha256": "547d1cab9e61ba5f122f55d878b2de43f85102f0195ef22f0f8b4a9c61a3e246",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74434,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/thermal/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/tvoc/result.json",
+        "report_sha256": "89f2476c44766743c86b6ee200c8b74f8a93dcc2a885f5fe6d99f22cb694c75d",
+        "artifact_sha256_verified": {},
+        "assertions": 19,
+        "firmware_flavor": "not-recorded",
+        "session_id": "8a2dc2204e29407ca43523d44262cec6",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+        "evidence": "docs/evidence/2026-10-26-unit-sensors-final/tvoc/evidence.zip",
+        "evidence_sha256": "0f3d6659340318047b299e870c6b41979a770901a9daa5fc45567bf3b5c5f1d6",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 74312,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-sensors-final/tvoc/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Official IR callback has not passed; TX/native getters and diagnostic attempts do not establish the full Unit path."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Official IR callback has not passed; TX/native getters and diagnostic attempts do not establish the full Unit path."
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      },
+      "selection_note": "Official IR callback has not passed; TX/native getters and diagnostic attempts do not establish the full Unit path."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/hub/result.json",
+        "report_sha256": "9262406fd374a9ea8f0e2cb9a418d85a22bfb7a7e5f061fe3d489028ba7a9460",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "session_id": "fb4926c17fea4252ad9bc1d9625db80d",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "61b7d38935c65047a21d1d8d01e8fc588f01c3aa0c1dfb1f38abb85fc792a922",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/hub/evidence.zip",
+        "evidence_sha256": "0c0131efaa5d74f943bd710b754902d9a6f31db77b3a84a3239ed78d15b101e9",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-controls-final/rfid2/result.json",
+        "report_sha256": "4b0b92b9ad259388e388a9ed10cc6917edbfe833761765f22173573a328fb300",
+        "artifact_sha256_verified": {},
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json",
+        "context_report_sha256": "b9de53dfe500df46c6cbcd3468ea8007f7582c1c918e74f8e5b87803dabe272e",
+        "fields_from_selected_context": [
+          "runtime"
+        ],
+        "assertions": 7,
+        "firmware_flavor": "not-recorded",
+        "session_id": "be2b24920f0d48c6b366fbbf72680b26",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+        "evidence": "docs/evidence/2026-10-26-unit-controls-final/rfid2/evidence.zip",
+        "evidence_sha256": "c4adee9f08ecaae55a3b6766018e653e6b95591cbac541e676317074b3d729dd",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/rs485/result.json",
+        "report_sha256": "f5bcb200841ccd94abffb5cf2ec8b53bf741e3d27fd78d581f5d420d3e7be687",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "187429132c16f775fa2d33448fd7aa4be63e131b9e35a44bfbbbe2750069114a",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/rs485/evidence.zip",
+        "evidence_sha256": "74e268c3583038b42efc4b8bd5f638509d5b33527f6741523b872fe6c0f1bd1c",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/buzzer/result.json",
+        "report_sha256": "40be3077b71b5605005c374b415114216b0079d44fea5518c0e17d731cfc69ab",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "session_id": "67881570193248cba21416abcd48d4f8",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "627865bf99f82a4dedcb2d466be4f1786531ecbe69d977fbcb257261d0f5c875",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/buzzer/evidence.zip",
+        "evidence_sha256": "ba4e1192b1594d2a25ee7cb83b7db6c09b150aa7c7c9e80c56bc0b2004401bb7",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/fan/result.json",
+        "report_sha256": "4f04d45f7699374a11a1eec3ce2525b5912fd644065a395fdc89bbc153550920",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "cb54ea041c9d4330908a268d8f33e3cb",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "31989fc3c99873aafc402560606f8076e53f66337e9844abc120ffb43d4d5d6c",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/fan/evidence.zip",
+        "evidence_sha256": "eb2bfdb1418c912d6f1fe7a0f70f79b023503471007934f9c0bbe728216df1ef",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 76280,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-io-final/fan/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-browser-final/fan/report.json",
+        "report_sha256": "98c18f728ca73c1a89c5e874e7d130fbe5e56f4edc8c8cf90f1326ba1eb6c6ee",
+        "artifact_sha256_verified": {},
+        "assertions": 5,
+        "firmware_flavor": "not-recorded",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "LEGACY INLINE",
+          "scope": "Uses the selected legacy report's embedded browser assertions; no separate detailed snapshot artifact is declared."
+        },
+        "session_id": "61b997cb2ab9433d8f5067cb8badcd3a",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "a7c9ea03b4c700a0eba523ec13ebeeab488cafae0c42c21fe3a3866272bdae18",
+        "evidence": "docs/evidence/2026-10-26-unit-browser-final/fan/evidence.zip",
+        "evidence_sha256": "d08d88a725ccf500569770ca9641b36b5a66d2e53963de0311122dca35903647",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 60147,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-browser-final/fan/runtime-provenance.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/limit/result.json",
+        "report_sha256": "d1afa88e620e0487e274f911774dc1dcc30d492236b054f0aab65bd8f2ddd313",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "4fc4ed7df49e496f9a613f48f37916b8",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "d1a99cfed639bed052106c0dab5803bf58daf84de2f3fbf33666729b583589ac",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/limit/evidence.zip",
+        "evidence_sha256": "bebc232f6979cd22ea11e0e9e6435576530775d999b261f0480eb62790d14b19",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-controls-final/cardkb/result.json",
+        "report_sha256": "cd2b4325ece604687a361dbba4fa891cbe016068e3f861a4fa00a00775454737",
+        "artifact_sha256_verified": {},
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json",
+        "context_report_sha256": "b9de53dfe500df46c6cbcd3468ea8007f7582c1c918e74f8e5b87803dabe272e",
+        "fields_from_selected_context": [
+          "runtime"
+        ],
+        "assertions": 7,
+        "firmware_flavor": "not-recorded",
+        "session_id": "1dd2681b89034ddaa15166ebe73c4237",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+        "evidence": "docs/evidence/2026-10-26-unit-controls-final/cardkb/evidence.zip",
+        "evidence_sha256": "de9844290daf42c81d3b6b218d08552641a96c584bad67be4cd40ea8024c2baa",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/key/result.json",
+        "report_sha256": "d85d6a320ffa95dd453fd0c253dacde67dd7311b9d5ee3c93395754cf4835011",
+        "artifact_sha256_verified": {},
+        "assertions": 8,
+        "firmware_flavor": "not-recorded",
+        "session_id": "90f52b3423a24dc9a82070e27725b004",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "6a671e93d6697148d5baeea96b6431b03aea3ca30732c6cff1b47572282349e0",
+        "evidence": "docs/evidence/2026-10-26-unit-io-final/key/evidence.zip",
+        "evidence_sha256": "8984f08a1b45102e5f12b7c1c2967569430bef36ba0a87e2fd54e844745366fc",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "cb54ea041c9d4330908a268d8f33e3cb"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-browser-final/key/report.json",
+        "report_sha256": "faacb2059585057cbc395d130218ec9d1fefa66d354492320051ebcceb1a6e09",
+        "artifact_sha256_verified": {},
+        "assertions": 9,
+        "firmware_flavor": "not-recorded",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "LEGACY INLINE",
+          "scope": "Uses the selected legacy report's embedded browser assertions; no separate detailed snapshot artifact is declared."
+        },
+        "session_id": "524b82d712174412a2e96fffb1371e57",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "ba0054fceac3d184e78cd1b483c2087580649746d45e0bb47cbb02546c7cfc73",
+        "evidence": "docs/evidence/2026-10-26-unit-browser-final/key/evidence.zip",
+        "evidence_sha256": "159347dfa276a0c7d93f35e82d5abd12ced8675cda92e74f0e51315a45d88a3f",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": true,
+          "pid": 59757,
+          "worker_generation_observed": null,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-browser-final/key/runtime-provenance.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "status": "NOT VERIFIED",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-controls-final/8encoder/result.json",
+        "report_sha256": "9eee7d41b033d2b9b075297b43746487e1cdab542c0e9f2525114720b43755d3",
+        "artifact_sha256_verified": {},
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json",
+        "context_report_sha256": "b9de53dfe500df46c6cbcd3468ea8007f7582c1c918e74f8e5b87803dabe272e",
+        "fields_from_selected_context": [
+          "runtime"
+        ],
+        "assertions": 6,
+        "firmware_flavor": "not-recorded",
+        "session_id": "f5d2c19fbf0441499e9b368feb480080",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "b48ab0c95b8519ed2146ead739794af53e4ab34dd2a2beef447ce80c9c021c0a",
+        "evidence": "docs/evidence/2026-10-26-unit-controls-final/8encoder/evidence.zip",
+        "evidence_sha256": "05e60032f85f78bb037783ab2d294904f7b6620541516c593ad9c622b48b9468",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "service-generation",
+          "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+          "direct_pid_observed": false,
+          "worker_generation": 5,
+          "anchor_sessions": [
+            "524b82d712174412a2e96fffb1371e57",
+            "61b997cb2ab9433d8f5067cb8badcd3a"
+          ],
+          "status": "NOT VERIFIED",
+          "reason": "strict-direct policy rejects indirect service-generation evidence"
+        }
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "no report explicitly selected"
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json",
+        "report_sha256": "ceb0cf07a8d67ca184c9db52c731e7ffa5b94f8820782f32d8942840b89f875b",
+        "artifact_sha256_verified": {},
+        "assertions": 21,
+        "firmware_flavor": "not-recorded",
+        "proof_kind": "browser-contract-only",
+        "firmware_execution": "NOT RUN"
+      }
+    }
+  ],
+  "errors": [],
+  "catalog": "platform/units/catalog.json",
+  "catalog_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+  "expected_units": 27,
+  "expected_runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "required_layers": [
+    "guest_controller",
+    "live_browser",
+    "bridge_contract"
+  ],
+  "selection_sha256": "d45c1eda0d5f828d87555040d8cfd8e6e7abd26e1e501efc9ddbce019956fb12"
+}

@@ -1,0 +1,21 @@
+test_apply_is_idempotent (test_unit_adc_fixture.UnitAdcFixtureTests.test_apply_is_idempotent) ... ok
+test_byte_binding_accepts_only_changes_outside_app (test_unit_adc_fixture.UnitAdcFixtureTests.test_byte_binding_accepts_only_changes_outside_app) ... ok
+test_exact_field_locations_and_cross_block_attenuation (test_unit_adc_fixture.UnitAdcFixtureTests.test_exact_field_locations_and_cross_block_attenuation) ... ok
+test_expected_input_uses_real_raw_expansion_and_idf_curve (test_unit_adc_fixture.UnitAdcFixtureTests.test_expected_input_uses_real_raw_expansion_and_idf_curve) ... ok
+test_frozen_bytes_never_read_default_file_and_hash_same_bytes (test_unit_adc_fixture.UnitAdcFixtureTests.test_frozen_bytes_never_read_default_file_and_hash_same_bytes) ... ok
+test_invalid_fixture_encoding_layout_metadata_and_binding_fail (test_unit_adc_fixture.UnitAdcFixtureTests.test_invalid_fixture_encoding_layout_metadata_and_binding_fail) ... ok
+test_invalid_oracle_inputs_are_rejected (test_unit_adc_fixture.UnitAdcFixtureTests.test_invalid_oracle_inputs_are_rejected) ... ok
+test_late_conflict_cannot_leave_partially_written_efuse (test_unit_adc_fixture.UnitAdcFixtureTests.test_late_conflict_cannot_leave_partially_written_efuse) ... ok
+test_malicious_field_layout_cannot_target_identity_or_security (test_unit_adc_fixture.UnitAdcFixtureTests.test_malicious_field_layout_cannot_target_identity_or_security) ... ok
+test_mismatched_references_and_init_offset_fail_atomically (test_unit_adc_fixture.UnitAdcFixtureTests.test_mismatched_references_and_init_offset_fail_atomically) ... ok
+test_non_calibration_bits_are_preserved_across_entire_buffer (test_unit_adc_fixture.UnitAdcFixtureTests.test_non_calibration_bits_are_preserved_across_entire_buffer) ... ok
+test_official_c_harness_reproduces_frozen_vectors (test_unit_adc_fixture.UnitAdcFixtureTests.test_official_c_harness_reproduces_frozen_vectors) ... ok
+test_python_oracle_matches_all_official_c_vectors (test_unit_adc_fixture.UnitAdcFixtureTests.test_python_oracle_matches_all_official_c_vectors) ... ok
+test_unknown_firmware_and_copied_metadata_are_rejected (test_unit_adc_fixture.UnitAdcFixtureTests.test_unknown_firmware_and_copied_metadata_are_rejected) ... ok
+test_unsigned_difference_decoding_matches_sar_reference (test_unit_adc_fixture.UnitAdcFixtureTests.test_unsigned_difference_decoding_matches_sar_reference) ... ok
+test_wrong_backend_buffer_type_and_size_fail_without_mutation (test_unit_adc_fixture.UnitAdcFixtureTests.test_wrong_backend_buffer_type_and_size_fail_without_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.659s
+
+OK

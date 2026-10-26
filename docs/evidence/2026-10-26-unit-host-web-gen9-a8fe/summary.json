@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-browser-host-integration",
+  "scope": "Exactly Button/Relay/ENV III on AtomS3R/StickS3/StopWatch. Other24 Units per host remain outside this batch. No physical-hardware claim.",
+  "status": "PASS",
+  "counts": {
+    "PASS": 9,
+    "FAIL": 0
+  },
+  "retries": 0,
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "expected_generation": 9,
+  "api_active_sessions_after_run": 0,
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "status": "PASS",
+      "session_id": "1e0e6202d6f945099a758dac387bb24c",
+      "firmware_sha256": "e59a6b09535e28d3a0224e4d7d9adcc3b17cc380d425c3cb31dd156954216090",
+      "evidence_sha256": "b46dd38f6856710bbaf264e9b20ad932045577e125b1217a87df721d0e854426",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/button/report.json",
+      "report_sha256": "604c4fcf1b1c1e95402141de15ca05c582a49df6083a520c2ae84f7b55a36c26"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "status": "PASS",
+      "session_id": "18007f73e66b4603a049fa0517b903db",
+      "firmware_sha256": "8e57c552d8d599bb448082f095721cee86ad5a98a04a5c9d582b2076e5b8b72f",
+      "evidence_sha256": "2b104c1370bf2da469ef5bc1b95195583c5291cd2a8f17a9c52f619b40d5b425",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/relay/report.json",
+      "report_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "status": "PASS",
+      "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+      "firmware_sha256": "8ae66c45103807b66044e7a508809e8431015824805676cdea5fd636d2bc0a03",
+      "evidence_sha256": "b8ffac6dc9d87b8aec8dd44112165172fbf8fa19030368321e9abd9edab0b060",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/env-iii/report.json",
+      "report_sha256": "fdcbd5269a7365d240e3bf87f803d6d43a6188a639be003b4313cc958f250318"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "status": "PASS",
+      "session_id": "07deec40cec54109a00201b11efdc73e",
+      "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+      "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+      "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "status": "PASS",
+      "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+      "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+      "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+      "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "status": "PASS",
+      "session_id": "316a5248034e4759a7da00f7b3969999",
+      "firmware_sha256": "3d1ac7110af04b0bcfc2ddc52064f818bafe3d6eb740984e35e81ddbfc9c4ea7",
+      "evidence_sha256": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json",
+      "report_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "status": "PASS",
+      "session_id": "b9732a338aae475f9a24d6010e9618f5",
+      "firmware_sha256": "c9175fe667649cf28997a9caacdc903d3ca415bc14a72654987c21049f0a28d7",
+      "evidence_sha256": "69b8fa2f43ddd0bc6d95493b9caee28fd223bf180716b4f87675803725263c4b",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+      "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "status": "PASS",
+      "session_id": "823b7f0ab2774f5c83ee3b41d61c1f0f",
+      "firmware_sha256": "3296947b7e495ef63f6e62bd7066c13afbfcd44a357ee99bb9c5fce65663ec81",
+      "evidence_sha256": "ecc5482efae761b01e7c0027a8e89395f25d33e698bc78544d4238fd79917335",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+      "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "status": "PASS",
+      "session_id": "8eeac2b285f343b68a6a54ff73442a3b",
+      "firmware_sha256": "6f7404b29519f6af8ca3ffb77cfdddeda265dffdae5319a10bece8322cb80110",
+      "evidence_sha256": "2c2362aa74d42e5de35b2544cee56ef8b2b308b98c15a7ecaa11faeec8c379bd",
+      "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+      "report_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678"
+    }
+  ],
+  "status_scope": "Strict functional/DOM/PID/ZIP result only; browser framing is separately PARTIAL.",
+  "visual_review": {
+    "file": "visual-review.json",
+    "sha256": "5aed7aade364dd71ee3930eaf8a935be18c2a9c1b7c653fb332ffdd2ba0d091f",
+    "native_frames": "PASS",
+    "native_frame_counts": {
+      "PASS": 9
+    },
+    "browser_framing": "PARTIAL",
+    "browser_framing_counts": {
+      "PASS": 6,
+      "PARTIAL": 3
+    },
+    "partial_scope": "Three ENV before-evidence browser screenshots: sticky-header occlusion at session card title/top edge. No full visual acceptance claim."
+  },
+  "source_freeze_boundary": {
+    "pre_execution_named_source_count": 25,
+    "omitted_direct_packaging_helpers": [
+      "tests/units/run_control_cases.py",
+      "tests/units/run_sensor_cases.py"
+    ],
+    "follow_up_scope": "Archive-time hashes and continuity to earlier frozen helper snapshots only; independent audit is separate. Do not backdate these helpers as pre-execution frozen."
+  }
+}

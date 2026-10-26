@@ -1,0 +1,117 @@
+{
+  "category": "frontend-orchestration-fault-contract",
+  "status": "FAIL",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27"
+  },
+  "cases": [
+    {
+      "name": "late-shell-demotion-restores-saved-frame",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ ''\n- 'generic-frame'\n"
+    },
+    {
+      "name": "late-shell-without-frame-restores-placeholder",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n'' !== 'placeholder'\n"
+    },
+    {
+      "name": "destroyed-visual-is-not-restored",
+      "status": "PASS"
+    },
+    {
+      "name": "stale-cleanup-does-not-replace-current-owner",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n'' !== 'new-owner'\n"
+    },
+    {
+      "name": "destroyed-load-cannot-clear-reused-host-owner",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ ''\n- 'new-session-owner'\n"
+    },
+    {
+      "name": "reallow-three-retries-only-latest-generation",
+      "status": "PASS"
+    },
+    {
+      "name": "late-shell-rejection-after-demotion-preserves-frame",
+      "status": "PASS"
+    },
+    {
+      "name": "late-rejection-cannot-clear-reused-host-after-destroy",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'generic-frame'\n- 'new-session-owner'\n"
+    },
+    {
+      "name": "late-rejection-preserves-new-shell-owner",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\nnull !== {}\n"
+    },
+    {
+      "name": "committed-image-failure-detaches-and-disposes-owned-shell",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n1 !== 2\n"
+    },
+    {
+      "name": "normal-release-adds-no-extra-post",
+      "status": "PASS"
+    },
+    {
+      "name": "lost-release-recovers-on-new-get-once",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "name": "array-recovery-preserves-unowned-held-index",
+      "status": "FAIL",
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n-   false,\n    true,\n+   true,\n    false\n  ]\n"
+    },
+    {
+      "name": "repress-cancels-previous-release-intent",
+      "status": "PASS"
+    },
+    {
+      "name": "stale-get-started-before-release-failure-is-not-recovery",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n2 !== 3\n"
+    },
+    {
+      "name": "already-applied-release-is-confirmed-without-retry",
+      "status": "PASS"
+    },
+    {
+      "name": "permanent-failure-is-bounded-and-keeps-intent",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n2 !== 3\n"
+    },
+    {
+      "name": "stopped-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "failed-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "dispose-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "queued-unavailable-does-not-consume-compensation-budget",
+      "status": "FAIL",
+      "error": "Cannot read properties of undefined (reading 'values')"
+    },
+    {
+      "name": "repress-while-compensation-is-queued-cancels-old-release",
+      "status": "PASS"
+    },
+    {
+      "name": "unowned-direct-input-does-not-create-recovery-or-echo",
+      "status": "PASS"
+    }
+  ]
+}

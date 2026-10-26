@@ -1,0 +1,8 @@
+Adding SPI flash device
+qemu-system-xtensa: terminating on signal 15 from pid 74417 (<unknown process>)
+Traceback (most recent call last):
+  File "tests/uiflow2/run_profile_ui_test.py", line 803, in <module>
+    main()
+  File "tests/uiflow2/run_profile_ui_test.py", line 767, in main
+    raise RuntimeError("input did not change the UIFlow2 frame")
+RuntimeError: input did not change the UIFlow2 frame

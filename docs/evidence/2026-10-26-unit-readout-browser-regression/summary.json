@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "category": "browser-only-unit-readout-regression",
+  "status": "PASS",
+  "captured_at": "2026-10-25T20:46:14.089361+00:00",
+  "scope": "Four post-promotion browser regressions plus historical shadow-candidate evidence. No new Device Service, firmware, QEMU or hardware execution.",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "device_service_calls": "NOT RUN",
+  "pre_execution_named_sources": 26,
+  "vendor_assets_hashed": 202,
+  "additional_suite_metadata_sources": 2,
+  "source_unchanged_during_regression": true,
+  "regressions": {
+    "model": {
+      "status": "PASS",
+      "controller_models": 14,
+      "unit_models": 27,
+      "report": "regression/model/report.json"
+    },
+    "panel": {
+      "status": "PASS",
+      "unit_schemas": 27,
+      "checks": 22,
+      "viewports": [
+        1440,
+        1024,
+        768,
+        390
+      ],
+      "report": "regression/panel/report.json"
+    },
+    "bridge": {
+      "status": "PASS",
+      "posts": 31,
+      "trusted_pointer_events": 12,
+      "report": "regression/bridge/contract-report.json"
+    },
+    "mount": {
+      "status": "PASS",
+      "initial_canvas": [
+        440,
+        420
+      ],
+      "resized_canvas": [
+        320,
+        420
+      ],
+      "report": "regression/mount/report.json"
+    }
+  },
+  "candidate": {
+    "browser_checks": 15,
+    "screenshots": 12,
+    "report": "candidate/rail-browser-only-results-5/report.json",
+    "manifest": "candidate/manifest.json",
+    "readout_placement_status": "PASS",
+    "overall_scene_status": "PARTIAL",
+    "boundary": "UNIT-HOST-15 OPEN: existing nested Unit housings overlap; no geometry-fidelity claim."
+  },
+  "independent_contract": {
+    "status": "PASS",
+    "cases": 17,
+    "report": "independent/annotation-contract.json"
+  },
+  "p2_continuity": {
+    "status": "PASS",
+    "unchanged_methods": 7,
+    "report": "candidate/p2-continuity.json"
+  },
+  "token_audit": {
+    "issues": 0,
+    "report": "candidate/rail-token-audit.json"
+  }
+}

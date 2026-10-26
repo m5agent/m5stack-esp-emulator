@@ -1,0 +1,2382 @@
+{
+  "schema_version": 1,
+  "category": "real-product-buzzer-audio-observer",
+  "status": "FAIL",
+  "session_id": "69e4366e0b824f86ac1407f61916f701",
+  "expected_firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_frequency": 2000,
+  "expected_duty_sequence": [
+    0,
+    25,
+    50,
+    75,
+    100,
+    0
+  ],
+  "duty_tolerance": 0.1,
+  "scope": "Constant-frequency duty updates when expected-frequency is fixed; no dynamic frequency-update claim. Electrical PWM audition, not physical acoustics.",
+  "hardware_execution": "NOT RUN",
+  "physical_acoustics_measured": false,
+  "browser_output_sink_muted": true,
+  "source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    ".work/unit-audio-live-20261026/observe-live-r2.mjs": "4be7d76be81d9d07f06c4a44b92909fa73b4963d664e470b63900aef2aca5dc5"
+  },
+  "opened_at": "2026-10-26T02:02:49.408Z",
+  "node_gets": [
+    {
+      "at": "2026-10-26T02:02:49.425Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-0-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:49.680Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-1-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:49.936Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-2-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:50.190Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-3-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:50.443Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-4-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:50.696Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-5-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:50.947Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-6-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:51.200Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-7-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:51.454Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-8-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:51.707Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-9-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:51.959Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-10-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:52.212Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-11-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:52.464Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-12-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:52.717Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-13-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:52.999Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-14-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:53.252Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-15-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:53.506Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-16-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:53.759Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-17-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:54.011Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-18-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:54.264Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-19-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:54.516Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-20-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:54.768Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-21-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:55.021Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-22-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:55.273Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-23-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:55.525Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-24-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:55.777Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-25-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:56.030Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-26-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:56.295Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-27-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:56.548Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-28-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:56.826Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-29-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:57.079Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-30-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:57.331Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-31-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:57.583Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-32-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:57.836Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-33-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:58.088Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-34-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:58.341Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-35-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:58.593Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-36-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:58.846Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-37-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:59.098Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-38-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:59.350Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-39-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:59.601Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-40-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:02:59.866Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-41-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:00.118Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-42-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:00.370Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-43-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:00.622Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-44-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:00.875Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-45-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:01.128Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-46-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:01.380Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-47-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:01.632Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-48-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:01.884Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-49-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:02.151Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-50-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:02.404Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-51-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:02.656Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-52-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:02.909Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-53-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:03.162Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-54-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:03.415Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-55-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:03.667Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-56-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:03.920Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-57-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:04.172Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-58-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:04.424Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-59-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:04.675Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-60-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:04.928Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-61-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:05.180Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-62-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:05.433Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-63-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:05.685Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-64-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:05.938Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-65-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:06.191Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-66-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:06.444Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-67-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:06.697Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-68-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:06.950Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-69-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:07.201Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-70-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:07.453Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-71-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:07.705Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-72-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:07.958Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-73-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:08.211Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-74-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:08.464Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-75-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:08.716Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-76-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:08.968Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-77-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:09.219Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-78-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:09.472Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-79-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:09.724Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-80-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:09.977Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-81-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:10.228Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-82-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:10.481Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-83-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:10.732Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-84-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:10.985Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-85-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:11.236Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-86-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:11.489Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-87-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:11.741Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-88-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:11.993Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-89-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:12.246Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-90-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:12.498Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-91-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:12.749Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-92-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:13.000Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-93-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:13.252Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-94-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:13.505Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-95-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:13.758Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-96-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:14.010Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-97-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:14.262Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-98-await-runtime.json",
+      "sha256": "32a3b752e4273806162e754392646edee754adb692fcec64ac0b59c3739dd288"
+    },
+    {
+      "at": "2026-10-26T02:03:14.515Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-99-await-runtime.json",
+      "sha256": "1497a5d386b7566a526314b2a730e538b941d8d86c39b3b5c7026d211a27799a"
+    },
+    {
+      "at": "2026-10-26T02:03:14.767Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-100-await-runtime.json",
+      "sha256": "1497a5d386b7566a526314b2a730e538b941d8d86c39b3b5c7026d211a27799a"
+    },
+    {
+      "at": "2026-10-26T02:03:15.020Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-101-await-runtime.json",
+      "sha256": "1497a5d386b7566a526314b2a730e538b941d8d86c39b3b5c7026d211a27799a"
+    },
+    {
+      "at": "2026-10-26T02:03:15.272Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-102-await-runtime.json",
+      "sha256": "1497a5d386b7566a526314b2a730e538b941d8d86c39b3b5c7026d211a27799a"
+    },
+    {
+      "at": "2026-10-26T02:03:15.525Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-103-await-runtime.json",
+      "sha256": "b9bd39c9fe757ef839bd14fd0e37a7f5d39577eebb56f7b35197b85b52291e56"
+    },
+    {
+      "at": "2026-10-26T02:03:15.777Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-104-await-runtime.json",
+      "sha256": "96bb70f4eb0ea5fa911b182e2402f555a3fc2af11f2020bd97bfbc9d30c33fe9"
+    },
+    {
+      "at": "2026-10-26T02:03:16.030Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-105-await-runtime.json",
+      "sha256": "7f7830958d7a82875e3bfb18016a807276c9f4b11e3e5af2a1d5becba7a5a22c"
+    },
+    {
+      "at": "2026-10-26T02:03:16.283Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-106-await-runtime.json",
+      "sha256": "bc6e542d6f48ab8b89b08cc72b14071c41cf51b9a55ea8dc7bfb656c631bfebe"
+    },
+    {
+      "at": "2026-10-26T02:03:16.303Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701",
+      "status": 200,
+      "body": "session-107-after-runtime-hash.json",
+      "sha256": "bc6e542d6f48ab8b89b08cc72b14071c41cf51b9a55ea8dc7bfb656c631bfebe"
+    }
+  ],
+  "units_gets": [
+    {
+      "at": "2026-10-26T02:02:50.082Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701/units",
+      "status": 200,
+      "body": "units-0000.json",
+      "sha256": "10f6d9b42ed0252eb640238d35f0a1658548c604015f1485d3d9e418f3c297d7"
+    },
+    {
+      "at": "2026-10-26T02:03:16.626Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701/units",
+      "status": 200,
+      "body": "units-0001.json",
+      "sha256": "7c6aa2820efabbe10601222c62d03ecdfbd2a9ae7dff539bf806a96f1f1ca4ec"
+    },
+    {
+      "at": "2026-10-26T02:03:17.187Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/69e4366e0b824f86ac1407f61916f701/units",
+      "status": 200,
+      "body": "units-0002.json",
+      "sha256": "2611656943ea882f920e524310355c41c38c4a102d5544fe38c4e199e1a81568"
+    }
+  ],
+  "session_metadata_gets": [
+    {
+      "at": "2026-10-26T02:02:50.079Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:04.034Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:04.118Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:06.119Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:08.116Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:10.116Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:12.117Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:14.117Z",
+      "status": 200,
+      "raw_response_sha256": "033d71684aa20b613780f6a69ada29d3b1259c1f7a40131fc815d2f017e44cd4",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:03:16.122Z",
+      "status": 200,
+      "raw_response_sha256": "30ceee5d800f1f87cea0746c45674d4ceb0acfc43f566c09ea653df79f88b966",
+      "selected_session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 50330,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "esp-emu-esptool",
+          "chip": "esp32s3",
+          "flash_size": 16777216,
+          "verified": true,
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T02:03:15.422292+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    }
+  ],
+  "forbidden_requests": [],
+  "blocked_non_target_reads": 69,
+  "snapshots": [
+    {
+      "phase": "default-muted",
+      "at": "2026-10-26T02:03:16.637Z",
+      "session": {
+        "session_id": "69e4366e0b824f86ac1407f61916f701",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 50330,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "esp-emu-esptool",
+          "chip": "esp32s3",
+          "flash_size": 16777216,
+          "verified": true,
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:02:49.205188+00:00",
+        "expires_at": "2026-10-26T02:17:49.205191+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T02:03:15.422292+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      },
+      "panel_session_id": "69e4366e0b824f86ac1407f61916f701",
+      "source": "live",
+      "frozen": true,
+      "definition": {
+        "id": "buzzer",
+        "name": "Buzzer",
+        "sku": "U132",
+        "visual_asset": {
+          "entry": "src/units/buzzer/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/buzzer",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "passive buzzer",
+            "status": "officially-documented"
+          },
+          {
+            "part": "NPN driver",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-pwm",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "PWM signal",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "NC",
+              "direction": "none"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Yellow wire accepts a PWM square wave. Official product recommends 4kHz at half duty and explicitly forbids a sustained DC high. Official BuzzerUnit delegates to Haptic at 4000Hz.",
+          "registers": [],
+          "gaps": [
+            "A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+          ]
+        },
+        "inputs": {},
+        "outputs": {
+          "frequency-hz": {
+            "type": "number",
+            "label": "驱动频率",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "Hz",
+            "minimum": 0,
+            "readOnly": true
+          },
+          "duty-pct": {
+            "type": "number",
+            "label": "占空比",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/buzzer",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/buzzer.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {},
+          "state": {
+            "frequency-hz": {
+              "property": "frequency-hz"
+            },
+            "duty-pct": {
+              "property": "duty-pct"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+            "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+            "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 8,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+        }
+      },
+      "unit": {
+        "id": "external1",
+        "unit_id": "buzzer",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "frequency-hz": 0,
+          "duty-pct": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 0
+        },
+        "errors": {}
+      },
+      "mounted": true,
+      "attaching": 0,
+      "audio": {
+        "enabled": false,
+        "pending": false,
+        "disposed": false,
+        "signal": {
+          "frequency": 0,
+          "duty": 0
+        },
+        "message": "观测未确认 · 静音",
+        "context_state": null,
+        "sample_rate": null,
+        "oscillator": null,
+        "frequency": null,
+        "gain": null
+      },
+      "context_states": [],
+      "toggle_pressed": "false"
+    }
+  ],
+  "phases": [],
+  "actions": [
+    {
+      "at": "2026-10-26T02:03:17.170Z",
+      "kind": "trusted-product-audio-enable-click",
+      "product_mutation": false
+    }
+  ],
+  "errors": [],
+  "instrumentation": "Actual sessions page; append read-only state references. No replacement of product APIs, functions, schemas or payloads. Native analyser is a passive disconnected observation branch; no firmware/controller writes.",
+  "browser_version": "156.0.8078.48",
+  "runtime_provenance": {
+    "session_id": "69e4366e0b824f86ac1407f61916f701",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 50330,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 10,
+    "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live explicit-session GET PID, macOS ps comm, live executable SHA256, then exact PID/firmware/worker rebind. No runtime started by observer."
+  },
+  "error": "AssertionError: observed frequency differs from fixed-frequency contract",
+  "final_snapshot": {
+    "at": "2026-10-26T02:03:17.655Z",
+    "session": {
+      "session_id": "69e4366e0b824f86ac1407f61916f701",
+      "device_id": "cores3",
+      "state": "running",
+      "pid": 50330,
+      "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "source_artifacts": [
+        "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+      ],
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "buzzer",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "esp-emu-esptool",
+        "chip": "esp32s3",
+        "flash_size": 16777216,
+        "verified": true,
+        "session_isolated_copy": true
+      },
+      "flash_retained": true,
+      "serial_bytes": 326,
+      "created_at": "2026-10-26T02:02:49.205188+00:00",
+      "expires_at": "2026-10-26T02:17:49.205191+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-26T02:03:15.422292+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": false,
+      "last_device_state_at": null,
+      "completed_at": null,
+      "event_count": 7,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 10,
+        "lease_active": true
+      }
+    },
+    "panel_session_id": "69e4366e0b824f86ac1407f61916f701",
+    "source": "live",
+    "frozen": true,
+    "definition": {
+      "id": "buzzer",
+      "name": "Buzzer",
+      "sku": "U132",
+      "visual_asset": {
+        "entry": "src/units/buzzer/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/buzzer",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "passive buzzer",
+          "status": "officially-documented"
+        },
+        {
+          "part": "NPN driver",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-pwm",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "PWM signal",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Yellow wire accepts a PWM square wave. Official product recommends 4kHz at half duty and explicitly forbids a sustained DC high. Official BuzzerUnit delegates to Haptic at 4000Hz.",
+        "registers": [],
+        "gaps": [
+          "A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "frequency-hz": {
+          "type": "number",
+          "label": "驱动频率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "Hz",
+          "minimum": 0,
+          "readOnly": true
+        },
+        "duty-pct": {
+          "type": "number",
+          "label": "占空比",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "%",
+          "minimum": 0,
+          "maximum": 100,
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/buzzer",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/buzzer.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3"
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "inputs": {},
+        "state": {
+          "frequency-hz": {
+            "property": "frequency-hz"
+          },
+          "duty-pct": {
+            "property": "duty-pct"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+          "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+          "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 8,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "NOT RUN",
+            "device_id": "atoms3r",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "sticks3": {
+            "status": "NOT RUN",
+            "device_id": "sticks3",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "stopwatch": {
+            "status": "NOT RUN",
+            "device_id": "stopwatch",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          }
+        }
+      },
+      "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+      }
+    },
+    "unit": {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {},
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "errors": {}
+    },
+    "mounted": true,
+    "attaching": 0,
+    "audio": {
+      "enabled": true,
+      "pending": false,
+      "disposed": false,
+      "signal": {
+        "frequency": 0,
+        "duty": 0
+      },
+      "message": "已启用 · 当前无交流 PWM",
+      "context_state": "running",
+      "sample_rate": 48000,
+      "oscillator": null,
+      "frequency": null,
+      "gain": null
+    },
+    "context_states": [
+      "running"
+    ],
+    "toggle_pressed": "true"
+  },
+  "completed_at": "2026-10-26T02:03:17.656Z"
+}

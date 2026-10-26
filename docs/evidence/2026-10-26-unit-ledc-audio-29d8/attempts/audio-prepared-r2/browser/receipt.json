@@ -1,0 +1,1064 @@
+{
+  "schema_version": 1,
+  "category": "real-product-buzzer-audio-observer",
+  "status": "FAIL",
+  "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+  "expected_firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_frequency": 2000,
+  "expected_duty_sequence": [
+    0,
+    25,
+    50,
+    75,
+    100,
+    0
+  ],
+  "duty_tolerance": 0.1,
+  "scope": "Constant-frequency duty updates when expected-frequency is fixed; no dynamic frequency-update claim. Electrical PWM audition, not physical acoustics.",
+  "hardware_execution": "NOT RUN",
+  "physical_acoustics_measured": false,
+  "browser_output_sink_muted": true,
+  "source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    ".work/unit-audio-live-20261026/observe-live-r2.mjs": "4be7d76be81d9d07f06c4a44b92909fa73b4963d664e470b63900aef2aca5dc5"
+  },
+  "opened_at": "2026-10-26T02:05:45.344Z",
+  "node_gets": [
+    {
+      "at": "2026-10-26T02:05:45.363Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0",
+      "status": 200,
+      "body": "session-0-await-runtime.json",
+      "sha256": "c404331c50282eb259fd172af476b6d9c8ddb83c32f1dcc151ffd761f388f86a"
+    },
+    {
+      "at": "2026-10-26T02:05:45.383Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0",
+      "status": 200,
+      "body": "session-1-after-runtime-hash.json",
+      "sha256": "c404331c50282eb259fd172af476b6d9c8ddb83c32f1dcc151ffd761f388f86a"
+    }
+  ],
+  "units_gets": [
+    {
+      "at": "2026-10-26T02:05:46.175Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0/units",
+      "status": 200,
+      "body": "units-0000.json",
+      "sha256": "ef9da1680356c7d3a9d317009c7c9c4d3ed436d56ec31c76e16a3e1132e574be"
+    },
+    {
+      "at": "2026-10-26T02:06:00.133Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0/units",
+      "status": 200,
+      "body": "units-0001.json",
+      "sha256": "14e5fd0ea0258722ca25a0f0958662df61135db75b030c9089e96242bdfb1807"
+    },
+    {
+      "at": "2026-10-26T02:06:00.360Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0/units",
+      "status": 200,
+      "body": "units-0002.json",
+      "sha256": "9d492e1ab8a669f1b9ad8d2e5f95fc9c86f1a15d78b48922053136137fedcf72"
+    },
+    {
+      "at": "2026-10-26T02:06:00.872Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0/units",
+      "status": 200,
+      "body": "units-0003.json",
+      "sha256": "aa74de56ed2084f5d24a7537e66c06a36dd8c2f08f50fd844c79547cfe57d895"
+    },
+    {
+      "at": "2026-10-26T02:06:01.508Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/f91d4242c48f404aa231cbe5ee315be0/units",
+      "status": 200,
+      "body": "units-0004.json",
+      "sha256": "f082d08ccfbf7cdb5dde655d6917069c6922210ea11fead2650ca54027692ea8"
+    }
+  ],
+  "session_metadata_gets": [
+    {
+      "at": "2026-10-26T02:05:46.155Z",
+      "status": 200,
+      "raw_response_sha256": "e45e3bceb5a05ce106008e50d97c79986615d2c462309103b6b1977ddce39358",
+      "selected_session": {
+        "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 51066,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:05:43.328855+00:00",
+        "expires_at": "2026-10-26T02:20:43.328870+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:06:00.140Z",
+      "status": 200,
+      "raw_response_sha256": "7616b4e521393ce418e0279badab486aa4a114903e782598ea15ac5f325ea89a",
+      "selected_session": {
+        "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 51066,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:05:43.328855+00:00",
+        "expires_at": "2026-10-26T02:20:43.328870+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T02:05:59.674999+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T02:05:46.181728+00:00",
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T02:06:00.213Z",
+      "status": 200,
+      "raw_response_sha256": "39caa8bb683d65eaa9c1ed40649d8ffe352f2676f4b26ce63e72b0540bb37b30",
+      "selected_session": {
+        "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 51066,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:05:43.328855+00:00",
+        "expires_at": "2026-10-26T02:20:43.328870+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T02:05:59.674999+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T02:06:00.150999+00:00",
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      }
+    }
+  ],
+  "forbidden_requests": [],
+  "blocked_non_target_reads": 36,
+  "snapshots": [
+    {
+      "phase": "default-muted",
+      "at": "2026-10-26T02:06:00.182Z",
+      "session": {
+        "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+        "device_id": "cores3",
+        "state": "running",
+        "pid": 51066,
+        "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "source_artifacts": [
+          "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+        ],
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "buzzer",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+          "session_isolated_copy": true
+        },
+        "flash_retained": true,
+        "serial_bytes": 326,
+        "created_at": "2026-10-26T02:05:43.328855+00:00",
+        "expires_at": "2026-10-26T02:20:43.328870+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T02:05:59.674999+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T02:05:46.181728+00:00",
+        "completed_at": null,
+        "event_count": 7,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 10,
+          "lease_active": true
+        }
+      },
+      "panel_session_id": "f91d4242c48f404aa231cbe5ee315be0",
+      "source": "live",
+      "frozen": true,
+      "definition": {
+        "id": "buzzer",
+        "name": "Buzzer",
+        "sku": "U132",
+        "visual_asset": {
+          "entry": "src/units/buzzer/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/buzzer",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "passive buzzer",
+            "status": "officially-documented"
+          },
+          {
+            "part": "NPN driver",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-pwm",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "PWM signal",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "NC",
+              "direction": "none"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Yellow wire accepts a PWM square wave. Official product recommends 4kHz at half duty and explicitly forbids a sustained DC high. Official BuzzerUnit delegates to Haptic at 4000Hz.",
+          "registers": [],
+          "gaps": [
+            "A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+          ]
+        },
+        "inputs": {},
+        "outputs": {
+          "frequency-hz": {
+            "type": "number",
+            "label": "驱动频率",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "Hz",
+            "minimum": 0,
+            "readOnly": true
+          },
+          "duty-pct": {
+            "type": "number",
+            "label": "占空比",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/buzzer",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/buzzer.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {},
+          "state": {
+            "frequency-hz": {
+              "property": "frequency-hz"
+            },
+            "duty-pct": {
+              "property": "duty-pct"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+            "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+            "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 8,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "buzzer",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+        }
+      },
+      "unit": {
+        "id": "external1",
+        "unit_id": "buzzer",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "frequency-hz": 0,
+          "duty-pct": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 0
+        },
+        "errors": {}
+      },
+      "mounted": true,
+      "attaching": 0,
+      "audio": {
+        "enabled": false,
+        "pending": false,
+        "disposed": false,
+        "signal": {
+          "frequency": 0,
+          "duty": 0
+        },
+        "message": "观测未确认 · 静音",
+        "context_state": null,
+        "sample_rate": null,
+        "oscillator": null,
+        "frequency": null,
+        "gain": null
+      },
+      "context_states": [],
+      "toggle_pressed": "false"
+    }
+  ],
+  "phases": [],
+  "actions": [
+    {
+      "at": "2026-10-26T02:06:01.498Z",
+      "kind": "trusted-product-audio-enable-click",
+      "product_mutation": false
+    }
+  ],
+  "errors": [],
+  "instrumentation": "Actual sessions page; append read-only state references. No replacement of product APIs, functions, schemas or payloads. Native analyser is a passive disconnected observation branch; no firmware/controller writes.",
+  "runtime_provenance": {
+    "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 51066,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 10,
+    "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live explicit-session GET PID, macOS ps comm, live executable SHA256, then exact PID/firmware/worker rebind. No runtime started by observer."
+  },
+  "browser_version": "156.0.8078.48",
+  "error": "AssertionError: observed frequency differs from fixed-frequency contract",
+  "final_snapshot": {
+    "at": "2026-10-26T02:06:02.075Z",
+    "session": {
+      "session_id": "f91d4242c48f404aa231cbe5ee315be0",
+      "device_id": "cores3",
+      "state": "running",
+      "pid": 51066,
+      "firmware_id": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+      "source_artifacts": [
+        "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7"
+      ],
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "buzzer",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "cache",
+        "verified": true,
+        "flash_size": 16777216,
+        "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+        "session_isolated_copy": true
+      },
+      "flash_retained": true,
+      "serial_bytes": 326,
+      "created_at": "2026-10-26T02:05:43.328855+00:00",
+      "expires_at": "2026-10-26T02:20:43.328870+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-26T02:05:59.674999+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": true,
+      "last_device_state_at": "2026-10-26T02:06:00.150999+00:00",
+      "completed_at": null,
+      "event_count": 7,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 10,
+        "lease_active": true
+      }
+    },
+    "panel_session_id": "f91d4242c48f404aa231cbe5ee315be0",
+    "source": "live",
+    "frozen": true,
+    "definition": {
+      "id": "buzzer",
+      "name": "Buzzer",
+      "sku": "U132",
+      "visual_asset": {
+        "entry": "src/units/buzzer/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/buzzer",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "passive buzzer",
+          "status": "officially-documented"
+        },
+        {
+          "part": "NPN driver",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "gpio-pwm",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "PWM signal",
+            "direction": "host-to-unit"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "none"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Yellow wire accepts a PWM square wave. Official product recommends 4kHz at half duty and explicitly forbids a sustained DC high. Official BuzzerUnit delegates to Haptic at 4000Hz.",
+        "registers": [],
+        "gaps": [
+          "A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "frequency-hz": {
+          "type": "number",
+          "label": "驱动频率",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "Hz",
+          "minimum": 0,
+          "readOnly": true
+        },
+        "duty-pct": {
+          "type": "number",
+          "label": "占空比",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "%",
+          "minimum": 0,
+          "maximum": 100,
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/buzzer",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/buzzer.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3"
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "inputs": {},
+        "state": {
+          "frequency-hz": {
+            "property": "frequency-hz"
+          },
+          "duty-pct": {
+            "property": "duty-pct"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+          "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+          "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 8,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "NOT RUN",
+            "device_id": "atoms3r",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "sticks3": {
+            "status": "NOT RUN",
+            "device_id": "sticks3",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "stopwatch": {
+            "status": "NOT RUN",
+            "device_id": "stopwatch",
+            "unit_id": "buzzer",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          }
+        }
+      },
+      "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A frequency/duty observer does not establish acoustic sound pressure or spectral fidelity."
+      }
+    },
+    "unit": {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {},
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "frequency-hz": 0,
+        "duty-pct": 0,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "errors": {}
+    },
+    "mounted": true,
+    "attaching": 0,
+    "audio": {
+      "enabled": true,
+      "pending": false,
+      "disposed": false,
+      "signal": {
+        "frequency": 0,
+        "duty": 0
+      },
+      "message": "已启用 · 当前无交流 PWM",
+      "context_state": "running",
+      "sample_rate": 48000,
+      "oscillator": null,
+      "frequency": null,
+      "gain": null
+    },
+    "context_states": [
+      "running"
+    ],
+    "toggle_pressed": "true"
+  },
+  "completed_at": "2026-10-26T02:06:02.077Z"
+}

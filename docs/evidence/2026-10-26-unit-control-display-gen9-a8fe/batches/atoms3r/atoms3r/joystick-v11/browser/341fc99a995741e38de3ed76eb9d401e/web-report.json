@@ -1,0 +1,5100 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "341fc99a995741e38de3ed76eb9d401e",
+  "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+  "device_id": "atoms3r",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "joystick-v11",
+      "port_id": "custom",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T21:46:21.555Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+    "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T21:46:21.530Z",
+  "session_created_at": "2026-10-25T21:46:21.552200+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T21:46:37.427Z",
+      "instance": "external1",
+      "field": "x-raw",
+      "kind": "fill-and-tab",
+      "value": 31,
+      "request": {
+        "id": "external1",
+        "values": {
+          "x-raw": 31
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T21:46:37.489Z",
+      "instance": "external1",
+      "field": "y-raw",
+      "kind": "fill-and-tab",
+      "value": 240,
+      "request": {
+        "id": "external1",
+        "values": {
+          "y-raw": 240
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T21:46:37.545Z",
+      "instance": "external1",
+      "field": "button-raw",
+      "kind": "fill-and-tab",
+      "value": 1,
+      "request": {
+        "id": "external1",
+        "values": {
+          "button-raw": 1
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T21:46:37.913Z",
+      "instance": "external1",
+      "field": "x-raw",
+      "kind": "fill-and-tab",
+      "value": 255,
+      "request": {
+        "id": "external1",
+        "values": {
+          "x-raw": 255
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T21:46:37.995Z",
+      "instance": "external1",
+      "field": "y-raw",
+      "kind": "fill-and-tab",
+      "value": 0,
+      "request": {
+        "id": "external1",
+        "values": {
+          "y-raw": 0
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T21:46:38.044Z",
+      "instance": "external1",
+      "field": "button-raw",
+      "kind": "fill-and-tab",
+      "value": 0,
+      "request": {
+        "id": "external1",
+        "values": {
+          "button-raw": 0
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T21:46:37.426Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.413542+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 31,
+              "y-raw": 128,
+              "button-raw": 0,
+              "transactions": 105,
+              "read-bytes": 153,
+              "written-bytes": 51,
+              "input-events": 1,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "x-raw": 31
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:37.488Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.470280+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 31,
+              "y-raw": 240,
+              "button-raw": 0,
+              "transactions": 105,
+              "read-bytes": 153,
+              "written-bytes": 51,
+              "input-events": 2,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "y-raw": 240
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:37.544Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.534551+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 31,
+              "y-raw": 240,
+              "button-raw": 1,
+              "transactions": 111,
+              "read-bytes": 162,
+              "written-bytes": 54,
+              "input-events": 3,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "button-raw": 1
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:37.912Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.903170+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 240,
+              "button-raw": 1,
+              "transactions": 123,
+              "read-bytes": 180,
+              "written-bytes": 60,
+              "input-events": 4,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "x-raw": 255
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:37.993Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.956246+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 1,
+              "transactions": 129,
+              "read-bytes": 189,
+              "written-bytes": 63,
+              "input-events": 5,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "y-raw": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:38.043Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:38.038677+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 135,
+              "read-bytes": 198,
+              "written-bytes": 66,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "button-raw": 0
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T21:46:33.143Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "flashing",
+        "source": "unavailable",
+        "units": [],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:36.488Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:36.485261+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 128,
+              "y-raw": 128,
+              "button-raw": 0,
+              "transactions": 57,
+              "read-bytes": 81,
+              "written-bytes": 27,
+              "input-events": 0,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:36.996Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:36.992914+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 128,
+              "y-raw": 128,
+              "button-raw": 0,
+              "transactions": 81,
+              "read-bytes": 117,
+              "written-bytes": 39,
+              "input-events": 0,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:37.502Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:37.498986+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 31,
+              "y-raw": 240,
+              "button-raw": 0,
+              "transactions": 105,
+              "read-bytes": 153,
+              "written-bytes": 51,
+              "input-events": 2,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:38.009Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:38.005287+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 1,
+              "transactions": 129,
+              "read-bytes": 189,
+              "written-bytes": 63,
+              "input-events": 5,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:38.515Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:38.511330+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 153,
+              "read-bytes": 225,
+              "written-bytes": 75,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:39.024Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:39.017783+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 177,
+              "read-bytes": 261,
+              "written-bytes": 87,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:39.534Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:39.529539+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 207,
+              "read-bytes": 306,
+              "written-bytes": 102,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:40.042Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:40.037609+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 231,
+              "read-bytes": 342,
+              "written-bytes": 114,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T21:46:40.550Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/341fc99a995741e38de3ed76eb9d401e/units",
+      "status": 200,
+      "response": {
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T21:46:40.544340+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 255,
+              "read-bytes": 378,
+              "written-bytes": 126,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "joystick-v11",
+            "name": "Joystick v1.1",
+            "sku": "U024-C",
+            "visual_asset": {
+              "entry": "src/units/joystick-v11/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "ATmega8A",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                82
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+              "registers": [
+                {
+                  "register": "0x52",
+                  "length": 3,
+                  "encoding": "X:uint8,Y:uint8,button:uint8"
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "x-raw": {
+                "type": "integer",
+                "label": "X轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "y-raw": {
+                "type": "integer",
+                "label": "Y轴",
+                "default": 128,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw8",
+                "minimum": 0,
+                "maximum": 255,
+                "readOnly": false
+              },
+              "button-raw": {
+                "type": "integer",
+                "label": "按键原始值",
+                "default": 0,
+                "default_source": "synthetic-test-fixture",
+                "unit": "raw",
+                "minimum": 0,
+                "maximum": 1,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                }
+              },
+              "state": {
+                "x-raw": {
+                  "property": "x-raw"
+                },
+                "y-raw": {
+                  "property": "y-raw"
+                },
+                "button-raw": {
+                  "property": "button-raw"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "i2c-address": {
+                  "property": "i2c-address"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+                "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+                "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T21:46:37.579Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 31,
+              "y-raw": 240,
+              "button-raw": 1,
+              "transactions": 111,
+              "read-bytes": 162,
+              "written-bytes": 54,
+              "input-events": 3,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "x-raw",
+              "source": "输入 fixture",
+              "text": "31",
+              "rgb": []
+            },
+            {
+              "field": "y-raw",
+              "source": "输入 fixture",
+              "text": "240",
+              "rgb": []
+            },
+            {
+              "field": "button-raw",
+              "source": "输入 fixture",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "111",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "162",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "54",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "82",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/tilt-x",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/tilt-y",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T21:46:38.076Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 135,
+              "read-bytes": 198,
+              "written-bytes": 66,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "x-raw",
+              "source": "输入 fixture",
+              "text": "255",
+              "rgb": []
+            },
+            {
+              "field": "y-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "button-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "135",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "198",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "66",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "82",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/tilt-x",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/tilt-y",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T21:46:38.548Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 153,
+              "read-bytes": 225,
+              "written-bytes": 75,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "x-raw",
+              "source": "输入 fixture",
+              "text": "255",
+              "rgb": []
+            },
+            {
+              "field": "y-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "button-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "153",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "225",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "75",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "82",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/tilt-x",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/tilt-y",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T21:46:40.584Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "joystick-v11",
+            "port_id": "custom",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "x-raw": 255,
+              "y-raw": 0,
+              "button-raw": 0,
+              "transactions": 255,
+              "read-bytes": 378,
+              "written-bytes": 126,
+              "input-events": 6,
+              "output-transitions": 0,
+              "i2c-address": 82
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "x-raw",
+              "source": "输入 fixture",
+              "text": "255",
+              "rgb": []
+            },
+            {
+              "field": "y-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "button-raw",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "255",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "378",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "126",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "6",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "i2c-address",
+              "source": "控制器状态",
+              "text": "82",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/press",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/tilt-x",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/tilt-y",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -20,
+                  20
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot_preparation": {
+        "scroll_x": 0,
+        "scroll_y": 0
+      },
+      "screenshot_capture": {
+        "method": "cdp-document-clip-without-element-scroll",
+        "clip": {
+          "x": 400,
+          "y": 163,
+          "width": 980,
+          "height": 1229
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        }
+      },
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "flashing",
+  "opening_screenshot": "opened-flashing.png",
+  "closed_at": "2026-10-25T21:46:40.920Z"
+}

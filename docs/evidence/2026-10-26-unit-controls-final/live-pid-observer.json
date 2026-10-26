@@ -1,0 +1,21 @@
+{
+  "command": [
+    "tests/units/run_control_cases.py",
+    "--case",
+    "all",
+    "--out-dir",
+    ".work/control-unit-validation-final-20261026"
+  ],
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "observed": {},
+  "errors": [
+    "joystick-v11: no unique live QEMU pid",
+    "encoder: no unique live QEMU pid",
+    "8encoder: no unique live QEMU pid",
+    "cardkb: no unique live QEMU pid",
+    "rfid2: no unique live QEMU pid"
+  ],
+  "runner_exit_code": 0,
+  "observer_status": "INCOMPLETE: ten-second observation window expired during firmware flashing; not a controller testcase failure",
+  "monitor_exit_code": 1
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T18:40:02.685800+00:00",
+  "status": "FAIL",
+  "validation": "guest-boot-control",
+  "device_id": "stopwatch",
+  "unit_id": "boot-control",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "attachments": [],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      466,
+      466
+    ],
+    "text": [
+      80,
+      110,
+      306
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StopWatch",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 8519680,
+    "size": 8253440,
+    "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+  },
+  "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+  "firmware_sha256": "75281ce40a5562aed6be502c4703121ec2cfe83756fb1474be68e58d4d0cb485",
+  "expected_size": [
+    466,
+    466
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "f365f10c05a0d070d3690d2aabb35312a75bc1c249c4cd4f9db4a89183c8fb02",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true
+  },
+  "required_markers": [],
+  "injections": [],
+  "session_id": "48c5acbe9e1d4b018ceff45abefa77a1",
+  "error": "RuntimeError: guest exception; inspect serial.txt",
+  "evidence_sha256": "80e101d8a83647156a02e882bfc02854b0f5a05f94a1484da36f2578d30d54bf",
+  "evidence_error": "evidence was not captured before stop",
+  "stop_error": "retained host frame is empty"
+}

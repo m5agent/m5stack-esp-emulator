@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "captured_date": "2026-10-26",
+  "category": "virtual-device-validation",
+  "hardware_execution": "NOT RUN",
+  "scope": "Five controls through official guest drivers, routed SoC I2C and visible /api/v1 sessions. Not a 27-Unit or physical-hardware completion claim.",
+  "cases": [
+    {
+      "unit_id": "joystick-v11",
+      "runtime": "qemu",
+      "profile": "cores3",
+      "status": "PASS",
+      "session_id": "a636eef35d1d4d1db645daabbca527f8",
+      "firmware_sha256": "9bfb1329a728619a2436bdf8d643cbd19c53b66eeedd52505bd19dd1694dfd53",
+      "evidence_sha256": "bf6931db70845ed0009f97935a882a943403a0147ea865b1a5f979c12524f89c",
+      "report": "joystick-v11-settled/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "runtime": "qemu",
+      "profile": "cores3",
+      "status": "PASS",
+      "session_id": "640e0ca7036c466d81ed33637fdb7e67",
+      "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+      "evidence_sha256": "e432b1aad4f3b527c97c301c33070e2306061b3da3835320bf2abe205355979b",
+      "report": "encoder/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "runtime": "qemu",
+      "profile": "cores3",
+      "status": "PASS",
+      "session_id": "9dde170bae7b4d09a07a960c89720590",
+      "firmware_sha256": "b1f2c8b57a02d9cc3b658bcfe9730894137b9f447a6ce7825989656ce3c5ba19",
+      "evidence_sha256": "df920be65ef43f34cc828952489c2a485e095088add4741f263f4a439ee7a3aa",
+      "report": "8encoder/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "runtime": "qemu",
+      "profile": "cores3",
+      "status": "PASS",
+      "session_id": "a4b95cd132454e64a9e1795de4575be7",
+      "firmware_sha256": "5dd0aea55a699d193724fad098915f02c5374aabbd9eac367e1fb2c95049a128",
+      "evidence_sha256": "b97d0e5644522f60dd147e25bef1942adf7dccb938b49a9dbc9482661efb3abe",
+      "report": "cardkb/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "runtime": "qemu",
+      "profile": "cores3",
+      "status": "PASS",
+      "session_id": "1b0ebd5e4b9c46299033304f78019624",
+      "firmware_sha256": "0cc559c29c521cacd0444666ea1254c4767f8da73a65b8024e75ea0f4244a1b7",
+      "evidence_sha256": "92c8d3003ad61240bc9f461bae28c478919850ecab4c5684edcd5854c741c809",
+      "report": "rfid2/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    }
+  ],
+  "preserved_failed_attempt": "rfid2-attempt1/result.json",
+  "older_joystick_capture": "joystick-v11/result.json"
+}

@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "required_layers": [
+    "guest_controller",
+    "live_browser",
+    "bridge_contract"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-first3-final/env-iii/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/pir/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/ultrasonic-i2c/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/ultrasonic-i2c/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/rgb/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/angle/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/color/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/color/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/tof/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/tof/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/light/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-first3-final/relay/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-controls-final/joystick-v11/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        },
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json"
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/dual-button/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-first3-final/button/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-first3-final/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-browser-final/button/report.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        }
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/ncir/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/ncir/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/heart/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/heart/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-controls-final/encoder/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        },
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json"
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/thermal/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/thermal/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-sensors-final/tvoc/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-sensors-final/tvoc/runtime-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      },
+      "reason": "Official IR callback has not passed; TX/native getters and diagnostic attempts do not establish the full Unit path."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/hub/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-controls-final/rfid2/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        },
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json"
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/rs485/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/buzzer/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/fan/result.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-io-final/fan/runtime-provenance.json"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-browser-final/fan/report.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-browser-final/fan/runtime-provenance.json"
+        }
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/limit/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-controls-final/cardkb/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        },
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json"
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-io-final/key/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-io-final/runtime-worker-provenance.json"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-browser-final/key/report.json",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-browser-final/key/runtime-provenance.json"
+        }
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-controls-final/8encoder/result.json",
+        "runtime_proof": {
+          "kind": "service-generation",
+          "path": "docs/evidence/2026-10-26-unit-controls-final/runtime-worker-provenance.json"
+        },
+        "context_report": "docs/evidence/2026-10-26-unit-controls-final/summary.json"
+      },
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-browser/report.json"
+      }
+    }
+  ]
+}

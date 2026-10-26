@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-25T19:22:15.529178+00:00",
+  "status": "PROMOTED; real virtual-device validation in progress",
+  "scope": "Host QMP startup ownership and failed-handshake cleanup; does not rewrite historical FAIL records or grant a new firmware/hardware PASS",
+  "service_generation": 8,
+  "service_provenance": "docs/evidence/unit-service-generation8-20261026.json",
+  "service_provenance_sha256": "141d906fb256e49610a554663a83fe04dbaf6af87e34d3a30be925b57f4371b2",
+  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "promoted_source_sha256": {
+    "platform/tools/device_service.py": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+    "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+    "platform/tests/test_device_service_qmp_startup.py": "9519aeec9fc0bc110a119f143dc0abb4874656e3af0545979b303cfb499a3506"
+  },
+  "historical_ab": {
+    "unchanged": true,
+    "baseline_service_sha256": "3138b1ff48d7b79d3815d74f78a8bfea1c03a7ec8359787bcf0bd0b85cbc7a93",
+    "candidate_service_sha256": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+    "baseline_tests": {
+      "PASS": 3,
+      "FAIL": 2
+    },
+    "candidate_tests": {
+      "PASS": 5
+    }
+  },
+  "root_followup_cleanup": {
+    "file": "tests/uiflow2/run_profile_ui_test.py",
+    "change": "QMP.__init__ closes its newly created socket on any handshake exception and re-raises the original exception. No timeout/retry budget is increased.",
+    "reason": "AF_UNIX busy-peer regression exposed an unclosed failed-handshake descriptor/ResourceWarning.",
+    "test_change": "The promoted regression retains each failed socket and requires fileno() == -1 after the failed handshake."
+  },
+  "verification": {
+    "command": "python3.12 -W error::ResourceWarning -m unittest discover -s platform/tests -p test_device_service_qmp_startup.py -v",
+    "tests": 5,
+    "status": "PASS",
+    "log": "promoted-warning-strict.log",
+    "hardware_validation": "NOT RUN",
+    "qemu_session_started_by_this_archive_step": false
+  }
+}

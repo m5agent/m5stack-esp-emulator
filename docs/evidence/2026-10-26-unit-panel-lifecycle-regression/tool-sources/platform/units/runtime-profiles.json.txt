@@ -1,0 +1,1286 @@
+{
+  "schema_version": 1,
+  "units": {
+    "env-iii": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+        "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "pir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "motion": {
+          "property": "motion"
+        }
+      },
+      "state": {
+        "motion": {
+          "property": "motion"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "ultrasonic-i2c": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "rgb": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {},
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "angle": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "voltage-mv": {
+          "property": "voltage-mv"
+        }
+      },
+      "state": {
+        "voltage-mv": {
+          "property": "voltage-mv"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "color": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "clear-raw": {
+          "property": "clear-raw"
+        },
+        "red-raw": {
+          "property": "red-raw"
+        },
+        "green-raw": {
+          "property": "green-raw"
+        },
+        "blue-raw": {
+          "property": "blue-raw"
+        }
+      },
+      "state": {
+        "clear-raw": {
+          "property": "clear-raw"
+        },
+        "red-raw": {
+          "property": "red-raw"
+        },
+        "green-raw": {
+          "property": "green-raw"
+        },
+        "blue-raw": {
+          "property": "blue-raw"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/color/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "tof": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "light": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "relay": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {},
+      "state": {
+        "output-level": {
+          "property": "output-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+        "report": "docs/evidence/2026-10-26-unit-runtime/relay/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "joystick-v11": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        }
+      },
+      "state": {
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "9bfb1329a728619a2436bdf8d643cbd19c53b66eeedd52505bd19dd1694dfd53",
+        "report": "docs/evidence/2026-10-26-unit-controls-service/joystick-v11-settled/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "dual-button": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "red-pressed": {
+          "property": "red-pressed"
+        },
+        "blue-pressed": {
+          "property": "blue-pressed"
+        }
+      },
+      "state": {
+        "red-pressed": {
+          "property": "red-pressed"
+        },
+        "blue-pressed": {
+          "property": "blue-pressed"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "button": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "input-level": {
+          "property": "input-level"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+        "report": "docs/evidence/2026-10-26-unit-runtime/button/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "ncir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "ambient-c": {
+          "property": "ambient-c"
+        },
+        "object-c": {
+          "property": "object-c"
+        }
+      },
+      "state": {
+        "ambient-c": {
+          "property": "ambient-c"
+        },
+        "object-c": {
+          "property": "object-c"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/ncir/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "heart": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "ir-sample": {
+          "property": "ir-sample"
+        },
+        "red-sample": {
+          "property": "red-sample"
+        }
+      },
+      "state": {
+        "ir-sample": {
+          "property": "ir-sample"
+        },
+        "red-sample": {
+          "property": "red-sample"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "encoder": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "counter": {
+          "property": "counter"
+        },
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "counter": {
+          "property": "counter"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "mode": {
+          "property": "mode"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "b93941b230d5e1f9c21c21ddfed29170a9fc303c71816ff57a70a9dca107065b",
+        "report": "docs/evidence/2026-10-26-unit-controls-service/encoder/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "thermal": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "eeprom-hex": {
+          "property": "eeprom-hex"
+        },
+        "frame0-hex": {
+          "property": "frame0-hex"
+        },
+        "frame1-hex": {
+          "property": "frame1-hex"
+        },
+        "control-word": {
+          "property": "control-word"
+        }
+      },
+      "state": {
+        "eeprom-hex": {
+          "property": "eeprom-hex"
+        },
+        "frame0-hex": {
+          "property": "frame0-hex"
+        },
+        "frame1-hex": {
+          "property": "frame1-hex"
+        },
+        "control-word": {
+          "property": "control-word"
+        },
+        "raw-fixture-ready": {
+          "property": "raw-fixture-ready"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/thermal/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "tvoc": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "eco2-ppm": {
+          "property": "eco2-ppm"
+        },
+        "tvoc-ppb": {
+          "property": "tvoc-ppb"
+        },
+        "raw-h2": {
+          "property": "raw-h2"
+        },
+        "raw-ethanol": {
+          "property": "raw-ethanol"
+        }
+      },
+      "state": {
+        "eco2-ppm": {
+          "property": "eco2-ppm"
+        },
+        "tvoc-ppb": {
+          "property": "tvoc-ppb"
+        },
+        "raw-h2": {
+          "property": "raw-h2"
+        },
+        "raw-ethanol": {
+          "property": "raw-ethanol"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+        "report": "docs/evidence/2026-10-26-unit-sensors-service/tvoc/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "ir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "rx-pulses-us": {
+          "property": "rx-pulses-us"
+        }
+      },
+      "state": {
+        "rx-pulses-us": {
+          "property": "rx-pulses-us"
+        },
+        "tx-pulses-us": {
+          "property": "tx-pulses-us"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "hub": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {},
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "rfid2": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "card-present": {
+          "property": "card-present"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "card-data-hex": {
+          "property": "card-data-hex"
+        }
+      },
+      "state": {
+        "card-present": {
+          "property": "card-present"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "card-data-hex": {
+          "property": "card-data-hex"
+        },
+        "selected": {
+          "property": "selected"
+        },
+        "authenticated": {
+          "property": "authenticated"
+        },
+        "fifo-level": {
+          "property": "fifo-level"
+        },
+        "card-reads": {
+          "property": "card-reads"
+        },
+        "card-writes": {
+          "property": "card-writes"
+        },
+        "command-errors": {
+          "property": "command-errors"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "0cc559c29c521cacd0444666ea1254c4767f8da73a65b8024e75ea0f4244a1b7",
+        "report": "docs/evidence/2026-10-26-unit-controls-service/rfid2/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "rs485": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "rx-hex": {
+          "property": "rx-hex"
+        }
+      },
+      "state": {
+        "rx-hex": {
+          "property": "rx-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "buzzer": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {},
+      "state": {
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "duty-pct": {
+          "property": "duty-pct"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "fan": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {},
+      "state": {
+        "duty-pct": {
+          "property": "duty-pct"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "limit": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "cardkb": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        }
+      },
+      "state": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        },
+        "key-ids": {
+          "property": "key-ids"
+        },
+        "queued-keys": {
+          "property": "queued-keys"
+        },
+        "modifier-mode": {
+          "property": "modifier-mode"
+        },
+        "key-overflows": {
+          "property": "key-overflows"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "5dd0aea55a699d193724fad098915f02c5374aabbd9eac367e1fb2c95049a128",
+        "report": "docs/evidence/2026-10-26-unit-controls-service/cardkb/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    },
+    "key": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      }
+    },
+    "8encoder": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+      "inputs": {
+        "counters": {
+          "property": "counters"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "switch-on": {
+          "property": "switch-on"
+        }
+      },
+      "state": {
+        "counters": {
+          "property": "counters"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "switch-on": {
+          "property": "switch-on"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "increments": {
+          "property": "increments"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "b1f2c8b57a02d9cc3b658bcfe9730894137b9f447a6ce7825989656ce3c5ba19",
+        "report": "docs/evidence/2026-10-26-unit-controls-service/8encoder/result.json",
+        "hardware": "NOT RUN",
+        "full_unit_matrix": "NOT RUN"
+      }
+    }
+  }
+}

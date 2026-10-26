@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "source_sha256": "3138b1ff48d7b79d3815d74f78a8bfea1c03a7ec8359787bcf0bd0b85cbc7a93",
+  "test_sha256": "cf579390c84833c0f9ff6ed0107113540e0a20dc98d66860c6d7b6a66703cf2e",
+  "scope": "Normal unittest against saved source; no QEMU, port 8787 or live session",
+  "tests_run": 5,
+  "failures": [
+    {
+      "test": "test_http_connection_before_launch_is_reused (test_device_service_qmp_startup.StartupQMPTests.test_http_connection_before_launch_is_reused)",
+      "trace": "Traceback (most recent call last):\n  File \"<repo>/.work/qmp-startup-race-candidate-20261026/test_device_service_qmp_startup.py\", line 107, in test_http_connection_before_launch_is_reused\n    self.assertEqual(self.errors, [])\nAssertionError: Lists differ: [ServiceError('QEMU QMP socket did not bec[50 chars]ng')] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\nServiceError('QEMU QMP socket did not become ready: second QMP connection cannot get greeting')\n\n- [ServiceError('QEMU QMP socket did not become ready: second QMP connection cannot get greeting')]\n+ []\n"
+    },
+    {
+      "test": "test_launch_handshake_blocks_concurrent_http_initializer (test_device_service_qmp_startup.StartupQMPTests.test_launch_handshake_blocks_concurrent_http_initializer)",
+      "trace": "Traceback (most recent call last):\n  File \"<repo>/.work/qmp-startup-race-candidate-20261026/test_device_service_qmp_startup.py\", line 165, in test_launch_handshake_blocks_concurrent_http_initializer\n    self.assertEqual(http_observed_busy_lock, [True])\nAssertionError: Lists differ: [False] != [True]\n\nFirst differing element 0:\nFalse\nTrue\n\n- [False]\n+ [True]\n"
+    }
+  ],
+  "errors": [],
+  "status": "FAIL"
+}

@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "category": "independent-offline-annotation-candidate-review",
+  "status": "FINDINGS",
+  "source_sha256": {
+    "platform/web/unit-annotations.js": "7f1659ab5be8c24fdf3f49f55c39385c0f0574d16155f71629f121beb6f87702",
+    "platform/web/unit-panel.js": "2de6fc1038840ddd593a4bdc0cd4283ad8a2392a408acfb6de673fb6ad5849ff",
+    "platform/web/model-shell.js": "cfa023260a4f85ed5c654a1056a9cefcb5fd26c4040893812b89e17a0d265e63"
+  },
+  "checks": [
+    {
+      "name": "valid_schema_direction_unit_and_actual_values",
+      "status": "PASS"
+    },
+    {
+      "name": "missing_fields_never_fill_defaults",
+      "status": "PASS"
+    },
+    {
+      "name": "nonfinite_and_type_mismatch_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "persisted_outer_source_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "terminal_session_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "unavailable_and_errors_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "range_invalid_values_rejected",
+      "status": "FAIL",
+      "observed": {
+        "title": "ENV III",
+        "groups": [
+          {
+            "direction": "inputs",
+            "label": "输入 fixture",
+            "rows": [
+              {
+                "field": "temperature-c",
+                "label": "温度",
+                "value": "999",
+                "unit": "degC"
+              },
+              {
+                "field": "humidity-pct",
+                "label": "相对湿度",
+                "value": "101",
+                "unit": "%RH"
+              },
+              {
+                "field": "pressure-pa",
+                "label": "气压",
+                "value": "-1",
+                "unit": "Pa"
+              }
+            ]
+          }
+        ],
+        "status": ""
+      }
+    },
+    {
+      "name": "per_unit_persisted_source_rejected",
+      "status": "FAIL",
+      "observed": {
+        "title": "ENV III",
+        "groups": [
+          {
+            "direction": "inputs",
+            "label": "输入 fixture",
+            "rows": [
+              {
+                "field": "temperature-c",
+                "label": "温度",
+                "value": "18.75",
+                "unit": "degC"
+              },
+              {
+                "field": "humidity-pct",
+                "label": "相对湿度",
+                "value": "45.5",
+                "unit": "%RH"
+              },
+              {
+                "field": "pressure-pa",
+                "label": "气压",
+                "value": "103200",
+                "unit": "Pa"
+              }
+            ]
+          }
+        ],
+        "status": ""
+      }
+    },
+    {
+      "name": "optional_annotation_failure_does_not_misreport_ack",
+      "status": "FAIL",
+      "uncertain": true,
+      "notes": [
+        "实时模型状态",
+        "输入未确认：injected optional annotation layout failure"
+      ],
+      "state_after_ack": {
+        "id": "u",
+        "unit_id": "button",
+        "available": true,
+        "source": "guest-qom",
+        "errors": {},
+        "properties": {
+          "pressed": false
+        }
+      }
+    },
+    {
+      "name": "nonfrozen_inventory_fallback_cannot_create_annotation_values",
+      "status": "FAIL",
+      "frozenDefinitions": false,
+      "observed": {
+        "title": "ENV III",
+        "groups": [
+          {
+            "direction": "inputs",
+            "label": "输入 fixture",
+            "rows": [
+              {
+                "field": "temperature-c",
+                "label": "温度",
+                "value": "18.75",
+                "unit": "MUTABLE-INVENTORY-UNIT"
+              },
+              {
+                "field": "humidity-pct",
+                "label": "相对湿度",
+                "value": "45.5",
+                "unit": "%RH"
+              },
+              {
+                "field": "pressure-pa",
+                "label": "气压",
+                "value": "103200",
+                "unit": "Pa"
+              }
+            ]
+          }
+        ],
+        "status": ""
+      }
+    },
+    {
+      "name": "empty_nonlive_payload_invalidates_old_notes",
+      "status": "PASS",
+      "observed": {
+        "title": "ENV III",
+        "groups": [],
+        "status": "状态不可用 · 数值未确认"
+      },
+      "stateSource": "persisted"
+    },
+    {
+      "name": "p2_release_methods_exactly_retained",
+      "status": "PASS"
+    },
+    {
+      "name": "nested_detach_and_dispose_static_guards_present",
+      "status": "PASS"
+    }
+  ],
+  "findings": [
+    {
+      "id": "range-validation",
+      "priority": 2,
+      "path": "platform/web/unit-annotations.js",
+      "detail": "scalar() checks type/finiteness only. Actual frozen ENV min/max bounds reject temperature999, humidity101 and pressure-1, but all three are rendered as readback values.",
+      "observed": {
+        "title": "ENV III",
+        "groups": [
+          {
+            "direction": "inputs",
+            "label": "输入 fixture",
+            "rows": [
+              {
+                "field": "temperature-c",
+                "label": "温度",
+                "value": "999",
+                "unit": "degC"
+              },
+              {
+                "field": "humidity-pct",
+                "label": "相对湿度",
+                "value": "101",
+                "unit": "%RH"
+              },
+              {
+                "field": "pressure-pa",
+                "label": "气压",
+                "value": "-1",
+                "unit": "Pa"
+              }
+            ]
+          }
+        ],
+        "status": ""
+      }
+    },
+    {
+      "id": "annotation-exception-crosses-input-ack",
+      "priority": 1,
+      "path": "platform/web/unit-panel.js",
+      "detail": "paint() invokes updateUnitAnnotation outside try. A renderer/annotation exception is caught by send() as input failure after the successful payload was already received and state changed; release intent becomes uncertain and the UI says input unconfirmed.",
+      "observed": {
+        "uncertain": true,
+        "notes": [
+          "实时模型状态",
+          "输入未确认：injected optional annotation layout failure"
+        ],
+        "state_after_ack": {
+          "id": "u",
+          "unit_id": "button",
+          "available": true,
+          "source": "guest-qom",
+          "errors": {},
+          "properties": {
+            "pressed": false
+          }
+        }
+      }
+    },
+    {
+      "id": "inventory-fallback-is-not-frozen",
+      "priority": 2,
+      "path": "platform/web/unit-panel.js",
+      "detail": "When session /units lacks definitions, init() uses inventory.units, leaves frozenDefinitions=false, yet paint() still renders annotations with mutable inventory direction/labels/units. The source boundary promises frozen session definitions.",
+      "observed": {
+        "title": "ENV III",
+        "groups": [
+          {
+            "direction": "inputs",
+            "label": "输入 fixture",
+            "rows": [
+              {
+                "field": "temperature-c",
+                "label": "温度",
+                "value": "18.75",
+                "unit": "MUTABLE-INVENTORY-UNIT"
+              },
+              {
+                "field": "humidity-pct",
+                "label": "相对湿度",
+                "value": "45.5",
+                "unit": "%RH"
+              },
+              {
+                "field": "pressure-pa",
+                "label": "气压",
+                "value": "103200",
+                "unit": "Pa"
+              }
+            ]
+          }
+        ],
+        "status": ""
+      }
+    }
+  ],
+  "notes": [
+    "Per-unit source mismatch and empty successful payload observations are defensive gaps; current Device Service normally returns complete units with matching envelope source.",
+    "The browser-only fixture path and original replay do not establish new guest/controller/hardware execution.",
+    "No candidate or product files were changed."
+  ]
+}

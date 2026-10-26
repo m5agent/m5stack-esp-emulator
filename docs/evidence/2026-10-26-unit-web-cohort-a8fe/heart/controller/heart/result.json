@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T19:09:15.994709+00:00",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "unit_id": "heart",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "heart_reset_self_clear": true,
+    "heart_fifo_initially_empty": true,
+    "heart_fifo_overflow": true,
+    "heart_fifo_four_byte_advance": true,
+    "heart_fifo_sample_order": true,
+    "heart_reset_clears_fifo": true,
+    "heart_shutdown_stops_sampling": true,
+    "official_driver_initial_fixture": true,
+    "same_guest_input_1": true,
+    "same_guest_input_2": true,
+    "live_controller_state": true,
+    "real_i2c_data_plane": true,
+    "frame_available": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_retained": true,
+    "history_last_frame_retained": true
+  },
+  "injections": [
+    {
+      "sequence": 1,
+      "values": {
+        "ir-sample": 41000,
+        "red-sample": 36000
+      },
+      "guest_observed": true
+    },
+    {
+      "sequence": 2,
+      "values": {
+        "ir-sample": 12000,
+        "red-sample": 9000
+      },
+      "guest_observed": true
+    }
+  ],
+  "official_drivers": {
+    "tcs3472.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/tcs3472.py",
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "51fdda96f146fd43caf2beb93a57e37dd464ec9e"
+    },
+    "vl53l0x.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/vl53l0x.py",
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "cf33e20904068d7dd6ba45df11e45aea2f2a1ba0"
+    },
+    "mlx90614.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/mlx90614.py",
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "5eb72fdd0adbd3827c1624edacc71c280ba7dca8"
+    },
+    "mlx90640.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/mlx90640.py",
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "90ad59cf507a7b091b5acdb04de0c6587c71b9ff"
+    },
+    "sgp30.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/sgp30.py",
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "4dc5810305cecdfacfd7caabfae69d18d7720ca4"
+    },
+    "heart.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/heart.py",
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "73487baaea9056a8d51fa7d713d2ca8a64d6c844"
+    },
+    "ultrasonic_i2c.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ultrasonic_i2c.py",
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "eb046a3105edbbee0b4406d6cba4c84e1d4e42b2"
+    },
+    "pahub.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pahub.py",
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "efee99a778854f74301a867830f12da96b063579"
+    },
+    "unit_helper.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/unit_helper.py",
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26",
+      "upstream_git_blob_sha": "9c2142c48fab23b54d5b4d878f341409c92dc74b"
+    }
+  },
+  "runner_sha256": {
+    "tests/units/run_sensor_cases.py": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "tests/units/run_control_cases.py": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842"
+  },
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "main.py": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+    "probe_config.py": "886aa1ce729f5bf9ef8d6f974c69182aecfe1c51a56fe72262095194e88ba90e",
+    "probe_logging.py": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7",
+    "sensor_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sensor_drivers/heart.py": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+    "sensor_drivers/mlx90614.py": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+    "sensor_drivers/mlx90640.py": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+    "sensor_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "sensor_drivers/sgp30.py": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+    "sensor_drivers/tcs3472.py": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+    "sensor_drivers/ultrasonic_i2c.py": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+    "sensor_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "sensor_drivers/vl53l0x.py": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+    "sensor_probe.py": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+  },
+  "port_id": "port-a",
+  "expected_size": [
+    320,
+    240
+  ],
+  "packaged_python_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "main.py": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+    "probe_config.py": "886aa1ce729f5bf9ef8d6f974c69182aecfe1c51a56fe72262095194e88ba90e",
+    "probe_logging.py": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7",
+    "sensor_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sensor_drivers/heart.py": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+    "sensor_drivers/mlx90614.py": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+    "sensor_drivers/mlx90640.py": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+    "sensor_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "sensor_drivers/sgp30.py": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+    "sensor_drivers/tcs3472.py": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+    "sensor_drivers/ultrasonic_i2c.py": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+    "sensor_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "sensor_drivers/vl53l0x.py": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+    "sensor_probe.py": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+  },
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "vfs_prog_size": 32,
+  "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+  "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+  "unit_state": {
+    "session_id": "ee194b1994e84ae48f09d2b3809e1f2f",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T19:09:33.391269+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "heart",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {
+          "ir-sample": 40000,
+          "red-sample": 35000
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "ir-sample": 12000,
+          "red-sample": 9000,
+          "transactions": 4407,
+          "read-bytes": 8689,
+          "written-bytes": 2225,
+          "input-events": 6,
+          "output-transitions": 0,
+          "samples-generated": 1440,
+          "crc-errors": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "heart",
+        "name": "Heart Rate",
+        "sku": "U029",
+        "visual_asset": {
+          "entry": "src/units/heart/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/heart",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "MAX30100",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            87
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+          "registers": [
+            {
+              "interrupt_status": "0x00",
+              "interrupt_enable": "0x01",
+              "fifo_write": "0x02",
+              "fifo_overflow": "0x03",
+              "fifo_read": "0x04",
+              "fifo_data": "0x05",
+              "mode": "0x06",
+              "spo2_config": "0x07",
+              "led_config": "0x09",
+              "temperature": "0x16/0x17",
+              "revision": "0xFE",
+              "part_id": "0xFF",
+              "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+            }
+          ],
+          "gaps": [
+            "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+            "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+          ]
+        },
+        "inputs": {
+          "ir-sample": {
+            "type": "integer",
+            "label": "红外样本",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw16",
+            "minimum": 0,
+            "maximum": 65535,
+            "readOnly": false
+          },
+          "red-sample": {
+            "type": "integer",
+            "label": "红光样本",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw16",
+            "minimum": 0,
+            "maximum": 65535,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+            "checked_at": "2026-10-26",
+            "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+            "checked_at": "2026-10-26",
+            "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+            "checked_at": "2026-10-26",
+            "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "ir-sample": {
+              "property": "ir-sample"
+            },
+            "red-sample": {
+              "property": "red-sample"
+            }
+          },
+          "state": {
+            "ir-sample": {
+              "property": "ir-sample"
+            },
+            "red-sample": {
+              "property": "red-sample"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "samples-generated": {
+              "property": "samples-generated",
+              "path": "/chip"
+            },
+            "crc-errors": {
+              "property": "crc-errors",
+              "path": "/chip"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+            "report": "docs/evidence/2026-10-26-unit-sensors-service/heart/result.json",
+            "hardware": "NOT RUN",
+            "full_unit_matrix": "NOT RUN"
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "controller_counters": {
+    "transactions": 4409,
+    "read-bytes": 8697,
+    "written-bytes": 2228,
+    "samples-generated": 1442,
+    "crc-errors": 0
+  },
+  "frame_sha256": "5c4f603c4d92fe7c39e2cfa4f0dba9c09e65bbf3f1769071de0312e4003cd8b7",
+  "serial_sha256": "cf4721d39e81b3911e05b8aab34ab8e0c07fe8a8f6d24c0ec6734e31289041d8",
+  "evidence_sha256": "69dce7487e18d126df94fc7b3a0b5195c82f9d957849e2beff2d486be7381046",
+  "evidence_summary": {
+    "files": [
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "png_bytes": 1717,
+      "source": "live",
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    },
+    "session_id": "ee194b1994e84ae48f09d2b3809e1f2f"
+  }
+}

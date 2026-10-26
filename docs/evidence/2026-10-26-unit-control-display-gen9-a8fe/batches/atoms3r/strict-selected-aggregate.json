@@ -1,0 +1,1148 @@
+{
+  "schema_version": 1,
+  "generator": "unit-batch-evidence-checker",
+  "checker_sha256": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+  "status": "PARTIAL",
+  "strict_direct": true,
+  "layers": {
+    "guest_controller": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "live_browser": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "bridge_contract": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 0,
+        "NOT RUN": 27,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 0,
+      "direct_pid_units": 0,
+      "indirect_service_generation_units": 0
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/report.json",
+        "report_sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/opened-flashing.png": "3915455c3c44a2b3a1e8b9b785a1175229c4f9d682a01388a9b8c7b72e45698d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/runtime-provenance.json": "76c43f3f9d15dcbb9509e2d4c216337b75a4899f21d3e232fc11dc036bf384fe",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/web-report.json": "ad6053cb90052166fcb39b9393bbc4016c1c86a6f86ecaff5e668335675ac28a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/frame.png": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/result.json": "cc3a2098d317b605abe3e1197f9527a4746ce05576590aa5ae1bfc814054e9be",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/serial.txt": "28bbc0f5f4c081ac920c06a2f555977db31b779595162384d99b14a6d9176c97",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/history-frame.png": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+        },
+        "assertions": 4,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/result.json",
+          "report_sha256": "cc3a2098d317b605abe3e1197f9527a4746ce05576590aa5ae1bfc814054e9be",
+          "assertions": 4
+        },
+        "wrapper_assertions": 14,
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2017,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/report.json",
+        "report_sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/opened-flashing.png": "3915455c3c44a2b3a1e8b9b785a1175229c4f9d682a01388a9b8c7b72e45698d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/runtime-provenance.json": "76c43f3f9d15dcbb9509e2d4c216337b75a4899f21d3e232fc11dc036bf384fe",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/web-report.json": "ad6053cb90052166fcb39b9393bbc4016c1c86a6f86ecaff5e668335675ac28a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/frame.png": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/result.json": "cc3a2098d317b605abe3e1197f9527a4746ce05576590aa5ae1bfc814054e9be",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/serial.txt": "28bbc0f5f4c081ac920c06a2f555977db31b779595162384d99b14a6d9176c97",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/history-frame.png": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": {
+              "width": 980,
+              "height": 1229
+            }
+          }
+        },
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2017,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/joystick-v11/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "341fc99a995741e38de3ed76eb9d401e",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+        "evidence_sha256": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/report.json",
+        "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/opened-flashing.png": "9956930995b6d5556b782a899f8f94b165fa3e2649a2a30fdf44d820fe3e2a1e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/runtime-provenance.json": "91cabb15759073b0a3ff566cea5038be0c74092427d9e591695ec37c483f65b4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/web-report.json": "e793b39d6c6e0c2e169316a24ae0ef9650a73d3a6b5bca00b1f79bf27759b17b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/evidence.zip": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/frame.png": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/result.json": "1927b300ca06b9a3750bd7122a32506701b8993328d9e3078a99e7dfc78e04ee",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/serial.txt": "0953a935e9a61b5aa27e041fe836f978628c84c9bacc0ea2a7e84fcb4d374aa3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/history-frame.png": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+        },
+        "assertions": 5,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/result.json",
+          "report_sha256": "1927b300ca06b9a3750bd7122a32506701b8993328d9e3078a99e7dfc78e04ee",
+          "assertions": 5
+        },
+        "wrapper_assertions": 14,
+        "session_id": "4f2898598476490495fc371582535e40",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2119,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/report.json",
+        "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/opened-flashing.png": "9956930995b6d5556b782a899f8f94b165fa3e2649a2a30fdf44d820fe3e2a1e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/runtime-provenance.json": "91cabb15759073b0a3ff566cea5038be0c74092427d9e591695ec37c483f65b4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/web-report.json": "e793b39d6c6e0c2e169316a24ae0ef9650a73d3a6b5bca00b1f79bf27759b17b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/evidence.zip": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/frame.png": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/result.json": "1927b300ca06b9a3750bd7122a32506701b8993328d9e3078a99e7dfc78e04ee",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/serial.txt": "0953a935e9a61b5aa27e041fe836f978628c84c9bacc0ea2a7e84fcb4d374aa3",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/history-frame.png": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png": {
+              "width": 980,
+              "height": 1211
+            }
+          }
+        },
+        "session_id": "4f2898598476490495fc371582535e40",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2119,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "4f2898598476490495fc371582535e40",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+        "evidence_sha256": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/report.json",
+        "report_sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/opened-flashing.png": "3d4e455c165a0d366bed3199b6263816fea26c34e4955b742acd256c3f3a954b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/runtime-provenance.json": "790b167dd0cb5055090f08f71f84089765f27eedfe6cf5c9186565b895aab221",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/web-report.json": "99084152b250a9d382072593d081bd0f29d348cdffaa5f4cdba1d046d9e727bf",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/evidence.zip": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/frame.png": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/result.json": "113478e1517005c5fa7c2c9c0d61c13e834fe28bd04aa6e3668644a007683343",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/serial.txt": "1ac6ab7bd343878ae175cebf83e0c6905b22ebd052ad669834000d7bc370874b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/history-frame.png": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/result.json",
+          "report_sha256": "113478e1517005c5fa7c2c9c0d61c13e834fe28bd04aa6e3668644a007683343",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "a442cb873a484af39f49fa8e868dd997",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3396,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/report.json",
+        "report_sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/opened-flashing.png": "3d4e455c165a0d366bed3199b6263816fea26c34e4955b742acd256c3f3a954b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/runtime-provenance.json": "790b167dd0cb5055090f08f71f84089765f27eedfe6cf5c9186565b895aab221",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/web-report.json": "99084152b250a9d382072593d081bd0f29d348cdffaa5f4cdba1d046d9e727bf",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/evidence.zip": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/frame.png": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/result.json": "113478e1517005c5fa7c2c9c0d61c13e834fe28bd04aa6e3668644a007683343",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/serial.txt": "1ac6ab7bd343878ae175cebf83e0c6905b22ebd052ad669834000d7bc370874b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/history-frame.png": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/web-report.json",
+          "snapshots": 6,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": {
+              "width": 980,
+              "height": 1698
+            }
+          }
+        },
+        "session_id": "a442cb873a484af39f49fa8e868dd997",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 3396,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/rfid2/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "a442cb873a484af39f49fa8e868dd997",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+        "evidence_sha256": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/report.json",
+        "report_sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/opened-flashing.png": "0bce08e55b80570545c4199973c6a426fb50d597e9222b1386c73b4929cf7cfb",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/runtime-provenance.json": "a560e41b25172933b9a8c36f3e8afc88772d3cfa1282be40c65c547e56efe746",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/web-report.json": "1c074cf26dee45bb50b60ec83dfb2950774d025f69eeba88b6aa7bb7b8f59b30",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/evidence.zip": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/frame.png": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/result.json": "62a03c773a5d6cc5859a634c8bd0353e1017674a19e3ebb15bf4938bce0fc00c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/serial.txt": "effd5faac8456f273a6c8d8325766c542642ac366bfc0172d0dba5bfbe470cf5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/history-frame.png": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/result.json",
+          "report_sha256": "62a03c773a5d6cc5859a634c8bd0353e1017674a19e3ebb15bf4938bce0fc00c",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "06bdca0887c24ddf9137209a3992b98b",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2419,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/report.json",
+        "report_sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/opened-flashing.png": "0bce08e55b80570545c4199973c6a426fb50d597e9222b1386c73b4929cf7cfb",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/runtime-provenance.json": "a560e41b25172933b9a8c36f3e8afc88772d3cfa1282be40c65c547e56efe746",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/web-report.json": "1c074cf26dee45bb50b60ec83dfb2950774d025f69eeba88b6aa7bb7b8f59b30",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/evidence.zip": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/frame.png": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/result.json": "62a03c773a5d6cc5859a634c8bd0353e1017674a19e3ebb15bf4938bce0fc00c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/serial.txt": "effd5faac8456f273a6c8d8325766c542642ac366bfc0172d0dba5bfbe470cf5",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/history-frame.png": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/web-report.json",
+          "snapshots": 412,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": {
+              "width": 980,
+              "height": 2201
+            }
+          }
+        },
+        "session_id": "06bdca0887c24ddf9137209a3992b98b",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2419,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/cardkb/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "06bdca0887c24ddf9137209a3992b98b",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+        "evidence_sha256": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/report.json",
+        "report_sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/opened-flashing.png": "b6000a393f0b045c83d35abcbf9b247214995e0374490a9b077e783b98017d0b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/runtime-provenance.json": "7c543d914a23a15975ca46f59f36015846d97c9f845d475726f6d628c64a06b4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/web-report.json": "f130e573f337341e4c51634ae6546d4830dd01495e7fcf1445477ed8d6a9a464",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/evidence.zip": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/frame.png": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/result.json": "bb612396e37077b312015f3e9399dfcfe7b1c965803e103405b18f31c68be474",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/serial.txt": "bea5554b35a47b967cc0731124eb0dbbe222fa5f0b525e1488c97845d7152f64",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/history-frame.png": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/result.json",
+          "report_sha256": "bb612396e37077b312015f3e9399dfcfe7b1c965803e103405b18f31c68be474",
+          "assertions": 6
+        },
+        "wrapper_assertions": 14,
+        "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2262,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/report.json",
+        "report_sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/opened-flashing.png": "b6000a393f0b045c83d35abcbf9b247214995e0374490a9b077e783b98017d0b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/runtime-provenance.json": "7c543d914a23a15975ca46f59f36015846d97c9f845d475726f6d628c64a06b4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/web-report.json": "f130e573f337341e4c51634ae6546d4830dd01495e7fcf1445477ed8d6a9a464",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/evidence.zip": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/frame.png": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/result.json": "bb612396e37077b312015f3e9399dfcfe7b1c965803e103405b18f31c68be474",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/serial.txt": "bea5554b35a47b967cc0731124eb0dbbe222fa5f0b525e1488c97845d7152f64",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/history-frame.png": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/web-report.json",
+          "snapshots": 3,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": {
+              "width": 980,
+              "height": 1542
+            }
+          }
+        },
+        "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 2262,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/atoms3r/atoms3r/8encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+        "evidence_sha256": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    }
+  ],
+  "errors": [],
+  "catalog": "platform/units/catalog.json",
+  "catalog_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+  "expected_units": 27,
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "selection_sha256": "de20c1fe5566f7b9f08d636fe333fc8700b7902f0fe0a0ad6732c94b61984f90"
+}

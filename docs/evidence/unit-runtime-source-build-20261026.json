@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "source-build-only",
+  "status": "PASS",
+  "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patches": {
+    "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+    "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "68eef7159c0f73855184fa9cbbce5a173597afcf905dc223b1dd494e0aa79ddd",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+    "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c"
+  },
+  "source_replay": {
+    "files_compared": 106,
+    "reverse_restored_clean_tree": true
+  },
+  "cold_bootstrap": {
+    "command": "python3.12 scripts/bootstrap-unit-runtime.py --jobs 8",
+    "binary": ".work/unit-runtime-source/qemu/build/qemu-system-xtensa",
+    "binary_sha256": "b66ac9ace1d5cdab63bb6e2c3cf7be970992c9db454a3dc55bb5f2dd39a2be4d",
+    "manifest": ".work/unit-runtime-build/build-manifest.json",
+    "log": ".work/unit-runtime-cold-bootstrap.log",
+    "platform": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.14",
+    "qemu_version": "9.2.2",
+    "user_networking_backend_available": true,
+    "slirp_commit": "26be815b86e8d49add8c9a8b320239b9594ff03d"
+  },
+  "bootstrap_source_integrity_controls": {
+    "unrelated_file_rejected": {
+      "exit_code": 1,
+      "matched_error": "source has unrelated changes"
+    },
+    "modified_source_rejected": {
+      "exit_code": 1,
+      "matched_error": "source has local changes"
+    },
+    "restored_source_verified": {
+      "exit_code": 0,
+      "matched_error": null
+    }
+  },
+  "separately_frozen_runtime": {
+    "binary": ".work/M5StopWatch-QEMU/build/qemu-source/build/qemu-system-xtensa",
+    "binary_sha256": "732d137bf03acd2cadbe686d182f4ea737bb41193f61b48caaa59a5630794c1f",
+    "unit_ids": [
+      "8encoder",
+      "angle",
+      "button",
+      "buzzer",
+      "cardkb",
+      "color",
+      "dual-button",
+      "encoder",
+      "env-iii",
+      "fan",
+      "heart",
+      "hub",
+      "ir",
+      "joystick-v11",
+      "key",
+      "light",
+      "limit",
+      "ncir",
+      "pir",
+      "relay",
+      "rfid2",
+      "rgb",
+      "rs485",
+      "thermal",
+      "tof",
+      "tvoc",
+      "ultrasonic-i2c"
+    ],
+    "linked_symbols": [
+      "m5_unit_runtime_init",
+      "m5_unit_gpio_realize",
+      "m5_unit_sensor_realize",
+      "m5_unit_controls_realize",
+      "m5_unit_rmt_rx_arrived"
+    ]
+  },
+  "validation_boundary": "Source replay, native compilation, --version and netdev help only; no firmware execution or Unit functional PASS is established by this receipt."
+}

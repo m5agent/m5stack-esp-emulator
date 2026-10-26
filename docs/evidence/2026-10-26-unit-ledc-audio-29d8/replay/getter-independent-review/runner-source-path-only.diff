@@ -1,0 +1,11 @@
+--- 
++++ 
+@@ -56,7 +56,7 @@
+                ROOT / "tests/units/run_control_cases.py", ROOT / "tests/units/run_host_cases.py",
+                ROOT / "tests/units/run_sensor_cases.py", ROOT / "tests/units/run_service_cases.py",
+                ROOT / "tests/units/web_ui_bridge.py",
+-               ROOT / ".work/unit-runtime-source-core2-compat/qemu/hw/misc/esp32_ledc.c"]
++               ROOT / ".work/unit-runtime-source-ledc-readback/qemu/hw/misc/esp32_ledc.c"]
+     frozen = {path.relative_to(ROOT).as_posix(): digest(path) for path in sources}
+     write(out / "source-before.json", frozen)
+     for path in sources:

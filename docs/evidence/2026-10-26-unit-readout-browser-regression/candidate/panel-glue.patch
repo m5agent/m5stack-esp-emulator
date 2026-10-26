@@ -1,0 +1,26 @@
+--- a/platform/web/unit-panel.js
++++ b/platform/web/unit-panel.js
+@@ -174,7 +174,7 @@
+       this.schedule();
+     }
+     this.enableControls();
+-    for (const state of this.states.values()) if (state.unit_id === 'fan') this.paint(state);
++    for (const state of this.states.values()) this.paint(state);
+   }
+ 
+   enableControls() {
+@@ -444,11 +444,14 @@
+   paint(unit) {
+     const mounted = this.mounted.get(unit.id);
+     if (!mounted) return;
++    try { mounted.shell.updateUnitAnnotation?.(unit, {port: mounted.port, definition: this.definitions.get(unit.unit_id), running: this.session.state === 'running', source: this.stateSource, frozenDefinitions: this.frozenDefinitions === true}); }
++    catch (error) { this.note(unit.id, `读数显示失败：${error.message}`); }
+     try { mounted.shell.applyVisualState(visualCommands(unit, mounted.port, {bindings: this.bindingsByUnit[unit.unit_id], running: this.session.state === 'running'})); }
+     catch (error) { this.note(unit.id, `外壳状态更新失败：${error.message}`); }
+   }
+ 
+   apply(payload) {
++    this.stateSource = payload.source || 'unavailable';
+     if (Array.isArray(payload.definitions) && !this.frozenDefinitions) {
+       this.releaseHeld();
+       this.definitions = new Map(payload.definitions.map(unit => [unit.id, unit]));

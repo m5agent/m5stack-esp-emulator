@@ -1,0 +1,4 @@
+CASE = 'hub'
+WHITE = 1
+YELLOW = 2
+IR_CALLBACK_ROOT_PATCH = False

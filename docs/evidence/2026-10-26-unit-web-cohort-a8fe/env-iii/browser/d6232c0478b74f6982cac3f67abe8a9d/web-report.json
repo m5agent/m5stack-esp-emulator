@@ -1,0 +1,2932 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+  "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "env-iii",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T18:59:38.578Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "0f1a4f7e38c8fdc3057e21a84748de0c997d49a22c70335fd96b1ec1f58d6dba",
+    "tests/units/web_ui_bridge.py": "4584944062c88eeede458383842580f10e9e794d9f758c2494f4d84cc6b40c0e",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T18:59:38.540Z",
+  "session_created_at": "2026-10-25T18:59:38.575525+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T18:59:55.230Z",
+      "instance": "external1",
+      "field": "temperature-c",
+      "kind": "fill-and-tab",
+      "value": 31.5,
+      "request": {
+        "id": "external1",
+        "values": {
+          "temperature-c": 31.5
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:59:55.295Z",
+      "instance": "external1",
+      "field": "humidity-pct",
+      "kind": "fill-and-tab",
+      "value": 67,
+      "request": {
+        "id": "external1",
+        "values": {
+          "humidity-pct": 67
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:59:55.347Z",
+      "instance": "external1",
+      "field": "pressure-pa",
+      "kind": "fill-and-tab",
+      "value": 98765,
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressure-pa": 98765
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T18:59:55.229Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:55.224265+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 50,
+              "pressure-pa": 101325,
+              "transactions": 422,
+              "read-bytes": 846,
+              "written-bytes": 295,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "temperature-c": 31.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:55.293Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:55.277568+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 101325,
+              "transactions": 423,
+              "read-bytes": 846,
+              "written-bytes": 297,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "humidity-pct": 67
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:55.346Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:55.339210+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 425,
+              "read-bytes": 852,
+              "written-bytes": 299,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressure-pa": 98765
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T18:59:51.938Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/units",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:51.911852+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 25,
+              "humidity-pct": 50,
+              "pressure-pa": 101325,
+              "transactions": 332,
+              "read-bytes": 666,
+              "written-bytes": 232,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:54.553Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/units",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:54.514549+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 25,
+              "humidity-pct": 50,
+              "pressure-pa": 101325,
+              "transactions": 403,
+              "read-bytes": 806,
+              "written-bytes": 283,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:55.367Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/units",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:55.363518+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 425,
+              "read-bytes": 852,
+              "written-bytes": 299,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:55.878Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/units",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:55.870537+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 442,
+              "read-bytes": 886,
+              "written-bytes": 309,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:59:56.383Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/d6232c0478b74f6982cac3f67abe8a9d/units",
+      "status": 200,
+      "response": {
+        "session_id": "d6232c0478b74f6982cac3f67abe8a9d",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:59:56.380263+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 453,
+              "read-bytes": 906,
+              "written-bytes": 318,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "env-iii",
+            "name": "ENV III",
+            "sku": "U001-C",
+            "visual_asset": {
+              "entry": "src/units/env-iii/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SHT30",
+                "status": "officially-documented"
+              },
+              {
+                "part": "QMP6988",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                68,
+                112
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+              "registers": [
+                {
+                  "chip": "SHT30",
+                  "commands": {
+                    "measure-driver": "0x2C10",
+                    "status": "0xF32D",
+                    "reset": "0x30A2",
+                    "clear-status": "0x3041",
+                    "heater-on": "0x306D",
+                    "heater-off": "0x3066"
+                  },
+                  "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+                  "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+                },
+                {
+                  "chip": "QMP6988",
+                  "chip_id": "0xD1 -> 0x5C",
+                  "calibration": "0xA0, 25 bytes",
+                  "reset": "0xE0 <- 0xE6",
+                  "iir": "0xF1",
+                  "status": "0xF3 bit3 measuring",
+                  "control": "0xF4",
+                  "io_setup": "0xF5",
+                  "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+                }
+              ],
+              "gaps": [
+                "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+                "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+              ],
+              "offline_reference": "platform/units/qmp6988_reference.py",
+              "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+            },
+            "inputs": {
+              "temperature-c": {
+                "type": "number",
+                "label": "温度",
+                "default": 25,
+                "default_source": "synthetic-test-fixture",
+                "unit": "degC",
+                "minimum": -40,
+                "maximum": 120,
+                "readOnly": false
+              },
+              "humidity-pct": {
+                "type": "number",
+                "label": "相对湿度",
+                "default": 50,
+                "default_source": "synthetic-test-fixture",
+                "unit": "%RH",
+                "minimum": 0,
+                "maximum": 100,
+                "readOnly": false
+              },
+              "pressure-pa": {
+                "type": "number",
+                "label": "气压",
+                "default": 101325,
+                "default_source": "synthetic-test-fixture",
+                "unit": "Pa",
+                "minimum": 30000,
+                "maximum": 110000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/envIII",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                }
+              },
+              "state": {
+                "temperature-c": {
+                  "property": "temperature-c"
+                },
+                "humidity-pct": {
+                  "property": "humidity-pct"
+                },
+                "pressure-pa": {
+                  "property": "pressure-pa"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+                "report": "docs/evidence/2026-10-26-unit-runtime/env-iii/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T18:59:55.381Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 425,
+              "read-bytes": 852,
+              "written-bytes": 299,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "temperature-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "humidity-pct",
+              "source": "输入 fixture",
+              "text": "67",
+              "rgb": []
+            },
+            {
+              "field": "pressure-pa",
+              "source": "输入 fixture",
+              "text": "98765",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "425",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "852",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "299",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:59:55.913Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 442,
+              "read-bytes": 886,
+              "written-bytes": 309,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "temperature-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "humidity-pct",
+              "source": "输入 fixture",
+              "text": "67",
+              "rgb": []
+            },
+            {
+              "field": "pressure-pa",
+              "source": "输入 fixture",
+              "text": "98765",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "442",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "886",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "309",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:59:56.416Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "env-iii",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "temperature-c": 31.5,
+              "humidity-pct": 67,
+              "pressure-pa": 98765,
+              "transactions": 453,
+              "read-bytes": 906,
+              "written-bytes": 318,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "temperature-c",
+              "source": "输入 fixture",
+              "text": "31.5",
+              "rgb": []
+            },
+            {
+              "field": "humidity-pct",
+              "source": "输入 fixture",
+              "text": "67",
+              "rgb": []
+            },
+            {
+              "field": "pressure-pa",
+              "source": "输入 fixture",
+              "text": "98765",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "453",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "906",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "318",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  51,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "002-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T18:59:56.801Z"
+}

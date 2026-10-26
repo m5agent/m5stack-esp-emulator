@@ -1,0 +1,15 @@
+{
+  "category": "offline-runtime-provenance-unit-tests",
+  "status": "PASS",
+  "captured_at": "2026-10-25T18:35:28.777038+00:00",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "command": "python3 -m unittest discover -s tests/units -p 'test_web_ui_bridge.py' -v",
+  "tests": 4,
+  "checks": [
+    "nested-worker-generation-sampled-and-reconfirmed",
+    "changed-nested-generation-rejected",
+    "missing-worker-remains-unknown",
+    "required-executable-hash-mismatch-rejected-with-receipt"
+  ]
+}

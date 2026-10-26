@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "ina3221_device_id",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "ina3221_bus_voltage",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "ina3221_shunt_voltage",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "ina3221_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PASS Core2 INA3221 marker rgb=(0,255,0)\n",
+  "reason": "Core2 v1.1 INA3221 is read over ESP32 I2C0; QOM-injected physical channel values are converted through the documented INA3221 bus-voltage and shunt-voltage register encodings.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e"
+}

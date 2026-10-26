@@ -1,0 +1,106 @@
+ M hw/arm/bcm2835_peripherals.c
+ M hw/block/m25p80.c
+ M hw/char/esp32_uart.c
+ M hw/dma/esp32s3_gdma.c
+ M hw/dma/esp_gdma.c
+ M hw/gpio/esp32_gpio.c
+ M hw/i2c/esp32_i2c.c
+ M hw/misc/esp32_dport.c
+ M hw/misc/esp32_ledc.c
+ M hw/misc/esp32s3_cache.c
+ M hw/misc/esp32s3_rtc_cntl.c
+ M hw/misc/meson.build
+ M hw/misc/ssi_psram.c
+ M hw/nvram/esp_efuse.c
+ M hw/ssi/bcm2835_spi.c
+ M hw/ssi/esp32_spi.c
+ M hw/ssi/esp32s3_spi.c
+ M hw/timer/esp32_timg.c
+ M hw/xtensa/esp32.c
+ M hw/xtensa/esp32s3.c
+ M hw/xtensa/esp32s3_clk.c
+ M hw/xtensa/esp32s3_intc.c
+ M hw/xtensa/meson.build
+ M include/hw/arm/bcm2835_peripherals.h
+ M include/hw/char/esp32_uart.h
+ M include/hw/dma/esp_gdma.h
+ M include/hw/gpio/esp32_gpio.h
+ M include/hw/i2c/esp32_i2c.h
+ M include/hw/misc/esp32_dport.h
+ M include/hw/misc/esp32_ledc.h
+ M include/hw/misc/esp32_reg.h
+ M include/hw/ssi/esp32_spi.h
+ M include/hw/xtensa/esp32.h
+ M include/hw/xtensa/esp32s3_clk.h
+ M include/hw/xtensa/esp32s3_intc.h
+ M meson.build
+ M target/xtensa/cpu.c
+ M target/xtensa/cpu.h
+ M target/xtensa/exc_helper.c
+ M target/xtensa/helper.h
+ M target/xtensa/op_helper.c
+ M target/xtensa/translate.c
+ M ui/ui-qmp-cmds.c
+?? hw/m5stopwatch/co5300.c
+?? hw/m5stopwatch/esp32s3_fe.c
+?? hw/m5stopwatch/esp32s3_gpspi.c
+?? hw/m5stopwatch/esp32s3_i2c.c
+?? hw/m5stopwatch/esp32s3_phy.c
+?? hw/m5stopwatch/esp32s3_regi2c.c
+?? hw/m5stopwatch/esp32s3_sens.c
+?? hw/m5stopwatch/esp32s3_soft_i2c.c
+?? hw/m5stopwatch/m5_bcm_spi_panel.c
+?? hw/m5stopwatch/m5_board.c
+?? hw/m5stopwatch/m5_can_peer.c
+?? hw/m5stopwatch/m5_cc1101_spi.c
+?? hw/m5stopwatch/m5_epd_panel.c
+?? hw/m5stopwatch/m5_i2s.c
+?? hw/m5stopwatch/m5_i2s_esp32.c
+?? hw/m5stopwatch/m5_lcd_cam.c
+?? hw/m5stopwatch/m5_max3421e.c
+?? hw/m5stopwatch/m5_rmt.c
+?? hw/m5stopwatch/m5_scs_servo.c
+?? hw/m5stopwatch/m5_spi_panel.c
+?? hw/m5stopwatch/m5_spi_sd.c
+?? hw/m5stopwatch/m5_st25r3916_spi.c
+?? hw/m5stopwatch/m5_sx1262.c
+?? hw/m5stopwatch/m5_uart_peer.c
+?? hw/m5stopwatch/m5_unit_gpio.c
+?? hw/m5stopwatch/m5_unit_i2c_controls.c
+?? hw/m5stopwatch/m5_unit_i2c_sensors.c
+?? hw/m5stopwatch/m5_unit_runtime.c
+?? hw/m5stopwatch/m5_unit_runtime.h
+?? hw/m5stopwatch/m5atoms3r.c
+?? hw/m5stopwatch/m5cardputeradv.c
+?? hw/m5stopwatch/m5core2.c
+?? hw/m5stopwatch/m5cores3.c
+?? hw/m5stopwatch/m5papercolor.c
+?? hw/m5stopwatch/m5papermono.c
+?? hw/m5stopwatch/m5stackchan.c
+?? hw/m5stopwatch/m5stamplc.c
+?? hw/m5stopwatch/m5sticks3.c
+?? hw/m5stopwatch/m5stopwatch.h
+?? hw/m5stopwatch/m5sw_i2c_devs.c
+?? hw/misc/bcm2835_unicam.c
+?? hw/misc/esp32_ana.c
+?? hw/misc/esp32_fe.c
+?? hw/misc/esp32_phya.c
+?? hw/misc/esp32_unknown.c
+?? hw/misc/esp32_wifi.c
+?? hw/misc/esp32_wifi_ap.c
+?? hw/misc/esp32_wlan.h
+?? hw/misc/esp32_wlan_packet.c
+?? hw/misc/esp32_wlan_packet.h
+?? hw/misc/esp32s3_wifi.c
+?? hw/misc/unimp-default.c
+?? hw/xtensa/esp32_native_hci.c
+?? include/hw/misc/bcm2835_unicam.h
+?? include/hw/misc/esp32_ana.h
+?? include/hw/misc/esp32_fe.h
+?? include/hw/misc/esp32_phya.h
+?? include/hw/misc/esp32_unknown.h
+?? include/hw/misc/esp32_wifi.h
+?? include/hw/misc/esp32s3_wifi.h
+?? include/hw/misc/m5_bcm_spi_panel.h
+?? include/hw/misc/unimp-default.h
+?? include/hw/xtensa/esp32_native_hci.h

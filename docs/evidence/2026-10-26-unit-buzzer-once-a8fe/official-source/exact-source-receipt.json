@@ -1,0 +1,203 @@
+{
+  "classification": "exact-source-review-and-offline-demonstration",
+  "created_at": "2026-10-25T23:34:37.334502+00:00",
+  "failed_fetch_boundary": "Earlier no-query Haptic fetch attempts timed out; this receipt records only the two saved successful query-URL fetch metadata files, not an exhaustive HTTP attempt ledger.",
+  "findings": [
+    "The unchanged downloaded Haptic/SoftTimer sources reproduce a callback signature TypeError at the first due one-shot update under CPython fake dependencies.",
+    "The timer is dead while PWM remains at duty_u16 32767; no duty_u16(0) write occurs during the failing update.",
+    "Calling the unchanged bound Haptic callback directly with no argument writes duty_u16(0).",
+    "A real scheduler-thread failure is a source-level consequence candidate, not an observed thread result in this offline demonstration."
+  ],
+  "key_source_lines": {
+    "haptic.py": {
+      "29": "Registers the bound callback self._cb.",
+      "30": "Sets duty_u16 from the requested percentage.",
+      "32": "Defines _cb(self), accepting no timer argument.",
+      "33": "The callback body would set duty_u16(0).",
+      "42": "turn_off writes the same duty_u16(0).",
+      "44-47": "deinit is a separate path; once does not call it.",
+      "7": "Imports SoftTimer, rather than machine.Timer."
+    },
+    "soft_timer.py": {
+      "28-35": "add_timer requests a background scheduler thread and sets _run True.",
+      "41-49": "The scheduler loop invokes update for a live timer, without handling callback exceptions.",
+      "55": "Expiry uses ticks_ms() > next_time.",
+      "57-58": "A one-shot timer is marked dead before callback invocation.",
+      "59-60": "The callback is called with the timer argument."
+    }
+  },
+  "official_source_http_requests": [
+    {
+      "downloaded_path": ".work/buzzer-once-source-review-20261026/haptic-50e4407-verified.py",
+      "downloaded_sha256": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+      "equal_to_first_fetch": true,
+      "equal_to_prior_snapshot": true,
+      "full_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "http_metadata_path": ".work/buzzer-once-source-review-20261026/haptic-50e4407-http.json",
+      "http_metadata_sha256": "3f34f80dc1c7fd03d1be11d77bc86b1d3a876ba85140dc6b67239cca0f89a0de",
+      "official_fetch": {
+        "bytes": 1437,
+        "http_status": 200,
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/driver/haptic.py?source-review=20261026"
+      },
+      "prior_commit_attribution_limit": "The prior commit is read from the downloaded snapshot manifest, not git rev-parse of this non-checkout directory.",
+      "prior_snapshot_manifest_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "prior_snapshot_manifest_path": ".work/unit-io-source-reference/manifest.json",
+      "prior_snapshot_manifest_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/haptic.py",
+      "prior_snapshot_path": ".work/unit-io-source-reference/m5stack/libs/driver/haptic.py",
+      "prior_snapshot_sha256": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+      "repository_path": "m5stack/libs/driver/haptic.py",
+      "unchanged_first_fetch_path": ".work/buzzer-once-source-review-20261026/haptic-50e4407-query.py",
+      "upstream_repository": "https://github.com/m5stack/uiflow-micropython"
+    },
+    {
+      "downloaded_path": ".work/buzzer-once-source-review-20261026/soft_timer-50e4407-verified.py",
+      "downloaded_sha256": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83",
+      "equal_to_first_fetch": true,
+      "equal_to_prior_snapshot": true,
+      "full_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "http_metadata_path": ".work/buzzer-once-source-review-20261026/soft_timer-50e4407-http.json",
+      "http_metadata_sha256": "ed90f8f615953c315cf82b18dd231292ab23165e7f8f0316881a63bb85ab13a6",
+      "official_fetch": {
+        "bytes": 2146,
+        "http_status": 200,
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/driver/soft_timer.py?source-review=20261026"
+      },
+      "prior_commit_attribution_limit": "The prior commit is read from the downloaded snapshot manifest, not git rev-parse of this non-checkout directory.",
+      "prior_snapshot_manifest_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "prior_snapshot_manifest_path": ".work/unit-io-source-reference/manifest.json",
+      "prior_snapshot_manifest_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/soft_timer.py",
+      "prior_snapshot_path": ".work/unit-io-source-reference/m5stack/libs/driver/soft_timer.py",
+      "prior_snapshot_sha256": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83",
+      "repository_path": "m5stack/libs/driver/soft_timer.py",
+      "unchanged_first_fetch_path": ".work/buzzer-once-source-review-20261026/soft_timer-50e4407.py",
+      "upstream_repository": "https://github.com/m5stack/uiflow-micropython"
+    }
+  ],
+  "official_source_successful_http_requests_recorded": 2,
+  "offline_demo": {
+    "command": [
+      "<local-runtime-path-redacted>",
+      ".work/buzzer-once-source-review-20261026/exact_source_demo.py"
+    ],
+    "exit_code": 0,
+    "result": {
+      "actual_threads_started": 0,
+      "after_due_update": {
+        "clock_ms": 2001,
+        "duty_u16": 32767,
+        "exception": {
+          "message": "Haptic._cb() takes 1 positional argument but 2 were given",
+          "type": "TypeError"
+        },
+        "frequency_hz": 2000,
+        "pwm_calls": [
+          [
+            "construct",
+            2,
+            4000,
+            0
+          ],
+          [
+            "init",
+            2000,
+            32767
+          ]
+        ],
+        "scheduler_run": true,
+        "timer_dead": true,
+        "timer_next_time": 4001
+      },
+      "assertions_passed": true,
+      "at_exact_deadline": {
+        "clock_ms": 2000,
+        "duty_u16": 32767,
+        "exception": null,
+        "timer_dead": false
+      },
+      "before_due": {
+        "clock_ms": 0,
+        "duty_u16": 32767,
+        "frequency_hz": 2000,
+        "pwm_calls": [
+          [
+            "construct",
+            2,
+            4000,
+            0
+          ],
+          [
+            "init",
+            2000,
+            32767
+          ]
+        ],
+        "scheduler_run": true,
+        "timer_dead": false,
+        "timer_next_time": 2000
+      },
+      "classification": "exact-source-offline-demonstration",
+      "device_service_api_contacted": false,
+      "direct_callback": {
+        "duty_u16": 0,
+        "pwm_calls": [
+          [
+            "construct",
+            2,
+            4000,
+            0
+          ],
+          [
+            "init",
+            2000,
+            32767
+          ],
+          [
+            "duty_u16",
+            0
+          ]
+        ]
+      },
+      "firmware_or_qemu_executed": false,
+      "limits": [
+        "CPython with fake PWM/time/thread modules; not MicroPython firmware execution.",
+        "The actual frozen module bytes in the targeted firmware are not bound by this demonstration.",
+        "The scheduler background thread was not run; real thread termination is not observed."
+      ],
+      "network_requests": 0,
+      "python_version": "3.12.8",
+      "real_pwm_operations": 0,
+      "real_sleeps": 0,
+      "source_sha256": {
+        "haptic": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+        "soft_timer": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83"
+      },
+      "thread_requests": [
+        {
+          "argument_count": 0,
+          "function": "SoftTimerScheduler._cb",
+          "started": false
+        }
+      ]
+    },
+    "result_path": ".work/buzzer-once-source-review-20261026/exact-source-demo-result.json",
+    "result_sha256": "48613ca43ab58e1c1c84be8b5cda9e51b2a7cb07b734b1d3b02a39281a1b3dad",
+    "script_path": ".work/buzzer-once-source-review-20261026/exact_source_demo.py",
+    "script_sha256": "4720ed207f85ba4dd3a42684002e56258b6eca3b18759e1f3b871f06709ba761",
+    "stderr": ""
+  },
+  "requested_source_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+  "schema_version": 1,
+  "scope": {
+    "actual_frozen_firmware_module_bytes_bound": false,
+    "browser_started": false,
+    "confirmed_targeted_firmware_runtime_root_cause": false,
+    "device_service_api_contacted": false,
+    "not_proven": "This demonstrates the exact official source signature mismatch; it does not bind the running frozen modules or establish physical/QEMU Buzzer behavior.",
+    "offline_demo_network": false,
+    "product_or_frozen_sources_modified": false,
+    "qemu_or_firmware_started": false,
+    "sessions_started": 0,
+    "writes_limited_to_own_review_directory": true
+  }
+}

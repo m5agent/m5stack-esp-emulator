@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "CLOSED_FOR_RECORDED_OFFLINE_CONTROLS",
+  "categories": [
+    {
+      "category": "annotation-exception-isolation",
+      "initial_observation": "Optional annotation layout failure crossed paint() into send.catch after a successful input ACK, marked the release intent uncertain and displayed input unconfirmed.",
+      "initial_evidence": "initial/exploratory-review.json",
+      "final_controls": [
+        "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+        "annotation-fault-keeps-one-release-retry-and-no-poll-echo"
+      ],
+      "negative_control": "annotation_exception_isolation"
+    },
+    {
+      "category": "schema-value-validation",
+      "initial_observation": "Finite but out-of-contract ENV values999degC/101%RH/-1Pa were displayed because scalar() checked type/finiteness only.",
+      "initial_evidence": "initial/exploratory-review.json",
+      "final_controls": [
+        "nonfinite-wrong-type-and-fractional-integer-values-are-rejected",
+        "schema-boundaries-reject-values-without-clamping-or-mutating",
+        "schema-enum-is-not-treated-as-an-unrestricted-scalar"
+      ],
+      "negative_control": "range_guard"
+    },
+    {
+      "category": "readback-source-and-frozen-definition-boundary",
+      "initial_observation": "Mutable inventory fallback with frozenDefinitions=false still supplied displayed units; a per-unit persisted source under a live envelope also displayed values.",
+      "initial_evidence": "initial/exploratory-review.json",
+      "final_controls": [
+        "outer-and-unit-source-must-both-be-live-controller-readback",
+        "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+        "model-shell-adapter-preserves-the-frozen-definition-and-source-guards"
+      ],
+      "negative_controls": [
+        "unit_source_guard",
+        "frozen_definition_guard"
+      ]
+    },
+    {
+      "category": "thermal-field-origin",
+      "initial_observation": "Catalog inputs/outputs/readOnly do not identify the latest writer. Thermal readiness derives from three injected raw fixtures; control-word is writable by host QOM and guest register0x800d.",
+      "initial_evidence": "initial/direction-audit.json",
+      "final_controls": [
+        "thermal-readiness-and-control-register-have-explicit-origin-labels"
+      ],
+      "negative_control": "thermal_origin"
+    }
+  ],
+  "initial_report_scope": "The original exploratory report is retained unchanged. Its empty_nonlive_payload_invalidates_old_notes observation did not first establish a rendered live annotation and is not used as acceptance evidence. Initial full candidate sources were superseded; their recorded hashes are retained rather than backfilled. Final counterexamples use independently mutated copies of the frozen final sources.",
+  "hardware_execution": "NOT RUN"
+}

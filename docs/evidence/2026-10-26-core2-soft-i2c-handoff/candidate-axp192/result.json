@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "core2_axp192_detect",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_voltage",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_current",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_charging",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "core2_axp192_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PASS Core2 AXP192 marker rgb=(0,255,0)\n",
+  "reason": "Core2 UIFlow2 auto-detects the legacy AXP192 model and reads battery voltage, level, current and charging state through Power.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047"
+}

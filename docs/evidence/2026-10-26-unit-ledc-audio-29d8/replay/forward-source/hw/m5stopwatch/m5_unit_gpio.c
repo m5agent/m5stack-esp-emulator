@@ -1,0 +1,356 @@
+/* External Grove GPIO/ADC/PWM/RMT/UART endpoints. GPL-2.0-or-later. */
+#include "qemu/osdep.h"
+#include "qemu/timer.h"
+#include "qapi/visitor.h"
+#include "qapi/qmp/qlist.h"
+#include "qapi/qmp/qnum.h"
+#include "qapi/qmp/qstring.h"
+#include "hw/char/esp32_uart.h"
+#include "m5stopwatch.h"
+#include "m5_unit_runtime.h"
+#include <math.h>
+
+typedef struct GPIOUnit {
+    M5Unit *unit;
+    struct GPIOUnit *next;
+    bool s3, red, blue, motion, digital;
+    double voltage, duty, frequency;
+    unsigned pwm_signal;
+    QEMUTimer *hold_timer;
+    int64_t hold_until;
+    uint32_t rgb[3];
+    unsigned leds;
+    uint64_t frames, incomplete_frames, adc_samples;
+    uint32_t rx_pulses[192], tx_pulses[192];
+    unsigned rx_count, tx_count;
+    uint8_t uart_tx[4096];
+    size_t uart_tx_size;
+    char *last_rx;
+} GPIOUnit;
+static GPIOUnit *gpio_units;
+
+extern int esp32_gpio_matrix_out_signal(int pin, bool s3);
+extern int esp32_gpio_matrix_in_pin(unsigned signal, bool s3);
+
+bool m5_unit_gpio_supported(const char *id)
+{
+    static const char *ids[] = {"pir", "dual-button", "limit", "key", "rgb",
+        "angle", "light", "buzzer", "fan", "ir", "rs485", "hub"};
+    for (unsigned i = 0; i < ARRAY_SIZE(ids); i++) {
+        if (!strcmp(id, ids[i])) { return true; }
+    }
+    return false;
+}
+
+static void bool_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    bool value;
+    if (!strcmp(name, "red-pressed")) { value = g->red; }
+    else if (!strcmp(name, "blue-pressed") || !strcmp(name, "pressed")) { value = g->blue; }
+    else if (!strcmp(name, "motion")) { value = g->motion; }
+    else if (!strcmp(name, "digital-level")) { value = g->digital; }
+    else { value = esp32_gpio_get_line(g->unit->white); }
+    visit_type_bool(v, name, &value, errp);
+}
+
+static void motion_off(void *opaque)
+{
+    GPIOUnit *g = opaque;
+    if (g->motion) {
+        g->hold_until = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 2000000000LL;
+        timer_mod_ns(g->hold_timer, g->hold_until);
+    } else { esp32_gpio_set_input(g->unit->white, 0); }
+}
+
+static void bool_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    bool value;
+    if (!visit_type_bool(v, name, &value, errp)) { return; }
+    g->unit->input_events++;
+    if (!strcmp(name, "red-pressed")) {
+        g->red = value; esp32_gpio_set_input(g->unit->yellow, !value);
+    } else if (!strcmp(name, "motion")) {
+        g->motion = value;
+        int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+        if (value) {
+            esp32_gpio_set_input(g->unit->white, 1);
+            g->hold_until = now + 2000000000LL;
+            timer_mod_ns(g->hold_timer, g->hold_until);
+        } else if (now >= g->hold_until) { esp32_gpio_set_input(g->unit->white, 0); }
+    } else if (!strcmp(name, "digital-level")) {
+        g->digital = value; esp32_gpio_set_input(g->unit->yellow, value);
+    } else {
+        g->blue = value; esp32_gpio_set_input(g->unit->white, !value);
+    }
+}
+
+static void num_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    double value = !strcmp(name, "frequency-hz") ? g->frequency :
+                   !strcmp(name, "duty-pct") ? g->duty : g->voltage;
+    if ((!strcmp(name, "frequency-hz") || !strcmp(name, "duty-pct")) &&
+        esp32_gpio_matrix_out_signal(g->unit->yellow, g->s3) != g->pwm_signal) { value = 0; }
+    visit_type_number(v, name, &value, errp);
+}
+
+static void num_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    double value;
+    if (!visit_type_number(v, name, &value, errp)) { return; }
+    double maximum = !strcmp(g->unit->unit_id, "angle") ? 2500 : 3300;
+    if (!isfinite(value) || value < 0 || value > maximum) {
+        error_setg(errp, "%s requires 0..%g mV", name, maximum); return;
+    }
+    g->voltage = value; g->unit->input_events++;
+}
+
+static void count_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    uint64_t value = *(uint64_t *)op;
+    visit_type_uint64(v, name, &value, errp);
+}
+
+static void led_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    if (g->leds == 1) {
+        uint32_t value = g->rgb[0]; visit_type_uint32(v, name, &value, errp); return;
+    }
+    QList *array = qlist_new();
+    for (unsigned i = 0; i < g->leds; i++) { qlist_append_int(array, g->rgb[i]); }
+    QObject *value = QOBJECT(array);
+    visit_type_any(v, name, &value, errp); qobject_unref(value);
+}
+
+static void pulses_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    bool tx = !strcmp(name, "tx-pulses-us");
+    QList *array = qlist_new();
+    for (unsigned i = 0; i < (tx ? g->tx_count : g->rx_count); i++) {
+        qlist_append_int(array, tx ? g->tx_pulses[i] : g->rx_pulses[i]);
+    }
+    QObject *value = QOBJECT(array);
+    visit_type_any(v, name, &value, errp); qobject_unref(value);
+}
+
+static void pulses_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    QObject *value = NULL;
+    if (!visit_type_any(v, name, &value, errp)) { return; }
+    QList *array = qobject_to(QList, value);
+    if (!array || qlist_size(array) > ARRAY_SIZE(g->rx_pulses)) {
+        error_setg(errp, "IR pulse list exceeds 192 durations"); qobject_unref(value); return;
+    }
+    uint32_t pulses[192]; unsigned count = 0;
+    const QListEntry *e;
+    QLIST_FOREACH_ENTRY(array, e) {
+        QNum *n = qobject_to(QNum, qlist_entry_obj(e));
+        int64_t duration;
+        if (!n || !qnum_get_try_int(n, &duration) || duration < 1 || duration > 1000000) {
+            error_setg(errp, "IR duration must be 1..1000000 us"); qobject_unref(value); return;
+        }
+        pulses[count++] = duration;
+    }
+    memcpy(g->rx_pulses, pulses, count * sizeof(pulses[0]));
+    g->rx_count = count; g->unit->input_events++;
+    m5_unit_rmt_rx_arrived();
+    qobject_unref(value);
+}
+
+uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+                            bool s3, uint16_t fallback)
+{
+    static const int classic1[] = {36, 37, 38, 39, 32, 33, 34, 35};
+    static const int classic2[] = {4, 0, 2, 15, 13, 12, 14, 27, 25, 26};
+    int pin = s3 ? (adc ? 11 : 1) + channel :
+        adc ? (channel < 10 ? classic2[channel] : -1) :
+        (channel < 8 ? classic1[channel] : -1);
+    static const double ideal_fullscale_mv[] = {950, 1250, 1750, 3100};
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if (g->unit->white == pin && (!strcmp(g->unit->unit_id, "angle") ||
+                                    !strcmp(g->unit->unit_id, "light"))) {
+            g->adc_samples++;
+            return MIN(4095, llround(g->voltage * 4095 / ideal_fullscale_mv[atten & 3]));
+        }
+    }
+    return fallback;
+}
+
+void m5_unit_pwm_observe(bool s3, unsigned channel, uint32_t timer,
+                          uint32_t duty, uint32_t conf)
+{
+    unsigned signal = s3 ? 73 + channel : channel < 8 ? 71 + channel : 79 + channel - 8;
+    unsigned resolution = timer & 15, divider = (timer >> 4) & 0x3ffff;
+    double frequency = resolution && divider ?
+        80000000.0 * 256 / divider / (1u << resolution) : 0;
+    double percent = resolution ? MIN(100, (duty >> 4) * 100.0 / (1u << resolution)) : 0;
+    if (!(conf & BIT(2)) || (timer & (BIT(22) | BIT(23)))) { percent = 0; }
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if ((!strcmp(g->unit->unit_id, "fan") || !strcmp(g->unit->unit_id, "buzzer")) &&
+            esp32_gpio_matrix_out_signal(g->unit->yellow, s3) == signal) {
+            if (g->frequency != frequency || g->duty != percent) { g->unit->output_transitions++; }
+            g->frequency = frequency; g->duty = percent; g->pwm_signal = signal;
+        }
+    }
+}
+
+void m5_unit_rmt_tx(unsigned channel, const uint32_t *symbols,
+                     unsigned count, double tick_hz)
+{
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if (esp32_gpio_matrix_out_signal(g->unit->yellow, true) != 81 + channel) { continue; }
+        if (!strcmp(g->unit->unit_id, "ir")) {
+            g->tx_count = 0;
+            for (unsigned i = 0; i < count && g->tx_count + 1 < 192; i++) {
+                g->tx_pulses[g->tx_count++] = llround((symbols[i] & 0x7fff) * 1000000.0 / tick_hz);
+                g->tx_pulses[g->tx_count++] = llround(((symbols[i] >> 16) & 0x7fff) * 1000000.0 / tick_hz);
+            }
+            g->unit->output_transitions++;
+        } else if (g->leds) {
+            if (count < g->leds * 24) { g->incomplete_frames++; continue; }
+            for (unsigned led = 0; led < g->leds; led++) {
+                uint32_t grb = 0;
+                for (unsigned bit = 0; bit < 24; bit++) {
+                    uint32_t symbol = symbols[led * 24 + bit];
+                    unsigned a = symbol & 0x7fff, b = (symbol >> 16) & 0x7fff;
+                    bool high_first = symbol & BIT(15);
+                    grb = (grb << 1) | (high_first ? a > b : b > a);
+                }
+                g->rgb[led] = ((grb >> 8) & 0xff00) | ((grb & 0xff00) << 8) | (grb & 0xff);
+            }
+            g->frames++; g->unit->output_transitions++;
+        }
+    }
+}
+
+unsigned m5_unit_rmt_rx(unsigned channel, uint32_t *symbols,
+                         unsigned capacity, double tick_hz)
+{
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if (strcmp(g->unit->unit_id, "ir") || !g->rx_count ||
+            esp32_gpio_matrix_in_pin(81 + channel, true) != g->unit->white) { continue; }
+        unsigned count = (g->rx_count + 1) / 2;
+        if (count > capacity) { return 0; }
+        for (unsigned i = 0; i < count; i++) {
+            uint32_t a = llround(g->rx_pulses[i * 2] * tick_hz / 1000000);
+            uint32_t b = i * 2 + 1 < g->rx_count ? llround(g->rx_pulses[i * 2 + 1] * tick_hz / 1000000) : 0;
+            if (a > 0x7fff || b > 0x7fff) { return 0; }
+            symbols[i] = a | (b << 16) | BIT(31); /* demodulator active-low */
+        }
+        g->rx_count = 0;
+        return count;
+    }
+    return 0;
+}
+
+static const unsigned uart_signal[] = {12, 15, 18};
+void m5_unit_uart_tx(ESP32UARTState *uart, uint8_t byte)
+{
+    for (unsigned n = 0; n < 3; n++) {
+        if (m5soc_get_uart_device(n) != DEVICE(uart)) { continue; }
+        for (GPIOUnit *g = gpio_units; g; g = g->next) {
+            if (!strcmp(g->unit->unit_id, "rs485") &&
+                esp32_gpio_matrix_out_signal(g->unit->yellow, true) == uart_signal[n]) {
+                if (g->uart_tx_size < sizeof(g->uart_tx)) { g->uart_tx[g->uart_tx_size++] = byte; }
+                g->unit->written_bytes++;
+            }
+        }
+    }
+}
+
+static void hex_get(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op;
+    char *value;
+    if (!strcmp(name, "rx-hex")) { value = g_strdup(g->last_rx ? g->last_rx : ""); }
+    else {
+        value = g_malloc(g->uart_tx_size * 2 + 1);
+        for (size_t i = 0; i < g->uart_tx_size; i++) { sprintf(value + i * 2, "%02x", g->uart_tx[i]); }
+        value[g->uart_tx_size * 2] = 0;
+    }
+    visit_type_str(v, name, &value, errp); g_free(value);
+}
+
+static void hex_set(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+{
+    GPIOUnit *g = op; char *value = NULL;
+    if (!visit_type_str(v, name, &value, errp)) { return; }
+    size_t size = strlen(value);
+    if (size > 8192 || size % 2 || strspn(value, "0123456789abcdefABCDEF") != size) {
+        error_setg(errp, "RX requires at most 4096 hex bytes"); g_free(value); return;
+    }
+    uint8_t data[4096];
+    for (size_t i = 0; i < size / 2; i++) {
+        char byte[] = {value[i * 2], value[i * 2 + 1], 0}; data[i] = strtoul(byte, NULL, 16);
+    }
+    for (unsigned n = 0; n < 3; n++) {
+        if (esp32_gpio_matrix_in_pin(uart_signal[n], true) == g->unit->white) {
+            DeviceState *uart = m5soc_get_uart_device(n);
+            if (uart) {
+                if (size / 2 > fifo8_num_free(&ESP32_UART(uart)->rx_fifo)) {
+                    error_setg(errp, "Unit RX exceeds the UART FIFO's current free capacity");
+                    g_free(value); return;
+                }
+                esp32_uart_inject_rx(ESP32_UART(uart), data, size / 2);
+                g->unit->read_bytes += size / 2;
+                g->unit->input_events++;
+                g_free(g->last_rx); g->last_rx = value; return;
+            }
+        }
+    }
+    error_setg(errp, "no UART receiver is routed to the Unit white pin"); g_free(value);
+}
+
+void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+{
+    if (!s3 && (!strcmp(unit->unit_id, "rgb") || !strcmp(unit->unit_id, "key") ||
+                !strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485"))) {
+        error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+    }
+    GPIOUnit *g = g_new0(GPIOUnit, 1);
+    g->unit = unit; g->s3 = s3; g->voltage = 1250;
+    g->next = gpio_units; gpio_units = g;
+    Object *o = OBJECT(unit); const char *id = unit->unit_id;
+    if (!strcmp(id, "pir")) {
+        g->hold_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, motion_off, g);
+        esp32_gpio_set_input(unit->white, 0);
+        object_property_add(o, "motion", "bool", bool_get, bool_set, NULL, g);
+        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+    } else if (!strcmp(id, "dual-button") || !strcmp(id, "limit") || !strcmp(id, "key")) {
+        esp32_gpio_set_input(unit->white, 1);
+        if (!strcmp(id, "dual-button")) {
+            esp32_gpio_set_input(unit->yellow, 1);
+            object_property_add(o, "red-pressed", "bool", bool_get, bool_set, NULL, g);
+            object_property_add(o, "blue-pressed", "bool", bool_get, bool_set, NULL, g);
+        } else { object_property_add(o, "pressed", "bool", bool_get, bool_set, NULL, g); }
+        object_property_add(o, "input-level", "bool", bool_get, NULL, NULL, g);
+    } else if (!strcmp(id, "angle") || !strcmp(id, "light")) {
+        object_property_add(o, !strcmp(id, "angle") ? "voltage-mv" : "analog-mv", "number", num_get, num_set, NULL, g);
+        object_property_add(o, "adc-samples", "uint64", count_get, NULL, NULL, &g->adc_samples);
+        if (!strcmp(id, "light")) {
+            esp32_gpio_set_input(unit->yellow, 0);
+            object_property_add(o, "digital-level", "bool", bool_get, bool_set, NULL, g);
+        }
+    } else if (!strcmp(id, "fan") || !strcmp(id, "buzzer")) {
+        object_property_add(o, "frequency-hz", "number", num_get, NULL, NULL, g);
+        object_property_add(o, "duty-pct", "number", num_get, NULL, NULL, g);
+    } else if (!strcmp(id, "ir")) {
+        object_property_add(o, "rx-pulses-us", "any", pulses_get, pulses_set, NULL, g);
+        object_property_add(o, "tx-pulses-us", "any", pulses_get, NULL, NULL, g);
+    } else if (!strcmp(id, "rs485")) {
+        object_property_add(o, "rx-hex", "str", hex_get, hex_set, NULL, g);
+        object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
+    }
+    if (!strcmp(id, "rgb") || !strcmp(id, "key")) {
+        g->leds = !strcmp(id, "key") ? 1 : 3;
+        object_property_add(o, "led-rgb", g->leds == 1 ? "uint32" : "any", led_get, NULL, NULL, g);
+        object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+        object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL, &g->incomplete_frames);
+    }
+}

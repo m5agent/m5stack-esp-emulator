@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "validation": "repository shared-controller regression; virtual-device validation",
+  "status": "PASS",
+  "hardware_validation": "NOT RUN",
+  "latest_full_matrix_status": "PASS",
+  "full_matrix_pass_claim": true,
+  "runs": [
+    {
+      "run_id": "full-initial",
+      "scope": "full 67-case regression before reference VFS correction",
+      "counts": {
+        "FAIL": 14,
+        "PASS": 53
+      },
+      "summary": "full-initial/run-summary.json"
+    },
+    {
+      "run_id": "vfs-targeted",
+      "scope": "only the 13 prior StickS3/Cardputer ADV failures after refreshed-reference VFS correction",
+      "counts": {
+        "PASS": 13
+      },
+      "summary": "vfs-targeted/run-summary.json"
+    },
+    {
+      "run_id": "full-core2-compat",
+      "scope": "new independent complete 67-case regression after reference VFS correction and classic ESP32 soft-I2C handoff compatibility fix",
+      "counts": {
+        "PASS": 67
+      },
+      "check_counts": {
+        "PASS": 274
+      },
+      "attempts_per_case": 1,
+      "retry_used": false,
+      "summary": "full-core2-compat/run-summary.json"
+    }
+  ],
+  "paired_case_reconciliation": {
+    "case_ids": [
+      "sticks3-peripherals",
+      "sticks3-audio",
+      "sticks3-mic",
+      "cardputer-adv-sd",
+      "cardputer-adv-imu",
+      "cardputer-adv-keyboard",
+      "cardputer-adv-nfc",
+      "cardputer-adv-cc1101",
+      "cardputer-adv-audio",
+      "cardputer-adv-mic",
+      "sticks3-ir",
+      "sticks3-ir-rx",
+      "cardputer-adv-ir"
+    ],
+    "initial_status": "FAIL",
+    "targeted_status": "PASS",
+    "old_vfs_offset": "0x641000",
+    "resolved_vfs_offset": "0x651000",
+    "classification": "reference fixture layout mismatch confirmed by a separate targeted rerun; not a merged full-run PASS"
+  },
+  "remaining_unresolved": [],
+  "remaining_boundary": "The latest independent full-core2-compat run is 67/67 PASS with 274/274 checks and no retries. Previous full-initial remains 53 PASS/14 FAIL and vfs-targeted remains a separate 13 PASS diagnostic rerun. This is not a 53+13 reconciliation claim. Hardware, RF, timing and visual fidelity are not validated.",
+  "redaction_policy": {
+    "raw_retention": ".work/internal-evidence/2026-10-26-unit-shared-regression",
+    "text": "Repository prefixes become relative; other local paths, MAC-format values, nonpublic addresses and credential assignments are redacted. UTF-8 replacement is disclosed per artifact.",
+    "hashes": "Raw input bytes and redacted artifact bytes have separate SHA256 fields. They are equal only when bytes are unchanged.",
+    "forbidden_artifacts": [
+      "firmware BIN",
+      "Flash IMG",
+      "ROM images"
+    ],
+    "data_plane": "Only PNG frames, text serial/runner logs, synthetic/guest PCM and RMT evidence are copied."
+  },
+  "artifact_index": "artifact-index.json",
+  "visual_review": {
+    "status": "REVIEWED",
+    "decoded_png_files": 297,
+    "method": "Opened native PNG contact sheets of all 14 initial failures and all 13 VFS-targeted reruns. Original frames remain unchanged.",
+    "initial_failure_observation": "Thirteen StickS3/Cardputer ADV cases remain at the UIFlow startup menu; the Core2 AXP192 application frame explicitly shows OSError(19)/FAIL.",
+    "targeted_observation": "All thirteen targeted frames show their application probes and corresponding telemetry/status. Narrow-screen line wrapping is preserved. This is not a visual-fidelity acceptance claim.",
+    "functional_statuses_unchanged": true,
+    "new_full_observation": "Opened contact sheet of all 67 new after frames and the original Core2 AXP192 after.png. All frames show their configured application probes; Core2 AXP192 now explicitly displays PASS with id=3/st=24/mv=3899/ma=300. Existing narrow-screen wrapping and dark StopWatch renders remain visible; no visual-fidelity acceptance or hardware claim is made.",
+    "new_full_contact_sheet": "full-core2-compat/contact-sheet.png",
+    "new_full_review_status": "REVIEWED"
+  },
+  "latest_full": {
+    "run_id": "full-core2-compat",
+    "scope": "new independent complete 67-case regression after reference VFS correction and classic ESP32 soft-I2C handoff compatibility fix",
+    "counts": {
+      "PASS": 67
+    },
+    "check_counts": {
+      "PASS": 274
+    },
+    "attempts_per_case": 1,
+    "retry_used": false,
+    "summary": "full-core2-compat/run-summary.json",
+    "recorded_binary_start_sha256": {
+      "xtensa": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "riscv32": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0"
+    },
+    "recorded_binary_end_sha256": {
+      "xtensa": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "riscv32": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0"
+    },
+    "provenance": "full-core2-compat/provenance.json",
+    "exit_code": 0,
+    "independent_run": true,
+    "combined_from_previous_runs": false
+  },
+  "resolved_previous_core2_failure": {
+    "case_id": "core2-axp192",
+    "new_full_status": "PASS",
+    "evidence": "full-core2-compat/cases/core2-axp192/after.png",
+    "mechanism": "classic ESP32 I2C transaction no longer permanently hands the shared board bus to hardware; S3 path unchanged",
+    "separate_ab_evidence": "../2026-10-26-core2-soft-i2c-handoff"
+  }
+}

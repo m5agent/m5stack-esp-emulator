@@ -1,0 +1,195 @@
+# Reproducible Xtensa source prelude for external Units
+
+Date: `2026-10-26`.
+
+The Unit patches are built from public source, rather than by modifying the
+published executable. This directory supplies the missing source prelude; the
+new Unit implementation stays in `qemu-m5stack-peripherals/0033` through `0035`,
+followed by the narrow classic-I2C compatibility fix in `0036` and the scoped
+S3 LEDC duty-register readback fix in `0037`.
+No firmware, ROM, executable or credential is added by these patches.
+
+## Exact source and order
+
+1. Clone `https://github.com/espressif/qemu.git`, tag
+   `esp-develop-9.2.2-20260417`.
+2. Verify the resolved **commit** is
+   `40edccac415693c5130f91c01d84176ae6008566`. The tag object itself is
+   `6cdce334bfa5541a5e46c860a9b40a4fe5a13aae`; these are different Git objects.
+3. Apply `0001-reconstructed-xtensa-source.patch` from this directory.
+4. Apply `0002-wifi-radio-lifecycle-compat.patch` from this directory.
+5. Apply `qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch`,
+   `0034-unit-i2c-sensors.patch`, `0035-unit-i2c-controls.patch`, then
+   `0036-core2-soft-i2c-handoff-compat.patch`, then
+   `0037-s3-ledc-duty-readback.patch`.
+6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
+   branch or the P4/Linux backends.
+
+`0033` intentionally references the new C files supplied by `0034` and `0035`;
+all three must be applied before configuring/building. Do not apply the older
+historical board/peripheral snapshots on top of this prelude again.
+
+`0036` removes the new permanent software-I2C handoff from the classic ESP32
+hardware transaction path. Core2 M5GFX/Power may return to bit-banged I2C after
+hardware access; the S3 one-way handoff is not a classic-controller contract.
+The patch leaves S3 handoff and Unit bus routing unchanged. The same AXP192
+guest image fails with OSError(19) on the five-patch runtime and passes on the
+six-patch candidate; the six Core2 regression cases also pass. Earlier five-patch
+runtime receipts remain historical evidence for their exact binary SHA.
+
+`0037` adds only ESP32-S3 channel DUTY/DUTY_R reads: addresses below `0xa0`,
+channel stride `0x14`, offsets `0x8` and `0x10`, returning the existing
+`channel_duty_reg` low 19 bits. Classic ESP32 reads, duty writes and PWM output
+observation are unchanged. Register readback is not forced to zero by
+`sig_out_en` or timer pause.
+
+This is a **settled set+update readback** repair within the existing immediate
+duty model. It does not implement pending/current-cycle separation, an active
+latch, fade intermediate values, HPOINT or exact next-period commit timing.
+The official IDF API says `set_duty` needs `update_duty`, and `get_duty` returns
+the present PWM cycle, which can differ from a newly requested value. Those
+semantics remain model gaps; DUTY and DUTY_R are not claimed to be universal
+hardware synonyms. The fixed-source references are Espressif IDF commit
+`b774170ff46c393eeb5e495ea37936038d3f4f4f`:
+
+- [S3 register layout](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/soc/esp32s3/register/soc/ledc_reg.h)
+  defines the two offsets and 19-bit fields.
+- [S3 LEDC low-level API](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/hal/esp32s3/include/hal/ledc_ll.h)
+  shifts integer duty into/out of the register by four bits.
+- [Driver API](https://github.com/espressif/esp-idf/blob/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_driver_ledc/include/driver/ledc.h)
+  documents update and current-cycle behavior; reviewed bytes have SHA256
+  `8ac4036faeca0c487f67af316baa944dc07e4ca689a683f9b2dba13843410378`.
+
+Source replay and static/fragment contract checks do not establish a firmware
+or hardware PASS. A new runtime needs a cold source build, the same diagnostic
+guest with its exact firmware SHA, and the shared-controller regression gate.
+Use a fresh `--source-dir` for this seven-patch stack; the bootstrap intentionally
+rejects an existing six-patch source receipt instead of resetting it.
+
+## Why a prelude is necessary
+
+The historical patch directories preserve snapshots from several development
+trees. They do not form one mechanically applicable sequence. The following
+were reproduced on the fixed public source:
+
+- `zqqf16/M5StopWatch-QEMU` v0.1.0, commit
+  `32d86576e783988fef1a489cb362dfda92a7aeda`, supplies its five public patches.
+- The repository's peripheral `0003` applies after those five patches, but its
+  Meson file refers to five absent files: `m5_can_peer.c`, `m5_scs_servo.c`,
+  `m5_spi_sd.c`, `m5_uart_peer.c`, and `m5_i2s_esp32.c`. Their complete new-file
+  hunks are present in historical peripheral `0002`; those files were recovered
+  from that source, without editing the old patch.
+- Peripheral `0004` already has its S3 PCM fix in the `0003` snapshot, while its
+  classic I2S fix still needs applying to the recovered classic source.
+- The shared I2C BQ27220/ES8389 layers needed by peripheral `0006` are in the
+  Linux patch group's `0001`/`0002`. They were recovered as shared source;
+  this does not claim a Linux backend rebuild or validation.
+- Later Xtensa/S3 peripheral layers and Core2 OpenMAC/BT/native-HCI layers
+  were merged into that tree. The separate C6 controller layer is not substituted
+  into the Xtensa tree. Historical ARM camera/USB model material is retained
+  only as source; `xtensa-softmmu` does not compile or validate it.
+- The UART2 comment/context in peripheral `0023`, the WLAN formatting/context
+  in `0028`, and includes/AP setup context in `0029` differ from the recovered
+  source. The equivalent source changes were merged and then exported from Git.
+- `radio_enabled` and real WLAN cleanup were only context in the later patches,
+  rather than complete source. `0002` is a new compatibility implementation of
+  the existing `radio-enabled` QOM/network-fault contract: actual frame gating,
+  AP timers, queue cleanup, and deauthentication through guest RX DMA.
+
+`0001` was generated from the exact reconstructed Git worktree. It contains the
+pre-Unit source delta only. `0002` and the Unit patches remain separate review
+units. The original historical patches have not been rewritten.
+
+## Local bootstrap
+
+Use Python 3.10 or newer:
+
+```bash
+python3 scripts/bootstrap-unit-runtime.py --check
+python3 scripts/bootstrap-unit-runtime.py --prepare-only
+python3 scripts/bootstrap-unit-runtime.py --check
+python3 scripts/bootstrap-unit-runtime.py --jobs 8
+```
+
+The script builds under `.work/unit-runtime-source/` and
+`.work/unit-runtime-build/`. `--source-dir` and `--work-dir` allow alternate
+isolated locations. `--check` does not download or build: before preparation it
+reports `not-prepared`; afterwards it verifies the pinned source HEAD, patch
+hashes, every patched source hash and the absence of unrelated checkout changes.
+It refuses to reset an existing unowned/changed checkout. If a patch changes,
+select fresh source/build directories instead of resetting the previous tree.
+Source receipts record patch hashes and all resulting source-file hashes.
+
+On macOS, the system `python3` may be 3.9; use an installed Python 3.10+ interpreter
+for every command above. The script does not replace the system Python.
+
+Host requirements are a C compiler, `make`, Git, Python `venv`, and existing
+GLib/pixman development packages discoverable by pkg-config. The script does
+not run Homebrew/apt or install global packages. It builds pinned pkgconf,
+libgpg-error and libgcrypt from SHA256-checked official archives, and builds
+libslirp from its official Git repository at
+`26be815b86e8d49add8c9a8b320239b9594ff03d` (the QEMU wrap pin). Ninja and Meson
+are installed only into the local build venv.
+
+The resulting runtime has user networking and uses the matching source tree's
+`pc-bios` directory. It has no native graphical window; the Device Service reads
+the guest framebuffer and encodes its own PNGs. This build does not bundle the
+host's GLib/pixman libraries or promise a relocatable binary.
+`build-manifest.json` records the resulting executable SHA256. Repeating a
+source preparation verifies the same source bytes; a different host/compiler
+may produce a different executable hash.
+
+```bash
+M5_QEMU_XTENSA="$PWD/.work/unit-runtime-source/qemu/build/qemu-system-xtensa" \
+M5_QEMU_XTENSA_ROM_DIR="$PWD/.work/unit-runtime-source/qemu/pc-bios" \
+python3 platform/tools/serve.py 8787
+```
+
+Service Python dependencies and compatible reference/uploaded firmware must be
+prepared separately. Firmware execution and input tests must use visible
+Device Service sessions, collect evidence before stop, and retain history with
+`purge=0`. Building, source replay, or `--version` is not a firmware PASS.
+
+## Unit implementation boundaries
+
+The linked source dispatch covers the following 27 catalog IDs. This inventory
+records implementation scope, not the per-Unit functional acceptance result.
+
+| Source | Catalog IDs |
+| --- | --- |
+| `m5_unit_runtime.c` | `button`, `relay`, `env-iii` |
+| `m5_unit_gpio.c` | `pir`, `dual-button`, `limit`, `key`, `rgb`, `angle`, `light`, `buzzer`, `fan`, `ir`, `rs485`, `hub` |
+| `m5_unit_i2c_sensors.c` | `color`, `tof`, `ncir`, `heart`, `tvoc`, `ultrasonic-i2c`, `thermal` |
+| `m5_unit_i2c_controls.c` | `joystick-v11`, `encoder`, `8encoder`, `cardkb`, `rfid2` |
+
+- Unit configuration is session-scoped `M5_UNIT_CONFIG` JSON; the manager exposes
+  `/machine/units/schema-version=1`. Unknown Unit IDs and unavailable controller
+  paths fail closed. Attachments are fixed at machine construction.
+- I2C slaves live on connector-specific physical buses. A hardware controller
+  reaches that bus only when both its SDA/SCL input and output GPIO-matrix
+  routes match the connector. S3 software-I2C handoff is scoped to each bus;
+  classic ESP32 retains its pre-Unit software/hardware switching behavior.
+- GPIO input, edge/level IRQ, output observation, SAR ADC channel selection,
+  LEDC registers, RMT memory/interrupts and UART FIFO remain in QEMU C. Python
+  and browser code only set physical fixtures or read model state.
+- ADC conversion uses an explicitly ideal 12-bit attenuation transfer; it does
+  not establish calibrated ADC accuracy or electrical timing. PWM observation
+  currently follows the configured divider/resolution with the APB clock path;
+  alternate clock calibration is a separate boundary.
+- RGB/IR/UART Unit paths currently use the S3 controllers. The same Unit is
+  rejected on the classic Core2 path when its controller route is unavailable.
+  RMT frames shorter than the requested LED chain count remain incomplete and
+  never produce a fabricated complete LED frame.
+- RMT non-DMA TX consumes the configured physical memory in order, raises the
+  real half-buffer threshold interrupt, waits for guest acknowledgement/refill,
+  and publishes a completed capture only at the hardware stop/EOF condition.
+  The finite capture is capped at 4096 symbols; overflow raises TX error.
+  APB and XTAL divider paths are decoded; RC_FAST calibration, DMA and continuous
+  loops remain outside this validated path. Pulse conversion widens before
+  multiplying ticks by microseconds, preserving long NEC leaders.
+- Thermal requires the explicit EEPROM/raw-frame fixture contract in `0034`;
+  absent raw evidence is NACKed. Synthetic test fixtures are not physical
+  calibration or hardware validation.
+- Each Unit/host/firmware path still needs its own Device Service evidence.
+  A passing Unit does not grant another Unit, firmware SHA or controller path
+  the same result. Current acceptance belongs in the status/backlog/ledger.

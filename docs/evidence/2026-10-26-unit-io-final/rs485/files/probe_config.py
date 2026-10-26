@@ -1,0 +1,3 @@
+CASE = 'rs485'
+WHITE = 1
+YELLOW = 2

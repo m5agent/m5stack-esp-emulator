@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "service-generation",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "service_provenance_sha256": "d957f81f26726dd88046b3563f3ef8fb5cf0ba5b09e069c50a8edb2fe702b66b",
+  "source_replay_sha256": "95ebd7c54c6f25157d996db56ef6e380d910606766d4e82c91484639a2274e2a",
+  "sessions": [
+    {
+      "unit_id": "rgb",
+      "session_id": "108a0a5d5fc9495ba1f7334038686516",
+      "pid": 59269,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "angle",
+      "session_id": "d02849771ed846e38d2f0a7c633905a6",
+      "pid": 59495,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "rs485",
+      "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+      "pid": 60145,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "key",
+      "session_id": "90f52b3423a24dc9a82070e27725b004",
+      "pid": 60954,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "hub",
+      "session_id": "fb4926c17fea4252ad9bc1d9625db80d",
+      "pid": 62257,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "pir",
+      "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+      "pid": 75438,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "dual-button",
+      "session_id": "839f05d01025432eaa80818df75f54d3",
+      "pid": 75664,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "limit",
+      "session_id": "4fc4ed7df49e496f9a613f48f37916b8",
+      "pid": 75753,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "light",
+      "session_id": "8fa1f57162124dd8be3f059b5a8fd444",
+      "pid": 75969,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "buzzer",
+      "session_id": "67881570193248cba21416abcd48d4f8",
+      "pid": 76105,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "fan",
+      "session_id": "cb54ea041c9d4330908a268d8f33e3cb",
+      "pid": 76280,
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    }
+  ],
+  "direct_executable_observations": [
+    "fan/runtime-provenance.json"
+  ],
+  "basis": "All selected ZIP manifests retain worker-b71031d2aef3428b generation 5, matching the frozen service configuration. Only Fan sampled its own live process executable SHA directly. Other cases have indirect service-generation association."
+}

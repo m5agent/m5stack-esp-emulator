@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "category": "post-promotion-browser-regression",
+  "status": "PASS",
+  "finished_at": "2026-10-25T21:16:14.958154+00:00",
+  "maximum_concurrent_browsers": 2,
+  "firmware_execution": "NOT RUN",
+  "device_service_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_drift": [],
+  "runs": [
+    {
+      "name": "panel",
+      "command": [
+        "node",
+        "platform/tests/test_unit_panel.mjs"
+      ],
+      "started_at": "2026-10-25T21:15:15.181297+00:00",
+      "finished_at": "2026-10-25T21:15:21.298509+00:00",
+      "elapsed_seconds": 6.117,
+      "exit_code": 0,
+      "stdout": "panel.stdout.txt",
+      "stderr": "panel.stderr.txt"
+    },
+    {
+      "name": "bridge",
+      "command": [
+        "node",
+        "platform/tests/test_unit_web_bridge.mjs"
+      ],
+      "started_at": "2026-10-25T21:15:21.298663+00:00",
+      "finished_at": "2026-10-25T21:15:28.070723+00:00",
+      "elapsed_seconds": 6.772,
+      "exit_code": 0,
+      "stdout": "bridge.stdout.txt",
+      "stderr": "bridge.stderr.txt"
+    },
+    {
+      "name": "mount",
+      "command": [
+        "node",
+        "platform/tests/test_session_mount.mjs",
+        "<repo>",
+        "<repo>/.work/unit-hub-layout-post-promotion-20261026/mount"
+      ],
+      "started_at": "2026-10-25T21:15:28.070825+00:00",
+      "finished_at": "2026-10-25T21:15:34.573450+00:00",
+      "elapsed_seconds": 6.503,
+      "exit_code": 0,
+      "stdout": "mount.stdout.txt",
+      "stderr": "mount.stderr.txt"
+    },
+    {
+      "name": "hub-product",
+      "command": [
+        "node",
+        "<repo>/.work/unit-hub-layout-post-promotion-20261026/browser-layout-product.mjs"
+      ],
+      "started_at": "2026-10-25T21:15:34.573566+00:00",
+      "finished_at": "2026-10-25T21:15:57.914223+00:00",
+      "elapsed_seconds": 23.34,
+      "exit_code": 0,
+      "stdout": "hub-product.stdout.txt",
+      "stderr": "hub-product.stderr.txt"
+    },
+    {
+      "name": "model",
+      "command": [
+        "node",
+        "platform/tests/test_model_shell.mjs"
+      ],
+      "started_at": "2026-10-25T21:15:15.181217+00:00",
+      "finished_at": "2026-10-25T21:16:14.928407+00:00",
+      "elapsed_seconds": 59.746,
+      "exit_code": 0,
+      "stdout": "model.stdout.txt",
+      "stderr": "model.stderr.txt"
+    }
+  ]
+}

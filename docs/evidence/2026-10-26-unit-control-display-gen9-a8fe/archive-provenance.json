@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "category": "post-execution-display-control-evidence-archive",
+  "execution_model": "Independent host batches, each preserving its own summary and source freeze. No single-round-15 claim.",
+  "unchanged_raw": [
+    "outer and controller reports",
+    "source-before maps",
+    "browser records",
+    "ZIP/native/history artifacts",
+    "preparation records"
+  ],
+  "source_storage": "Every frozen source is either a verbatim text snapshot or an exact baseline commit/path/blob/SHA reference. Sensitive baseline source bodies are not republished; actual artifacts have zero scanning exceptions.",
+  "preparation_and_fonts": "Each supplied batch must cover 105 preparation dependencies and 23 official font sources, including actual display wrapper and reviewed manifest. Seventeen named probes plus shared rtc_probe.py yield eighteen packaged Python files.",
+  "preparation_origin": "Historical preparation-time NOT RUN/BLOCKED fields remain unchanged; normalization receipts label origins rather than rewriting them.",
+  "native_readability_scope": "captured-final-native-frame-only",
+  "visual_limit": "Actual final frame only. Intermediate states, all numeric extrema, every glyph and physical hardware are not inferred from source arithmetic or functional PASS.",
+  "excluded": [
+    "full-flash images",
+    "ROM/ELF",
+    "bytecode",
+    "native runtime/toolchain binaries"
+  ],
+  "hardware_execution": "NOT RUN",
+  "external_work_log": "NOT ARCHIVED",
+  "archive_script": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/post-execution-tooling/archive-script.py.txt",
+    "sha256": "bd0b72a1d8002f3ff3a9e5a079149e1f8800f6aa84329068819b8a4249827b05"
+  },
+  "history_collector": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/post-execution-tooling/history-collector.py.txt",
+    "sha256": "01a54073138b9433eb616323fa1a003c376a38e6aad59810281e6a94c94066a7"
+  },
+  "api_contacted": false,
+  "sessions_started": 0,
+  "product_metadata_modified": false
+}

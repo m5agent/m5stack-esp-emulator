@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.33.0
+  version: 1.34.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -43,6 +43,100 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /units:
+    get:
+      summary: List Unit protocols, runtime support and confirmed host wiring
+      parameters:
+        - name: device_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: >-
+            Unit inventory. Runtime profiles own current status and admission;
+            model_status/blocker are compatibility aliases. research_snapshot
+            preserves historical protocol research, not current capability.
+            Host admission does not inherit another host's validation.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /units/{unit_id}:
+    get:
+      summary: Describe one Unit and its explicit runtime boundary
+      parameters:
+        - name: unit_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Unit protocol and runtime contract
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/units:
+    get:
+      summary: Read Unit properties from the attached guest controllers
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Live QOM values or explicitly marked persisted terminal state, with session-frozen definitions, contract_hashes and contract_status. Unrecorded or invalid legacy contracts retain old values but disable writes; individual read failures remain unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/unit-input:
+    post:
+      summary: Change an attached Unit physical input through QOM
+      description: >
+        Accepting an input is not proof that firmware consumed it. Output-only
+        fields are rejected. Controller refusal returns 409 unit_input_rejected;
+        unrecorded or invalid contracts return 409 unit_contract_unavailable.
+        Transport failure and timeout remain 503 and 504.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [id, values]
+              properties:
+                id:
+                  type: string
+                values:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Controller state read back after the physical input update
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
   /health:
     get:
       summary: Service health and capacity
@@ -1822,10 +1916,44 @@ components:
           type: object
         header_magic:
           type: integer
+    UnitAttachment:
+      type: object
+      additionalProperties: false
+      required: [id, unit_id, port_id]
+      properties:
+        id:
+          type: string
+          pattern: "^[a-z][a-z0-9_-]{0,47}$"
+        unit_id:
+          type: string
+        port_id:
+          type: string
+        parent_id:
+          type: string
+          pattern: "^[a-z][a-z0-9_-]{0,47}$"
+          description: >
+            Optional passive HUB instance. Its child port_id must be grove-1,
+            grove-2 or grove-3. Pins inherit from the upstream host connector.
+        initial:
+          type: object
+          additionalProperties: true
+      description: >
+        Attached at guest creation. Pins and QOM paths are resolved from verified
+        host wiring, never supplied by a caller. Unimplemented models or missing
+        controller routes return 409 runtime_model_gap. A HUB parent is required
+        before multiple Units can share a physical port. Cycles, occupied slots,
+        duplicate I2C addresses and unmodeled GPIO bus contention are rejected.
+        Parallel HUB leaves currently require I2C. Power-current limits and
+        physical electrical behavior are not established by this topology.
     CreateSessionRequest:
       type: object
       required: [device_id]
       properties:
+        units:
+          type: array
+          maxItems: 16
+          items:
+            $ref: "#/components/schemas/UnitAttachment"
         device_id:
           type: string
         idempotency_key:
@@ -2285,6 +2413,12 @@ components:
       additionalProperties: true
       required: [session_id, device_id, state]
       properties:
+        units:
+          type: array
+          description: Session-scoped attachments with server-resolved physical pins
+          items:
+            type: object
+            additionalProperties: true
         session_id:
           type: string
         device_id:

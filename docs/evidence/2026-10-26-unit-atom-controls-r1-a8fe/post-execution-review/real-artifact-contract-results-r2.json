@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "status": "CANDIDATE_CONTRACT_REAL_ARTIFACT_PASS",
+  "results": [
+    {
+      "case": "joystick-v11",
+      "variant": "positive",
+      "result": "CANDIDATE_REAL_ARTIFACT_PASS",
+      "reason": null
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "missing_control_assertion",
+      "result": "REJECTED",
+      "reason": "original unit-specific CONTROL assertions missing"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "bad_worker",
+      "result": "REJECTED",
+      "reason": "runtime observation has another worker"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "late_bmi_offset",
+      "result": "REJECTED",
+      "reason": "fresh post-control BMI marker absent"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "bad_geometry",
+      "result": "REJECTED",
+      "reason": "prepared host geometry differs"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "bad_attachment_request",
+      "result": "REJECTED",
+      "reason": "requested attachment projections differ"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "bad_source_freeze",
+      "result": "REJECTED",
+      "reason": "execution/source freeze map differs"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "history_failed",
+      "result": "REJECTED",
+      "reason": "clean stopped history/Flash release absent"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "flash_retained",
+      "result": "REJECTED",
+      "reason": "clean stopped history/Flash release absent"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "flash_missing",
+      "result": "REJECTED",
+      "reason": "clean stopped history/Flash release absent"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "flash_nonboolean",
+      "result": "REJECTED",
+      "reason": "clean stopped history/Flash release absent"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "unknown_contract",
+      "result": "REJECTED",
+      "reason": "'guess-evidence-v0' != 'host-probe-dual-observer-v1'\n- guess-evidence-v0\n+ host-probe-dual-observer-v1\n"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "raw_preparation_field_rewritten",
+      "result": "REJECTED",
+      "reason": "historical preparation fields were reinterpreted or raw record changed"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "selection_host",
+      "result": "REJECTED",
+      "reason": "'sticks3' != 'atoms3r'\n- sticks3\n+ atoms3r\n"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "selection_proof_pointer",
+      "result": "REJECTED",
+      "reason": "'/missing' != '/runtime_provenance'\n- /missing\n+ /runtime_provenance\n"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "selection_firmware_flavor",
+      "result": "REJECTED",
+      "reason": "'unrelated-image' != 'reference-app-with-vendored-official-control-drivers-host-probe'\n- unrelated-image\n+ reference-app-with-vendored-official-control-drivers-host-probe\n"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "selection_report_hash",
+      "result": "REJECTED",
+      "reason": "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' != '85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455'\n- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n+ 85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455\n"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "frozen_host_ports_binding",
+      "result": "REJECTED",
+      "reason": "ZIP host ports source binding differs"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "browser_dom_false",
+      "result": "REJECTED",
+      "reason": "browser snapshot DOM/HTTP comparison did not pass"
+    },
+    {
+      "case": "joystick-v11",
+      "variant": "native_history_corrupt",
+      "result": "REJECTED",
+      "reason": "native/history/ZIP framebuffer differs"
+    },
+    {
+      "case": "encoder",
+      "variant": "positive",
+      "result": "CANDIDATE_REAL_ARTIFACT_PASS",
+      "reason": null
+    },
+    {
+      "case": "8encoder",
+      "variant": "positive",
+      "result": "CANDIDATE_REAL_ARTIFACT_PASS",
+      "reason": null
+    },
+    {
+      "case": "cardkb",
+      "variant": "positive",
+      "result": "CANDIDATE_REAL_ARTIFACT_PASS",
+      "reason": null
+    },
+    {
+      "case": "rfid2",
+      "variant": "positive",
+      "result": "CANDIDATE_REAL_ARTIFACT_PASS",
+      "reason": null
+    }
+  ],
+  "source_files_unchanged": 380,
+  "api_contacted": false,
+  "sessions_started": 0,
+  "history_snapshot_scope": "Actual post-execution history response bytes supplied by root; no synthetic history is accepted in these real-artifact positives.",
+  "runtime_scope": "Unmodified real report/ZIP/Web/native/history copies are used. Candidate metadata and selection envelopes exist only in temporary isolated test trees. No live PID observation is recreated.",
+  "candidate_helper_sha256": "343c1c012f634b3eaf859d4573ab9e8cd51ee7ab5f4cab5eab8bd1d05fb7633b"
+}

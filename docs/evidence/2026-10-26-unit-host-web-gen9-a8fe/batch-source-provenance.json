@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE SNAPSHOT ONLY",
+  "scope": "Pre-execution local source freeze; no runtime validation",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "expected_generation": 9,
+  "service_provenance_sha256": "9a7af4525d618c2aed2c76e0aee9df7890450271b191f8769c02a596879abf0a",
+  "files": {
+    "tests/units/run_host_cases.py": {
+      "sha256": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+      "snapshot": "tool-sources/tests/units/run_host_cases.py.txt"
+    },
+    "tests/units/run_io_cases.py": {
+      "sha256": "84c22189750ad9813a2c66b369e66d7f3825e33b8df0ad4bef59ed9d42e6b830",
+      "snapshot": "tool-sources/tests/units/run_io_cases.py.txt"
+    },
+    "tests/units/run_service_cases.py": {
+      "sha256": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "snapshot": "tool-sources/tests/units/run_service_cases.py.txt"
+    },
+    "tests/units/web_ui_bridge.py": {
+      "sha256": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+      "snapshot": "tool-sources/tests/units/web_ui_bridge.py.txt"
+    },
+    "tests/units/check_batch_evidence.py": {
+      "sha256": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+      "snapshot": "tool-sources/tests/units/check_batch_evidence.py.txt"
+    },
+    "platform/tests/unit_web_bridge.mjs": {
+      "sha256": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+      "snapshot": "tool-sources/platform/tests/unit_web_bridge.mjs.txt"
+    },
+    "platform/tools/device_service.py": {
+      "sha256": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+      "snapshot": "tool-sources/platform/tools/device_service.py.txt"
+    },
+    "platform/tools/serve.py": {
+      "sha256": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+      "snapshot": "tool-sources/platform/tools/serve.py.txt"
+    },
+    "platform/tools/unit_runtime.py": {
+      "sha256": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "snapshot": "tool-sources/platform/tools/unit_runtime.py.txt"
+    },
+    "tests/uiflow2/run_profile_ui_test.py": {
+      "sha256": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+      "snapshot": "tool-sources/tests/uiflow2/run_profile_ui_test.py.txt"
+    },
+    "platform/units/catalog.json": {
+      "sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "snapshot": "tool-sources/platform/units/catalog.json.txt"
+    },
+    "platform/units/host-ports.json": {
+      "sha256": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "snapshot": "tool-sources/platform/units/host-ports.json.txt"
+    },
+    "platform/units/runtime-profiles.json": {
+      "sha256": "ff0cde104710bf33b7a55b3ecc82970094c1e2b5cfa488785ebb0963f359835d",
+      "snapshot": "tool-sources/platform/units/runtime-profiles.json.txt"
+    },
+    "platform/web/sessions.js": {
+      "sha256": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+      "snapshot": "tool-sources/platform/web/sessions.js.txt"
+    },
+    "platform/web/sessions.html": {
+      "sha256": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+      "snapshot": "tool-sources/platform/web/sessions.html.txt"
+    },
+    "platform/web/unit-panel.js": {
+      "sha256": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+      "snapshot": "tool-sources/platform/web/unit-panel.js.txt"
+    },
+    "platform/web/unit-panel.css": {
+      "sha256": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f",
+      "snapshot": "tool-sources/platform/web/unit-panel.css.txt"
+    },
+    "platform/web/unit-visual-mappings.js": {
+      "sha256": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+      "snapshot": "tool-sources/platform/web/unit-visual-mappings.js.txt"
+    },
+    "platform/web/model-shell.js": {
+      "sha256": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+      "snapshot": "tool-sources/platform/web/model-shell.js.txt"
+    },
+    "platform/web/device-shell-factory.js": {
+      "sha256": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+      "snapshot": "tool-sources/platform/web/device-shell-factory.js.txt"
+    },
+    ".work/host9-report-preparation-20261026/build_host9_reports.py": {
+      "sha256": "f8057fcf739b0ee0b1998837602a90ccd7f55518052539d075e24f7403efa6d4",
+      "snapshot": "tool-sources/.work/host9-report-preparation-20261026/build_host9_reports.py.txt"
+    },
+    "tests/units/host_probe/boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "snapshot": "tool-sources/tests/units/host_probe/boot.py.txt"
+    },
+    "tests/units/host_probe/host_program.py": {
+      "sha256": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+      "snapshot": "tool-sources/tests/units/host_probe/host_program.py.txt"
+    },
+    "tests/units/host_probe/main.py": {
+      "sha256": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+      "snapshot": "tool-sources/tests/units/host_probe/main.py.txt"
+    },
+    "tests/units/host_probe/probe_logging.py": {
+      "sha256": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+      "snapshot": "tool-sources/tests/units/host_probe/probe_logging.py.txt"
+    }
+  }
+}

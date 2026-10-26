@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "unit_id": "ultrasonic-i2c",
+  "classification": "functional-PASS-visual-transient",
+  "functional_assertions": 14,
+  "evidence_sha256": "d017d4da9ff0f76ea1cc54cfd6d4e1069806b7bb584a707baca6d5c8ccac8801",
+  "reason": "Guest serial and controller tests passed; standalone and ZIP framebuffer captures caught the final value redraw before completion. Original evidence is preserved unchanged and excluded from the final seven-case selection.",
+  "superseded_by": "../../ultrasonic-i2c/result.json"
+}

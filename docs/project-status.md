@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文是当前能力和边界的权威说明。当前未完成工作只在
 [项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
@@ -46,6 +46,109 @@ Core2 legacy 并发 lease 会以不同 CPU/PC 触发 interrupt-WDT。显式
 机械、电气或真机安全状态。
 
 ## 当前工作与下一门禁
+
+`UNIT-01` 在独立工作树接入固定公开模型版本：14 款主机外壳和 27 款
+Unit 已通过浏览器装配、像素、输入桥和生命周期检查；27 款芯片/控制器源码
+可从固定公开 QEMU 基线冷构建。原六层稳定运行时与新增 `0037` 的七层
+读回运行时分别保留源码指纹和验证范围。
+
+CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
+浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、
+串口、帧、冻结 Unit contract、停止前 ZIP 和保留历史。显式选择来自 gen7 的
+16 个成功记录与 gen8 的 11 个补测记录；原轮失败、中断和未执行项保留，不能
+称为单次 27 项全绿运行。见[严格选择与范围](evidence/2026-10-26-unit-final-selection-a8fe/README.md)。
+该历史选择中 26 款使用原 Unit 驱动路径，IR 只在明确 opt-in 的 custom callback-root
+补丁下闭环；原发布包装驱动的 GC 回调和 uint8/native16 TX 边界仍单列。
+后续更严格的 Buzzer 定时检查发现旧断言会接受稍后的手动关闭；原版 once
+自动停止现为 FAIL，显式 custom wrapper 结果另列，不能继承该历史汇总。
+
+共享控制器已在冻结 Xtensa `a8fe15db…` / RISC-V `ff6c2ef7…` 的独立完整轮次
+通过；初轮失败与 VFS 定向复跑保留为历史。这不关闭 Core2 legacy WDT/黑帧。
+服务启动的 QMP 建连竞态和握手异常 socket 清理已修复；真实冷写入会话自然从
+flashing 到 running，并在不刷新页面的情况下恢复 Unit 控件和读回。
+
+Button/Relay/ENV III 在 AtomS3R、StickS3、StopWatch 的九个独立 gen9 session
+已通过设备本地 guest/controller 与真实 Web 严格功能验证，停止前 ZIP 和历史
+均保留。九张 native frame 完整；三张 ENV 浏览器截图的标题上缘被 sticky
+header 遮挡，构图单列 `PARTIAL`，不称完整视觉验收。
+见[九组合证据与边界](evidence/2026-10-26-unit-host-web-gen9-a8fe/README.md)。
+Joystick v1.1、Encoder、8Encoder、CardKB、RFID2 在这三款 S3 主机的显示
+修正固件已完成三个独立 gen9 批次、十五个可见 session 的功能验证；原驱动
+断言、真实 Web、直接 PID、ZIP 和实际停止历史均绑定。十五张实际最终原生
+帧清楚分行，StopWatch 文本在圆内；可读性只覆盖这些捕获帧，未外推到所有
+中间态或极值组合。见[新固件三批证据](evidence/2026-10-26-unit-control-display-gen9-a8fe/README.md)。
+精确主机/固件结果已加入 `host_validation`。原批 AtomS3R 的功能 PASS / 原生
+多行可读性 `PARTIAL` 保留为[历史证据](evidence/2026-10-26-unit-atom-controls-r1-a8fe/README.md)，未回写旧记录。
+上述八款的主机本地结果保留。整体 runtime 状态保持 `implemented`，具体
+固件/主机/浏览器结果单列，不从子批次升级整个工作流。
+三主机五款控制类的准备与执行入口已收拢到 `tests/units/`：按真实参考镜像
+分区打包，默认离线核对当前源码、工具链、完整准备文件树和 VFS；源码漂移
+必须重新准备。显式执行复用原 CONTROL 断言与真实 Web，并直接保存停止后的
+历史响应；入口迁移不扩大既有主机准入或已归档功能结论。
+三主机六传感器的 `prepare_host_sensors.py` / `run_host_sensor_cases.py`
+也已迁入，18 份完整 VFS 镜像与离线候选逐字节相同。原驱动与初始化/负控/
+采样链保持；初始 BLOCKED / NOT EXECUTED 与开发准入 NOT RUN 记录保留。
+后续完整的 18 组合已通过 gen9/a8fe 可见会话：36 个新鲜串口输入向量、84 次
+真实产品 POST、93 条初始化负控和 294 项原控制器断言分别核对。外部精确
+scan、内部 BMI before/after/loop、实际字体与布局、直接 PID/固件/worker、
+停止前 ZIP 和停止后的历史均绑定。主机结果只登记对应固件，其他组合不继承。
+见[传感器三主机实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md)。
+18 张最终历史原生帧及 Heart 两张不同的早期 controller 帧已逐张看图；可读性
+只覆盖这 20 张实际图像。Heart 原驱动在有效样本间出现零值，StickS3/StopWatch
+的分次帧也不同，三路采集分别绑定，不声称跨请求原子一致或 BPM/SpO2。
+通用 QOM 树截断在 Unit 前，路径证据来自冻结 contract/查询实现与实际 guest-QOM
+和 chip 计数。准备工具本身不授予 PASS；其余未准入组合仍在 API 操作前拒绝。
+视觉绑定仍分为已映射、待绑定、定性活动和面板展示；未确认的 LED 位置、
+轴向/角度和机械响应不能称为已完成动画。物理硬件验证仍为 `NOT RUN`。
+
+异步模型加载现在隔离 DOM 归属；本客户端松开请求失败后保留意图并做一次
+有界补偿。23 项确定性故障回归和一个真实 CoreS3 Button 会话均通过；晚到模型
+不清空 2D 帧，实际丢失 release 后 controller/guest 自动释放，普通手势不增 POST。
+见[前端恢复专项](evidence/2026-10-26-unit-web-recovery-a8fe/README.md)。
+该补偿不是服务端多客户端同键仲裁，也不关闭其余视觉与跨主机覆盖范围。
+
+12 款静态 Unit 现通过画布外读数 rail 显示当前控制器标量；来源必须是
+running session 的冻结定义与 live guest-QOM，停止、不可用或越界时不显示
+未确认数值。模拟输入、固件输出、Thermal fixture readiness 与控制寄存器
+状态分别标注。离线语义、反例和四项浏览器回归均通过；真实 CoreS3 ENV III
+两向量及 Relay 双输出态的[首批实时读数证据](evidence/2026-10-26-unit-readout-live-a8fe/README.md)
+保持不变。后续显式选择九款成功记录与 Light/Thermal 的新双例批次，11 款
+原驱动路径均完成新的 guest/HTTP/QOM/DOM、直接 PID、停止前 ZIP 和历史
+检查，见[扩展读数证据](evidence/2026-10-26-unit-readout-expanded-a8fe/README.md)。
+Light 实际五次 POST，首次 false 由首 POST 前的真实 GET 证明；Thermal 两个
+raw fixture 均经过 guest 768 像素及 9 样本计算，rail 仍只表示 6401 控制字和
+fixture-ready=true。旧 Light 计数失败不回写；大尺寸整页截图只核完整解码，
+不等于构图验收，独立帧/轮询也不证明原子快照。
+
+Buzzer 原固件的 once 自动停止失败：natural 镜像到期后真实控制器仍约 50%，
+独立 trace 镜像抓到 frozen SoftTimer 调用 Haptic callback 的 TypeError 和
+后台线程退出。显式 opt-in 的 custom Buzzer wrapper 适配 timer 参数后，
+六个 rail 阶段及手动输出前的自动归零通过；相同新断言下原版仍 FAIL。
+默认原版镜像 SHA 不变，QEMU/frozen 模块不改，见
+[Buzzer 专项](evidence/2026-10-26-unit-buzzer-once-a8fe/README.md)。
+S3 getter 缺支已有 `0037` 受限修复：同固件 SHA 的实际 getter/MMIO A/B
+验证稳定 set+update 路径，pending/current-cycle、fade 与其它时钟仍是缺口。
+Buzzer 浏览器试听由实际 guest-QOM 驱动、用户启用，停止时关闭音频上下文；
+自定义诊断固件的显式零 setter 与静音准备窗均单独标记。原发布驱动的 once
+问题、初始化后 QOM 刷新和物理声学边界继续开放。新运行时 `29d8f6ec…` 的
+最新完整矩阵为 66/67；Core2 IMU 串口正确但帧标记缺失，单例复测通过，不能
+拼成全量 PASS。完整范围与失败保留见[本轮证据](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)。
+
+三主机十二 IO 的正式入口已完成离线准备与开发准入，原协议/负控/采样/断言和
+官方驱动保留；ADC 的 app calibration 与 ADC2 oracle 条件在 API 前阻塞。
+这些新准备包不授予功能 PASS，源码合并变化后必须重新准备。用户已将近期
+交付聚焦于外部 Agent 的 HTTP 链路：创建虚拟设备、选择 Unit、提交 UIFlow
+源码、运行和实时状态/双向控制；当前已有镜像入口与 Units/session 接口，
+直接 Python 源文件的服务端打包/运行入口仍待补齐。
+
+CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
+线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共
+13 组通过；合入后的 model/panel/bridge/mount/HUB 五项浏览器回归也通过。
+可选布局异常不会销毁成功附件或改写兄弟输入归属。其他排列、主机、深层 HUB
+和 custom pose 不继承几何通过；手机总览按钮触控舒适度仍为 `PARTIAL`。
+见[限定布局与证据](evidence/2026-10-26-unit-hub-layout/README.md)。
+长卡片证据截图改为不二次滚动的完整 document clip，真实标题命中与旧实现
+负控通过；历史 ENV 截图的 framing `PARTIAL` 不改写。
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |

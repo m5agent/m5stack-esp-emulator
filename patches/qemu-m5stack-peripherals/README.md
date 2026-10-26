@@ -10,6 +10,22 @@ For a working runtime, use the published macOS arm64 release bundle or the
 target-specific tree described below. Do not reconstruct a clean tree by
 applying both historical branches in sequence.
 
+For the reproducible external-Unit Xtensa source, follow
+[`qemu-unit-runtime/README.md`](../qemu-unit-runtime/README.md): its pinned public
+base and two prelude patches are followed by `0033`, `0034`, `0035`,
+`0036-core2-soft-i2c-handoff-compat.patch`, then
+`0037-s3-ledc-duty-readback.patch`. Patch `0036` removes the permanent
+classic ESP32 software-I2C disable introduced with Unit routing; it preserves
+Core2's hardware/software switching while retaining the S3 handoff behavior.
+Patch `0037` adds S3-only DUTY/DUTY_R low-19-bit readback from the existing
+immediate duty model for settled set+update observations. It leaves classic
+layout and PWM writes/output unchanged, and does not gate register reads on
+output enable or timer pause. Pending/current-cycle separation, active-latch,
+fade and physical timing remain explicit gaps; see the fixed official sources
+and validation scope in the prelude README. A source/contract check is not a
+new runtime or firmware PASS.
+Do not apply these on top of an arbitrary historical snapshot.
+
 The peripheral work adds:
 
 - a corrected ESP32-S3 I2C FIFO and repeated-start model;

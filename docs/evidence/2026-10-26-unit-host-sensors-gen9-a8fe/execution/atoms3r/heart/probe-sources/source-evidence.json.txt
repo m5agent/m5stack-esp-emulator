@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scope": "Offline preparation and a separate fail-closed execution entry; preparation never changes runtime admission.",
+  "devices": [
+    "atoms3r",
+    "sticks3",
+    "stopwatch"
+  ],
+  "units": [
+    "color",
+    "tof",
+    "ncir",
+    "heart",
+    "tvoc",
+    "ultrasonic-i2c"
+  ],
+  "official_bundled_docs": [
+    {
+      "origin": "uiflow2-coder/docs/unit/color.md",
+      "sha256": "e2282ab8fff207ab4c68b7b60b46b7313c7521dae2dace098938a09211da8215"
+    },
+    {
+      "origin": "uiflow2-coder/docs/unit/tof.md",
+      "sha256": "d2c4b0b92bed7c8c0f994f0d3b58ed4bad7f3d4ff76669c353d158d3e3f8078f"
+    },
+    {
+      "origin": "uiflow2-coder/docs/unit/ncir.md",
+      "sha256": "0a213ebd129a12f68a72ff4a3bf72c872d8d8065551fa9e18fb69df83ec11025"
+    },
+    {
+      "origin": "uiflow2-coder/docs/unit/heart.md",
+      "sha256": "ce7c323fdf02e6136c30b4ed3df57ff562135c464881e14999c98c520544c904"
+    },
+    {
+      "origin": "uiflow2-coder/docs/unit/tvoc.md",
+      "sha256": "cb8b5e6791f21e98a2beb4b652ef68736a3e5824cedaa7205fcbe7b8a962ea93"
+    },
+    {
+      "origin": "uiflow2-coder/docs/unit/ultrasonic.md",
+      "sha256": "de91272adcc5cef9e3edaca0fed5c158cd521ec1d12826ffa0f35b7518d676a5"
+    },
+    {
+      "origin": "uiflow2-coder/docs/hardware/i2c.md",
+      "sha256": "f8ddf7ecc3aa18becc8344c776056817127c8050f05a078073c4517c12e20dab"
+    },
+    {
+      "origin": "uiflow2-coder/docs/hardware/display.md",
+      "sha256": "be5588b0ee7fe0d8cf3193e4e4fd7921441b61d0baefd1774b5c143f20c3f2d1"
+    }
+  ],
+  "drivers": "Nine fixed official sensor driver sources remain byte-identical to tests/units/sensors_probe/sensor_drivers/source-manifest.json.",
+  "protocol": "Original helper functions, entire CASE initialization/negative branch and entire sampling CASE chain must retain source bytes and AST; only host wiring/display/logging and independent BMI observations are adapted.",
+  "known_documentation_conflicts": [
+    "Bundled ToF constructor prose mentions 0x23; fixed source defaults to 0x29.",
+    "Bundled ToF get_distance mixes mm/cm; fixed driver returns get_range()/10, hence mm/cm follow code.",
+    "Bundled Ultrasonic API heading uses legacy ULTRASONIC_I2C; fixed class is UltrasoundI2CUnit, mode1=mm, mode2=cm.",
+    "Display scale0.7 follows the existing pinned official binding and host configuration; actual guest fontHeight/textWidth guards are still mandatory."
+  ],
+  "blockers": [
+    "Current host/Unit admission must be checked from the registry before any service contact; preparation is not execution.",
+    "Guest bus isolation, controller negatives, browser, serial, framebuffer, PID/runtime and retained history need fresh same-session evidence.",
+    "Heart requires firmware cdriver.MAX30100 and _thread; static tokens cannot prove runtime availability.",
+    "Native readability and physical RF/optical/electrical behavior require separate validation."
+  ],
+  "unchanged_product_sources": true,
+  "api_contacted": false,
+  "sessions_started": 0,
+  "hardware_execution": "NOT RUN"
+}

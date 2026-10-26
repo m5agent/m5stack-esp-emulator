@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "scope": "Candidate host-only regression and selected historical failure evidence; no live validation",
+  "redaction": "Personal repo path replaced with <repo>; historical worker_id removed. Firmware/ROM/flash/eFuse binaries and credentials are excluded.",
+  "files": [
+    {
+      "source": ".work/unit-device-service/sessions/4c0070b381ad4502ad209e286608c873/events.json",
+      "source_sha256": "13ad2f148cf26da0d792b7612054fd126e47813ff1721e6905d584989e2e2689",
+      "archive": "historical/atom/events.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/4c0070b381ad4502ad209e286608c873/serial.log",
+      "source_sha256": "57a28e8d1f3c73ed2217650484b9367da1273889e15fc440de0c34a97f5093d2",
+      "archive": "historical/atom/serial.log",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/4c0070b381ad4502ad209e286608c873/qemu.stderr",
+      "source_sha256": "f104a41d810bfefff9e9701cf9a47337ab8e65030d12a104ba744caae55589b8",
+      "archive": "historical/atom/qemu.stderr",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/4c0070b381ad4502ad209e286608c873/last-frame.json",
+      "source_sha256": "b583f71b41d607fd39af4c130d061589059409049acf95133f72e6633df7167a",
+      "archive": "historical/atom/last-frame.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/4c0070b381ad4502ad209e286608c873/device-state.json",
+      "source_sha256": "9d7f66f3b69f61acd7f499c1e1164b514bf7e94983ccc7dafa01cc4257a3e9ae",
+      "archive": "historical/atom/device-state.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/6483673a0bb44c8eb6da3b370f825a75/events.json",
+      "source_sha256": "116562f910143e0bf5146ee01deb6db7cba3566d9ae85496f2702c59aa58999d",
+      "archive": "historical/limit/events.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/6483673a0bb44c8eb6da3b370f825a75/serial.log",
+      "source_sha256": "4775eda755d454c4c34ec1767111119fb82f2b110dda4e958a9e425b78196d73",
+      "archive": "historical/limit/serial.log",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/6483673a0bb44c8eb6da3b370f825a75/qemu.stderr",
+      "source_sha256": "f104a41d810bfefff9e9701cf9a47337ab8e65030d12a104ba744caae55589b8",
+      "archive": "historical/limit/qemu.stderr",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/6483673a0bb44c8eb6da3b370f825a75/last-frame.json",
+      "source_sha256": "7dc39bed35d4b07af5d4af2a8ed3af57ebf9aa05d3f706efc1df3bc171775dfc",
+      "archive": "historical/limit/last-frame.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service/sessions/6483673a0bb44c8eb6da3b370f825a75/device-state.json",
+      "source_sha256": "15b329e31156561a5ebbb56e6b00e51692da0cf2eaae8cd235c071d6d9967dac",
+      "archive": "historical/limit/device-state.json",
+      "redaction": "repo path and worker_id if present"
+    },
+    {
+      "source": ".work/unit-device-service-generation6.log",
+      "source_sha256": "1d0ee17e8d6f80745984ca0b2b52631804f8cf1211d88471156296c9f6b18ca0",
+      "archive": "historical/http-excerpts.txt",
+      "selection": "line-numbered excerpts only"
+    }
+  ]
+}

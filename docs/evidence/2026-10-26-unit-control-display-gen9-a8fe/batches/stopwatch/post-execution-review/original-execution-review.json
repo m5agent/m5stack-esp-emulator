@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "category": "independent-real-display-case-review",
+  "status": "FUNCTIONAL_5_PASS_FINAL_NATIVE_FRAMES_REVIEWED",
+  "source_freeze_sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+  "source_count": 421,
+  "all_frozen_sources_unchanged": true,
+  "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39",
+  "cases": [
+    {
+      "device_id": "stopwatch",
+      "unit_id": "joystick-v11",
+      "status": "PASS",
+      "session_id": "cc929c31fb104d1993e5b9bde89af695",
+      "firmware_sha256": "f0164f60cef9666000e8cef68018b93076013ab671a039296b7caf3a93760144",
+      "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+      "evidence_sha256": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+      "zip_members": 10,
+      "native_frame_sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 109 31 3 202 2",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 6922,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1031,
+      "web_posts": 6,
+      "web_snapshots": 4,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/joystick-v11/result.json",
+        "report_sha256": "6ef358ee1c20cbd773062e00515852042a898c4ee8187920dc4657974d7fd9fd",
+        "assertions": 4
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/cc929c31fb104d1993e5b9bde89af695/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d"
+        },
+        "screenshot_dimensions": {
+          "browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": {
+            "width": 980,
+            "height": 1229
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png",
+          "sha256": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d",
+          "width": 980,
+          "height": 1229
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/opened-flashing.png",
+          "sha256": "39f15f8d2dd7a89e1c987efa2a25d36bf4d16bdb5a5028b75ab4ec0f54420b1a",
+          "width": 980,
+          "height": 601
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/controller/joystick-v11/frame.png",
+          "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+          "width": 466,
+          "height": 466
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/history-frame.png",
+          "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+          "width": 466,
+          "height": 466
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ]
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "encoder",
+      "status": "PASS",
+      "session_id": "ae01291813844608a88e3749de0c801f",
+      "firmware_sha256": "6608f85402201482d74cf8ff958d7b997dd9cb1036df5aa868abba08e9e5a1db",
+      "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+      "evidence_sha256": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+      "zip_members": 10,
+      "native_frame_sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 2 140 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 7041,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1032,
+      "web_posts": 4,
+      "web_snapshots": 4,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/encoder/result.json",
+        "report_sha256": "7d7d4fe799ffa61095afae05a841e4029ff03d216b2498fab9a4c0ff48a11d0b",
+        "assertions": 5
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/ae01291813844608a88e3749de0c801f/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613"
+        },
+        "screenshot_dimensions": {
+          "browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": {
+            "width": 980,
+            "height": 1211
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png",
+          "sha256": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613",
+          "width": 980,
+          "height": 1211
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/opened-flashing.png",
+          "sha256": "91be3b43a353d64e6bcec30d203050c4041466d96d7c38f3679639c12031c0da",
+          "width": 980,
+          "height": 533
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/controller/encoder/frame.png",
+          "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+          "width": 466,
+          "height": 466
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/history-frame.png",
+          "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+          "width": 466,
+          "height": 466
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_ENCODER 32767 0"
+      ]
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "8encoder",
+      "status": "PASS",
+      "session_id": "073c17523e2e42a89475a66a2fdb44e3",
+      "firmware_sha256": "4f6a0da208f28888f62ec42c2494259998572f21e053b133453464a2788aa13c",
+      "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+      "evidence_sha256": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+      "zip_members": 10,
+      "native_frame_sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 109 31 10 419 2",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 7410,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1909,
+      "web_posts": 6,
+      "web_snapshots": 3,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/8encoder/result.json",
+        "report_sha256": "f773d747e9ba9f458b122c9afab06ac74dec3c6d39ec457c32c92bca78ea9244",
+        "assertions": 6
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/073c17523e2e42a89475a66a2fdb44e3/web-report.json",
+        "snapshots": 3,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad"
+        },
+        "screenshot_dimensions": {
+          "browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": {
+            "width": 980,
+            "height": 1542
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png",
+          "sha256": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad",
+          "width": 980,
+          "height": 1542
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/opened-flashing.png",
+          "sha256": "c7fa167f529f68e7f6039f6dd9d675b182c2a348ecc394dd3b226c7457fb2f58",
+          "width": 980,
+          "height": 672
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/controller/8encoder/frame.png",
+          "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+          "width": 466,
+          "height": 466
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/history-frame.png",
+          "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+          "width": 466,
+          "height": 466
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ]
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "cardkb",
+      "status": "PASS",
+      "session_id": "1662c96e00a145d9ab2603775cbe1c24",
+      "firmware_sha256": "7720a396b50369262d406ea2e248cf8f1e47648e03a71f980a23bcb1ca6fb8c5",
+      "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+      "evidence_sha256": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+      "zip_members": 10,
+      "native_frame_sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 1 109 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 7849,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 17275,
+      "web_posts": 413,
+      "web_snapshots": 412,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/cardkb/result.json",
+        "report_sha256": "1ca2fd51c7c6219f335a8262964e252c3c72aa1e4e2e678fa910fff6678a2c12",
+        "assertions": 7
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/1662c96e00a145d9ab2603775cbe1c24/web-report.json",
+        "snapshots": 412,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d"
+        },
+        "screenshot_dimensions": {
+          "browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": {
+            "width": 980,
+            "height": 2201
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png",
+          "sha256": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d",
+          "width": 980,
+          "height": 2201
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/opened-flashing.png",
+          "sha256": "4813a66d28e974bcf050d6fb7bea5e7a5777f99659abb4e90b80b3534720afbd",
+          "width": 980,
+          "height": 1094
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/controller/cardkb/frame.png",
+          "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+          "width": 466,
+          "height": 466
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/history-frame.png",
+          "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+          "width": 466,
+          "height": 466
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_CARDKB_LAST 65"
+      ]
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rfid2",
+      "status": "PASS",
+      "session_id": "e4ee0caf406545b6ad5eebc72ab4144c",
+      "firmware_sha256": "dc407318c3ea9933168d86d35b52331aba9ca91e718fc932a4599c528a01eaf6",
+      "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+      "evidence_sha256": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+      "zip_members": 10,
+      "native_frame_sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 3 171 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 14014,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1771,
+      "web_posts": 4,
+      "web_snapshots": 6,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/rfid2/result.json",
+        "report_sha256": "77c150411499b4a8907a712ea7e5a834130582ee1b1837c8873cb478a3bfc853",
+        "assertions": 7
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/e4ee0caf406545b6ad5eebc72ab4144c/web-report.json",
+        "snapshots": 6,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f"
+        },
+        "screenshot_dimensions": {
+          "browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": {
+            "width": 980,
+            "height": 1698
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png",
+          "sha256": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f",
+          "width": 980,
+          "height": 1698
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/opened-flashing.png",
+          "sha256": "f2c405fb2fcb8e6797c8537277d36f3e850d347aef94f3c6864f643ec67d1696",
+          "width": 980,
+          "height": 645
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/controller/rfid2/frame.png",
+          "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+          "width": 466,
+          "height": 466
+        },
+        {
+          "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/history-frame.png",
+          "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+          "width": 466,
+          "height": 466
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_RFID_NO_CARD"
+      ]
+    }
+  ],
+  "api_contacted": false,
+  "browser_started": false,
+  "sessions_started": 0,
+  "new_live_pid_observations": "NONE; original live-record proofs reconciled after stop only",
+  "scope": "Only these actual final native frames and executed case vectors; no intermediate frame, all-extrema, other firmware/host or physical-hardware claim.",
+  "history_supplement_sha256": "c858f9b0f0152f0a73d0e8f5d4716b4b4ecacf02978488ef83cd9d2fa70b8410",
+  "actual_history_supplement": [
+    {
+      "unit_id": "joystick-v11",
+      "response_sha256": "3cfb4803036f5146841826c132dcd03e9282ba7d4dd6526ad9c8d5cc75f8f393",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "encoder",
+      "response_sha256": "716ce7c7815fdf41a7fc777cbdf653b6c59e532382960019897f497e1da90417",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "8encoder",
+      "response_sha256": "49c34a173fe99b03fc0a6ada8bae6114c6ca76868ae0f6892964162af7c845e4",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "cardkb",
+      "response_sha256": "2becc5dbc3ba9576376c464d767e208cec2ef20fa1a1d76750f01e8a8c4c0614",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "rfid2",
+      "response_sha256": "10df8e21fbfbac2d56153e0d19f3f8235ae7ef4d5d293f9ec2ce68d6df98594d",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    }
+  ],
+  "history_health_active_sessions": 0,
+  "same_execution_source_cohort": {
+    "count": 421,
+    "source_before_sha256_by_batch": {
+      "atom5": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+      "stick5": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+      "stop5": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+    },
+    "same_map": true
+  }
+}

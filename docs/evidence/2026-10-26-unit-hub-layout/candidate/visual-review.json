@@ -1,0 +1,148 @@
+{
+  "category": "browser-only-human-visual-review",
+  "primary_scene_placement": "PASS",
+  "whole_visual_acceptance": "PARTIAL",
+  "phone_overview_touch_comfort": "PARTIAL",
+  "images": [
+    {
+      "file": "results-r9/before-1440.png",
+      "sha256": "64ece1899848f33870ba634984caac3b8ae67c09f12cc7bf9a1b353ac3e895a7",
+      "size": [
+        1440,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/before-1024.png",
+      "sha256": "0aa3596a127d9f69e301440c2cf76900062c7b6f62989d1a25b2657d84690df6",
+      "size": [
+        1024,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/before-768.png",
+      "sha256": "8b8a7b2cc8322990a9f9fd37937c54c5d6a62707ac3ad97d7dec900ae3eb74d7",
+      "size": [
+        768,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/before-390.png",
+      "sha256": "f3d12630d6d95d7ec8b98203f17ed1931b7623ecc6133910d4078310961949a9",
+      "size": [
+        390,
+        1014
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-1440.png",
+      "sha256": "de427b5c641d59d54218bf96b05ab05eb31b5261a32fdf60ffa982d3dbd17797",
+      "size": [
+        1440,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-1024.png",
+      "sha256": "09d8169c0fd799bfae84ad286f4a47aea6b29c3a2e003330c636a9777c6f74c4",
+      "size": [
+        1024,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-768.png",
+      "sha256": "1d62f1eda863a32b5bead8912c25b4ef202e31988539beda96bfdc19e44d9891",
+      "size": [
+        768,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-390.png",
+      "sha256": "5527513b8d428159e65da5e642ffa800450f4c1927c508377b8db8441333dc30",
+      "size": [
+        390,
+        1014
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-button-hitbox-390.png",
+      "sha256": "6411fc56c0c5f0bf83deefb347b444759e2d15c2f7f014c5ad15d81d22e7d6de",
+      "size": [
+        390,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-button-focus-390.png",
+      "sha256": "a729846460b7bf43304a237e530cb59e18966d14bad5c083fbda289d154456f5",
+      "size": [
+        390,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-snapshot-failure-isolation-390.png",
+      "sha256": "3c80742bf2739178984b75640572dac1a7f81db136b1fb43267f2684fb05f6f1",
+      "size": [
+        390,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    },
+    {
+      "file": "results-r9/after-restore-failure-isolation-390.png",
+      "sha256": "fe0fccb4d96c32d7bc13034837dd0a333fbb564bd54e0eea3629b00e005b2c77",
+      "size": [
+        390,
+        1000
+      ],
+      "fully_decoded": true,
+      "human_viewed": true,
+      "view_basis": "r9 pixels equal reviewed r8; five r8 after/overview files equal reviewed r3 by exact SHA256"
+    }
+  ],
+  "notes": [
+    "All before images visibly reproduce stacked housings.",
+    "Four candidate overview images show full-size separated housings, clear LCD and readable16px rail values.",
+    "Button overview pointer works; native pad23.76x19.07px has no24px comfort claim.",
+    "Focus image intentionally crops the broader scene; it proves native component interaction only.",
+    "Injected failure images preserve attachment/input ownership, not successful layout of newly unsupported attachments.",
+    "Desktop harness has an intentionally empty right session-body region; this candidate does not redesign the session page."
+  ]
+}

@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -62,14 +62,14 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-25` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
-| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-25` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
+| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
+| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、worker namespace/container-local execution、测试、evidence 和文档生成入口 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖和验收 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、worker namespace/container-local execution、测试、evidence 和文档生成入口 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.34.0`；新增 Unit 准入、HUB 拓扑、冻结 schema/QOM mapping、输入/状态/取证；原 worker、网络和固件契约继续保留 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、QOM 8 MiB PSRAM/MMU、两小时、121 轮、active-stop、双/三/四实例无错峰、五实例错峰 `10/10`、固定 `icount shift=5`/BLE-first 后五实例 `10/10`、六实例 `12/12` 和校准后八实例 `16/16`；旧 `shift=auto`、旧 sweep threshold 与 `0010` trace 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
@@ -95,6 +95,50 @@
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
+| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 固定公开模型源、控制器数据面、Web 双向状态和完整批次验收 |
+| [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
+| [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开 |
+| [三主机六传感器实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 18 个同 guest/Web 会话、原驱动负控、fresh 串口、直接 PID、三路非原子帧和保留历史；Heart 零值暂态与人工可读性分别记录 |
+| [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |
+| [外壳浏览器集成证据](evidence/2026-10-26-visual-model-integration/README.md) | 历史证据 | `2026-10-26` | 固定提交的浏览器像素/输入/装配验证，不是固件或电气结论 |
+| [Encoder 协议冲突](unit-research/encoder-protocol-conflicts.md) | 参考依据 | `2026-10-26` | 官方文字与 executable driver 的按压极性冲突；保留原证据并按驱动路径验证 |
+| [Unit 首批运行证据](evidence/2026-10-26-unit-runtime/README.md) | 历史证据 | `2026-10-26` | CoreS3 Button/Relay/ENV III 同 guest 路径、固件/runtime hash、串口、画面、冻结契约与保留历史；不代表整批完成 |
+| [S3 ADC 合成校准](unit-research/esp32s3-adc-calibration.md) | 参考依据 | `2026-10-26` | 固定 IDF/app 字节、17字段白名单、整数 oracle 和虚拟 eFuse fixture；不是物理精度 |
+| [Unit 视觉绑定边界](unit-research/visual-bindings-and-component-gaps.md) | 参考依据 | `2026-10-26` | 官方链顺序与物理位置区分、组件缺口、读回色块和 Fan 定性活动；不推断 RPM 或缺少依据的姿态映射 |
+| [Unit 首轮控制类证据](evidence/2026-10-26-unit-controls-service/README.md) | 历史证据 | `2026-10-26` | 固定旧运行时的 Joystick、Encoder、8Encoder、CardKB 和 RFID2 同 guest 记录；最终候选运行结果另存，不覆盖本轮 |
+| [Unit I/O 运行证据](evidence/2026-10-26-unit-io-final/README.md) | 历史证据 | `2026-10-26` | 冻结运行时的 GPIO/ADC/LEDC/RMT/UART 与 HUB 同 guest 记录；IR 原包装驱动回调保持 PARTIAL，GC 对照不代替修复 |
+| [Unit 控制类冻结复跑](evidence/2026-10-26-unit-controls-final/README.md) | 历史证据 | `2026-10-26` | 同一冻结运行时的五款控制类报告、原样 probe 和运行时证明；直接 PID 与 worker generation 的关联分开 |
+| [Unit 真实浏览器链路](evidence/2026-10-26-unit-browser-final/README.md) | 历史证据 | `2026-10-26` | 真实浏览器到虚拟设备的 Button/Key/Fan 同会话输入、输出与历史证据；不是物理硬件测量 |
+| [Unit 主机兼容性研究](unit-research/host-runtime-compatibility.md) | 参考依据 | `2026-10-26` | S3 端口、ADC、console/VFS 与板内共享总线冲突，其他后端的明确控制器门槛；不是跨主机 PASS |
+| [Core2 SoftI2C 接管回归](evidence/2026-10-26-core2-soft-i2c-handoff/README.md) | 历史证据 | `2026-10-26` | classic 控制器永久 handoff 的同固件 A/B、最小兼容补丁与 Core2 组回归；不关闭 legacy WDT |
+| [Unit 全型号真实 Web 取证](evidence/2026-10-26-unit-web-live-final/README.md) | 历史证据 | `2026-10-26` | 真实产品控件、HTTP、同 guest 串口/控制器和 DOM/模型读回逐项取证；保留测试工具失败尝试及 custom IR 身份 |
+| [a8fe Unit Web 原轮](evidence/2026-10-26-unit-web-cohort-a8fe/README.md) | 历史证据 | `2026-10-26` | gen7 原轮成功、失败、中断与未执行项分别保存；不是一次全绿运行 |
+| [Unit Web 就绪回归](evidence/2026-10-26-unit-web-readiness-regression/README.md) | 历史证据 | `2026-10-26` | 真实页面 running/enabled 同步、trusted 输入和跨平台进程证明故障对照 |
+| [QMP 启动连接修复](evidence/2026-10-26-qmp-startup-connection/README.md) | 历史证据 | `2026-10-26` | 启动建连竞态的源码 A/B、AF_UNIX 对照、同锁连接归属与异常 socket 清理 |
+| [QMP 调查时间线](evidence/2026-10-26-qmp-startup-connection/review-summary.md) | 历史证据 | `2026-10-26` | 两次原失败的 UTC 时间线、竞争机制与不能重演历史线程顺序的边界 |
+| [Unit 最终显式选择](evidence/2026-10-26-unit-final-selection-a8fe/README.md) | 历史证据 | `2026-10-26` | 固定 gen7 的16例和 gen8 的11例，严格同会话/direct PID 汇总与 custom IR 限制 |
+| [Unit gen8 补证](evidence/2026-10-26-unit-web-supplement-gen8-a8fe/README.md) | 历史证据 | `2026-10-26` | 修复后的11个逐型号真实 Web 会话及工具/运行时来源 |
+| [Unit 冷写入生命周期](evidence/2026-10-26-unit-web-flashing-gen8-a8fe/README.md) | 历史证据 | `2026-10-26` | 独立固件SHA、自然flashing→running、真实手势、ZIP与历史；不混入主27选择 |
+| [Unit 键名与截图回归](evidence/2026-10-26-unit-panel-readability-capture-regression/README.md) | 历史证据 | `2026-10-26` | 全型号四视口、CardKB完整键名、截图前滚动坐标和sticky导航位置 |
+| [Unit 三主机九组合](evidence/2026-10-26-unit-host-web-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 三主机各三款的严格功能通过；三张ENV浏览器构图PARTIAL，其余Unit未运行 |
+| [Unit 九组合独立选择](evidence/2026-10-26-unit-host9-selection-a8fe/README.md) | 历史证据 | `2026-10-26` | 三份canonical27部分覆盖与9组合strict汇总，执行工具来源边界和配置晋级 |
+| [前端恢复故障回归](evidence/2026-10-26-frontend-recovery-regression/README.md) | 历史证据 | `2026-10-26` | 23项异步归属/松开意图故障对照、独立mount浏览器布局与源码阶段边界 |
+| [Unit 实际会话故障恢复](evidence/2026-10-26-unit-web-recovery-a8fe/README.md) | 历史证据 | `2026-10-26` | 实际晚到模型2D保帧、丢失一次松开POST、同guest释放与正常两POST |
+| [Unit 读数语义审核](evidence/2026-10-26-unit-readout-semantic-review/README.md) | 历史证据 | `2026-10-26` | 17项语义、23项恢复与5种源码负控，来源/范围/方向及可选注释异常隔离；不是guest执行 |
+| [Unit 读数浏览器回归](evidence/2026-10-26-unit-readout-browser-regression/README.md) | 历史证据 | `2026-10-26` | 四项当前源suite、四视口readout placement；HUB housing互叠仍开放 |
+| [Unit 读数候选设计](evidence/2026-10-26-unit-readout-browser-regression/candidate/DESIGN.md) | 历史证据 | `2026-10-26` | promote前的画布外rail设计、源码清单与适用边界 |
+| [Unit 读数迭代记录](evidence/2026-10-26-unit-readout-browser-regression/iterations.md) | 历史证据 | `2026-10-26` | 保留overlay至rail的迭代与原始失败，不覆盖历史尝试 |
+| [Unit 同guest实时读数](evidence/2026-10-26-unit-readout-live-a8fe/README.md) | 历史证据 | `2026-10-26` | CoreS3 ENV两fresh向量/六POST、Relay零输入双态、terminal清值、同会话ZIP与独立330项审查；整页构图PARTIAL |
+| [Unit 扩展同guest读数](evidence/2026-10-26-unit-readout-expanded-a8fe/README.md) | 历史证据 | `2026-10-26` | 明确9+2跨批选择，11款原驱动路径、fresh GET/body/serial/ZIP与停止历史；大fullPage图只核完整解码 |
+| [Buzzer原版与显式custom](evidence/2026-10-26-unit-buzzer-once-a8fe/README.md) | 历史证据 | `2026-10-26` | 原版once负控FAIL、custom六阶段PASS，natural/trace不同SHA和后台TypeError分层；PWM getter读回仍OPEN |
+| [Buzzer LEDC getter调查](evidence/2026-10-26-unit-buzzer-once-a8fe/getter-investigation/investigation.md) | 历史证据 | `2026-10-26` | 实际getter0/QOM非零、固定QEMU读分支与官方MicroPython/IDF链；dirty编译来源与动态MMIO验证仍未闭环 |
+| [Unit HUB限定布局](evidence/2026-10-26-unit-hub-layout/README.md) | 历史证据 | `2026-10-26` | CoreS3紧凑单层HUB全尺寸布局、13组fixture与合入后五项browser回归；长卡片标题/完整PNG与旧bridge负控；其他排列/主机未继承 |
+| [AtomS3R 控制类原批](evidence/2026-10-26-unit-atom-controls-r1-a8fe/README.md) | 历史证据 | `2026-10-26` | 五款控制类功能通过；380项源可重建、同session/直接PID/Web/ZIP/停止历史；原生多行文本可读性PARTIAL，显示修正需新固件验证 |
+| [控制类证据契约归一化](evidence/2026-10-26-unit-atom-controls-r1-a8fe/post-execution-review/DESIGN.md) | 历史证据 | `2026-10-26` | 后置审核区分原准备字段与实际执行，保留旧双观察者规则；五真实正例和十九语义负控 |
+| [控制类显示修正三主机证据](evidence/2026-10-26-unit-control-display-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 三个独立批次十五session功能通过、同421源与实际停止历史；原生可读性仅实际最终帧，非所有状态或硬件结论 |
+| [HUB候选交接](evidence/2026-10-26-unit-hub-layout/candidate/README.md) | 历史证据 | `2026-10-26` | 冻结候选补丁、量测、scope、旧失败与推广依赖清单 |
+| [HUB布局候选设计](evidence/2026-10-26-unit-hub-layout/candidate/DESIGN.md) | 历史证据 | `2026-10-26` | 真实unitFrame/线缆API、尺寸与可选失败隔离，不修改控制器接线 |
+| [HUB候选范围计划](evidence/2026-10-26-unit-hub-layout/candidate/PLAN.md) | 历史证据 | `2026-10-26` | 固定浏览器场景的实施与验证边界，不是项目执行队列 |
 
 当前入口出现冲突时先修 `project-status.md`、Backlog、代码地图和契约页；
 历史页只允许补充“被哪一页取代”，不能反向把旧结论写回当前入口。
@@ -121,6 +165,34 @@
 ## 入口索引
 
 ### 状态、计划与维护
+
+- [Unit 外设与视觉模型集成计划](plans/2026-10-25-unit-runtime-integration.md)
+- [Unit 接入期间的主机问题](unit-integration-host-issues.md)
+- [Unit 官方芯片与协议研究](unit-research/official-protocols.md)
+- [固定版本外壳浏览器集成证据](evidence/2026-10-26-visual-model-integration/README.md)
+- [Encoder 官方协议冲突](unit-research/encoder-protocol-conflicts.md)
+- [Unit 首批控制器运行证据](evidence/2026-10-26-unit-runtime/README.md)
+- [S3 ADC 合成校准依据](unit-research/esp32s3-adc-calibration.md)
+- [Unit 视觉绑定与组件缺口](unit-research/visual-bindings-and-component-gaps.md)
+- [Unit 首轮控制类运行证据](evidence/2026-10-26-unit-controls-service/README.md)
+- [Unit I/O 与 IR 分层运行证据](evidence/2026-10-26-unit-io-final/README.md)
+- [Unit 控制类冻结运行复跑](evidence/2026-10-26-unit-controls-final/README.md)
+- [Unit 真实浏览器同会话证据](evidence/2026-10-26-unit-browser-final/README.md)
+- [Unit 主机兼容性与扩展门槛](unit-research/host-runtime-compatibility.md)
+- [Core2 SoftI2C 接管 A/B 与回归](evidence/2026-10-26-core2-soft-i2c-handoff/README.md)
+- [Unit 全型号真实 Web 同会话取证](evidence/2026-10-26-unit-web-live-final/README.md)
+- [a8fe Unit Web 原轮与失败边界](evidence/2026-10-26-unit-web-cohort-a8fe/README.md)
+- [Unit Web 就绪与进程证明回归](evidence/2026-10-26-unit-web-readiness-regression/README.md)
+- [QMP 启动连接竞态与清理修复](evidence/2026-10-26-qmp-startup-connection/README.md)
+- [QMP 原失败调查时间线](evidence/2026-10-26-qmp-startup-connection/review-summary.md)
+- [Unit 严格显式选择与固件身份](evidence/2026-10-26-unit-final-selection-a8fe/README.md)
+- [Unit gen8 逐型号补证](evidence/2026-10-26-unit-web-supplement-gen8-a8fe/README.md)
+- [Unit 自然冷写入生命周期](evidence/2026-10-26-unit-web-flashing-gen8-a8fe/README.md)
+- [Unit 窄屏键名与截图滚动回归](evidence/2026-10-26-unit-panel-readability-capture-regression/README.md)
+- [Unit 三主机九组合与视觉边界](evidence/2026-10-26-unit-host-web-gen9-a8fe/README.md)
+- [Unit 九组合独立选择与配置晋级](evidence/2026-10-26-unit-host9-selection-a8fe/README.md)
+- [前端异步与松开故障回归](evidence/2026-10-26-frontend-recovery-regression/README.md)
+- [Unit 真实会话故障恢复](evidence/2026-10-26-unit-web-recovery-a8fe/README.md)
 
 - [工程交接总览](engineering-handoff.md)
 - [自动项目快照](project-snapshot.md)

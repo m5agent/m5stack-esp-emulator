@@ -1,0 +1,136 @@
+{
+  "classification": "independent-read-only-natural-diagnostic-candidate-review",
+  "created_at": "2026-10-25T23:38:57.981616+00:00",
+  "images": [
+    {
+      "base_prefix_and_suffix_outside_vfs_unchanged": true,
+      "full_flash_bytes": 16777216,
+      "guest_syntax_compiles_under_cpython": [
+        "boot.py",
+        "io_drivers/__init__.py",
+        "io_drivers/buzzer.py",
+        "io_program.py",
+        "main.py",
+        "probe_config.py",
+        "probe_logging.py"
+      ],
+      "image_path": ".work/buzzer-once-diagnostic-20261026/prepared-r1/natural/uiflow2-ui-test.bin",
+      "matches_prepared_sha": true,
+      "mode": "natural",
+      "no_frozen_driver_module_override": true,
+      "sha256": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+      "trace_scheduler": false,
+      "vfs_file_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+        "io_program.py": "be5fa553a483564ff5ec4a6bd3ae6dacb374d515cd9bbf41a3167b4e119ca310",
+        "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+        "probe_config.py": "ba56116035da0332630fd96ca155c3455982ac9908974c2ecf28ef37eff9474b",
+        "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "vfs_inventory": [
+        "/boot.py",
+        "/io_drivers/__init__.py",
+        "/io_drivers/buzzer.py",
+        "/io_program.py",
+        "/main.py",
+        "/probe_config.py",
+        "/probe_logging.py",
+        "/rtc_probe.py"
+      ]
+    },
+    {
+      "base_prefix_and_suffix_outside_vfs_unchanged": true,
+      "full_flash_bytes": 16777216,
+      "guest_syntax_compiles_under_cpython": [
+        "boot.py",
+        "io_drivers/__init__.py",
+        "io_drivers/buzzer.py",
+        "io_program.py",
+        "main.py",
+        "probe_config.py",
+        "probe_logging.py"
+      ],
+      "image_path": ".work/buzzer-once-diagnostic-20261026/prepared-r1/trace/uiflow2-ui-test.bin",
+      "matches_prepared_sha": true,
+      "mode": "trace",
+      "no_frozen_driver_module_override": true,
+      "sha256": "68bfd5801f6497440c0164a3c606e0c1cd9a798ffaabfaf752b4f3fc96e3ab09",
+      "trace_scheduler": true,
+      "vfs_file_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+        "io_program.py": "be5fa553a483564ff5ec4a6bd3ae6dacb374d515cd9bbf41a3167b4e119ca310",
+        "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+        "probe_config.py": "2d8f4946fd159136ad3ea0ab868567e85dca8218f5bbd73c73496f573c7ccbbc",
+        "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+      },
+      "vfs_inventory": [
+        "/boot.py",
+        "/io_drivers/__init__.py",
+        "/io_drivers/buzzer.py",
+        "/io_program.py",
+        "/main.py",
+        "/probe_config.py",
+        "/probe_logging.py",
+        "/rtc_probe.py"
+      ]
+    }
+  ],
+  "limits": {
+    "actual_frozen_module_semantic_bytes_identified": false,
+    "firmware_or_qemu_executed": false,
+    "functional_pass_established": false,
+    "micropython_guest_executed": false,
+    "timing_race_absence_proven": false
+  },
+  "natural_priority": true,
+  "non_blocking_interpretation_notes": [
+    "Natural is an original once/callback/scheduler path with guest getter/logging/display observation, not a zero-instrumentation timing equivalence experiment.",
+    "State fields are read separately and are not atomic; interpret repeated snapshots together with fresh host QOM observations inside the natural phase.",
+    "The async sentinel is deliberately registered only after NATURAL_END and can distinguish dispatch behavior, but _run is not thread-liveness evidence.",
+    "All manual update/callback/off stages follow NATURAL_END; their zero values must never satisfy the natural timer-zero observation.",
+    "Only CPython parsing/compile and established probe API patterns were reviewed; actual MicroPython API availability/behavior is still a live-run question.",
+    "Trace mutates the scheduler loop entry explicitly and is an isolated backup image, never interchangeable with the natural result.",
+    "The failed initial build input directory is documented and distinct from canonical prepared-r1 images."
+  ],
+  "python_version": "3.12.8",
+  "review_findings": [],
+  "schema_version": 1,
+  "scope": {
+    "browser_started": false,
+    "candidate_product_or_test_sources_modified": false,
+    "device_service_api_requests": 0,
+    "image_mounts_in_memory_only": true,
+    "network_requests": 0,
+    "prepare_script_executed": false,
+    "sessions_started": 0,
+    "writes_limited_to_own_review_directory": true
+  },
+  "source_sha256": {
+    ".work/buzzer-once-diagnostic-20261026/README.md": "e3c42b784f1c2b68ac998dab7b5c6cf78a29fb2409b34cf0802cee7e61eab343",
+    ".work/buzzer-once-diagnostic-20261026/io_program.py": "be5fa553a483564ff5ec4a6bd3ae6dacb374d515cd9bbf41a3167b4e119ca310",
+    ".work/buzzer-once-diagnostic-20261026/prepare_offline.py": "a2ef2ad135831f467dd629755f1ed5d197d0f9b88006e535c9d596fb6c3b8c98"
+  },
+  "static_control_flow": {
+    "extra_timers_before_natural_end": false,
+    "first_additional_timer_line": 147,
+    "first_manual_operation_line": 175,
+    "guest_pwm_direct_setter_before_natural_end": false,
+    "manual_operations_before_natural_end": false,
+    "natural_driver_callback_or_scheduler_replaced": false,
+    "natural_end_line": 132,
+    "natural_observe_duration_ms": 3500,
+    "natural_observe_line": 131,
+    "natural_or_manual_auto_pass_emitted": false,
+    "natural_start_line": 126,
+    "natural_trace_config": false,
+    "once_line": 127,
+    "trace_only_scheduler_assignment_line": 84
+  },
+  "verdict": "NO_BLOCKING_FINDING_WITHIN_STATIC_AND_OFFLINE_IMAGE_SCOPE"
+}

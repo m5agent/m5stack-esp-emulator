@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26T00:59:23.972635+08:00",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "unit_id": "button",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "web_input_reaches_guest_gpio": true,
+    "live_controller_state": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "d6e1decb12b503aac8c59e9f8bfe0185a9d6d940647171d7874ce3acecdb4d9b",
+    "main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303"
+  },
+  "session_id": "2b6070eff36a44ca92c725222738c35f",
+  "unit_state": {
+    "session_id": "2b6070eff36a44ca92c725222738c35f",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T16:59:28.011401+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "button",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "pressed": false,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 4,
+          "output-transitions": 0,
+          "input-level": true
+        },
+        "errors": {}
+      }
+    ]
+  },
+  "frame_sha256": "4e23f47688af8ec9986413576e48cf442cafff25f8657635cf42ab479c008a17",
+  "frame_metrics": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 76800,
+    "unique_colors": 16
+  },
+  "evidence_sha256": "3a1114fff0f60e16f3ed7acd6164255879c2964010d53c28f100602e459f8d64"
+}

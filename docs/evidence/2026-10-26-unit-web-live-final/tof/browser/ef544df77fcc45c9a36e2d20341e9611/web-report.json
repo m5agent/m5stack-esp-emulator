@@ -1,0 +1,3378 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+  "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "tof",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "distance-mm": 1000
+      }
+    }
+  ],
+  "opened_at": "2026-10-25T18:24:54.222Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "1028a56802e443d483a91f23ec082fe7aeb1f8b832dd5c3e25fa83211d18d757",
+    "tests/units/web_ui_bridge.py": "5cd188a829d8ebf139fc4f5d2547854d8c1919d4c11ad31e8da3c1a641eb19be",
+    "tests/units/run_service_cases.py": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b"
+  },
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T18:25:07.397Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 321,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 321
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T18:25:07.817Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 1456,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1456
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T18:25:07.396Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:07.362380+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 321,
+              "transactions": 50213,
+              "read-bytes": 23845,
+              "written-bytes": 26530,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 144,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 321
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:07.815Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:07.764045+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 50955,
+              "read-bytes": 24198,
+              "written-bytes": 26926,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 147,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1456
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T18:24:54.321Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:24:54.302846+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 3847,
+              "read-bytes": 1733,
+              "written-bytes": 2139,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 11,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:07.026Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:06.826506+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 48187,
+              "read-bytes": 22879,
+              "written-bytes": 25461,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 139,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:07.829Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:07.817227+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 51639,
+              "read-bytes": 24525,
+              "written-bytes": 27277,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 149,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:08.334Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:08.332032+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 52995,
+              "read-bytes": 25171,
+              "written-bytes": 27991,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 153,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:08.840Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:08.837243+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 55155,
+              "read-bytes": 26203,
+              "written-bytes": 29125,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 159,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:09.345Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:09.342869+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 56599,
+              "read-bytes": 26893,
+              "written-bytes": 29883,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 163,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:09.851Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:09.848382+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 58709,
+              "read-bytes": 27900,
+              "written-bytes": 30992,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 169,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:10.357Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:10.354662+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 60567,
+              "read-bytes": 28783,
+              "written-bytes": 31977,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 174,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:10.865Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:10.861760+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 62125,
+              "read-bytes": 29528,
+              "written-bytes": 32790,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 179,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T18:25:11.378Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/ef544df77fcc45c9a36e2d20341e9611/units",
+      "status": 200,
+      "response": {
+        "session_id": "ef544df77fcc45c9a36e2d20341e9611",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T18:25:11.367150+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 63967,
+              "read-bytes": 30401,
+              "written-bytes": 33765,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 185,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/tof/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T18:25:07.430Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 321,
+              "transactions": 50213,
+              "read-bytes": 23845,
+              "written-bytes": 26530,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 144,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "321",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "50213",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "23845",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "26530",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "144",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:07.850Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 51639,
+              "read-bytes": 24525,
+              "written-bytes": 27277,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 149,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "51639",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "24525",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "27277",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "149",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:08.368Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 52995,
+              "read-bytes": 25171,
+              "written-bytes": 27991,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 153,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "52995",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "25171",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "27991",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "153",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T18:25:10.390Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 60567,
+              "read-bytes": 28783,
+              "written-bytes": 31977,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 174,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "60567",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "28783",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "31977",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "174",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "closed_at": "2026-10-25T18:25:11.461Z"
+}

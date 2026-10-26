@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "read-only retained-artifact replay",
+  "runtime_started": false,
+  "counts": {
+    "serial-markers": 13,
+    "png-ppm-pixel-match": 134,
+    "recorded-qom-readbacks": 3,
+    "frame-marker": 53,
+    "pcm": 10,
+    "disk": 2,
+    "rmt_nec": 6,
+    "rmt_ws2812": 1
+  },
+  "validator_sha256_at_archive": {
+    "tests/uiflow2/check_frame_marker.py": "52a7437276dc22b843fac631368474349bce7e1f946c559f0bf6eb1a9851f523",
+    "tests/uiflow2/check_pcm.py": "3ac7151f0394af0560409afc2a2296f33ec95cea08328fbab44da753b124bfaf",
+    "tests/uiflow2/check_disk_sector.py": "380e3f7a7e8a68d7623f44245f7c4a0147b2404ed6cb7aa5b0ed1dd7267edb30",
+    "tests/uiflow2/check_rmt_nec.py": "e50ee88157460acd9e89bdb2f3670daf2d6d8851949f2f1e6f124ae541d5245e",
+    "tests/uiflow2/check_rmt_ws2812.py": "48ce38aac5ca7cb4f25936f8f9059bb372843f51b1bfa92cdbc0281a0745cb93"
+  },
+  "boundary": "Rechecks retained serial markers, logged QOM readbacks, PNG/PPM identity, frame markers, PCM, NEC/WS2812 and disk sectors. Does not re-execute guest firmware or recapture dynamic QOM state.",
+  "checks": [
+    {
+      "case_id": "sticks3-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StickS3 audio marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "sticks3-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=65536 samples=32768 nonzero=32758 peak_to_peak=2881\n"
+    },
+    {
+      "case_id": "sticks3-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StickS3 mic marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-sd",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV SD marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-sd",
+      "kind": "disk",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "disk image=.work/unit-full-matrix-core2-compat-a8fe/cases/cardputer-adv-sd/sd.img sector=100 length=512 match=True\n"
+    },
+    {
+      "case_id": "cardputer-adv-imu",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV BMI270 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-keyboard",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV TCA8418 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-nfc",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV NFC marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-cc1101",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV CC1101 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV audio marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cardputer-adv-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=32768 samples=16384 nonzero=16356 peak_to_peak=46091\n"
+    },
+    {
+      "case_id": "cardputer-adv-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Cardputer-ADV mic marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "sticks3-ir",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "sticks3-ir-rx",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS IR RX marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cores3-power-transitions",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS CoreS3 PMIC transitions marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cores3-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS CoreS3 audio marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cores3-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=32256 samples=16128 nonzero=16101 peak_to_peak=11523\n"
+    },
+    {
+      "case_id": "cores3-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS CoreS3 mic marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "papermono-buzzer",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperMono buzzer marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papermono-buzzer",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=66560 samples=33280 nonzero=17836 peak_to_peak=65535\n"
+    },
+    {
+      "case_id": "papermono-pdm-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperMono PDM mic marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papermono-rgb",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperMono RGB marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papercolor-sd",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperColor SD marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papercolor-sd",
+      "kind": "disk",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "disk image=.work/unit-full-matrix-core2-compat-a8fe/cases/papercolor-sd/sd.img sector=100 length=512 match=True\n"
+    },
+    {
+      "case_id": "papercolor-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperColor audio marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papercolor-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=66560 samples=33280 nonzero=33274 peak_to_peak=2881\n"
+    },
+    {
+      "case_id": "papercolor-sht4x",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperColor SHT4X marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papercolor-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperColor mic marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papermono-nfc",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NFC marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "papermono-lora",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS LoRa marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "stackchan-nfc",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NFC marker rgb=(0,0,0)\n"
+    },
+    {
+      "case_id": "stackchan-touch",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Si12T touch marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stackchan-rgb",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StackChan RGB marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stackchan-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StackChan audio marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stackchan-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=32768 samples=16384 nonzero=16356 peak_to_peak=11523\n"
+    },
+    {
+      "case_id": "stackchan-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StackChan mic marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stackchan-peripherals",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StackChan peripherals marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stackchan-peripherals",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "stackchan-servo",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StackChan servo marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stopwatch-vibration",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS vibration marker rgb=(0,127,0)\n"
+    },
+    {
+      "case_id": "stopwatch-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StopWatch audio marker rgb=(0,127,0)\n"
+    },
+    {
+      "case_id": "stopwatch-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=65536 samples=32768 nonzero=32766 peak_to_peak=11522\n"
+    },
+    {
+      "case_id": "stopwatch-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StopWatch mic marker rgb=(0,127,0)\n"
+    },
+    {
+      "case_id": "atoms3r-lp5562",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS LP5562 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "atoms3r-ir",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "cardputer-adv-ir",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "papercolor-ir",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "core2-peripherals",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 peripherals marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "core2-audio",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 audio marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "core2-audio",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=2704384 samples=1352192 nonzero=47920 peak_to_peak=46091\n"
+    },
+    {
+      "case_id": "core2-mic",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 mic marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "core2-power-monitor",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 INA3221 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stamplc-can",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StamPLC CAN marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stamplc-rs485",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StamPLC RS485 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stamplc-buzzer",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StamPLC buzzer marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stamplc-buzzer",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=65536 samples=32768 nonzero=24000 peak_to_peak=60855\n"
+    },
+    {
+      "case_id": "core2-imu",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 IMU marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "core2-axp192",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Core2 AXP192 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stamplc-lm75",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StamPLC LM75 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "papercolor-rgb",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS PaperColor RGB marker rgb=(67,138,28)\n"
+    },
+    {
+      "case_id": "papercolor-rgb",
+      "kind": "rmt_ws2812",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "WS2812 PASS expected=00ff00ff0000 offset=98\n"
+    },
+    {
+      "case_id": "stamplc-onboard-io",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StamPLC onboard IO marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "cores3-aw9523-full",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS CoreS3 AW9523 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "stopwatch-m5ioe1-full",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StopWatch M5IOE1 marker rgb=(0,127,0)\n"
+    },
+    {
+      "case_id": "stopwatch-m5pm1-full",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS StopWatch M5PM1 marker rgb=(0,127,0)\n"
+    },
+    {
+      "case_id": "nesso-peripherals",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Nesso peripherals marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "nesso-imu",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Nesso BMI270 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "nesso-ir",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Nesso IR marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "nesso-ir",
+      "kind": "rmt_nec",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS NEC offset=0 address=0x56 command=0xa3\n"
+    },
+    {
+      "case_id": "nesso-lora",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Nesso SX1262 marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "nesso-buzzer",
+      "kind": "frame-marker",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PASS Nesso buzzer marker rgb=(0,255,0)\n"
+    },
+    {
+      "case_id": "nesso-buzzer",
+      "kind": "pcm",
+      "status": "PASS",
+      "exit_code": 0,
+      "output": "PCM bytes=48128 samples=24064 nonzero=12866 peak_to_peak=65535\n"
+    }
+  ]
+}

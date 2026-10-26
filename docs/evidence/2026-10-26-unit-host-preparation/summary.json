@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "guest-image-preparation-only",
+  "status": "PREPARED",
+  "functional_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "api_requests_from_preparation": 0,
+  "host_admission_modified": false,
+  "adc_fixture": "NOT USED",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "boot-control",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "firmware_sha256": "dd5a5981d16a4681a22fc221226d060e9da61d9413793f529ab41ff59160b6d7",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "5523e34cf1781a041efef793cb71f5d979e79be06e22c6ee27c5d79c096fbd86",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "firmware_sha256": "8296260742626ad5fed243b8eef7a108ccb38d2358adb41f5e81197131285655",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "976d608d07ad2dd85d00d87618ce50743b7b77e821d7fe669070abfab4f7e380",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "firmware_sha256": "1390e095cf0ef5445315c9fea2bacbdc5d5c51f6938684a3303f03df5f78d9a5",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "aba1cb8d6369e6f526af9e7244fe41cc7686c2aae09f6782fa6ed42b9694b909",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "firmware_sha256": "b6760ae51b52f970b5b3efdc17cc40d8359a7e0986834c21a6b304be71f94c2d",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "5dcb91ae2993ad6c2d4717beadfbd10681b9e43e14bb4dc99f09e0b9fbf1896c",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "boot-control",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "firmware_sha256": "d5947c7e8a8a83bfd3d9febe4f33d1342f375fd66da7f50885a7921bea15325c",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "bc2263441fda58224c159c5effeac66ff333a66da18d2a567167ea8528ec025a",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "firmware_sha256": "5d5f05f1a3401978052a3260c2d1d3b2d7f3b9f3a7dc61971b6b57dd87729060",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "44e4c2edb782e80b6a91978d2497751129958974d1a53b4e17f7c7a7978e15e3",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "firmware_sha256": "6eaf8c18e259fd83547c7f72ca76c2d0e518c51a943ee89024701829cfe7d2fd",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "42006cae2efaca246ea79369cce205cea9fc8966a4084d1c0e98057789bff85c",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "firmware_sha256": "53c9d50ee22b3623e7b420b2ea57e2d02630a0ccbd82bc6104f7b073d21ef352",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "aada0726d719873b1e31eb55e4a20c34401c5d6dbc144995c8d515dcbcb966a8",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "boot-control",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "firmware_sha256": "75281ce40a5562aed6be502c4703121ec2cfe83756fb1474be68e58d4d0cb485",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "f365f10c05a0d070d3690d2aabb35312a75bc1c249c4cd4f9db4a89183c8fb02",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "firmware_sha256": "b8fe485fe3d25591cef5a089af1a18ab60345ac80a84dfe1d8674d6f59276cdd",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "90b1bef15609922159c886be38a27e395e3e0712e59cf01f101a1fb995017b88",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "firmware_sha256": "fc8c723f8aecb645df045d10e38871b3565dc17a0b59dc9a05e5070513c0d237",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "cbbb473d4ed2cbaf6ea205129451940dc53e511f6376b87345dea99c551eba0e",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "status": "PREPARED",
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "firmware_sha256": "7c7e7ec541ec06a61256426647269be8869366d1f29b0635ae5f99e9c2cbfc13",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "ab95efe3fbf851bab203f04544e0a745cf4bb02b409d1c20323df0f984c0e91d",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "checks": {
+        "actual_partition_layout_checked": true,
+        "packaged_guest_bytes_verified": true
+      }
+    }
+  ],
+  "source_sha256": {
+    "tests/units/run_host_cases.py": "1e164ac90a51f49d9399d7adebfe447a19ecb87f1ebb70381c2efbd07ffaf965",
+    "tests/units/host_probe/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "tests/units/host_probe/host_program.py": "b1a095eceb8765c7606a4254a6aa675bb9b4946b9a869b24fd0465e76ff29f6e",
+    "tests/units/host_probe/main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "tests/units/host_probe/probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  }
+}

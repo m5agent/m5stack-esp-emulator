@@ -1,0 +1,35 @@
+{
+  "category": "browser-ui-transport-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "posts": 31,
+  "trusted_pointer_events": 12,
+  "checks": [
+    "scrolled-capture-restores-page-top",
+    "sticky-navigation-remains-at-capture-top",
+    "booting-available-qom-waits-for-product-running",
+    "running-disabled-dom-control-waits-for-enabled",
+    "trusted-touch-and-double-click-wait-for-running",
+    "cardkb-two-contact-hold-and-independent-release",
+    "single-real-mouse-double-click-four-posts",
+    "eight-encoder-array-number-checkbox-controls",
+    "nested-hub-instance-routing",
+    "real-http-response-observation",
+    "output-dom-equals-product-readback",
+    "trusted-browser-touch-events",
+    "empty-or-missing-attachment-dom-rejected"
+  ],
+  "source_sha256": {
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+    "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  }
+}

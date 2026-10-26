@@ -1,0 +1,1064 @@
+"""Plan or archive one explicit three-host/six-sensor Device Service cohort.
+
+Default is READ-ONLY PREFLIGHT: enumerate exact inputs and blockers; do not copy.
+Only --archive may copy after root authorization, a complete successful 18-case
+summary and a SHA-pinned actual root completion receipt. No API, guest, browser,
+product metadata, source rewriting or native readability classification occurs.
+"""
+from __future__ import annotations
+
+import argparse
+from contextlib import ExitStack, redirect_stdout
+import hashlib
+import importlib.util
+import io
+import ipaddress
+import json
+import math
+import os
+from pathlib import Path, PurePosixPath
+import re
+import socket
+import stat
+import struct
+import subprocess
+import sys
+import tempfile
+import urllib.request
+from urllib.parse import urlsplit
+from unittest.mock import patch
+import zipfile
+import zlib
+
+
+ROOT = Path(__file__).absolute().parents[2]
+WORK = ROOT / '.work/unit-host-sensors-live-archive-20261026'
+BASE = 'eff1561e9f0da700c843ed14d9019c81f1e27e55'
+HOSTS = ('atoms3r', 'sticks3', 'stopwatch')
+UNITS = ('color', 'tof', 'ncir', 'heart', 'tvoc', 'ultrasonic-i2c')
+PAIRS = {(host, unit) for host in HOSTS for unit in UNITS}
+LIVE = '.work/unit-host-sensors-live-20261026-r1'
+PREPARED = '.work/unit-host-sensors-admitted-20261026-r3'
+TARGET = 'docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe'
+EXPECTED_RUNTIME = 'a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047'
+HEART_OBSERVATION = '.work/unit-host-sensors-independent-execution-review-20261026/heart-source-observation'
+SUPPLEMENTS = {
+    '.work/unit-host-sensors-actual-contract-review-20261026/all18-actual-r1/receipt.json': 'post-execution/independent-contract-review.json',
+    '.work/unit-host-sensors-independent-execution-review-20261026/actual-review-receipt-v2.json': 'post-execution/independent-execution-review.json',
+    HEART_OBSERVATION + '/observation-final.json': 'post-execution/heart-source-observation/observation-final.json',
+    **{HEART_OBSERVATION + '/' + name: 'post-execution/heart-source-observation/' + name + '.txt'
+       for name in ('registers.h', 'driver_max30100.c', 'max30100.c')},
+    **{'.work/unit-host-sensors-live-intake-20261026-r3/' + name: 'post-execution/' + name
+       for name in ('post-run-health.json', 'post-run-active-sessions.json', 'owned-runtime-reap.json', 'image-continuity.json')},
+}
+FORBIDDEN = {'.bin', '.rom', '.elf', '.pyc', '.so', '.dylib', '.dll', '.exe', '.a', '.o', '.dmp', '.pcap', '.pcapng'}
+IMAGES = {'.png', '.jpg', '.jpeg', '.webp'}
+_TEXT_PATTERNS = tuple(re.compile(x) for x in (
+    r'/(?:Users|home|private|Volumes)/', r'/var/' + r'folders/', r'[A-Za-z]:[\\/]Users[\\/]',
+    r'-----BEGIN [A-Z ]*PRIVATE KEY-----', r'\bsk-[A-Za-z0-9_-]{16,}',
+    r'\bgh[pousr]_[A-Za-z0-9]{20,}', r'\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\b',
+    r'(?i)\bBearer\s+[A-Za-z0-9_.~-]{12,}',
+))
+_CREDENTIAL_KEY = re.compile(r'(?:api[_-]?key|auth[_-]?token|access[_-]?token|password|secret)', re.I)
+_CREDENTIAL_ASSIGNMENT = re.compile(
+    r'''(?i)(?<![\w-])(?P<key_quote>["']?)(?:api[_-]?key|auth[_-]?token|access[_-]?token|password|secret)(?P=key_quote)\s*[=:]\s*(?P<value_quote>["'])(?P<value>[^"'\r\n]*)(?P=value_quote)'''
+)
+_URL = re.compile(r'''https?://[^\s"'<>\\]+''', re.I)
+_PLACEHOLDER = re.compile(
+    r'''(?ix)^(?:
+        (?:your|insert|replace)(?:[_ -](?:with|your|the|here|api|access|auth|key|token|password|secret|value))+
+        |\$\{(?:API_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD|SECRET)\}
+        |[<\[](?:API_KEY|ACCESS_TOKEN|AUTH_TOKEN|TOKEN|PASSWORD|SECRET|REDACTED)[>\]]
+        |REDACTED|REPLACE_ME
+    )$'''
+)
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def read_json(path):
+    return json.loads(read_regular_bytes(path))
+
+
+def relative(name):
+    require(isinstance(name, str) and bool(name), 'empty or non-string path')
+    require(not any(ord(char) < 32 or 127 <= ord(char) <= 159 for char in name), 'control character in path')
+    require('\\' not in name, 'unsafe relative path')
+    # ZIP directory members may have one trailing slash. Other aliases would
+    # collide after extraction or while writing the reconstruction tree.
+    plain = name[:-1] if name.endswith('/') else name
+    parts = PurePosixPath(plain)
+    require(bool(plain) and not parts.is_absolute(), 'unsafe relative path')
+    require(all(part not in {'', '.', '..'} for part in plain.split('/')), 'unsafe relative path')
+    require(not re.match(r'^[A-Za-z]:', plain), 'drive-qualified relative path')
+    return Path(plain)
+
+
+
+def under_root(name):
+    result = ROOT / relative(name)
+    require(result.is_relative_to(ROOT), 'path escapes repository')
+    return result
+
+
+def label(path):
+    return path.relative_to(ROOT).as_posix()
+
+
+def pin(path):
+    return {'path': label(path), 'sha256': sha(read_regular_bytes(path))}
+
+
+def check_name(name):
+    path = relative(name)
+    scan(name.encode('utf-8'), 'artifact name')
+    unwrapped = path
+    while unwrapped.suffix.lower() == '.txt':
+        unwrapped = Path(str(unwrapped)[:-len(unwrapped.suffix)])
+    require(unwrapped.suffix.lower() not in FORBIDDEN, 'forbidden binary extension: ' + name)
+    return path
+
+
+
+def scan(data, name):
+    try:
+        text = data.decode('utf-8')
+    except UnicodeDecodeError:
+        raise ValueError('non-UTF8 text artifact: ' + name) from None
+    require(not any(pattern.search(text) for pattern in _TEXT_PATTERNS), 'sensitive content pattern: ' + name)
+    for hit in _CREDENTIAL_ASSIGNMENT.finditer(text):
+        require(not _credential_value(hit['value']), 'credential assignment in artifact: ' + name)
+    try:
+        parsed_json = json.loads(text)
+    except (ValueError, RecursionError):
+        pass
+    else:
+        _check_json_credentials(parsed_json, name)
+    for hit in _URL.finditer(text):
+        try:
+            url = urlsplit(hit.group(0))
+            hostname = url.hostname
+        except ValueError:
+            continue  # Source-code URL templates are not concrete authorities.
+        if not hostname:
+            continue
+        require(not url.username and not url.password, 'URL credential in artifact: ' + name)
+        require(not hostname.lower().rstrip('.').endswith(('.local', '.lan', '.internal')), 'private hostname URL: ' + name)
+        try:
+            address = ipaddress.ip_address(hostname.rstrip('.,;)]}'))
+        except ValueError:
+            continue
+        require(not (address.is_private and not address.is_loopback), 'non-loopback private URL: ' + name)
+
+
+
+def png_container(data, name):
+    """Accept only the metadata-free PNG layout used by this evidence batch."""
+    require(data.startswith(b'\x89PNG\r\n\x1a\n'), 'invalid PNG signature: ' + name)
+    cursor, kinds = 8, []
+    while cursor < len(data):
+        require(cursor + 12 <= len(data), 'truncated PNG chunk: ' + name)
+        length, kind = struct.unpack_from('>I4s', data, cursor)
+        end = cursor + 12 + length
+        require(end <= len(data), 'truncated PNG payload: ' + name)
+        require(kind in {b'IHDR', b'IDAT', b'IEND'}, 'unsupported PNG chunk: ' + name)
+        payload = data[cursor + 8:cursor + 8 + length]
+        require(zlib.crc32(kind + payload) == struct.unpack_from('>I', data, end - 4)[0], 'PNG CRC failed: ' + name)
+        kinds.append(kind)
+        if kind == b'IEND':
+            require(length == 0 and end == len(data), 'PNG tail payload: ' + name)
+        cursor = end
+    require(len(kinds) >= 3 and kinds[0] == b'IHDR' and kinds[-1] == b'IEND'
+            and all(kind == b'IDAT' for kind in kinds[1:-1]), 'unsupported PNG chunk order: ' + name)
+
+
+def image_info(data, name):
+    from PIL import Image
+    if Path(name).suffix.lower() == '.png':
+        png_container(data, name)
+    with Image.open(io.BytesIO(data)) as image:
+        require(image.width * image.height <= 25_000_000, 'image dimensions exceed archive bounds: ' + name)
+        image.load()
+        suffix = Path(name).suffix.lower()
+        expected_format = {'.png': 'PNG', '.jpg': 'JPEG', '.jpeg': 'JPEG', '.webp': 'WEBP'}.get(suffix)
+        require(image.format == expected_format, 'image format/extension differs: ' + name)
+        require(image.width > 0 and image.height > 0, 'empty image: ' + name)
+        _metadata(image.info, name + ' metadata')
+        _metadata(getattr(image, 'text', {}), name + ' text metadata')
+        return {'path': name, 'format': image.format, 'width': image.width, 'height': image.height, 'sha256': sha(data)}
+
+
+def native_frame_info(data, name, size):
+    from PIL import Image
+    result = image_info(data, name)
+    require([result['width'], result['height']] == size, 'native frame dimensions differ: ' + name)
+    with Image.open(io.BytesIO(data)) as image:
+        image.load()
+        require(any(low != high for low, high in image.convert('RGB').getextrema()), 'native frame is blank: ' + name)
+    return result
+
+
+
+def inspect(data, name):
+    path = check_name(name)
+    if path.suffix.lower() in IMAGES:
+        return {'images': [image_info(data, name)], 'zip_members': 0}
+    if path.suffix.lower() != '.zip':
+        scan(data, name)
+        return {'images': [], 'zip_members': 0}
+    images, count = [], 0
+    require(len(data) >= 22 and data[-22:-18] == b'PK\x05\x06', 'ZIP suffix/comment or missing end record: ' + name)
+    end = struct.unpack_from('<4s4H2IH', data, len(data) - 22)
+    require(end[1] == end[2] == end[7] == 0 and end[3] == end[4]
+            and end[5] + end[6] == len(data) - 22, 'unsupported ZIP envelope: ' + name)
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        require(len(archive.infolist()) <= 512 and sum(row.file_size for row in archive.infolist()) <= 128 << 20
+                and all(row.file_size <= 32 << 20 for row in archive.infolist()), 'ZIP exceeds archive bounds: ' + name)
+        require(not archive.comment and archive.start_dir == end[6] and len(archive.infolist()) == end[4], 'unsupported ZIP envelope: ' + name)
+        names = [check_name(row.filename).as_posix() for row in archive.infolist()]
+        require(len(names) == len(set(names)), 'duplicate ZIP member: ' + name)
+        cursor, central_size = 0, 0
+        for member in archive.infolist():
+            member_path = check_name(member.filename)
+            kind = stat.S_IFMT(member.external_attr >> 16)
+            require(kind in {0, stat.S_IFREG} and not member.is_dir(), 'ZIP nonregular/directory member: ' + name)
+            require(not member.comment and not member.extra, 'unsupported ZIP member metadata: ' + name)
+            require(member.header_offset == cursor and cursor + 30 <= archive.start_dir, 'ZIP prefix/gap payload: ' + name)
+            local = struct.unpack_from('<4s5H3I2H', data, cursor)
+            require(local[0] == b'PK\x03\x04' and local[2] == member.flag_bits and not (local[2] & ~0x800)
+                    and local[3] == member.compress_type and local[6:9] == (member.CRC, member.compress_size, member.file_size)
+                    and local[10] == 0, 'unsupported ZIP local header: ' + name)
+            filename = member.filename.encode('utf-8' if local[2] & 0x800 else 'cp437')
+            require(local[9] == len(filename) and data[cursor + 30:cursor + 30 + local[9]] == filename, 'ZIP local filename differs: ' + name)
+            cursor += 30 + local[9] + member.compress_size
+            central_size += 46 + len(filename)
+            content = archive.read(member)
+            count += 1
+            if member_path.suffix.lower() in IMAGES:
+                images.append(image_info(content, name + ':' + member.filename))
+            else:
+                scan(content, name + ':' + member.filename)
+        require(cursor == archive.start_dir and central_size == end[5], 'ZIP unaccounted payload: ' + name)
+        require(archive.testzip() is None, 'ZIP CRC failed: ' + name)
+    return {'images': images, 'zip_members': count}
+
+
+
+def _credential_value(value):
+    if not isinstance(value, str):
+        return False
+    value = value.strip()
+    return bool(value) and not _PLACEHOLDER.fullmatch(value)
+
+
+def _check_json_credentials(value, name):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            require(not (_CREDENTIAL_KEY.fullmatch(key) and _credential_value(item)), 'credential value in JSON artifact: ' + name)
+            _check_json_credentials(item, name)
+    elif isinstance(value, list):
+        for item in value:
+            _check_json_credentials(item, name)
+
+
+def _metadata(value, name):
+    if isinstance(value, str):
+        scan(value.encode('utf-8'), name)
+    elif isinstance(value, bytes):
+        scan(value, name)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _metadata(str(key), name)
+            # EXIF, XMP and ICC can carry non-text private fields. Keep raw
+            # evidence immutable and reject unsupported opaque metadata.
+            if str(key).lower() in {'exif', 'xmp', 'xml:com.adobe.xmp', 'icc_profile'}:
+                require(not item, 'opaque image metadata: ' + name)
+            else:
+                _metadata(item, name)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _metadata(item, name)
+    else:
+        require(value is None or isinstance(value, (bool, int, float)), 'unsupported image metadata: ' + name)
+
+
+def read_regular_bytes(path, *, boundary=None):
+    """Read through directory fds so no path component can follow a symlink.
+
+    The caller must retain the lexical source path until this call. The default
+    boundary is repository ROOT; tests can supply an independent trusted root.
+    No output, process, socket or external service is involved.
+    """
+    path = Path(path)
+    boundary = Path(ROOT if boundary is None else boundary)
+    require('..' not in path.parts and '..' not in boundary.parts, 'parent traversal in source path')
+    path = path.absolute()
+    boundary = boundary.absolute()
+    require(path != boundary and path.is_relative_to(boundary), 'source path escapes boundary')
+    relative(path.relative_to(boundary).as_posix())
+    require(hasattr(os, 'O_NOFOLLOW') and hasattr(os, 'O_DIRECTORY') and os.open in os.supports_dir_fd, 'safe directory-fd reads are unavailable')
+    descriptors = []
+    try:
+        directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        current = os.open(path.anchor, directory_flags)
+        descriptors.append(current)
+        for component in path.parts[1:-1]:
+            current = os.open(component, directory_flags, dir_fd=current)
+            descriptors.append(current)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=current)
+        descriptors.append(descriptor)
+        require(stat.S_ISREG(os.fstat(descriptor).st_mode), 'source is not a regular file')
+        chunks = []
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                return b''.join(chunks)
+            chunks.append(chunk)
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+
+def exact_cases(rows, description):
+    require(isinstance(rows, list) and len(rows) == 18, description + ' must contain all eighteen cases')
+    pairs = [(row.get('device_id'), row.get('unit_id')) for row in rows]
+    require(len(set(pairs)) == len(pairs) and set(pairs) == PAIRS, description + ' has missing, duplicate or unexpected cases')
+    return dict(zip(pairs, rows))
+
+
+def baseline(name, data):
+    relative(name)
+    result = subprocess.run(['git', 'show', BASE + ':' + name], cwd=ROOT, capture_output=True)
+    require(result.returncode == 0 and result.stdout == data, 'source cannot be represented by an exact baseline Git blob: ' + name)
+    result = subprocess.run(['git', 'rev-parse', BASE + ':' + name], cwd=ROOT, capture_output=True, text=True)
+    require(result.returncode == 0 and re.fullmatch('[a-f0-9]{40}\n?', result.stdout), 'baseline Git blob lookup failed')
+    return {'storage': 'baseline-git-reference', 'commit': BASE, 'repository_path': name,
+            'git_blob': result.stdout.strip(), 'sha256': sha(data)}
+
+
+def offline_guard():
+    guards = ExitStack()
+    for owner, name in ((urllib.request, 'urlopen'), (socket.socket, 'connect'), (socket, 'create_connection')):
+        guards.enter_context(patch.object(owner, name, side_effect=ValueError('archive verification attempted network')))
+    original_popen = subprocess.Popen
+    def read_only_git(arguments, *args, **kwargs):
+        require(isinstance(arguments, (tuple, list)) and len(arguments) == 3
+                and arguments[0] == 'git' and arguments[1] in {'show', 'rev-parse'}
+                and isinstance(arguments[2], str) and arguments[2].startswith(BASE + ':')
+                and kwargs.get('cwd') == ROOT and not kwargs.get('shell'), 'archive verification attempted a non-baseline child process')
+        relative(arguments[2].split(':', 1)[1])
+        return original_popen(arguments, *args, **kwargs)
+    guards.enter_context(patch.object(subprocess, 'Popen', side_effect=read_only_git))
+    return guards
+
+
+class Plan:
+    def __init__(self, live, prepared):
+        self.live, self.prepared = live, prepared
+        self.inputs, self.items, self.errors, self.cases = {}, {}, [], []
+        self.freeze, self.readiness, self.prepared_rows, self.summary = {}, {}, {}, {}
+        self.source_index = {}
+        self.frame_observations, self.native_rows = {}, {}
+        self.native_review_sha256 = None
+        self.supplemental_inputs = {}
+
+    def attempt(self, description, action):
+        try:
+            return action()
+        except Exception as error:
+            message = str(error).replace(str(ROOT), '<workspace>')
+            self.errors.append({'input': description, 'error': type(error).__name__ + ': ' + message})
+            return None
+
+    def read(self, path, expected=None):
+        data = read_regular_bytes(path)
+        digest = sha(data)
+        require(expected is None or expected == digest, 'input SHA differs: ' + label(path))
+        previous = self.inputs.setdefault(label(path), digest)
+        require(previous == digest, 'input changed during preflight: ' + label(path))
+        return data
+
+    def json(self, path, expected=None):
+        return json.loads(self.read(path, expected))
+
+    def add(self, source, destination, expected=None):
+        data = self.read(source, expected)
+        inspect(data, destination)
+        self.put(destination, data, {'path': label(source), 'sha256': sha(data)})
+        return data
+
+    def put(self, destination, data, origin=None):
+        check_name(destination)
+        inspect(data, destination)
+        row = {'sha256': sha(data), 'size': len(data), 'data': data, 'origin': origin}
+        if destination in self.items:
+            require(self.items[destination]['data'] == data, 'destination collision: ' + destination)
+        self.items[destination] = row
+
+    def generated(self, destination, value):
+        self.put(destination, (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode())
+
+    def frozen(self, name, expected, *, preparation=False):
+        relative(name)
+        directory = self.prepared if preparation else self.live
+        snapshot = directory / 'source-snapshot' / (name + '.txt')
+        source = snapshot if snapshot.exists() else under_root(name)
+        return self.read(source, expected)
+
+    def source_tree(self, freeze, preparation=False):
+        require(isinstance(freeze, dict) and freeze, 'source freeze is empty or invalid')
+        index = {}
+        prefix = 'preparation/' if preparation else 'execution/'
+        for name, digest in sorted(freeze.items()):
+            relative(name)
+            require(isinstance(digest, str) and re.fullmatch('[a-f0-9]{64}', digest), 'invalid frozen source hash')
+            data = self.frozen(name, digest, preparation=preparation)
+            # Source images are never copied. Other sensitive unchanged source
+            # bodies also require exact commit/path/blob/byte identity.
+            try:
+                if Path(name).suffix.lower() in IMAGES:
+                    raise ValueError('source image needs baseline reference')
+                scan(data, name)
+            except ValueError:
+                entry = baseline(name, data)
+                entry['reason'] = 'Exact unchanged baseline source; body is not republished.'
+            else:
+                destination = prefix + 'source-snapshot/' + name + '.txt'
+                self.put(destination, data, {'source_freeze_path': name, 'sha256': digest})
+                entry = {'storage': 'verbatim-text-snapshot', 'path': destination, 'sha256': digest}
+            index[name] = entry
+        return index
+
+    def global_inputs(self):
+        self.freeze = self.json(self.live / 'source-before.json')
+        for name in ('summary.json', 'source-before.json', 'preparation-continuity.json',
+                     'prepared-readiness.json', 'execution-toolchain-before.json'):
+            self.add(self.live / name, 'execution/' + name)
+        rows = self.json(self.live / 'summary.json')
+        exact = self.attempt('explicit eighteen-case execution selection', lambda: exact_cases(rows, 'execution summary'))
+        # Partial/failed runs remain BLOCKED, while default preflight still
+        # enumerates every available artifact instead of choosing PASS rows.
+        self.summary = exact if exact is not None else {
+            (row.get('device_id'), row.get('unit_id')): row for row in rows if isinstance(row, dict)
+        } if isinstance(rows, list) else {}
+        self.readiness = self.json(self.prepared / 'readiness.json')
+        require(self.json(self.live / 'prepared-readiness.json') == self.readiness, 'executed and prepared readiness differ')
+        require(self.readiness.get('schema_version') == 1 and self.readiness.get('status') == 'PREPARED_NOT_EXECUTED'
+                and self.readiness.get('case_count') == 18, 'preparation status/count differs')
+        require(self.readiness['selection'] == {'devices': list(HOSTS), 'cases': list(UNITS)}, 'preparation must explicitly select all three hosts and six sensors')
+        self.prepared_rows = exact_cases(self.readiness['cases'], 'prepared cases')
+        before = self.json(self.prepared / 'source-before.json')
+        require(before == self.readiness['source_sha256'], 'preparation source-before/readiness disagree')
+        require(all(self.freeze.get(name) == digest for name, digest in before.items()), 'preparation dependency is missing from execution freeze')
+        for name in ('readiness.json', 'source-before.json', 'source-dependencies.json', 'toolchain-before.json'):
+            path = self.prepared / name
+            require(self.freeze.get(label(path)) == sha(self.read(path)), 'preparation metadata is not execution-frozen: ' + name)
+        toolchain = self.json(self.prepared / 'toolchain-before.json')
+        require(toolchain == self.readiness['toolchain'] == self.json(self.live / 'execution-toolchain-before.json'), 'toolchain manifests differ')
+        require({'python-interpreter', 'littlefs-native-extension', 'littlefs/__init__.py', 'littlefs/context.py',
+                 'littlefs/errors.py'} <= set(toolchain['files']), 'toolchain provenance omits required artifacts')
+        for name in ('readiness.json', 'source-before.json', 'source-dependencies.json', 'toolchain-before.json',
+                     'protocol-audit.json', 'guest-probe.diff', 'partial-preparation.json'):
+            self.add(self.prepared / name, 'preparation/' + name)
+        require(self.json(self.prepared / 'protocol-audit.json') == self.readiness['protocol_audit'], 'protocol audit/readiness differ')
+        require(exact_cases(self.json(self.prepared / 'partial-preparation.json'), 'final partial-preparation') == self.prepared_rows,
+                'partial-preparation contains another cohort')
+        continuity = self.json(self.live / 'preparation-continuity.json')
+        require(continuity.get('status') == 'EXACT_CURRENT_SOURCE_MATCH' and continuity.get('allowed_changes') == []
+                and continuity.get('source_sha256') == before, 'execution preparation continuity differs')
+        self.source_index = {'execution': self.source_tree(self.freeze), 'preparation': self.source_tree(before, preparation=True)}
+        self.generated('source-reconstruction.json', {'schema_version': 1, 'baseline_commit': BASE,
+            'execution_source_count': len(self.freeze), 'preparation_source_count': len(before), 'entries': self.source_index,
+            'scope': 'Original frozen bytes or exact baseline Git blob references. No raw source or report rewriting.'})
+
+    def pure_gates(self):
+        import ast
+        import copy
+        from datetime import datetime
+        from types import SimpleNamespace
+        sensor_name = 'tests/units/run_sensor_cases.py'
+        sensor_tree = ast.parse(self.frozen(sensor_name, self.freeze[sensor_name]))
+        values = next(node.value for node in sensor_tree.body if isinstance(node, ast.Assign)
+                      and any(isinstance(name, ast.Name) and name.id == 'CASES' for name in node.targets))
+        cases = ast.literal_eval(values)
+        guest_name = 'tests/units/host_sensors_probe/host_sensor_layout.py'
+        guest = {}
+        exec(compile(self.frozen(guest_name, self.freeze[guest_name]), guest_name, 'exec'), guest)
+        module = SimpleNamespace(**guest)
+        wrapper_name = 'tests/units/run_host_sensor_cases.py'
+        wrapper = ast.parse(self.frozen(wrapper_name, self.freeze[wrapper_name]))
+        names = {'same_input_value', 'same_input_vector', 'input_time', 'sensor_marker_lines',
+                 'positive_input_binding', 'display_contract', 'verify_display_markers'}
+        selected = [node for node in wrapper.body if isinstance(node, ast.FunctionDef) and node.name in names]
+        require({node.name for node in selected} == names, 'frozen pure evidence gates are missing')
+        namespace = {'copy': copy, 'datetime': datetime, 're': re, 'math': math, 'sha': sha, 'json': json,
+                     'preparation': SimpleNamespace(SENSOR_CASES=cases, layout_module=lambda: module)}
+        exec(compile(ast.Module(body=selected, type_ignores=[]), wrapper_name, 'exec'), namespace)
+        checker_name = 'tests/units/check_batch_evidence.py'
+        checker = {'__name__': '_sensor_archive_frozen_checker', '__file__': str(ROOT / checker_name)}
+        exec(compile(self.frozen(checker_name, self.freeze[checker_name]), checker_name, 'exec'), checker)
+        return namespace, checker['Checker']
+
+    def prepared_case(self, host, unit):
+        record = self.prepared_rows[host, unit]
+        directory = self.prepared / host / unit
+        require(self.json(directory / 'prepared.json') == record, 'prepared case/readiness differ')
+        self.add(directory / 'prepared.json', f'preparation/{host}/{unit}/prepared.json')
+        require(record.get('status') == 'PREPARED_NOT_EXECUTED' and record.get('runtime') == 'qemu', 'prepared case has another status/runtime')
+        require(record['admission'] == {'status': 'ADMITTED', 'validation': 'NOT RUN'}, 'preparation admission/execution categories differ')
+        require(all(record.get(key) == 'NOT RUN' for key in ('guest_execution', 'web_execution', 'hardware_execution')), 'offline preparation claims execution')
+        files = directory / 'files'
+        actual = {path.relative_to(files).as_posix(): sha(self.read(path)) for path in files.rglob('*') if path.is_file()}
+        require(actual == record['prepared_file_sha256'], 'prepared file membership/bytes differ')
+        require({name: value for name, value in actual.items() if name.endswith('.py')} == record['probe_sha256']
+                and len(record['probe_sha256']) == 16 and len(record['packaged_full_py_sha256']) == 17,
+                'probe/full-VFS Python membership differs')
+        for name, digest in record['prepared_file_sha256'].items():
+            self.add(files / relative(name), f'preparation/{host}/{unit}/files/' + name + '.txt', digest)
+        raw = self.read(directory / 'uiflow2-ui-test.bin', record['firmware_sha256'])
+        self.verify_vfs(raw, record)
+        return record
+
+    def verify_vfs(self, raw, record):
+        import littlefs
+        offset, size = (record['reference_layout'][key] for key in ('offset', 'size'))
+        require(type(offset) is int and type(size) is int and offset >= 0 and size > 0 and offset + size <= len(raw), 'invalid reference VFS bounds')
+        filesystem = littlefs.LittleFS(context=littlefs.UserContext(buffer=bytearray(raw[offset:offset + size])),
+            block_size=4096, block_count=size // 4096, read_size=128, prog_size=32,
+            lookahead_size=128, block_cycles=100, mount=False)
+        filesystem.mount()
+        actual = {}
+        try:
+            def visit(directory):
+                for entry in filesystem.scandir(directory):
+                    path = directory.rstrip('/') + '/' + entry.name
+                    if entry.type == 2:
+                        visit(path)
+                    else:
+                        require(entry.type == 1, 'unsupported VFS object')
+                        with filesystem.open(path, 'rb') as stream:
+                            actual[path.lstrip('/')] = sha(stream.read())
+            visit('/')
+        finally:
+            filesystem.unmount()
+        expected = dict(record['probe_sha256'])
+        common = {name[len('tests/uiflow2/lib/'):]: digest for name, digest in self.readiness['source_sha256'].items()
+                  if name.startswith('tests/uiflow2/lib/') and name.endswith('.py')}
+        expected.update(common)
+        require(actual == expected == record['packaged_full_py_sha256'] and 'rtc_probe.py' in actual, 'complete VFS membership/bytes differ')
+
+    def case(self, host, unit):
+        record = self.prepared_case(host, unit)
+        origin = self.live / host / unit
+        report = self.json(origin / 'report.json')
+        require((report.get('device_id'), report.get('unit_id')) == (host, unit), 'case report identity differs')
+        require(self.summary.get((host, unit)) == report, 'summary and unchanged case report differ')
+        require(report.get('source_sha256') == self.freeze, 'case execution freeze differs')
+        self.add(origin / 'report.json', f'execution/{host}/{unit}/report.json')
+        status = {'device_id': host, 'unit_id': unit, 'reported_status': report.get('status'),
+                  'native_readability': 'NOT CLASSIFIED BY ARCHIVER', 'hardware_execution': 'NOT RUN'}
+        self.cases.append(status)
+        require(report.get('status') == 'PASS', 'failed/incomplete report blocks the whole eighteen-case archive')
+        require(report.get('category') == 'virtual-device-browser-host-sensors' and report.get('runtime') == 'qemu', 'report category/runtime differs')
+        require(report.get('checks') and all(value is True for value in report['checks'].values()), 'outer assertion failed')
+        require(not report.get('host_errors') and not report.get('cleanup_errors') and not report.get('controller_error'), 'outer error remains')
+        require(report.get('firmware_sha256') == record['firmware_sha256'], 'executed firmware differs from preparation')
+        require(report.get('hardware_execution') == 'NOT RUN', 'archive cannot infer physical-hardware execution')
+        artifacts = report.get('artifact_sha256')
+        require(isinstance(artifacts, dict) and artifacts, 'case artifact whitelist is missing')
+        for name, digest in artifacts.items():
+            self.add(origin / relative(name), f'execution/{host}/{unit}/' + name, digest)
+        required = {'history.json', 'history-health.json', 'history-frame.png', report['controller_result'],
+                    report['browser_report'], report['evidence'], f'controller/{unit}/frame.png', f'controller/{unit}/serial.txt'}
+        require(required <= set(artifacts), 'case artifact whitelist omits required evidence')
+        controller = self.json(origin / relative(report['controller_result']))
+        require(controller.get('status') == 'PASS' and controller.get('checks') and all(value is True for value in controller['checks'].values()), 'original sensor assertions did not pass')
+        for key in ('device_id', 'unit_id', 'runtime', 'session_id', 'firmware_sha256', 'evidence_sha256', 'firmware_flavor'):
+            require(controller.get(key) == report.get(key), 'controller/report identity differs: ' + key)
+        self.read(origin / 'controller' / unit / 'uiflow2-ui-test.bin', record['firmware_sha256'])
+        actual_files = {path.relative_to(origin / 'controller' / unit / 'files').as_posix(): sha(self.read(path))
+                        for path in (origin / 'controller' / unit / 'files').rglob('*') if path.is_file()}
+        require(actual_files == record['prepared_file_sha256'], 'actual execution probe tree differs from prepared bytes')
+        for name, digest in actual_files.items():
+            self.add(origin / 'controller' / unit / 'files' / relative(name), f'execution/{host}/{unit}/probe-sources/' + name + '.txt', digest)
+        adapter = controller.get('preparation_adapter')
+        require(adapter == report.get('preparation_adapter') and adapter.get('status') == 'VERIFIED', 'adapter records differ')
+        require(controller['probe_sha256'] == adapter['original_runner_prebuild_probe_sha256'], 'legacy prebuild probe hash record differs')
+        require(controller['packaged_python_sha256'] == adapter['actual_packaged_probe_sha256'] == adapter['restored_probe_sha256']
+                == record['probe_sha256'] and adapter['complete_vfs_sha256'] == record['packaged_full_py_sha256'], 'prepared/actual packaged probe hashes differ')
+        gates, checker_class = self.pure_gates()
+        serial = self.read(origin / 'controller' / unit / 'serial.txt').decode('utf-8')
+        web = self.json(origin / relative(report['browser_report']))
+        require(gates['positive_input_binding'](record, report['fresh_inputs'], web, serial, controller) == report['positive_input_binding'],
+                'fresh real product POST/guest evidence binding differs')
+        require(gates['verify_display_markers'](serial, record) == report['host_observations']['strict_display_contract'], 'actual guest font/layout markers differ')
+        require(all('SENSOR_CHECK ' + marker + ' PASS' in serial for marker in record['required_negative_markers']), 'required original sensor negative marker is absent')
+        require('SENSOR_PROBE_READY ' + unit in serial and not any(marker in serial for marker in
+            ('SENSOR_PROBE_FAIL', 'HOST_SENSOR_FAIL', 'Traceback (most recent call last)', 'Guru Meditation', 'Rebooting...')), 'guest readiness/error marker differs')
+        checker = checker_class(ROOT, strict_direct=True)
+        manifest, _ = checker.zip_manifest(origin / relative(report['evidence']), report, unit)
+        checker.direct_record(report['runtime_provenance'], manifest['session'], unit, EXPECTED_RUNTIME)
+        verified = checker.artifacts(report, {}, origin / 'report.json')
+        checker.controller_detail(report, origin / 'report.json', verified)
+        checker.browser_detail(report, origin / 'report.json', verified, manifest)
+        proof, session = report['runtime_provenance'], manifest['session']
+        worker = session['worker']
+        require(proof.get('worker_id') == worker.get('worker_id') and type(proof.get('worker_generation')) is int
+                and proof['worker_generation'] == worker.get('generation'), 'direct PID/worker identity differs')
+        with zipfile.ZipFile(io.BytesIO(self.read(origin / relative(report['evidence'])))) as archive:
+            zip_serial = archive.read('serial.log').decode('utf-8')
+            require(all('SENSOR_CHECK ' + marker + ' PASS' in zip_serial for marker in record['required_negative_markers']), 'ZIP serial omits sensor negatives')
+            zip_frame = native_frame_info(archive.read('frames/current.png'), 'frames/current.png', record['host_profile']['size'])
+        history = self.json(origin / 'history.json')
+        require(all(history.get(key) == report.get(key) for key in ('device_id', 'runtime', 'session_id', 'firmware_sha256')), 'raw stopped history identity differs')
+        require(history.get('state') == 'stopped' and history.get('flash_retained') is False, 'raw stopped history/Flash release differs')
+        require(history.get('pid') == session.get('pid') and history['worker'].get('worker_id') == worker.get('worker_id')
+                and history['worker'].get('generation') == worker.get('generation'), 'stopped history PID/worker differs')
+        health = self.json(origin / 'history-health.json')
+        require(type(health['capacity']['active_sessions']) is int and health['capacity']['active_sessions'] == 0, 'history health is not idle')
+        frame = native_frame_info(self.read(origin / 'history-frame.png'), 'history-frame.png', record['host_profile']['size'])
+        captured = native_frame_info(self.read(origin / 'controller' / unit / 'frame.png'), 'frame.png', record['host_profile']['size'])
+        def dimensions(row):
+            return {key: row[key] for key in ('sha256', 'width', 'height')}
+        self.frame_observations[host, unit] = {'scope': 'separate-captures-no-atomic-frame-claim',
+            'controller': {'path': TARGET + f'/execution/{host}/{unit}/controller/{unit}/frame.png', **dimensions(captured)},
+            'evidence': {'archive_path': TARGET + f'/execution/{host}/{unit}/' + report['evidence'],
+                'archive_sha256': report['evidence_sha256'], 'member': 'frames/current.png', **dimensions(zip_frame)},
+            'history': {'path': TARGET + f'/execution/{host}/{unit}/history-frame.png', **dimensions(frame)}}
+        status.update(input_and_artifact_binding='VERIFIED', firmware_sha256=report['firmware_sha256'],
+                      session_id=report['session_id'], native_frame_dimensions=[frame['width'], frame['height']],
+                      distinct_captured_frame_hashes=len({captured['sha256'], zip_frame['sha256'], frame['sha256']}))
+
+    def native_review(self, path, expected):
+        if path is None and expected is None:
+            return
+        require(path is not None and re.fullmatch('[a-f0-9]{64}', expected or ''), 'native review needs a trusted path/SHA pair')
+        review = self.json(path, expected)
+        require(review.get('schema_version') == 1 and review.get('category') == 'root-native-frame-review'
+                and review.get('status') == 'PASS' and review.get('scope') == 'captured-final-native-frames-only', 'native review category/status/scope differs')
+        rows = review.get('cases')
+        require(isinstance(rows, dict) and set(rows) == {host + '/' + unit for host, unit in PAIRS}, 'native review must explicitly cover all eighteen cases')
+        for host in HOSTS:
+            for unit in UNITS:
+                row = rows[host + '/' + unit]
+                origin = self.live / host / unit
+                require(row.get('native_readability') == 'PASS', 'root native review is not PASS for every selected frame')
+                report = row.get('report', {})
+                require(report.get('path') == label(origin / 'report.json') and report.get('sha256') == sha(self.read(origin / 'report.json')), 'native review report identity differs')
+                require(isinstance(row.get('observed_lines'), list) and row['observed_lines']
+                    and all(isinstance(line, str) and line for line in row['observed_lines']), 'native review has no actual observed lines')
+                require(isinstance(row.get('notes'), list) and all(isinstance(note, str) for note in row['notes']), 'native review notes are malformed')
+                primary = row.get('frame', {})
+                additional = row.get('additional_frames', [])
+                require(isinstance(additional, list), 'additional reviewed frames must be a list')
+                frames = [primary, *additional]
+                seen, observed_hashes = set(), set()
+                valid_paths = {label(origin / 'controller' / unit / 'frame.png'), label(origin / 'history-frame.png')}
+                for index, selected in enumerate(frames):
+                    name = selected.get('path')
+                    require(name in valid_paths and name not in seen, 'native review references an unrelated or duplicate captured frame')
+                    require(re.fullmatch('[a-f0-9]{64}', selected.get('sha256') or ''), 'native reviewed frame SHA is absent or malformed')
+                    seen.add(name)
+                    actual = native_frame_info(self.read(under_root(name), selected.get('sha256')), name,
+                                               self.prepared_rows[host, unit]['host_profile']['size'])
+                    require(type(selected.get('width')) is int and type(selected.get('height')) is int
+                        and selected['width'] == actual['width'] and selected['height'] == actual['height'], 'native review frame dimensions differ')
+                    lines = row['observed_lines'] if index == 0 else selected.get('observed_lines')
+                    require(isinstance(lines, list) and lines and all(isinstance(line, str) and line for line in lines), 'reviewed additional frame has no observed lines')
+                    observed_hashes.add(actual['sha256'])
+                captures = self.frame_observations[host, unit]
+                require({captures[key]['sha256'] for key in ('controller', 'evidence', 'history')} <= observed_hashes,
+                        'native review does not cover every distinct captured final frame')
+        self.add(path, 'post-execution/native-review.json', expected)
+        self.native_rows, self.native_review_sha256 = rows, expected
+
+    def completion(self, path, expected):
+        require(path is not None and re.fullmatch('[a-f0-9]{64}', expected or ''), 'SHA-pinned root-observed completion receipt is required')
+        receipt = self.json(path, expected)
+        require(receipt.get('category') == 'root-observed-tool-result' and receipt.get('status') == 'PASS'
+                and type(receipt.get('runner_exit_code')) is int and receipt['runner_exit_code'] == 0, 'completion is not an actual root-observed successful tool result')
+        require(receipt.get('selection') == {'devices': list(HOSTS), 'cases': list(UNITS)}, 'completion receipt must identify the whole eighteen-case invocation')
+        reference = receipt.get('tool_result_reference', {})
+        require(reference.get('tool') in {'tools.write_stdin', 'tools.exec_command'} and type(reference.get('observed_exit_code')) is int
+                and reference['observed_exit_code'] == 0 and reference.get('chunk_id'), 'root tool-result observation is absent')
+        require(isinstance(receipt.get('summary'), dict), 'completion summary pin absent')
+        for key, original in (('summary', self.live / 'summary.json'), ('source_before', self.live / 'source-before.json')):
+            pinned = receipt[key]
+            require(pinned.get('path') == label(original) and pinned.get('sha256') == sha(self.read(original)), 'completion input pin differs: ' + key)
+        require(set(receipt.get('reports', {})) == {host + '/' + unit for host, unit in PAIRS}, 'completion report pins must cover all eighteen cases')
+        for host, unit in PAIRS:
+            pinned = receipt['reports'][host + '/' + unit]
+            original = self.live / host / unit / 'report.json'
+            require(pinned.get('path') == label(original) and pinned.get('sha256') == sha(self.read(original)), 'completion report pin differs')
+        if 'raw_result' in reference:
+            pinned = reference['raw_result']
+            raw_path = under_root(pinned['path'])
+            observed = self.json(raw_path, pinned['sha256'])
+            require(observed.get('chunk_id') == reference['chunk_id'] and observed.get('exit_code') == 0, 'root raw tool result differs')
+            self.add(raw_path, 'post-execution/root-observed-tool-result.json', pinned['sha256'])
+        self.add(path, 'post-execution/root-completion.json', expected)
+
+    def supplements(self, selected):
+        pins = {}
+        for value in selected:
+            name, separator, expected = value.rpartition('=')
+            require(separator and name in SUPPLEMENTS and name not in pins and re.fullmatch('[a-f0-9]{64}', expected), 'unknown, duplicate or unpinned supplemental input')
+            pins[name] = expected
+        for name, expected in pins.items():
+            destination = SUPPLEMENTS[name]
+            raw = self.add(under_root(name), destination, expected)
+            if name.endswith('/all18-actual-r1/receipt.json'):
+                receipt = json.loads(raw)
+                rows = exact_cases(receipt.get('cases'), 'independent contract oracle')
+                require(receipt.get('status') == 'PASS', 'independent contract oracle did not pass')
+                for pair, row in rows.items():
+                    require(row.get('report_sha256') == sha(self.read(self.live / pair[0] / pair[1] / 'report.json')),
+                            'independent contract oracle refers to another raw report')
+            elif name.endswith('/actual-review-receipt-v2.json'):
+                receipt = json.loads(raw)
+                rows = receipt.get('cases')
+                require(isinstance(rows, list) and len(rows) == 18 and {row.get('case') for row in rows}
+                        == {host + '/' + unit for host, unit in PAIRS}, 'independent execution oracle membership differs')
+                require(receipt.get('verified_count') == 18 and not receipt.get('pending_finalization'), 'independent execution oracle is incomplete')
+                for row in rows:
+                    require(row.get('status') == 'VERIFIED_ACTUAL_EXECUTION' and row.get('report_sha256') ==
+                            sha(self.read(self.live / relative(row['case']) / 'report.json')), 'independent execution oracle refers to another raw report')
+            elif name.startswith(HEART_OBSERVATION + '/') and not name.endswith('.json'):
+                observation_name = HEART_OBSERVATION + '/observation-final.json'
+                require(observation_name in pins, 'Heart source requires its explicitly pinned observation')
+                observation = self.json(under_root(observation_name), pins[observation_name])
+                basename = Path(name).name
+                require(observation['official_source_matches_catalog_sha256'].get(basename) == expected, 'Heart source differs from observation provenance')
+                catalog_name = 'platform/units/catalog.json'
+                catalog = json.loads(self.frozen(catalog_name, self.freeze[catalog_name]))
+                def matched(value):
+                    if isinstance(value, dict):
+                        return (isinstance(value.get('url'), str) and value['url'].endswith('/' + basename)
+                                and value.get('sha256') == expected) or any(matched(item) for item in value.values())
+                    return isinstance(value, list) and any(matched(item) for item in value)
+                require(matched(catalog), 'Heart source is not pinned by the execution-frozen catalog')
+            elif name.endswith('/observation-final.json'):
+                for row in json.loads(raw)['observed_serial']:
+                    serial = self.live / row['device_id'] / 'heart/controller/heart/serial.txt'
+                    require(row['serial_sha256'] == sha(self.read(serial)), 'Heart observation refers to another serial artifact')
+            self.supplemental_inputs[name] = {'path': destination, 'sha256': expected,
+                'scope': 'Explicit post-execution supplemental observation; not a new runtime or hardware execution.'}
+        if pins:
+            self.generated('supplemental-inputs.json', {'schema_version': 1, 'inputs': self.supplemental_inputs,
+                'raw_bytes_rewritten': False, 'scope': 'Original supplemental bytes and origin-to-archive path/hash reconciliation.'})
+
+    def build(self, completion=None, completion_sha=None, native_review=None, native_review_sha=None, supplements=()):
+        with offline_guard():
+            self.attempt('global execution/preparation manifests and frozen sources', self.global_inputs)
+            for host in HOSTS:
+                for unit in UNITS:
+                    self.attempt(host + '/' + unit, lambda host=host, unit=unit: self.case(host, unit))
+            self.attempt('root-observed invocation completion', lambda: self.completion(completion, completion_sha))
+            self.attempt('optional root native-frame review', lambda: self.native_review(native_review, native_review_sha))
+            self.attempt('explicit supplemental observations', lambda: self.supplements(supplements))
+        return self
+
+    def public(self):
+        return {'schema_version': 1, 'mode': 'READ_ONLY_PREFLIGHT', 'status': 'BLOCKED' if self.errors else 'READY_FOR_AUTHORIZED_ARCHIVE',
+            'expected_pairs': [{'device_id': host, 'unit_id': unit} for host in HOSTS for unit in UNITS],
+            'observed_cases': self.cases, 'blockers': self.errors,
+            'planned_files': [{'path': name, 'size': row['size'], 'sha256': row['sha256'], 'origin': row['origin']}
+                              for name, row in sorted(self.items.items())],
+            'input_sha256': self.inputs, 'api_contacted': False, 'sessions_started': 0,
+            'root_native_review_sha256': self.native_review_sha256,
+            'supplemental_input_count': len(self.supplemental_inputs),
+            'native_readability': 'NOT CLASSIFIED BY ARCHIVER', 'hardware_execution': 'NOT RUN',
+            'raw_rewriting': False, 'copies_performed': 0}
+
+
+def output_ancestors(target):
+    require(target == ROOT / TARGET, 'archive target must be the reviewed fixed evidence path')
+    current = target.parent
+    while current != ROOT:
+        require(not current.is_symlink(), 'symlink in output ancestry')
+        require(not current.exists() or current.is_dir(), 'non-directory output ancestor')
+        current = current.parent
+    require(ROOT.is_dir() and not ROOT.is_symlink(), 'repository boundary must be a real directory')
+
+
+def recheck_inputs(plan):
+    for name, expected in plan.inputs.items():
+        require(sha(read_regular_bytes(under_root(name))) == expected, 'input changed after preflight: ' + name)
+
+
+def verify_output(directory, planned):
+    actual = {path.relative_to(directory).as_posix(): sha(read_regular_bytes(path))
+              for path in directory.rglob('*') if path.is_file()}
+    require(not any(path.is_symlink() for path in directory.rglob('*')), 'archive symlink')
+    require(actual == {name: row['sha256'] for name, row in planned.items()}, 'archive inventory or bytes differ')
+    images, members = 0, 0
+    for name, row in planned.items():
+        observed = inspect(read_regular_bytes(directory / relative(name)), name)
+        images += len(observed['images'])
+        members += observed['zip_members']
+    return {'checked_files': len(actual), 'decoded_images': images, 'checked_zip_members': members}
+
+
+def prepare_envelopes(plan):
+    require(not plan.errors and set((row['device_id'], row['unit_id']) for row in plan.cases) == PAIRS
+            and len(plan.cases) == 18, 'all eighteen cases must pass complete read-only preflight')
+    # Generated envelopes use their final relative location from the outset.
+    # No raw JSON/source/image/ZIP bytes are relocated or rewritten internally.
+    selected, metadata = [], {}
+    for host in HOSTS:
+        for unit in UNITS:
+            name = f'execution/{host}/{unit}/report.json'
+            original = plan.summary[host, unit]
+            prepared = plan.prepared_rows[host, unit]
+            manual = plan.native_rows.get(host + '/' + unit)
+            native = manual['native_readability'] if manual else 'NOT VERIFIED'
+            receipt_name = f'execution/{host}/{unit}/normalization-receipt.json'
+            def archived_pin(path):
+                return {'path': TARGET + '/' + path, 'sha256': plan.items[path]['sha256']}
+            receipt = {'schema_version': 1, 'evidence_contract': 'device-service-sensor-web-v1',
+                'scope': 'controller-and-browser-functionality', 'native_readability': native,
+                'browser_framing': 'NOT REVIEWED',
+                'report': TARGET + '/' + name, 'report_sha256': plan.items[name]['sha256'],
+                'source_freeze': archived_pin('execution/source-before.json'),
+                'source_snapshot_root': TARGET + '/execution/source-snapshot',
+                'source_reconstruction': archived_pin('source-reconstruction.json'),
+                'frame_observations': plan.frame_observations[host, unit],
+                'preparation_readiness': archived_pin('execution/prepared-readiness.json'),
+                'history_snapshot': archived_pin(f'execution/{host}/{unit}/history.json'),
+                'preparation_only_fields': {key: prepared[key] for key in ('guest_execution', 'web_execution', 'admission')},
+                'preparation_fields_origin': {'path': TARGET + '/execution/prepared-readiness.json',
+                    'case_selector': {'device_id': host, 'unit_id': unit},
+                    'meaning': 'Historical preparation values retained unchanged; actual execution authority is the same-session raw report.'},
+                'visual_limit': 'The archiver does not classify native readability or browser framing.',
+                'hardware_execution': 'NOT RUN'}
+            if manual:
+                receipt.update(native_review=archived_pin('post-execution/native-review.json'),
+                    native_readability_scope='captured-final-native-frames-only',
+                    observed_lines=manual['observed_lines'], additional_frames=manual.get('additional_frames', []),
+                    root_review_notes=manual['notes'])
+            plan.generated(receipt_name, receipt)
+            selected.append({'device_id': host, 'unit_id': unit, 'reported_status': original['status'],
+                'report': TARGET + '/' + name, 'report_sha256': plan.items[name]['sha256'],
+                'evidence_contract': 'device-service-sensor-web-v1',
+                'normalization_receipt': TARGET + '/' + receipt_name,
+                'normalization_receipt_sha256': plan.items[receipt_name]['sha256'],
+                'firmware_sha256': original['firmware_sha256'], 'session_id': original['session_id'],
+                'runtime': 'qemu', 'expected_runtime_binary_sha256': EXPECTED_RUNTIME})
+            validation = {key: original[key] for key in ('status', 'device_id', 'unit_id', 'runtime', 'session_id',
+                'firmware_sha256', 'firmware_flavor', 'evidence_sha256')}
+            validation.update(validation='virtual-device validation', evidence_contract='device-service-sensor-web-v1',
+                scope='controller-and-browser-functionality', report=TARGET + '/' + name,
+                report_sha256=plan.items[name]['sha256'], normalization_receipt=TARGET + '/' + receipt_name,
+                normalization_receipt_sha256=plan.items[receipt_name]['sha256'],
+                runtime_binary_sha256=original['runtime_provenance']['runtime_binary_sha256'], runtime_proof_kind='direct-pid',
+                worker_generation=original['runtime_provenance']['worker_generation'], guest_controller='PASS',
+                live_browser='PASS', native_frame='PASS', native_readability=native,
+                browser_framing='NOT REVIEWED', hardware='NOT RUN')
+            if manual:
+                validation.update(native_review=TARGET + '/post-execution/native-review.json',
+                    native_review_sha256=plan.native_review_sha256,
+                    native_readability_scope='captured-final-native-frames-only')
+            metadata.setdefault(unit, {})[host] = validation
+    plan.generated('archive-selection.json', {'schema_version': 1, 'case_count': 18,
+        'selection': {'devices': list(HOSTS), 'cases': list(UNITS)}, 'cases': selected,
+        'scope': 'Every case from one explicit eighteen-case invocation; failed or missing cases block the whole archive.',
+        'native_readability': 'NOT CLASSIFIED BY ARCHIVER', 'hardware_execution': 'NOT RUN'})
+    for name, value in host_selections(metadata, plan.summary).items():
+        plan.generated(name, value)
+        for unit in UNITS:
+            metadata[unit][value['device_id']].update(batch_selection=TARGET + '/' + name,
+                batch_selection_sha256=plan.items[name]['sha256'])
+    plan.generated('archive-provenance.json', {'schema_version': 1, 'category': 'post-execution-host-sensor-evidence-archive',
+        'raw_inputs': {'live': label(plan.live), 'prepared': label(plan.prepared)},
+        'input_sha256': plan.inputs, 'case_count': 18, 'expected_runtime_binary_sha256': EXPECTED_RUNTIME,
+        'source_reconstruction': 'source-reconstruction.json',
+        'source_storage': 'Every source is original UTF-8 bytes under a .txt suffix or an exact unchanged eff1561 commit/path/Git-blob/SHA reference. Source images use only exact baseline references.',
+        'preparation_origin': 'PREPARED_NOT_EXECUTED and admission validation NOT RUN remain untouched historical preparation fields. They are distinct from raw execution results.',
+        'excluded': ['full mutable Flash and firmware images', 'ROM/ELF and native runtime/toolchain binaries', 'bytecode', 'raw packet captures'],
+        'native_readability': 'NOT CLASSIFIED BY ARCHIVER', 'hardware_execution': 'NOT RUN',
+        'api_contacted': False, 'sessions_started': 0, 'raw_bytes_rewritten': False,
+        'product_metadata_modified': False, 'external_work_log': 'SKIPPED_BY_USER',
+        'external_work_log_policy': 'Explicit user waiver for the external agent-work-logs archive only; repository evidence remains required.'})
+    plan.generated('host-validation-candidate.json', {'schema_version': 1, 'status': 'CANDIDATE_METADATA_NOT_APPLIED',
+        'scope': 'Only the eighteen exact captured device/firmware/controller/Web paths. Root owns any later product integration.',
+        'browser_framing': 'NOT REVIEWED', 'host_validation': metadata})
+    plan.put('post-execution-tooling/archive-script.py.txt', read_regular_bytes(Path(__file__)))
+    # This README describes archive semantics only. It makes no visual claim.
+    plan.put('README.md', b'''# Three-host sensor execution evidence
+
+This archive preserves one explicit selection of three hosts and six sensors.
+All eighteen original reports are required. A failed or missing case blocks the
+whole archive; no successful subset is selected. Original reports, artifact
+hash maps, preparation records, source-before maps, toolchain metadata, probe
+sources, serial, browser records, ZIPs, PNGs and stopped history retain their
+original bytes. Source bodies use .txt suffixes. Reused source images and any
+sensitive unchanged baseline source body use exact baseline Git references.
+Firmware, ROM, ELF, bytecode and native toolchain/runtime binaries are excluded.
+
+The archiver verifies artifact identity and source-bound pure evidence gates.
+Those checks do not classify native readability, browser framing, all numeric
+extremes or physical RF/optical/electrical behavior. Preparation-time NOT RUN
+fields are retained as preparation history. Actual execution authority remains
+the unchanged same-session reports and artifacts. No runtime profile or product
+metadata is modified. No external work-log archive is implied.
+
+Controller, evidence-ZIP and retained-history frames are separate captures;
+their individual hashes/dimensions never assert cross-request atomic equality.
+Any separately SHA-pinned root visual review covers every distinct captured
+final frame, retains its actual observed text, and remains a separate human
+observation. Browser framing stays NOT REVIEWED.
+
+Heart observations remain open: the unchanged official wrapper/native driver
+can expose intermittent raw IR/Red zero samples, including transitions between
+controller and later ZIP/history captures. The source-consistent FIFO/cache
+explanation is not a proven runtime root cause: reference-BIN/native-source
+mapping and time-correlated FIFO traces were not established. Two fresh matching
+input observations do not promise a constant final value, BPM or SpO2.
+
+The general QOM tree is bounded (/machine, depth 2, maximum 500 nodes) and can
+truncate before the Unit chip. The evidence chain uses original chip-counter
+queries, guest-qom Unit state, the retained contract path template and the
+hash-bound UnitRegistry/DeviceService implementation. It does not provide an
+independently retained raw narrow-QOM response for every derived chip path.
+
+The configured external agent-work-logs repository was absent during intake.
+External work-log archival is SKIPPED_BY_USER under the explicit instruction to
+skip that external archive for now and keep the repository documentation complete.
+The missing directory is a retained intake fact, not a blocker. This waiver applies
+only to external work logs; repository evidence is still required. This local
+evidence directory does not imply an external publication or complete the wider
+Unit workstream.
+''')
+
+
+def host_selections(metadata, reports=None):
+    """Exact six-sensor envelopes for the outer host metadata contract.
+
+    These do not claim to be a complete catalog selection for Checker.check.
+    """
+    result = {}
+    require(set(metadata) == set(UNITS) and all(set(rows) == set(HOSTS) for rows in metadata.values()),
+            'host selections require all eighteen exact sensor records')
+    for host in HOSTS:
+        cases = []
+        for unit in UNITS:
+            value = metadata[unit][host]
+            report = value['report']
+            raw = reports[host, unit] if reports is not None else read_json(under_root(report))
+            evidence = (under_root(report).parent / relative(raw['evidence'])).relative_to(ROOT).as_posix()
+            layer = {'report': report, 'report_sha256': value['report_sha256'], 'evidence': evidence,
+                'expected_firmware_flavor': value['firmware_flavor'],
+                'runtime_proof': {'kind': 'direct-pid', 'path': report, 'report_pointer': '/runtime_provenance'}}
+            cases.append({'unit_id': unit, 'guest_controller': layer, 'live_browser': dict(layer),
+                          'reason': 'Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result.'})
+        result['host-selections/' + host + '.json'] = {'schema_version': 1, 'device_id': host, 'runtime': 'qemu',
+            'expected_runtime_binary_sha256': EXPECTED_RUNTIME, 'required_layers': ['guest_controller', 'live_browser'], 'cases': cases}
+    return result
+
+
+def archive(plan):
+    prepare_envelopes(plan)
+    target = ROOT / TARGET
+    output_ancestors(target)
+    require(not target.exists(), 'refuse to overwrite an existing evidence archive')
+    recheck_inputs(plan)
+    # Stage only after every input and every privacy/container check succeeded.
+    # This entry point is never called by default/read-only preflight.
+    stage_parent = WORK / 'staging'
+    require(not stage_parent.exists(), 'preserve existing private staging from any earlier attempt')
+    stage_parent.mkdir(mode=0o700)
+    stage = stage_parent / 'archive'
+    stage.mkdir(mode=0o700)
+    promoted = False
+    try:
+        for name, row in sorted(plan.items.items()):
+            path = stage / relative(name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('xb') as stream:
+                stream.write(row['data'])
+        verified = verify_output(stage, plan.items)
+        # Generated verification receipts and checksums are also scanned and
+        # verified. They are not written into or used to modify any raw input.
+        plan.generated('archive-verification.json', {'schema_version': 1, 'status': 'ARTIFACT_AND_SOURCE_IDENTITY_VERIFIED',
+            **verified, 'case_count': 18, 'privacy_pattern_exemptions': [],
+            'native_readability': 'NOT CLASSIFIED BY ARCHIVER', 'hardware_execution': 'NOT RUN',
+            'api_contacted': False, 'sessions_started': 0, 'raw_bytes_rewritten': False,
+            'external_work_log': 'SKIPPED_BY_USER'})
+        receipt = plan.items['archive-verification.json']
+        (stage / 'archive-verification.json').write_bytes(receipt['data'])
+        sums = ''.join(row['sha256'] + '  ' + name + '\n' for name, row in sorted(plan.items.items()))
+        plan.put('SHA256SUMS', sums.encode())
+        (stage / 'SHA256SUMS').write_bytes(plan.items['SHA256SUMS']['data'])
+        verify_output(stage, plan.items)
+        recheck_inputs(plan)
+        output_ancestors(target)
+        require(not target.exists(), 'archive destination appeared during preflight/staging')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        os.rename(stage, target)
+        promoted = True
+        result = verify_output(target, plan.items)
+        return {'schema_version': 1, 'status': 'ARCHIVED_ORIGINAL_BYTES', 'target': TARGET, **result,
+            'case_count': 18, 'raw_bytes_rewritten': False, 'native_readability': 'NOT CLASSIFIED BY ARCHIVER',
+            'api_contacted': False, 'sessions_started': 0, 'hardware_execution': 'NOT RUN'}
+    except Exception:
+        if promoted:
+            os.rename(target, stage)
+        raise
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--live', default=LIVE, help='repository-relative original execution directory')
+    parser.add_argument('--prepared', default=PREPARED, help='repository-relative original preparation directory')
+    parser.add_argument('--completion', help='repository-relative actual root-observed completion receipt')
+    parser.add_argument('--completion-sha256', help='trusted SHA selected by root from the actual completion receipt')
+    parser.add_argument('--native-review', help='optional repository-relative actual root native-frame review')
+    parser.add_argument('--native-review-sha256', help='trusted SHA selected by root from the actual native review')
+    parser.add_argument('--supplement', action='append', default=[], metavar='SOURCE=SHA256',
+                        help='explicit fixed-scope supplemental input; original bytes are retained')
+    parser.add_argument('--plan-json', help='fresh relative plan JSON path under the exclusive archive work directory')
+    parser.add_argument('--quiet', action='store_true', help='print compact counts; full enumeration remains in --plan-json')
+    parser.add_argument('--archive', action='store_true', help='copy only after root explicitly authorizes this final action')
+    args = parser.parse_args(argv)
+    live, prepared = under_root(args.live), under_root(args.prepared)
+    require(live.is_relative_to(ROOT / '.work') and prepared.is_relative_to(ROOT / '.work'), 'inputs must remain in private work directories')
+    completion = under_root(args.completion) if args.completion else None
+    native_review = under_root(args.native_review) if args.native_review else None
+    plan = Plan(live, prepared).build(completion, args.completion_sha256, native_review, args.native_review_sha256, args.supplement)
+    if not plan.errors:
+        plan.attempt('final generated envelopes (memory only)', lambda: prepare_envelopes(plan))
+    public = plan.public()
+    public['expected_inputs'] = [{'path': label(path), 'present': path.is_file()} for path in
+        [live / 'summary.json', live / 'source-before.json', prepared / 'readiness.json',
+         *[live / host / unit / 'report.json' for host in HOSTS for unit in UNITS]]]
+    if args.plan_json:
+        output = under_root(args.plan_json)
+        require(output.is_relative_to(WORK) and not output.exists(), 'plan JSON must use a fresh path under the exclusive archive work directory')
+        inspect((json.dumps(public, ensure_ascii=False) + '\n').encode(), output.name)
+        require(output.parent == WORK, 'plan JSON must be directly under the exclusive archive work directory')
+        with output.open('x', encoding='utf-8') as stream:
+            stream.write(json.dumps(public, ensure_ascii=False, indent=2) + '\n')
+    if args.archive:
+        require(not plan.errors, 'archive rejected: read-only preflight found blockers')
+        result = archive(plan)
+    elif args.quiet:
+        result = {key: value for key, value in public.items() if key not in {'planned_files', 'input_sha256', 'expected_pairs', 'observed_cases'}}
+        result['planned_file_count'] = len(plan.items)
+        result['expected_case_count'] = 18
+        result['observed_case_count'] = len(plan.cases)
+    else:
+        result = public
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 1 if plan.errors else 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

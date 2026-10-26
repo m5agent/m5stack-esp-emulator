@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "current-unit-readout-reconciliation",
+  "python": "3.12",
+  "suites": {
+    "platform": {
+      "status": "PASS",
+      "tests": 544,
+      "seconds": 31.289
+    },
+    "docs": {
+      "status": "PASS",
+      "tests": 39,
+      "seconds": 1.683
+    },
+    "annotation": {
+      "status": "PASS",
+      "tests": 17
+    },
+    "recovery": {
+      "status": "PASS",
+      "tests": 23
+    }
+  },
+  "logs": {
+    "platform": {
+      "file": "platform.txt",
+      "internal_source": ".work/unit-readout-final-platform.log",
+      "original_sha256": "5546377e7c8da812a53eecf60a60eb7107f9c43e9032ae48d3422261cbb508ce",
+      "archived_sha256": "5546377e7c8da812a53eecf60a60eb7107f9c43e9032ae48d3422261cbb508ce",
+      "path_redaction": false
+    },
+    "docs": {
+      "file": "docs.txt",
+      "internal_source": ".work/unit-readout-final-docs.log",
+      "original_sha256": "be4c612f74b710db80692dbbc6516033a4b2318fc160f71cf88a481585903935",
+      "archived_sha256": "be4c612f74b710db80692dbbc6516033a4b2318fc160f71cf88a481585903935",
+      "path_redaction": false
+    },
+    "annotation": {
+      "file": "annotation.txt",
+      "internal_source": ".work/unit-readout-final-annotation.log",
+      "original_sha256": "b0ed82044ec57067b093b50acf281ead1c53b31c6fd7f4d4d125ac6b02785b71",
+      "archived_sha256": "b0ed82044ec57067b093b50acf281ead1c53b31c6fd7f4d4d125ac6b02785b71",
+      "path_redaction": false
+    },
+    "recovery": {
+      "file": "recovery.txt",
+      "internal_source": ".work/unit-readout-final-recovery.log",
+      "original_sha256": "8675ec9e6821459bf3308bd0f24896f02332c84b2b6b319ea72e2b6f16600238",
+      "archived_sha256": "08d1bc186d42219079b8a573a104029fe5a6996f7f05a0023a90b9cd3abfb91a",
+      "path_redaction": true
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "python3.12",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "RUNTIME_COVERAGE_OK",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3.12",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "PERIPHERAL_CATALOG_OK",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3.12",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "QEMU_PROFILES_OK",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3.12",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "PROJECT_SNAPSHOT_OK",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "full_peripheral_matrix": "NOT RERUN: QEMU binary/controller sources unchanged; independent 67-case baseline remains separately archived",
+  "scope": "Local platform/docs/frontend checks; no new guest or hardware execution",
+  "external_work_log": "NOT ARCHIVED: configured agent-work-logs repository/workflow not found; raw work retained internally"
+}

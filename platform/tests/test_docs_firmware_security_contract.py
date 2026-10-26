@@ -706,8 +706,9 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
                 "platform/tools/firmware_manifest.schema.json"
             ),
         }.items():
-            self.assertEqual(
-                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+            self._assert_recorded_tool_hash(
+                "secure-boot-recorded-image",
+                relative,
                 evidence["tool_hashes"][name],
             )
         signed = evidence["security_images"]["signed"]

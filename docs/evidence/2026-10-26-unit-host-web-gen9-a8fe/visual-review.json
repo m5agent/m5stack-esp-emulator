@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "category": "offline-visual-review",
+  "reviewed_at": "2026-10-25T19:59:02.142004+00:00",
+  "method": "Human-visible inspection of both archived contact sheets and original StopWatch ENV browser PNG; no new sessions, screenshot retakes, cropping or replacement of raw evidence.",
+  "functional_status": "PASS",
+  "functional_scope": "Exactly nine same-session guest/controller/real-Web/DOM/PID/ZIP cases. This visual review does not change their strict functional results.",
+  "native_frame_status": "PASS",
+  "native_frame_counts": {
+    "PASS": 9,
+    "PARTIAL": 0
+  },
+  "browser_framing_status": "PARTIAL",
+  "browser_framing_counts": {
+    "PASS": 6,
+    "PARTIAL": 3
+  },
+  "boundary": "All three ENV before-evidence browser screenshots have the global sticky header overlaying the session card title/top edge. StopWatch display body remains visible; Unit inputs, controller fields and serial remain readable. Native frames are unaffected. Full browser visual acceptance is not established.",
+  "capture_order_observation": "Archived screenshot_preparation records scroll (0,0) before screenshot; locator screenshot can subsequently realign the page. This observation is not proof that final capture framing was clear.",
+  "hardware_execution": "NOT RUN",
+  "contact_sheets": [
+    {
+      "file": "native-frame-contact-sheet.png",
+      "sha256": "2d06ff04a682ff41d24d56b3d1362e97cd9446783dcd0ef2d0b4912d716916eb"
+    },
+    {
+      "file": "browser-contact-sheet.png",
+      "sha256": "34c426d9762527b4963a64238c147d7b8e936e6789d4935f4880f186143ab874"
+    }
+  ],
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "session_id": "1e0e6202d6f945099a758dac387bb24c",
+      "native_frame": {
+        "file": "controller/atoms3r/button/frame.png",
+        "sha256": "9e78579aa04288ecae265397062e8507ed4f7971e1c0955affe3506467b5cb38",
+        "status": "PASS",
+        "native_size": [
+          128,
+          128
+        ],
+        "guest_canvas_size": [
+          128,
+          128
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/atoms3r/1e0e6202d6f945099a758dac387bb24c/005-before-evidence.png",
+        "sha256": "2155e9419dca609dc066a5784a685708a3c1763c58c3fe203970e1d1b553a4be",
+        "captured_at": "2026-10-25T19:44:26.660Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "18007f73e66b4603a049fa0517b903db",
+      "native_frame": {
+        "file": "controller/atoms3r/relay/frame.png",
+        "sha256": "29196c03de715c271fde78eb07b2618687c133828f5d48982842b315c8ddbd58",
+        "status": "PASS",
+        "native_size": [
+          128,
+          128
+        ],
+        "guest_canvas_size": [
+          128,
+          128
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/atoms3r/18007f73e66b4603a049fa0517b903db/017-before-evidence.png",
+        "sha256": "4d6f0a337d33463385817c3f3882c7a13a986fbf79981b3750012a8249d6c67b",
+        "captured_at": "2026-10-25T19:45:08.226Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+      "native_frame": {
+        "file": "controller/atoms3r/env-iii/frame.png",
+        "sha256": "3014e69e5e1319fe509b82939621cb53cfed68de9d1fe6848c53196cd988cd19",
+        "status": "PASS",
+        "native_size": [
+          128,
+          128
+        ],
+        "guest_canvas_size": [
+          128,
+          128
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/atoms3r/a2e0a769e927467eb6ed8be27b3cb146/004-before-evidence.png",
+        "sha256": "f1d81fb76259604aaf3db0ef6a9e8d1fe8dcaecc71d576ad1d6df2a08250776a",
+        "captured_at": "2026-10-25T19:45:43.125Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PARTIAL",
+        "observation": "Global sticky header obscures session card title/top edge; inputs/controller/serial readable."
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "session_id": "07deec40cec54109a00201b11efdc73e",
+      "native_frame": {
+        "file": "controller/sticks3/button/frame.png",
+        "sha256": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+        "status": "PASS",
+        "native_size": [
+          135,
+          240
+        ],
+        "guest_canvas_size": [
+          135,
+          240
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/sticks3/07deec40cec54109a00201b11efdc73e/005-before-evidence.png",
+        "sha256": "a1a50cb90676ddbf001965c756bd644876819b280da0c4991e179cd1e4fd8760",
+        "captured_at": "2026-10-25T19:46:18.737Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+      "native_frame": {
+        "file": "controller/sticks3/relay/frame.png",
+        "sha256": "6938a3552796a91832a0b12999a70458ebed1f911d5d234421c4e7483cc448c6",
+        "status": "PASS",
+        "native_size": [
+          135,
+          240
+        ],
+        "guest_canvas_size": [
+          135,
+          240
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/sticks3/61ab0ac1b0aa42e9b83bd481698e725b/017-before-evidence.png",
+        "sha256": "d0a63f5a1330cc0e0767a36b1847918daa34872122a7d24914f01ebc16d2d1ca",
+        "captured_at": "2026-10-25T19:47:01.286Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "session_id": "316a5248034e4759a7da00f7b3969999",
+      "native_frame": {
+        "file": "controller/sticks3/env-iii/frame.png",
+        "sha256": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+        "status": "PASS",
+        "native_size": [
+          135,
+          240
+        ],
+        "guest_canvas_size": [
+          135,
+          240
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/sticks3/316a5248034e4759a7da00f7b3969999/004-before-evidence.png",
+        "sha256": "8304e1aa98b97c27e17ea19bc643dd930edfc16e7cdd5a52d45e86aad3f742a7",
+        "captured_at": "2026-10-25T19:47:38.850Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PARTIAL",
+        "observation": "Global sticky header obscures session card title/top edge; inputs/controller/serial readable."
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "session_id": "b9732a338aae475f9a24d6010e9618f5",
+      "native_frame": {
+        "file": "controller/stopwatch/button/frame.png",
+        "sha256": "401b2455646a64664f6f4b67d1fb95d2a672b8824bb492dafd57c3bd6ac7102b",
+        "status": "PASS",
+        "native_size": [
+          466,
+          466
+        ],
+        "guest_canvas_size": [
+          468,
+          468
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/stopwatch/b9732a338aae475f9a24d6010e9618f5/005-before-evidence.png",
+        "sha256": "84763f9edae065ca75a5647495e2632336eb8d9c24708406cd44e0763a056e7c",
+        "captured_at": "2026-10-25T19:48:20.803Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "823b7f0ab2774f5c83ee3b41d61c1f0f",
+      "native_frame": {
+        "file": "controller/stopwatch/relay/frame.png",
+        "sha256": "12d104e1b216e08ee04d71a2f0237d6b863997e51a7820ebfb1ec43a441596e6",
+        "status": "PASS",
+        "native_size": [
+          466,
+          466
+        ],
+        "guest_canvas_size": [
+          468,
+          468
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/stopwatch/823b7f0ab2774f5c83ee3b41d61c1f0f/017-before-evidence.png",
+        "sha256": "79f126b5f97a2eb91fadc025d1a65bce91a6cfe7481f79a2f2b7860ad6b9d679",
+        "captured_at": "2026-10-25T19:49:09.671Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PASS",
+        "observation": "Session card and required Unit/browser evidence are fully framed."
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "session_id": "8eeac2b285f343b68a6a54ff73442a3b",
+      "native_frame": {
+        "file": "controller/stopwatch/env-iii/frame.png",
+        "sha256": "34f83fd42ab235c8b003733abdf47ece886026e5bdd708368371092e6f4b2c05",
+        "status": "PASS",
+        "native_size": [
+          466,
+          466
+        ],
+        "guest_canvas_size": [
+          468,
+          468
+        ]
+      },
+      "browser_frame": {
+        "file": "browser/stopwatch/8eeac2b285f343b68a6a54ff73442a3b/004-before-evidence.png",
+        "sha256": "302cbd0768540ac6a514e0ea173073c15819e8336d89f3ba3d452a178fc9d486",
+        "captured_at": "2026-10-25T19:49:52.563Z",
+        "session_state": "running",
+        "screenshot_preparation": {
+          "scroll_x": 0,
+          "scroll_y": 0
+        },
+        "status": "PARTIAL",
+        "observation": "Global sticky header obscures session card title/top edge; inputs/controller/serial readable."
+      }
+    }
+  ]
+}

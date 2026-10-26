@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "category": "actual-native-and-browser-visual-observation-supplement",
+  "status": "PASS",
+  "scope": "captured-final-native-frame-only",
+  "device_id": "sticks3",
+  "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+  "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+  "source_full_review": ".work/unit-control-display-stick5-independent-review-20261026.json",
+  "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+  "summary": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "330d28ddf2ac4479a78665e961e3ba53ae7413f29ae9c2428cfea85183f5232f"
+  },
+  "source_freeze": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+    "count": 421
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "fbdc136f2b373e3e4d992b3e1a49ec943e22eb5e6cc66551edf63b5bdf1ffafa"
+  },
+  "inspection_method": "Visual inspection of each original native PNG and actual before-evidence browser PNG. observed_final_lines manually transcribed from pixels, never populated from execution serial or defaults.",
+  "inherited_fields_note": "actual_font_and_layout and captured_final_serial are inherited execution fields from the pinned native review. They are not the visual transcription source.",
+  "limitations": [
+    "Only these five actual final native PNGs and their recorded visible values were reviewed.",
+    "Browser framing applies only to the named before-evidence session-card screenshots.",
+    "Browser model LCD glyph readability at screenshot scale is NOT VERIFIED; separate native PNG readability is reviewed.",
+    "No intermediate-state, exhaustive-extrema, other firmware/host or physical-hardware visual PASS."
+  ],
+  "cases": [
+    {
+      "device_id": "sticks3",
+      "unit_id": "joystick-v11",
+      "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+      "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+      "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+      "native_frame_sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 1.0,
+        "font_height": 15,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 127 22 16 3 70 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+      "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+      "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+      "native_frame_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/joystick-v11/controller/joystick-v11/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png",
+      "browser_screenshot_sha256": "483146c6b32761a488ac968303cd1383093afb5b5a30fe269f8c2f743241b2ef",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "sticks3 joystick-v11",
+        "x 255",
+        "y 0",
+        "button 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "encoder",
+      "session_id": "272d68e84e174535a0c19ddbfc1e6b8f",
+      "firmware_sha256": "a15f3648d00532d971ddc8814676ad174a13759ff3ba2b157b3a3d3af4814c2a",
+      "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737",
+      "native_frame_sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 1.0,
+        "font_height": 15,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 127 22 16 2 54 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER 32767 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+      "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+      "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+      "native_frame_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/encoder/controller/encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png",
+      "browser_screenshot_sha256": "daf4193cc5ef3fb9c6956e584acb4a529e7002abddb34e63d5d3782455093a9d",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "sticks3 encoder",
+        "count 32767",
+        "pressed 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "8encoder",
+      "session_id": "86a73786b4634bd7ba64ffa3908d97d2",
+      "firmware_sha256": "f2204b1fa754f37f68d5a098ad19f2ba24eef4cd518b57b333fc1b421fe39131",
+      "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35",
+      "native_frame_sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 1.0,
+        "font_height": 15,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 127 22 16 10 182 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+      "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+      "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+      "native_frame_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/8encoder/controller/8encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png",
+      "browser_screenshot_sha256": "253b709213fe52d9923e09d26c7c4fcf6c38f192622dbf36b5d3041507605551",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "sticks3 8encoder",
+        "1 1",
+        "2 -2",
+        "3 123456",
+        "4 -123456",
+        "5 2147483647",
+        "6 -2147483648",
+        "7 7",
+        "8 8",
+        "P 10100101",
+        "SW 1"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "cardkb",
+      "session_id": "65b979b649e64c9f8d74832349039f09",
+      "firmware_sha256": "731cb3a3676f68deef031f4a97bd9c5e58170e47f4220c97b27f3bfc3cfe0db5",
+      "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7",
+      "native_frame_sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 1.0,
+        "font_height": 15,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 127 22 16 1 38 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_CARDKB_LAST 65"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+      "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+      "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+      "native_frame_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/cardkb/controller/cardkb/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png",
+      "browser_screenshot_sha256": "026fb67e7216ea2fdd4b346a432697f1aa0b38194b92dcead2b9745271ce8c8e",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "sticks3 cardkb",
+        "key 65"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rfid2",
+      "session_id": "6ef6a3236fe443d394b827be8ad10390",
+      "firmware_sha256": "ee71fa4fecf1268af5bb93d12d6d338277f59d03b69cfe635e7206cbd7eb303a",
+      "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479",
+      "native_frame_sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 1.0,
+        "font_height": 15,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 127 22 16 3 70 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_RFID_NO_CARD"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stick5-native-review-20261026/native-review.json",
+      "source_review_sha256": "69d1573400fd9237a33873b4a180777aa60d959b4dbd45754f9c5614be873a68",
+      "source_full_review_sha256": "2520d7b58b9647ff12690d0a1f55bf34527735fb3e2ceba87fbbfc8e7b290619",
+      "native_frame_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/rfid2/controller/rfid2/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stick5-gen9-a8fe-20261026-r1/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png",
+      "browser_screenshot_sha256": "f9b0b74ce78bc9e73bb096127ec2e8da4b5a6364a784ba48925e425b05d68e3f",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "sticks3 rfid2",
+        "No card"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    }
+  ],
+  "api_contacted_by_reviewer": false,
+  "sessions_started_by_reviewer": 0
+}

@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "scope": "Explicit 11 original IO cases plus one separately patched custom IR guest; not an all-catalog reconciliation",
+  "strict_direct": true,
+  "cases": [
+    {
+      "unit_id": "rgb",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/rgb/result.json",
+      "report_sha256": "1659219997e19af857d27e33f3d6510b352810fb81b699c544fd304590de85a1",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "108a0a5d5fc9495ba1f7334038686516",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "bac3310f0349d65f12b7ce673c4a87f2101708d1acc66e2d89d9029d0c9fbd1b",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/rgb/evidence.zip",
+      "evidence_sha256": "b1ab3da050d65e3a5181f7885619b3eaec6f691a4f8127652a4d7586ecae76bd",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "angle",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/angle/result.json",
+      "report_sha256": "3d83181a3fc92f1434562e31683c38ef40d6d2180167aebafb6dae7684243343",
+      "artifact_sha256_verified": {},
+      "assertions": 9,
+      "session_id": "d02849771ed846e38d2f0a7c633905a6",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "2ae248260fbeaadb320f235da8f7cfdbcbeffd16630f910706b74340584c3fa4",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/angle/evidence.zip",
+      "evidence_sha256": "7864bfe98fcd840df4b61df9539e74c5d063ad98f7cb6a10dd939e09cd6c0e97",
+      "zip_members": 11,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "rs485",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/rs485/result.json",
+      "report_sha256": "f5bcb200841ccd94abffb5cf2ec8b53bf741e3d27fd78d581f5d420d3e7be687",
+      "artifact_sha256_verified": {},
+      "assertions": 9,
+      "session_id": "f1e3358552ff4050b4b1a8c537d50ebc",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "187429132c16f775fa2d33448fd7aa4be63e131b9e35a44bfbbbe2750069114a",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/rs485/evidence.zip",
+      "evidence_sha256": "74e268c3583038b42efc4b8bd5f638509d5b33527f6741523b872fe6c0f1bd1c",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "key",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/key/result.json",
+      "report_sha256": "d85d6a320ffa95dd453fd0c253dacde67dd7311b9d5ee3c93395754cf4835011",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "90f52b3423a24dc9a82070e27725b004",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "6a671e93d6697148d5baeea96b6431b03aea3ca30732c6cff1b47572282349e0",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/key/evidence.zip",
+      "evidence_sha256": "8984f08a1b45102e5f12b7c1c2967569430bef36ba0a87e2fd54e844745366fc",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "hub",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/hub/result.json",
+      "report_sha256": "9262406fd374a9ea8f0e2cb9a418d85a22bfb7a7e5f061fe3d489028ba7a9460",
+      "artifact_sha256_verified": {},
+      "assertions": 9,
+      "session_id": "fb4926c17fea4252ad9bc1d9625db80d",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "61b7d38935c65047a21d1d8d01e8fc588f01c3aa0c1dfb1f38abb85fc792a922",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/hub/evidence.zip",
+      "evidence_sha256": "0c0131efaa5d74f943bd710b754902d9a6f31db77b3a84a3239ed78d15b101e9",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "pir",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/pir/result.json",
+      "report_sha256": "e77c0c5056a91404e4f2e8ca2d7cd5e935eee91c8d18ecfe2a317a4df6e764f1",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "3a9e92cf3ea54374a63e0156f7b80f34",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "8bb0b9a67a746f5de8bd24855e94ff8e6ac84015d77197b3c6539dfba6ac875f",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/pir/evidence.zip",
+      "evidence_sha256": "92c1bfd8dc0f68549b2755588cb078bd2ce637e9e8d881e52fca1fd485152e59",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "dual-button",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/dual-button/result.json",
+      "report_sha256": "6d1c38f28b189f109154318171665c78c3a8bdd482ccf2b0ab5318c89fcbf2d9",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "839f05d01025432eaa80818df75f54d3",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "7d4a9d5fc1e7ae3b580371907495b8aad19087728cd690f14a10b168bf3f9735",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/dual-button/evidence.zip",
+      "evidence_sha256": "c7124fb0dc16374a56f82bd718e7d89296a047d0ffbc5b5d461c30edd94f7d3b",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "limit",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/limit/result.json",
+      "report_sha256": "d1afa88e620e0487e274f911774dc1dcc30d492236b054f0aab65bd8f2ddd313",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "4fc4ed7df49e496f9a613f48f37916b8",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "d1a99cfed639bed052106c0dab5803bf58daf84de2f3fbf33666729b583589ac",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/limit/evidence.zip",
+      "evidence_sha256": "bebc232f6979cd22ea11e0e9e6435576530775d999b261f0480eb62790d14b19",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "light",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/light/result.json",
+      "report_sha256": "fb0f5c9ed92244e13e4e78f3297f617b0d083daede20598123b71bcb60e31d0f",
+      "artifact_sha256_verified": {},
+      "assertions": 9,
+      "session_id": "8fa1f57162124dd8be3f059b5a8fd444",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "d4d7cbf4a20a41a0548e84b1eb78e928b8b3698bc9a3e17ab19eac0bcc2924f4",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/light/evidence.zip",
+      "evidence_sha256": "e1780cc88b3ecd9255323a57d0304c0ebba3d55ea41fe7e9aa2b376edb26de14",
+      "zip_members": 11,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "buzzer",
+      "firmware_flavor": "not-recorded",
+      "status": "NOT VERIFIED",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/buzzer/result.json",
+      "report_sha256": "40be3077b71b5605005c374b415114216b0079d44fea5518c0e17d731cfc69ab",
+      "artifact_sha256_verified": {},
+      "assertions": 9,
+      "session_id": "67881570193248cba21416abcd48d4f8",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "627865bf99f82a4dedcb2d466be4f1786531ecbe69d977fbcb257261d0f5c875",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/buzzer/evidence.zip",
+      "evidence_sha256": "ba4e1192b1594d2a25ee7cb83b7db6c09b150aa7c7c9e80c56bc0b2004401bb7",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "service-generation",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": false,
+        "worker_generation": 5,
+        "anchor_sessions": [
+          "cb54ea041c9d4330908a268d8f33e3cb"
+        ],
+        "status": "NOT VERIFIED",
+        "reason": "strict-direct policy rejects indirect service-generation evidence"
+      }
+    },
+    {
+      "unit_id": "fan",
+      "firmware_flavor": "not-recorded",
+      "status": "PASS",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/fan/result.json",
+      "report_sha256": "4f04d45f7699374a11a1eec3ce2525b5912fd644065a395fdc89bbc153550920",
+      "artifact_sha256_verified": {},
+      "assertions": 8,
+      "session_id": "cb54ea041c9d4330908a268d8f33e3cb",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "31989fc3c99873aafc402560606f8076e53f66337e9844abc120ffb43d4d5d6c",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/fan/evidence.zip",
+      "evidence_sha256": "eb2bfdb1418c912d6f1fe7a0f70f79b023503471007934f9c0bbe728216df1ef",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": true,
+        "pid": 76280,
+        "worker_generation_observed": null,
+        "status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/fan/runtime-provenance.json"
+      }
+    },
+    {
+      "unit_id": "ir",
+      "firmware_flavor": "custom-guest-ir-callback-root-patch",
+      "status": "PASS",
+      "functional_status": "PASS",
+      "report": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/result.json",
+      "report_sha256": "4e30d7d497a73080370cd25607b63afe3e80c92ad7c5b217ecdb06e59e15be3b",
+      "artifact_sha256_verified": {},
+      "assertions": 12,
+      "ir_callback_patch": {
+        "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+        "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+        "driver_path": "io_drivers/ir.py",
+        "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+        "patched_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+        "original_driver_unchanged": true,
+        "native_module_modified": false,
+        "scope": "Custom guest wrapper keeps its nested native callback reachable from self; no QEMU or native parser change."
+      },
+      "limitations": [
+        "Official IRUnit.tx clamps each argument to 8 bits; native send zero-extends each to 16 bits and does not generate NEC8 complement bytes. This wrapper path is not a NEC8 interoperability PASS.",
+        "Receive callback PASS applies to the explicitly patched custom guest wrapper only; the original published wrapper remains incomplete."
+      ],
+      "session_id": "3d1975eba3954ad9822a96130500cff3",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "64908d6ee77bc1916574b91dda02d87317e849d6141d672c0a2928ed12897c58",
+      "evidence": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/evidence.zip",
+      "evidence_sha256": "59fc951af96a04376704431aa5b0324b069ff7699c41bf440df5991519f6a46d",
+      "zip_members": 10,
+      "runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+        "direct_pid_observed": true,
+        "pid": 81771,
+        "worker_generation_observed": null,
+        "status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/runtime-provenance.json"
+      }
+    }
+  ]
+}

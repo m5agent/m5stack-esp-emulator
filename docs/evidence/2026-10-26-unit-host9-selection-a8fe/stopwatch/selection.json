@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser",
+    "bridge_contract"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+        "report_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/env-iii/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+        "report_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/env-iii/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support. ENV browser screenshot framing is PARTIAL although strict functional/DOM/PID/ZIP checks pass."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+        "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/relay/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+        "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/relay/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+        "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+        "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+        "evidence": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/controller/stopwatch/button/evidence.zip",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+          "report_pointer": "/runtime_provenance"
+        },
+        "expected_firmware_flavor": "reference-app-with-original-unit-drivers"
+      },
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Exact device-local guest/controller and real Web evidence from generation9; not whole-host27 support."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": {
+        "report": "docs/evidence/2026-10-26-unit-panel-readability-capture-regression/panel/report.json",
+        "report_sha256": "15bda272a82caeb39b685151a00783ea5f01663af3944f2ac4039f87e29a6b83"
+      },
+      "reason": "Not selected for this host: this batch runs only Button, Relay and ENV III. No CoreS3 result is inherited."
+    }
+  ]
+}

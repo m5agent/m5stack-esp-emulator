@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "category": "offline-unit-annotation-semantic-contract",
+  "status": "FAIL",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/unit-annotations.js": "1f25dfbd8fe0bb564ce0f0da60933b124a7437b14874ed6cfddccc281ef8a1e9",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+    "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+  },
+  "cases": [
+    {
+      "name": "present-readback-keeps-frozen-label-direction-unit-and-value",
+      "status": "PASS"
+    },
+    {
+      "name": "missing-properties-never-fill-schema-defaults",
+      "status": "PASS"
+    },
+    {
+      "name": "nonfinite-wrong-type-and-fractional-integer-values-are-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-boundaries-reject-values-without-clamping-or-mutating",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-enum-is-not-treated-as-an-unrestricted-scalar",
+      "status": "PASS"
+    },
+    {
+      "name": "outer-and-unit-source-must-both-be-live-controller-readback",
+      "status": "PASS"
+    },
+    {
+      "name": "unavailable-errors-terminal-and-unfrozen-contracts-hide-values",
+      "status": "FAIL",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     field: 'temperature-c',\n+     label: '温度',\n+     unit: '°C',\n+     value: '18.75'\n+   },\n+   {\n+     field: 'humidity-pct',\n+     label: '相对湿度',\n+     unit: '%RH',\n+     value: '45.5'\n+   },\n+   {\n+     field: 'pressure-pa',\n+     label: '气压',\n+     unit: 'Pa',\n+     value: '103200'\n+   }\n+ ]\n- []\n\n    at file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:148:62\n    at test (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:43:14)\n    at file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:145:7"
+    },
+    {
+      "name": "thermal-readiness-and-control-register-have-explicit-origin-labels",
+      "status": "PASS"
+    },
+    {
+      "name": "relay-and-buzzer-use-firmware-observation-without-physical-inference",
+      "status": "PASS"
+    },
+    {
+      "name": "model-shell-adapter-preserves-the-frozen-definition-and-source-guards",
+      "status": "PASS"
+    },
+    {
+      "name": "panel-uses-session-definitions-instead-of-mutable-inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+      "status": "FAIL",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     field: 'temperature-c',\n+     label: '温度',\n+     unit: 'MUTABLE INVENTORY UNIT',\n+     value: '18.75'\n+   },\n+   {\n+     field: 'humidity-pct',\n+     label: '相对湿度',\n+     unit: '%RH',\n+     value: '45.5'\n+   },\n+   {\n+     field: 'pressure-pa',\n+     label: '气压',\n+     unit: 'Pa',\n+     value: '103200'\n+   }\n+ ]\n- []\n\n    at file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:201:10\n    at async test (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:43:8)\n    at async file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:194:1"
+    },
+    {
+      "name": "pending-local-input-never-replaces-controller-annotation",
+      "status": "PASS"
+    },
+    {
+      "name": "persisted-and-terminal-panel-updates-remove-live-values",
+      "status": "PASS"
+    },
+    {
+      "name": "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+      "status": "PASS"
+    },
+    {
+      "name": "annotation-fault-keeps-one-release-retry-and-no-poll-echo",
+      "status": "PASS"
+    },
+    {
+      "name": "nested-clear-preserves-siblings-and-dispose-unsubscribes-once",
+      "status": "PASS"
+    }
+  ]
+}

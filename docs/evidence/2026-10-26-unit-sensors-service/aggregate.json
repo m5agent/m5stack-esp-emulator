@@ -1,0 +1,431 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "port_id": "port-a",
+  "runtime": "qemu",
+  "status": "PASS",
+  "positive_cases": 7,
+  "positive_assertions": 114,
+  "negative_controls": {
+    "thermal-no-fixture": {
+      "status": "PASS",
+      "validation": "negative-runtime-control",
+      "report": "thermal-no-fixture/result.json"
+    }
+  },
+  "scope": "One CoreS3 guest per case; official drivers, same-session controller-backed physical inputs, guest serial, framebuffer, I2C counters, evidence before stop, retained metadata/frame after purge=0. No hardware equivalence or other-host claim.",
+  "visual_review": {
+    "method": "Manually opened a contact sheet built from all seven final 320x240 guest frames.",
+    "result": "PASS",
+    "cases": {
+      "color": "Readable sensor title and final values",
+      "tof": "Readable sensor title and final values",
+      "ncir": "Readable sensor title and final values",
+      "heart": "Readable sensor title and final values",
+      "tvoc": "Readable sensor title and final values",
+      "ultrasonic-i2c": "Readable sensor title and final values",
+      "thermal": "Readable title and complete 32x24 heatmap"
+    },
+    "contact_sheet": "contact-sheet.png"
+  },
+  "schema_review": {
+    "color": {
+      "schema_version": 1,
+      "inputs": [
+        "blue-raw",
+        "clear-raw",
+        "green-raw",
+        "red-raw"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "tof": {
+      "schema_version": 1,
+      "inputs": [
+        "distance-mm"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "ncir": {
+      "schema_version": 1,
+      "inputs": [
+        "ambient-c",
+        "object-c"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "heart": {
+      "schema_version": 1,
+      "inputs": [
+        "ir-sample",
+        "red-sample"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "tvoc": {
+      "schema_version": 1,
+      "inputs": [
+        "eco2-ppm",
+        "raw-ethanol",
+        "raw-h2",
+        "tvoc-ppb"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "ultrasonic-i2c": {
+      "schema_version": 1,
+      "inputs": [
+        "distance-mm"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    },
+    "thermal": {
+      "schema_version": 1,
+      "inputs": [
+        "control-word",
+        "eeprom-hex",
+        "frame0-hex",
+        "frame1-hex"
+      ],
+      "outputs": [
+        "raw-fixture-ready"
+      ],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "af3e1f6023703952e4dac424c4cabe5fe755e8e3edcb6b51f462bd3ea1d98d36",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "b14627df04ab77dbc5d7e3307c1bfd1f0e38e28459c648a4f54f68e4f9a5c271"
+      }
+    }
+  },
+  "official_driver_manifest": "../../../tests/units/sensors_probe/sensor_drivers/source-manifest.json",
+  "host_contract_tests": {
+    "test": "tests/units/test_sensor_evidence.py",
+    "count": 10,
+    "status": "PASS",
+    "scope": "Host-only evidence integrity, partial thermal serial and booting/running gate; no guest execution"
+  },
+  "earlier_exploration": {
+    "scope": "The initial ToF attempt reached all guest assertions but its first input received booting-state HTTP409. The failed exploration remains local; it is not part of this final PASS aggregate.",
+    "fixed_by": "Wait for state=running and guest marker before input."
+  },
+  "archive_policy": {
+    "whitelist": [
+      "result.json",
+      "serial.txt",
+      "frame.png",
+      "evidence.zip",
+      "contact-sheet.png",
+      "aggregate.json"
+    ],
+    "forbidden_content_checked": [
+      "firmware/ROM/raw-flash images",
+      "absolute filesystem paths",
+      "MAC addresses",
+      "private IP endpoints",
+      "credential patterns"
+    ],
+    "tool_sources": "Hashes only in each report; source directories are not archived.",
+    "evidence_zip": "Original bytes retained after a complete member scan; no redaction/repacking was necessary."
+  },
+  "results": [
+    {
+      "unit_id": "color",
+      "status": "PASS",
+      "report": "color/result.json",
+      "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+      "serial_sha256": "c2c484c777c2365cf2042c1229a80f9d0afee78bb98482dea3b74129d19b01f3",
+      "frame_sha256": "ac131f4bdc5225c9ee7d1e09505a08bcab0f212be3341784f20bd968f8cdfd47",
+      "evidence_sha256": "22e48c24508f1dcb59c2e4ab0e18f369a0093e8d785352e7538851701ec2201e",
+      "assertions": 15,
+      "controller_counters": {
+        "transactions": 82,
+        "read-bytes": 58,
+        "written-bytes": 49,
+        "samples-generated": 6,
+        "crc-errors": 0
+      }
+    },
+    {
+      "unit_id": "tof",
+      "status": "PASS",
+      "report": "tof/result.json",
+      "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+      "serial_sha256": "ced3b91ba17704b85acae3a0ff8fbd16969ea948ee56c095207a48ce41390de8",
+      "frame_sha256": "de6283475f380bde26046f0883d1e915c0fbb8c2f7ec5cf79f11ba7063ea556e",
+      "evidence_sha256": "60aa3c17c778a9d5e451ee01a4ba490482079cfba707358de88538a322ede1ae",
+      "assertions": 18,
+      "controller_counters": {
+        "transactions": 3633,
+        "read-bytes": 1623,
+        "written-bytes": 2051,
+        "samples-generated": 11,
+        "crc-errors": 0
+      }
+    },
+    {
+      "unit_id": "ncir",
+      "status": "PASS",
+      "report": "ncir/result.json",
+      "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+      "serial_sha256": "181072797fb17d0cbf49339735a1c44b8d332e0094c8251b50a3822b404635de",
+      "frame_sha256": "38ab2f696485bc7af1f4c6159a3ddd3602d9fdfb197593ecc143d607ecf8bc72",
+      "evidence_sha256": "fa10a59e5bc51b8361c030254a547505082de5398a213bd0a00e364068ffdc38",
+      "assertions": 14,
+      "controller_counters": {
+        "transactions": 25,
+        "read-bytes": 26,
+        "written-bytes": 14,
+        "samples-generated": 5,
+        "crc-errors": 0
+      }
+    },
+    {
+      "unit_id": "heart",
+      "status": "PASS",
+      "report": "heart/result.json",
+      "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+      "serial_sha256": "6ae069337c61f9b1d5d6da47de2caaf2c4271a708382465d17f3328406d2e9ff",
+      "frame_sha256": "5c4f603c4d92fe7c39e2cfa4f0dba9c09e65bbf3f1769071de0312e4003cd8b7",
+      "evidence_sha256": "db9541eb4ee1067ced3a9caa95886d3216802449ec1b75a1b0881f19b3fa1f3c",
+      "assertions": 18,
+      "controller_counters": {
+        "transactions": 441,
+        "read-bytes": 785,
+        "written-bytes": 235,
+        "samples-generated": 145,
+        "crc-errors": 0
+      }
+    },
+    {
+      "unit_id": "tvoc",
+      "status": "PASS",
+      "report": "tvoc/result.json",
+      "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+      "serial_sha256": "4e9e3d1022e4150d83aa7c586b67e26d0d35b08ee45eeaf0f5203a7f4018d0b6",
+      "frame_sha256": "89f590ec4f45660bd38336757e0022d79cba763fb884aa6f8f0d8a2b28d9104e",
+      "evidence_sha256": "7bd1901b5dc25d2eb364ad415f6e7cca1f07112f3b737545b1c7448a4fb1bf99",
+      "assertions": 19,
+      "controller_counters": {
+        "transactions": 29,
+        "read-bytes": 60,
+        "written-bytes": 33,
+        "samples-generated": 7,
+        "crc-errors": 1
+      }
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "status": "PASS",
+      "report": "ultrasonic-i2c/result.json",
+      "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+      "serial_sha256": "0fd9ab5d2746e6f62cf08084a600da250277e0f5dd4eeee79733dbb720270803",
+      "frame_sha256": "d30e876cd79d60f5c9fad4567c2ed45f7f7bedc964d03b2a6f09add0c6772d36",
+      "evidence_sha256": "443e0ecd4fb39c330736b442bf57c4240db99eac8690addf6da3552ad99a7da9",
+      "assertions": 14,
+      "controller_counters": {
+        "transactions": 18,
+        "read-bytes": 21,
+        "written-bytes": 9,
+        "samples-generated": 7,
+        "crc-errors": 0
+      }
+    },
+    {
+      "unit_id": "thermal",
+      "status": "PASS",
+      "report": "thermal/result.json",
+      "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+      "serial_sha256": "89aa146260a24d728fbbb9db9cd9921dcec24d383b99edd73ce882ff6a4152dd",
+      "frame_sha256": "2ac05a5687b487ede0c23f292a22afe81e4afef8ad637c3140389be648ac2f63",
+      "evidence_sha256": "930ab28cc6b4874a5089ea482d84595c5395115157a433f1fe0d5534a476238a",
+      "assertions": 16,
+      "controller_counters": {
+        "transactions": 985,
+        "read-bytes": 9286,
+        "written-bytes": 1011,
+        "samples-generated": 5,
+        "crc-errors": 0
+      }
+    }
+  ],
+  "files": {
+    "color/serial.txt": {
+      "size": 792,
+      "sha256": "c2c484c777c2365cf2042c1229a80f9d0afee78bb98482dea3b74129d19b01f3"
+    },
+    "color/frame.png": {
+      "size": 2068,
+      "sha256": "ac131f4bdc5225c9ee7d1e09505a08bcab0f212be3341784f20bd968f8cdfd47"
+    },
+    "color/evidence.zip": {
+      "size": 12521,
+      "sha256": "22e48c24508f1dcb59c2e4ab0e18f369a0093e8d785352e7538851701ec2201e"
+    },
+    "color/result.json": {
+      "size": 10517,
+      "sha256": "6bc43ec09e24aca20d10d0227ae83cc28dbb5f3e21dcf705a559bd81274400af"
+    },
+    "tof/serial.txt": {
+      "size": 824,
+      "sha256": "ced3b91ba17704b85acae3a0ff8fbd16969ea948ee56c095207a48ce41390de8"
+    },
+    "tof/frame.png": {
+      "size": 1909,
+      "sha256": "de6283475f380bde26046f0883d1e915c0fbb8c2f7ec5cf79f11ba7063ea556e"
+    },
+    "tof/evidence.zip": {
+      "size": 12098,
+      "sha256": "60aa3c17c778a9d5e451ee01a4ba490482079cfba707358de88538a322ede1ae"
+    },
+    "tof/result.json": {
+      "size": 10304,
+      "sha256": "474d8d85b6b1047deab4822a7f7dafa6312c72c6278b6163cc71eef23ef371ce"
+    },
+    "ncir/serial.txt": {
+      "size": 709,
+      "sha256": "181072797fb17d0cbf49339735a1c44b8d332e0094c8251b50a3822b404635de"
+    },
+    "ncir/frame.png": {
+      "size": 2042,
+      "sha256": "38ab2f696485bc7af1f4c6159a3ddd3602d9fdfb197593ecc143d607ecf8bc72"
+    },
+    "ncir/evidence.zip": {
+      "size": 12277,
+      "sha256": "fa10a59e5bc51b8361c030254a547505082de5398a213bd0a00e364068ffdc38"
+    },
+    "ncir/result.json": {
+      "size": 10216,
+      "sha256": "8aa7a5570bd5f83b5f62a744af2c777d9f4118dff7e2eb648b6cf0e4b6e801b1"
+    },
+    "heart/serial.txt": {
+      "size": 913,
+      "sha256": "6ae069337c61f9b1d5d6da47de2caaf2c4271a708382465d17f3328406d2e9ff"
+    },
+    "heart/frame.png": {
+      "size": 1997,
+      "sha256": "5c4f603c4d92fe7c39e2cfa4f0dba9c09e65bbf3f1769071de0312e4003cd8b7"
+    },
+    "heart/evidence.zip": {
+      "size": 12657,
+      "sha256": "db9541eb4ee1067ced3a9caa95886d3216802449ec1b75a1b0881f19b3fa1f3c"
+    },
+    "heart/result.json": {
+      "size": 10430,
+      "sha256": "fc046796b38caf3886b6a7fa710d7fc70429354706a35b091115f2d018361d2c"
+    },
+    "tvoc/serial.txt": {
+      "size": 1178,
+      "sha256": "4e9e3d1022e4150d83aa7c586b67e26d0d35b08ee45eeaf0f5203a7f4018d0b6"
+    },
+    "tvoc/frame.png": {
+      "size": 2288,
+      "sha256": "89f590ec4f45660bd38336757e0022d79cba763fb884aa6f8f0d8a2b28d9104e"
+    },
+    "tvoc/evidence.zip": {
+      "size": 12871,
+      "sha256": "7bd1901b5dc25d2eb364ad415f6e7cca1f07112f3b737545b1c7448a4fb1bf99"
+    },
+    "tvoc/result.json": {
+      "size": 10652,
+      "sha256": "2a5f9fbf7c39c75f576e9a8f7ff90162baf870b1759e2a9a38928bc14252d2e0"
+    },
+    "ultrasonic-i2c/serial.txt": {
+      "size": 707,
+      "sha256": "0fd9ab5d2746e6f62cf08084a600da250277e0f5dd4eeee79733dbb720270803"
+    },
+    "ultrasonic-i2c/frame.png": {
+      "size": 2492,
+      "sha256": "d30e876cd79d60f5c9fad4567c2ed45f7f7bedc964d03b2a6f09add0c6772d36"
+    },
+    "ultrasonic-i2c/evidence.zip": {
+      "size": 12480,
+      "sha256": "443e0ecd4fb39c330736b442bf57c4240db99eac8690addf6da3552ad99a7da9"
+    },
+    "ultrasonic-i2c/result.json": {
+      "size": 10185,
+      "sha256": "59924586928d589d4b2a150455b508c5aeeb228a1b47dab43f697379b9eae184"
+    },
+    "thermal/serial.txt": {
+      "size": 1472,
+      "sha256": "89aa146260a24d728fbbb9db9cd9921dcec24d383b99edd73ce882ff6a4152dd"
+    },
+    "thermal/frame.png": {
+      "size": 2796,
+      "sha256": "2ac05a5687b487ede0c23f292a22afe81e4afef8ad637c3140389be648ac2f63"
+    },
+    "thermal/evidence.zip": {
+      "size": 28218,
+      "sha256": "930ab28cc6b4874a5089ea482d84595c5395115157a433f1fe0d5534a476238a"
+    },
+    "thermal/result.json": {
+      "size": 31212,
+      "sha256": "ec7e58834de7c85b97ffc25e6193fe2458c898d656faf3c4b577a5a6be37baa4"
+    },
+    "thermal-no-fixture/serial.txt": {
+      "size": 495,
+      "sha256": "9894e4709e30042d65f870d533e3605898ab3c71e2f237bed1ebcbb42ab6d98f"
+    },
+    "thermal-no-fixture/frame.png": {
+      "size": 1214,
+      "sha256": "5ecca20879f324124398617f86629faff27b0ba6dec11d48d60be0d92d14f3aa"
+    },
+    "thermal-no-fixture/evidence.zip": {
+      "size": 11800,
+      "sha256": "d405e04e22c40b4fdc4fb304b55446a3984ccb467f07b179c0ab7bbfbbc1f29b"
+    },
+    "thermal-no-fixture/result.json": {
+      "size": 19825,
+      "sha256": "00a55d080f35a915577b82e5311be5caeb469ae4a1feb61f46a0094fe1857da3"
+    },
+    "contact-sheet.png": {
+      "size": 19393,
+      "sha256": "7ba546522804f27c1b13e88c518beb4938f9d52dedbecc3828b2da298764cbfd"
+    }
+  }
+}

@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "category": "independent-real-display-case-review",
+  "status": "FUNCTIONAL_5_PASS_FINAL_NATIVE_FRAMES_REVIEWED",
+  "source_freeze_sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+  "source_count": 421,
+  "all_frozen_sources_unchanged": true,
+  "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "joystick-v11",
+      "status": "PASS",
+      "session_id": "341fc99a995741e38de3ed76eb9d401e",
+      "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+      "report_sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3",
+      "evidence_sha256": "29c9da2200e3057921d8fa0f9a95d792a21e0998d680c3db6103782559246c72",
+      "zip_members": 10,
+      "native_frame_sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 2017,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1051,
+      "web_posts": 6,
+      "web_snapshots": 4,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/joystick-v11/result.json",
+        "report_sha256": "cc3a2098d317b605abe3e1197f9527a4746ce05576590aa5ae1bfc814054e9be",
+        "assertions": 4
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/341fc99a995741e38de3ed76eb9d401e/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf"
+        },
+        "screenshot_dimensions": {
+          "browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png": {
+            "width": 980,
+            "height": 1229
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png",
+          "sha256": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf",
+          "width": 980,
+          "height": 1229
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/opened-flashing.png",
+          "sha256": "3915455c3c44a2b3a1e8b9b785a1175229c4f9d682a01388a9b8c7b72e45698d",
+          "width": 980,
+          "height": 823
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/controller/joystick-v11/frame.png",
+          "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/history-frame.png",
+          "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "encoder",
+      "status": "PASS",
+      "session_id": "4f2898598476490495fc371582535e40",
+      "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+      "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+      "evidence_sha256": "1babe9149ab40fd3adea3c563306d4097b24ef94f12742432d0c63e280ac7f39",
+      "zip_members": 10,
+      "native_frame_sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 2 39 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 2119,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1002,
+      "web_posts": 4,
+      "web_snapshots": 4,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/encoder/result.json",
+        "report_sha256": "1927b300ca06b9a3750bd7122a32506701b8993328d9e3078a99e7dfc78e04ee",
+        "assertions": 5
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/4f2898598476490495fc371582535e40/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/4f2898598476490495fc371582535e40/003-before-evidence.png": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169"
+        },
+        "screenshot_dimensions": {
+          "browser/4f2898598476490495fc371582535e40/003-before-evidence.png": {
+            "width": 980,
+            "height": 1211
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png",
+          "sha256": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169",
+          "width": 980,
+          "height": 1211
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/opened-flashing.png",
+          "sha256": "9956930995b6d5556b782a899f8f94b165fa3e2649a2a30fdf44d820fe3e2a1e",
+          "width": 980,
+          "height": 755
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/controller/encoder/frame.png",
+          "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/history-frame.png",
+          "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_ENCODER 32767 0"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "8encoder",
+      "status": "PASS",
+      "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+      "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+      "report_sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf",
+      "evidence_sha256": "df96f7ddb7fb74628ecdef4ceae1fa91b6e6b617d1732b3299cab9b63cf9e48a",
+      "zip_members": 10,
+      "native_frame_sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 10 127 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 2262,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 2034,
+      "web_posts": 6,
+      "web_snapshots": 3,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/8encoder/result.json",
+        "report_sha256": "bb612396e37077b312015f3e9399dfcfe7b1c965803e103405b18f31c68be474",
+        "assertions": 6
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/e7261bb2b0594279b5b4391ffe49fe31/web-report.json",
+        "snapshots": 3,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc"
+        },
+        "screenshot_dimensions": {
+          "browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png": {
+            "width": 980,
+            "height": 1542
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png",
+          "sha256": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc",
+          "width": 980,
+          "height": 1542
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/opened-flashing.png",
+          "sha256": "b6000a393f0b045c83d35abcbf9b247214995e0374490a9b077e783b98017d0b",
+          "width": 980,
+          "height": 895
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/controller/8encoder/frame.png",
+          "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/history-frame.png",
+          "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "cardkb",
+      "status": "PASS",
+      "session_id": "06bdca0887c24ddf9137209a3992b98b",
+      "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+      "report_sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156",
+      "evidence_sha256": "b06e6b09da9cc305842b7aaf77ae209e243ffc7e7ad45f29815d8c520911d817",
+      "zip_members": 10,
+      "native_frame_sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 1 28 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 2419,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 17653,
+      "web_posts": 413,
+      "web_snapshots": 412,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/cardkb/result.json",
+        "report_sha256": "62a03c773a5d6cc5859a634c8bd0353e1017674a19e3ebb15bf4938bce0fc00c",
+        "assertions": 7
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/06bdca0887c24ddf9137209a3992b98b/web-report.json",
+        "snapshots": 412,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac"
+        },
+        "screenshot_dimensions": {
+          "browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png": {
+            "width": 980,
+            "height": 2201
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png",
+          "sha256": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac",
+          "width": 980,
+          "height": 2201
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/opened-flashing.png",
+          "sha256": "0bce08e55b80570545c4199973c6a426fb50d597e9222b1386c73b4929cf7cfb",
+          "width": 980,
+          "height": 2201
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/controller/cardkb/frame.png",
+          "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/history-frame.png",
+          "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_CARDKB_LAST 65"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rfid2",
+      "status": "PASS",
+      "session_id": "a442cb873a484af39f49fa8e868dd997",
+      "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+      "report_sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5",
+      "evidence_sha256": "0734c3f7780155ab80d425859c268862c66655225f6f17383d52321b04d2c80b",
+      "zip_members": 10,
+      "native_frame_sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+      "native_history_zip_frame_identical": true,
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "original_control_assertions": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "same_runtime": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 3396,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "fresh_bmi_offset": 1766,
+      "web_posts": 4,
+      "web_snapshots": 6,
+      "strict_controller": {
+        "status": "PASS",
+        "report": "controller/rfid2/result.json",
+        "report_sha256": "113478e1517005c5fa7c2c9c0d61c13e834fe28bd04aa6e3668644a007683343",
+        "assertions": 7
+      },
+      "strict_browser": {
+        "status": "PASS",
+        "report": "browser/a442cb873a484af39f49fa8e868dd997/web-report.json",
+        "snapshots": 6,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f"
+        },
+        "screenshot_dimensions": {
+          "browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png": {
+            "width": 980,
+            "height": 1698
+          }
+        }
+      },
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png",
+          "sha256": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f",
+          "width": 980,
+          "height": 1698
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/opened-flashing.png",
+          "sha256": "3d4e455c165a0d366bed3199b6263816fea26c34e4955b742acd256c3f3a954b",
+          "width": 980,
+          "height": 868
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/controller/rfid2/frame.png",
+          "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/history-frame.png",
+          "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "native_final_frame_readability": "PASS after visual inspection of the exact captured final frame only",
+      "native_final_state": [
+        "CONTROL_RFID_NO_CARD"
+      ]
+    }
+  ],
+  "api_contacted": false,
+  "browser_started": false,
+  "sessions_started": 0,
+  "new_live_pid_observations": "NONE; original live-record proofs reconciled after stop only",
+  "scope": "Only these actual final native frames and executed case vectors; no intermediate frame, all-extrema, other firmware/host or physical-hardware claim.",
+  "history_supplement_sha256": "575fc9ab1f4c22ab2f9521483ad79ccd26e1dd22af1d3e3f9beb6682024c711e",
+  "actual_history_supplement": [
+    {
+      "unit_id": "joystick-v11",
+      "response_sha256": "7a731c19225b838d63cfa9677ac58b2a0aac7d50406a628fa5779f17fd39bbc5",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "encoder",
+      "response_sha256": "12306971f49fe5d81136c6bd67f60d01512d092a4a84143812c44965a8a44927",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "8encoder",
+      "response_sha256": "b2de73c56ccaf04be9b51f5b855cfd7bc58297f7c0d12cb27452add2778fc22e",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "cardkb",
+      "response_sha256": "0dc10b37e22b546a40b3c2431f68d519c216333f27217e3a1b68676be926b1ec",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    },
+    {
+      "unit_id": "rfid2",
+      "response_sha256": "733878f27049e1e93b7fa86d314116cca57e43dff3f6066e86b806e2e6d8085c",
+      "same_identity": true,
+      "stopped": true,
+      "flash_released": true
+    }
+  ],
+  "history_health_active_sessions": 0
+}

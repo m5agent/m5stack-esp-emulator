@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "category": "host-evidence-reconciliation",
+  "status": "PASS",
+  "host_tests": 36,
+  "output_layers": {
+    "summary.json": {
+      "guest_controller": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 26,
+          "NOT RUN": 1,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 26,
+        "direct_pid_units": 11,
+        "indirect_service_generation_units": 15
+      },
+      "live_browser": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 3,
+          "NOT RUN": 24,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 3,
+        "direct_pid_units": 2,
+        "indirect_service_generation_units": 1
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "counts": {
+          "PASS": 27,
+          "NOT RUN": 0,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 27,
+        "direct_pid_units": 0,
+        "indirect_service_generation_units": 0
+      }
+    },
+    "summary-strict-direct.json": {
+      "guest_controller": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 11,
+          "NOT RUN": 1,
+          "NOT VERIFIED": 15,
+          "FAIL": 0
+        },
+        "functional_pass_units": 26,
+        "direct_pid_units": 11,
+        "indirect_service_generation_units": 15
+      },
+      "live_browser": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 2,
+          "NOT RUN": 24,
+          "NOT VERIFIED": 1,
+          "FAIL": 0
+        },
+        "functional_pass_units": 3,
+        "direct_pid_units": 2,
+        "indirect_service_generation_units": 1
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "counts": {
+          "PASS": 27,
+          "NOT RUN": 0,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 27,
+        "direct_pid_units": 0,
+        "indirect_service_generation_units": 0
+      }
+    },
+    "summary-web-smoke.json": {
+      "guest_controller": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 26,
+          "NOT RUN": 1,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 26,
+        "direct_pid_units": 11,
+        "indirect_service_generation_units": 15
+      },
+      "live_browser": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 5,
+          "NOT RUN": 22,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 5,
+        "direct_pid_units": 4,
+        "indirect_service_generation_units": 1
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "counts": {
+          "PASS": 27,
+          "NOT RUN": 0,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 27,
+        "direct_pid_units": 0,
+        "indirect_service_generation_units": 0
+      }
+    },
+    "summary-web-three-smoke.json": {
+      "guest_controller": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 26,
+          "NOT RUN": 1,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 26,
+        "direct_pid_units": 11,
+        "indirect_service_generation_units": 15
+      },
+      "live_browser": {
+        "status": "PARTIAL",
+        "counts": {
+          "PASS": 6,
+          "NOT RUN": 21,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 6,
+        "direct_pid_units": 5,
+        "indirect_service_generation_units": 1
+      },
+      "bridge_contract": {
+        "status": "PASS",
+        "counts": {
+          "PASS": 27,
+          "NOT RUN": 0,
+          "NOT VERIFIED": 0,
+          "FAIL": 0
+        },
+        "functional_pass_units": 27,
+        "direct_pid_units": 0,
+        "indirect_service_generation_units": 0
+      }
+    }
+  },
+  "safety_checks": [
+    "explicit complete Unit selection",
+    "all assertions and ZIP hashes",
+    "distinct direct/indirect runtime proof",
+    "preserved custom firmware flavor/patch identity",
+    "detailed live-browser exact nonempty attachment/snapshot sets",
+    "input paths protected before failed/skipped reads",
+    "unrelated existing output refused",
+    "own summaries refreshed atomically; interrupted replacement preserves old bytes"
+  ],
+  "validation_boundary": "Read-only reconciliation starts no runtime/browser sessions. All selected batches currently remain PARTIAL. Snapshot/report counts are not used as unique Unit coverage.",
+  "files": {
+    "tests/units/check_batch_evidence.py": "adda9046f2fa09587715855998926314f8b8630aff237df962abb2dfaf640625",
+    "tests/units/test_batch_evidence.py": "33f93aa318f92f35475e427fff41b0551d14100687005f0587ee78a7d66ea265",
+    "docs/evidence/2026-10-26-unit-batch-check/host-tests.txt": "d278011d764667d3ba5656dce35343b4dad343f7ce127919e5533304e105452a",
+    "docs/evidence/2026-10-26-unit-batch-check/selection-web-smoke.json": "726c11076417ebb20e6134916f281d1d278748e14c09ea2b6788e5898b3e850c",
+    "docs/evidence/2026-10-26-unit-batch-check/selection-web-three-smoke.json": "3b2e650d64bbb33bad182996c3f6f42f16e0c4080a9a5b0f0d58a511182b1c17",
+    "docs/evidence/2026-10-26-unit-batch-check/selection.json": "d45c1eda0d5f828d87555040d8cfd8e6e7abd26e1e501efc9ddbce019956fb12",
+    "docs/evidence/2026-10-26-unit-batch-check/summary-strict-direct.json": "c3937f340e95aa49bf987aeed1ce12414dfdaf9a48a6836801fff4163f0a3609",
+    "docs/evidence/2026-10-26-unit-batch-check/summary-web-smoke.json": "0f587a87a8f09967d45a0b84a4a5fff08d2d864816afacb0dd14f5a6e23112b8",
+    "docs/evidence/2026-10-26-unit-batch-check/summary-web-three-smoke.json": "4ba730f0cb00e8d5cb8b491dc0649f529f78c4b4160e617ad1d05eda5a40754a",
+    "docs/evidence/2026-10-26-unit-batch-check/summary.json": "636c8c9bb5d7f287e58499ab7e319a374c889221c2c5a84b98f9b0aaf48d28e0"
+  }
+}

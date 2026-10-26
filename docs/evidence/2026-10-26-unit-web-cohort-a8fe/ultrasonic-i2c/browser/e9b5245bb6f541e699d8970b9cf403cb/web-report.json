@@ -1,0 +1,3237 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+  "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "ultrasonic-i2c",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "distance-mm": 1000
+      }
+    }
+  ],
+  "opened_at": "2026-10-25T19:10:27.434Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "0f1a4f7e38c8fdc3057e21a84748de0c997d49a22c70335fd96b1ec1f58d6dba",
+    "tests/units/web_ui_bridge.py": "4584944062c88eeede458383842580f10e9e794d9f758c2494f4d84cc6b40c0e",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:10:27.400Z",
+  "session_created_at": "2026-10-25T19:10:27.429597+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:10:44.353Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 1234.5,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1234.5
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:10:45.036Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 876.2,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 876.2
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:10:44.352Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:44.339799+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1234.5,
+              "transactions": 156,
+              "read-bytes": 228,
+              "written-bytes": 78,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 76,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1234.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:45.035Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:45.020972+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 162,
+              "read-bytes": 237,
+              "written-bytes": 81,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 79,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 876.2
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:10:40.436Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:39.997193+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 112,
+              "read-bytes": 162,
+              "written-bytes": 56,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 54,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:43.327Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:43.321804+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 145,
+              "read-bytes": 213,
+              "written-bytes": 72,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 71,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:43.996Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:43.985528+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 153,
+              "read-bytes": 225,
+              "written-bytes": 76,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 75,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:44.502Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:44.498539+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1234.5,
+              "transactions": 157,
+              "read-bytes": 231,
+              "written-bytes": 78,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 77,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:45.007Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:45.004962+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1234.5,
+              "transactions": 161,
+              "read-bytes": 237,
+              "written-bytes": 80,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 79,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:45.513Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:45.509925+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 166,
+              "read-bytes": 243,
+              "written-bytes": 83,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 81,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:46.019Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:46.015107+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 172,
+              "read-bytes": 252,
+              "written-bytes": 86,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 84,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:46.525Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:46.521588+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 177,
+              "read-bytes": 261,
+              "written-bytes": 88,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 87,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:47.032Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:47.027946+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 181,
+              "read-bytes": 267,
+              "written-bytes": 90,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 89,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:10:47.545Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e9b5245bb6f541e699d8970b9cf403cb/units",
+      "status": 200,
+      "response": {
+        "session_id": "e9b5245bb6f541e699d8970b9cf403cb",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:10:47.540362+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 186,
+              "read-bytes": 273,
+              "written-bytes": 93,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 91,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "ultrasonic-i2c",
+            "name": "Ultrasonic-I2C",
+            "sku": "U098-B1",
+            "visual_asset": {
+              "entry": "src/units/ultrasonic-i2c/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "RCWL-9620",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                87
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+              "registers": [
+                {
+                  "command": "0x01",
+                  "read_bytes": 3,
+                  "encoding": "BE uint24, 1000 raw units per mm",
+                  "driver_wait_ms": 120
+                }
+              ],
+              "gaps": []
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "number",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 20,
+                "maximum": 4500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+                "report": "docs/evidence/2026-10-26-unit-sensors-service/ultrasonic-i2c/result.json",
+                "hardware": "NOT RUN",
+                "full_unit_matrix": "NOT RUN"
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+            "limitations": [
+              "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients."
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:10:44.387Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1234.5,
+              "transactions": 156,
+              "read-bytes": 228,
+              "written-bytes": 78,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 76,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1234.5",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "156",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "228",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "78",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "76",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  63,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:10:45.069Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 162,
+              "read-bytes": 237,
+              "written-bytes": 81,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 79,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "876.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "162",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "237",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "81",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "79",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  63,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:10:45.545Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 166,
+              "read-bytes": 243,
+              "written-bytes": 83,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 81,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "876.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "166",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "243",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "83",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "81",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  63,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:10:47.579Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "ultrasonic-i2c",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 876.2,
+              "transactions": 186,
+              "read-bytes": 273,
+              "written-bytes": 93,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 91,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "876.2",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "186",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "273",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "93",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "91",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  63,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:10:47.979Z"
+}

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "actual-read-only-post-execution-api-observations",
+  "captured_at_utc": "2026-10-25T22:03:47.697351+00:00",
+  "summary_sha256": "330d28ddf2ac4479a78665e961e3ba53ae7413f29ae9c2428cfea85183f5232f",
+  "capture_source_sha256": "01a54073138b9433eb616323fa1a003c376a38e6aad59810281e6a94c94066a7",
+  "health_sha256": "5a717474cf6850596999c7e05487b748edf1cb7e4913c33064eeea8cb9952e5d",
+  "active_sessions": 0,
+  "worker_generation": 9,
+  "observations": [
+    {
+      "unit_id": "joystick-v11",
+      "device_id": "sticks3",
+      "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+      "runtime": "qemu",
+      "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+      "state": "stopped",
+      "flash_retained": false,
+      "raw_response_sha256": "868d7ac3d5806449001c7aefd1a65367098539f58f2f43b9a7cc5f9de083986a",
+      "frame_sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3",
+      "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56"
+    },
+    {
+      "unit_id": "encoder",
+      "device_id": "sticks3",
+      "session_id": "272d68e84e174535a0c19ddbfc1e6b8f",
+      "runtime": "qemu",
+      "firmware_sha256": "a15f3648d00532d971ddc8814676ad174a13759ff3ba2b157b3a3d3af4814c2a",
+      "state": "stopped",
+      "flash_retained": false,
+      "raw_response_sha256": "81060e0efde9728f4510d5a1170964800095d27537aa06c3f242916dec0610a9",
+      "frame_sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab",
+      "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737"
+    },
+    {
+      "unit_id": "8encoder",
+      "device_id": "sticks3",
+      "session_id": "86a73786b4634bd7ba64ffa3908d97d2",
+      "runtime": "qemu",
+      "firmware_sha256": "f2204b1fa754f37f68d5a098ad19f2ba24eef4cd518b57b333fc1b421fe39131",
+      "state": "stopped",
+      "flash_retained": false,
+      "raw_response_sha256": "fc966181cfff102e31b9a17c076f364aea5285995ff4751112f905c52f43985b",
+      "frame_sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8",
+      "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35"
+    },
+    {
+      "unit_id": "cardkb",
+      "device_id": "sticks3",
+      "session_id": "65b979b649e64c9f8d74832349039f09",
+      "runtime": "qemu",
+      "firmware_sha256": "731cb3a3676f68deef031f4a97bd9c5e58170e47f4220c97b27f3bfc3cfe0db5",
+      "state": "stopped",
+      "flash_retained": false,
+      "raw_response_sha256": "efb9f1ab05c442a2ebeca26bcd93d6ff3aa8a00177f0b6e9e9cf440f4deabb32",
+      "frame_sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f",
+      "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7"
+    },
+    {
+      "unit_id": "rfid2",
+      "device_id": "sticks3",
+      "session_id": "6ef6a3236fe443d394b827be8ad10390",
+      "runtime": "qemu",
+      "firmware_sha256": "ee71fa4fecf1268af5bb93d12d6d338277f59d03b69cfe635e7206cbd7eb303a",
+      "state": "stopped",
+      "flash_retained": false,
+      "raw_response_sha256": "9065ccc88857a162b6173965a3dd733c3cdc9b027f5d422bcd4ef4e4687eaec3",
+      "frame_sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1",
+      "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.33.0` and bounded
+Status: local MVP with unified-device runtime contract `1.34.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -10,6 +10,10 @@ firmware artifact into an isolated virtual-flash copy, and exposes serial,
 frame, input and QOM operations through HTTP.
 
 Current scope:
+
+- external Unit protocol inventory and confirmed host-port wiring are available
+  through `/units`; attachment execution is enabled per model/controller, not
+  inferred from a visual model or a documented chip;
 
 - enabled: 12 QEMU-backed ESP32 devices;
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
@@ -53,6 +57,54 @@ The architecture and future pooling direction are documented in
 The machine-readable contract is
 [`device-service.openapi.yaml`](device-service.openapi.yaml) and is also
 served at `/api/v1/openapi.yaml`.
+
+## External Units
+
+`GET /units?device_id=cores3` returns the fixed Unit protocol inventory, runtime
+implementation status and confirmed host wiring. `implemented` means the C
+controller model is available for validation; it does not imply a guest or Web
+functional PASS. `runtime.hosts` is explicit admission; a host does not inherit
+another host's validation. `runtime.guest_validation` binds a recorded device,
+firmware, runtime and Web report; additional hosts have separate
+`runtime.host_validation` records. Unsupported combinations fail with
+`409 runtime_model_gap`.
+
+`runtime-profiles.json` owns current runtime status. The compatibility aliases
+`model_status` and `blocker` follow that profile (or its session-frozen copy).
+`research_snapshot` preserves the original protocol-research status and notes;
+it is not current capability or admission evidence.
+
+`POST /sessions` accepts optional `units` with stable `id`, `unit_id`,
+`port_id` and `initial` fields. Pins and QOM paths are selected by the service.
+For a passive HUB, children additionally supply `parent_id` and select one of
+`grove-1`, `grove-2`, `grove-3` as `port_id`. Children inherit the real upstream
+pins; a HUB has no I2C address or switching register. Cycles, occupied slots,
+duplicate I2C addresses and unmodeled parallel GPIO drive contention fail
+closed. Multiple parallel leaves currently require I2C. This is a functional
+bus model; aggregate current, voltage and physical electrical limits are not
+validated.
+
+`GET /sessions/{id}/units` queries the live QOM model and returns `properties`,
+per-property `errors`, `definitions` and `contract_hashes`. The definitions and
+QOM mapping are frozen when the session is created. Editing the catalog cannot
+change the input meaning of an active session or its retained history.
+Stopped sessions return their last snapshot with `source=persisted`.
+`contract_status=frozen` identifies a recorded contract. Legacy history without
+one is `unrecorded`; a malformed contract is `invalid`. Such history retains its
+old values, has no reconstructed definitions or current-catalog hashes, and
+rejects Unit writes with `409 unit_contract_unavailable`.
+
+`POST /sessions/{id}/unit-input` accepts exactly `{id, values}`. Values are
+validated against the session's input schema before QOM writes; unknown fields,
+outputs, invalid array lengths, malformed hex and nonfinite values are rejected.
+Successful injection establishes model acceptance; guest serial/bus observations
+are still required to prove firmware consumption. The evidence ZIP includes
+`units/runtime.json`, `units/state.json` and `units/contract.json` alongside
+serial and framebuffer evidence. Request it before stop and retain history with
+`purge=0`.
+Controller-side rejection, such as a full UART FIFO, returns
+`409 unit_input_rejected` while preserving the healthy QMP connection. A broken
+transport remains `503`; a command timeout remains `504`.
 
 ## Start the service
 

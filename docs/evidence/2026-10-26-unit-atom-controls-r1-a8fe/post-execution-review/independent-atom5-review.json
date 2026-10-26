@@ -1,0 +1,647 @@
+{
+  "schema_version": 1,
+  "category": "independent-atom-control-case-review",
+  "status": "FUNCTIONAL_5_PASS_NATIVE_MULTIROW_READABILITY_PARTIAL",
+  "cases": [
+    {
+      "unit_id": "joystick-v11",
+      "device_id": "atoms3r",
+      "session_id": "0fb727eff1dd44ca951ccaa8e89cc537",
+      "firmware_sha256": "bea4b8bc36335d0d2aef93b68d6c088b8d5b8e129fd6466256bf42feaf65315c",
+      "report_sha256": "85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455",
+      "status": "FUNCTIONAL_PASS",
+      "native_readability": "PARTIAL: text rows overlap; no complete-display PASS claimed",
+      "browser_readability": "PASS for visible product controls/state and complete assembly frame",
+      "direct_runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 39907,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "evidence_sha256": "4b1efbd985cdb11151c3dbebd661c42f3c4c598de68c5f1dc644cbb92a786803",
+      "zip_members": 10,
+      "controller_assertions": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "web_post_count": 6,
+      "browser_snapshots": 4,
+      "normalized_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "joystick-v11",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "request_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "joystick-v11",
+          "port_id": "custom"
+        }
+      ],
+      "fresh_internal_after_op_offset": 905,
+      "native_equals_history_and_zip": true,
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/browser/0fb727eff1dd44ca951ccaa8e89cc537/003-before-evidence.png",
+          "sha256": "dcdf775005789c334b99f74255b45844ec1d239033b4a88f1ec7a57f7d4f6682",
+          "width": 980,
+          "height": 1229
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/browser/0fb727eff1dd44ca951ccaa8e89cc537/opened-flashing.png",
+          "sha256": "b827bdcc9e817cd6b5cc24ac55836d29e368b1c00687f8b512d9dccee7495ef7",
+          "width": 980,
+          "height": 601
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/controller/joystick-v11/frame.png",
+          "sha256": "19e751b8e65159f64225afd3ef9addc743d949cc8e64948e86a5c9b650a45704",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/history-frame.png",
+          "sha256": "19e751b8e65159f64225afd3ef9addc743d949cc8e64948e86a5c9b650a45704",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "stale_preparation_fields_in_raw_controller": {
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "web_execution": "NOT RUN",
+        "admission": {
+          "status": "BLOCKED",
+          "code": "runtime_model_gap",
+          "http_status": 409,
+          "reason": "joystick-v11 has no controller wiring for atoms3r"
+        }
+      },
+      "strict_controller_detail": {
+        "status": "PASS",
+        "report": "controller/joystick-v11/result.json",
+        "report_sha256": "c2eb63e3cf240d11c4811711422b5e4ec34086967570fe92819f3ce5635043eb",
+        "assertions": 4
+      },
+      "strict_browser_detail": {
+        "status": "PASS",
+        "report": "browser/0fb727eff1dd44ca951ccaa8e89cc537/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/0fb727eff1dd44ca951ccaa8e89cc537/003-before-evidence.png": "dcdf775005789c334b99f74255b45844ec1d239033b4a88f1ec7a57f7d4f6682"
+        },
+        "screenshot_dimensions": {
+          "browser/0fb727eff1dd44ca951ccaa8e89cc537/003-before-evidence.png": {
+            "width": 980,
+            "height": 1229
+          }
+        }
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "device_id": "atoms3r",
+      "session_id": "af4378cd67aa4f9c945a34db73eb029f",
+      "firmware_sha256": "53d4f3c6af092f91108540877f8930e3b09cfad69f0def200bdfb909a94d9701",
+      "report_sha256": "8f2d78ef9d2bf4df43d118c6af72da9aec663523e2282b1336dcec4a9734b416",
+      "status": "FUNCTIONAL_PASS",
+      "native_readability": "PARTIAL: text rows overlap; no complete-display PASS claimed",
+      "browser_readability": "PASS for visible product controls/state and complete assembly frame",
+      "direct_runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 40039,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "evidence_sha256": "dfb40c9996f52a665035ba16dbd45ea3fa6bd9ce798265b58661e5b118536db9",
+      "zip_members": 10,
+      "controller_assertions": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      },
+      "web_post_count": 4,
+      "browser_snapshots": 4,
+      "normalized_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "encoder",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "request_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "encoder",
+          "port_id": "custom"
+        }
+      ],
+      "fresh_internal_after_op_offset": 884,
+      "native_equals_history_and_zip": true,
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/browser/af4378cd67aa4f9c945a34db73eb029f/003-before-evidence.png",
+          "sha256": "ff378e6c0fe5e675bfd27137986bad30d60c0fb8ba46b27801cf893e2cb15ea1",
+          "width": 980,
+          "height": 1211
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/browser/af4378cd67aa4f9c945a34db73eb029f/opened-flashing.png",
+          "sha256": "d32c22d933be837797b442b0f350f63e18554f666fc4f279eaa94420ebecb4b2",
+          "width": 980,
+          "height": 533
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/controller/encoder/frame.png",
+          "sha256": "38a86d128fbf5bbe653e6868e67fab347e6932c97158c0c642ac50536699df1c",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/history-frame.png",
+          "sha256": "38a86d128fbf5bbe653e6868e67fab347e6932c97158c0c642ac50536699df1c",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "stale_preparation_fields_in_raw_controller": {
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "web_execution": "NOT RUN",
+        "admission": {
+          "status": "BLOCKED",
+          "code": "runtime_model_gap",
+          "http_status": 409,
+          "reason": "encoder has no controller wiring for atoms3r"
+        }
+      },
+      "strict_controller_detail": {
+        "status": "PASS",
+        "report": "controller/encoder/result.json",
+        "report_sha256": "726783c76a3403c402285f0dd3a12476d432506c84ae7a0dff6da66e6fc5b63d",
+        "assertions": 5
+      },
+      "strict_browser_detail": {
+        "status": "PASS",
+        "report": "browser/af4378cd67aa4f9c945a34db73eb029f/web-report.json",
+        "snapshots": 4,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/af4378cd67aa4f9c945a34db73eb029f/003-before-evidence.png": "ff378e6c0fe5e675bfd27137986bad30d60c0fb8ba46b27801cf893e2cb15ea1"
+        },
+        "screenshot_dimensions": {
+          "browser/af4378cd67aa4f9c945a34db73eb029f/003-before-evidence.png": {
+            "width": 980,
+            "height": 1211
+          }
+        }
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "device_id": "atoms3r",
+      "session_id": "ffc12969e23b44b9bba2773500ed6ace",
+      "firmware_sha256": "2db6468222a103ddbdd63c6ac249f789d298d80b82921c4b1e97363c730cf38e",
+      "report_sha256": "a1f9585961c3b7f2becdf43122f3c53215b6b1d3da39247670e61e9deb7461d8",
+      "status": "FUNCTIONAL_PASS",
+      "native_readability": "PARTIAL: text rows overlap; no complete-display PASS claimed",
+      "browser_readability": "PASS for visible product controls/state and complete assembly frame",
+      "direct_runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 40132,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "evidence_sha256": "b911b6540ad5abab0da1c58778313be0181434eee224e5164df31a3a913f97b4",
+      "zip_members": 10,
+      "controller_assertions": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      },
+      "web_post_count": 6,
+      "browser_snapshots": 3,
+      "normalized_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "8encoder",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "request_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "8encoder",
+          "port_id": "custom"
+        }
+      ],
+      "fresh_internal_after_op_offset": 1784,
+      "native_equals_history_and_zip": true,
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/browser/ffc12969e23b44b9bba2773500ed6ace/002-before-evidence.png",
+          "sha256": "db897037e544d6918d815e148197f28bd63584ad4a8de6328b30592273279894",
+          "width": 980,
+          "height": 1542
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/browser/ffc12969e23b44b9bba2773500ed6ace/opened-flashing.png",
+          "sha256": "c49dfbd0fbe08a066e5403d6a5f14b0c278d64c69fdafff1f521fa01f456dfb5",
+          "width": 980,
+          "height": 672
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/controller/8encoder/frame.png",
+          "sha256": "609a277a0387f5d6aeca7001ddfb961f44f122fed3d3b9bed84c744460403c76",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/history-frame.png",
+          "sha256": "609a277a0387f5d6aeca7001ddfb961f44f122fed3d3b9bed84c744460403c76",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "stale_preparation_fields_in_raw_controller": {
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "web_execution": "NOT RUN",
+        "admission": {
+          "status": "BLOCKED",
+          "code": "runtime_model_gap",
+          "http_status": 409,
+          "reason": "8encoder has no controller wiring for atoms3r"
+        }
+      },
+      "strict_controller_detail": {
+        "status": "PASS",
+        "report": "controller/8encoder/result.json",
+        "report_sha256": "4344b4e13ae2011ce32ee1c00a5eb9232f5e406d471eb1ed276a9c3db4a97c59",
+        "assertions": 6
+      },
+      "strict_browser_detail": {
+        "status": "PASS",
+        "report": "browser/ffc12969e23b44b9bba2773500ed6ace/web-report.json",
+        "snapshots": 3,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/ffc12969e23b44b9bba2773500ed6ace/002-before-evidence.png": "db897037e544d6918d815e148197f28bd63584ad4a8de6328b30592273279894"
+        },
+        "screenshot_dimensions": {
+          "browser/ffc12969e23b44b9bba2773500ed6ace/002-before-evidence.png": {
+            "width": 980,
+            "height": 1542
+          }
+        }
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "device_id": "atoms3r",
+      "session_id": "0f631e76706542e092460a358b519377",
+      "firmware_sha256": "99d603925b0169f6bc27c6722ea28e767202548da4b107aba0682347bfa17df5",
+      "report_sha256": "9db0ba819714f8a8cd43a99f93b1bdb83dca5bdcf5b3be38311c2e33ebf34759",
+      "status": "FUNCTIONAL_PASS",
+      "native_readability": "Final one-line captured state readable; intermediate multi-line state not visually established",
+      "browser_readability": "PASS for visible product controls/state and complete assembly frame",
+      "direct_runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 40259,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "evidence_sha256": "c2c784e1eb6b84ffdc65926ae79cc666aea38ff11351eabc16a32bca9872079e",
+      "zip_members": 10,
+      "controller_assertions": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "web_post_count": 413,
+      "browser_snapshots": 412,
+      "normalized_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "cardkb",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "request_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "cardkb",
+          "port_id": "custom"
+        }
+      ],
+      "fresh_internal_after_op_offset": 17001,
+      "native_equals_history_and_zip": true,
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/browser/0f631e76706542e092460a358b519377/411-before-evidence.png",
+          "sha256": "9c18a68b3020966c7888a8d9b20afaaf2b3a68268006151994191fc7059f92f0",
+          "width": 980,
+          "height": 2201
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/browser/0f631e76706542e092460a358b519377/opened-flashing.png",
+          "sha256": "1791c6af12ccd73d8c2453075b352c3443c1dd1e8adb2525a2e440f36547f3ee",
+          "width": 980,
+          "height": 1094
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/controller/cardkb/frame.png",
+          "sha256": "b84dd3c5f2e15792d3afa4f859aa981bb53881368d5195a0813a1f67995d181f",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/history-frame.png",
+          "sha256": "b84dd3c5f2e15792d3afa4f859aa981bb53881368d5195a0813a1f67995d181f",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "stale_preparation_fields_in_raw_controller": {
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "web_execution": "NOT RUN",
+        "admission": {
+          "status": "BLOCKED",
+          "code": "runtime_model_gap",
+          "http_status": 409,
+          "reason": "cardkb has no controller wiring for atoms3r"
+        }
+      },
+      "strict_controller_detail": {
+        "status": "PASS",
+        "report": "controller/cardkb/result.json",
+        "report_sha256": "98840f02016412615740ee58c51e34e65c5e6efce3cfbd3bbb39085685006719",
+        "assertions": 7
+      },
+      "strict_browser_detail": {
+        "status": "PASS",
+        "report": "browser/0f631e76706542e092460a358b519377/web-report.json",
+        "snapshots": 412,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/0f631e76706542e092460a358b519377/411-before-evidence.png": "9c18a68b3020966c7888a8d9b20afaaf2b3a68268006151994191fc7059f92f0"
+        },
+        "screenshot_dimensions": {
+          "browser/0f631e76706542e092460a358b519377/411-before-evidence.png": {
+            "width": 980,
+            "height": 2201
+          }
+        }
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "device_id": "atoms3r",
+      "session_id": "1256b3640d3747178b4b217fece55e92",
+      "firmware_sha256": "a48b135ca85d1451b7c845d22db6e48136421f5d684b1c6f64d0f09ad860cc7b",
+      "report_sha256": "67f674c3d56b752357af3717862de787e88ac3e13afe3f97675bae0bae129b00",
+      "status": "FUNCTIONAL_PASS",
+      "native_readability": "Final one-line captured state readable; intermediate multi-line state not visually established",
+      "browser_readability": "PASS for visible product controls/state and complete assembly frame",
+      "direct_runtime_proof": {
+        "proof_kind": "direct-pid",
+        "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true,
+        "pid": 69153,
+        "worker_generation_observed": 9
+      },
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "evidence_sha256": "21197855deaa7237ffb05c3a8fde668822025acb09e935fc96940f082cd119a8",
+      "zip_members": 10,
+      "controller_assertions": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      },
+      "web_post_count": 4,
+      "browser_snapshots": 6,
+      "normalized_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "rfid2",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "request_attachments": [
+        {
+          "id": "external1",
+          "unit_id": "rfid2",
+          "port_id": "custom"
+        }
+      ],
+      "fresh_internal_after_op_offset": 1588,
+      "native_equals_history_and_zip": true,
+      "decoded_pngs": [
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/browser/1256b3640d3747178b4b217fece55e92/005-before-evidence.png",
+          "sha256": "ebcf0ca40002a71b73f09ac2f1b0ad5deaac68d36bd28f8dabb5b4c720fd541f",
+          "width": 980,
+          "height": 1698
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/browser/1256b3640d3747178b4b217fece55e92/opened-flashing.png",
+          "sha256": "67dff59c1d36bbd0f86a31e3bd42a07f5719316ff3165445b0418fce7d2f6b5d",
+          "width": 980,
+          "height": 675
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/controller/rfid2/frame.png",
+          "sha256": "dc9c9c7f836b91d149d42bda784eec7b790f06a1b00b356cc3ce3390da096e7e",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "path": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/history-frame.png",
+          "sha256": "dc9c9c7f836b91d149d42bda784eec7b790f06a1b00b356cc3ce3390da096e7e",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "stale_preparation_fields_in_raw_controller": {
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "web_execution": "NOT RUN",
+        "admission": {
+          "status": "BLOCKED",
+          "code": "runtime_model_gap",
+          "http_status": 409,
+          "reason": "rfid2 has no controller wiring for atoms3r"
+        }
+      },
+      "strict_controller_detail": {
+        "status": "PASS",
+        "report": "controller/rfid2/result.json",
+        "report_sha256": "c3cb6ea34701d2c3bc1edefb1d11bc5f978ff30410e615dac30875008f4e1a23",
+        "assertions": 7
+      },
+      "strict_browser_detail": {
+        "status": "PASS",
+        "report": "browser/1256b3640d3747178b4b217fece55e92/web-report.json",
+        "snapshots": 6,
+        "instances": [
+          "external1"
+        ],
+        "screenshot_sha256": {
+          "browser/1256b3640d3747178b4b217fece55e92/005-before-evidence.png": "ebcf0ca40002a71b73f09ac2f1b0ad5deaac68d36bd28f8dabb5b4c720fd541f"
+        },
+        "screenshot_dimensions": {
+          "browser/1256b3640d3747178b4b217fece55e92/005-before-evidence.png": {
+            "width": 980,
+            "height": 1698
+          }
+        }
+      }
+    }
+  ],
+  "api_contacted": false,
+  "new_browser_started": false,
+  "new_runtime_started": false,
+  "new_pid_observations": "NONE; existing live-record proofs are reconciled, never recreated after stop",
+  "frozen_execution_sources": {
+    "count": 380,
+    "composition": "375 execution sources plus five prepared metadata files",
+    "unchanged": true,
+    "sha256": "1c55ed6e6c2a3d47e860816010e73d15748ad2dbd884e6b8847d8a6f64d58d7e"
+  },
+  "findings": [
+    {
+      "priority": 2,
+      "title": "Atom native body spacing smaller than actual default font raster",
+      "evidence": "Prepared Atom LINE_HEIGHT=8, BODY_ROWS=10, font implicit. Actual native body rows lose lower glyph rows when subsequent opaque text is drawn. Joystick/encoder/8encoder images visually inspected. Native/history/ZIP bytes exactly match.",
+      "boundary": "Controller and browser PASS remains valid. Readable native-display PASS is not established. Fix explicit font/spacing in new prepared firmware; do not rewrite current raw evidence."
+    },
+    {
+      "priority": 2,
+      "title": "Existing host_validation expects a different historical runner shape",
+      "evidence": "test_unit_runtime.py requires host_runtime_provenance and outer attachments, absent here. Actual common bridge direct PID+binary hash+API reconfirmation binds to ZIP same PID/worker. Browser and ZIP normalized attachments match; inner controller request projection matches.",
+      "recommendation": "Add evidence_contract=device-service-control-web-v1 branch; preserve old dual observer branch. Bind raw reports and preparation-origin metadata explicitly; never invent second PID observation or mutate raw report."
+    }
+  ],
+  "proposed_new_contract_requirements": [
+    "Exact report category/flavor; unit-specific complete original CONTROL assertions from raw inner controller",
+    "ZIP CRC/member hashes and same running host/session/firmware/runtime/PID/worker/binary",
+    "Browser=ZIP full normalized attachment tree; inner request projection; frozen contract pin routing",
+    "Fresh serial offset for BMI after control assertions; same ZIP geometry/before/after-init/external address markers",
+    "Real Web posts, no errors, available guest-qom DOM/HTTP readbacks, screenshots/native decode",
+    "Explicit stopped history and boolean Flash release; no emergency cleanup",
+    "Hash-pinned selection/report/ZIP/source freeze; normalization receipt labels stale inner NOT RUN/BLOCKED as preparation snapshots"
+  ],
+  "post_execution_history": {
+    "receipt_sha256": "5964bd0d3e92b84542bcf530c421841739f45e3e1b1ce271b322c0b6688d0ee8",
+    "cases": [
+      {
+        "unit_id": "joystick-v11",
+        "response_sha256": "7da489c36ff3f6d91dbcb41e109eb18b7e47932f46af7737292f30e2a3d6118e",
+        "same_identity": true,
+        "stopped": true,
+        "flash_released": true
+      },
+      {
+        "unit_id": "encoder",
+        "response_sha256": "b91f86f8385743a0235789dacdf5d4d70e6ac42b03cfeba4f22365354823c333",
+        "same_identity": true,
+        "stopped": true,
+        "flash_released": true
+      },
+      {
+        "unit_id": "8encoder",
+        "response_sha256": "2f96cde7c8f0c36b461dc9fc567893431b1ec8df42fdb8636683f13a2e160bdb",
+        "same_identity": true,
+        "stopped": true,
+        "flash_released": true
+      },
+      {
+        "unit_id": "cardkb",
+        "response_sha256": "e9494311f656cf29afa36d1e19b1a2c3d3bc4ddd3b439a0f08a88942757365e8",
+        "same_identity": true,
+        "stopped": true,
+        "flash_released": true
+      },
+      {
+        "unit_id": "rfid2",
+        "response_sha256": "5528599e43e9af7e0323ca5357fc6bbd68cfff735755793120be743b7d2eae2d",
+        "same_identity": true,
+        "stopped": true,
+        "flash_released": true
+      }
+    ],
+    "health_sha256": "0f226b4962128b106edaff0b8a8fd1f7fec93d54805a234ebf83e9743941be26",
+    "active_sessions": 0
+  },
+  "scope_limit": "Only listed five AtomS3R cases; no other host/case/physical hardware inherits PASS."
+}

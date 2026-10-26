@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "category": "archive-time-auxiliary-source-reconciliation",
+  "status": "CONTINUITY_VERIFIED_NOT_PRE_EXECUTION_FREEZE",
+  "source": "tests/uiflow2/lib/rtc_probe.py",
+  "sha256": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+  "snapshot": "auxiliary-sources/tests/uiflow2/lib/rtc_probe.py.txt",
+  "checks": [
+    {
+      "unit_id": "env-iii",
+      "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "actual_packaged_rtc_sha256": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+      "packaged_bytes_match_current_source": true,
+      "generated_probe_has_no_rtc_probe_import": true
+    },
+    {
+      "unit_id": "relay",
+      "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "actual_packaged_rtc_sha256": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+      "packaged_bytes_match_current_source": true,
+      "generated_probe_has_no_rtc_probe_import": true
+    }
+  ],
+  "boundary": "The original 26 named-source freeze is preserved. Shared runtime_files also packaged this RTC helper; it was not independently frozen before these sessions. Current bytes and both actual firmware payloads match at archive time. The generated probe sources do not import it; no claim is made about every dynamic import in vendor firmware. This receipt does not invent a pre-execution timestamp or expand guest coverage."
+}

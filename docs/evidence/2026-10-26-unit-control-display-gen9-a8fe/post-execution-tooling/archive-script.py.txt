@@ -1,0 +1,1071 @@
+"""Offline display-control evidence archiver. Default is read-only PLAN.
+
+This file is post-execution tooling, outside every runtime source freeze. It
+never imports the execution wrapper, contacts an API, or starts a guest/browser.
+Only --archive creates an output tree, after complete batch/history/review input
+is present. Root owns any later product metadata or authority-document changes.
+"""
+from __future__ import annotations
+
+import argparse
+from contextlib import ExitStack, redirect_stdout
+import hashlib
+import importlib.util
+import io
+import ipaddress
+import json
+import math
+import os
+from pathlib import Path, PurePosixPath
+import re
+import socket
+import stat
+import struct
+import subprocess
+import sys
+import tempfile
+import urllib.request
+from urllib.parse import urlsplit
+from unittest.mock import patch
+import zipfile
+import zlib
+
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE = 'eff1561e9f0da700c843ed14d9019c81f1e27e55'
+DISPLAY = '.work/unit-host-control-display-candidate-20261026'
+MANIFEST = DISPLAY + '/manifest.json'
+FONT_AUDIT = DISPLAY + '/evidence/font-audit.json'
+WRAPPER = DISPLAY + '/execute_control_display.py'
+HOSTS = ('atoms3r', 'sticks3', 'stopwatch')
+UNITS = ('joystick-v11', 'encoder', '8encoder', 'cardkb', 'rfid2')
+CONTRACT = 'device-service-control-web-v1'
+NATIVE_SCOPE = 'captured-final-native-frame-only'
+EXPECTED_RUNTIME = 'a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047'
+EXPECTED_WRAPPER = '83431e8e300ec5fa43adb8712570a24e44e734c50760545462ef8aafd2cd2158'
+EXPECTED_MANIFEST = '815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39'
+FORBIDDEN = {'.bin', '.rom', '.elf', '.pyc', '.so', '.dylib', '.dll', '.exe'}
+IMAGES = {'.png', '.jpg', '.jpeg', '.webp'}
+_TEXT_PATTERNS = tuple(re.compile(x) for x in (
+    r'/(?:Users|home|private)/', r'-----BEGIN [A-Z ]*PRIVATE KEY-----',
+    r'\bsk-[A-Za-z0-9_-]{16,}', r'\bgh[pousr]_[A-Za-z0-9]{20,}',
+    r'\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\b',
+))
+_CREDENTIAL_KEY = re.compile(r'(?:api[_-]?key|auth[_-]?token|access[_-]?token|password|secret)', re.I)
+_CREDENTIAL_ASSIGNMENT = re.compile(
+    r'''(?i)(?<![\w-])(?P<key_quote>["']?)(?:api[_-]?key|auth[_-]?token|access[_-]?token|password|secret)(?P=key_quote)\s*[=:]\s*(?P<value_quote>["'])(?P<value>[^"'\r\n]*)(?P=value_quote)'''
+)
+_URL = re.compile(r'''https?://[^\s"'<>\\]+''', re.I)
+_PLACEHOLDER = re.compile(
+    r'''(?ix)^(?:
+        (?:your|insert|replace)(?:[_ -](?:with|your|the|here|api|access|auth|key|token|password|secret|value))+
+        |\$\{(?:API_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD|SECRET)\}
+        |[<\[](?:API_KEY|ACCESS_TOKEN|AUTH_TOKEN|TOKEN|PASSWORD|SECRET|REDACTED)[>\]]
+        |REDACTED|REPLACE_ME
+    )$'''
+)
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def read_json(path):
+    return json.loads(read_regular_bytes(path))
+
+
+def relative(name):
+    require(isinstance(name, str) and bool(name), 'empty or non-string path')
+    require(not any(ord(char) < 32 or 127 <= ord(char) <= 159 for char in name), 'control character in path')
+    require('\\' not in name, 'unsafe relative path')
+    # ZIP directory members may have one trailing slash. Other aliases would
+    # collide after extraction or while writing the reconstruction tree.
+    plain = name[:-1] if name.endswith('/') else name
+    parts = PurePosixPath(plain)
+    require(bool(plain) and not parts.is_absolute(), 'unsafe relative path')
+    require(all(part not in {'', '.', '..'} for part in plain.split('/')), 'unsafe relative path')
+    require(not re.match(r'^[A-Za-z]:', plain), 'drive-qualified relative path')
+    return Path(plain)
+
+
+
+def under_root(name):
+    result = ROOT / relative(name)
+    require(result.is_relative_to(ROOT), 'path escapes repository')
+    return result
+
+
+def label(path):
+    return path.relative_to(ROOT).as_posix()
+
+
+def pin(path):
+    return {'path': label(path), 'sha256': sha(read_regular_bytes(path))}
+
+
+def check_name(name):
+    path = relative(name)
+    scan(name.encode('utf-8'), 'artifact name')
+    unwrapped = path
+    while unwrapped.suffix.lower() == '.txt':
+        unwrapped = Path(str(unwrapped)[:-len(unwrapped.suffix)])
+    require(unwrapped.suffix.lower() not in FORBIDDEN, 'forbidden binary extension: ' + name)
+    return path
+
+
+
+def scan(data, name):
+    try:
+        text = data.decode('utf-8')
+    except UnicodeDecodeError:
+        raise ValueError('non-UTF8 text artifact: ' + name) from None
+    require(not any(pattern.search(text) for pattern in _TEXT_PATTERNS), 'sensitive content pattern: ' + name)
+    for hit in _CREDENTIAL_ASSIGNMENT.finditer(text):
+        require(not _credential_value(hit['value']), 'credential assignment in artifact: ' + name)
+    try:
+        parsed_json = json.loads(text)
+    except (ValueError, RecursionError):
+        pass
+    else:
+        _check_json_credentials(parsed_json, name)
+    for hit in _URL.finditer(text):
+        try:
+            url = urlsplit(hit.group(0))
+            hostname = url.hostname
+        except ValueError:
+            continue  # Source-code URL templates are not concrete authorities.
+        if not hostname:
+            continue
+        require(not url.password, 'URL credential in artifact: ' + name)
+        try:
+            address = ipaddress.ip_address(hostname.rstrip('.,;)]}'))
+        except ValueError:
+            continue
+        require(not (address.is_private and not address.is_loopback), 'non-loopback private URL: ' + name)
+
+
+
+def png_container(data, name):
+    """Accept only the metadata-free PNG layout used by this evidence batch."""
+    require(data.startswith(b'\x89PNG\r\n\x1a\n'), 'invalid PNG signature: ' + name)
+    cursor, kinds = 8, []
+    while cursor < len(data):
+        require(cursor + 12 <= len(data), 'truncated PNG chunk: ' + name)
+        length, kind = struct.unpack_from('>I4s', data, cursor)
+        end = cursor + 12 + length
+        require(end <= len(data), 'truncated PNG payload: ' + name)
+        require(kind in {b'IHDR', b'IDAT', b'IEND'}, 'unsupported PNG chunk: ' + name)
+        payload = data[cursor + 8:cursor + 8 + length]
+        require(zlib.crc32(kind + payload) == struct.unpack_from('>I', data, end - 4)[0], 'PNG CRC failed: ' + name)
+        kinds.append(kind)
+        if kind == b'IEND':
+            require(length == 0 and end == len(data), 'PNG tail payload: ' + name)
+        cursor = end
+    require(len(kinds) >= 3 and kinds[0] == b'IHDR' and kinds[-1] == b'IEND'
+            and all(kind == b'IDAT' for kind in kinds[1:-1]), 'unsupported PNG chunk order: ' + name)
+
+
+def image_info(data, name):
+    from PIL import Image
+    if Path(name).suffix.lower() == '.png':
+        png_container(data, name)
+    with Image.open(io.BytesIO(data)) as image:
+        image.load()
+        suffix = Path(name).suffix.lower()
+        expected_format = {'.png': 'PNG', '.jpg': 'JPEG', '.jpeg': 'JPEG', '.webp': 'WEBP'}.get(suffix)
+        require(image.format == expected_format, 'image format/extension differs: ' + name)
+        require(image.width > 0 and image.height > 0, 'empty image: ' + name)
+        _metadata(image.info, name + ' metadata')
+        _metadata(getattr(image, 'text', {}), name + ' text metadata')
+        return {'path': name, 'format': image.format, 'width': image.width, 'height': image.height, 'sha256': sha(data)}
+
+
+
+def inspect(data, name):
+    path = check_name(name)
+    if path.suffix.lower() in IMAGES:
+        return {'images': [image_info(data, name)], 'zip_members': 0}
+    if path.suffix.lower() != '.zip':
+        scan(data, name)
+        return {'images': [], 'zip_members': 0}
+    images, count = [], 0
+    require(len(data) >= 22 and data[-22:-18] == b'PK\x05\x06', 'ZIP suffix/comment or missing end record: ' + name)
+    end = struct.unpack_from('<4s4H2IH', data, len(data) - 22)
+    require(end[1] == end[2] == end[7] == 0 and end[3] == end[4]
+            and end[5] + end[6] == len(data) - 22, 'unsupported ZIP envelope: ' + name)
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        require(not archive.comment and archive.start_dir == end[6] and len(archive.infolist()) == end[4], 'unsupported ZIP envelope: ' + name)
+        names = [check_name(row.filename).as_posix() for row in archive.infolist()]
+        require(len(names) == len(set(names)), 'duplicate ZIP member: ' + name)
+        cursor, central_size = 0, 0
+        for member in archive.infolist():
+            member_path = check_name(member.filename)
+            kind = stat.S_IFMT(member.external_attr >> 16)
+            require(kind in {0, stat.S_IFREG} and not member.is_dir(), 'ZIP nonregular/directory member: ' + name)
+            require(not member.comment and not member.extra, 'unsupported ZIP member metadata: ' + name)
+            require(member.header_offset == cursor and cursor + 30 <= archive.start_dir, 'ZIP prefix/gap payload: ' + name)
+            local = struct.unpack_from('<4s5H3I2H', data, cursor)
+            require(local[0] == b'PK\x03\x04' and local[2] == member.flag_bits and not (local[2] & ~0x800)
+                    and local[3] == member.compress_type and local[6:9] == (member.CRC, member.compress_size, member.file_size)
+                    and local[10] == 0, 'unsupported ZIP local header: ' + name)
+            filename = member.filename.encode('utf-8' if local[2] & 0x800 else 'cp437')
+            require(local[9] == len(filename) and data[cursor + 30:cursor + 30 + local[9]] == filename, 'ZIP local filename differs: ' + name)
+            cursor += 30 + local[9] + member.compress_size
+            central_size += 46 + len(filename)
+            content = archive.read(member)
+            count += 1
+            if member_path.suffix.lower() in IMAGES:
+                images.append(image_info(content, name + ':' + member.filename))
+            else:
+                scan(content, name + ':' + member.filename)
+        require(cursor == archive.start_dir and central_size == end[5], 'ZIP unaccounted payload: ' + name)
+        require(archive.testzip() is None, 'ZIP CRC failed: ' + name)
+    return {'images': images, 'zip_members': count}
+
+
+
+def _credential_value(value):
+    if not isinstance(value, str):
+        return False
+    value = value.strip()
+    return len(value) >= 12 and not _PLACEHOLDER.fullmatch(value)
+
+
+def _check_json_credentials(value, name):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            require(not (_CREDENTIAL_KEY.fullmatch(key) and _credential_value(item)), 'credential value in JSON artifact: ' + name)
+            _check_json_credentials(item, name)
+    elif isinstance(value, list):
+        for item in value:
+            _check_json_credentials(item, name)
+
+
+def _metadata(value, name):
+    if isinstance(value, str):
+        scan(value.encode('utf-8'), name)
+    elif isinstance(value, bytes):
+        scan(value, name)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _metadata(str(key), name)
+            # EXIF, XMP and ICC can carry non-text private fields. Keep raw
+            # evidence immutable and reject unsupported opaque metadata.
+            if str(key).lower() in {'exif', 'xmp', 'xml:com.adobe.xmp', 'icc_profile'}:
+                require(not item, 'opaque image metadata: ' + name)
+            else:
+                _metadata(item, name)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _metadata(item, name)
+    else:
+        require(value is None or isinstance(value, (bool, int, float)), 'unsupported image metadata: ' + name)
+
+
+def read_regular_bytes(path, *, boundary=None):
+    """Read through directory fds so no path component can follow a symlink.
+
+    The caller must retain the lexical source path until this call. The default
+    boundary is repository ROOT; tests can supply an independent trusted root.
+    No output, process, socket or external service is involved.
+    """
+    path = Path(path)
+    boundary = Path(ROOT if boundary is None else boundary)
+    require('..' not in path.parts and '..' not in boundary.parts, 'parent traversal in source path')
+    path = path.absolute()
+    boundary = boundary.absolute()
+    require(path != boundary and path.is_relative_to(boundary), 'source path escapes boundary')
+    relative(path.relative_to(boundary).as_posix())
+    require(hasattr(os, 'O_NOFOLLOW') and hasattr(os, 'O_DIRECTORY') and os.open in os.supports_dir_fd, 'safe directory-fd reads are unavailable')
+    descriptors = []
+    try:
+        directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        current = os.open(path.anchor, directory_flags)
+        descriptors.append(current)
+        for component in path.parts[1:-1]:
+            current = os.open(component, directory_flags, dir_fd=current)
+            descriptors.append(current)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=current)
+        descriptors.append(descriptor)
+        require(stat.S_ISREG(os.fstat(descriptor).st_mode), 'source is not a regular file')
+        chunks = []
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                return b''.join(chunks)
+            chunks.append(chunk)
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def parse_mapping(values, kind):
+    rows = {}
+    for value in values:
+        host, separator, name = value.partition('=')
+        require(separator and host in HOSTS and host not in rows, 'invalid or duplicate ' + kind + ' host')
+        rows[host] = under_root(name)
+    return rows
+
+
+def parse_digests(values, kind):
+    result = {}
+    for value in values:
+        host, separator, digest = value.partition('=')
+        require(separator and host in HOSTS and host not in result and re.fullmatch('[0-9a-f]{64}', digest), 'invalid or duplicate ' + kind + ' digest')
+        result[host] = digest
+    return result
+
+
+def frozen_bytes(batch, name, digest):
+    snapshot = batch / 'source-snapshot' / (name + '.txt')
+    path = snapshot if snapshot.is_file() else under_root(name)
+    require(path.is_file() and not path.is_symlink(), 'missing frozen source: ' + name)
+    data = read_regular_bytes(path)
+    require(sha(data) == digest, 'frozen bytes differ: ' + name)
+    return data
+
+
+def baseline(name, data):
+    result = subprocess.run(['git', 'show', BASE + ':' + name], cwd=ROOT, capture_output=True)
+    require(result.returncode == 0 and result.stdout == data, 'sensitive/asset source is not exact baseline: ' + name)
+    blob = subprocess.check_output(['git', 'rev-parse', BASE + ':' + name], cwd=ROOT, text=True).strip()
+    return {'sha256': sha(data), 'storage': 'baseline-git-reference', 'commit': BASE,
+            'repository_path': name, 'git_blob': blob}
+
+
+def source_plan(batch):
+    freeze = read_json(batch / 'source-before.json')
+    require(isinstance(freeze, dict) and len(freeze) == 421, 'execution freeze must be the reviewed 421-source cohort')
+    sources = {}
+    for name, digest in sorted(freeze.items()):
+        relative(name)
+        require(re.fullmatch('[0-9a-f]{64}', digest), 'invalid source hash: ' + name)
+        data = frozen_bytes(batch, name, digest)
+        original_suffix = Path(name).suffix.lower()
+        try:
+            if original_suffix in IMAGES:
+                raise ValueError('baseline image reference')
+            scan(data, name)
+        except ValueError:
+            row = baseline(name, data)
+            row['reason'] = 'Exact unchanged baseline image asset.' if original_suffix in IMAGES else 'Exact unchanged baseline source contains a sensitive-content pattern; its body is not republished.'
+        else:
+            check_name(name + '.txt')
+            row = {'sha256': digest, 'storage': 'verbatim-text-snapshot', 'path': 'source-snapshot/' + name + '.txt'}
+        sources[name] = row
+    readiness = read_json(batch / 'prepared-readiness.json')
+    prep = readiness['source_sha256']
+    require(len(prep) == 105 and all(freeze.get(name) == value for name, value in prep.items()), '105 preparation dependencies are not contained in execution freeze')
+    require(MANIFEST in freeze and WRAPPER in freeze and FONT_AUDIT in freeze, 'display manifest/wrapper/audit not frozen')
+    require(freeze[MANIFEST] == EXPECTED_MANIFEST and freeze[WRAPPER] == EXPECTED_WRAPPER,
+            'execution uses another display manifest or wrapper')
+    manifest = json.loads(frozen_bytes(batch, MANIFEST, freeze[MANIFEST]))
+    audit = json.loads(frozen_bytes(batch, FONT_AUDIT, freeze[FONT_AUDIT]))
+    official = audit['sources']
+    require(len(official) == 23 and len({row['path'] for row in official}) == 23, 'font audit must identify 23 unique sources')
+    for row in official:
+        require(freeze.get(row['path']) == row['sha256'], 'official font source is not execution-frozen')
+        require(sha(frozen_bytes(batch, row['path'], row['sha256'])) == row['sha256'], 'official font source byte mismatch')
+    require(manifest['new_preparation']['readiness_sha256'] == sha(read_regular_bytes(batch / 'prepared-readiness.json')), 'manifest preparation readiness differs')
+    require(len(manifest['expected_case_contracts']) == 15, 'expected three-by-five display contracts absent')
+    for record in readiness['cases']:
+        require(len(record['probe_sha256']) == 17 and len(record['packaged_full_py_sha256']) == 18, 'named/VFS Python membership changed')
+    return {'freeze': freeze, 'sources': sources, 'readiness': readiness, 'manifest': manifest,
+            'font_source_count': 23, 'preparation_source_count': 105}
+
+
+def write_bytes(target, name, data, *, immutable=False):
+    relative_path = check_name(name)
+    inspect(data, name)
+    path = target / relative_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if immutable and path.exists():
+        require(read_regular_bytes(path) == data, 'existing output differs: ' + name)
+    else:
+        path.write_bytes(data)
+    return path
+
+
+def write_json(target, name, value):
+    return write_bytes(target, name, (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode())
+
+
+def copy(target, source, name, expected=None):
+    require(source.is_file() and not source.is_symlink(), 'missing/symlink artifact: ' + name)
+    data = read_regular_bytes(source)
+    require(expected is None or sha(data) == expected, 'artifact hash differs: ' + name)
+    return write_bytes(target, name, data, immutable=True)
+
+
+def font_runtime(report, controller, serial, plan):
+    host, unit = report['device_id'], report['unit_id']
+    contracts = [row for row in plan['manifest']['expected_case_contracts'] if (row['device_id'], row['unit_id']) == (host, unit)]
+    require(len(contracts) == 1, 'display case contract is not unique')
+    expected = contracts[0]
+    require(expected['firmware_sha256'] == report['firmware_sha256'], 'display contract firmware differs')
+    observed = report['host_observations']['strict_display_contract']
+    font = expected['expected_font']
+    require(type(observed.get('font_scale')) in {int, float} and math.isfinite(observed['font_scale']), 'font scale is not finite numeric data')
+    require(observed['display_manifest_sha256'] == plan['freeze'][MANIFEST], 'observed display manifest hash differs')
+    require(observed['font_name'] == font['name'] and observed['font_height'] == font['height'] and
+            math.isclose(observed['font_scale'], font['size'], rel_tol=0, abs_tol=1e-6), 'observed font metrics differ')
+    require(observed['layout_marker'] == expected['expected_layout_marker'], 'observed layout differs')
+    require(controller['host_profile']['size'] == expected['expected_native_frame_size'] and
+            controller['host_profile']['canvas_size'] == expected['expected_canvas_size'], 'display geometry differs')
+    for marker, expected_tokens in (
+        ('HOST_CONTROL_DEFAULT_FONT_HEIGHT', ['HOST_CONTROL_DEFAULT_FONT_HEIGHT', str(observed['default_font_height_observed'])]),
+        ('HOST_CONTROL_FONT', ['HOST_CONTROL_FONT', font['name'], None, str(font['height'])]),
+        ('HOST_CONTROL_LAYOUT', expected['expected_layout_marker'].split()),
+    ):
+        lines = [line.rstrip('\r').split() for line in serial.splitlines() if line.startswith(marker)]
+        require(len(lines) == 1 and len(lines[0]) == len(expected_tokens), 'missing/duplicate display marker')
+        require(all(want is None or have == want for have, want in zip(lines[0], expected_tokens)), 'serial display marker differs')
+        if marker == 'HOST_CONTROL_FONT':
+            require(math.isclose(float(lines[0][2]), font['size'], rel_tol=0, abs_tol=1e-6), 'serial font scale differs')
+    return expected
+
+
+def pinned_json(reference, expected_path=None):
+    require(isinstance(reference, dict), 'pinned JSON reference absent')
+    path = under_root(reference['path'])
+    require(expected_path is None or path == expected_path.resolve(), 'pinned input path differs')
+    require(path.is_file() and not path.is_symlink(), 'pinned input is missing or a symlink')
+    data = read_regular_bytes(path)
+    require(sha(data) == reference['sha256'], 'pinned input SHA differs: ' + label(path))
+    inspect(data, label(path))
+    return json.loads(data)
+
+
+def exact_cases(rows, reports, description):
+    require(isinstance(rows, list) and len(rows) == len(reports), description + ' count differs')
+    result = {row['unit_id']: row for row in rows}
+    require(len(result) == len(rows) and set(result) == {row['unit_id'] for row in reports}, description + ' membership differs')
+    return result
+
+
+def history_receipt(batch, reports):
+    path = batch / 'post-execution-history/receipt.json'
+    receipt = read_json(path)
+    require(receipt.get('status') == 'PASS' and receipt.get('scope') == 'actual-read-only-post-execution-api-observations', 'actual history receipt absent')
+    require(receipt['summary_sha256'] == sha(read_regular_bytes(batch / 'summary.json')), 'history receipt summary differs')
+    require(receipt['capture_source_sha256'] == sha(read_regular_bytes(ROOT / '.work/capture_unit_control_history_20261026.py')), 'history collector bytes differ')
+    health_path = batch / 'post-execution-history/health.json'
+    health = read_json(health_path)
+    require(receipt['health_sha256'] == sha(read_regular_bytes(health_path)), 'history health bytes differ')
+    require(type(receipt['active_sessions']) is int and receipt['active_sessions'] == health['capacity']['active_sessions'] == 0, 'history health is not idle')
+    require(type(receipt['worker_generation']) is int and receipt['worker_generation'] == health['capacity']['worker']['generation'], 'history health worker differs')
+    observations = exact_cases(receipt['observations'], reports, 'history observations')
+    for report in reports:
+        unit, host = report['unit_id'], report['device_id']
+        origin = batch / host / unit
+        raw_path = batch / 'post-execution-history' / (unit + '.json')
+        raw = read_json(raw_path)
+        validate_history(raw, report)
+        proof = report['runtime_provenance']
+        require(raw.get('pid') == proof['observed_pid'] and raw['worker']['worker_id'] == proof['worker_id'] and
+                raw['worker']['generation'] == proof['worker_generation'] == receipt['worker_generation'] and
+                raw['worker'].get('lease_active') is False, 'history PID/worker differs from original direct proof')
+        row = observations[unit]
+        require(all(row.get(key) == report[key] for key in ('device_id', 'unit_id', 'session_id', 'runtime', 'firmware_sha256')), 'history observation identity differs')
+        require(row.get('state') == 'stopped' and row.get('flash_retained') is False, 'history observation stop/Flash differs')
+        require(row['raw_response_sha256'] == sha(read_regular_bytes(raw_path)) and row['report_sha256'] == sha(read_regular_bytes(origin / 'report.json')), 'history response/report bytes differ')
+        require(row['frame_sha256'] == report['artifact_sha256']['history-frame.png'] == sha(read_regular_bytes(origin / 'history-frame.png')), 'history frame bytes differ')
+    return receipt
+
+
+def completion_receipt(path, host, batch, reports, plan):
+    require(path is not None, 'root-observed completion receipt is required')
+    receipt = read_json(path)
+    require(receipt.get('category') == 'root-observed-tool-result' and receipt.get('status') == 'PASS' and
+            receipt.get('device_id') == host and type(receipt.get('runner_exit_code')) is int and receipt['runner_exit_code'] == 0,
+            'completion must be an explicit root-observed successful tool result')
+    tool = receipt['tool_result_reference']
+    require(tool.get('tool') == 'tools.write_stdin' and type(tool.get('session_id')) is int and tool['session_id'] > 0 and
+            isinstance(tool.get('chunk_id'), str) and bool(tool['chunk_id']) and type(tool.get('observed_exit_code')) is int and tool['observed_exit_code'] == 0,
+            'root completion tool reference is absent')
+    if 'raw_result' in tool:
+        observed = pinned_json(tool['raw_result'])
+        require(observed.get('chunk_id') == tool['chunk_id'] and type(observed.get('exit_code')) is int and observed['exit_code'] == 0,
+                'root pinned tool-result bytes differ')
+    require(len(reports) == 5 and {row['unit_id'] for row in reports} == set(UNITS) and
+            all(row.get('status') == 'PASS' and row['device_id'] == host for row in reports), 'successful host batch is incomplete')
+    pinned_json(receipt['summary'], batch / 'summary.json')
+    pinned_json(receipt['source_before'], batch / 'source-before.json')
+    pinned_json(receipt['history_receipt'], batch / 'post-execution-history/receipt.json')
+    require(receipt['execution_wrapper'] == {'path': WRAPPER, 'sha256': plan['freeze'][WRAPPER]}, 'completion wrapper differs')
+    require(set(receipt['reports']) == set(UNITS), 'completion report membership differs')
+    for report in reports:
+        pinned_json(receipt['reports'][report['unit_id']], batch / host / report['unit_id'] / 'report.json')
+    return receipt
+
+
+def review_sources(review, host, batch, reports, plan):
+    require(review.get('category') == 'actual-native-and-browser-visual-observation-supplement' and
+            review.get('status') == 'PASS' and review.get('scope') == NATIVE_SCOPE and review.get('device_id') == host,
+            'actual independent visual observation supplement is required')
+    for key, path in (('summary', batch / 'summary.json'), ('source_freeze', batch / 'source-before.json'),
+                      ('history_receipt', batch / 'post-execution-history/receipt.json')):
+        pinned_json(review[key], path)
+    require(review['source_freeze']['count'] == len(plan['freeze']), 'visual source count differs')
+    source = pinned_json({'path': review['source_review'], 'sha256': review['source_review_sha256']})
+    full = pinned_json({'path': review['source_full_review'], 'sha256': review['source_full_review_sha256']})
+    require(source.get('category') == 'captured-final-native-frame-review' and source.get('scope') == NATIVE_SCOPE and
+            source.get('device_id') == host and source.get('runtime_binary_sha256') == EXPECTED_RUNTIME,
+            'original native review scope/host/runtime differs')
+    require(source['source_freeze_sha256'] == review['source_freeze']['sha256'] and
+            source['post_execution_history_receipt_sha256'] == review['history_receipt']['sha256'] and
+            source['independent_execution_review_sha256'] == review['source_full_review_sha256'], 'original native review provenance differs')
+    require(full.get('category') == 'independent-real-display-case-review' and full.get('all_frozen_sources_unchanged') is True and
+            full['source_freeze_sha256'] == review['source_freeze']['sha256'] and full['source_count'] == len(plan['freeze']) and
+            full['display_manifest_sha256'] == plan['freeze'][MANIFEST] and full['history_supplement_sha256'] == review['history_receipt']['sha256'],
+            'original execution review provenance differs')
+    return {'native': exact_cases(source['cases'], reports, 'original native review'),
+            'full': exact_cases(full['cases'], reports, 'original execution review'),
+            'supplement': exact_cases(review['cases'], reports, 'visual supplement')}
+
+
+def review_case(review, report, report_path, frame_sha, sources=None):
+    require(sources is not None, 'original visual review source pins must be validated first')
+    matches = [row for row in review.get('cases', []) if (row.get('device_id'), row.get('unit_id')) ==
+               (report['device_id'], report['unit_id'])]
+    require(len(matches) == 1, 'review case absent or duplicate')
+    row = matches[0]
+    original, full = sources['native'][report['unit_id']], sources['full'][report['unit_id']]
+    require(row['source_review'] == review['source_review'] and row['source_review_sha256'] == review['source_review_sha256'] and
+            row['source_full_review_sha256'] == review['source_full_review_sha256'], 'per-case visual source pins differ')
+    for key in ('device_id', 'unit_id', 'session_id', 'firmware_sha256', 'report_sha256', 'native_frame_sha256',
+                'scope', 'native_readability', 'actual_font_and_layout', 'captured_final_serial'):
+        require(row.get(key) == original.get(key), 'visual adapter changed original observation: ' + key)
+    require(row['actual_font_and_layout'] == full['actual_font_and_layout'] == report['host_observations']['strict_display_contract'] and
+            row['captured_final_serial'] == full['native_final_state'], 'visual adapter differs from execution font/final state')
+    for name in ('session_id', 'firmware_sha256'):
+        require(row.get(name) == report[name], 'review identity differs: ' + name)
+    require(row.get('report_sha256') == sha(read_regular_bytes(report_path)), 'review report hash differs')
+    require(row.get('native_frame_sha256') == frame_sha, 'review final-frame hash differs')
+    require(row.get('scope') == NATIVE_SCOPE, 'native review must be final-frame-only')
+    require(row.get('native_readability') in {'PASS', 'PARTIAL', 'NOT VERIFIED'}, 'native readability absent')
+    require(row.get('browser_framing') in {'PASS', 'PARTIAL', 'NOT VERIFIED'}, 'browser framing absent')
+    require(row.get('browser_framing_scope') == 'actual-before-evidence-session-card-screenshot-only' and
+            row.get('browser_phase') == 'before-evidence', 'browser review scope differs')
+    browser_path = under_root(row['browser_screenshot_path'])
+    browser_relative = browser_path.relative_to(report_path.parent).as_posix()
+    require(report['artifact_sha256'].get(browser_relative) == row['browser_screenshot_sha256'] == sha(read_regular_bytes(browser_path)) and
+            full['strict_browser']['screenshot_sha256'].get(browser_relative) == row['browser_screenshot_sha256'], 'visual browser screenshot differs')
+    require(under_root(row['native_frame_path']) == report_path.parent / 'controller' / report['unit_id'] / 'frame.png', 'visual native path differs')
+    require(row.get('observed_final_lines_scope') == NATIVE_SCOPE, 'transcribed lines scope differs')
+    require(isinstance(row.get('browser_framing_observations'), list) and
+            (row['browser_framing'] != 'PASS' or bool(row['browser_framing_observations'])), 'browser PASS lacks actual observations')
+    require(isinstance(row.get('observed_final_lines'), list) and all(isinstance(x, str) and x for x in row['observed_final_lines']), 'actual reviewed final lines absent')
+    if row['native_readability'] == 'PASS':
+        require(bool(row['observed_final_lines']), 'readable PASS needs observed final lines')
+    return row
+
+
+def validate_history(raw, report):
+    for field in ('device_id', 'runtime', 'session_id', 'firmware_sha256'):
+        require(raw.get(field) == report[field], 'actual history identity differs: ' + field)
+    require(raw.get('state') == 'stopped' and raw.get('flash_retained') is False, 'actual stopped/Flash-release history required')
+
+
+def validate_batch_inputs(host, batch, plan, review_path, completion_path, review_digest=None, completion_digest=None):
+    require(review_path is not None, 'actual visual supplement is required')
+    require(review_digest is not None and sha(read_regular_bytes(review_path)) == review_digest, 'visual supplement differs from trusted selection SHA')
+    require(completion_path is not None and completion_digest is not None and sha(read_regular_bytes(completion_path)) == completion_digest,
+            'root completion differs from trusted selection SHA')
+    reports = read_json(batch / 'summary.json')
+    require(isinstance(reports, list), 'summary is not a list')
+    history_receipt(batch, reports)
+    completion_receipt(completion_path, host, batch, reports, plan)
+    review = read_json(review_path)
+    sources = review_sources(review, host, batch, reports, plan)
+    spec = importlib.util.spec_from_file_location('display_archive_input_checker', ROOT / 'tests/units/check_batch_evidence.py')
+    checker_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker_module)
+    checker = checker_module.Checker(ROOT, strict_direct=True)
+    for report in reports:
+        unit = report['unit_id']
+        origin = batch / host / unit
+        report_path = origin / 'report.json'
+        require(read_json(report_path) == report and report.get('source_sha256') == plan['freeze'], 'summary/report/source disagree')
+        require(report.get('checks') and all(value is True for value in report['checks'].values()) and
+                not report.get('host_errors') and not report.get('cleanup_errors'), 'failed outer assertion')
+        for name, digest in report['artifact_sha256'].items():
+            path = origin / relative(name)
+            require(path.is_file() and not path.is_symlink() and sha(read_regular_bytes(path)) == digest, 'artifact bytes differ: ' + name)
+            inspect(read_regular_bytes(path), name)
+        frame_sha = report['artifact_sha256']['controller/' + unit + '/frame.png']
+        require(report['artifact_sha256']['history-frame.png'] == frame_sha, 'native/history frame differs')
+        review_case(review, report, report_path, frame_sha, sources)
+        controller = read_json(origin / relative(report['controller_result']))
+        serial = read_regular_bytes(origin / 'controller' / unit / 'serial.txt').decode('utf-8')
+        font_runtime(report, controller, serial, plan)
+        manifest, _ = checker.zip_manifest(origin / report['evidence'], report, unit)
+        checker.direct_record(report['runtime_provenance'], manifest['session'], unit, EXPECTED_RUNTIME)
+        artifacts = checker.artifacts(report, {}, report_path)
+        checker.controller_detail(report, report_path, artifacts)
+        checker.browser_detail(report, report_path, artifacts, manifest)
+    return {'reports': reports, 'review': review, 'review_sources': sources}
+
+
+def archive_batch(target, host, batch, plan, review_path, completion_path, review_digest, completion_digest):
+    batch_out = target / 'batches' / host
+    reports = read_json(batch / 'summary.json')
+    require(isinstance(reports, list) and len({row['unit_id'] for row in reports}) == len(reports), 'summary is missing/duplicate')
+    require(all(row['device_id'] == host and row['unit_id'] in UNITS for row in reports), 'wrong batch host or Unit')
+    require(len(reports) <= 5, 'batch has too many cases')
+    review = read_json(review_path) if review_path else {'cases': []}
+    review_binding = review_sources(review, host, batch, reports, plan)
+    if review_path:
+        copy(batch_out, review_path, 'post-execution-review/native-review.json', review_digest)
+        source_index = {}
+        for key, filename in (('source_review', 'original-native-review.json'), ('source_full_review', 'original-execution-review.json')):
+            source = under_root(review[key])
+            archived = copy(batch_out, source, 'post-execution-review/' + filename, review[key + '_sha256'])
+            source_index[key] = {'original': pin(source), 'archived': pin(archived)}
+        native_source = under_root(review['source_review'])
+        source_index['native_review_images'] = []
+        for unit, observed in review_binding['native'].items():
+            image = native_source.parent / relative(observed['review_image'])
+            archived = copy(batch_out, image, 'post-execution-review/' + observed['review_image'], observed['native_frame_sha256'])
+            source_index['native_review_images'].append({'original': pin(image), 'archived': pin(archived)})
+        completion = copy(batch_out, completion_path, 'post-execution-review/root-completion.json', completion_digest)
+        source_index['completion'] = {'original': pin(completion_path), 'archived': pin(completion),
+            'scope': 'root-observed-tool-result only; no new wrapper or kernel observation'}
+        tool = read_json(completion_path)['tool_result_reference']
+        if 'raw_result' in tool:
+            raw_result = under_root(tool['raw_result']['path'])
+            archived = copy(batch_out, raw_result, 'post-execution-review/root-observed-tool-result.json', tool['raw_result']['sha256'])
+            source_index['root_observed_raw_result'] = {'original': pin(raw_result), 'archived': pin(archived)}
+        write_json(batch_out, 'post-execution-review/review-source-index.json', source_index)
+    for name in ('summary.json', 'source-before.json', 'preparation-continuity.json', 'prepared-readiness.json', 'execution-toolchain-before.json'):
+        copy(batch_out, batch / name, name)
+    for name, row in plan['sources'].items():
+        if row['storage'] == 'verbatim-text-snapshot':
+            write_bytes(batch_out, row['path'], frozen_bytes(batch, name, row['sha256']), immutable=True)
+    write_json(batch_out, 'source-reconstruction.json', {
+        'schema_version': 1, 'source_freeze_sha256': sha(read_regular_bytes(batch_out / 'source-before.json')),
+        'entries': plan['sources'], 'execution_source_count': len(plan['freeze']),
+        'preparation_source_count': 105, 'official_font_source_count': 23,
+        'snapshot_count': sum(row['storage'] == 'verbatim-text-snapshot' for row in plan['sources'].values()),
+        'baseline_reference_count': sum(row['storage'] == 'baseline-git-reference' for row in plan['sources'].values()),
+    })
+    history_dir = batch / 'post-execution-history'
+    if history_dir.is_dir():
+        for path in sorted(history_dir.glob('*.json')):
+            copy(batch_out, path, 'post-execution-history/' + path.name)
+    selected, metadata, statuses = {}, {}, []
+    for report in reports:
+        unit = report['unit_id']
+        origin = batch / host / unit
+        out_name = host + '/' + unit
+        report_path = copy(batch_out, origin / 'report.json', out_name + '/report.json')
+        require(read_json(report_path) == report, 'summary/report disagree')
+        require(report.get('source_sha256') == plan['freeze'], 'report freeze differs')
+        for name, digest in report.get('artifact_sha256', {}).items():
+            copy(batch_out, origin / relative(name), out_name + '/' + name, digest)
+        status = {'unit_id': unit, 'functional_status': report.get('status', 'NOT RUN'), 'report': label(report_path), 'native_readability': 'NOT VERIFIED'}
+        statuses.append(status)
+        if report.get('controller_result'):
+            controller_path = origin / relative(report['controller_result'])
+            controller = read_json(controller_path)
+            for name, digest in controller.get('probe_sha256', {}).items():
+                copy(batch_out, origin / 'controller' / unit / 'files' / relative(name), out_name + '/probe-sources/' + name + '.txt', digest)
+        if report.get('status') != 'PASS':
+            # A failed report remains visible but cannot enter PASS selection.
+            continue
+        require(report.get('checks') and all(value is True for value in report['checks'].values()) and
+                not report.get('host_errors') and not report.get('cleanup_errors'), 'failed outer assertion')
+        require(review_path is not None, 'PASS case requires actual independent native review')
+        history_path = batch_out / 'post-execution-history' / (unit + '.json')
+        validate_history(read_json(history_path), report)
+        frame_name = 'controller/' + unit + '/frame.png'
+        frame_sha = report['artifact_sha256'][frame_name]
+        require(report['artifact_sha256']['history-frame.png'] == frame_sha, 'native/history frame differs')
+        reviewed = review_case(review, report, origin / 'report.json', frame_sha, review_binding)
+        status['native_readability'] = reviewed['native_readability']
+        serial = read_regular_bytes(batch_out / out_name / 'controller' / unit / 'serial.txt').decode('utf-8')
+        font_runtime(report, controller, serial, plan)
+        prepared = [row for row in plan['readiness']['cases'] if (row['device_id'], row['unit_id']) == (host, unit)]
+        require(len(prepared) == 1, 'preparation case absent or duplicate')
+        prepared = prepared[0]
+        receipt_name = out_name + '/normalization-receipt.json'
+        receipt_path = write_json(batch_out, receipt_name, {
+            'schema_version': 1, 'evidence_contract': CONTRACT, 'scope': 'controller-and-browser-functionality',
+            'native_readability': reviewed['native_readability'], 'native_readability_scope': NATIVE_SCOPE,
+            'report': label(report_path), 'report_sha256': sha(read_regular_bytes(report_path)),
+            'source_freeze': pin(batch_out / 'source-before.json'), 'source_snapshot_root': label(batch_out / 'source-snapshot'),
+            'source_reconstruction': pin(batch_out / 'source-reconstruction.json'),
+            'preparation_readiness': pin(batch_out / 'prepared-readiness.json'), 'history_snapshot': pin(history_path),
+            'preparation_only_fields': {name: prepared[name] for name in ('guest_execution', 'web_execution', 'admission')},
+            'preparation_fields_origin': {'path': label(batch_out / 'prepared-readiness.json'), 'case_selector': {'device_id': host, 'unit_id': unit},
+                'meaning': 'Historical offline preparation fields retained verbatim; actual execution authority is the unchanged same-session artifacts.'},
+            'native_review': pin(batch_out / 'post-execution-review/native-review.json'),
+            'observed_final_lines': reviewed['observed_final_lines'],
+            'native_review_limit': 'Only this actual captured final frame was reviewed. Intermediate states, every numeric extreme and physical display behavior are not inferred.',
+        })
+        layer = {'report': label(report_path), 'report_sha256': sha(read_regular_bytes(report_path)),
+                 'evidence': label(report_path.parent / report['evidence']), 'expected_firmware_flavor': report['firmware_flavor'],
+                 'runtime_proof': {'kind': 'direct-pid', 'path': label(report_path), 'report_pointer': '/runtime_provenance'}}
+        selected[unit] = {'unit_id': unit, 'guest_controller': layer, 'live_browser': dict(layer), 'bridge_contract': None,
+                          'reason': 'Selected from this separate host batch. Native readability covers its reviewed actual final frame only.'}
+        metadata[unit] = {host: {
+            **{name: report[name] for name in ('status', 'device_id', 'runtime', 'session_id', 'firmware_sha256', 'firmware_flavor', 'evidence_sha256')},
+            'validation': 'virtual-device validation', 'evidence_contract': CONTRACT, 'scope': 'controller-and-browser-functionality',
+            'report': label(report_path), 'report_sha256': sha(read_regular_bytes(report_path)),
+            'runtime_binary_sha256': report['runtime_provenance']['runtime_binary_sha256'], 'runtime_proof_kind': 'direct-pid',
+            'worker_generation': report['runtime_provenance']['worker_generation'],
+            'guest_controller': 'PASS', 'live_browser': 'PASS', 'native_frame': 'PASS',
+            'browser_framing': reviewed['browser_framing'], 'native_readability': reviewed['native_readability'], 'native_readability_scope': NATIVE_SCOPE,
+            'native_review': label(batch_out / 'post-execution-review/native-review.json'),
+            'native_review_sha256': sha(read_regular_bytes(batch_out / 'post-execution-review/native-review.json')),
+            'normalization_receipt': label(receipt_path), 'normalization_receipt_sha256': sha(read_regular_bytes(receipt_path)), 'hardware': 'NOT RUN',
+        }}
+    catalog = read_json(ROOT / 'platform/units/catalog.json')
+    report_map = {row['unit_id']: row for row in reports}
+    expected_sha = EXPECTED_RUNTIME
+    require(all(row['runtime_provenance']['runtime_binary_sha256'] == expected_sha for row in reports if row.get('status') == 'PASS'), 'selected runtime differs from expected a8fe cohort')
+    selection = {'schema_version': 1, 'device_id': host, 'runtime': 'qemu', 'expected_runtime_binary_sha256': expected_sha,
+                 'required_layers': ['guest_controller', 'live_browser'], 'cases': []}
+    for row in catalog['units']:
+        unit = row['id']
+        reason = 'NOT RUN in this host batch; no other host or old firmware result is inherited.'
+        if unit in report_map and report_map[unit].get('status') != 'PASS':
+            reason = 'Unchanged raw execution report is ' + str(report_map[unit].get('status')) + '; retained in batch records and excluded from PASS selection.'
+        selection['cases'].append(selected.get(unit, {'unit_id': unit, 'guest_controller': None, 'live_browser': None, 'bridge_contract': None, 'reason': reason}))
+    selection_path = write_json(batch_out, 'selection.json', selection)
+    for value in metadata.values():
+        value[host].update(batch_selection=label(selection_path), batch_selection_sha256=sha(read_regular_bytes(selection_path)),
+                           strict_selected_aggregate=label(batch_out / 'strict-selected-aggregate.json'))
+    missing = [unit for unit in UNITS if unit not in report_map]
+    return {'host': host, 'source': label(batch), 'output': label(batch_out), 'cases': statuses,
+            'not_run_controls': missing, 'selection': label(selection_path), 'selected_functional_cases': len(selected),
+            'source_freeze': pin(batch_out / 'source-before.json'), 'execution_sources': len(plan['freeze']),
+            'metadata': metadata, 'selection_value': selection, 'batch_output': batch_out}
+
+
+def verify_contracts(rows):
+    # The legacy host-probe-dual-observer-v1 path is untouched. This validates
+    # only new explicit metadata envelopes against already archived artifacts.
+    spec = importlib.util.spec_from_file_location('display_archive_checker', ROOT / 'tests/units/check_batch_evidence.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sys.path.insert(0, str(ROOT / 'platform/tests'))
+    try:
+        spec = importlib.util.spec_from_file_location('display_archive_runtime_test', ROOT / 'platform/tests/test_unit_runtime.py')
+        runtime = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runtime)
+        metadata = {}
+        with ExitStack() as guards:
+            def no_external(*args, **kwargs):
+                raise ValueError('unexpected API/socket/child process during offline artifact contract verification')
+            for owner, name in ((urllib.request, 'urlopen'), (socket.socket, 'connect'), (socket, 'create_connection'), (subprocess, 'Popen')):
+                guards.enter_context(patch.object(owner, name, side_effect=no_external))
+            for row in rows:
+                if row['selected_functional_cases']:
+                    checker = module.Checker(ROOT, strict_direct=True)
+                    aggregate = checker.check(row['selection_value'], catalog='platform/units/catalog.json')
+                    aggregate['selection_sha256'] = sha(read_regular_bytes(row['batch_output'] / 'selection.json'))
+                    require(not aggregate['errors'] and aggregate['status'] == 'PARTIAL', 'strict selection artifact verification failed')
+                    for case in aggregate['cases']:
+                        expected = 'PASS' if case['unit_id'] in row['metadata'] else 'NOT RUN'
+                        require(all(case[layer]['status'] == expected for layer in ('guest_controller', 'live_browser')), 'selected layer does not match exact PASS subset')
+                    write_json(row['batch_output'], 'strict-selected-aggregate.json', aggregate)
+                for unit, hosts in row['metadata'].items():
+                    metadata.setdefault(unit, {}).update(hosts)
+            if metadata:
+                test = runtime.UnitRuntimeContractTests()
+                test.setUp()
+                test.registry.profiles = {unit: {'hosts': list(hosts), 'host_validation': hosts} for unit, hosts in metadata.items()}
+                test.test_host_pass_metadata_binds_exact_device_firmware_and_direct_runtime_evidence()
+        return metadata
+    finally:
+        sys.path.pop(0)
+
+
+def archive_tree(args, batches, reviews, plans, completions, review_digests, completion_digests):
+    target = under_root(args.target)
+    output_ancestors(target)
+    require(not target.exists(), 'output already exists; use a fresh archive path rather than overwriting evidence')
+    # Check completion prerequisites before creating any public output.
+    for host, batch in batches.items():
+        require((batch / 'summary.json').is_file(), 'batch completion summary is absent: ' + host)
+        reports = read_json(batch / 'summary.json')
+        require(isinstance(reports, list) and reports, 'empty batch summary: ' + host)
+        for report in reports:
+            if report.get('status') == 'PASS':
+                require(host in reviews and (batch / 'post-execution-history' / (report['unit_id'] + '.json')).is_file(), 'actual review/history input is absent: ' + host)
+                validate_history(read_json(batch / 'post-execution-history' / (report['unit_id'] + '.json')), report)
+    rows = [archive_batch(target, host, batch, plans[host], reviews.get(host), completions.get(host),
+                          review_digests[host], completion_digests[host]) for host, batch in batches.items()]
+    metadata = verify_contracts(rows)
+    public_rows = [{key: value for key, value in row.items() if key not in {'metadata', 'selection_value', 'batch_output'}} for row in rows]
+    host_status = {host: next((row for row in public_rows if row['host'] == host), {'host': host, 'status': 'NOT RUN', 'reason': 'No completed independent batch was supplied.'}) for host in HOSTS}
+    write_json(target, 'host-validation-candidate.json', {'schema_version': 1, 'status': 'CANDIDATE_METADATA_NOT_APPLIED',
+        'scope': 'Exact selected host/Unit/firmware functional paths only. Root owns final metadata integration.', 'host_validation': metadata})
+    write_json(target, 'batch-selection.json', {'schema_version': 1, 'execution_model': 'three-separate-host-batches-not-one-15-case-run',
+        'expected_hosts': list(HOSTS), 'expected_controls_per_host': list(UNITS), 'hosts': host_status,
+        'native_readability_scope': NATIVE_SCOPE, 'hardware_execution': 'NOT RUN'})
+    script_path = copy(target, Path(__file__), 'post-execution-tooling/archive-script.py.txt')
+    history_collector = ROOT / '.work/capture_unit_control_history_20261026.py'
+    history_collector_pin = None
+    if history_collector.is_file():
+        history_collector_pin = pin(copy(target, history_collector, 'post-execution-tooling/history-collector.py.txt'))
+    write_json(target, 'archive-provenance.json', {
+        'schema_version': 1, 'category': 'post-execution-display-control-evidence-archive',
+        'execution_model': 'Independent host batches, each preserving its own summary and source freeze. No single-round-15 claim.',
+        'unchanged_raw': ['outer and controller reports', 'source-before maps', 'browser records', 'ZIP/native/history artifacts', 'preparation records'],
+        'source_storage': 'Every frozen source is either a verbatim text snapshot or an exact baseline commit/path/blob/SHA reference. Sensitive baseline source bodies are not republished; actual artifacts have zero scanning exceptions.',
+        'preparation_and_fonts': 'Each supplied batch must cover 105 preparation dependencies and 23 official font sources, including actual display wrapper and reviewed manifest. Seventeen named probes plus shared rtc_probe.py yield eighteen packaged Python files.',
+        'preparation_origin': 'Historical preparation-time NOT RUN/BLOCKED fields remain unchanged; normalization receipts label origins rather than rewriting them.',
+        'native_readability_scope': NATIVE_SCOPE,
+        'visual_limit': 'Actual final frame only. Intermediate states, all numeric extrema, every glyph and physical hardware are not inferred from source arithmetic or functional PASS.',
+        'excluded': ['full-flash images', 'ROM/ELF', 'bytecode', 'native runtime/toolchain binaries'],
+        'hardware_execution': 'NOT RUN', 'external_work_log': 'NOT ARCHIVED', 'archive_script': pin(script_path),
+        'history_collector': history_collector_pin,
+        'api_contacted': False, 'sessions_started': 0, 'product_metadata_modified': False,
+    })
+    readme = '''# Display-control evidence from separate host batches
+
+This archive selects actual Device Service control/browser executions separately
+for AtomS3R, StickS3 and StopWatch. It is **not one continuous 15-case run**.
+`batch-selection.json` records supplied batches and missing hosts. The reviewed
+successful-batch gate requires five PASS reports, an actual root-observed exit-0
+tool-result receipt and real post-execution history for every supplied host.
+Incomplete or failed inputs remain internal. Each host retains its own original
+summary, source freeze and exact 27-Unit canonical selection; the other Units
+remain NOT RUN in that selection.
+
+The new explicit `device-service-control-web-v1` contract binds unchanged real
+controller assertions, product POST/readbacks, serial, direct PID/firmware/worker,
+ZIP/frame and actual stopped history with literal `flash_retained=false`.
+It does not relax the separate legacy dual-observer contract. Per-case receipts
+preserve and explain preparation-time NOT RUN/BLOCKED fields.
+
+Native readability refers only to each independently reviewed **actual final
+captured frame**, with its exact hash and observed final lines. Neither intermediate
+states nor every numeric extreme is visually validated by that classification.
+The 23 authoritative font sources and runtime font/layout markers are separate
+evidence layers; source arithmetic cannot grant visual PASS. Physical hardware
+execution is NOT RUN. Other firmware hashes, hosts and controls inherit nothing.
+The selected visual supplement pins its original native and execution reviews;
+font/layout and captured serial fields are inherited exactly. Separate manually
+observed native text and before-evidence browser framing retain their own scope.
+Trusted command-line visual/completion SHA selections prevent mutated envelopes
+from authorizing themselves by recalculating their internal hashes. Completion
+is root's actual tool-result observation, not a new wrapper or kernel observation.
+
+Each source reconstruction index binds all actual execution dependencies,
+including the reviewed wrapper/manifest, all 105 preparation dependencies and
+23 font evidence sources. There are 17 named probe Python files and an eighteenth
+shared rtc_probe.py in the prepared VFS. Exact baseline commit/path/blob/SHA
+references replace unchanged sensitive source bodies and reused image assets;
+all other text sources are snapshotted. Baseline Git objects are needed for those
+references. This archive excludes firmware, ROM, ELF and native libraries and is
+not a self-contained runnable firmware distribution.
+
+`host-validation-candidate.json` changes no runtime profile. Post-execution
+review and archive tooling remain outside the runtime freeze. `archive-verification.json`
+records source reconstruction, raw identity, PNG decoding, ZIP CRC and zero-exemption
+content scanning. `SHA256SUMS` covers every public file except itself. External
+agent-work-logs status remains NOT ARCHIVED until root supplies a verified archive.
+All inputs are validated before private .work staging. The staged contracts are
+verified before promotion, generated path envelopes are relocated, and final
+paths are rechecked. A failed final check moves this newly created tree back to
+private staging. Raw artifacts and source bodies are never rewritten.
+'''
+    write_bytes(target, 'README.md', readme.encode())
+    images, zip_members, file_count = [], 0, 0
+    for path in sorted(target.rglob('*')):
+        if path.is_file():
+            require(not path.is_symlink(), 'public symlink')
+            observed = inspect(read_regular_bytes(path), str(path.relative_to(target)))
+            images += observed['images']
+            zip_members += observed['zip_members']
+            file_count += 1
+    write_json(target, 'archive-verification.json', {'schema_version': 1, 'status': 'PUBLIC_INPUT_VERIFICATION_PASS',
+        'api_contacted': False, 'sessions_started': 0, 'completed_host_batches': list(batches),
+        'functional_selected_case_count': sum(len(hosts) for hosts in metadata.values()),
+        'native_readability_scope': NATIVE_SCOPE, 'content_pattern_exemptions': [],
+        'checked_files_before_verification_receipt': file_count, 'images': images, 'zip_members': zip_members,
+        'source_reconstruction_count_by_host': {host: len(plan['freeze']) for host, plan in plans.items()},
+        'offline_metadata_contract': 'PASS for exact selected subset; no network/socket/child process permitted during contract verification',
+        'hardware_execution': 'NOT RUN', 'external_work_log': 'NOT ARCHIVED'})
+    entries = [(str(path.relative_to(target)), sha(read_regular_bytes(path))) for path in sorted(target.rglob('*')) if path.is_file()]
+    manifest = ''.join(digest + '  ' + name + '\n' for name, digest in entries)
+    write_bytes(target, 'SHA256SUMS', manifest.encode())
+    print(json.dumps({'status': 'ARCHIVED_EXACT_RECORDED_SUBSET', 'path': label(target), 'manifest_entries': len(entries),
+                      'manifest_sha256': sha(manifest.encode()), 'completed_host_batches': list(batches), 'native_readability_scope': NATIVE_SCOPE}))
+    return rows
+
+
+def relocate_generated_references(staging, target):
+    old, new = label(staging), label(target)
+    generated = [staging / name for name in ('batch-selection.json', 'host-validation-candidate.json',
+                 'archive-provenance.json', 'archive-verification.json')]
+    for host in HOSTS:
+        batch = staging / 'batches' / host
+        generated += [batch / name for name in ('selection.json', 'source-reconstruction.json',
+                      'strict-selected-aggregate.json', 'post-execution-review/review-source-index.json')]
+        generated += [batch / host / unit / 'normalization-receipt.json' for unit in UNITS]
+    def relocate(value):
+        if isinstance(value, str):
+            return new + value[len(old):] if value == old or value.startswith(old + '/') else value
+        if isinstance(value, list):
+            return [relocate(item) for item in value]
+        if isinstance(value, dict):
+            return {relocate(key): relocate(item) for key, item in value.items()}
+        return value
+    for path in generated:
+        if path.is_file():
+            write_json(staging, path.relative_to(staging).as_posix(), relocate(read_json(path)))
+    metadata_path = staging / 'host-validation-candidate.json'
+    metadata = read_json(metadata_path)
+    for unit, hosts in metadata['host_validation'].items():
+        for host, entry in hosts.items():
+            selection = staging / 'batches' / host / 'selection.json'
+            entry['batch_selection_sha256'] = sha(read_regular_bytes(selection))
+            receipt = staging / under_root(entry['normalization_receipt']).relative_to(target)
+            entry['normalization_receipt_sha256'] = sha(read_regular_bytes(receipt))
+            aggregate_path = staging / 'batches' / host / 'strict-selected-aggregate.json'
+            aggregate = read_json(aggregate_path)
+            aggregate['selection_sha256'] = entry['batch_selection_sha256']
+            write_json(staging, aggregate_path.relative_to(staging).as_posix(), aggregate)
+    write_json(staging, 'host-validation-candidate.json', metadata)
+    return metadata['host_validation']
+
+
+def finalize_manifest(target):
+    entries = []
+    for path in sorted(target.rglob('*')):
+        if path.is_file() and path != target / 'SHA256SUMS':
+            require(not path.is_symlink(), 'public symlink')
+            inspect(read_regular_bytes(path), path.relative_to(target).as_posix())
+            entries.append((path.relative_to(target).as_posix(), sha(read_regular_bytes(path))))
+    raw = ''.join(digest + '  ' + name + '\n' for name, digest in entries).encode()
+    write_bytes(target, 'SHA256SUMS', raw)
+    return len(entries), sha(raw)
+
+
+def output_ancestors(target):
+    """Reject existing output aliases before mkdir/promotion; no concurrent-writer claim."""
+    require(target.is_relative_to(ROOT) and target != ROOT, 'output escapes repository')
+    current = ROOT
+    require(stat.S_ISDIR(current.lstat().st_mode), 'output root is not a directory')
+    for component in target.relative_to(ROOT).parts[:-1]:
+        current = current / component
+        try:
+            mode = current.lstat().st_mode
+        except FileNotFoundError:
+            continue
+        require(stat.S_ISDIR(mode), 'output ancestor is not a real directory')
+    require(not target.is_symlink(), 'output target is a symlink')
+
+
+def archive(args, batches, reviews, plans, completions, review_digests, completion_digests):
+    target = under_root(args.target)
+    output_ancestors(target)
+    require(not target.exists(), 'output already exists; use a fresh archive path')
+    require(set(completions) == set(batches), 'each supplied batch needs its actual root completion receipt')
+    require(set(review_digests) == set(batches) and set(completion_digests) == set(batches), 'trusted visual/completion selection SHAs are required for every host')
+    # Fully validate the original input graph before even private staging.
+    for host, batch in batches.items():
+        validate_batch_inputs(host, batch, plans[host], reviews.get(host), completions[host], review_digests[host], completion_digests[host])
+    # All output construction, scanning and the first contract pass use .work.
+    # Only generated path envelopes are relocated; raw artifacts stay byte exact.
+    output_ancestors(ROOT / '.work' / 'archive-staging-placeholder')
+    stage_parent = Path(tempfile.mkdtemp(prefix='unit-control-display-archive-stage-', dir=ROOT / '.work'))
+    staging = stage_parent / 'archive'
+    phase, promoted = 'private-tree-build', False
+    try:
+        stage_args = argparse.Namespace(**vars(args))
+        stage_args.target = label(staging)
+        with redirect_stdout(io.StringIO()):
+            rows = archive_tree(stage_args, batches, reviews, plans, completions, review_digests, completion_digests)
+        metadata = relocate_generated_references(staging, target)
+        finalize_manifest(staging)
+        phase = 'promotion'
+        output_ancestors(target)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        output_ancestors(target)
+        require(not target.exists(), 'publication target appeared during staging')
+        staging.rename(target)
+        promoted, phase = True, 'final-path-validation'
+        for row in rows:
+            row['batch_output'] = target / 'batches' / row['host']
+            row['selection_value'] = read_json(row['batch_output'] / 'selection.json')
+            row['metadata'] = {unit: {row['host']: hosts[row['host']]} for unit, hosts in metadata.items() if row['host'] in hosts}
+        verify_contracts(rows)
+        count, digest = finalize_manifest(target)
+    except BaseException as error:
+        if promoted:
+            target.rename(staging)
+        message = str(error).replace(str(ROOT), '<workspace>')
+        try:
+            scan(message.encode('utf-8'), 'private failure message')
+        except ValueError:
+            message = 'Failure text is represented by SHA256 because it matches redaction rules.'
+        failure = {'schema_version': 1, 'status': 'ARCHIVE_NOT_PUBLISHED', 'phase': phase,
+            'scope': 'Post-execution private diagnostic only; no new runtime or API observation',
+            'archive_script_sha256': sha(read_regular_bytes(Path(__file__))),
+            'target': label(target), 'target_absent_after_rollback': not target.exists(),
+            'private_tree': label(staging), 'private_tree_retained': staging.is_dir(),
+            'error_type': type(error).__name__, 'error': message, 'error_sha256': sha(str(error).encode('utf-8')),
+            'trusted_reviews': {host: {'path': label(reviews[host]), 'sha256': review_digests[host]} for host in batches},
+            'trusted_completion': {host: {'path': label(completions[host]), 'sha256': completion_digests[host]} for host in batches},
+            'source_freezes': {host: pin(batch / 'source-before.json') for host, batch in batches.items()},
+            'api_contacted': False, 'sessions_started': 0}
+        receipt = write_json(stage_parent, 'failure-receipt.json', failure)
+        if isinstance(error, Exception):
+            raise ValueError('archive failed; retained private diagnostic: ' + label(receipt)) from error
+        raise
+    else:
+        # The owned parent is empty after successful promotion. Never delete a
+        # failed tree or user files as part of successful cleanup.
+        stage_parent.rmdir()
+    print(json.dumps({'status': 'ARCHIVED_EXACT_RECORDED_SUBSET', 'path': label(target), 'manifest_entries': count,
+        'manifest_sha256': digest, 'completed_host_batches': list(batches), 'native_readability_scope': NATIVE_SCOPE,
+        'staging_and_final_path_contracts_verified': True}))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--batch', action='append', default=[], metavar='HOST=REPO_PATH')
+    parser.add_argument('--review', action='append', default=[], metavar='HOST=REPO_PATH', help='Pinned real post-execution native review JSON; required for selected PASS cases')
+    parser.add_argument('--completion', action='append', default=[], metavar='HOST=REPO_PATH', help='Actual root-observed completed tool-result receipt; required only for --archive')
+    parser.add_argument('--review-sha256', action='append', default=[], metavar='HOST=SHA256', help='Trusted independent-review selection digest; not inferred from mutable input')
+    parser.add_argument('--completion-sha256', action='append', default=[], metavar='HOST=SHA256', help='Trusted root completion selection digest; not inferred from mutable input')
+    parser.add_argument('--target', default='docs/evidence/2026-10-26-unit-control-display-gen9-a8fe')
+    parser.add_argument('--archive', action='store_true', help='Create a fresh public archive only after root confirms completion; default is read-only PLAN')
+    args = parser.parse_args()
+    batches = parse_mapping(args.batch, 'batch')
+    reviews = parse_mapping(args.review, 'review')
+    completions = parse_mapping(args.completion, 'completion')
+    review_digests = parse_digests(args.review_sha256, 'review')
+    completion_digests = parse_digests(args.completion_sha256, 'completion')
+    require(batches and set(reviews) <= set(batches) and set(completions) <= set(batches), 'provide host batches; reviews/completion receipts must correspond')
+    require(set(review_digests) <= set(batches) and set(completion_digests) <= set(batches), 'selection digest host differs from supplied batches')
+    plans = {host: source_plan(batch) for host, batch in batches.items()}
+    if not args.archive:
+        print(json.dumps({'status': 'OFFLINE_PLAN_ONLY', 'api_contacted': False, 'sessions_started': 0, 'public_output_created': False,
+            'archive_prerequisites': ['root completion signal', 'unchanged summary/report/artifact graph', 'actual post-execution history', 'actual final-frame hash-pinned independent review'],
+            'host_batches': {host: {'path': label(batches[host]), 'execution_sources': len(plan['freeze']), 'preparation_sources': 105,
+                'official_font_sources': 23, 'snapshot_count': sum(row['storage'] == 'verbatim-text-snapshot' for row in plan['sources'].values()),
+                'baseline_reference_count': sum(row['storage'] == 'baseline-git-reference' for row in plan['sources'].values()),
+                'completion_summary_present': (batches[host] / 'summary.json').is_file()} for host, plan in plans.items()},
+            'absent_hosts': [host for host in HOSTS if host not in batches], 'native_readability_scope': NATIVE_SCOPE}, indent=2))
+        return
+    archive(args, batches, reviews, plans, completions, review_digests, completion_digests)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (AssertionError, KeyError, OSError, ValueError, zipfile.BadZipFile) as error:
+        print(json.dumps({'status': 'ARCHIVE_NOT_COMPLETED', 'error': str(error), 'api_contacted': False, 'sessions_started': 0}), file=sys.stderr)
+        raise SystemExit(1)

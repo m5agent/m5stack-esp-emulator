@@ -1,0 +1,850 @@
+[
+  {
+    "path": "hw/arm/bcm2835_peripherals.c",
+    "manifest_sha256": "051ced19fb94f844aab09c5b3a2f96a293e091acfecc5c2c5ccea717157efbdc",
+    "replayed_sha256": "051ced19fb94f844aab09c5b3a2f96a293e091acfecc5c2c5ccea717157efbdc",
+    "cold_build_source_sha256": "051ced19fb94f844aab09c5b3a2f96a293e091acfecc5c2c5ccea717157efbdc",
+    "bytes": 21755,
+    "match": true
+  },
+  {
+    "path": "hw/block/m25p80.c",
+    "manifest_sha256": "431d369057fec8e140a9ab2449d6e4a14451ac9c94ad4cb5d852a0f62dce25df",
+    "replayed_sha256": "431d369057fec8e140a9ab2449d6e4a14451ac9c94ad4cb5d852a0f62dce25df",
+    "cold_build_source_sha256": "431d369057fec8e140a9ab2449d6e4a14451ac9c94ad4cb5d852a0f62dce25df",
+    "bytes": 59436,
+    "match": true
+  },
+  {
+    "path": "hw/char/esp32_uart.c",
+    "manifest_sha256": "0e080b48d4233669c82d7b4ce3cb0c9886269b91941f9d99b78e41fc1e641e52",
+    "replayed_sha256": "0e080b48d4233669c82d7b4ce3cb0c9886269b91941f9d99b78e41fc1e641e52",
+    "cold_build_source_sha256": "0e080b48d4233669c82d7b4ce3cb0c9886269b91941f9d99b78e41fc1e641e52",
+    "bytes": 13980,
+    "match": true
+  },
+  {
+    "path": "hw/dma/esp32s3_gdma.c",
+    "manifest_sha256": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
+    "replayed_sha256": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
+    "cold_build_source_sha256": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
+    "bytes": 7305,
+    "match": true
+  },
+  {
+    "path": "hw/dma/esp_gdma.c",
+    "manifest_sha256": "26804c29c4d1cbe2e0b3ff000a016fb4f4c79d495b4537b6ad7e58a6f9896a02",
+    "replayed_sha256": "26804c29c4d1cbe2e0b3ff000a016fb4f4c79d495b4537b6ad7e58a6f9896a02",
+    "cold_build_source_sha256": "26804c29c4d1cbe2e0b3ff000a016fb4f4c79d495b4537b6ad7e58a6f9896a02",
+    "bytes": 47791,
+    "match": true
+  },
+  {
+    "path": "hw/gpio/esp32_gpio.c",
+    "manifest_sha256": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+    "replayed_sha256": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+    "cold_build_source_sha256": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+    "bytes": 12724,
+    "match": true
+  },
+  {
+    "path": "hw/i2c/esp32_i2c.c",
+    "manifest_sha256": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
+    "replayed_sha256": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
+    "cold_build_source_sha256": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
+    "bytes": 9705,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/co5300.c",
+    "manifest_sha256": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
+    "replayed_sha256": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
+    "cold_build_source_sha256": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
+    "bytes": 11720,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_fe.c",
+    "manifest_sha256": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
+    "replayed_sha256": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
+    "cold_build_source_sha256": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
+    "bytes": 1949,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_gpspi.c",
+    "manifest_sha256": "f7bec7ae6aef9047bc7f103d8589ae79ac210d39c40606b7ccbc51053421e190",
+    "replayed_sha256": "f7bec7ae6aef9047bc7f103d8589ae79ac210d39c40606b7ccbc51053421e190",
+    "cold_build_source_sha256": "f7bec7ae6aef9047bc7f103d8589ae79ac210d39c40606b7ccbc51053421e190",
+    "bytes": 21854,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_i2c.c",
+    "manifest_sha256": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
+    "replayed_sha256": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
+    "cold_build_source_sha256": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
+    "bytes": 11746,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_phy.c",
+    "manifest_sha256": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
+    "replayed_sha256": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
+    "cold_build_source_sha256": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
+    "bytes": 3148,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_regi2c.c",
+    "manifest_sha256": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
+    "replayed_sha256": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
+    "cold_build_source_sha256": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
+    "bytes": 3071,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_sens.c",
+    "manifest_sha256": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+    "replayed_sha256": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+    "cold_build_source_sha256": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+    "bytes": 4062,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/esp32s3_soft_i2c.c",
+    "manifest_sha256": "245d6e1be47f22caf145961357b4b2ef90ef2b15e67f868b1ae31f377410e2d2",
+    "replayed_sha256": "245d6e1be47f22caf145961357b4b2ef90ef2b15e67f868b1ae31f377410e2d2",
+    "cold_build_source_sha256": "245d6e1be47f22caf145961357b4b2ef90ef2b15e67f868b1ae31f377410e2d2",
+    "bytes": 9436,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_bcm_spi_panel.c",
+    "manifest_sha256": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
+    "replayed_sha256": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
+    "cold_build_source_sha256": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
+    "bytes": 6077,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_board.c",
+    "manifest_sha256": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
+    "replayed_sha256": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
+    "cold_build_source_sha256": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
+    "bytes": 157,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_can_peer.c",
+    "manifest_sha256": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
+    "replayed_sha256": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
+    "cold_build_source_sha256": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
+    "bytes": 1488,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_cc1101_spi.c",
+    "manifest_sha256": "d43d4cb0d6a84da3229d204c37674db15d47fed07348dbd6209fb4d7b82040fe",
+    "replayed_sha256": "d43d4cb0d6a84da3229d204c37674db15d47fed07348dbd6209fb4d7b82040fe",
+    "cold_build_source_sha256": "d43d4cb0d6a84da3229d204c37674db15d47fed07348dbd6209fb4d7b82040fe",
+    "bytes": 6319,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_epd_panel.c",
+    "manifest_sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+    "replayed_sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+    "cold_build_source_sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+    "bytes": 9747,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_i2s.c",
+    "manifest_sha256": "bc3a77ebb3b3241a8c64565cd08a30ce5993904262644b0123d08fe39aa30a1c",
+    "replayed_sha256": "bc3a77ebb3b3241a8c64565cd08a30ce5993904262644b0123d08fe39aa30a1c",
+    "cold_build_source_sha256": "bc3a77ebb3b3241a8c64565cd08a30ce5993904262644b0123d08fe39aa30a1c",
+    "bytes": 12378,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_i2s_esp32.c",
+    "manifest_sha256": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
+    "replayed_sha256": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
+    "cold_build_source_sha256": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
+    "bytes": 15960,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_lcd_cam.c",
+    "manifest_sha256": "10df36505be2bf2c03615e7d952f968c0cdd040f8472d7549e038492f967ca9a",
+    "replayed_sha256": "10df36505be2bf2c03615e7d952f968c0cdd040f8472d7549e038492f967ca9a",
+    "cold_build_source_sha256": "10df36505be2bf2c03615e7d952f968c0cdd040f8472d7549e038492f967ca9a",
+    "bytes": 9680,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_max3421e.c",
+    "manifest_sha256": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
+    "replayed_sha256": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
+    "cold_build_source_sha256": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
+    "bytes": 15216,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_rmt.c",
+    "manifest_sha256": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
+    "replayed_sha256": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
+    "cold_build_source_sha256": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
+    "bytes": 15010,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_scs_servo.c",
+    "manifest_sha256": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
+    "replayed_sha256": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
+    "cold_build_source_sha256": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
+    "bytes": 5827,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_spi_panel.c",
+    "manifest_sha256": "f35ed66ff10660304a29090b28548f04d156f714a9bb50499489daffc2bd9d92",
+    "replayed_sha256": "f35ed66ff10660304a29090b28548f04d156f714a9bb50499489daffc2bd9d92",
+    "cold_build_source_sha256": "f35ed66ff10660304a29090b28548f04d156f714a9bb50499489daffc2bd9d92",
+    "bytes": 21481,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_spi_sd.c",
+    "manifest_sha256": "4daa85f2282a3868aede8ee033a6e66b543fd1acfddf273148bef763a05a685a",
+    "replayed_sha256": "4daa85f2282a3868aede8ee033a6e66b543fd1acfddf273148bef763a05a685a",
+    "cold_build_source_sha256": "4daa85f2282a3868aede8ee033a6e66b543fd1acfddf273148bef763a05a685a",
+    "bytes": 10324,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_st25r3916_spi.c",
+    "manifest_sha256": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
+    "replayed_sha256": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
+    "cold_build_source_sha256": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
+    "bytes": 7149,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_sx1262.c",
+    "manifest_sha256": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
+    "replayed_sha256": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
+    "cold_build_source_sha256": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
+    "bytes": 7440,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_uart_peer.c",
+    "manifest_sha256": "9370859a8d6d16e7493af844a5f4bea6d3d8394f99815a7293288b34003f1d00",
+    "replayed_sha256": "9370859a8d6d16e7493af844a5f4bea6d3d8394f99815a7293288b34003f1d00",
+    "cold_build_source_sha256": "9370859a8d6d16e7493af844a5f4bea6d3d8394f99815a7293288b34003f1d00",
+    "bytes": 752,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_unit_gpio.c",
+    "manifest_sha256": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d",
+    "replayed_sha256": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d",
+    "cold_build_source_sha256": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d",
+    "bytes": 15435,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_unit_i2c_controls.c",
+    "manifest_sha256": "140853bec82b08554930e7543df654fded78261a03ce7a9e4def63aef77010cb",
+    "replayed_sha256": "140853bec82b08554930e7543df654fded78261a03ce7a9e4def63aef77010cb",
+    "cold_build_source_sha256": "140853bec82b08554930e7543df654fded78261a03ce7a9e4def63aef77010cb",
+    "bytes": 31394,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_unit_i2c_sensors.c",
+    "manifest_sha256": "b3f5cff668ad1e2a31c43f9cd2c04fc2ded2b86c48189bb7376ea28671764c03",
+    "replayed_sha256": "b3f5cff668ad1e2a31c43f9cd2c04fc2ded2b86c48189bb7376ea28671764c03",
+    "cold_build_source_sha256": "b3f5cff668ad1e2a31c43f9cd2c04fc2ded2b86c48189bb7376ea28671764c03",
+    "bytes": 23424,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_unit_runtime.c",
+    "manifest_sha256": "d7a7f8e0316d212ca463f71889b5d21d3df0f081ecd50fd2f17636779b551cba",
+    "replayed_sha256": "d7a7f8e0316d212ca463f71889b5d21d3df0f081ecd50fd2f17636779b551cba",
+    "cold_build_source_sha256": "d7a7f8e0316d212ca463f71889b5d21d3df0f081ecd50fd2f17636779b551cba",
+    "bytes": 16475,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5_unit_runtime.h",
+    "manifest_sha256": "64020cd5a57ff6a3f8e1527fa6d41ca88861784ae7383cbf0ec5445f6690a890",
+    "replayed_sha256": "64020cd5a57ff6a3f8e1527fa6d41ca88861784ae7383cbf0ec5445f6690a890",
+    "cold_build_source_sha256": "64020cd5a57ff6a3f8e1527fa6d41ca88861784ae7383cbf0ec5445f6690a890",
+    "bytes": 1678,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5atoms3r.c",
+    "manifest_sha256": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
+    "replayed_sha256": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
+    "cold_build_source_sha256": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
+    "bytes": 3677,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5cardputeradv.c",
+    "manifest_sha256": "311a1b9fa9aaa4b4f51bbf6bd230026dc694faa420afa88e3592a13263f5f218",
+    "replayed_sha256": "311a1b9fa9aaa4b4f51bbf6bd230026dc694faa420afa88e3592a13263f5f218",
+    "cold_build_source_sha256": "311a1b9fa9aaa4b4f51bbf6bd230026dc694faa420afa88e3592a13263f5f218",
+    "bytes": 3959,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5core2.c",
+    "manifest_sha256": "5108435a308a0bc6d1faf9cb6a208a6184926598579598d8c138930e9904199c",
+    "replayed_sha256": "5108435a308a0bc6d1faf9cb6a208a6184926598579598d8c138930e9904199c",
+    "cold_build_source_sha256": "5108435a308a0bc6d1faf9cb6a208a6184926598579598d8c138930e9904199c",
+    "bytes": 3587,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5cores3.c",
+    "manifest_sha256": "ba26f35a14b5132452bda60d4af5d9ca32e3f43e56bb2f40fddb1e91c5d048bf",
+    "replayed_sha256": "ba26f35a14b5132452bda60d4af5d9ca32e3f43e56bb2f40fddb1e91c5d048bf",
+    "cold_build_source_sha256": "ba26f35a14b5132452bda60d4af5d9ca32e3f43e56bb2f40fddb1e91c5d048bf",
+    "bytes": 4779,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5papercolor.c",
+    "manifest_sha256": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
+    "replayed_sha256": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
+    "cold_build_source_sha256": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
+    "bytes": 3684,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5papermono.c",
+    "manifest_sha256": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
+    "replayed_sha256": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
+    "cold_build_source_sha256": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
+    "bytes": 3983,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5stackchan.c",
+    "manifest_sha256": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
+    "replayed_sha256": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
+    "cold_build_source_sha256": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
+    "bytes": 4266,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5stamplc.c",
+    "manifest_sha256": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
+    "replayed_sha256": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
+    "cold_build_source_sha256": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
+    "bytes": 3760,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5sticks3.c",
+    "manifest_sha256": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
+    "replayed_sha256": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
+    "cold_build_source_sha256": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
+    "bytes": 4641,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5stopwatch.h",
+    "manifest_sha256": "b2fbd36e0a246da3348b48bd7859a9e7958e11debce959130983b225e5d50a1e",
+    "replayed_sha256": "b2fbd36e0a246da3348b48bd7859a9e7958e11debce959130983b225e5d50a1e",
+    "cold_build_source_sha256": "b2fbd36e0a246da3348b48bd7859a9e7958e11debce959130983b225e5d50a1e",
+    "bytes": 7287,
+    "match": true
+  },
+  {
+    "path": "hw/m5stopwatch/m5sw_i2c_devs.c",
+    "manifest_sha256": "5cf77cb6bb788644c2330f8326337daa03b75a5712e00feb9c49c06552de73be",
+    "replayed_sha256": "5cf77cb6bb788644c2330f8326337daa03b75a5712e00feb9c49c06552de73be",
+    "cold_build_source_sha256": "5cf77cb6bb788644c2330f8326337daa03b75a5712e00feb9c49c06552de73be",
+    "bytes": 70295,
+    "match": true
+  },
+  {
+    "path": "hw/misc/bcm2835_unicam.c",
+    "manifest_sha256": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
+    "replayed_sha256": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
+    "cold_build_source_sha256": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
+    "bytes": 12229,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_ana.c",
+    "manifest_sha256": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
+    "replayed_sha256": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
+    "cold_build_source_sha256": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
+    "bytes": 1951,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_dport.c",
+    "manifest_sha256": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
+    "replayed_sha256": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
+    "cold_build_source_sha256": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
+    "bytes": 22961,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_fe.c",
+    "manifest_sha256": "c86372d9bc337cb3290e17609b55fd60e8b5633721cb7745f96c00d3023eb2ff",
+    "replayed_sha256": "c86372d9bc337cb3290e17609b55fd60e8b5633721cb7745f96c00d3023eb2ff",
+    "cold_build_source_sha256": "c86372d9bc337cb3290e17609b55fd60e8b5633721cb7745f96c00d3023eb2ff",
+    "bytes": 1352,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_ledc.c",
+    "manifest_sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+    "replayed_sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+    "cold_build_source_sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+    "bytes": 7194,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_phya.c",
+    "manifest_sha256": "cb1eaa1eb43ba3e38b97a412bf2c76aa676e8c3bbe77c851d5213409fb26bc89",
+    "replayed_sha256": "cb1eaa1eb43ba3e38b97a412bf2c76aa676e8c3bbe77c851d5213409fb26bc89",
+    "cold_build_source_sha256": "cb1eaa1eb43ba3e38b97a412bf2c76aa676e8c3bbe77c851d5213409fb26bc89",
+    "bytes": 1394,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_unknown.c",
+    "manifest_sha256": "d8775ce143c0cf7f614b8865de48cfb5c4c2e7e27a56b4c8d3e4eefdf04c7b77",
+    "replayed_sha256": "d8775ce143c0cf7f614b8865de48cfb5c4c2e7e27a56b4c8d3e4eefdf04c7b77",
+    "cold_build_source_sha256": "d8775ce143c0cf7f614b8865de48cfb5c4c2e7e27a56b4c8d3e4eefdf04c7b77",
+    "bytes": 2155,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_wifi.c",
+    "manifest_sha256": "4b24e689222d0439a508ea7966a11aefa757d04a1cd87b6078e3e302f9f42361",
+    "replayed_sha256": "4b24e689222d0439a508ea7966a11aefa757d04a1cd87b6078e3e302f9f42361",
+    "cold_build_source_sha256": "4b24e689222d0439a508ea7966a11aefa757d04a1cd87b6078e3e302f9f42361",
+    "bytes": 5651,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_wifi_ap.c",
+    "manifest_sha256": "1234310925b1310b0b71aff59110b0a5dfc240656a9877bd78c524e6e02951ee",
+    "replayed_sha256": "1234310925b1310b0b71aff59110b0a5dfc240656a9877bd78c524e6e02951ee",
+    "cold_build_source_sha256": "1234310925b1310b0b71aff59110b0a5dfc240656a9877bd78c524e6e02951ee",
+    "bytes": 50198,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_wlan.h",
+    "manifest_sha256": "a0bb3330d548b516be619f408fa51f288cd2fd597b978bb54edb005531bac1c3",
+    "replayed_sha256": "a0bb3330d548b516be619f408fa51f288cd2fd597b978bb54edb005531bac1c3",
+    "cold_build_source_sha256": "a0bb3330d548b516be619f408fa51f288cd2fd597b978bb54edb005531bac1c3",
+    "bytes": 9164,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_wlan_packet.c",
+    "manifest_sha256": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
+    "replayed_sha256": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
+    "cold_build_source_sha256": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
+    "bytes": 11308,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32_wlan_packet.h",
+    "manifest_sha256": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
+    "replayed_sha256": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
+    "cold_build_source_sha256": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
+    "bytes": 3167,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32s3_cache.c",
+    "manifest_sha256": "f9951a01874df1cebc31b588896152d0e510a3461926117b7d3c6aed0abdc3b6",
+    "replayed_sha256": "f9951a01874df1cebc31b588896152d0e510a3461926117b7d3c6aed0abdc3b6",
+    "cold_build_source_sha256": "f9951a01874df1cebc31b588896152d0e510a3461926117b7d3c6aed0abdc3b6",
+    "bytes": 17107,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32s3_rtc_cntl.c",
+    "manifest_sha256": "40ac860cee7c16b06a8b7eecf86942bcd3062d4b9bd40d8b3bcdc7e3bc99d19d",
+    "replayed_sha256": "40ac860cee7c16b06a8b7eecf86942bcd3062d4b9bd40d8b3bcdc7e3bc99d19d",
+    "cold_build_source_sha256": "40ac860cee7c16b06a8b7eecf86942bcd3062d4b9bd40d8b3bcdc7e3bc99d19d",
+    "bytes": 8917,
+    "match": true
+  },
+  {
+    "path": "hw/misc/esp32s3_wifi.c",
+    "manifest_sha256": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
+    "replayed_sha256": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
+    "cold_build_source_sha256": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
+    "bytes": 13058,
+    "match": true
+  },
+  {
+    "path": "hw/misc/meson.build",
+    "manifest_sha256": "695e02205c8ade53660bc718fd4e7d547d32e6d3bd4e9c97f7e0b0062bfe328a",
+    "replayed_sha256": "695e02205c8ade53660bc718fd4e7d547d32e6d3bd4e9c97f7e0b0062bfe328a",
+    "cold_build_source_sha256": "695e02205c8ade53660bc718fd4e7d547d32e6d3bd4e9c97f7e0b0062bfe328a",
+    "bytes": 8536,
+    "match": true
+  },
+  {
+    "path": "hw/misc/ssi_psram.c",
+    "manifest_sha256": "92af5690d4259f7d0fe24686c3415d4ffbf21c42234d4599f757d61fbf6e5d7b",
+    "replayed_sha256": "92af5690d4259f7d0fe24686c3415d4ffbf21c42234d4599f757d61fbf6e5d7b",
+    "cold_build_source_sha256": "92af5690d4259f7d0fe24686c3415d4ffbf21c42234d4599f757d61fbf6e5d7b",
+    "bytes": 15850,
+    "match": true
+  },
+  {
+    "path": "hw/misc/unimp-default.c",
+    "manifest_sha256": "be5b1839d90da027d0eb7ab3c11d49423df0d824a8ac9129852ed30459f29e77",
+    "replayed_sha256": "be5b1839d90da027d0eb7ab3c11d49423df0d824a8ac9129852ed30459f29e77",
+    "cold_build_source_sha256": "be5b1839d90da027d0eb7ab3c11d49423df0d824a8ac9129852ed30459f29e77",
+    "bytes": 3252,
+    "match": true
+  },
+  {
+    "path": "hw/nvram/esp_efuse.c",
+    "manifest_sha256": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
+    "replayed_sha256": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
+    "cold_build_source_sha256": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
+    "bytes": 22915,
+    "match": true
+  },
+  {
+    "path": "hw/ssi/bcm2835_spi.c",
+    "manifest_sha256": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
+    "replayed_sha256": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
+    "cold_build_source_sha256": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
+    "bytes": 10722,
+    "match": true
+  },
+  {
+    "path": "hw/ssi/esp32_spi.c",
+    "manifest_sha256": "c3ac6578afe2ae14cfa38389639e84671965debaa1715d9f513adb62d17ae832",
+    "replayed_sha256": "c3ac6578afe2ae14cfa38389639e84671965debaa1715d9f513adb62d17ae832",
+    "cold_build_source_sha256": "c3ac6578afe2ae14cfa38389639e84671965debaa1715d9f513adb62d17ae832",
+    "bytes": 14137,
+    "match": true
+  },
+  {
+    "path": "hw/ssi/esp32s3_spi.c",
+    "manifest_sha256": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
+    "replayed_sha256": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
+    "cold_build_source_sha256": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
+    "bytes": 16586,
+    "match": true
+  },
+  {
+    "path": "hw/timer/esp32_timg.c",
+    "manifest_sha256": "7fd28a5224f926b6884d61744d95891e897f296d76213592165fe112eba4eaec",
+    "replayed_sha256": "7fd28a5224f926b6884d61744d95891e897f296d76213592165fe112eba4eaec",
+    "cold_build_source_sha256": "7fd28a5224f926b6884d61744d95891e897f296d76213592165fe112eba4eaec",
+    "bytes": 24174,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/esp32.c",
+    "manifest_sha256": "ae7f5d6a149923e3cef85c339b6ade084e99b8c056952c7fefbfcf849c64d9b3",
+    "replayed_sha256": "ae7f5d6a149923e3cef85c339b6ade084e99b8c056952c7fefbfcf849c64d9b3",
+    "cold_build_source_sha256": "ae7f5d6a149923e3cef85c339b6ade084e99b8c056952c7fefbfcf849c64d9b3",
+    "bytes": 46881,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/esp32_native_hci.c",
+    "manifest_sha256": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
+    "replayed_sha256": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
+    "cold_build_source_sha256": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
+    "bytes": 89178,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/esp32s3.c",
+    "manifest_sha256": "855296725ce5feb522c453bde62ede3d243ab238e769d9d41efb8bad7a4037c8",
+    "replayed_sha256": "855296725ce5feb522c453bde62ede3d243ab238e769d9d41efb8bad7a4037c8",
+    "cold_build_source_sha256": "855296725ce5feb522c453bde62ede3d243ab238e769d9d41efb8bad7a4037c8",
+    "bytes": 50102,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/esp32s3_clk.c",
+    "manifest_sha256": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
+    "replayed_sha256": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
+    "cold_build_source_sha256": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
+    "bytes": 9791,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/esp32s3_intc.c",
+    "manifest_sha256": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
+    "replayed_sha256": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
+    "cold_build_source_sha256": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
+    "bytes": 7364,
+    "match": true
+  },
+  {
+    "path": "hw/xtensa/meson.build",
+    "manifest_sha256": "4e0ac9ab2965e3a7afc02daa8cc6400c8e5ee9c0f36ef17319c052a7cfbef223",
+    "replayed_sha256": "4e0ac9ab2965e3a7afc02daa8cc6400c8e5ee9c0f36ef17319c052a7cfbef223",
+    "cold_build_source_sha256": "4e0ac9ab2965e3a7afc02daa8cc6400c8e5ee9c0f36ef17319c052a7cfbef223",
+    "bytes": 1849,
+    "match": true
+  },
+  {
+    "path": "include/hw/arm/bcm2835_peripherals.h",
+    "manifest_sha256": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
+    "replayed_sha256": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
+    "cold_build_source_sha256": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
+    "bytes": 3279,
+    "match": true
+  },
+  {
+    "path": "include/hw/char/esp32_uart.h",
+    "manifest_sha256": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
+    "replayed_sha256": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
+    "cold_build_source_sha256": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
+    "bytes": 4425,
+    "match": true
+  },
+  {
+    "path": "include/hw/dma/esp_gdma.h",
+    "manifest_sha256": "8252b5c636b96afbf5dfda8cbe6dc4194427804f3485b4a0ac2ee8fe17b47798",
+    "replayed_sha256": "8252b5c636b96afbf5dfda8cbe6dc4194427804f3485b4a0ac2ee8fe17b47798",
+    "cold_build_source_sha256": "8252b5c636b96afbf5dfda8cbe6dc4194427804f3485b4a0ac2ee8fe17b47798",
+    "bytes": 9461,
+    "match": true
+  },
+  {
+    "path": "include/hw/gpio/esp32_gpio.h",
+    "manifest_sha256": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+    "replayed_sha256": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+    "cold_build_source_sha256": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+    "bytes": 937,
+    "match": true
+  },
+  {
+    "path": "include/hw/i2c/esp32_i2c.h",
+    "manifest_sha256": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
+    "replayed_sha256": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
+    "cold_build_source_sha256": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
+    "bytes": 2878,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/bcm2835_unicam.h",
+    "manifest_sha256": "a43c240fc392e4174f6927a881e83ea7f7983b1c3b569c2dc6ede220bb7295c6",
+    "replayed_sha256": "a43c240fc392e4174f6927a881e83ea7f7983b1c3b569c2dc6ede220bb7295c6",
+    "cold_build_source_sha256": "a43c240fc392e4174f6927a881e83ea7f7983b1c3b569c2dc6ede220bb7295c6",
+    "bytes": 968,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_ana.h",
+    "manifest_sha256": "a6c3d6406b1f4a92bffa9c771a4c4bb144db2b2c171816f07cb02f891251f993",
+    "replayed_sha256": "a6c3d6406b1f4a92bffa9c771a4c4bb144db2b2c171816f07cb02f891251f993",
+    "cold_build_source_sha256": "a6c3d6406b1f4a92bffa9c771a4c4bb144db2b2c171816f07cb02f891251f993",
+    "bytes": 361,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_dport.h",
+    "manifest_sha256": "e16aa8f754409350085b60163e117b22ec7dec85ee17f4c1187346868dc1bbb6",
+    "replayed_sha256": "e16aa8f754409350085b60163e117b22ec7dec85ee17f4c1187346868dc1bbb6",
+    "cold_build_source_sha256": "e16aa8f754409350085b60163e117b22ec7dec85ee17f4c1187346868dc1bbb6",
+    "bytes": 6754,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_fe.h",
+    "manifest_sha256": "a652cb411f7df0035f0e8d06f527631cf95e3676d27680118c46ac14b6668e26",
+    "replayed_sha256": "a652cb411f7df0035f0e8d06f527631cf95e3676d27680118c46ac14b6668e26",
+    "cold_build_source_sha256": "a652cb411f7df0035f0e8d06f527631cf95e3676d27680118c46ac14b6668e26",
+    "bytes": 324,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_ledc.h",
+    "manifest_sha256": "7586a46fb01de0c9f329b4a1d5549fcb6770d6774ca1d45a0cf953a3641f27a6",
+    "replayed_sha256": "7586a46fb01de0c9f329b4a1d5549fcb6770d6774ca1d45a0cf953a3641f27a6",
+    "cold_build_source_sha256": "7586a46fb01de0c9f329b4a1d5549fcb6770d6774ca1d45a0cf953a3641f27a6",
+    "bytes": 2155,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_phya.h",
+    "manifest_sha256": "35b12d18785b1f34d611a5797319a9cb6f03e610491d7f8a6d43df1145a7bab8",
+    "replayed_sha256": "35b12d18785b1f34d611a5797319a9cb6f03e610491d7f8a6d43df1145a7bab8",
+    "cold_build_source_sha256": "35b12d18785b1f34d611a5797319a9cb6f03e610491d7f8a6d43df1145a7bab8",
+    "bytes": 338,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_reg.h",
+    "manifest_sha256": "cac0b3177fd8ec18e5bbe94d815d57686816c0b5bc9832446af1e721ff9cede1",
+    "replayed_sha256": "cac0b3177fd8ec18e5bbe94d815d57686816c0b5bc9832446af1e721ff9cede1",
+    "cold_build_source_sha256": "cac0b3177fd8ec18e5bbe94d815d57686816c0b5bc9832446af1e721ff9cede1",
+    "bytes": 10908,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_unknown.h",
+    "manifest_sha256": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
+    "replayed_sha256": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
+    "cold_build_source_sha256": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
+    "bytes": 364,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32_wifi.h",
+    "manifest_sha256": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
+    "replayed_sha256": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
+    "cold_build_source_sha256": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
+    "bytes": 2515,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/esp32s3_wifi.h",
+    "manifest_sha256": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
+    "replayed_sha256": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
+    "cold_build_source_sha256": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
+    "bytes": 680,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/m5_bcm_spi_panel.h",
+    "manifest_sha256": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
+    "replayed_sha256": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
+    "cold_build_source_sha256": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
+    "bytes": 328,
+    "match": true
+  },
+  {
+    "path": "include/hw/misc/unimp-default.h",
+    "manifest_sha256": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
+    "replayed_sha256": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
+    "cold_build_source_sha256": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
+    "bytes": 1901,
+    "match": true
+  },
+  {
+    "path": "include/hw/ssi/esp32_spi.h",
+    "manifest_sha256": "3080252d9ae3f053e2f22962546fe4437ba85a0ba81a16cb7ac808e1c999ac12",
+    "replayed_sha256": "3080252d9ae3f053e2f22962546fe4437ba85a0ba81a16cb7ac808e1c999ac12",
+    "cold_build_source_sha256": "3080252d9ae3f053e2f22962546fe4437ba85a0ba81a16cb7ac808e1c999ac12",
+    "bytes": 2512,
+    "match": true
+  },
+  {
+    "path": "include/hw/xtensa/esp32.h",
+    "manifest_sha256": "13a2099f62549a3923249217c45c4af2849effa1de906e15a569a7a8c53831ff",
+    "replayed_sha256": "13a2099f62549a3923249217c45c4af2849effa1de906e15a569a7a8c53831ff",
+    "cold_build_source_sha256": "13a2099f62549a3923249217c45c4af2849effa1de906e15a569a7a8c53831ff",
+    "bytes": 2005,
+    "match": true
+  },
+  {
+    "path": "include/hw/xtensa/esp32_native_hci.h",
+    "manifest_sha256": "58640a4c564635fafc8c8c1655f0f904e8f68370996118ce8dd0b48f70b2281b",
+    "replayed_sha256": "58640a4c564635fafc8c8c1655f0f904e8f68370996118ce8dd0b48f70b2281b",
+    "cold_build_source_sha256": "58640a4c564635fafc8c8c1655f0f904e8f68370996118ce8dd0b48f70b2281b",
+    "bytes": 7595,
+    "match": true
+  },
+  {
+    "path": "include/hw/xtensa/esp32s3_clk.h",
+    "manifest_sha256": "d553c46477aed59ee1fb25aecd381b77cfa2395fa0d9a454ee7d6705753a84b0",
+    "replayed_sha256": "d553c46477aed59ee1fb25aecd381b77cfa2395fa0d9a454ee7d6705753a84b0",
+    "cold_build_source_sha256": "d553c46477aed59ee1fb25aecd381b77cfa2395fa0d9a454ee7d6705753a84b0",
+    "bytes": 1948,
+    "match": true
+  },
+  {
+    "path": "include/hw/xtensa/esp32s3_intc.h",
+    "manifest_sha256": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
+    "replayed_sha256": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
+    "cold_build_source_sha256": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
+    "bytes": 9746,
+    "match": true
+  },
+  {
+    "path": "meson.build",
+    "manifest_sha256": "90f03cdfb6914dd26135df07aa6ebb45d27e80e57d30ed3cf53bdb750d23ac6f",
+    "replayed_sha256": "90f03cdfb6914dd26135df07aa6ebb45d27e80e57d30ed3cf53bdb750d23ac6f",
+    "cold_build_source_sha256": "90f03cdfb6914dd26135df07aa6ebb45d27e80e57d30ed3cf53bdb750d23ac6f",
+    "bytes": 178480,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/cpu.c",
+    "manifest_sha256": "ae471beedd879dd7b918ebda9446fe70047aa38f302704cbb37c88f83d4d21bc",
+    "replayed_sha256": "ae471beedd879dd7b918ebda9446fe70047aa38f302704cbb37c88f83d4d21bc",
+    "cold_build_source_sha256": "ae471beedd879dd7b918ebda9446fe70047aa38f302704cbb37c88f83d4d21bc",
+    "bytes": 8896,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/cpu.h",
+    "manifest_sha256": "9cf6b7158ee35b3cc0eee11557590fe5ffab450623e3be004630e83474a6172f",
+    "replayed_sha256": "9cf6b7158ee35b3cc0eee11557590fe5ffab450623e3be004630e83474a6172f",
+    "cold_build_source_sha256": "9cf6b7158ee35b3cc0eee11557590fe5ffab450623e3be004630e83474a6172f",
+    "bytes": 24297,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/exc_helper.c",
+    "manifest_sha256": "4b8960564bc16b0620039e140bf45ad0a45207feccd80e6ce938cd5b1c02261c",
+    "replayed_sha256": "4b8960564bc16b0620039e140bf45ad0a45207feccd80e6ce938cd5b1c02261c",
+    "cold_build_source_sha256": "4b8960564bc16b0620039e140bf45ad0a45207feccd80e6ce938cd5b1c02261c",
+    "bytes": 9148,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/helper.h",
+    "manifest_sha256": "f5dd775ddb30a4f47d8dfc0be324e654bd4fd1b53f44c535988be15dd9fb73d7",
+    "replayed_sha256": "f5dd775ddb30a4f47d8dfc0be324e654bd4fd1b53f44c535988be15dd9fb73d7",
+    "cold_build_source_sha256": "f5dd775ddb30a4f47d8dfc0be324e654bd4fd1b53f44c535988be15dd9fb73d7",
+    "bytes": 7953,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/op_helper.c",
+    "manifest_sha256": "838a360798aba72c5bf869fa7a4506a93ea0ac3925836bac8c070f4dc68e3ec2",
+    "replayed_sha256": "838a360798aba72c5bf869fa7a4506a93ea0ac3925836bac8c070f4dc68e3ec2",
+    "cold_build_source_sha256": "838a360798aba72c5bf869fa7a4506a93ea0ac3925836bac8c070f4dc68e3ec2",
+    "bytes": 8154,
+    "match": true
+  },
+  {
+    "path": "target/xtensa/translate.c",
+    "manifest_sha256": "1c27fa04889eff41128a0d5b90ee51255e1f51dc1fc33acfc15033ea0bbc5aae",
+    "replayed_sha256": "1c27fa04889eff41128a0d5b90ee51255e1f51dc1fc33acfc15033ea0bbc5aae",
+    "cold_build_source_sha256": "1c27fa04889eff41128a0d5b90ee51255e1f51dc1fc33acfc15033ea0bbc5aae",
+    "bytes": 235049,
+    "match": true
+  },
+  {
+    "path": "ui/ui-qmp-cmds.c",
+    "manifest_sha256": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
+    "replayed_sha256": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
+    "cold_build_source_sha256": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
+    "bytes": 11143,
+    "match": true
+  }
+]

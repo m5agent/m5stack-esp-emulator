@@ -1,0 +1,443 @@
+[
+  {
+    "schema_version": 1,
+    "category": "virtual-device-browser-unit-annotations",
+    "status": "PASS",
+    "device_id": "cores3",
+    "unit_id": "env-iii",
+    "runtime": "qemu",
+    "session_id": "8c22d333223243ddb278015324e75f6c",
+    "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+    "evidence_sha256": "5c750ae5c0b0c692a9418427958a8ad29047b2a41b4463ca6d6d1e62cf6e7ad8",
+    "hardware_execution": "NOT RUN",
+    "checks": {
+      "original_guest_runner": true,
+      "same_session_firmware": true,
+      "direct_runtime": true,
+      "annotation_exact_alignment": true,
+      "terminal_clears_live_values": true,
+      "no_browser_errors": true,
+      "frozen_sources_unchanged": true,
+      "annotation_assets_match_frozen_sources": true,
+      "two_guest_vectors": true,
+      "exact_six_product_input_posts": true,
+      "no_unaccounted_browser_mutations": true,
+      "strict_zip_before_stop": true,
+      "direct_runtime_matches_zip": true,
+      "history_retained": true,
+      "service_idle_after_case": true,
+      "strict_guest_browser_artifacts": true
+    },
+    "runtime_provenance": {
+      "session_id": "8c22d333223243ddb278015324e75f6c",
+      "kind": "direct-pid",
+      "status": "VERIFIED",
+      "observed_pid": 95881,
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "executable_name": "qemu-system-xtensa",
+      "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+    },
+    "guest_vectors": [
+      {
+        "vector": {
+          "temperature-c": 31.5,
+          "humidity-pct": 67.0,
+          "pressure-pa": 98765.0
+        },
+        "matched_guest_rows": [
+          [
+            31.5,
+            67.0,
+            98765.0
+          ]
+        ]
+      },
+      {
+        "vector": {
+          "temperature-c": 18.75,
+          "humidity-pct": 45.5,
+          "pressure-pa": 103200.0
+        },
+        "serial_offset": 545,
+        "matched_guest_rows": [
+          [
+            18.75,
+            45.5,
+            103200.0
+          ]
+        ]
+      }
+    ],
+    "source_sha256": {
+      "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+      "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+      "platform/web/sessions.css": "bc1f4935a4989c45f77a02f06e30377fcddd5003ee1e9f638652071d7c25d153",
+      "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+      "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+      "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+      "platform/tests/unit_web_bridge.mjs": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+      "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+      "tests/units/check_batch_evidence.py": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+      "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+      "tests/units/run_annotation_cases.py": "90ab05adec2d3e8e52c6b8ccaeb55a9eb2d24fc3b3dafc7dbbd10ca806be49ba",
+      "platform/tests/unit_annotation_bridge.mjs": "cfc9f6abb99e9ab160130128b862acc34ccc4f586bc232ec4a5028c8d78eb045",
+      "platform/tools/firmware_analysis.py": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "platform/tools/user_firmware_matrix.py": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "tests/units/probe/main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303",
+      "tests/units/probe/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "platform/tools/device_service.py": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+      "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+      "platform/tools/unit_runtime.py": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "platform/units/runtime-profiles.json": "833f6049281dd19c9c1dfd764f9ac933e74f1dbeec164051d414ae1a5f57ed73"
+    },
+    "controller_result": "controller/env-iii/result.json",
+    "browser_report": "browser/8c22d333223243ddb278015324e75f6c/web-report.json",
+    "evidence": "controller/env-iii/evidence.zip",
+    "zip_member_count": 10,
+    "zip_running_session": {
+      "session_id": "8c22d333223243ddb278015324e75f6c",
+      "device_id": "cores3",
+      "state": "running",
+      "pid": 95881,
+      "firmware_id": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "source_artifacts": [
+        "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f"
+      ],
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "cache",
+        "verified": true,
+        "flash_size": 16777216,
+        "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+        "session_isolated_copy": true
+      },
+      "flash_retained": true,
+      "serial_bytes": 579,
+      "created_at": "2026-10-25T20:41:12.775644+00:00",
+      "expires_at": "2026-10-25T20:46:12.775647+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-25T20:41:22.888204+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": true,
+      "last_device_state_at": "2026-10-25T20:41:22.847770+00:00",
+      "completed_at": null,
+      "event_count": 13,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 9,
+        "lease_active": true
+      }
+    },
+    "strict_runtime_proof": {
+      "proof_kind": "direct-pid",
+      "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid_observed": true,
+      "pid": 95881,
+      "worker_generation_observed": 9
+    },
+    "artifact_sha256": {
+      "browser/8c22d333223243ddb278015324e75f6c/005-before-evidence.png": "eb9ebb82cee1936c2c8332f0d6adaf2937633e52ebbe35e20530a104b218ef8c",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-env-vector-1-readout.png": "654f13c2918155ade2ea95a1d1421fd9061a9c8d3fff65768443780226f8f855",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-env-vector-1.png": "c2a032ea6b0632e834afa674084ee93297511aad0f0681e9ce76d4538e69059a",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-env-vector-2-readout.png": "340319996dfecb858e0f8f3c8ac37fb535310ac34ca5f04b53dd99c5d7c56d77",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-env-vector-2.png": "9461a3bc34925be793d2e7911b943ab08dfa4e8628b0acc767593b0450b62ada",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-terminal-readout.png": "691084af7cf14f0ce17b6996e49d311aae033a98c23c375f915bc8ec303511af",
+      "browser/8c22d333223243ddb278015324e75f6c/annotation-terminal.png": "f5d081f14d11fe1606da16bfae77af01f188d1e9e66a2d3181149e4a8e86df16",
+      "browser/8c22d333223243ddb278015324e75f6c/runtime-provenance.json": "7d796cb12060a534c5cc54b55337607bf8711dac3d8b76068ba0a4cc70d76d55",
+      "browser/8c22d333223243ddb278015324e75f6c/web-report.json": "dc8be1fee979af22c58179d15f1d3d18fe1f22af2dacc4b8346d5b4db1166e01",
+      "browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "controller/env-iii/evidence.zip": "5c750ae5c0b0c692a9418427958a8ad29047b2a41b4463ca6d6d1e62cf6e7ad8",
+      "controller/env-iii/frame.png": "53c6e3adad5451909d6add6d2cdbf9261edbdabc25d7cae9ea59ae7920ee49a1",
+      "controller/env-iii/result.json": "b0c2db76ec86f46915a61147e3bff8d8e97ae2cfe1cbdb72a2e3458b0a8a1b68",
+      "controller/env-iii/serial.txt": "1e212e43479bbca9bb4946da7ccc464724b3ba4d3253aab39904a25ce73a55b5"
+    },
+    "strict_controller_detail": {
+      "status": "PASS",
+      "report": "controller/env-iii/result.json",
+      "report_sha256": "b0c2db76ec86f46915a61147e3bff8d8e97ae2cfe1cbdb72a2e3458b0a8a1b68",
+      "assertions": 6
+    },
+    "strict_browser_detail": {
+      "status": "PASS",
+      "report": "browser/8c22d333223243ddb278015324e75f6c/web-report.json",
+      "snapshots": 6,
+      "instances": [
+        "external1"
+      ],
+      "screenshot_sha256": {
+        "browser/8c22d333223243ddb278015324e75f6c/005-before-evidence.png": "eb9ebb82cee1936c2c8332f0d6adaf2937633e52ebbe35e20530a104b218ef8c"
+      },
+      "screenshot_dimensions": {
+        "browser/8c22d333223243ddb278015324e75f6c/005-before-evidence.png": {
+          "width": 980,
+          "height": 1224
+        }
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "category": "virtual-device-browser-unit-annotations",
+    "status": "PASS",
+    "device_id": "cores3",
+    "unit_id": "relay",
+    "runtime": "qemu",
+    "session_id": "15982bb88da146ce8e9281d826e3da85",
+    "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+    "evidence_sha256": "364ca28c0e5c61207663d066ac9f10532a6eb1b168f64ba8a00999bbd40f8c91",
+    "hardware_execution": "NOT RUN",
+    "checks": {
+      "original_guest_runner": true,
+      "same_session_firmware": true,
+      "direct_runtime": true,
+      "annotation_exact_alignment": true,
+      "terminal_clears_live_values": true,
+      "no_browser_errors": true,
+      "frozen_sources_unchanged": true,
+      "annotation_assets_match_frozen_sources": true,
+      "both_guest_output_annotations": true,
+      "no_relay_input_posts": true,
+      "both_guest_output_markers": true,
+      "no_unaccounted_browser_mutations": true,
+      "strict_zip_before_stop": true,
+      "direct_runtime_matches_zip": true,
+      "history_retained": true,
+      "service_idle_after_case": true,
+      "strict_guest_browser_artifacts": true
+    },
+    "runtime_provenance": {
+      "session_id": "15982bb88da146ce8e9281d826e3da85",
+      "kind": "direct-pid",
+      "status": "VERIFIED",
+      "observed_pid": 4265,
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 9,
+      "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "executable_name": "qemu-system-xtensa",
+      "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+    },
+    "guest_vectors": [],
+    "source_sha256": {
+      "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+      "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+      "platform/web/sessions.css": "bc1f4935a4989c45f77a02f06e30377fcddd5003ee1e9f638652071d7c25d153",
+      "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+      "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+      "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+      "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+      "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+      "platform/tests/unit_web_bridge.mjs": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+      "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+      "tests/units/check_batch_evidence.py": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+      "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+      "tests/units/run_annotation_cases.py": "90ab05adec2d3e8e52c6b8ccaeb55a9eb2d24fc3b3dafc7dbbd10ca806be49ba",
+      "platform/tests/unit_annotation_bridge.mjs": "cfc9f6abb99e9ab160130128b862acc34ccc4f586bc232ec4a5028c8d78eb045",
+      "platform/tools/firmware_analysis.py": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "platform/tools/user_firmware_matrix.py": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "tests/units/probe/main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303",
+      "tests/units/probe/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "platform/tools/device_service.py": "8c956c90a486f6537c712a9489618b8fc7efd024f25b9ddac06da4091056d516",
+      "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+      "platform/tools/unit_runtime.py": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "platform/units/runtime-profiles.json": "833f6049281dd19c9c1dfd764f9ac933e74f1dbeec164051d414ae1a5f57ed73"
+    },
+    "controller_result": "controller/relay/result.json",
+    "browser_report": "browser/15982bb88da146ce8e9281d826e3da85/web-report.json",
+    "evidence": "controller/relay/evidence.zip",
+    "zip_member_count": 10,
+    "zip_running_session": {
+      "session_id": "15982bb88da146ce8e9281d826e3da85",
+      "device_id": "cores3",
+      "state": "running",
+      "pid": 4265,
+      "firmware_id": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "source_artifacts": [
+        "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600"
+      ],
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "relay",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "cache",
+        "verified": true,
+        "flash_size": 16777216,
+        "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+        "session_isolated_copy": true
+      },
+      "flash_retained": true,
+      "serial_bytes": 706,
+      "created_at": "2026-10-25T20:41:39.722748+00:00",
+      "expires_at": "2026-10-25T20:46:39.722752+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-25T20:41:59.688058+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": true,
+      "last_device_state_at": "2026-10-25T20:41:59.724179+00:00",
+      "completed_at": null,
+      "event_count": 7,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 9,
+        "lease_active": true
+      }
+    },
+    "strict_runtime_proof": {
+      "proof_kind": "direct-pid",
+      "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "direct_pid_observed": true,
+      "pid": 4265,
+      "worker_generation_observed": 9
+    },
+    "artifact_sha256": {
+      "browser/15982bb88da146ce8e9281d826e3da85/015-before-evidence.png": "9ffff0810c65a20ccb00e981a492788a0b4cf1a926ee46eea9b1969d0bafd40c",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-relay-0-readout.png": "f688e88bfb08494a2ce7b8eca1460818132b1334f1b4f2986ee004363f7cf263",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-relay-0.png": "d4bfca5a9a42d7b77130a217f5b08bffb30c58bb84e51d4f3f66288cb43da58d",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-relay-1-readout.png": "b34a0c1601ddf90fa2e31222eda6207590123a7c2483cd0001f2d3342ba2a99d",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-relay-1.png": "1221fb1cfda3273f1f090a0905980dbfac7f3b1030afd3d226a5291fa060cc64",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-terminal-readout.png": "76fe38f8b668a3814cd06f66e514ab457d7b4f27501e6bd9d030fb1d57bad3d9",
+      "browser/15982bb88da146ce8e9281d826e3da85/annotation-terminal.png": "b627a25f9dcb3b36c9de3ef9d15bc4209c4e594ea324ed06c7ce3eaa82000a04",
+      "browser/15982bb88da146ce8e9281d826e3da85/runtime-provenance.json": "d4217f6dc7d34444be3e4b57f779fb100a1095e2917d9a628be7435a7fdba094",
+      "browser/15982bb88da146ce8e9281d826e3da85/web-report.json": "ca3fd7b42d8bc5fb5ac2273fa5eddade0cef98514596214b2a308e0d1ce7ac7a",
+      "browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "controller/relay/evidence.zip": "364ca28c0e5c61207663d066ac9f10532a6eb1b168f64ba8a00999bbd40f8c91",
+      "controller/relay/frame.png": "0ee6965bfcad6ed5a85c1069a447787a625f7a4c9da132f092afa18edbcbeede",
+      "controller/relay/result.json": "618a750988ce3c5437aff9c32da0584435414a911caedc0797a8d4d0da0a4f16",
+      "controller/relay/serial.txt": "a032c3ba1eaa7c8cbbb4681b0820004d86c171576d976079858651c218cc1c07"
+    },
+    "strict_controller_detail": {
+      "status": "PASS",
+      "report": "controller/relay/result.json",
+      "report_sha256": "618a750988ce3c5437aff9c32da0584435414a911caedc0797a8d4d0da0a4f16",
+      "assertions": 6
+    },
+    "strict_browser_detail": {
+      "status": "PASS",
+      "report": "browser/15982bb88da146ce8e9281d826e3da85/web-report.json",
+      "snapshots": 16,
+      "instances": [
+        "external1"
+      ],
+      "screenshot_sha256": {
+        "browser/15982bb88da146ce8e9281d826e3da85/015-before-evidence.png": "9ffff0810c65a20ccb00e981a492788a0b4cf1a926ee46eea9b1969d0bafd40c"
+      },
+      "screenshot_dimensions": {
+        "browser/15982bb88da146ce8e9281d826e3da85/015-before-evidence.png": {
+          "width": 980,
+          "height": 959
+        }
+      }
+    }
+  }
+]

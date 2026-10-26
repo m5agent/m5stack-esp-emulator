@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-sensor-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "browser_framing": "NOT REVIEWED",
+  "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+  "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-before.json",
+    "sha256": "1185aa85b703c7959c60ff133b1195d1b6d2e42f7f43859c0f92c0a6cccd3f57"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/source-reconstruction.json",
+    "sha256": "627dd6948a4cf9e23fd528bf7eb91b564e8ef9627aaaa05523dcfeccf7d7cd98"
+  },
+  "frame_observations": {
+    "scope": "separate-captures-no-atomic-frame-claim",
+    "controller": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/controller/heart/frame.png",
+      "sha256": "d7da8b15cd72dd1dad14cf936f666effdd9b5466cde7b74cd418fb504173aa7c",
+      "width": 466,
+      "height": 466
+    },
+    "evidence": {
+      "archive_path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/controller/heart/evidence.zip",
+      "archive_sha256": "e489ef7df3e0e10fb3ed769f34f11817fe55bf687d227fe762c54233045f501a",
+      "member": "frames/current.png",
+      "sha256": "4b3c8e842c169c2566476252c343310f8353b4e31e50d8f0d8589202c3e852d1",
+      "width": 466,
+      "height": 466
+    },
+    "history": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/history-frame.png",
+      "sha256": "4b3c8e842c169c2566476252c343310f8353b4e31e50d8f0d8589202c3e852d1",
+      "width": 466,
+      "height": 466
+    }
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "sha256": "5451f21321d2c40b74611f61d36832210e8a6babbe9050119ca3f24a9db9f5bc"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/history.json",
+    "sha256": "976ddaa6f368985dd02ca4a315e88ca6cc022aaa1c02fb5008bbfe5445ffc4ff"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "stopwatch",
+      "unit_id": "heart"
+    },
+    "meaning": "Historical preparation values retained unchanged; actual execution authority is the same-session raw report."
+  },
+  "visual_limit": "The archiver does not classify native readability or browser framing.",
+  "hardware_execution": "NOT RUN",
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+    "sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0"
+  },
+  "native_readability_scope": "captured-final-native-frames-only",
+  "observed_lines": [
+    "stopwatch",
+    "heart",
+    "IR 12000",
+    "Red 9000"
+  ],
+  "additional_frames": [
+    {
+      "path": ".work/unit-host-sensors-live-20261026-r1/stopwatch/heart/controller/heart/frame.png",
+      "sha256": "d7da8b15cd72dd1dad14cf936f666effdd9b5466cde7b74cd418fb504173aa7c",
+      "width": 466,
+      "height": 466,
+      "observed_lines": [
+        "stopwatch",
+        "heart",
+        "IR 0",
+        "Red 0"
+      ]
+    }
+  ],
+  "root_review_notes": [
+    "Root visually inspected this actual captured image; headers and all value rows are readable without overlap or clipping. Readability applies only to the captured image.",
+    "The reviewed text lies inside the round native display.",
+    "The unchanged official driver emits intermittent zero raw samples. No BPM/SpO2 or continuous stable-value claim is made.",
+    "Controller capture shows zero while later evidence/history capture shows the valid raw vector. These are separate requests, not an atomic frame."
+  ]
+}

@@ -86,6 +86,7 @@ from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from run_profile_ui_test import (  # noqa: E402
     QMP,
+    QMPCommandError,
     read_ppm,
     send_input,
     wait_qmp,
@@ -109,6 +110,8 @@ from run_tab5_ui_test import (
     write_png as write_tab5_png,
 )
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from unit_runtime import UnitError, UnitRegistry  # noqa: E402
+from unit_adc_fixture import apply_s3_adc_calibration, load_fixture as load_adc_fixture, verify_firmware as verify_adc_firmware  # noqa: E402
 from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_directory import (  # noqa: E402
     WorkerDirectory,
@@ -2862,6 +2865,8 @@ class DeviceSession:
         ready_timeout: float,
         ready_conditions: dict | None,
         runtime_env: dict[str, str] | None = None,
+        units: list[dict] | None = None,
+        unit_contract: dict | None = None,
         runtime: str = "qemu",
         network_config: dict | None = None,
         storage_config: dict | None = None,
@@ -2895,6 +2900,12 @@ class DeviceSession:
         self.firmware_source = firmware_source
         self.source_artifacts = source_artifacts
         self.runtime_env = dict(runtime_env or {})
+        self.units = json.loads(json.dumps(units or []))
+        self.unit_contract = (
+            json.loads(json.dumps(unit_contract)) if unit_contract is not None
+            else UnitRegistry().freeze([unit["unit_id"] for unit in self.units])
+            if self.units and not restored else None
+        )
         self.runtime = runtime
         self.network_config = dict(network_config or {})
         self.storage_config = dict(storage_config or {})
@@ -2932,6 +2943,9 @@ class DeviceSession:
         self.last_frame_path = self.dir / "last-frame.png"
         self.last_frame_meta_path = self.dir / "last-frame.json"
         self.device_state_path = self.dir / "device-state.json"
+        self.unit_state_path = self.dir / "unit-state.json"
+        self.unit_config_path = self.dir / "units-runtime.json"
+        self.unit_adc_calibration_path = self.dir / "unit-adc-calibration.json"
         self.session_record_path = self.dir / "session.json"
         self.events_path = self.dir / "events.json"
         self.stdout_path = self.dir / "qemu.stdout"
@@ -3051,6 +3065,8 @@ class DeviceSession:
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
             "runtime_env": dict(self.runtime_env),
+            "units": self.units,
+            "unit_contract": self.unit_contract,
             "runtime": self.runtime,
             "network": redacted_network_config(self.network_config),
             "network_result": self.network_result,
@@ -3573,6 +3589,7 @@ class DeviceSession:
                     else None
                 ),
                 "storage": self.storage_info,
+                "units": self.units,
                 "nvs": self.nvs_info,
                 "flash": self.flash_info,
                 "flash_retained": bool(
@@ -5229,6 +5246,30 @@ class DeviceSession:
         )
         if wifi_mac:
             set_s3_efuse_mac(efuse_data, wifi_mac)
+        if self.spec.backend == "qemu-esp32s3" and any(
+            unit["unit_id"] in {"angle", "light"} for unit in self.units
+        ):
+            frozen = (self.unit_contract or {}).get("fixtures", {}).get("esp32s3-adc")
+            if frozen:
+                raw = frozen["raw_utf8"].encode("utf-8")
+                if hashlib.sha256(raw).hexdigest() != frozen["sha256"]:
+                    raise ServiceError("runtime_model_gap", "frozen ADC fixture hash mismatch", 409)
+                fixture = load_adc_fixture(raw=raw)
+                firmware = self.firmware_path.read_bytes()
+                try:
+                    verify_adc_firmware(firmware, fixture)
+                except ValueError:
+                    receipt = {
+                        "schema_version": 1, "status": "not-applied",
+                        "fixture_sha256": frozen["sha256"],
+                        "reason": "application bytes do not match the synthetic calibration profile; raw ADC remains available",
+                        "hardware_validation": False,
+                    }
+                else:
+                    receipt = {**apply_s3_adc_calibration(
+                        efuse_data, backend=self.spec.backend, firmware=firmware, fixture_raw=raw,
+                    ), "status": "applied"}
+                atomic_write_json(self.unit_adc_calibration_path, receipt)
         efuse.write_bytes(efuse_data)
         try:
             self.qmp_path.unlink()
@@ -5445,6 +5486,13 @@ class DeviceSession:
         env = os.environ.copy()
         env.update(self.spec.env)
         env.update(self.runtime_env)
+        # Never inherit another session's external wiring from the host shell.
+        env.pop("M5_UNIT_CONFIG", None)
+        if self.units:
+            atomic_write_json(self.unit_config_path, {
+                "schema_version": 1, "attachments": self.units,
+            })
+            env["M5_UNIT_CONFIG"] = str(self.unit_config_path)
         if nic == "misc.esp32s3.wifi":
             env["M5SW_WIFI_SSID"] = str(
                 self.network_config.get("wifi_ssid", "myssid")
@@ -5610,15 +5658,19 @@ class DeviceSession:
         self._persist_session()
         if native_vhci:
             self._launch_native_vhci_gdb()
-        try:
-            self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
-        except RuntimeError as error:
-            raise ServiceError(
-                "qmp_timeout",
-                f"QEMU QMP socket did not become ready: {error}",
-                504,
-            ) from error
-        self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        with self._lock:
+            try:
+                # Booting frame/state requests may already own the connection.
+                if self._qmp is None:
+                    self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
+            except RuntimeError as error:
+                raise ServiceError(
+                    "qmp_timeout",
+                    f"QEMU QMP socket did not become ready: {error}",
+                    504,
+                ) from error
+            self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        self._verify_units_runtime()
         if profile == NANOC6_HCI_BLE_PROFILE:
             self._exercise_nanoc6_button()
         elif profile == NESSO_UNIFIED_PROFILE:
@@ -5658,6 +5710,10 @@ class DeviceSession:
                 self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
                 return self._qmp.cmd(name, **arguments)
             except (OSError, RuntimeError) as error:
+                if isinstance(error, QMPCommandError) and name == "qom-set" and str(arguments.get("path", "")).startswith("/machine/units/"):
+                    # A real controller rejection (for example a full UART RX
+                    # FIFO) is an input conflict. The QMP transport is healthy.
+                    raise ServiceError("unit_input_rejected", str(error), 409) from error
                 try:
                     self._qmp.close()
                 except OSError:
@@ -5956,6 +6012,116 @@ class DeviceSession:
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics(analyze=False)
         return metrics["png"], metrics["width"], metrics["height"]
+
+    def _verify_units_runtime(self) -> None:
+        if not self.units:
+            return
+        if self._unit_registry()[0] is None:
+            raise ServiceError("unit_contract_unavailable", "Unit session contract is unrecorded or invalid", 409)
+        schema = self._qmp_call(
+            "qom-get", path="/machine/units", property="schema-version"
+        ).get("return")
+        if schema != 1:
+            raise ServiceError(
+                "runtime_model_gap", "QEMU has no compatible Unit controller manager", 409,
+            )
+        snapshot = self.unit_state()
+        if any(not unit["available"] for unit in snapshot["units"]):
+            raise ServiceError(
+                "runtime_model_gap", "QEMU Unit model/state contract is incomplete", 409,
+            )
+
+    def _unit_registry(self) -> tuple[UnitRegistry | None, str]:
+        if not self.units:
+            return UnitRegistry(contract={
+                "schema_version": 1, "units": {}, "profiles": {}, "source_hashes": {},
+            }), "none"
+        if self.unit_contract is None:
+            return None, "unrecorded"
+        try:
+            registry = UnitRegistry(contract=self.unit_contract)
+            if any(unit["unit_id"] not in registry.units for unit in self.units):
+                return None, "invalid"
+            return registry, "frozen"
+        except (UnitError, KeyError, TypeError):
+            return None, "invalid"
+
+    def unit_state(self) -> dict:
+        registry, contract_status = self._unit_registry()
+        if registry is None:
+            saved = json.loads(self.unit_state_path.read_text()) if self.unit_state_path.is_file() else {"units": []}
+            prior = {unit["id"]: unit for unit in saved.get("units", []) if isinstance(unit, dict) and "id" in unit}
+            reason = "Unit session schema was not recorded or is invalid; writes are disabled"
+            return {
+                **saved, "session_id": self.id, "state": self.state,
+                "source": "persisted" if self.unit_state_path.is_file() else "unavailable",
+                "definitions": [], "contract_hashes": {}, "contract_status": contract_status,
+                "units": [{
+                    **unit, **prior.get(unit["id"], {}), "available": False,
+                    "errors": {"contract": reason},
+                } for unit in self.units],
+                "errors": {"contract": reason},
+            }
+        if self.state not in {"booting", "running"}:
+            if self.unit_state_path.is_file():
+                saved = json.loads(self.unit_state_path.read_text())
+                return {
+                    **saved, "state": self.state, "source": "persisted",
+                    "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                        attachment["unit_id"] for attachment in self.units
+                    )],
+                    "contract_hashes": registry.source_hashes, "contract_status": contract_status,
+                }
+            return {
+                "session_id": self.id, "state": self.state,
+                "source": "unavailable", "units": [],
+                "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                    attachment["unit_id"] for attachment in self.units
+                )],
+                "contract_hashes": registry.source_hashes, "contract_status": contract_status,
+            }
+        def read(path, prop):
+            with self._lock:
+                return self._qmp_call("qom-get", path=path, property=prop).get("return")
+        result = {
+            "session_id": self.id, "state": self.state,
+            "source": "live", "captured_at": iso_now(),
+            "units": registry.state(self.units, read),
+            "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                attachment["unit_id"] for attachment in self.units
+            )],
+            "contract_hashes": registry.source_hashes,
+            "contract_status": contract_status,
+        }
+        if self.units:
+            atomic_write_json(self.unit_state_path, result)
+        return result
+
+    def unit_input(self, payload: dict) -> dict:
+        if self.state != "running":
+            raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+        if not isinstance(payload, dict) or set(payload) != {"id", "values"}:
+            raise ServiceError("invalid_unit_input", "id and values are required", 400)
+        attachment = next((unit for unit in self.units if unit["id"] == payload["id"]), None)
+        if attachment is None:
+            raise ServiceError("unknown_unit_instance", "Unit is not attached to this session", 404)
+        registry, contract_status = self._unit_registry()
+        if registry is None:
+            raise ServiceError("unit_contract_unavailable", f"Unit session contract is {contract_status}; writes are disabled", 409)
+        try:
+            values = registry.input_values(attachment["unit_id"], payload["values"])
+        except UnitError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        profile = registry.profiles[attachment["unit_id"]]
+        with self._lock:
+            # Validate the complete payload before changing any physical input.
+            for field, value in values.items():
+                descriptor = profile["inputs"][field]
+                path = f"/machine/units/{attachment['id']}{descriptor.get('path', '')}"
+                self._qmp_call("qom-set", path=path, property=descriptor["property"], value=value)
+            self._record_event("unit_input", unit_id=attachment["id"], values=values)
+        # Read back guest state; accepting an input does not prove the firmware consumed it.
+        return self.unit_state()
 
     def device_state(self) -> dict:
         if not self.spec.state_probes:
@@ -6462,6 +6628,18 @@ class DeviceSession:
             "included": sorted(include),
             "files": {},
         }
+        if self.units:
+            manifest["units"] = self.unit_state()
+            if manifest["units"].get("contract_status") == "frozen":
+                files["units/contract.json"] = json.dumps(
+                    self.unit_contract, ensure_ascii=False, indent=2,
+                ).encode("utf-8")
+            if self.unit_config_path.is_file():
+                files["units/runtime.json"] = self.unit_config_path.read_bytes()
+            if self.unit_state_path.is_file():
+                files["units/state.json"] = self.unit_state_path.read_bytes()
+            if self.unit_adc_calibration_path.is_file():
+                files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
         if "serial" in include:
             for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
                 if path.is_file():
@@ -6866,6 +7044,11 @@ class DeviceSession:
                 try:
                     self.device_state()
                 except ServiceError:
+                    pass
+            if self.units and self.state in {"running", "booting"}:
+                try:
+                    self.unit_state()
+                except (ServiceError, UnitError, OSError):
                     pass
             if self.runtime in QEMU_RADIO_RUNTIMES:
                 try:
@@ -7935,6 +8118,8 @@ class DeviceService:
                 runtime=runtime,
                 network_config=network_config,
                 network_result=network_result,
+                units=(record.get("units") if isinstance(record.get("units"), list) else []),
+                unit_contract=record.get("unit_contract"),
                 storage_config=storage_config,
                 storage_info=storage_info,
                 nvs_config=nvs_config,
@@ -8495,6 +8680,15 @@ class DeviceService:
                 "or qemu-unified",
                 400,
             )
+        try:
+            unit_registry = UnitRegistry() if "units" in payload else None
+            units = (
+                unit_registry.attachments(device_id, runtime, payload.get("units"))
+                if unit_registry is not None else []
+            )
+            unit_contract = unit_registry.freeze([unit["unit_id"] for unit in units]) if units else None
+        except UnitError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
         network_config = None
         if runtime == "network":
             network_config = parse_network_execution(
@@ -8750,6 +8944,8 @@ class DeviceService:
                     ready_timeout=ready_timeout,
                     ready_conditions=ready_conditions,
                     runtime_env=runtime_env,
+                    units=units,
+                    unit_contract=unit_contract,
                     runtime=runtime,
                     network_config=network_config,
                     storage_config=storage_config,

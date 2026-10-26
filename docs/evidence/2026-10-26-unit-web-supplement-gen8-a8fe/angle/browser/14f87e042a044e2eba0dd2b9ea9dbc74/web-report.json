@@ -1,0 +1,2829 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+  "firmware_sha256": "0f5698216b15f8b492a660f2378e4474c6c7b374494b7016b27939aa9725e286",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "angle",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T19:23:32.038Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "6e0cc20e47db83c73f254a92a66ac3dfb84580aaad4f97bd2a0e8eedf854cccc",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:23:31.924Z",
+  "session_created_at": "2026-10-25T19:23:32.008302+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:23:47.887Z",
+      "instance": "external1",
+      "field": "voltage-mv",
+      "kind": "fill-and-tab",
+      "value": 0,
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 0
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:23:47.990Z",
+      "instance": "external1",
+      "field": "voltage-mv",
+      "kind": "fill-and-tab",
+      "value": 1250,
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 1250
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:23:48.051Z",
+      "instance": "external1",
+      "field": "voltage-mv",
+      "kind": "fill-and-tab",
+      "value": 2500,
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 2500
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:23:47.886Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:47.836770+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 0,
+              "adc-samples": 25195,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:47.989Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:47.940147+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 1250,
+              "adc-samples": 25384,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 1250
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:48.050Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:48.039567+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 25510,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "voltage-mv": 2500
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:23:43.959Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:43.927996+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 1250,
+              "adc-samples": 18118,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:47.580Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:47.559839+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 1250,
+              "adc-samples": 24754,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:48.092Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:48.086834+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 25531,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:48.599Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:48.596333+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 26476,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:49.107Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:49.103437+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 27400,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:23:49.613Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/14f87e042a044e2eba0dd2b9ea9dbc74/units",
+      "status": 200,
+      "response": {
+        "session_id": "14f87e042a044e2eba0dd2b9ea9dbc74",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:23:49.609096+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 28282,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "angle",
+            "name": "Angle",
+            "sku": "U005",
+            "visual_asset": {
+              "entry": "src/units/angle/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "10k ohm potentiometer",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "adc",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "NC",
+                  "direction": "none"
+                },
+                "white": {
+                  "signal": "analog output",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+              "registers": [],
+              "gaps": [
+                "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+              ]
+            },
+            "inputs": {
+              "voltage-mv": {
+                "type": "number",
+                "label": "旋钮输出电压",
+                "default": 1250,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mV",
+                "minimum": 0,
+                "maximum": 2500,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/angle",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                }
+              },
+              "state": {
+                "voltage-mv": {
+                  "property": "voltage-mv"
+                },
+                "adc-samples": {
+                  "property": "adc-samples"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+          "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:23:47.919Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 0,
+              "adc-samples": 25195,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "25195",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:23:48.022Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 1250,
+              "adc-samples": 25384,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "1250",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "25384",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:23:48.084Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 25510,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "2500",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "25510",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:23:48.633Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 26476,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "2500",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "26476",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:23:49.140Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 27400,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "2500",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "27400",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:23:49.645Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "angle",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "voltage-mv": 2500,
+              "adc-samples": 28282,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "voltage-mv",
+              "source": "输入 fixture",
+              "text": "2500",
+              "rgb": []
+            },
+            {
+              "field": "adc-samples",
+              "source": "控制器状态",
+              "text": "28282",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "position",
+                "continuous": false,
+                "rangeDeg": null,
+                "visualRangeDeg": [
+                  -150,
+                  150
+                ],
+                "demoRpmMax": 0
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "005-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:23:49.990Z"
+}

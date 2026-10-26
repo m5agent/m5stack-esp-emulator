@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "category": "actual-native-and-browser-visual-observation-supplement",
+  "status": "PASS",
+  "scope": "captured-final-native-frame-only",
+  "device_id": "atoms3r",
+  "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+  "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+  "source_full_review": ".work/unit-control-display-atom5-independent-review-20261026.json",
+  "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+  "summary": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "62f123aba04c048015db1bef811c0cbf4503e02876d9bff095e3479efcb6f6be"
+  },
+  "source_freeze": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+    "count": 421
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "575fc9ab1f4c22ab2f9521483ad79ccd26e1dd22af1d3e3f9beb6682024c711e"
+  },
+  "inspection_method": "Visual inspection of each original native PNG and actual before-evidence browser PNG. A nearest-neighbor enlarged contact sheet was used only as a visual aid. observed_final_lines were manually transcribed from pixels, never populated from execution serial or defaults.",
+  "inherited_fields_note": "actual_font_and_layout and captured_final_serial are inherited execution fields from the pinned original native review. They are not the visual transcription source.",
+  "limitations": [
+    "Only these five actual final native PNGs and their recorded visible values were reviewed.",
+    "Browser framing applies only to the named before-evidence session-card screenshots.",
+    "Browser model LCD glyph readability at screenshot scale is NOT VERIFIED; separate native PNG readability is reviewed.",
+    "No intermediate-state, exhaustive-extrema, other firmware/host or physical-hardware visual PASS."
+  ],
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "joystick-v11",
+      "session_id": "341fc99a995741e38de3ed76eb9d401e",
+      "firmware_sha256": "765a6edc0a6ccbbda1328c1a4ba6bc0df975d6f7aa67a4ee2acf1c1c01c050a4",
+      "report_sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3",
+      "native_frame_sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+      "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+      "native_frame_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/controller/joystick-v11/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png",
+      "browser_screenshot_sha256": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "atoms3r joystick-v11",
+        "x 255",
+        "y 0",
+        "button 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "encoder",
+      "session_id": "4f2898598476490495fc371582535e40",
+      "firmware_sha256": "9756f23b46f30da604d3910f5b09f0c7084fe0a550e49fccb7d6a3235feba608",
+      "report_sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799",
+      "native_frame_sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 2 39 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER 32767 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+      "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+      "native_frame_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/controller/encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png",
+      "browser_screenshot_sha256": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "atoms3r encoder",
+        "count 32767",
+        "pressed 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "8encoder",
+      "session_id": "e7261bb2b0594279b5b4391ffe49fe31",
+      "firmware_sha256": "1d55c0006c4d542a451b59699a917ea6c02f9aef2d491123932a7cdab3b71e90",
+      "report_sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf",
+      "native_frame_sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 10 127 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+      "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+      "native_frame_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/controller/8encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png",
+      "browser_screenshot_sha256": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "atoms3r 8encoder",
+        "1 1",
+        "2 -2",
+        "3 123456",
+        "4 -123456",
+        "5 2147483647",
+        "6 -2147483648",
+        "7 7",
+        "8 8",
+        "P 10100101",
+        "SW 1"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "cardkb",
+      "session_id": "06bdca0887c24ddf9137209a3992b98b",
+      "firmware_sha256": "670d9125f09e42ebbc42ea66c679a11bea302daf1b6af30d5e7d766d3d22904c",
+      "report_sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156",
+      "native_frame_sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 1 28 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_CARDKB_LAST 65"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+      "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+      "native_frame_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/controller/cardkb/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png",
+      "browser_screenshot_sha256": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "atoms3r cardkb",
+        "key 65"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rfid2",
+      "session_id": "a442cb873a484af39f49fa8e868dd997",
+      "firmware_sha256": "c0a0c9070b8ed7552a28df97d0f0f8468d5851a7821932dd560a318493cf0720",
+      "report_sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5",
+      "native_frame_sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 0.7,
+        "font_height": 10,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 4 4 120 17 11 3 50 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_RFID_NO_CARD"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-atom5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d9f3745e6fc8045121a9741a075a6c05dd9f5afa94c5f2c6086cb4a8fa121b5b",
+      "source_full_review_sha256": "e16b6f4aecb36e76dd6294124cb75cb3cf59fd5d69cfd2db028b0c754a744579",
+      "native_frame_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/controller/rfid2/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png",
+      "browser_screenshot_sha256": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "atoms3r rfid2",
+        "No card"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    }
+  ],
+  "api_contacted_by_reviewer": false,
+  "sessions_started_by_reviewer": 0
+}

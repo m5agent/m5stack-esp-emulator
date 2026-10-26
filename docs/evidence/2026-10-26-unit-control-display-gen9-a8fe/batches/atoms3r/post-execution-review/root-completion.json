@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "category": "root-observed-tool-result",
+  "status": "PASS",
+  "device_id": "atoms3r",
+  "runner_exit_code": 0,
+  "recorded_at_utc": "2026-10-25T22:02:14.739469+00:00",
+  "scope": "Root records an actual completed unified-exec tool result. This is not a new wrapper-emitted or kernel process observation.",
+  "tool_result_reference": {
+    "tool": "tools.write_stdin",
+    "session_id": 3299,
+    "chunk_id": "fdee96",
+    "observed_exit_code": 0
+  },
+  "summary": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "62f123aba04c048015db1bef811c0cbf4503e02876d9bff095e3479efcb6f6be"
+  },
+  "source_before": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "575fc9ab1f4c22ab2f9521483ad79ccd26e1dd22af1d3e3f9beb6682024c711e"
+  },
+  "execution_wrapper": {
+    "path": ".work/unit-host-control-display-candidate-20261026/execute_control_display.py",
+    "sha256": "83431e8e300ec5fa43adb8712570a24e44e734c50760545462ef8aafd2cd2158"
+  },
+  "reports": {
+    "joystick-v11": {
+      "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/joystick-v11/report.json",
+      "sha256": "450c75aab3516c943b64287f1134fbce1bf757772c82e02ec8254abb5aaaf4f3"
+    },
+    "encoder": {
+      "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/encoder/report.json",
+      "sha256": "17d6005fe7fbc7f93b76f30a185bb6983cc4f7a893ec976152b4f62809b61799"
+    },
+    "8encoder": {
+      "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/8encoder/report.json",
+      "sha256": "ddafa3d4704594e57ecea477bd674364dd3e1147f10389f5ec810bc6479ed3bf"
+    },
+    "cardkb": {
+      "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/cardkb/report.json",
+      "sha256": "f28bec1846dad5da8da2c4573a96a49499b86af3255c60db3813a167d5894156"
+    },
+    "rfid2": {
+      "path": ".work/unit-control-display-atom5-gen9-a8fe-20261026-r1/atoms3r/rfid2/report.json",
+      "sha256": "4746436ea0a711a22840771124af8e0afc0238cc94f6808a98a1cc8e4d82f1b5"
+    }
+  }
+}

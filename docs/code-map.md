@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -34,6 +34,7 @@
 | `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
 | `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_*_contract.py` 分域防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
+| `platform/units/` | 外接 Unit 官方芯片/协议、主机物理口接线和独立 runtime 状态 | 是 |
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
 | `patches/` | 可重放的 QEMU/板级补丁源；总索引见 `patches/README.md`，精确顺序见各子目录 | 是 |
 | `tests/` | 测试分层、evidence 命名和 Agent 功能测试路由；入口见 `tests/README.md` | 是 |
@@ -76,6 +77,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | --- | --- | --- |
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
+| `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |
+| `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单 | 外壳更新、来源复核 |
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |
@@ -114,6 +118,78 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence、Backlog、文档新鲜度表和全量 Markdown 清单生成并校验项目快照；分别标记权威页与委派文档的旧复核日期 | CI、交接、文档维护 |
 | `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
+
+Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
+`unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、
+`run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
+Device Service 固件探针。`scripts/bootstrap-unit-runtime.py` 和
+`patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
+`platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，
+并通过 `_unit_host_control_evidence.py` 核对显式控制类/Web证据契约：原始
+准备字段、精确附件接线、同guest数据面、直接PID、原生帧和实际停止历史。
+`_unit_host_sensor_evidence.py` 独立核对 sensor/Web 契约：原初始化负控、两组
+实际逐字段 POST 后的新鲜串口、adapter/完整 VFS、冻结源与 exact Git baseline
+重建、三路非原子帧和停止历史；人工可读性另绑原始 review。
+旧主机探针的双观察者契约仍单独保留，功能通过与显示可读性分开记录。
+AtomS3R/StickS3/StopWatch 的五款控制类入口是
+`tests/units/prepare_host_controls.py`、`run_host_control_cases.py` 与
+`host_controls_probe/`：前者按实际参考分区离线打包，后者默认离线核对当前
+依赖/工具链和准备产物，只有显式 `--execute` 才经 Device Service 与真实 Web
+运行原控制类断言。命令见 `tests/units/README.md`；
+`test_host_control_preparation.py` 保护来源漂移与执行前拒绝边界。
+六类 I2C sensor 对应 `prepare_host_sensors.py`、`run_host_sensor_cases.py` 与
+`host_sensors_probe/`；`test_host_sensor_preparation.py` 与
+`test_host_sensor_execution.py` 保护离线准备、准入、来源和实际输入窗口。
+十二款 IO 对应 `prepare_host_io.py`、`run_host_io_cases.py` 与
+`host_io_probe/`；准备采用实际 reference VFS 和原 IO 驱动/流程，执行默认
+离线预检，只在显式执行时经真实 Web/Device Service 运行原断言。Python 3.12
+ABI、精确来源冻结、ADC blocker、默认 IR/Buzzer 与显式 custom 边界及 root
+独占 API 规则见 [Unit 测试入口说明](../tests/units/README.md)。Thermal 仍走
+独立 sensor 路径；`test_host_io_preparation.py`、`test_host_io_execution.py`
+保护准备/执行门禁，不把离线结果升级为功能 PASS。
+`tests/units/test_sensor_evidence.py` 校验传感器证据故障边界。脚本或构建成功
+不等于完整 Unit 功能 PASS；结果链接到项目状态和验证台账。
+
+`tests/units/run_web_cases.py` 通过可选 `web_ui_bridge.py` 和
+`platform/tests/unit_web_bridge.mjs` 将同一批 guest probe 的正向输入交给真实
+产品控件，并保存实际 HTTP、DOM、模型与 PID/binary 证据；负向 API 路径单列。
+`tests/units/check_batch_evidence.py` 使用显式选择清单核对全部 Unit 的
+controller、live browser 和 bridge contract 三层，逐项校验 ZIP 与原工件
+hash，区分直接 PID 与间接 generation、原驱动与 custom guest，不自动挑选
+最新的成功尝试。`test_batch_evidence.py` 覆盖错配、缺件和输入覆盖拒绝。
+
+`tests/units/run_web_recovery.py` 与
+`platform/tests/test_live_unit_recovery.mjs` 在一个可见 Button 会话中对实际
+产品页面延迟模型加载并丢弃一次松开请求，核对画面保留、实际控制器状态、
+guest GPIO 串口、自动松开补偿及正常手势无额外 POST。测试只改变网络交付时序，
+不替换 guest 或输入/读回数据；结果需要独立 evidence，不继承批次功能结论。
+`platform/tests/test_frontend_recovery.mjs` 在 CI 中检查异步 owner、异常清理与
+松开补偿的确定性故障边界；内存 API/DOM fixture 不作为实际会话证据。
+
+`platform/web/unit-annotations.js` 在交互画布外显示静态 Unit 的实时读数，
+以实际 sensor anchor 与同号标签关联。数值需同时满足冻结 session 定义、
+live 响应、guest-QOM 单元来源、running/available 和字段范围；不从 pending
+输入或目录默认值补数值。`test_unit_annotation_contract.mjs` 在 CI 中验证来源、
+方向、范围及可选读数异常不影响输入确认。`tests/units/run_annotation_cases.py`
+和 `platform/tests/unit_annotation_bridge.mjs` 复用原 service/sensor/io guest，
+仅 `--execute` 才创建可见会话，核对实际 HTTP/控制器/DOM、停止前 ZIP 和终态
+清值；默认 preflight 不创建会话。几何部件绑定覆盖与读数展示是独立层级。
+`tests/units/annotation_contract.py` 约束十二款 rail 的阶段、单位、原 guest
+读数、严格输入 POST 与新鲜度；Light 首次 false 的无操作必须有真实先前 GET。
+Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配位于
+`patches/uiflow2-unit-buzzer/`，默认原驱动与补丁结果分开记录。
+
+`tests/units/prepare_host_sensors.py`、`run_host_sensor_cases.py` 和
+`host_sensors_probe/` 是三主机六传感器的准备/执行边界。完整 VFS、原驱动、
+初始化/负控/采样链和实际配置逐项绑定；未准入组合在任何 API 前拒绝，
+离线产物不扩展运行时或硬件结论。
+
+`platform/web/unit-assembly-layout.js` 只为已检查的 CoreS3 单层紧凑 HUB 装配
+提供外观布局，使用公开 unitFrame/cable API、真实尺寸与端口坐标；不改总线、
+输入或厂商模型几何。adapter 对可选布局失败隔离，范围外保持原 pose。
+所有新浏览器/执行冻结清单纳入该依赖，历史源冻结保持原样。
+`unit_web_bridge.mjs` 的长卡片取图使用有界 CDP document clip，避免元素截图
+二次滚动造成 sticky 导航遮挡；真实标题命中、完整 PNG 与旧实现负控分别核对。
 
 ## 测试入口归属
 

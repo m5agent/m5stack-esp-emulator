@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "repository-shared-controller-regression",
+  "status": "PASS",
+  "scope": "One-line classic I2C compatibility fix; exact same AXP192 firmware comparison plus six Core2 regression cases. Not Device Service Unit acceptance, S3 revalidation or physical hardware.",
+  "baseline_runtime_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "candidate_runtime_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "patch": "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch",
+  "patch_sha256": "bfb18690400f3385ccf4224e34f0021f1c5179e47f62e9b321aff6c4a06bdae8",
+  "ab_firmware_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+  "ab_same_firmware_bytes": true,
+  "baseline_status": "FAIL",
+  "candidate_axp192_status": "PASS",
+  "core2_group": [
+    {
+      "case_id": "core2-peripherals",
+      "status": "PASS",
+      "report": "core2-group/core2-peripherals/result.json"
+    },
+    {
+      "case_id": "core2-audio",
+      "status": "PASS",
+      "report": "core2-group/core2-audio/result.json"
+    },
+    {
+      "case_id": "core2-mic",
+      "status": "PASS",
+      "report": "core2-group/core2-mic/result.json"
+    },
+    {
+      "case_id": "core2-power-monitor",
+      "status": "PASS",
+      "report": "core2-group/core2-power-monitor/result.json"
+    },
+    {
+      "case_id": "core2-imu",
+      "status": "PASS",
+      "report": "core2-group/core2-imu/result.json"
+    },
+    {
+      "case_id": "core2-axp192",
+      "status": "PASS",
+      "report": "core2-group/core2-axp192/result.json"
+    }
+  ],
+  "hardware_validation": "NOT RUN",
+  "service_frozen_binary_modified": false,
+  "native_build_log": ".work/unit-runtime-core2-soft-i2c-candidate-build.log"
+}

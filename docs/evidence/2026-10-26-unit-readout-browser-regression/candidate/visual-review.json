@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "category": "browser-only-readout-placement-review",
+  "reviewed_at": "2026-10-25T20:36:19.478564+00:00",
+  "status": "PARTIAL",
+  "readout_placement_status": "PASS",
+  "overall_scene_status": "PARTIAL",
+  "scope": "Exactly readout placement and interaction preservation for ENV/Relay/nested at four viewports; no whole-scene geometry or physical-device acceptance.",
+  "browser_semantic_checks": {
+    "PASS": 15
+  },
+  "reviewed_screenshot_count": 12,
+  "screenshots": {
+    "env-1440.png": "f2ca8a8b2a9af5f7696c308e48d14495d8db34bbd87954cac2208f7fde908b5d",
+    "env-1024.png": "9a1157f177fd9da0755b135148aed2427741a42906382cb26998c822d93785f9",
+    "env-768.png": "c5cae5bd6a1d7cf899204075dc4d0a029ea6a03f163ca852479a44fa17bd2b60",
+    "env-390.png": "228900055c2e766cf00b327d26ced03b2dc969604641f22615435814b5f95ee7",
+    "relay-1440.png": "723b3b5eaff4ba4991d54f48be211641ca7b389008620563e1041a4f054cc60a",
+    "relay-1024.png": "b7d4781c4564395c9b11af9542da1ac16a0700a4dc43b47d5dad45869e3c6fbb",
+    "relay-768.png": "c07620ba0924e2334a22e2f2de5c5a8c81131c815f89fc6d61e024d1fb5ed5d1",
+    "relay-390.png": "06fd669771ec8728dd04023b9c0c59ee56caf749bbd7bc35cb7b14d0e40d53e1",
+    "nested-1440.png": "5a41cd8707373be0667c5f2810e10ef40eb436d2ddae5bff22d11f89a7ef7e02",
+    "nested-1024.png": "3aa9ecc1da34fc657f381df7f857db6d8db6df05a7a2ebd06ccceb07c9456108",
+    "nested-768.png": "de4854b1a3a0252c70767f017832649217472d8f23baede59466765cfdb8403a",
+    "nested-390.png": "48323e0e389b2f96a53a797f94b48238c9b23875521d63f18b9231e2ccf19c35"
+  },
+  "observation": "All twelve PNGs reviewed. Complete 16px readouts remain outside the WebGL canvas; host display/control projections are unobscured by cards; cards do not overlap. Real sensor-anchor indexes and leader lines identify each card. Trusted LCD mouse touch still produces start/end.",
+  "open_boundaries": [
+    {
+      "id": "UNIT-HOST-15",
+      "status": "OPEN",
+      "scope": "Nested Unit housings overlap in the existing assembly layout. This candidate does not change cable/geometry layout and does not establish nested geometry fidelity."
+    }
+  ],
+  "promoted": false,
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN"
+}

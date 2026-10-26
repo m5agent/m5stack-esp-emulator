@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "checks": {
+    "four_viewport_full_size_housings_separated": true,
+    "four_viewport_display_readouts_and_cables_clear": true,
+    "actual_mating_frames_preserved": true,
+    "sampled_rendered_wire_surface_shell_clear": true,
+    "cable_surface_sampler_detects_deliberate_shell_crossing": true,
+    "trusted_lcd_touch_survives": true,
+    "trusted_nested_button_path_preserved": true,
+    "existing_public_focus_keeps_native_nested_hitbox_operable": true,
+    "nested_replace_detach_reuse_stale_attach_and_dispose": true,
+    "untested_host_custom_pose_and_unsupported_child_keep_original_layout": true,
+    "optional_layout_failure_rolls_back_without_changing_paths": true,
+    "adapter_snapshot_and_restore_failure_preserve_ownership_siblings_and_trusted_input": true,
+    "baseline_overlap_reproduced_at_four_viewports": true
+  },
+  "screenshots": [
+    "before-1440.png",
+    "before-1024.png",
+    "before-768.png",
+    "before-390.png",
+    "after-1440.png",
+    "after-1024.png",
+    "after-768.png",
+    "after-390.png",
+    "after-button-hitbox-390.png",
+    "after-button-focus-390.png",
+    "after-snapshot-failure-isolation-390.png",
+    "after-restore-failure-isolation-390.png"
+  ]
+}

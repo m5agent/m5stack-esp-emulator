@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+        "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+        "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+        "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+        "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+        "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+        "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+        "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+        "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+        "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+        "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    }
+  ]
+}

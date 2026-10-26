@@ -1,0 +1,3 @@
+WHITE = 1
+YELLOW = 2
+TRACE_SCHEDULER = False

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "scope": "Single-file source mutation and generated patch reverse check; not a cold build or runtime validation.",
+  "changed_files": [
+    "hw/misc/esp32_ledc.c"
+  ],
+  "target_before_sha256": "126e01e11484e180330df360a32cad3ed05f17862f15ade850f0b2355f48d74a",
+  "target_after_sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+  "patch": "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch",
+  "patch_sha256": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+  "git_apply_reverse_check": 0,
+  "other_owned_source_files_unchanged": true,
+  "hardware_execution": "NOT RUN",
+  "virtual_device_execution": "NOT RUN"
+}

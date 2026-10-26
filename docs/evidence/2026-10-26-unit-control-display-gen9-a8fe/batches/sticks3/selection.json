@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "device_id": "sticks3",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+        "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+        "report_sha256": "96a250ba7148656804c768c9b9ec266d497ccb7e2347046c3cf242abcf16ae56",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/joystick-v11/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+        "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+        "report_sha256": "ed7540520b4f7adecf947f42d9b10c3111ab349a76cef742fb763a5bc5222737",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+        "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+        "report_sha256": "b7b479c2c2f61cf105b0c4c5ce6d17a19b92690e5a732fab5000c09bf4eaf479",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/rfid2/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+        "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+        "report_sha256": "9160b31c8ab1e0d4a0607e1d3607bd401c1b19299c03bf7442091fce42daccb7",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/cardkb/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": null,
+      "live_browser": null,
+      "bridge_contract": null,
+      "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+        "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+        "report_sha256": "ef3c9758a73ccd0d0bffaaf0bf1f5bf3ac0685709bdf3edfbac554ff6666be35",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/sticks3/sticks3/8encoder/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "bridge_contract": null,
+      "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    }
+  ]
+}

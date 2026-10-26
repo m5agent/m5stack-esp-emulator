@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "reference_layout": {
+    "source": "reference-partition-table",
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "declared": {
+      "offset": 8519680,
+      "size": 8253440
+    },
+    "effective": {
+      "offset": 8519680,
+      "size": 8253440
+    }
+  },
+  "checks": [
+    {
+      "name": "speaker_tone",
+      "status": "PASS",
+      "evidence": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "esp32_i2s_dma_capture",
+      "status": "PASS",
+      "evidence": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "axp2101_ns4168_enable",
+      "status": "PASS",
+      "evidence": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ]
+    },
+    {
+      "name": "speaker_ui_marker",
+      "status": "PASS",
+      "evidence": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ]
+    }
+  ],
+  "validation": "PCM bytes=2112000 samples=1056000 nonzero=47920 peak_to_peak=46091\nPASS Core2 audio marker rgb=(0,255,0)\n",
+  "reason": "Core2 v1.1 Speaker drives ESP32 I2S1 and NS4168 through real IDF DMA descriptors, with AXP2101 ALDO3 enabled and host PCM containing the generated tone.",
+  "attempts": 1,
+  "exit_code": 0,
+  "firmware_sha256": "72f535ef94d100e6aaf950e8c32762bf21159bbd10bd721f22a0fe809c0054b4"
+}

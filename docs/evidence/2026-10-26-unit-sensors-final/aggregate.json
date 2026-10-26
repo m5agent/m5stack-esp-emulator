@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T17:56:19.221180+00:00",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "port_id": "port-a",
+  "runtime": "qemu",
+  "status": "PASS",
+  "positive_cases": 7,
+  "positive_assertions": 114,
+  "hardware_validation": false,
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "binary_before_after_unchanged": true,
+  "direct_live_pid_executable_sha_observations": 7,
+  "source_hashes_before": {
+    "platform/tools/device_service.py": "245c148c4e521e57ba4667e9eb1f0c322e9db2a23522f4d52d044d626b230dda",
+    "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+    "platform/tools/unit_runtime.py": "9fdafd622067559d2226a4e70c180f5c4f66a328bd52ace23c1aefe2563550af",
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+    "platform/units/fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+  },
+  "source_hashes_after": {
+    "platform/tools/device_service.py": "245c148c4e521e57ba4667e9eb1f0c322e9db2a23522f4d52d044d626b230dda",
+    "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+    "platform/tools/unit_runtime.py": "9fdafd622067559d2226a4e70c180f5c4f66a328bd52ace23c1aefe2563550af",
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d",
+    "platform/units/fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+  },
+  "source_bytes_unchanged": true,
+  "scope": "Seven independent CoreS3 sensor guests through Device Service; official drivers, same-session physical-value injection, controller counters, serial, framebuffer, pre-stop evidence and purge=0 history. No other-host, hardware or all-27 Web-live claim.",
+  "schema_review": {
+    "color": {
+      "inputs": [
+        "blue-raw",
+        "clear-raw",
+        "green-raw",
+        "red-raw"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "tof": {
+      "inputs": [
+        "distance-mm"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "ncir": {
+      "inputs": [
+        "ambient-c",
+        "object-c"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "heart": {
+      "inputs": [
+        "ir-sample",
+        "red-sample"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "tvoc": {
+      "inputs": [
+        "eco2-ppm",
+        "raw-ethanol",
+        "raw-h2",
+        "tvoc-ppb"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "ultrasonic-i2c": {
+      "inputs": [
+        "distance-mm"
+      ],
+      "outputs": [],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    },
+    "thermal": {
+      "inputs": [
+        "control-word",
+        "eeprom-hex",
+        "frame0-hex",
+        "frame1-hex"
+      ],
+      "outputs": [
+        "raw-fixture-ready"
+      ],
+      "profile_inputs_match_schema": true,
+      "live_properties_cover_inputs": true,
+      "source_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+      }
+    }
+  },
+  "official_driver_manifest": "../../../tests/units/sensors_probe/sensor_drivers/source-manifest.json",
+  "earlier_evidence": "../2026-10-26-unit-sensors-service/aggregate.json",
+  "earlier_evidence_boundary": "The older 732d runtime results and thermal-no-fixture negative control remain separate and are not inherited as final-binary results.",
+  "archive_policy": {
+    "whitelist": [
+      "result.json",
+      "serial.txt",
+      "frame.png",
+      "evidence.zip",
+      "runtime-provenance.json",
+      "contact-sheet.png",
+      "aggregate.json"
+    ],
+    "original_zip_bytes_preserved": true,
+    "scan": "All JSON/text/log members checked for raw binary files, local absolute paths, MAC-format identity, private IPv4 endpoints and credential assignments. No redaction/repacking needed."
+  },
+  "visual_review": {
+    "status": "PASS",
+    "method": "Opened all seven final native guest frames via a contact sheet and separately inspected the settled Ultrasonic replacement.",
+    "cases": {
+      "color": "Readable guest sensor title and final values",
+      "tof": "Readable guest sensor title and final values",
+      "ncir": "Readable guest sensor title and final values",
+      "heart": "Readable guest sensor title and final values",
+      "tvoc": "Readable guest sensor title and final values",
+      "ultrasonic-i2c": "Readable guest sensor title and final values",
+      "thermal": "Readable title and complete 32x24 guest heatmap"
+    },
+    "contact_sheet": "contact-sheet.png"
+  },
+  "results": [
+    {
+      "unit_id": "color",
+      "status": "PASS",
+      "assertions": 15,
+      "session_id": "958bb8735d68421790b1b6e6b6610c99",
+      "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+      "report": "color/result.json",
+      "runtime_provenance": "color/runtime-provenance.json",
+      "evidence_sha256": "b6c9a7dfbeef137b10ec164ba7072722e57a542c2db35e31058c09198a985dee"
+    },
+    {
+      "unit_id": "tof",
+      "status": "PASS",
+      "assertions": 18,
+      "session_id": "3c5aaf45cc80474783d8463b60324543",
+      "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+      "report": "tof/result.json",
+      "runtime_provenance": "tof/runtime-provenance.json",
+      "evidence_sha256": "50ec8a9808b8af9f55c95fbe6f7d725358a49a776fe38470154d87a525be0bf6"
+    },
+    {
+      "unit_id": "ncir",
+      "status": "PASS",
+      "assertions": 14,
+      "session_id": "75aa84b19abb4bd1bc1348078815360d",
+      "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+      "report": "ncir/result.json",
+      "runtime_provenance": "ncir/runtime-provenance.json",
+      "evidence_sha256": "b0a9e8974011546041487cf968a9d790e7b921cad0add027e57e56b8abd6227f"
+    },
+    {
+      "unit_id": "heart",
+      "status": "PASS",
+      "assertions": 18,
+      "session_id": "046aef50f2b7413a9692b42601b66d34",
+      "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+      "report": "heart/result.json",
+      "runtime_provenance": "heart/runtime-provenance.json",
+      "evidence_sha256": "54636e48a09031244e2365f7930efd97fbe872bab2fadc75c8b569b7f4dd2f95"
+    },
+    {
+      "unit_id": "tvoc",
+      "status": "PASS",
+      "assertions": 19,
+      "session_id": "8a2dc2204e29407ca43523d44262cec6",
+      "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+      "report": "tvoc/result.json",
+      "runtime_provenance": "tvoc/runtime-provenance.json",
+      "evidence_sha256": "0f3d6659340318047b299e870c6b41979a770901a9daa5fc45567bf3b5c5f1d6"
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "status": "PASS",
+      "assertions": 14,
+      "session_id": "d65a017e860d4a3ca612df8667e7300b",
+      "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+      "report": "ultrasonic-i2c/result.json",
+      "runtime_provenance": "ultrasonic-i2c/runtime-provenance.json",
+      "evidence_sha256": "d8db1ba9b8c29ccb2e816f42aa28227dd01779ba19d25c40e01501ce9d0f339d"
+    },
+    {
+      "unit_id": "thermal",
+      "status": "PASS",
+      "assertions": 16,
+      "session_id": "258b784ba73c4838a6a432752a519c95",
+      "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+      "report": "thermal/result.json",
+      "runtime_provenance": "thermal/runtime-provenance.json",
+      "evidence_sha256": "547d1cab9e61ba5f122f55d878b2de43f85102f0195ef22f0f8b4a9c61a3e246"
+    }
+  ],
+  "file_sha256": {
+    "attempts/ultrasonic-draw-in-progress/attempt.json": "961e9ac36afcde15694a166d31cb496691d6258639a9dc20be300fc0cf3afad9",
+    "attempts/ultrasonic-draw-in-progress/evidence.zip": "d017d4da9ff0f76ea1cc54cfd6d4e1069806b7bb584a707baca6d5c8ccac8801",
+    "attempts/ultrasonic-draw-in-progress/frame.png": "93ad00afcca4056a8243d7e701b6b929119aaede8662106a1af690344bece6fe",
+    "attempts/ultrasonic-draw-in-progress/result.json": "2c8fe4e51b6a635518cc67841a91ab273f8eb5d0c160ce3fa063397c4c63be40",
+    "attempts/ultrasonic-draw-in-progress/runtime-provenance.json": "11bb00210329229734e5c2f6662cdd77551ddc9337f5fc29b35aa6e5a271753d",
+    "attempts/ultrasonic-draw-in-progress/serial.txt": "5bf4ae00208e9324d9c49561f5d1f50f91866706ffbd318b3637fbec8980cf5c",
+    "color/evidence.zip": "b6c9a7dfbeef137b10ec164ba7072722e57a542c2db35e31058c09198a985dee",
+    "color/frame.png": "ac131f4bdc5225c9ee7d1e09505a08bcab0f212be3341784f20bd968f8cdfd47",
+    "color/result.json": "d9a2cca25f18b3a2f4d6dbb785f42023c0bd57ba1186a648c6d57fa773b47357",
+    "color/runtime-provenance.json": "60e99f04258510c6c6ba1a22c0104600575878db4b0cc4438e96c70ef7e71961",
+    "color/serial.txt": "b937ea666923f94e7498c3848168f7d224026aa39a163caf6f3502f6c9bbd482",
+    "contact-sheet.png": "17ded062a2cdd1dfccf1ba029b067a40c92a1344d196197f3a2ac7fc6146713a",
+    "heart/evidence.zip": "54636e48a09031244e2365f7930efd97fbe872bab2fadc75c8b569b7f4dd2f95",
+    "heart/frame.png": "5c4f603c4d92fe7c39e2cfa4f0dba9c09e65bbf3f1769071de0312e4003cd8b7",
+    "heart/result.json": "5aac4a0cb8222f8c202063a5af93c013c1d47fccc8dcae15c2d228c62ec9df92",
+    "heart/runtime-provenance.json": "36368a10644a5652aec7ceeaacb5d053e76f603cd49c34398422bd2aadb7089a",
+    "heart/serial.txt": "3586afe77bb953feb002425c9b6f9d240601474f0ac5b1f04cd053ab70beba30",
+    "ncir/evidence.zip": "b0a9e8974011546041487cf968a9d790e7b921cad0add027e57e56b8abd6227f",
+    "ncir/frame.png": "38ab2f696485bc7af1f4c6159a3ddd3602d9fdfb197593ecc143d607ecf8bc72",
+    "ncir/result.json": "cb83a47895ee1595ecd4f7e7658899797f04d98fe14fe5ee52c657899b259fa2",
+    "ncir/runtime-provenance.json": "de3444723f0007e62b8b52157854adef78ba15903f655fa27567b764d161e367",
+    "ncir/serial.txt": "b180a9f0ba844f38af51379fd88d35fc9fe4a7ee1f94179cd6eb261bc1f6daae",
+    "thermal/evidence.zip": "547d1cab9e61ba5f122f55d878b2de43f85102f0195ef22f0f8b4a9c61a3e246",
+    "thermal/frame.png": "6a9b26bf5d83d5f3f65e88bfc6ebf7a5016dce9ac7236a648929a349fc4dd0a1",
+    "thermal/result.json": "72f3698ca9b6213144a45197d022cb42ecaa3aec66003fa2e6b6615e41d91c38",
+    "thermal/runtime-provenance.json": "7301923362428b3ae89cb8599b5d3b5eb0e62f5a24eaea3595468bdfcf9cc96a",
+    "thermal/serial.txt": "d23ba2abf2e3125055fa1afc1787952d598cea025bdd044871a401facc0dcf63",
+    "tof/evidence.zip": "50ec8a9808b8af9f55c95fbe6f7d725358a49a776fe38470154d87a525be0bf6",
+    "tof/frame.png": "de6283475f380bde26046f0883d1e915c0fbb8c2f7ec5cf79f11ba7063ea556e",
+    "tof/result.json": "a7ce649940cfeb8313d629b179fac2d88f3efd15cc75b53361cbbe5a30f25c4b",
+    "tof/runtime-provenance.json": "4985022f97516965d3bfa95d7155325e959426d0b48eafca4dd595099d6472bd",
+    "tof/serial.txt": "5518ff133651ab6ecc6b5a0fd574e7040f02c004fda4f3f242cfd4b34ff4aad7",
+    "tvoc/evidence.zip": "0f3d6659340318047b299e870c6b41979a770901a9daa5fc45567bf3b5c5f1d6",
+    "tvoc/frame.png": "89f590ec4f45660bd38336757e0022d79cba763fb884aa6f8f0d8a2b28d9104e",
+    "tvoc/result.json": "89f2476c44766743c86b6ee200c8b74f8a93dcc2a885f5fe6d99f22cb694c75d",
+    "tvoc/runtime-provenance.json": "da8c55d597df7ccad82680cffffaaecf89b078a47ac2438ec34c0fc24a67bc27",
+    "tvoc/serial.txt": "ede70018e637b50c7160b92e71c32b1ece84d711364f4cd2846d2efed595b6fc",
+    "ultrasonic-i2c/evidence.zip": "d8db1ba9b8c29ccb2e816f42aa28227dd01779ba19d25c40e01501ce9d0f339d",
+    "ultrasonic-i2c/frame.png": "d30e876cd79d60f5c9fad4567c2ed45f7f7bedc964d03b2a6f09add0c6772d36",
+    "ultrasonic-i2c/result.json": "9aa434960673671491b71797ff022bcfd79935c99f4edb75a69b2d70574fe6de",
+    "ultrasonic-i2c/runtime-provenance.json": "9e12f85e94830af7ab66c92013aaa01f6cb0b6b32fd556c72df856bd545e3fc4",
+    "ultrasonic-i2c/serial.txt": "abcb52434df9c8cfceaa6070749f1a1e60f0ecc732fbbc3187e0ec9e578eb317"
+  },
+  "superseded_attempts": [
+    {
+      "unit_id": "ultrasonic-i2c",
+      "classification": "functional-PASS-visual-transient",
+      "report": "attempts/ultrasonic-draw-in-progress/attempt.json",
+      "excluded_from_positive_case_count": true
+    }
+  ],
+  "runner_revisions": {
+    "color": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "tof": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "ncir": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "heart": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "tvoc": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730",
+    "ultrasonic-i2c": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "thermal": "72b50bbc579b104fabe9f259a9deb27005d2c69585c84a2775577b9ac3f80730"
+  },
+  "runner_update": "Only Ultrasonic was repeated after reusing the existing control runner settled_frame helper to wait for three identical captures. Guest/probe/driver/fixture and firmware SHA stayed unchanged; the earlier transient attempt is retained separately.",
+  "host_evidence_contract_tests": {
+    "path": "tests/units/test_sensor_evidence.py",
+    "count": 10,
+    "status": "PASS"
+  }
+}

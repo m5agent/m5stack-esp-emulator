@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-control-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PARTIAL",
+  "report": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/atoms3r/joystick-v11/report.json",
+  "report_sha256": "85afbe67761276ee446e78988a515c3e428835cdb3d725f900cf3c80f50cc455",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/source-before.json",
+    "sha256": "1c55ed6e6c2a3d47e860816010e73d15748ad2dbd884e6b8847d8a6f64d58d7e"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/source-reconstruction.json",
+    "sha256": "725000f0025a6426ba4feab30a1a62e2dd0dfec6c3e11d55fb3c115d636e82ed"
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/prepared-readiness.json",
+    "sha256": "054874e131c6f1f341754cb00a7d35bf6d34f5f571696b693c8ebd80d9ad50f4"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/post-execution-history/joystick-v11.json",
+    "sha256": "7da489c36ff3f6d91dbcb41e109eb18b7e47932f46af7737292f30e2a3d6118e"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "BLOCKED",
+      "code": "runtime_model_gap",
+      "http_status": 409,
+      "reason": "joystick-v11 has no controller wiring for atoms3r"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "atoms3r",
+      "unit_id": "joystick-v11"
+    },
+    "meaning": "Historical offline preparation observations inherited verbatim by the raw controller report; these do not describe the subsequent execution."
+  },
+  "execution_authority": "Unchanged outer execution report plus same-session controller assertions, browser POST/readbacks, direct-PID proof, ZIP, native frame, and actual post-execution history.",
+  "native_readability_origin": "Post-execution independent review. Joystick/Encoder/8Encoder multirow glyphs overlap. CardKB and RFID2 final one-line frames are readable; intermediate multirow readability was not established."
+}

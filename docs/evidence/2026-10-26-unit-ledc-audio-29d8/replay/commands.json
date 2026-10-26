@@ -1,0 +1,736 @@
+[
+  {
+    "sequence": 1,
+    "label": "git-version",
+    "argv": [
+      "/usr/bin/git",
+      "--version"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026",
+    "started_at": "2026-10-26T01:55:10.992662+00:00",
+    "returncode": 0,
+    "output": "logs/01-git-version.txt",
+    "output_sha256": "2aa6da9ca331dc6de6fe72460146b9d1ebc22c8df24f3eb2a4c4f7c3c41b93ca",
+    "finished_at": "2026-10-26T01:55:11.005979+00:00"
+  },
+  {
+    "sequence": 2,
+    "label": "readonly-source-head",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": ".work/unit-runtime-source-ledc-readback/qemu",
+    "started_at": "2026-10-26T01:55:11.006360+00:00",
+    "returncode": 0,
+    "output": "logs/02-readonly-source-head.txt",
+    "output_sha256": "651a399f46a837a1f4d0207ec7b5b6fe686776b718a3c5195604418ec59b0adb",
+    "finished_at": "2026-10-26T01:55:11.019902+00:00"
+  },
+  {
+    "sequence": 3,
+    "label": "clone-local-shared-no-checkout",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "clone",
+      "--shared",
+      "--no-checkout",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-ledc-readback/qemu",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/qemu"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026",
+    "started_at": "2026-10-26T01:55:11.042418+00:00",
+    "returncode": 0,
+    "output": "logs/03-clone-local-shared-no-checkout.txt",
+    "output_sha256": "5d52d12bfe5185e58f25a65062f8cd21c01a82682f49a64dce756c63b2fe6f40",
+    "finished_at": "2026-10-26T01:55:11.571786+00:00"
+  },
+  {
+    "sequence": 4,
+    "label": "checkout-fixed-base",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "checkout",
+      "--detach",
+      "40edccac415693c5130f91c01d84176ae6008566"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:11.571998+00:00",
+    "returncode": 0,
+    "output": "logs/04-checkout-fixed-base.txt",
+    "output_sha256": "121cf62c491c1ba6111902c268eff4ace737f57464a18b6f8ab7309af844dc34",
+    "finished_at": "2026-10-26T01:55:12.403544+00:00"
+  },
+  {
+    "sequence": 5,
+    "label": "base-head",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.403754+00:00",
+    "returncode": 0,
+    "output": "logs/05-base-head.txt",
+    "output_sha256": "651a399f46a837a1f4d0207ec7b5b6fe686776b718a3c5195604418ec59b0adb",
+    "finished_at": "2026-10-26T01:55:12.417389+00:00"
+  },
+  {
+    "sequence": 6,
+    "label": "base-tree-object",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.417590+00:00",
+    "returncode": 0,
+    "output": "logs/06-base-tree-object.txt",
+    "output_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92",
+    "finished_at": "2026-10-26T01:55:12.430259+00:00"
+  },
+  {
+    "sequence": 7,
+    "label": "base-clean-status",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.430471+00:00",
+    "returncode": 0,
+    "output": "logs/07-base-clean-status.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.661339+00:00"
+  },
+  {
+    "sequence": 8,
+    "label": "forward-01-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.664148+00:00",
+    "returncode": 0,
+    "output": "logs/08-forward-01-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.681709+00:00"
+  },
+  {
+    "sequence": 9,
+    "label": "forward-01-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.682002+00:00",
+    "returncode": 0,
+    "output": "logs/09-forward-01-apply.txt",
+    "output_sha256": "641a2b43373334e6c4391b1b5479fdf334981ac039806fcc53beeb108f0d8b23",
+    "finished_at": "2026-10-26T01:55:12.705112+00:00"
+  },
+  {
+    "sequence": 10,
+    "label": "forward-02-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.705376+00:00",
+    "returncode": 0,
+    "output": "logs/10-forward-02-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.718003+00:00"
+  },
+  {
+    "sequence": 11,
+    "label": "forward-02-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.718251+00:00",
+    "returncode": 0,
+    "output": "logs/11-forward-02-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.730687+00:00"
+  },
+  {
+    "sequence": 12,
+    "label": "forward-03-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.730969+00:00",
+    "returncode": 0,
+    "output": "logs/12-forward-03-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.744426+00:00"
+  },
+  {
+    "sequence": 13,
+    "label": "forward-03-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.744724+00:00",
+    "returncode": 0,
+    "output": "logs/13-forward-03-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.764212+00:00"
+  },
+  {
+    "sequence": 14,
+    "label": "forward-04-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.764452+00:00",
+    "returncode": 0,
+    "output": "logs/14-forward-04-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.776714+00:00"
+  },
+  {
+    "sequence": 15,
+    "label": "forward-04-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.776989+00:00",
+    "returncode": 0,
+    "output": "logs/15-forward-04-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.789395+00:00"
+  },
+  {
+    "sequence": 16,
+    "label": "forward-05-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.789691+00:00",
+    "returncode": 0,
+    "output": "logs/16-forward-05-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.801713+00:00"
+  },
+  {
+    "sequence": 17,
+    "label": "forward-05-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.801978+00:00",
+    "returncode": 0,
+    "output": "logs/17-forward-05-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.814230+00:00"
+  },
+  {
+    "sequence": 18,
+    "label": "forward-06-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.814520+00:00",
+    "returncode": 0,
+    "output": "logs/18-forward-06-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.826014+00:00"
+  },
+  {
+    "sequence": 19,
+    "label": "forward-06-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.826335+00:00",
+    "returncode": 0,
+    "output": "logs/19-forward-06-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.838161+00:00"
+  },
+  {
+    "sequence": 20,
+    "label": "forward-07-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.838440+00:00",
+    "returncode": 0,
+    "output": "logs/20-forward-07-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.850679+00:00"
+  },
+  {
+    "sequence": 21,
+    "label": "forward-07-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.851097+00:00",
+    "returncode": 0,
+    "output": "logs/21-forward-07-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:12.863058+00:00"
+  },
+  {
+    "sequence": 22,
+    "label": "forward-status",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:12.878286+00:00",
+    "returncode": 0,
+    "output": "logs/22-forward-status.txt",
+    "output_sha256": "171704557336e238ff4eee60da35556ee16954e4f3b74ca7b3b94b4a8782d103",
+    "finished_at": "2026-10-26T01:55:13.103780+00:00"
+  },
+  {
+    "sequence": 23,
+    "label": "reverse-07-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.104337+00:00",
+    "returncode": 0,
+    "output": "logs/23-reverse-07-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.117916+00:00"
+  },
+  {
+    "sequence": 24,
+    "label": "reverse-07-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.118349+00:00",
+    "returncode": 0,
+    "output": "logs/24-reverse-07-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.130322+00:00"
+  },
+  {
+    "sequence": 25,
+    "label": "reverse-06-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.130722+00:00",
+    "returncode": 0,
+    "output": "logs/25-reverse-06-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.143245+00:00"
+  },
+  {
+    "sequence": 26,
+    "label": "reverse-06-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.143619+00:00",
+    "returncode": 0,
+    "output": "logs/26-reverse-06-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.155588+00:00"
+  },
+  {
+    "sequence": 27,
+    "label": "reverse-05-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.155928+00:00",
+    "returncode": 0,
+    "output": "logs/27-reverse-05-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.167935+00:00"
+  },
+  {
+    "sequence": 28,
+    "label": "reverse-05-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.168283+00:00",
+    "returncode": 0,
+    "output": "logs/28-reverse-05-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.180579+00:00"
+  },
+  {
+    "sequence": 29,
+    "label": "reverse-04-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.180960+00:00",
+    "returncode": 0,
+    "output": "logs/29-reverse-04-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.193348+00:00"
+  },
+  {
+    "sequence": 30,
+    "label": "reverse-04-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.193685+00:00",
+    "returncode": 0,
+    "output": "logs/30-reverse-04-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.205072+00:00"
+  },
+  {
+    "sequence": 31,
+    "label": "reverse-03-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.205453+00:00",
+    "returncode": 0,
+    "output": "logs/31-reverse-03-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.218326+00:00"
+  },
+  {
+    "sequence": 32,
+    "label": "reverse-03-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.218706+00:00",
+    "returncode": 0,
+    "output": "logs/32-reverse-03-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.232542+00:00"
+  },
+  {
+    "sequence": 33,
+    "label": "reverse-02-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.233020+00:00",
+    "returncode": 0,
+    "output": "logs/33-reverse-02-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.245501+00:00"
+  },
+  {
+    "sequence": 34,
+    "label": "reverse-02-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.245894+00:00",
+    "returncode": 0,
+    "output": "logs/34-reverse-02-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.259357+00:00"
+  },
+  {
+    "sequence": 35,
+    "label": "reverse-01-check",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "--check",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.259718+00:00",
+    "returncode": 0,
+    "output": "logs/35-reverse-01-check.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.276471+00:00"
+  },
+  {
+    "sequence": 36,
+    "label": "reverse-01-apply",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "apply",
+      "--reverse",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-ledc-readback-replay-20261026/inputs/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.276876+00:00",
+    "returncode": 0,
+    "output": "logs/36-reverse-01-apply.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.300757+00:00"
+  },
+  {
+    "sequence": 37,
+    "label": "final-head",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.303887+00:00",
+    "returncode": 0,
+    "output": "logs/37-final-head.txt",
+    "output_sha256": "651a399f46a837a1f4d0207ec7b5b6fe686776b718a3c5195604418ec59b0adb",
+    "finished_at": "2026-10-26T01:55:13.317373+00:00"
+  },
+  {
+    "sequence": 38,
+    "label": "final-tree-object",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.317834+00:00",
+    "returncode": 0,
+    "output": "logs/38-final-tree-object.txt",
+    "output_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92",
+    "finished_at": "2026-10-26T01:55:13.331077+00:00"
+  },
+  {
+    "sequence": 39,
+    "label": "final-clean-status",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.331449+00:00",
+    "returncode": 0,
+    "output": "logs/39-final-clean-status.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.582203+00:00"
+  },
+  {
+    "sequence": 40,
+    "label": "final-worktree-diff-empty",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "diff",
+      "--no-ext-diff",
+      "--exit-code",
+      "HEAD"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.582720+00:00",
+    "returncode": 0,
+    "output": "logs/40-final-worktree-diff-empty.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:13.996709+00:00"
+  },
+  {
+    "sequence": 41,
+    "label": "final-index-diff-empty",
+    "argv": [
+      "/usr/bin/git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "diff",
+      "--no-ext-diff",
+      "--cached",
+      "--exit-code",
+      "HEAD"
+    ],
+    "cwd": ".work/unit-ledc-readback-replay-20261026/qemu",
+    "started_at": "2026-10-26T01:55:13.997144+00:00",
+    "returncode": 0,
+    "output": "logs/41-final-index-diff-empty.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finished_at": "2026-10-26T01:55:14.011382+00:00"
+  }
+]

@@ -1,0 +1,541 @@
+#!/usr/bin/env python3
+"""Validate GPIO/ADC/LEDC/RMT/UART Units through visible Device Service sessions.
+
+--prepare-only builds and checks LittleFS images without any API request.
+Execution always requests evidence before stopping with purge=0.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import math
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import time
+import urllib.parse
+from types import SimpleNamespace
+import zipfile
+from datetime import datetime, timezone
+
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(ROOT / "platform/tools"))
+from run_service_cases import Client, png_metrics  # noqa: E402
+from run_control_cases import build_control_image  # noqa: E402
+from run_sensor_cases import verify_image_files  # noqa: E402
+from unit_adc_fixture import expected_ideal_input  # noqa: E402
+
+PROBE = Path(__file__).parent / "io_probe"
+IR_CALLBACK_PATCH = ROOT / "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch"
+CASES = ("pir", "dual-button", "limit", "key", "rgb", "angle", "light", "buzzer", "fan", "ir", "rs485", "hub")
+HUB_INITIAL = {
+    "env": {"temperature-c": 25, "humidity-pct": 50, "pressure-pa": 101325},
+    "ncir": {"ambient-c": 25, "object-c": 32},
+    "tvoc": {"eco2-ppm": 800, "tvoc-ppb": 40},
+}
+GUEST_FAILURES = ("IO_PROBE_FAIL", "Traceback (most recent call last)", "Guru Meditation", "A fatal error occurred", "Rebooting...")
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def require(condition, message):
+    if not condition:
+        raise RuntimeError(message)
+
+
+def driver_manifest():
+    manifest = json.loads((PROBE / "io_drivers/source-manifest.json").read_text())
+    for name, record in manifest.items():
+        require(digest(PROBE / "io_drivers" / name) == record["sha256"], f"official driver changed: {name}")
+    return manifest
+
+
+def patch_ir_callback_copy(files, manifest):
+    """Patch only the generated guest copy; preserve the pinned vendor source."""
+    original = PROBE / "io_drivers/ir.py"
+    copied = files / "io_drivers/ir.py"
+    require(digest(original) == manifest["ir.py"]["sha256"] == digest(copied),
+            "IR patch requires the exact pinned official source")
+    command = ["patch", "--batch", "--fuzz=0", "-p1", "-i", str(IR_CALLBACK_PATCH)]
+    subprocess.run([*command, "--forward"], cwd=files, check=True, capture_output=True)
+    subprocess.run([*command, "--reverse", "--dry-run"], cwd=files, check=True, capture_output=True)
+    require(digest(original) == manifest["ir.py"]["sha256"], "IR vendor source was modified")
+    return {
+        "path": IR_CALLBACK_PATCH.relative_to(ROOT).as_posix(),
+        "patch_sha256": digest(IR_CALLBACK_PATCH),
+        "driver_path": "io_drivers/ir.py",
+        "original_driver_sha256": digest(original),
+        "patched_driver_sha256": digest(copied),
+        "original_driver_unchanged": True,
+        "native_module_modified": False,
+        "scope": "Custom guest wrapper keeps its nested native callback reachable from self; no QEMU or native parser change.",
+    }
+
+
+def attachments(case, port_id):
+    if case != "hub":
+        return [{"id": "external1", "unit_id": case, "port_id": port_id}]
+    return [
+        {"id": "hub1", "unit_id": "hub", "port_id": port_id},
+        *[{"id": name, "unit_id": "env-iii" if name == "env" else name,
+           "parent_id": "hub1", "port_id": f"grove-{index}", "initial": values}
+          for index, (name, values) in enumerate(HUB_INITIAL.items(), 1)],
+    ]
+
+
+def prepare(args, case):
+    output = args.out_dir / case
+    output.mkdir(parents=True, exist_ok=True)
+    matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
+    device = next(row for row in matrix["devices"] if row["id"] == args.device)
+    hosts = json.loads((ROOT / "platform/units/host-ports.json").read_text())["hosts"]
+    host = next(row for row in hosts if row["device_id"] == args.device)
+    port = next(row for row in host["ports"] if row.get("visual_port") == "grove" and row.get("wiring_status") == "confirmed")
+    files = output / "files"
+    originals = {path.relative_to(PROBE).as_posix() for path in PROBE.rglob("*.py")}
+    if files.exists():
+        previous = {path.relative_to(files).as_posix() for path in files.rglob("*.py")}
+        require(previous <= originals | {"probe_config.py"}, "stale guest files; choose a fresh --out-dir")
+    shutil.copytree(PROBE, files, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    official_drivers = driver_manifest()
+    custom_ir = case == "ir" and getattr(args, "ir_callback_root_patch", False)
+    ir_patch = patch_ir_callback_copy(files, official_drivers) if custom_ir else None
+    (files / "probe_config.py").write_text(
+        f"CASE = {case!r}\nWHITE = {port['pins']['white']}\nYELLOW = {port['pins']['yellow']}\n"
+        f"IR_CALLBACK_ROOT_PATCH = {custom_ir!r}\n", encoding="utf-8",
+    )
+    base = args.base.resolve() if args.base else ROOT / device["base"]
+    image = build_control_image(SimpleNamespace(
+        base=base, flash_size=int(device["flash_size"], 0), files_dir=files,
+        mklittlefs=None, preserve_vfs=False, vfs_offset=int(device["vfs_offset"], 0),
+        vfs_size=int(device["vfs_size"], 0), prog_size=32, out_dir=output,
+    ))
+    result = {
+        "schema_version": 1, "date": datetime.now(timezone.utc).isoformat(),
+        "validation": "virtual-device validation", "status": "PREPARED",
+        "device_id": args.device, "unit_id": case, "runtime": "qemu", "port_id": port["id"],
+        "base_firmware_sha256": digest(base), "firmware_sha256": digest(image),
+        "expected_size": [int(value) for value in device["expected_size"].split("x")],
+        "official_drivers": official_drivers, "attachments": attachments(case, port["id"]),
+        "firmware_flavor": "custom-guest-ir-callback-root-patch" if custom_ir else "reference-app-with-original-unit-drivers",
+        **({"ir_callback_patch": ir_patch} if ir_patch else {}),
+        "probe_sha256": verify_image_files(image, files, device),
+        "runner_sha256": {name: digest(ROOT / name) for name in (
+            "tests/units/run_io_cases.py", "tests/units/run_control_cases.py", "tests/units/run_sensor_cases.py",
+            "tests/units/run_service_cases.py", "tests/uiflow2/run_profile_ui_test.py", "tests/uiflow2/esp_flash.py",
+        )},
+        "checks": {"packaged_guest_bytes_verified": True}, "injections": [], "required_markers": [],
+    }
+    (output / "prepared.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    return output, image, result
+
+
+class Observations:
+    def __init__(self, client, session_id, result):
+        self.client, self.session_id, self.result = client, session_id, result
+        self.serial = ""
+
+    def wait(self, predicate, *, offset=0, timeout=60):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            session = self.client.json(f"sessions/{self.session_id}")
+            self.serial = self.client.json(f"sessions/{self.session_id}/serial?limit=262144").get("data", "")
+            require(session["state"] not in {"failed", "stopped"}, session.get("error") or "guest ended")
+            require(not any(marker in self.serial for marker in GUEST_FAILURES),
+                    "guest exception; inspect serial.txt")
+            # Serial can contain READY one poll before the service publishes
+            # its running transition. Mutable input is not accepted in booting.
+            if session["state"] == "running" and predicate(self.serial[offset:]):
+                return self.serial
+            time.sleep(0.2)
+        raise RuntimeError("guest observation timed out; inspect serial.txt")
+
+    def marker(self, marker, *, offset=0, timeout=60):
+        self.wait(lambda text: re.search(r"(?m)^" + re.escape(marker) + r"\r?$", text) is not None,
+                  offset=offset, timeout=timeout)
+        self.result["required_markers"].append(marker)
+
+    def state(self):
+        snapshot = self.client.json(f"sessions/{self.session_id}/units")
+        require(snapshot["source"] == "live", "Unit state is not live")
+        for unit in snapshot["units"]:
+            require(unit.get("source") == "guest-qom" and unit.get("available"), "Unit has no live guest QOM state")
+        return snapshot
+
+    def properties(self, instance="external1"):
+        return next(unit["properties"] for unit in self.state()["units"] if unit["id"] == instance)
+
+    def qom(self, path, prop):
+        query = urllib.parse.urlencode({"path": path, "property": prop})
+        return self.client.json(f"sessions/{self.session_id}/qom?{query}")["value"]
+
+    def input(self, values, instance="external1", *, via_ui=True):
+        self.client.json(f"sessions/{self.session_id}/unit-input", method="POST",
+                         payload={"id": instance, "values": values}, via_ui=via_ui)
+        self.result["injections"].append({"id": instance, "values": values})
+
+    def properties_match(self, predicate, *, instance="external1", timeout=30):
+        deadline = time.monotonic() + timeout
+        latest = None
+        while time.monotonic() < deadline:
+            latest = self.properties(instance)
+            if predicate(latest):
+                return latest
+            self.wait(lambda text: True)
+            time.sleep(0.2)
+        raise RuntimeError(f"guest controller output did not match: {latest}")
+
+
+def nec_pulses(address, command, *, raw16=False):
+    durations = [9000, 4500]
+    payload = (address & 255, address >> 8, command & 255, command >> 8) if raw16 else (address, address ^ 255, command, command ^ 255)
+    for byte in payload:
+        for bit in range(8):
+            durations.extend((562, 1687 if byte & (1 << bit) else 562))
+    return durations + [562]
+
+
+def check_nec_tx(pulses, *, raw16=False):
+    expected = nec_pulses(0x12, 0x34, raw16=raw16)
+    # An RMT terminator may include one trailing idle duration.
+    return len(pulses) in {len(expected), len(expected) + 1} and all(
+        abs(a - b) <= max(30, b * 0.06) for a, b in zip(pulses, expected)
+    )
+
+
+def validate_io(observed, case):
+    result = observed.result
+    checks = result["checks"]
+    if case == "pir":
+        observed.input({"motion": True})
+        observed.marker("IO_PIR_CALLBACK 1 1")
+        observed.input({"motion": False})
+        observed.marker("IO_PIR_CALLBACK 0 1")
+        observed.marker("IO_PIR_DISABLED 1 1")
+        offset = len(observed.serial)
+        observed.input({"motion": True})
+        observed.wait(lambda text: re.search(r"(?m)^IO_PIR 1 1 1 1\r?$", text), offset=offset)
+        observed.input({"motion": False})
+        observed.marker("IO_PIR_DISABLED_DONE 1 1", offset=offset)
+        observed.marker("IO_PIR_REENABLED", offset=offset)
+        require("IO_PIR_CALLBACK" not in observed.serial[offset:], "disabled IRQ delivered a callback")
+        observed.input({"motion": True})
+        observed.marker("IO_PIR_CALLBACK 1 2")
+        observed.input({"motion": False})
+        observed.marker("IO_PIR_CALLBACK 0 2")
+        checks["both_gpio_edges_and_disable_reenable_irq"] = True
+    elif case == "dual-button":
+        for values, raw, clicks in (
+            ({"blue-pressed": True}, (0, 1), None),
+            ({"blue-pressed": False}, (1, 1), (1, 0)),
+            ({"red-pressed": True}, (1, 0), None),
+            ({"red-pressed": False}, (1, 1), (1, 1)),
+        ):
+            offset = len(observed.serial)
+            observed.input(values)
+            observed.wait(lambda text: re.search(r"(?m)^IO_DUAL %d %d " % raw, text), offset=offset)
+            if clicks:
+                observed.marker("IO_DUAL_CLICK %d %d" % clicks, offset=offset)
+            else:
+                time.sleep(0.2)
+        checks["independent_hardware_button_pins_and_click_state_machines"] = True
+    elif case == "limit":
+        observed.marker("IO_LIMIT_BUTTON_ALIAS 1")
+        for pressed, raw, count in ((True, 0, 0), (False, 1, 1), (True, 0, 2), (False, 1, 3)):
+            offset = len(observed.serial)
+            observed.input({"pressed": pressed})
+            observed.marker(f"IO_LIMIT {raw} {count}", offset=offset)
+        observed.marker("IO_LIMIT_COUNT_RESET 0")
+        checks["official_limit_button_alias_irq_counter_and_reset"] = True
+    elif case == "key":
+        for pressed, raw, rgb in ((True, 0, 0x123456), (False, 1, 0x2468AC)):
+            offset = len(observed.serial)
+            observed.input({"pressed": pressed})
+            observed.marker(f"IO_KEY_RAW {raw}", offset=offset)
+            observed.properties_match(lambda properties: properties["led-rgb"] == rgb)
+        properties = observed.properties()
+        require(properties["led-frames"] >= 3, "Key LED never traversed native RMT")
+        checks["active_low_key_and_guest_brightness_rgb_frames"] = True
+    elif case == "rgb":
+        observed.marker("IO_RGB_FULL 1")
+        before = observed.properties_match(lambda properties: properties["led-rgb"] == [0x112233, 0x445566, 0x778899])
+        offset = len(observed.serial)
+        observed.marker("IO_RGB_SHORT 1", offset=offset)
+        short = observed.properties()
+        require(short["led-rgb"] == before["led-rgb"] and short["led-frames"] == before["led-frames"], "short frame fabricated a complete LED chain")
+        require(short["incomplete-frames"] > before["incomplete-frames"], "short RMT frame was not counted")
+        observed.marker("IO_RGB_FULL 2")
+        observed.properties_match(lambda properties: properties["led-rgb"] == [0xA1B2C3, 0x010203, 0x040506])
+        counters = {name: observed.qom("/machine/rmt0", name) for name in ("tx-symbols", "tx-threshold-events", "tx-completions", "tx-errors")}
+        result["rmt_controller"] = counters
+        require(counters["tx-symbols"] >= 168 and counters["tx-threshold-events"] > 0 and counters["tx-completions"] >= 3 and counters["tx-errors"] == 0,
+                "RGB lacks actual RMT threshold/refill/completion evidence")
+        checks["native_rmt_grb_all_three_leds_and_short_frame_negative"] = True
+    elif case in {"angle", "light"}:
+        voltages = (0, 1250, 2500) if case == "angle" else (310, 1550, 3100)
+        calibrated = []
+        result["adc_fixture_sha256"] = digest(ROOT / "platform/units/fixtures/esp32s3-adc-calibration.json")
+        result["adc_oracle_sha256"] = digest(ROOT / "platform/tools/unit_adc_fixture.py")
+        for index, voltage in enumerate(voltages):
+            offset = len(observed.serial)
+            values = {"voltage-mv" if case == "angle" else "analog-mv": voltage}
+            if case == "light":
+                values["digital-level"] = bool(index % 2)
+            observed.input(values)
+            expected = expected_ideal_input(voltage, attenuation=3, adc_unit=1)
+            result["injections"][-1]["expected_ideal_input"] = expected
+            rows = []
+
+            def matches(text):
+                pattern = r"(?m)^IO_ANGLE (\d+) ([\d.]+) (\d+)\r?$" if case == "angle" else r"(?m)^IO_LIGHT (\d+) (\d+)\r?$"
+                for fields in re.findall(pattern, text):
+                    raw, extra = fields[:2]
+                    if int(raw) != expected["read_u16"]:
+                        continue
+                    if case == "light" and int(extra) != int(values["digital-level"]):
+                        continue
+                    if case == "angle":
+                        if int(fields[2]) != expected["read_uv"] or not math.isfinite(float(extra)) or abs(float(extra) - expected["read_uv"] / 1000000) > 0.000002:
+                            continue
+                    rows.append([int(raw), float(extra), *([int(fields[2])] if case == "angle" else [])])
+                    return True
+                return False
+
+            observed.wait(matches, offset=offset)
+            result["injections"][-1]["guest_reading"] = rows[-1]
+            if case == "angle":
+                calibrated.append(rows[-1][1])
+        require(observed.properties()["adc-samples"] >= 3, "white ADC path has no samples")
+        if calibrated:
+            require(calibrated[0] < calibrated[1] < calibrated[2], "read_uv voltage did not track the physical fixture")
+            checks["unchanged_idf_curve_fitting_exact_uv_and_monotonic_voltage"] = True
+        checks["selected_white_adc_ideal_12bit_transfer"] = True
+        if case == "light":
+            checks["independent_yellow_digital_input"] = True
+    elif case in {"fan", "buzzer"}:
+        stages = ((0, 1000, 0), (1, 1000, 25), (2, 1500, 100)) if case == "fan" else ((0, 1200, 0), (1, 2400, 25), (2, 3600, 75))
+        for stage, frequency, setting in stages:
+            observed.marker(f"IO_{case.upper()} {stage} {frequency} {setting}")
+            duty = (round((setting - 1) * 953 / 99 + 70) / 1023 * 100 if setting else 0) if case == "fan" else setting
+            properties = observed.properties_match(lambda properties: abs(properties["frequency-hz"] - frequency) <= max(2, frequency * 0.02) and abs(properties["duty-pct"] - duty) <= 0.5)
+            result.setdefault("pwm_observations", []).append({"stage": stage, "frequency-hz": properties["frequency-hz"], "duty-pct": properties["duty-pct"]})
+        if case == "buzzer":
+            observed.marker("IO_BUZZER_ONCE 2000 50")
+            observed.properties_match(lambda properties: abs(properties["frequency-hz"] - 2000) <= 40 and abs(properties["duty-pct"] - 50) <= 0.5)
+            observed.marker("IO_BUZZER_TIMER_DONE")
+            observed.properties_match(lambda properties: properties["duty-pct"] == 0)
+            observed.marker("IO_BUZZER_OFF")
+            observed.properties_match(lambda properties: properties["duty-pct"] == 0)
+            checks["haptic_once_timer_and_turn_off"] = True
+        require(observed.properties()["output-transitions"] >= 3, "LEDC output has no real transitions")
+        checks["guest_ledc_frequency_and_duty_registers"] = True
+    elif case == "ir":
+        observed.marker("IO_IR_NATIVE 1")
+        custom_ir = result["firmware_flavor"] == "custom-guest-ir-callback-root-patch"
+        observed.marker("IO_IR_GC_COLLECTED 1 %d" % int(custom_ir))
+        observed.marker("IO_IR_TX 18 52")
+        observed.properties_match(lambda properties: check_nec_tx(properties["tx-pulses-us"], raw16=True), timeout=4)
+        checks["official_wrapper_faithful_raw16_plus_16_payload"] = True
+        result["limitations"] = ["Official IRUnit.tx clamps each argument to 8 bits; native send zero-extends each to 16 bits and does not generate NEC8 complement bytes. This wrapper path is not a NEC8 interoperability PASS."]
+        offset = len(observed.serial)
+        observed.input({"rx-pulses-us": nec_pulses(0x12, 0x34)})
+        observed.marker("IO_IR_RX 52 18 0 1", offset=offset, timeout=20)
+        observed.marker("IO_IR_NATIVE_PACKED 60690 52020")
+        observed.properties_match(lambda properties: check_nec_tx(properties["tx-pulses-us"]))
+        checks["separate_native_uint16_packed_nec8_transmit"] = True
+        bad = nec_pulses(0x12, 0x34)
+        bad[0] = 200  # A bad leader must not decode as another valid frame.
+        offset = len(observed.serial)
+        observed.input({"rx-pulses-us": bad})
+        observed.properties_match(lambda properties: properties["rx-pulses-us"] == [])
+        observed.wait(lambda text: text.count("IO_IR_HEARTBEAT 1") >= 2, offset=offset)
+        require(not re.search(r"(?m)^IO_IR_RX ", observed.serial[offset:]),
+                "bad NEC leader produced a callback")
+        offset = len(observed.serial)
+        observed.input({"rx-pulses-us": [9000, 2250, 562]})
+        observed.marker("IO_IR_RX 52 18 -1 2", offset=offset, timeout=20)
+        offset = len(observed.serial)
+        observed.input({"rx-pulses-us": nec_pulses(0x56, 0x78)})
+        observed.marker("IO_IR_RX 120 86 0 3", offset=offset, timeout=20)
+        checks["native_nec_tx_rx_bad_frame_and_rearmed_receiver"] = True
+        checks["native_nec_repeat_preserves_last_address_and_command"] = True
+        if custom_ir:
+            checks["custom_callback_root_survives_forced_normal_gc"] = True
+            result["limitations"].append("Receive callback PASS applies to the explicitly patched custom guest wrapper only; the original published wrapper remains incomplete.")
+    elif case == "rs485":
+        initial = b"guest-to-peer\x00\x7f\xff"
+        observed.properties_match(lambda properties: properties["tx-hex"] == initial.hex())
+        before = observed.properties()
+        try:
+            observed.input({"rx-hex": (b"x" * 256).hex()}, via_ui=False)
+        except RuntimeError as error:
+            result["uart_fifo_rejection"] = str(error)
+            require(re.search(r"HTTP (400|409|422)", str(error)) and "FIFO" in str(error), "RX negative control failed outside the UART FIFO capacity check: " + str(error))
+        else:
+            raise RuntimeError("oversized UART FIFO injection was accepted")
+        require(observed.properties()["read-bytes"] == before["read-bytes"], "rejected RX changed the FIFO byte counter")
+        incoming = b"peer-to-guest\x00\x7f\xff"
+        offset = len(observed.serial)
+        observed.input({"rx-hex": incoming.hex()})
+        observed.marker("IO_RS485_RX " + incoming.hex(), offset=offset)
+        reply = b"echo:" + incoming
+        observed.marker(f"IO_RS485_ECHO {len(reply)} {reply.hex()}", offset=offset)
+        observed.properties_match(lambda properties: properties["tx-hex"] == (initial + reply).hex())
+        properties = observed.properties()
+        require(properties["read-bytes"] == len(incoming) and properties["written-bytes"] == len(initial + reply), "UART FIFO byte counts differ from the guest traffic")
+        checks["uart1_bidirectional_binary_fifo_and_any_read_write"] = True
+        checks["fifo_capacity_rejection_and_uart0_log_separation"] = True
+    else:
+        observed.marker("IO_HUB_SCAN 68 88 90 112")
+        current = {key: dict(value) for key, value in HUB_INITIAL.items()}
+
+        def hub_matches(text):
+            expected = [*current["env"].values(), *current["ncir"].values(), *current["tvoc"].values()]
+            for line in re.findall(r"(?m)^IO_HUB ([^\r\n]+)", text):
+                values = [float(value) for value in line.split()]
+                if len(values) == 7 and all(abs(actual - target) <= tolerance for actual, target, tolerance in zip(values, expected, (0.2, 0.2, 1.5, 0.021, 0.021, 0, 0))):
+                    return True
+            return False
+
+        observed.wait(hub_matches, timeout=90)
+        for instance, values in (
+            ("env", {"temperature-c": 31.5, "humidity-pct": 67, "pressure-pa": 98765}),
+            ("ncir", {"ambient-c": 17.3, "object-c": 37.1}),
+            ("tvoc", {"eco2-ppm": 1250, "tvoc-ppb": 230}),
+        ):
+            offset = len(observed.serial)
+            observed.input(values, instance)
+            current[instance].update(values)
+            observed.wait(hub_matches, offset=offset, timeout=90)
+        for instance in current:
+            properties = observed.properties(instance)
+            require(all(properties[name] > 0 for name in ("transactions", "read-bytes", "written-bytes", "input-events")), "HUB child has no independent same-guest I2C traffic")
+        checks["passive_hub_three_real_drivers_independent_inputs_same_bus"] = True
+        checks["hub_has_no_i2c_address"] = True
+
+
+def validate_evidence(bundle, result):
+    with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+        require(archive.testzip() is None and len(archive.namelist()) == len(set(archive.namelist())), "corrupt or duplicate evidence member")
+        required = {"manifest.json", "serial.log", "frames/current.png", "qom/snapshot.json", "units/contract.json", "units/runtime.json", "units/state.json"}
+        require(required <= set(archive.namelist()), "evidence lacks serial/frame/QOM/Unit contracts")
+        manifest = json.loads(archive.read("manifest.json"))
+        require(set(manifest["files"]) == set(archive.namelist()) - {"manifest.json"}, "evidence file index differs")
+        for name, record in manifest["files"].items():
+            content = archive.read(name)
+            require(len(content) == record["size"] and hashlib.sha256(content).hexdigest() == record["sha256"], f"evidence hash mismatch: {name}")
+        session = manifest["session"]
+        require(session["state"] == "running", "evidence was not captured from the active guest")
+        for field in ("session_id", "device_id", "firmware_sha256", "runtime"):
+            require(session.get(field) == result[field], f"evidence belongs to another {field}")
+        serial = archive.read("serial.log").decode("utf-8", errors="replace")
+        require(f"IO_PROBE_READY {result['unit_id']}" in serial and not any(marker in serial for marker in GUEST_FAILURES), "evidence lacks a stable, error-free guest")
+        for marker in result["required_markers"]:
+            require(re.search(r"(?m)^" + re.escape(marker) + r"\r?$", serial), "evidence lacks guest marker: " + marker)
+        units = manifest.get("units", {}).get("units", [])
+        expected = {row["id"]: row["unit_id"] for row in result["attachments"]}
+        require({row["id"]: row["unit_id"] for row in units} == expected and all(row.get("available") for row in units), "evidence has another attachment tree")
+        frame = archive.read("frames/current.png")
+        with Image.open(io.BytesIO(frame)) as image:
+            image.load()
+            require(image.format == "PNG" and list(image.size) == result["expected_size"], "evidence framebuffer format/size differs")
+            require(image.convert("RGB").getextrema() != ((0, 0), (0, 0), (0, 0)) and png_metrics(frame)["unique_colors"] > 1, "blank evidence application frame")
+        return {"files": sorted(archive.namelist()), "session_id": session["session_id"], "frame_sha256": hashlib.sha256(frame).hexdigest()}
+
+
+def run_case(client, args, case):
+    output, image, result = prepare(args, case)
+    if args.prepare_only:
+        print(f"{case}: PREPARED (no API request or runtime)", flush=True)
+        return result
+    result["status"] = "FAIL"
+    session_id = None
+    try:
+        artifact = client.json("artifacts", method="POST", body=image.read_bytes(), headers={
+            "Content-Type": "application/octet-stream", "X-Artifact-Name": f"cores3-{case}-io-probe.bin",
+        })
+        firmware = client.json("firmware", method="POST", payload={"device_id": args.device, "kind": "merged", "artifact_id": artifact["artifact_id"]})
+        session = client.json("sessions", method="POST", payload={
+            "device_id": args.device, "firmware_id": firmware["firmware_id"], "runtime": "qemu",
+            "ttl_seconds": 900, "ready_marker": "IO_PROBE_READY", "ready_timeout_seconds": 180,
+            "units": result["attachments"],
+        })
+        session_id = result["session_id"] = session["session_id"]
+        print(f"{case}: visible session {session_id} created", flush=True)
+        observed = Observations(client, session_id, result)
+        observed.marker("IO_PROBE_READY " + case, timeout=180)
+        result["checks"]["official_driver_ready"] = True
+        validate_io(observed, case)
+        result["unit_state"] = observed.state()
+        frame = client.raw(f"sessions/{session_id}/frame.png")
+        (output / "frame.png").write_bytes(frame)
+        result["frame_sha256"] = hashlib.sha256(frame).hexdigest()
+        result["checks"]["nonblank_application_frame"] = png_metrics(frame)["unique_colors"] > 1
+    except Exception as error:
+        result["error"] = type(error).__name__ + ": " + str(error)
+    finally:
+        if session_id:
+            try:
+                serial = client.json(f"sessions/{session_id}/serial?limit=262144").get("data", "")
+                (output / "serial.txt").write_text(serial, encoding="utf-8")
+                result["serial_sha256"] = digest(output / "serial.txt")
+                require(not any(marker in serial for marker in GUEST_FAILURES), "guest probe failed")
+            except Exception as error:
+                result["serial_error"] = str(error)
+            try:
+                bundle = client.raw(f"sessions/{session_id}/evidence")
+                (output / "evidence.zip").write_bytes(bundle)
+                result["evidence_sha256"] = hashlib.sha256(bundle).hexdigest()
+                result["evidence_summary"] = validate_evidence(bundle, result)
+                result["checks"]["evidence_before_stop"] = True
+            except Exception as error:
+                result["evidence_error"] = str(error)
+                result["checks"]["evidence_before_stop"] = False
+            try:
+                stopped = client.json(f"sessions/{session_id}?purge=0", method="DELETE")
+                retained = client.json(f"sessions/{session_id}")
+                result["checks"]["stopped_with_history"] = stopped["state"] in {"stopped", "failed"} and retained["state"] in {"stopped", "failed"}
+                result["checks"]["history_metadata_and_frame_retained"] = retained["firmware_sha256"] == result["firmware_sha256"] and retained.get("last_frame_available") is True
+                retained_frame = client.raw(f"sessions/{session_id}/frame.png")
+                (output / "history-frame.png").write_bytes(retained_frame)
+                result["checks"]["history_frame_readable"] = png_metrics(retained_frame)["unique_colors"] > 1
+            except Exception as error:
+                result["stop_error"] = str(error)
+                result["checks"]["stopped_with_history"] = False
+        result["status"] = "PASS" if session_id and not result.get("error") and not result.get("serial_error") and all(result["checks"].values()) else "FAIL"
+        (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    print(f"{case}: {result['status']} {result.get('error', '')}", flush=True)
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--api-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--device", choices=("cores3",), default="cores3")
+    parser.add_argument("--case", choices=(*CASES, "all"), action="append")
+    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--base", type=Path)
+    parser.add_argument("--prepare-only", action="store_true")
+    parser.add_argument("--ir-callback-root-patch", action="store_true",
+                        help="Explicitly patch the generated IR guest wrapper to retain its native callback; vendor source stays unchanged")
+    args = parser.parse_args()
+    args.out_dir = args.out_dir.resolve()
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    cases = list(CASES) if not args.case or "all" in args.case else list(dict.fromkeys(args.case))
+    client = Client(args.api_url)
+    results = [run_case(client, args, case) for case in cases]
+    (args.out_dir / "aggregate.json").write_text(json.dumps({"schema_version": 1, "results": results}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return 0 if all(row["status"] in {"PREPARED", "PASS"} for row in results) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

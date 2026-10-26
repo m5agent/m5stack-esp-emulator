@@ -334,6 +334,9 @@ def flash_with_qemu(
 def default_env() -> dict[str, str]:
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(
-        filter(None, [str(ROOT / ".work/py"), env.get("PYTHONPATH", "")])
+        filter(None, [
+            env.get("M5_PYTHON_DEPS", str(ROOT / ".work/py")),
+            env.get("PYTHONPATH", ""),
+        ])
     )
     return env

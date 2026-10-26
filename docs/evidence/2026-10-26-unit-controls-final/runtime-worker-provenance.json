@@ -1,0 +1,60 @@
+{
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "service_provenance_sha256": "d957f81f26726dd88046b3563f3ef8fb5cf0ba5b09e069c50a8edb2fe702b66b",
+  "source_replay_sha256": "708583372e5d607282c9490d4b7ec7fbe85f5c4570b0bd53bc98685fcdcdaa02",
+  "sessions": [
+    {
+      "unit_id": "joystick-v11",
+      "session_id": "1f10c0ec6e074f329f0807b3d1605b10",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "encoder",
+      "session_id": "b2f39c8461744978b752bcb694551192",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "8encoder",
+      "session_id": "f5d2c19fbf0441499e9b368feb480080",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "cardkb",
+      "session_id": "1dd2681b89034ddaa15166ebe73c4237",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "rfid2",
+      "session_id": "be2b24920f0d48c6b366fbbf72680b26",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "key-browser",
+      "session_id": "524b82d712174412a2e96fffb1371e57",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "fan-browser",
+      "session_id": "61b997cb2ab9433d8f5067cb8badcd3a",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    },
+    {
+      "unit_id": "button-browser",
+      "session_id": "71981ac9164942fbb41e1196ec5e3507",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 5
+    }
+  ],
+  "direct_executable_observations": [
+    "../2026-10-26-unit-browser-final/key/runtime-provenance.json",
+    "../2026-10-26-unit-browser-final/fan/runtime-provenance.json"
+  ],
+  "basis": "All eight ZIP manifests retain the same frozen worker generation. Key/Fan independently sampled the live executable SHA. Controls did not directly sample their live executable; see observer-window report."
+}

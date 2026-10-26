@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-25T17:43:32.970730+00:00",
+  "category": "host-fixture-contract-validation",
+  "status": "PASS",
+  "hardware_validation": false,
+  "virtual_device_runtime_validation": false,
+  "host_tests": {
+    "command": "PYTHONPATH=platform/tools:.work/py312 python3.12 -m unittest discover -s platform/tests -p test_unit_adc_fixture.py -v",
+    "count": 16,
+    "result": "PASS",
+    "stdout": "host-tests.txt"
+  },
+  "numeric_oracle": {
+    "vectors": 80,
+    "adc_units": [
+      1,
+      2
+    ],
+    "attenuations": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "compiled_idf_c_vs_frozen_vectors": "PASS",
+    "python_vs_compiled_idf_c": "PASS",
+    "original_function_body_and_coefficient_slice_match": "PASS",
+    "compiler_flags": [
+      "-std=c11",
+      "-Wall",
+      "-Werror"
+    ]
+  },
+  "source_verification": [
+    {
+      "source": "components/esp_adc/adc_cali_curve_fitting.c",
+      "sha256": "c5298fde12b7d019148c9d26be894b4837bf99248a1ca5ebb9cfe5de2d8f47b9",
+      "git_blob_sha": "919614a5fca5831f54e27e641c0150d5407672fc",
+      "result": "PASS"
+    },
+    {
+      "source": "components/esp_adc/esp32s3/curve_fitting_coefficients.c",
+      "sha256": "9995bb0e8b76caf0c41268391fcad62f94b6adf7dcdd76bbfb1e7dbb770a7191",
+      "git_blob_sha": "ea10cfeb66e4e723a1f93541bb414d09eb65b750",
+      "result": "PASS"
+    },
+    {
+      "source": "components/efuse/esp32s3/esp_efuse_rtc_calib.c",
+      "sha256": "449b9c4559a08cae21aacd5230390abb2966e25df9333b80fbcd2faa688128f1",
+      "git_blob_sha": "2ede5610ba666f716729b2763cde82bb99abf27a",
+      "result": "PASS"
+    },
+    {
+      "source": "components/efuse/esp32s3/esp_efuse_table.csv",
+      "sha256": "cdbede45a9fa5f21d0948723e27b07f493e437bae3e35ff40148f00b46c248a6",
+      "git_blob_sha": "a10c75587b9edd97f57c7a3091b10278cdd157a2",
+      "result": "PASS"
+    },
+    {
+      "source": "components/efuse/esp32s3/include/esp_efuse_rtc_calib.h",
+      "sha256": "b85be53f788c688a863ac7ba35d8bfaef73c98057aaa86a3c95ce613c19d9e21",
+      "git_blob_sha": "49712040a03a73c77608552fa0ee010e0ad10254",
+      "result": "PASS"
+    }
+  ],
+  "firmware_binding_memory_smoke": [
+    {
+      "input": "reference-firmware",
+      "firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
+      "result": "PASS",
+      "execution": "host-memory-only; no firmware runtime or file write",
+      "fields_verified": 17
+    },
+    {
+      "input": "sensor-probe-vfs-overlay",
+      "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+      "application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
+      "result": "PASS",
+      "execution": "host-memory-only; no firmware runtime or file write",
+      "fields_verified": 17
+    }
+  ],
+  "fixture_check": "UNIT_ADC_FIXTURE_OK",
+  "example_1250mv": {
+    "input_mv": 1250,
+    "raw_12bit": 1651,
+    "read_u16": 26422,
+    "read_uv": 1232000,
+    "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+  },
+  "files": {
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "platform/units/fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+    "platform/units/fixtures/LICENSE.Espressif-ADC": "2479c504896f5ab5ec061a0faf44ddb18411694ec69bb6294c01cc0d619db3ed",
+    "platform/tests/test_unit_adc_fixture.py": "2162555ca8ecacfd2b7d4395b0820146f2cb9f7b91e4b106f188e591d2e08eaa",
+    "tests/units/adc_reference_oracle.c": "4edb5b717397fce2c129289fd799f76d4a2a103af45fdc771c755aa53bce6da0",
+    "docs/unit-research/esp32s3-adc-calibration.md": "7512c1a6d55d7fb1d1745026a34543294a4f7d6e43e5ad085084390a10bcbb40"
+  },
+  "boundary": "Synthetic virtual calibration only. Identity/security bit preservation, atomic conflict refusal, frozen source bytes and app-byte admission are host contracts. Actual guest API and controller evidence are separate."
+}

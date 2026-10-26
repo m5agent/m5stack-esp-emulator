@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "cases": [
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/report.json",
+        "report_sha256": "a764a10211a2eb12b8e8848002feef37a29e7f5580b38b40f7c1878c3a0731a5",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/controller/color/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/report.json",
+        "report_sha256": "a764a10211a2eb12b8e8848002feef37a29e7f5580b38b40f7c1878c3a0731a5",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/controller/color/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/report.json",
+        "report_sha256": "d7078932f48d9426151e7a0c9e6367cc422f0476c7044c6a46d5655f9dbb57e1",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/controller/tof/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/report.json",
+        "report_sha256": "d7078932f48d9426151e7a0c9e6367cc422f0476c7044c6a46d5655f9dbb57e1",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/controller/tof/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+        "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/controller/ncir/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+        "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/controller/ncir/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+        "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/controller/heart/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+        "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/controller/heart/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+        "report_sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/controller/tvoc/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+        "report_sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/controller/tvoc/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/report.json",
+        "report_sha256": "741b45aa843eb2766ebf79245fb15b81b5a971d6192fbca7be17c9a88dff80e4",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/report.json",
+        "report_sha256": "741b45aa843eb2766ebf79245fb15b81b5a971d6192fbca7be17c9a88dff80e4",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "new_runtime_dependency": "platform/web/unit-assembly-layout.js",
+  "importer": "platform/web/model-shell.js",
+  "status": "NOT MODIFIED BY CANDIDATE; reconcile during promotion before new evidence freeze",
+  "required_named_freeze_lists": [
+    {
+      "path": "platform/tests/test_model_shell.mjs",
+      "list_or_gate": "integrationFiles",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "platform/tests/test_unit_service_browser.mjs",
+      "list_or_gate": "files",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "platform/tests/test_unit_fan_service_browser.mjs",
+      "list_or_gate": "files",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "platform/tests/test_live_unit_recovery.mjs",
+      "list_or_gate": "productFiles",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "platform/tests/unit_web_bridge.mjs",
+      "list_or_gate": "productFiles",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "platform/tests/unit_annotation_bridge.mjs",
+      "list_or_gate": "extraAssets and browser request routing",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "tests/units/run_annotation_cases.py",
+      "list_or_gate": "SOURCES and candidate_pending dependency gate",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    },
+    {
+      "path": "tests/units/run_web_recovery.py",
+      "list_or_gate": "files",
+      "action": "Include the new runtime module with SHA256 and retain served bytes where this helper captures product sources."
+    }
+  ],
+  "other_hash_contracts": [
+    {
+      "path": "platform/tests/test_unit_annotation_contract.mjs",
+      "action": "Its current three-file semantic hash report is supplemented by this candidate manifest. Include module if expanding the contract source inventory."
+    }
+  ],
+  "transitive_callers": [
+    "tests/units/run_control_cases.py",
+    "tests/units/run_sensor_cases.py",
+    "tests/units/web_ui_bridge.py",
+    "tests/units/run_service_cases.py"
+  ],
+  "rules": [
+    "Do not rewrite old26-source freezes or historical archives.",
+    "The common bridge is being independently changed by root; do not freeze its in-flight bytes here.",
+    "Future visible-session or browser regression freezes must bind this new served module alongside the importer.",
+    "This list contains review follow-ups; no helper, runner or product file was edited."
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-sensor-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "browser_framing": "NOT REVIEWED",
+  "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+  "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-before.json",
+    "sha256": "1185aa85b703c7959c60ff133b1195d1b6d2e42f7f43859c0f92c0a6cccd3f57"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/source-reconstruction.json",
+    "sha256": "627dd6948a4cf9e23fd528bf7eb91b564e8ef9627aaaa05523dcfeccf7d7cd98"
+  },
+  "frame_observations": {
+    "scope": "separate-captures-no-atomic-frame-claim",
+    "controller": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/controller/ncir/frame.png",
+      "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+      "width": 466,
+      "height": 466
+    },
+    "evidence": {
+      "archive_path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/controller/ncir/evidence.zip",
+      "archive_sha256": "9271677c2107a90d1fd518024eb2230952e1f172f37d408a6cd1280fdf7f2325",
+      "member": "frames/current.png",
+      "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+      "width": 466,
+      "height": 466
+    },
+    "history": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/history-frame.png",
+      "sha256": "1d6ad2ba5c5b69f69ef2433a3c5592d67cd8c69a8deb0cd0c71022ddced54668",
+      "width": 466,
+      "height": 466
+    }
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "sha256": "5451f21321d2c40b74611f61d36832210e8a6babbe9050119ca3f24a9db9f5bc"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/history.json",
+    "sha256": "782312a54e481ec8e28b42a87a60ea3465a8052cd0fb102baf381b9d0df8b790"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "stopwatch",
+      "unit_id": "ncir"
+    },
+    "meaning": "Historical preparation values retained unchanged; actual execution authority is the same-session raw report."
+  },
+  "visual_limit": "The archiver does not classify native readability or browser framing.",
+  "hardware_execution": "NOT RUN",
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+    "sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0"
+  },
+  "native_readability_scope": "captured-final-native-frames-only",
+  "observed_lines": [
+    "stopwatch",
+    "ncir",
+    "Amb 31.4900 C",
+    "Obj 53.1900 C"
+  ],
+  "additional_frames": [],
+  "root_review_notes": [
+    "Root visually inspected this actual captured image; headers and all value rows are readable without overlap or clipping. Readability applies only to the captured image.",
+    "The reviewed text lies inside the round native display."
+  ]
+}

@@ -1,0 +1,18 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: capture does not perform a second element scroll after restoring the page top
+
+0 !== 8
+
+    at file://<repo>/.work/unit-card-capture-negative-20261026/platform/tests/test_unit_web_bridge.mjs:142:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 8,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.2

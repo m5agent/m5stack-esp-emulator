@@ -1,0 +1,40 @@
+--- a/platform/web/sessions.js
++++ b/platform/web/sessions.js
+@@ -175,9 +175,18 @@
+     }
+     if (this.destroyed || !this.allowThree || generation !== this.shellGeneration) return;
+     this.shellLoading = true;
++    // Constructors and disposal may replace their host's children. Give each
++    // load its own detached mount so a stale result never touches a new owner.
++    const mount = document.createElement('div');
++    mount.style.width = '100%';
++    mount.style.height = '100%';
++    mount.style.minWidth = '0';
++    mount.style.minHeight = '0';
++    let shell = null;
+     try {
+-      const shell = await createDeviceShell(this.container, profile, { live: true });
++      shell = await createDeviceShell(mount, profile, { live: true });
+       if (this.destroyed || !this.allowThree || generation !== this.shellGeneration) { shell.dispose?.(); return; }
++      this.container.replaceChildren(mount);
+       this.container.classList.add('is-three');
+       this.shell = shell;
+       this.unitPanel?.setShell(shell);
+@@ -200,8 +209,16 @@
+       this.shell.setDeviceState?.(state.deviceStates.get(this.session.session_id));
+       if (this.frameBlob) await this.applyThreeFrame();
+     } catch (error) {
++      if (shell) {
++        if (this.shell === shell) {
++          this.unitPanel?.setShell(null);
++          this.shell = null;
++        }
++        try { shell.dispose?.(); }
++        catch (cleanupError) { console.warn('Session shell cleanup failed.', cleanupError); }
++      }
++      if (this.destroyed || !this.allowThree || generation !== this.shellGeneration || this.shell) return;
+       console.warn('3D session preview unavailable; using the framebuffer image.', error);
+-      this.shell = null;
+       this.container.classList.remove('is-three');
+       this.setMessage(this.placeholder);
+       if (this.frameBlob) this.setGenericFrame(this.frameBlob);

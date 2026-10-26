@@ -1,0 +1,101 @@
+{
+  "idle-baseline": {
+    "count": 9,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      0,
+      49.98779296875
+    ],
+    "timer_dead": [
+      "missing"
+    ]
+  },
+  "natural-once": {
+    "count": 29,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      49.98779296875
+    ],
+    "timer_dead": [
+      "False",
+      "True"
+    ]
+  },
+  "async-sentinel-after-natural": {
+    "count": 12,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      49.98779296875
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  },
+  "manual-haptic-before": {
+    "count": 9,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      24.98779296875
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  },
+  "manual-haptic-after": {
+    "count": 12,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      24.98779296875
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  },
+  "direct-cb-with-timer-after": {
+    "count": 9,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      0,
+      24.98779296875
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  },
+  "direct-cb-no-args-after": {
+    "count": 13,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      0
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  },
+  "explicit-turn-off-final": {
+    "count": 10,
+    "guest_duty_u16": [
+      "0"
+    ],
+    "qom_duty_pct": [
+      0
+    ],
+    "timer_dead": [
+      "True"
+    ]
+  }
+}

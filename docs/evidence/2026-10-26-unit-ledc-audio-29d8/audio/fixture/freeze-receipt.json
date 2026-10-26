@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_FOR_ROOT_LIVE",
+  "captured_at": "2026-10-26T01:31:45.522476+00:00",
+  "source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a"
+  },
+  "official_query": {
+    "path": ".work/unit-audio-20261026/official-buzzer-query.json",
+    "sha256": "d8fc93833a289b31b14c87e5bae0f8195317339c1af6dd061f1b68e041c0cb42",
+    "route": "skill scripts/mcp.mjs mcpSearch -> official SSE knowledge_search; not a runtime registered tool"
+  },
+  "browser_fixture": {
+    "path": ".work/unit-audio-20261026/browser-final-r4/receipt.json",
+    "sha256": "1357c9a22d8f24ac3fa19a745a3a52090ee1b303c583fdcba7ae8513ebca7742",
+    "logic_assertions": 113,
+    "browser_checks": 15,
+    "firmware_executed": false,
+    "device_service_contacted": false,
+    "physical_acoustics_measured": false
+  },
+  "panel_regression": "UNIT_PANEL_BROWSER_OK",
+  "css_token_audit": {
+    "path": ".work/unit-audio-20261026/css-token-audit.json",
+    "sha256": "e60e3b8a47d5311867ed75d49ac0e6c847de8204dc65c0bd946e092b6837d7ad",
+    "issues": 0
+  },
+  "manual_frame_review": {
+    "path": ".work/unit-audio-20261026/browser-final-r4/unit-audio.png",
+    "scope": "captured fixture frame only; text and control visible without overlap"
+  },
+  "boundaries": [
+    "Default muted; explicit user enable only.",
+    "Read-only observed frequency/duty; no POST or source mutation.",
+    "DC/off/outside native Nyquist stays silent; duty-dependent harmonics are band-limited and capped to 256.",
+    "Electrical waveform audition only; no physical acoustic/coloration/SPL claim.",
+    "Uses existing 500ms polling; brief pulses between samples may not be heard.",
+    "Root owns live firmware/API validation; not run by this agent."
+  ]
+}

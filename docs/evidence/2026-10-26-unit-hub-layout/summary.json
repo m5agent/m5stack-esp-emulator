@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "category": "browser-only-promoted-hub-layout-and-capture-regression",
+  "status": "PASS",
+  "archived_at": "2026-10-25T21:19:33.393731+00:00",
+  "firmware_execution": "NOT RUN",
+  "device_service_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "scope": "Current product browser sources, historical candidate, and isolated sticky-capture negative control. No functional guest or physical claim.",
+  "source_freeze": {
+    "named_files": 36,
+    "vendor_assets": 202,
+    "harnesses": 2,
+    "post_run_drift": [],
+    "runtime_profiles_phase": "Frozen before later control15 host admission edits; only this batch snapshot is archived."
+  },
+  "regressions": {
+    "model": {
+      "status": "PASS",
+      "controllers": 14,
+      "units": 27,
+      "report": "regression/model/report.json"
+    },
+    "panel": {
+      "status": "PASS",
+      "checks": 22,
+      "viewports": [
+        1440,
+        1024,
+        768,
+        390
+      ],
+      "report": "regression/panel/report.json"
+    },
+    "bridge": {
+      "status": "PASS",
+      "posts": 31,
+      "trusted_pointer_events": 12,
+      "report": "regression/bridge/contract-report.json"
+    },
+    "mount": {
+      "status": "PASS",
+      "initial_canvas": [
+        440,
+        420
+      ],
+      "resized_canvas": [
+        320,
+        420
+      ],
+      "report": "regression/mount/report.json"
+    },
+    "hub_actual_product": {
+      "status": "PASS",
+      "checks": 13,
+      "report": "regression/hub-product/report.json",
+      "served_product_sha256": {
+        "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+        "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9"
+      },
+      "screenshots": 12,
+      "pixels_equal_historical_r9": {
+        "before-1440.png": true,
+        "before-1024.png": true,
+        "before-768.png": true,
+        "before-390.png": true,
+        "after-1440.png": true,
+        "after-1024.png": true,
+        "after-768.png": true,
+        "after-390.png": true,
+        "after-button-hitbox-390.png": true,
+        "after-button-focus-390.png": true,
+        "after-snapshot-failure-isolation-390.png": true,
+        "after-restore-failure-isolation-390.png": true
+      }
+    }
+  },
+  "geometry": {
+    "housing_placement": "PASS in the exact four-viewport fixture",
+    "all_model_scales": [
+      1,
+      1,
+      1
+    ],
+    "surface_segments": 6144,
+    "surface_hits": 0,
+    "bad_route_negative_hits": 58,
+    "phone_overview_button_px": [
+      23.76217231280008,
+      19.07465658460643
+    ],
+    "phone_overview_touch_comfort": "PARTIAL",
+    "whole_visual_acceptance": "PARTIAL"
+  },
+  "capture_tool": {
+    "positive": {
+      "title_unobscured_after_capture": true,
+      "full_png_height": 1483,
+      "viewport_height": 400,
+      "method": "cdp-document-clip-without-element-scroll"
+    },
+    "positive_bridge_sha256": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+    "negative_status": "EXPECTED FAIL",
+    "negative_bridge_sha256": "f98211adf46b5379f29a4babaae89af8ecd24aa6f59d8cec2bdd01da9e8b6312",
+    "negative_assertion": "0 !== 8; scroll-position assertion rejected a second automatic element scroll; PNG visually confirms title obstruction",
+    "historical_framing": "Prior screenshots remain PARTIAL; never replaced or backdated.",
+    "negative_trusted_pointer_count": "NOT RETAINED; the expected failure occurs before reading the counter"
+  },
+  "historical_candidate": {
+    "manifest_original_sha256": "6b792dc9364794e95ac844bbb5e29d395b008f76313c103e6e987900af2ee188",
+    "patch_sha256": "8a452c3bc9871558178d98d7c3f0949c1d222af1b08d84cb953edbbbc3deec1f",
+    "phone_overview_touch_comfort": "PARTIAL",
+    "annotation_contract_cases": 17,
+    "frontend_recovery_cases": 23,
+    "token_audit_issues": 0
+  }
+}

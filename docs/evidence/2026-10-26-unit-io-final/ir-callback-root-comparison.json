@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "category": "virtual-device-firmware-callback-comparison",
+  "original_published_wrapper_status": "OPEN",
+  "local_custom_wrapper_status": "VALIDATED",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "same_runner_bytes": true,
+  "same_probe_program_bytes": true,
+  "gc_disabled": false,
+  "forced_gc_marker": {
+    "custom": "IO_IR_GC_COLLECTED 1 1",
+    "original": "IO_IR_GC_COLLECTED 1 0"
+  },
+  "driver_patch": {
+    "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+    "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+    "driver_path": "io_drivers/ir.py",
+    "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "patched_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+    "original_driver_unchanged": true,
+    "native_module_modified": false,
+    "scope": "Custom guest wrapper keeps its nested native callback reachable from self; no QEMU or native parser change."
+  },
+  "custom": {
+    "status": "PASS",
+    "report": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/result.json",
+    "serial": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/serial.txt",
+    "evidence": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/evidence.zip",
+    "runtime_proof": "docs/evidence/2026-10-26-unit-io-final/ir-custom-callback-root/runtime-provenance.json",
+    "session_id": "3d1975eba3954ad9822a96130500cff3",
+    "firmware_sha256": "64908d6ee77bc1916574b91dda02d87317e849d6141d672c0a2928ed12897c58",
+    "evidence_sha256": "59fc951af96a04376704431aa5b0324b069ff7699c41bf440df5991519f6a46d",
+    "pid": 81771,
+    "observed_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d"
+  },
+  "original_control": {
+    "status": "FAIL",
+    "report": "docs/evidence/2026-10-26-unit-io-final/attempts/ir-original-forced-gc-control/result.json",
+    "serial": "docs/evidence/2026-10-26-unit-io-final/attempts/ir-original-forced-gc-control/serial.txt",
+    "evidence": "docs/evidence/2026-10-26-unit-io-final/attempts/ir-original-forced-gc-control/evidence.zip",
+    "runtime_proof": "docs/evidence/2026-10-26-unit-io-final/attempts/ir-original-forced-gc-control/runtime-provenance.json",
+    "session_id": "1379214186aa45bb938eb4dcbe8d7aa3",
+    "firmware_sha256": "2be5857bfff70eb5383536bfaea3879ee71eb75d21f3f3dc3622d7b4751fbbbb",
+    "evidence_sha256": "37a679541a8cdc39aa5016b6a74fa70a1cb69c6bf96421210b3ececf7b227749",
+    "pid": 82112,
+    "observed_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d"
+  },
+  "original_observed_sequence": [
+    "IO_IR_RX 52 18 0 1",
+    "IO_PROBE_FAIL NameError(\"name 'CASE' isn't defined\",)",
+    "Traceback: io_program.py line 149, NameError: name 'CASE' isn't defined"
+  ],
+  "custom_required_markers": [
+    "IO_PROBE_READY ir",
+    "IO_IR_NATIVE 1",
+    "IO_IR_GC_COLLECTED 1 1",
+    "IO_IR_TX 18 52",
+    "IO_IR_RX 52 18 0 1",
+    "IO_IR_NATIVE_PACKED 60690 52020",
+    "IO_IR_RX 52 18 -1 2",
+    "IO_IR_RX 120 86 0 3"
+  ],
+  "custom_checks": {
+    "packaged_guest_bytes_verified": true,
+    "official_driver_ready": true,
+    "official_wrapper_faithful_raw16_plus_16_payload": true,
+    "separate_native_uint16_packed_nec8_transmit": true,
+    "native_nec_tx_rx_bad_frame_and_rearmed_receiver": true,
+    "native_nec_repeat_preserves_last_address_and_command": true,
+    "custom_callback_root_survives_forced_normal_gc": true,
+    "nonblank_application_frame": true,
+    "evidence_before_stop": true,
+    "stopped_with_history": true,
+    "history_metadata_and_frame_retained": true,
+    "history_frame_readable": true
+  },
+  "scope": "The generated wrapper copy retains its same nested native callback on self. The original vendor file, native parser and QEMU are unchanged. Original forced-GC control observed the first callback and then an interpreter-level NameError; original runs must not be generalized as deterministically missing callbacks. Local custom PASS is not a PASS of the original published firmware or all firmware families.",
+  "upstream_patch_submission": "NOT RUN"
+}

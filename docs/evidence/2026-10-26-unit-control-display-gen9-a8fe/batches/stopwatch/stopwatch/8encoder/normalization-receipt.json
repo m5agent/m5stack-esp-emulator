@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-control-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "native_readability_scope": "captured-final-native-frame-only",
+  "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+  "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/source-reconstruction.json",
+    "sha256": "a82a4c27395a22f84b18eb8a8d0a405f10b97c91baf82c00726564a4a2e076f5"
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/prepared-readiness.json",
+    "sha256": "023bfa85cdf1a0c37332b86cd5679af8c64c0069f439310530f6bd73bdccd662"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/post-execution-history/8encoder.json",
+    "sha256": "49c34a173fe99b03fc0a6ada8bae6114c6ca76868ae0f6892964162af7c845e4"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "stopwatch",
+      "unit_id": "8encoder"
+    },
+    "meaning": "Historical offline preparation fields retained verbatim; actual execution authority is the unchanged same-session artifacts."
+  },
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/post-execution-review/native-review.json",
+    "sha256": "ef68ff11e0bb0680718969211fd9ed07ba1b68822c224f3914a67526a8b120df"
+  },
+  "observed_final_lines": [
+    "stopwatch",
+    "8encoder",
+    "1 1",
+    "2 -2",
+    "3 123456",
+    "4 -123456",
+    "5 2147483647",
+    "6 -2147483648",
+    "7 7",
+    "8 8",
+    "P 10100101",
+    "SW 1"
+  ],
+  "native_review_limit": "Only this actual captured final frame was reviewed. Intermediate states, every numeric extreme and physical display behavior are not inferred."
+}

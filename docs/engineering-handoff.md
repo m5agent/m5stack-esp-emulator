@@ -215,6 +215,12 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 ## 接下来做什么
 
+`UNIT-01` 在独立工作树推进公开视觉模型与 Unit 控制器集成。实现契约见
+[Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，官方芯片/协议
+和接线登记在 `platform/units/`；接入期间的主机问题另见
+[Unit 接入问题](unit-integration-host-issues.md)。视觉与协议目录不代表 guest
+数据面已验收，具体运行能力仍由状态页和同路径 evidence 决定。
+
 执行顺序和验收只由[项目 Backlog](project-backlog.md)维护。当前 P0 的最小
 交付可以概括为：
 

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25T19:45:58.918419+00:00",
+  "status": "PREPARED",
+  "validation": "virtual-device validation",
+  "device_id": "sticks3",
+  "unit_id": "button",
+  "runtime": "qemu",
+  "port_id": "custom",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "button",
+      "port_id": "custom"
+    }
+  ],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      135,
+      240
+    ],
+    "text": [
+      4,
+      4,
+      127
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      135,
+      240
+    ]
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StickS3",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6623232,
+    "size": 1761280,
+    "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+  },
+  "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+  "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+  "expected_size": [
+    135,
+    240
+  ],
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "6df6eb0d0f6d2f36bfdbf4bfb6628daec4ea2d7b52c25e8d25821c8dd1933da7",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "driver_source": "Unchanged firmware-bundled unit/hardware/driver modules",
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "packaged_guest_bytes_verified": true
+  },
+  "required_markers": [],
+  "injections": []
+}

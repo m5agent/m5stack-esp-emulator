@@ -1,0 +1,79 @@
+{
+  "session_id": "665b4232a88c462ea89b3cfd7272164f",
+  "device_id": "cores3",
+  "state": "flashing",
+  "pid": null,
+  "firmware_id": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "firmware_sha256": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "firmware_source": "uploaded",
+  "artifact_sha256": "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e",
+  "source_artifacts": [
+    "f679d481358af9209847a851d4178986479e2012df7a95f7964f27a567fc2e6e"
+  ],
+  "runtime_env": {},
+  "runtime": "qemu",
+  "runtime_memory": {
+    "requested_psram_mib": null,
+    "cli_requested_psram_mib": null,
+    "effective_psram_mib": null,
+    "effective_source": "qemu-cli-request",
+    "policy": "not-configured",
+    "claim": "qemu-memory-configuration-only",
+    "physical_cache_psram_timing": "NOT RUN"
+  },
+  "network": null,
+  "storage": null,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "nvs": null,
+  "flash": null,
+  "flash_retained": false,
+  "serial_bytes": 0,
+  "created_at": "2026-10-25T23:45:58.193248+00:00",
+  "expires_at": "2026-10-25T23:47:58.193252+00:00",
+  "error": null,
+  "display": {
+    "driver": "ILI9342C / ILI9342E",
+    "width": 320,
+    "height": 240,
+    "shape": "rect",
+    "touch": true
+  },
+  "display_available": true,
+  "last_frame_available": false,
+  "last_frame_captured_at": null,
+  "device_state_supported": true,
+  "last_device_state_available": false,
+  "last_device_state_at": null,
+  "completed_at": null,
+  "event_count": 3,
+  "restored": false,
+  "interrupted": false,
+  "reattached_process": false,
+  "recovery_scope": null,
+  "companions": {
+    "http_fixture": {
+      "required": false
+    },
+    "ble_probe": {
+      "required": false
+    }
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 9,
+    "lease_active": true
+  },
+  "idempotent_replay": false
+}

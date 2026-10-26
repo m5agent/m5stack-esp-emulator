@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "rfid2",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+  "probe_sha256": {
+    "control_drivers/__init__.py": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "control_drivers/cardkb.py": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+    "control_drivers/encoder.py": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+    "control_drivers/encoder8.py": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+    "control_drivers/joystick.py": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "control_drivers/mfrc522/__init__.py": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+    "control_drivers/mfrc522/cmd.py": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+    "control_drivers/mfrc522/firmware.py": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+    "control_drivers/mfrc522/reg.py": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+    "control_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "control_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "main.py": "3338be4c7aa0a2c3228c139d1d983446d9dc07279b4601dde0f037d17596c531",
+    "probe_config.py": "55f5fa37b2b4a04d38949a70697fdb9354795565b7f14c0a2c67bec4ca6cb988"
+  },
+  "checks": {
+    "exact_official_driver_ready": true,
+    "request_anticollision_select_auth_block_write_read_halt": true,
+    "wrong_key_halt_and_antenna_negative_controls": true,
+    "four_seven_ten_byte_uid_cascade_select": true,
+    "card_removal_reaches_guest": true,
+    "same_guest_i2c_controller_counters": true,
+    "stopped_with_history": true
+  },
+  "session_id": "be2b24920f0d48c6b366fbbf72680b26",
+  "unit_state": {
+    "session_id": "be2b24920f0d48c6b366fbbf72680b26",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:48:01.822899+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "rfid2",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "card-present": false,
+          "uid-hex": "04010203040506070809",
+          "card-data-hex": "040102030400000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff3132333435363738393a3b3c3d3e3f400000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff078069ffffffffffff",
+          "selected": false,
+          "authenticated": false,
+          "fifo-level": 0,
+          "card-reads": 3,
+          "card-writes": 3,
+          "command-errors": 9,
+          "transactions": 2575,
+          "read-bytes": 658,
+          "written-bytes": 2468,
+          "input-events": 7,
+          "output-transitions": 1,
+          "i2c-address": 40
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "rfid2",
+        "name": "RFID2",
+        "sku": "U031-B",
+        "visual_asset": {
+          "entry": "src/units/rfid2/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/rfid2",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "WS1850S (product)",
+            "status": "officially-documented"
+          },
+          {
+            "part": "MFRC522 (linked schematic; inconsistent identity)",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            40
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Product declares WS1850S and I2C address 0x28 with compatibility to the earlier RC522 Unit. Official UIFlow wrapper uses MFRC522 driver initialization, REQA/WUPA, anti-collision/select/authentication and card block operations.",
+          "registers": [
+            {
+              "command": "0x01",
+              "com_irq": "0x04",
+              "error": "0x06",
+              "fifo_data": "0x09",
+              "fifo_level": "0x0A",
+              "bit_framing": "0x0D",
+              "tx_control": "0x14",
+              "crc_result": "0x21/0x22",
+              "transfer": "official pcd_read/write_register use raw 8-bit register addresses over I2C; no SPI-shift transformation"
+            }
+          ],
+          "gaps": [
+            "Product WS1850S identity conflicts with the linked schematic MFRC522 label; preserve the distinction.",
+            "Do not map a UID directly to a Python read_card_uid return; FIFO/command/IRQ/card protocol execution is required."
+          ]
+        },
+        "inputs": {
+          "card-present": {
+            "type": "boolean",
+            "label": "卡片在场",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          },
+          "uid-hex": {
+            "type": "string",
+            "label": "测试卡UID",
+            "default": "04010203",
+            "default_source": "synthetic-test-fixture",
+            "pattern": "(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{14}|[0-9A-Fa-f]{20})",
+            "readOnly": false,
+            "maxLength": 20
+          },
+          "card-data-hex": {
+            "type": "string",
+            "label": "合成测试卡1024字节",
+            "maxLength": 2048,
+            "pattern": "[0-9A-Fa-f]{2048}",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/rfid2",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rfid.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "c71fb96399e009134fe213b2df3938eeb5fde88d08bf4c8ccfacd826aa39479e"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/841/U031-B-Sch_Unit-RFID_v1.3.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/rfid2/WS1850S%20QFN-32.PDF",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/module/MFRC522_en.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mfrc522/__init__.py",
+            "checked_at": "2026-10-26",
+            "sha256": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+            "claims": [
+              "MFRC522-compatible I2C register/FIFO/command path"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mfrc522/reg.py",
+            "checked_at": "2026-10-26",
+            "sha256": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+            "claims": [
+              "MFRC522-compatible I2C register/FIFO/command path"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mfrc522/cmd.py",
+            "checked_at": "2026-10-26",
+            "sha256": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+            "claims": [
+              "MFRC522-compatible I2C register/FIFO/command path"
+            ]
+          }
+        ],
+        "research_status": "partial-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "card-present": {
+              "property": "card-present"
+            },
+            "uid-hex": {
+              "property": "uid-hex"
+            },
+            "card-data-hex": {
+              "property": "card-data-hex"
+            }
+          },
+          "state": {
+            "card-present": {
+              "property": "card-present"
+            },
+            "uid-hex": {
+              "property": "uid-hex"
+            },
+            "card-data-hex": {
+              "property": "card-data-hex"
+            },
+            "selected": {
+              "property": "selected"
+            },
+            "authenticated": {
+              "property": "authenticated"
+            },
+            "fifo-level": {
+              "property": "fifo-level"
+            },
+            "card-reads": {
+              "property": "card-reads"
+            },
+            "card-writes": {
+              "property": "card-writes"
+            },
+            "command-errors": {
+              "property": "command-errors"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "i2c-address": {
+              "property": "i2c-address"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "0cc559c29c521cacd0444666ea1254c4767f8da73a65b8024e75ea0f4244a1b7",
+            "report": "docs/evidence/2026-10-26-unit-controls-service/rfid2/result.json",
+            "hardware": "NOT RUN",
+            "full_unit_matrix": "NOT RUN"
+          }
+        },
+        "blocker": "No validated external Unit model. Product WS1850S and linked MFRC522 schematic remain a documented revision discrepancy; controller FIFO/command/IRQ/card protocol execution is required.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "808f454fbfd77313902fd01298387632b1e3d17e7d9c9c843cb9fd173c2b8a10",
+  "evidence_sha256": "c4adee9f08ecaae55a3b6766018e653e6b95591cbac541e676317074b3d729dd"
+}

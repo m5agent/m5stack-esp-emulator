@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "category": "read-only-evidence-checker-fault-tests",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "tests": 43,
+  "exit_code": 0,
+  "source_sha256": {
+    "tests/units/check_batch_evidence.py": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+    "tests/units/test_batch_evidence.py": "edc67b03b544d963533f1aa59c7391ae08e8520074e788a5bf7d4906bd6bc688"
+  },
+  "log_sha256": "38bc2e398ce7d4f9cdac56b55c2aadd6cfc02f7b742f8b1dec532c8884ef45e3",
+  "checks": {
+    "cross_layer_same_session_identity": true,
+    "same_firmware_and_zip_sha_required": true,
+    "expected_binary_required_in_both_proofs": true,
+    "strict_direct_preserved": true,
+    "outer_screenshot_hash_required": true,
+    "screenshot_actual_crc_and_pixel_decode": true,
+    "zip_framebuffer_decode": true,
+    "wrapper_guest_uses_committed_raw_controller_assertions": true,
+    "historical_reports_unchanged": true
+  }
+}

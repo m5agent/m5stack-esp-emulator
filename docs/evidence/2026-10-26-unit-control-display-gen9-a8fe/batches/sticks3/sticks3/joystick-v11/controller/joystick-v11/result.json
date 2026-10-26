@@ -1,0 +1,534 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "device_id": "sticks3",
+  "unit_id": "joystick-v11",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "joystick-v11",
+      "port_id": "custom"
+    }
+  ],
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      135,
+      240
+    ],
+    "text": [
+      4,
+      4,
+      127
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      135,
+      240
+    ],
+    "text_size": 1.0,
+    "font_name": "Montserrat12",
+    "font_height": 15,
+    "header_line_height": 16,
+    "line_height": 16,
+    "body_rows": 3
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StickS3",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6623232,
+    "size": 1761280,
+    "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+  },
+  "matrix_vfs_matches_reference": false,
+  "layout_preflight": {
+    "x": 4,
+    "y": 4,
+    "width": 127,
+    "headers": [
+      "sticks3 joystick-v11"
+    ],
+    "font_height": 15,
+    "line_height": 16,
+    "body_y": 22,
+    "body_rows": 3,
+    "bottom": 70,
+    "worst_case_lines": [
+      "x 255",
+      "y 255",
+      "button 1"
+    ],
+    "source_derived_ink_boxes": [
+      {
+        "text": "sticks3 joystick-v11",
+        "x": 4,
+        "y": 4,
+        "source_text_width": 110,
+        "ink_y": [
+          6,
+          19
+        ]
+      },
+      {
+        "text": "x 255",
+        "x": 4,
+        "y": 22,
+        "source_text_width": 31,
+        "ink_y": [
+          25,
+          34
+        ]
+      },
+      {
+        "text": "y 255",
+        "x": 4,
+        "y": 38,
+        "source_text_width": 32,
+        "ink_y": [
+          41,
+          53
+        ]
+      },
+      {
+        "text": "button 1",
+        "x": 4,
+        "y": 54,
+        "source_text_width": 49,
+        "ink_y": [
+          56,
+          66
+        ]
+      }
+    ],
+    "font_source": ".work/unit-host-control-display-candidate-20261026/evidence/LGFX_Fonts/253cf549fe0b1aa932be68fe06a13c3077918d61/src/Fonts/lvgl/lgfx_lv_font_montserrat_12.c",
+    "measurement": "Pinned source-derived ASCII metrics only; actual guest fontHeight/textWidth and final native-frame readability NOT RUN"
+  },
+  "firmware_sha256": "665edd92ac26966a1f0b451da3f7eb5670599e7c67eeeb054255778dd6255b39",
+  "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "control_drivers/__init__.py": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "control_drivers/cardkb.py": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+    "control_drivers/encoder.py": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+    "control_drivers/encoder8.py": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+    "control_drivers/joystick.py": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "control_drivers/mfrc522/__init__.py": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+    "control_drivers/mfrc522/cmd.py": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+    "control_drivers/mfrc522/firmware.py": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+    "control_drivers/mfrc522/reg.py": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+    "control_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "control_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "host_control_layout.py": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+    "host_control_program.py": "5f06cbcc9d1c59d76fd9a4d666e62d9558063be54fb03255e09a1ce104c09f10",
+    "main.py": "a97d44eae7e1d007e330246cd11affc8091cf3b995108fbb2347f96caa312445",
+    "probe_config.py": "c72eec77537854ccc81768b2e1a421c1570a9f32821d90ece8e2d78ea6dfd83b",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "packaged_full_py_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "control_drivers/__init__.py": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "control_drivers/cardkb.py": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+    "control_drivers/encoder.py": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+    "control_drivers/encoder8.py": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+    "control_drivers/joystick.py": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "control_drivers/mfrc522/__init__.py": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+    "control_drivers/mfrc522/cmd.py": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+    "control_drivers/mfrc522/firmware.py": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+    "control_drivers/mfrc522/reg.py": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+    "control_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "control_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "host_control_layout.py": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+    "host_control_program.py": "5f06cbcc9d1c59d76fd9a4d666e62d9558063be54fb03255e09a1ce104c09f10",
+    "main.py": "a97d44eae7e1d007e330246cd11affc8091cf3b995108fbb2347f96caa312445",
+    "probe_config.py": "c72eec77537854ccc81768b2e1a421c1570a9f32821d90ece8e2d78ea6dfd83b",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+    "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9"
+  },
+  "packaged_full_py_sources": {
+    "boot.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/boot.py",
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/__init__.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/__init__.py",
+      "sha256": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/cardkb.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/cardkb.py",
+      "sha256": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/encoder.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/encoder.py",
+      "sha256": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/encoder8.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/encoder8.py",
+      "sha256": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/joystick.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/joystick.py",
+      "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/mfrc522/__init__.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/mfrc522/__init__.py",
+      "sha256": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/mfrc522/cmd.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/mfrc522/cmd.py",
+      "sha256": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/mfrc522/firmware.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/mfrc522/firmware.py",
+      "sha256": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/mfrc522/reg.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/mfrc522/reg.py",
+      "sha256": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/pahub.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/pahub.py",
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+      "role": "prepared-probe-source"
+    },
+    "control_drivers/unit_helper.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/control_drivers/unit_helper.py",
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+      "role": "prepared-probe-source"
+    },
+    "host_control_layout.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/host_control_layout.py",
+      "sha256": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+      "role": "prepared-probe-source"
+    },
+    "host_control_program.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/host_control_program.py",
+      "sha256": "5f06cbcc9d1c59d76fd9a4d666e62d9558063be54fb03255e09a1ce104c09f10",
+      "role": "prepared-probe-source"
+    },
+    "main.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/main.py",
+      "sha256": "a97d44eae7e1d007e330246cd11affc8091cf3b995108fbb2347f96caa312445",
+      "role": "prepared-probe-source"
+    },
+    "probe_config.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/probe_config.py",
+      "sha256": "c72eec77537854ccc81768b2e1a421c1570a9f32821d90ece8e2d78ea6dfd83b",
+      "role": "prepared-probe-source"
+    },
+    "probe_logging.py": {
+      "source": ".work/unit-host-control-display-candidate-20261026/prepared-r2/sticks3/joystick-v11/files/probe_logging.py",
+      "sha256": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+      "role": "prepared-probe-source"
+    },
+    "rtc_probe.py": {
+      "source": "tests/uiflow2/lib/rtc_probe.py",
+      "sha256": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+      "role": "shared-common-injection"
+    }
+  },
+  "checks": {
+    "exact_official_driver_ready": true,
+    "three_raw_bytes_reach_guest": true,
+    "same_guest_i2c_controller_counters": true,
+    "stopped_with_history": true
+  },
+  "admission": {
+    "status": "ADMITTED",
+    "validation": "NOT RUN"
+  },
+  "hardware_execution": "NOT RUN",
+  "guest_execution": "NOT RUN",
+  "web_execution": "NOT RUN",
+  "adc_fixture": "NOT USED",
+  "session_request_template": {
+    "device_id": "sticks3",
+    "runtime": "qemu",
+    "firmware_id": "<prepared-upload-firmware-id>",
+    "ttl_seconds": 1200,
+    "ready_marker": "CONTROL_PROBE_READY",
+    "ready_timeout_seconds": 150,
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "joystick-v11",
+        "port_id": "custom"
+      }
+    ]
+  },
+  "category": "virtual-device-validation",
+  "expected_size": [
+    135,
+    240
+  ],
+  "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+  "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+  "unit_state": {
+    "session_id": "9b6b0d3a11b14290ba1b32182726b426",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T21:55:12.420485+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "joystick-v11",
+        "port_id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "x-raw": 255,
+          "y-raw": 0,
+          "button-raw": 0,
+          "transactions": 81,
+          "read-bytes": 117,
+          "written-bytes": 39,
+          "input-events": 6,
+          "output-transitions": 0,
+          "i2c-address": 82
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "joystick-v11",
+        "name": "Joystick v1.1",
+        "sku": "U024-C",
+        "visual_asset": {
+          "entry": "src/units/joystick-v11/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "ATmega8A",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            82
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "At 0x52, read three bytes from register 0x52: X raw, Y raw, button raw. X/Y range is 0..255. Guest get_x/get_y subtract 128 (with optional swap); preserve raw button byte until pressed polarity is explicitly verified.",
+          "registers": [
+            {
+              "register": "0x52",
+              "length": 3,
+              "encoding": "X:uint8,Y:uint8,button:uint8"
+            }
+          ],
+          "gaps": []
+        },
+        "inputs": {
+          "x-raw": {
+            "type": "integer",
+            "label": "X轴",
+            "default": 128,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw8",
+            "minimum": 0,
+            "maximum": 255,
+            "readOnly": false
+          },
+          "y-raw": {
+            "type": "integer",
+            "label": "Y轴",
+            "default": 128,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw8",
+            "minimum": 0,
+            "maximum": 255,
+            "readOnly": false
+          },
+          "button-raw": {
+            "type": "integer",
+            "label": "按键原始值",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw",
+            "minimum": 0,
+            "maximum": 1,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/joystick_1.1",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+          "inputs": {
+            "x-raw": {
+              "property": "x-raw"
+            },
+            "y-raw": {
+              "property": "y-raw"
+            },
+            "button-raw": {
+              "property": "button-raw"
+            }
+          },
+          "state": {
+            "x-raw": {
+              "property": "x-raw"
+            },
+            "y-raw": {
+              "property": "y-raw"
+            },
+            "button-raw": {
+              "property": "button-raw"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "i2c-address": {
+              "property": "i2c-address"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+            "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+            "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          }
+        },
+        "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "dfd7f0b0153f663f10b7ae725f8fed7740214de722e6884b66bcb91b1bdd8aa2"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3",
+  "evidence_sha256": "c1fc240eeec9f85095093f099bc9c911c3500bab058320a03373b0d5734c88ce"
+}

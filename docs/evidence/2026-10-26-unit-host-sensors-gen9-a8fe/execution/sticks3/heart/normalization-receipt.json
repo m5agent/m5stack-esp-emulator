@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "evidence_contract": "device-service-sensor-web-v1",
+  "scope": "controller-and-browser-functionality",
+  "native_readability": "PASS",
+  "browser_framing": "NOT REVIEWED",
+  "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+  "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+  "source_freeze": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-before.json",
+    "sha256": "1185aa85b703c7959c60ff133b1195d1b6d2e42f7f43859c0f92c0a6cccd3f57"
+  },
+  "source_snapshot_root": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/source-snapshot",
+  "source_reconstruction": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/source-reconstruction.json",
+    "sha256": "627dd6948a4cf9e23fd528bf7eb91b564e8ef9627aaaa05523dcfeccf7d7cd98"
+  },
+  "frame_observations": {
+    "scope": "separate-captures-no-atomic-frame-claim",
+    "controller": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/controller/heart/frame.png",
+      "sha256": "ca623e8d4b38c355a6d2019d39664c192b579a03cc79b35756f8faf188717ea4",
+      "width": 135,
+      "height": 240
+    },
+    "evidence": {
+      "archive_path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/controller/heart/evidence.zip",
+      "archive_sha256": "92b0961ba8a041406f580094e3a47f7e32118cb9f19af2833b73ab041e5e07a6",
+      "member": "frames/current.png",
+      "sha256": "36de68e7add0ccd41ec705ff806060c992dd8125f711cfcf3905fc1483a7402a",
+      "width": 135,
+      "height": 240
+    },
+    "history": {
+      "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/history-frame.png",
+      "sha256": "36de68e7add0ccd41ec705ff806060c992dd8125f711cfcf3905fc1483a7402a",
+      "width": 135,
+      "height": 240
+    }
+  },
+  "preparation_readiness": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "sha256": "5451f21321d2c40b74611f61d36832210e8a6babbe9050119ca3f24a9db9f5bc"
+  },
+  "history_snapshot": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/history.json",
+    "sha256": "06a9d060efbaf1cef654e32e294c00493e0e14d75fd0aa9a986e53971e2ebc53"
+  },
+  "preparation_only_fields": {
+    "guest_execution": "NOT RUN",
+    "web_execution": "NOT RUN",
+    "admission": {
+      "status": "ADMITTED",
+      "validation": "NOT RUN"
+    }
+  },
+  "preparation_fields_origin": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/prepared-readiness.json",
+    "case_selector": {
+      "device_id": "sticks3",
+      "unit_id": "heart"
+    },
+    "meaning": "Historical preparation values retained unchanged; actual execution authority is the same-session raw report."
+  },
+  "visual_limit": "The archiver does not classify native readability or browser framing.",
+  "hardware_execution": "NOT RUN",
+  "native_review": {
+    "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+    "sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0"
+  },
+  "native_readability_scope": "captured-final-native-frames-only",
+  "observed_lines": [
+    "sticks3",
+    "heart",
+    "IR 12000",
+    "Red 9000"
+  ],
+  "additional_frames": [
+    {
+      "path": ".work/unit-host-sensors-live-20261026-r1/sticks3/heart/controller/heart/frame.png",
+      "sha256": "ca623e8d4b38c355a6d2019d39664c192b579a03cc79b35756f8faf188717ea4",
+      "width": 135,
+      "height": 240,
+      "observed_lines": [
+        "sticks3",
+        "heart",
+        "IR 0",
+        "Red 0"
+      ]
+    }
+  ],
+  "root_review_notes": [
+    "Root visually inspected this actual captured image; headers and all value rows are readable without overlap or clipping. Readability applies only to the captured image.",
+    "The unchanged official driver emits intermittent zero raw samples. No BPM/SpO2 or continuous stable-value claim is made.",
+    "Controller capture shows zero while later evidence/history capture shows the valid raw vector. These are separate requests, not an atomic frame."
+  ]
+}

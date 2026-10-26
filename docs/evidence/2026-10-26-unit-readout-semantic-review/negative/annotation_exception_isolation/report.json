@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "category": "offline-unit-annotation-semantic-contract",
+  "status": "FAIL",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-panel.js": "81a0cabb29a54f43be830b183d3e21d94849ae54d2288e7e5f6f38b94e443119",
+    "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+  },
+  "cases": [
+    {
+      "name": "present-readback-keeps-frozen-label-direction-unit-and-value",
+      "status": "PASS"
+    },
+    {
+      "name": "missing-properties-never-fill-schema-defaults",
+      "status": "PASS"
+    },
+    {
+      "name": "nonfinite-wrong-type-and-fractional-integer-values-are-rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-boundaries-reject-values-without-clamping-or-mutating",
+      "status": "PASS"
+    },
+    {
+      "name": "schema-enum-is-not-treated-as-an-unrestricted-scalar",
+      "status": "PASS"
+    },
+    {
+      "name": "outer-and-unit-source-must-both-be-live-controller-readback",
+      "status": "PASS"
+    },
+    {
+      "name": "unavailable-errors-terminal-and-unfrozen-contracts-hide-values",
+      "status": "PASS"
+    },
+    {
+      "name": "thermal-readiness-and-control-register-have-explicit-origin-labels",
+      "status": "PASS"
+    },
+    {
+      "name": "relay-and-buzzer-use-firmware-observation-without-physical-inference",
+      "status": "PASS"
+    },
+    {
+      "name": "model-shell-adapter-preserves-the-frozen-definition-and-source-guards",
+      "status": "PASS"
+    },
+    {
+      "name": "panel-uses-session-definitions-instead-of-mutable-inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+      "status": "PASS"
+    },
+    {
+      "name": "pending-local-input-never-replaces-controller-annotation",
+      "status": "PASS"
+    },
+    {
+      "name": "persisted-and-terminal-panel-updates-remove-live-values",
+      "status": "PASS"
+    },
+    {
+      "name": "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+      "status": "FAIL",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n1 !== 0\n\n    at file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:226:10\n    at async test (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:43:8)\n    at async file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:220:1"
+    },
+    {
+      "name": "annotation-fault-keeps-one-release-retry-and-no-poll-echo",
+      "status": "FAIL",
+      "error": "Error: injected optional annotation layout failure\n    at Object.updateUnitAnnotation (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:71:35)\n    at UnitPanel.paint (eval at <anonymous> (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:28:15), <anonymous>:377:41)\n    at UnitPanel.refresh (eval at <anonymous> (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:28:15), <anonymous>:435:14)\n    at async file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:236:3\n    at async test (file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:43:8)\n    at async file://<workspace>/platform/tests/test_unit_annotation_contract.mjs:231:1"
+    },
+    {
+      "name": "nested-clear-preserves-siblings-and-dispose-unsubscribes-once",
+      "status": "PASS"
+    }
+  ]
+}

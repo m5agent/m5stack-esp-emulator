@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "device_id": "sticks3",
+  "runtime": "qemu",
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "cases": [
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/report.json",
+        "report_sha256": "1f4dfdb88f9cdf0bb5a0951a8b6412c079316a7ed557f4a087f29329e147e401",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/controller/color/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/report.json",
+        "report_sha256": "1f4dfdb88f9cdf0bb5a0951a8b6412c079316a7ed557f4a087f29329e147e401",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/controller/color/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/report.json",
+        "report_sha256": "d164ad35bc201d4b6329a62ff509082c2616cee732bcfaef34848c14ff4cc4da",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/controller/tof/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/report.json",
+        "report_sha256": "d164ad35bc201d4b6329a62ff509082c2616cee732bcfaef34848c14ff4cc4da",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/controller/tof/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+        "report_sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/controller/ncir/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+        "report_sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/controller/ncir/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+        "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/controller/heart/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+        "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/controller/heart/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+        "report_sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/controller/tvoc/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+        "report_sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/controller/tvoc/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/report.json",
+        "report_sha256": "fe88d350a633ea55d5b1ad94cee7f0358b1ef18e680916a7fb9c92b487b8bb6b",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "live_browser": {
+        "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/report.json",
+        "report_sha256": "fe88d350a633ea55d5b1ad94cee7f0358b1ef18e680916a7fb9c92b487b8bb6b",
+        "evidence": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/controller/ultrasonic-i2c/evidence.zip",
+        "expected_firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+        "runtime_proof": {
+          "kind": "direct-pid",
+          "path": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/report.json",
+          "report_pointer": "/runtime_provenance"
+        }
+      },
+      "reason": "Exact sensor path from the single explicit eighteen-case invocation; no other Unit inherits a result."
+    }
+  ]
+}

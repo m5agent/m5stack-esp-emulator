@@ -198,7 +198,7 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 
 ## 本地开发依赖
 
-设备目录、只读设备清单 API 和 OpenAPI 只需要 Python 3。需要 lease、
+设备目录、只读设备清单 API 和 OpenAPI 需要 Python 3.10+。需要 lease、
 烧录、串口、截图或输入的 `/api/v1/sessions` 路径时，还必须有匹配当前
 commit 与主机架构的 `.work/` 运行时：
 

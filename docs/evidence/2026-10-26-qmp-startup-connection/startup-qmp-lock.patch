@@ -1,0 +1,30 @@
+--- a/platform/tools/device_service.py
++++ b/platform/tools/device_service.py
+@@ -5658,15 +5658,18 @@
+         self._persist_session()
+         if native_vhci:
+             self._launch_native_vhci_gdb()
+-        try:
+-            self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
+-        except RuntimeError as error:
+-            raise ServiceError(
+-                "qmp_timeout",
+-                f"QEMU QMP socket did not become ready: {error}",
+-                504,
+-            ) from error
+-        self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
++        with self._lock:
++            try:
++                # Booting frame/state requests may already own the connection.
++                if self._qmp is None:
++                    self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
++            except RuntimeError as error:
++                raise ServiceError(
++                    "qmp_timeout",
++                    f"QEMU QMP socket did not become ready: {error}",
++                    504,
++                ) from error
++            self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+         self._verify_units_runtime()
+         if profile == NANOC6_HCI_BLE_PROFILE:
+             self._exercise_nanoc6_button()

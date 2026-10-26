@@ -1,0 +1,3711 @@
+{
+  "category": "browser-visual-integration",
+  "captured_at": "2026-10-25T21:15:15.861Z",
+  "browser_version": "156.0.8078.48",
+  "source_commit": "48ab992f5ff63c1a91296051e1afcb5959877903",
+  "integration_sha256": {
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/tools/sync_visual_models.py": "8603b9ab5d834de0b12537368d184d9b13b4f2ac87a3862ace5fa15782763dec",
+    "platform/tests/test_model_shell.mjs": "93e31a35619b95f5f79eb4537da444484a9ef4482e88dbf115305e0088876e6c"
+  },
+  "controllers": [
+    {
+      "id": "sticks3",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        135,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": 11,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": 11,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "cores3",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        320,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "power",
+          "key": "p",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "power",
+          "key": "p",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 6873.5,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 6873.5,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "stopwatch",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        466,
+        466
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": 2,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": 2,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 10350.599999904633,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 10350.700000047684,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "cardputer-adv",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        240,
+        135
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "esc",
+          "key": "esc",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "esc",
+          "key": "esc",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "cardputer-zero",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        320,
+        170
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "f1",
+          "key": "f1",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "f1",
+          "key": "f1",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "papermono",
+      "source": "m5stack-models",
+      "ports": [],
+      "display": [
+        480,
+        800
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 22042.799999952316,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 22042.799999952316,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "core2",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        320,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "a",
+          "key": "a",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 25211.599999904633,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 25211.599999904633,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "papercolor",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        400,
+        600
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "nanoc6",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": null,
+      "frame": null,
+      "controls": [
+        {
+          "id": "button",
+          "key": "a",
+          "gpio": 9,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "button",
+          "key": "a",
+          "gpio": 9,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "stackchan",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        },
+        {
+          "id": "port-b",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        },
+        {
+          "id": "port-c",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        320,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "power",
+          "key": "p",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "power",
+          "key": "p",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 33450.09999990463,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 33450.09999990463,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "tab5",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        1280,
+        720
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 37292.200000047684,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 37292.200000047684,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 1,
+      "outputEcho": 0
+    },
+    {
+      "id": "atoms3r",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        128,
+        128
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "button",
+          "key": "a",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "button",
+          "key": "a",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "nesso-n1",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "grove",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        135,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [],
+      "touches": [
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "start",
+          "time": 42739.09999990463,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [
+            {
+              "x": 12,
+              "y": 34
+            }
+          ],
+          "down": true
+        },
+        {
+          "kind": "display",
+          "id": "lcd",
+          "action": "end",
+          "time": 42739.200000047684,
+          "x": 12,
+          "y": 34,
+          "pointerId": 1,
+          "points": [],
+          "down": false
+        }
+      ],
+      "resets": 0,
+      "outputEcho": 0
+    },
+    {
+      "id": "stamplc",
+      "source": "m5stack-models",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        },
+        {
+          "id": "port-c",
+          "label": "HY2.0-4P",
+          "connector": "grove",
+          "pins": [],
+          "attached": null
+        }
+      ],
+      "display": [
+        135,
+        240
+      ],
+      "frame": {
+        "pixel": [
+          255,
+          0,
+          0
+        ],
+        "sequence": 7,
+        "pngPixel": [
+          2,
+          130,
+          203
+        ],
+        "pngSequence": 8
+      },
+      "controls": [
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": true,
+          "source": "integration-probe"
+        },
+        {
+          "id": "key1",
+          "key": "a",
+          "gpio": null,
+          "down": false,
+          "source": "integration-probe"
+        }
+      ],
+      "touches": [],
+      "resets": 0,
+      "outputEcho": 0
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "env-iii",
+      "attached": true,
+      "paths": [
+        "grove/sensor",
+        "grove/grove",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "chip": "SHT30 + QMP6988",
+            "role": "visual-anchor"
+          }
+        },
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "protocol": "I2C",
+            "face": "bottom",
+            "role": "visual-connector"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "pir",
+      "attached": true,
+      "paths": [
+        "grove/sensor",
+        "grove/grove",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "chip": "AS312",
+            "role": "visual-anchor"
+          }
+        },
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "protocol": "GPIO",
+            "face": "bottom",
+            "role": "visual-connector"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "attached": true,
+      "paths": [
+        "grove/sensor",
+        "grove/grove",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "chip": "RCWL-9620",
+            "role": "visual-anchor"
+          }
+        },
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "protocol": "I2C",
+            "face": "bottom",
+            "role": "visual-connector"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "rgb",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/led0",
+        "grove/led1",
+        "grove/led2",
+        "grove/out",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/led0",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual"
+          }
+        },
+        {
+          "path": "grove/led1",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual"
+          }
+        },
+        {
+          "path": "grove/led2",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual"
+          }
+        },
+        {
+          "path": "grove/out",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "top"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "angle",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/rotation",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/rotation",
+          "kind": "joint",
+          "meta": {
+            "axisEvidence": "Official U005: rotary potentiometer; cap axis normal to front shell",
+            "visualRangeDeg": [
+              -150,
+              150
+            ],
+            "rangeEvidence": "Viewer range only; official mechanical travel and zero offset are unconfirmed",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": false,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "color",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "tof",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "light",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "relay",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "joystick-v11",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/press",
+        "grove/tilt-x",
+        "grove/tilt-y",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/press",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "travelSource": "Visual approximation; no Z-input emulation"
+          }
+        },
+        {
+          "path": "grove/tilt-x",
+          "kind": "joint",
+          "meta": {
+            "visualRangeDeg": [
+              -20,
+              20
+            ],
+            "rangeEvidence": "Viewer range only; official tilt limits not supplied",
+            "axisEvidence": "Official U024-C X/Y tilt and Z push; pivot near the photo-visible stick seat",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "angleUnit": "degree",
+            "continuous": false,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/tilt-y",
+          "kind": "joint",
+          "meta": {
+            "visualRangeDeg": [
+              -20,
+              20
+            ],
+            "rangeEvidence": "Viewer range only; official tilt limits not supplied",
+            "axisEvidence": "Official U024-C X/Y tilt and Z push; pivot near the photo-visible stick seat",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "angleUnit": "degree",
+            "continuous": false,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "dual-button",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/blue",
+        "grove/red",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/blue",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/blue",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/blue",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/blue",
+          "kind": "button",
+          "meta": {
+            "surfaceCenter": [
+              0,
+              13,
+              11
+            ],
+            "surfaceFace": "front",
+            "dimensionsSource": "Official U025 mechanical drawing: diameter11.5, center spacing14, 12mm housing / 15mm including caps",
+            "travelSource": "Visual press estimate; no electrical switch behavior",
+            "actuation": "momentary"
+          }
+        },
+        {
+          "path": "grove/red",
+          "kind": "button",
+          "meta": {
+            "surfaceCenter": [
+              0,
+              -1,
+              11
+            ],
+            "surfaceFace": "front",
+            "dimensionsSource": "Official U025 mechanical drawing: diameter11.5, center spacing14, 12mm housing / 15mm including caps",
+            "travelSource": "Visual press estimate; no electrical switch behavior",
+            "actuation": "momentary"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "button",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/press",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/press",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "visualMotion": "flex-pad",
+            "hingeY": 3,
+            "freeY": 11.1001,
+            "footprintSource": "Official U027 mechanical drawing: 10.2 mm inner pad; native U-shaped cut and grooves retained",
+            "travelSource": "Visual free-edge travel estimate; no plastic stiffness or switch behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "ncir",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "heart",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "encoder",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/press",
+        "grove/rotation",
+        "grove/led0",
+        "grove/led1",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/press",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "travelSource": "Photo-derived visual travel; no switch or pulse emulation"
+          }
+        },
+        {
+          "path": "grove/rotation",
+          "kind": "joint",
+          "meta": {
+            "axisEvidence": "Official U135: rotary encoder with push input; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/led0",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual"
+          }
+        },
+        {
+          "path": "grove/led1",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "thermal",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "tvoc",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "ir",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "hub",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/grove-1",
+        "grove/grove-2",
+        "grove/grove-3",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/grove-1",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "front"
+          }
+        },
+        {
+          "path": "grove/grove-2",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "front"
+          }
+        },
+        {
+          "path": "grove/grove-3",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "front"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-bus-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "rfid2",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "rs485",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/terminal",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/terminal",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "top",
+            "scope": "no-electrical-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "buzzer",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "fan",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/sensor",
+        "grove/rotor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/rotor",
+          "kind": "joint",
+          "meta": {
+            "axisEvidence": "Official U063 drawing: shaft points along +Y; 1 mm diameter",
+            "demoRpmMax": 240,
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "driveActivity": {
+        "moves": true,
+        "stops": true,
+        "rpmUnmodeled": true
+      },
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "limit",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/press",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/press",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "actuation": "momentary",
+            "motion": "hinged-lever",
+            "visualMotion": "lever",
+            "angularTravelDeg": 8,
+            "rangeEvidence": "Official U145 drawing: 16 mm handle and 35 mm total at rest; axis and package shape from official front/top photos. Rest 8 degrees, pressed 0 degrees and contact travel are visual estimates, not rated switch travel.",
+            "part": "KW4A (S)",
+            "scope": "no-electrical-state"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-sensor-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "cardkb",
+      "attached": true,
+      "paths": [
+        "grove/key-esc",
+        "grove/key-1",
+        "grove/key-2",
+        "grove/key-3",
+        "grove/key-4",
+        "grove/key-5",
+        "grove/key-6",
+        "grove/key-7",
+        "grove/key-8",
+        "grove/key-9",
+        "grove/key-0",
+        "grove/key-backspace",
+        "grove/key-tab",
+        "grove/key-q",
+        "grove/key-w",
+        "grove/key-e",
+        "grove/key-r",
+        "grove/key-t",
+        "grove/key-y",
+        "grove/key-u",
+        "grove/key-i",
+        "grove/key-o",
+        "grove/key-p",
+        "grove/key-fn",
+        "grove/key-shift",
+        "grove/key-a",
+        "grove/key-s",
+        "grove/key-d",
+        "grove/key-f",
+        "grove/key-g",
+        "grove/key-h",
+        "grove/key-j",
+        "grove/key-k",
+        "grove/key-l",
+        "grove/key-enter",
+        "grove/key-sym",
+        "grove/key-z",
+        "grove/key-x",
+        "grove/key-c",
+        "grove/key-v",
+        "grove/key-b",
+        "grove/key-n",
+        "grove/key-m",
+        "grove/key-comma",
+        "grove/key-period",
+        "grove/key-space",
+        "grove/key-up",
+        "grove/key-left",
+        "grove/key-right",
+        "grove/key-down",
+        "grove/rgb",
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/key-esc",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/key-esc",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/key-esc",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/key-esc",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Esc",
+            "row": 0,
+            "column": 0,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-1",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "1",
+            "row": 0,
+            "column": 1,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-2",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "2",
+            "row": 0,
+            "column": 2,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-3",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "3",
+            "row": 0,
+            "column": 3,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-4",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "4",
+            "row": 0,
+            "column": 4,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-5",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "5",
+            "row": 0,
+            "column": 5,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-6",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "6",
+            "row": 0,
+            "column": 6,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-7",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "7",
+            "row": 0,
+            "column": 7,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-8",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "8",
+            "row": 0,
+            "column": 8,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-9",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "9",
+            "row": 0,
+            "column": 9,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-0",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "0",
+            "row": 0,
+            "column": 10,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-backspace",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Backspace",
+            "row": 0,
+            "column": 11,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-tab",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Tab",
+            "row": 1,
+            "column": 0,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-q",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Q",
+            "row": 1,
+            "column": 1,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-w",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "W",
+            "row": 1,
+            "column": 2,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-e",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "E",
+            "row": 1,
+            "column": 3,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-r",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "R",
+            "row": 1,
+            "column": 4,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-t",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "T",
+            "row": 1,
+            "column": 5,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-y",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Y",
+            "row": 1,
+            "column": 6,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-u",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "U",
+            "row": 1,
+            "column": 7,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-i",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "I",
+            "row": 1,
+            "column": 8,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-o",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "O",
+            "row": 1,
+            "column": 9,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-p",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "P",
+            "row": 1,
+            "column": 10,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-fn",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Fn",
+            "row": 1,
+            "column": 11,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-shift",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Shift",
+            "row": 2,
+            "column": 0,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-a",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "A",
+            "row": 2,
+            "column": 1,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-s",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "S",
+            "row": 2,
+            "column": 2,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-d",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "D",
+            "row": 2,
+            "column": 3,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-f",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "F",
+            "row": 2,
+            "column": 4,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-g",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "G",
+            "row": 2,
+            "column": 5,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-h",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "H",
+            "row": 2,
+            "column": 6,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-j",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "J",
+            "row": 2,
+            "column": 7,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-k",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "K",
+            "row": 2,
+            "column": 8,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-l",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "L",
+            "row": 2,
+            "column": 9,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-enter",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Enter",
+            "row": 2,
+            "column": 10,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-sym",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Sym",
+            "row": 3,
+            "column": 0,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-z",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Z",
+            "row": 3,
+            "column": 1,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-x",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "X",
+            "row": 3,
+            "column": 2,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-c",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "C",
+            "row": 3,
+            "column": 3,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-v",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "V",
+            "row": 3,
+            "column": 4,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-b",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "B",
+            "row": 3,
+            "column": 5,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-n",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "N",
+            "row": 3,
+            "column": 6,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-m",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "M",
+            "row": 3,
+            "column": 7,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-comma",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": ",",
+            "row": 3,
+            "column": 8,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-period",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": ".",
+            "row": 3,
+            "column": 9,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-space",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "Space",
+            "row": 3,
+            "column": 10,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-up",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "↑",
+            "row": 4,
+            "column": 0,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-left",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "←",
+            "row": 4,
+            "column": 1,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-right",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "→",
+            "row": 4,
+            "column": 2,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/key-down",
+          "kind": "button",
+          "meta": {
+            "role": "visual-key",
+            "keyLabel": "↓",
+            "row": 4,
+            "column": 3,
+            "travelSource": "Photo-derived visual travel; no matrix scan or character translation"
+          }
+        },
+        {
+          "path": "grove/rgb",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "positionSource": "Official U035-B front photograph; no key-to-LED behavior"
+          }
+        },
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "left"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-keyboard-firmware"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "key",
+      "attached": true,
+      "paths": [
+        "grove/press",
+        "grove/rgb",
+        "grove/grove",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/press",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "actuation": "momentary",
+            "surfaceCenter": [
+              0,
+              8,
+              20.1
+            ],
+            "surfaceFace": "front",
+            "travelSource": "1.6 mm appearance-only estimate; official blue-switch part/travel not supplied",
+            "geometrySource": "U144 official mechanical drawing and cap-on/cap-off photographs; no keycap CAD"
+          }
+        },
+        {
+          "path": "grove/rgb",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "source": "Official key_01 points to RGB beneath the clear front of the switch",
+            "positionEvidence": "Photo-derived local position; no press-to-light behavior"
+          }
+        },
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-keyboard-firmware-or-electrical-behavior"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    },
+    {
+      "unit_id": "8encoder",
+      "attached": true,
+      "paths": [
+        "grove/grove",
+        "grove/press-1",
+        "grove/rotation-1",
+        "grove/press-2",
+        "grove/rotation-2",
+        "grove/press-3",
+        "grove/rotation-3",
+        "grove/press-4",
+        "grove/rotation-4",
+        "grove/press-5",
+        "grove/rotation-5",
+        "grove/press-6",
+        "grove/rotation-6",
+        "grove/press-7",
+        "grove/rotation-7",
+        "grove/press-8",
+        "grove/rotation-8",
+        "grove/rgb-1",
+        "grove/rgb-2",
+        "grove/rgb-3",
+        "grove/rgb-4",
+        "grove/rgb-5",
+        "grove/rgb-6",
+        "grove/rgb-7",
+        "grove/rgb-8",
+        "grove/rgb-9",
+        "grove/switch",
+        "grove/sensor",
+        "grove/unitFrame",
+        "grove/cable"
+      ],
+      "input": [
+        {
+          "id": "grove/press-1",
+          "kind": "button",
+          "action": "down"
+        },
+        {
+          "id": "grove/press-1",
+          "kind": "button",
+          "action": "up"
+        },
+        {
+          "id": "grove/press-1",
+          "kind": "button",
+          "action": "click"
+        }
+      ],
+      "components": [
+        {
+          "path": "grove/grove",
+          "kind": "port",
+          "meta": {
+            "role": "visual-connector",
+            "face": "bottom"
+          }
+        },
+        {
+          "path": "grove/press-1",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 1,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-1",
+          "kind": "joint",
+          "meta": {
+            "channel": 1,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-2",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 2,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-2",
+          "kind": "joint",
+          "meta": {
+            "channel": 2,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-3",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 3,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-3",
+          "kind": "joint",
+          "meta": {
+            "channel": 3,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-4",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 4,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-4",
+          "kind": "joint",
+          "meta": {
+            "channel": 4,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-5",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 5,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-5",
+          "kind": "joint",
+          "meta": {
+            "channel": 5,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-6",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 6,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-6",
+          "kind": "joint",
+          "meta": {
+            "channel": 6,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-7",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 7,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-7",
+          "kind": "joint",
+          "meta": {
+            "channel": 7,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/press-8",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "channel": 8,
+            "visualMotion": "linear",
+            "travelEvidence": "0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed",
+            "scope": "no-switch-state-or-encoder-count"
+          }
+        },
+        {
+          "path": "grove/rotation-8",
+          "kind": "joint",
+          "meta": {
+            "channel": 8,
+            "axisEvidence": "Official U153 EC11A rotary encoder; cap axis normal to front shell",
+            "demoRpmMax": 60,
+            "scope": "no-quadrature-or-numeric-value",
+            "role": "externally-driven-visual-joint",
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "angleUnit": "degree",
+            "continuous": true,
+            "limitsDeg": null
+          }
+        },
+        {
+          "path": "grove/rgb-1",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH1",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-2",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH2",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-3",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH3",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-4",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH4",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-5",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH5",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-6",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH6",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-7",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH7",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-8",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "CH8",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/rgb-9",
+          "kind": "led",
+          "meta": {
+            "role": "externally-driven-visual",
+            "visualLocation": "switch",
+            "mapping": "Physical location only; not the schematic U1-U9 chain order",
+            "scope": "no-automatic-key-or-power-response"
+          }
+        },
+        {
+          "path": "grove/switch",
+          "kind": "button",
+          "meta": {
+            "role": "visual-control",
+            "visualMotion": "linear",
+            "mechanism": "slide",
+            "detents": [
+              0,
+              1
+            ],
+            "positionEvidence": "Official U153 front photo and SS12D07L4B schematic; 2.2 mm visual detent spacing estimate",
+            "scope": "no-electrical-truth-table-or-power-behavior"
+          }
+        },
+        {
+          "path": "grove/sensor",
+          "kind": "component",
+          "meta": {
+            "role": "visual-anchor",
+            "scope": "no-counts-registers-firmware-or-bus"
+          }
+        },
+        {
+          "path": "grove/unitFrame",
+          "kind": "unit-frame",
+          "meta": {
+            "role": "visual-pose",
+            "space": "module-port",
+            "scope": "appearance-only"
+          }
+        },
+        {
+          "path": "grove/cable",
+          "kind": "cable",
+          "meta": {
+            "role": "visual-cable",
+            "connector": "grove",
+            "scope": "appearance-only"
+          }
+        }
+      ],
+      "outputEcho": 0,
+      "detached": true,
+      "disposed": true,
+      "activityReleased": true
+    }
+  ],
+  "button_readback_release": {
+    "events": [
+      "down:pointer-probe",
+      "up:pointer-probe",
+      "click:pointer-probe",
+      "down:pointer-second",
+      "up:pointer-second",
+      "click:pointer-second"
+    ],
+    "heldVisually": true,
+    "releasedVisually": true,
+    "delayedEcho": 0,
+    "downMotion": {
+      "depthMm": 0.35,
+      "targetDepthMm": 0.35,
+      "settled": true
+    },
+    "upMotion": {
+      "depthMm": 0,
+      "targetDepthMm": 0,
+      "settled": true
+    }
+  },
+  "focused_keyboard": "PASS",
+  "async_attachment_race": "PASS",
+  "nested_hub_attachment_input_and_dispose": {
+    "paths": [
+      true,
+      true,
+      true
+    ],
+    "input": [
+      "grove/grove-3/key-q",
+      "grove/grove-3/key-q",
+      "grove/grove-3/key-q"
+    ],
+    "parentDisposed": true,
+    "childrenDisposed": true
+  },
+  "webgl_fallback": "PASS",
+  "page_errors": [],
+  "missing_imports": []
+}

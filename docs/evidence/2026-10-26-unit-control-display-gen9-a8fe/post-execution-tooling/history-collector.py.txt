@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Capture actual post-run GET bytes for a completed control batch."""
+from datetime import datetime, timezone
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import urllib.request
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE = "http://127.0.0.1:8787/api/v1/"
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def get(name):
+    with urllib.request.urlopen(BASE + name, timeout=15) as response:
+        assert response.status == 200
+        return response.read()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("batch", type=Path)
+    args = parser.parse_args()
+    batch = args.batch.resolve()
+    assert batch.is_relative_to(ROOT / ".work")
+    summary_raw = (batch / "summary.json").read_bytes()
+    rows = json.loads(summary_raw)
+    expected = {"joystick-v11", "encoder", "8encoder", "cardkb", "rfid2"}
+    assert len(rows) == 5 and {row["unit_id"] for row in rows} == expected
+    assert len({row["device_id"] for row in rows}) == 1
+    assert rows[0]["device_id"] in {"atoms3r", "sticks3", "stopwatch"}
+    assert all(row["status"] == "PASS" for row in rows)
+    destination = batch / "post-execution-history"
+    destination.mkdir(exist_ok=False)
+    observations = []
+    for row in rows:
+        sid, unit, host = row["session_id"], row["unit_id"], row["device_id"]
+        assert re.fullmatch(r"[a-f0-9]{32}", sid)
+        raw = get(f"sessions/{sid}")
+        (destination / f"{unit}.json").write_bytes(raw)
+        history = json.loads(raw)
+        assert all(history.get(key) == row[key] for key in (
+            "session_id", "device_id", "runtime", "firmware_sha256"))
+        assert history.get("state") == "stopped"
+        assert history.get("flash_retained") is False
+        frame = get(f"sessions/{sid}/frame.png")
+        expected_frame = (batch / host / unit / "history-frame.png").read_bytes()
+        assert frame == expected_frame
+        report = batch / host / unit / "report.json"
+        observations.append({
+            "unit_id": unit, "device_id": host, "session_id": sid,
+            "runtime": row["runtime"], "firmware_sha256": row["firmware_sha256"],
+            "state": history["state"], "flash_retained": history["flash_retained"],
+            "raw_response_sha256": digest(raw), "frame_sha256": digest(frame),
+            "report_sha256": digest(report.read_bytes()),
+        })
+    health_raw = get("health")
+    (destination / "health.json").write_bytes(health_raw)
+    health = json.loads(health_raw)
+    assert health["capacity"]["active_sessions"] == 0
+    receipt = {
+        "schema_version": 1, "status": "PASS",
+        "scope": "actual-read-only-post-execution-api-observations",
+        "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+        "summary_sha256": digest(summary_raw),
+        "capture_source_sha256": digest(Path(__file__).read_bytes()),
+        "health_sha256": digest(health_raw), "active_sessions": 0,
+        "worker_generation": health["capacity"]["worker"]["generation"],
+        "observations": observations,
+    }
+    raw = (json.dumps(receipt, ensure_ascii=False, indent=2) + "\n").encode()
+    (destination / "receipt.json").write_bytes(raw)
+    print(json.dumps({"status": "PASS", "observations": len(observations),
+                      "active_sessions": 0, "receipt_sha256": digest(raw)}))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "groups": {
+    "secure-boot-recorded-image": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded static secure-boot image evidence; not a current runtime or signature-authenticity claim"
+    },
+    "core2-recorded-concurrency": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded Core2 concurrency evidence; not a runtime claim for current Unit changes"
+    },
+    "worker-recorded-unicast-discovery": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded three-attempt seed/NAT evidence; not a current cross-host validation"
+    }
+  }
+}

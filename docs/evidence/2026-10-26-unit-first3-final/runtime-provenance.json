@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-10-25T17:53:07.451169+00:00",
+  "finished_at": "2026-10-25T17:53:19.386502+00:00",
+  "expected_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "binary_end_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "exit_code": 0,
+  "observations": [
+    {
+      "session_id": "4b5bc62948ed4528bd3823f38f5eee41",
+      "unit_ids": [
+        "button"
+      ],
+      "pid": 73388,
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 5,
+        "lease_active": true
+      },
+      "runtime": "qemu",
+      "binary_role": "frozen-unit-runtime-final",
+      "actual_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "matches_expected": true,
+      "observed_at": "2026-10-25T17:53:10.079288+00:00"
+    },
+    {
+      "session_id": "c07e78b997964a428dd80e8c35fcf6d9",
+      "unit_ids": [
+        "relay"
+      ],
+      "pid": 73416,
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 5,
+        "lease_active": true
+      },
+      "runtime": "qemu",
+      "binary_role": "frozen-unit-runtime-final",
+      "actual_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "matches_expected": true,
+      "observed_at": "2026-10-25T17:53:13.181195+00:00"
+    },
+    {
+      "session_id": "194fde51e3194629aa75bc053aaa8aea",
+      "unit_ids": [
+        "env-iii"
+      ],
+      "pid": 73469,
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 5,
+        "lease_active": true
+      },
+      "runtime": "qemu",
+      "binary_role": "frozen-unit-runtime-final",
+      "actual_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+      "matches_expected": true,
+      "observed_at": "2026-10-25T17:53:18.877803+00:00"
+    }
+  ],
+  "scope": "CoreS3 Button/Relay/ENV III visible sessions; virtual-device validation only"
+}

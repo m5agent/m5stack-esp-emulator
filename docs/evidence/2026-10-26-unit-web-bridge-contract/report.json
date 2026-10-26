@@ -1,0 +1,32 @@
+{
+  "category": "browser-ui-transport-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "posts": 23,
+  "trusted_pointer_events": 9,
+  "checks": [
+    "cardkb-two-contact-hold-and-independent-release",
+    "single-real-mouse-double-click-four-posts",
+    "eight-encoder-array-number-checkbox-controls",
+    "nested-hub-instance-routing",
+    "real-http-response-observation",
+    "output-dom-equals-product-readback",
+    "trusted-browser-touch-events",
+    "empty-or-missing-attachment-dom-rejected"
+  ],
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "3bf4dd580ec42c1f06a9565d6ca1a9fd82c0bb93a365777d89bd41a854805511",
+    "tests/units/web_ui_bridge.py": "a69c33a3a317e210ea34cb23505ee0dca979fb10d3b1ecd7364f759f51c392f0",
+    "tests/units/run_service_cases.py": "2a9ebe069d39ad1a3bba6a915709e604ad55b52fd0054c10eeae0d3048736b3b",
+    "platform/tests/test_unit_web_bridge.mjs": "ae87c6f37f7b0cb12ce5eaa2ec76576da3e0dc572184bc70aea392bd146c40e1",
+    "tests/units/test_web_ui_bridge.py": "b32ced1f44df6ba900b0ed356a58da6dd8e85200fbd0b92c6b12a0ce50ab21ca"
+  }
+}

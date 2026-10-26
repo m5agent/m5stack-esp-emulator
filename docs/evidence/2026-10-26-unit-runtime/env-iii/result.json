@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26T00:59:58.474460+08:00",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "unit_id": "env-iii",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "official_sensor_compensation_matches_input": true,
+    "live_controller_state": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "e0e73b3abd0cfac51c486f0767de986bf7fcb167476f63a3e90a47d3c80095f2",
+    "main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303"
+  },
+  "session_id": "b6f6e2961a984f8493e5c8567da0b71b",
+  "unit_state": {
+    "session_id": "b6f6e2961a984f8493e5c8567da0b71b",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T17:00:25.346410+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "env-iii",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "temperature-c": 31.5,
+          "humidity-pct": 67,
+          "pressure-pa": 98765,
+          "transactions": 32,
+          "read-bytes": 66,
+          "written-bytes": 22,
+          "input-events": 0,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ]
+  },
+  "frame_sha256": "78e12f35c42ed6e634daa1b4394ef5f2b7f11ada7bbe09cff60de163422107ab",
+  "frame_metrics": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 76800,
+    "unique_colors": 16
+  },
+  "evidence_sha256": "4fe3b7a538a6a450c29ff37bc0d6ae380994b708e30092e297bd197a5757349f"
+}

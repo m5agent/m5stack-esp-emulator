@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import importlib.util
+import hashlib
 import json
+import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,6 +14,50 @@ RUNNER = ROOT / "tests/uiflow2/run_peripheral_matrix.py"
 
 
 class PeripheralRunnerTests(unittest.TestCase):
+    def test_refreshed_reference_partition_controls_probe_placement(self):
+        spec = importlib.util.spec_from_file_location("peripheral_matrix", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "reference.bin"
+            image = bytearray(b"\xff" * 0x80000)
+            entries = b"".join(struct.pack("<HBBII16sI", 0x50AA, kind, subtype, offset, size, label, 0)
+                               for kind, subtype, offset, size, label in (
+                                   (0, 0, 0x10000, 0x20000, b"factory"),
+                                   (1, 0x81, 0x30000, 0x10000, b"vfs"),
+                               ))
+            image[0x8000:0x8000 + len(entries)] = entries
+            base.write_bytes(image)
+            case = {**module.CASES[0], "base": str(base), "flash_size": "0x80000",
+                    "vfs_offset": "0x20000", "vfs_size": "0x20000"}
+            reference = module.reference_layout(case)
+            self.assertEqual(reference["effective"], {"offset": 0x30000, "size": 0x10000})
+            self.assertEqual(reference["base_firmware_sha256"], hashlib.sha256(image).hexdigest())
+            command = module.command_for(case, Path(tmp) / "out", reference=reference)
+            self.assertEqual(command[command.index("--vfs-offset") + 1], "0x30000")
+            self.assertEqual(command[command.index("--vfs-size") + 1], "0x10000")
+
+    def test_invalid_reference_partition_never_composes_over_application(self):
+        spec = importlib.util.spec_from_file_location("peripheral_matrix", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "reference.bin"
+            case = {**module.CASES[0], "base": str(base), "flash_size": "0x80000"}
+            for bad_parts in (
+                [(1, 0x81, 0x30000, 0x10000, b"vfs"), (1, 0x81, 0x40000, 0x10000, b"vfs")],
+                [(0, 0, 0x10000, 0x30000, b"factory"), (1, 0x81, 0x30000, 0x10000, b"vfs")],
+                [(1, 0x81, 0x70000, 0x20000, b"vfs")],
+                [(1, 0x81, 0x30100, 0x10000, b"vfs")],
+            ):
+                with self.subTest(partitions=bad_parts):
+                    image = bytearray(b"\xff" * 0x80000)
+                    entries = b"".join(struct.pack("<HBBII16sI", 0x50AA, *part, 0) for part in bad_parts)
+                    image[0x8000:0x8000 + len(entries)] = entries
+                    base.write_bytes(image)
+                    with self.assertRaises(ValueError):
+                        module.reference_layout(case)
+
     def test_interactive_case_settle_times_reach_ui_runner(self):
         spec = importlib.util.spec_from_file_location(
             "peripheral_matrix", RUNNER

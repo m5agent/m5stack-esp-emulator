@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "category": "actual-native-and-browser-visual-observation-supplement",
+  "status": "PASS",
+  "scope": "captured-final-native-frame-only",
+  "device_id": "stopwatch",
+  "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+  "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+  "source_full_review": ".work/unit-control-display-stop5-independent-review-20261026.json",
+  "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+  "summary": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "b575863cecda7917b17123305b0231944bd97efeaa6f66fd0edda483e2c804d3"
+  },
+  "source_freeze": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6",
+    "count": 421
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "c858f9b0f0152f0a73d0e8f5d4716b4b4ecacf02978488ef83cd9d2fa70b8410"
+  },
+  "inspection_method": "Visual inspection of each original native PNG and actual before-evidence browser PNG. observed_final_lines manually transcribed from pixels, never populated from execution serial or defaults.",
+  "inherited_fields_note": "actual_font_and_layout and captured_final_serial are inherited execution fields from the pinned native review. They are not the visual transcription source.",
+  "limitations": [
+    "Only these five actual final native PNGs and their recorded visible values were reviewed.",
+    "Browser framing applies only to the named before-evidence session-card screenshots.",
+    "Browser model LCD glyph readability at screenshot scale is NOT VERIFIED; separate native PNG readability is reviewed.",
+    "No intermediate-state, exhaustive-extrema, other firmware/host or physical-hardware visual PASS."
+  ],
+  "cases": [
+    {
+      "device_id": "stopwatch",
+      "unit_id": "joystick-v11",
+      "session_id": "cc929c31fb104d1993e5b9bde89af695",
+      "firmware_sha256": "f0164f60cef9666000e8cef68018b93076013ab671a039296b7caf3a93760144",
+      "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+      "native_frame_sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 109 31 3 202 2",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_JOYSTICK 255 0 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+      "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+      "native_frame_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/controller/joystick-v11/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png",
+      "browser_screenshot_sha256": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "stopwatch",
+        "joystick-v11",
+        "x 255",
+        "y 0",
+        "button 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "encoder",
+      "session_id": "ae01291813844608a88e3749de0c801f",
+      "firmware_sha256": "6608f85402201482d74cf8ff958d7b997dd9cb1036df5aa868abba08e9e5a1db",
+      "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+      "native_frame_sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 2 140 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER 32767 0"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+      "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+      "native_frame_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/controller/encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png",
+      "browser_screenshot_sha256": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "stopwatch encoder",
+        "count 32767",
+        "pressed 0"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "8encoder",
+      "session_id": "073c17523e2e42a89475a66a2fdb44e3",
+      "firmware_sha256": "4f6a0da208f28888f62ec42c2494259998572f21e053b133453464a2788aa13c",
+      "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+      "native_frame_sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 109 31 10 419 2",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_ENCODER8 [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8] [1, 0, 1, 0, 0, 1, 0, 1] 1 INC [0, 0, 0, 0, 0, 0, 0, 0]"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+      "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+      "native_frame_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/controller/8encoder/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png",
+      "browser_screenshot_sha256": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "stopwatch",
+        "8encoder",
+        "1 1",
+        "2 -2",
+        "3 123456",
+        "4 -123456",
+        "5 2147483647",
+        "6 -2147483648",
+        "7 7",
+        "8 8",
+        "P 10100101",
+        "SW 1"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "cardkb",
+      "session_id": "1662c96e00a145d9ab2603775cbe1c24",
+      "firmware_sha256": "7720a396b50369262d406ea2e248cf8f1e47648e03a71f980a23bcb1ca6fb8c5",
+      "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+      "native_frame_sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 1 109 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_CARDKB_LAST 65"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+      "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+      "native_frame_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/controller/cardkb/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png",
+      "browser_screenshot_sha256": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "stopwatch cardkb",
+        "key 65"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rfid2",
+      "session_id": "e4ee0caf406545b6ad5eebc72ab4144c",
+      "firmware_sha256": "dc407318c3ea9933168d86d35b52331aba9ca91e718fc932a4599c528a01eaf6",
+      "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+      "native_frame_sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+      "native_readability": "PASS",
+      "scope": "captured-final-native-frame-only",
+      "actual_font_and_layout": {
+        "font_name": "Montserrat12",
+        "font_scale": 2.0,
+        "font_height": 30,
+        "default_font_height_observed": 15,
+        "layout_marker": "HOST_CONTROL_LAYOUT 110 45 246 78 31 3 171 1",
+        "display_manifest_sha256": "815d0a43a3b7276fd26c49ef711797f9efca1709add07758d02eafdf98fc5c39"
+      },
+      "captured_final_serial": [
+        "CONTROL_RFID_NO_CARD"
+      ],
+      "status": "PASS",
+      "source_review": ".work/unit-control-display-stop5-native-review-20261026/native-review.json",
+      "source_review_sha256": "d72657ae7dfd07dbeff73c2ad6829cd44d59f04e44b57bac800ca79db8d5c9b4",
+      "source_full_review_sha256": "8d92dd0d82b0ec862509ce982f77c897c981d72104f0520bcbe4c37acad52d2d",
+      "native_frame_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/controller/rfid2/frame.png",
+      "browser_screenshot_path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png",
+      "browser_screenshot_sha256": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f",
+      "browser_framing": "PASS",
+      "browser_framing_scope": "actual-before-evidence-session-card-screenshot-only",
+      "browser_phase": "before-evidence",
+      "browser_framing_observations": [
+        "Host and Unit housing and connecting cable visible.",
+        "Session identity, Unit controls/readback and serial pane visible in the captured card.",
+        "No session-card edge truncation or sticky-header obstruction observed."
+      ],
+      "browser_lcd_glyph_readability": "NOT VERIFIED",
+      "observed_final_lines": [
+        "stopwatch rfid2",
+        "No card"
+      ],
+      "observed_final_lines_scope": "captured-final-native-frame-only",
+      "unverified_visual_characters": []
+    }
+  ],
+  "api_contacted_by_reviewer": false,
+  "sessions_started_by_reviewer": 0
+}

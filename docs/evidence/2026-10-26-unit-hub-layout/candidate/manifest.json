@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "category": "unit-host-15-isolated-browser-layout-candidate",
+  "promoted": false,
+  "created_at": "2026-10-25T21:11:24.870009+00:00",
+  "scope": {
+    "code_admission": "CoreS3 module, noDinBase, directgrove HUB, direct compact ENV III/ToF/Color/Button children, no callerunitPose",
+    "four_viewport_fixture": "ENV III@1, ToF@2, Color@3",
+    "secondary_390_fixture": "Button@1 and trusted LCD/Button/focus/failure recovery",
+    "other_permutations": "NOT VALIDATED",
+    "firmware_execution": "NOT RUN",
+    "device_service_execution": "NOT RUN",
+    "hardware_execution": "NOT RUN",
+    "whole_visual_acceptance": "PARTIAL",
+    "phone_overview_touch_comfort": "PARTIAL"
+  },
+  "base_product_sha256": {
+    "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+  },
+  "candidate_product_sha256": {
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9"
+  },
+  "patch_sha256": "8a452c3bc9871558178d98d7c3f0949c1d222af1b08d84cb953edbbbc3deec1f",
+  "baseline_freeze": {
+    "path": "frozen-web-sha256.json",
+    "file_count": 285,
+    "sha256": "8aa352b88238f14730e3c5082a966133a6278758a728238d633928ebc61fff92",
+    "post_run_matches": true
+  },
+  "execution_source_sha256": {
+    "candidate/platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "candidate/platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "browser-layout.mjs": "8c9dd4932f375dbc79df6b5f61d22ce90f8e5fd9a9b6c68f0bee686220803124",
+    "frozen-web-sha256.json": "8aa352b88238f14730e3c5082a966133a6278758a728238d633928ebc61fff92"
+  },
+  "execution_post_run_sha256": {
+    "candidate/platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "candidate/platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "browser-layout.mjs": "8c9dd4932f375dbc79df6b5f61d22ce90f8e5fd9a9b6c68f0bee686220803124",
+    "frozen-web-sha256.json": "8aa352b88238f14730e3c5082a966133a6278758a728238d633928ebc61fff92"
+  },
+  "final_browser_report": "results-r9/report.json",
+  "browser_checks_passed": 13,
+  "screenshots_fully_decoded": 12,
+  "auxiliary_checks": {
+    "annotation_contract": "17/17 PASS",
+    "frontend_recovery": "23/23 PASS",
+    "token_audit": "0 issues",
+    "git_apply_check": "PASS before promotion",
+    "node_syntax_check": "PASS"
+  },
+  "product_sources_at_candidate_packaging_match_baseline": {
+    "platform/web/model-shell.js": true,
+    "platform/web/unit-panel.js": true,
+    "platform/web/unit-annotations.js": true,
+    "platform/web/unit-panel.css": true,
+    "platform/web/three-device-viewer.css": true,
+    "platform/web/sessions.css": true,
+    "platform/web/vendor/m5stack-models/src/modeling/grove-cable.js": true,
+    "platform/web/vendor/m5stack-models/src/units/hub/index.js": true,
+    "platform/web/vendor/m5stack-models/src/units/hub/dimensions.js": true,
+    "platform/web/vendor/m5stack-models/catalog/products.json": true
+  },
+  "promotion_dependency_review": "promotion-dependencies.json",
+  "artifact_sha256": {
+    "candidate.patch": "8a452c3bc9871558178d98d7c3f0949c1d222af1b08d84cb953edbbbc3deec1f",
+    "browser-layout.mjs": "8c9dd4932f375dbc79df6b5f61d22ce90f8e5fd9a9b6c68f0bee686220803124",
+    "frozen-web-sha256.json": "8aa352b88238f14730e3c5082a966133a6278758a728238d633928ebc61fff92",
+    "base-source-sha256.json": "48b05d672cef43ed609f94b96362ccd00825846cf0d442d937950e242d51bd78",
+    "DESIGN.md": "41f0b140395c0112942915f93e8f2cf68c284d15ebbf7dd6da93aa09963672d7",
+    "README.md": "31f70f319385f2120a6c4912ecfaf01fb3954586d127e846f4d8c490e6a8dd3b",
+    "PLAN.md": "dfa69e84536d2f26970dc916f7bbefb7fd8c6983c1d1f972ff767d4d82a4feed",
+    "bbox-summary.json": "1372a2fd3ae666f3a3b3dff56444b06130fc75b0e938347ac21e810b4bc6376f",
+    "visual-review.json": "faa0fb9a7138ecbdb0e0d0e864bf666278efe4799614a51054b0024c3941a5ba",
+    "promotion-dependencies.json": "52d36ad18d94d31e0bb8cdc13c13d08dea6c9090325d00e39aa60a5df97ca59b",
+    "annotation-contract.json": "82acfdfb55d8da18fe3c7258aeb9b679ed95acbbccb72b66f4bbd4b7cf97d296",
+    "frontend-recovery.json": "ea78f35615ea3893aba3562104280efe89e65b33aded8e37c54c224ae4e04f6f",
+    "auxiliary-checks-source-sha256.json": "8947c663b7be72509602ff0179fcd6e4510b71874f72cee2fbda31f9722ddf6f",
+    "token-audit.json": "a8bdda34f5baf73d17a0314708af2007f38cda41eabdc9a58e4e85b5a88820f1",
+    "results-r9/report.json": "d9d1d53e9e175546eff61ceb85968f9d6cfb70b8204e6538afcb8a774f43ef26",
+    "results-r9.stdout.json": "d09e081e0931a213111fb9d89c6f504aaac5549f72bb173e11674d4e0d581d7d",
+    "results-r9.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results-r9/before-1440.png": "64ece1899848f33870ba634984caac3b8ae67c09f12cc7bf9a1b353ac3e895a7",
+    "results-r9/before-1024.png": "0aa3596a127d9f69e301440c2cf76900062c7b6f62989d1a25b2657d84690df6",
+    "results-r9/before-768.png": "8b8a7b2cc8322990a9f9fd37937c54c5d6a62707ac3ad97d7dec900ae3eb74d7",
+    "results-r9/before-390.png": "f3d12630d6d95d7ec8b98203f17ed1931b7623ecc6133910d4078310961949a9",
+    "results-r9/after-1440.png": "de427b5c641d59d54218bf96b05ab05eb31b5261a32fdf60ffa982d3dbd17797",
+    "results-r9/after-1024.png": "09d8169c0fd799bfae84ad286f4a47aea6b29c3a2e003330c636a9777c6f74c4",
+    "results-r9/after-768.png": "1d62f1eda863a32b5bead8912c25b4ef202e31988539beda96bfdc19e44d9891",
+    "results-r9/after-390.png": "5527513b8d428159e65da5e642ffa800450f4c1927c508377b8db8441333dc30",
+    "results-r9/after-button-hitbox-390.png": "6411fc56c0c5f0bf83deefb347b444759e2d15c2f7f014c5ad15d81d22e7d6de",
+    "results-r9/after-button-focus-390.png": "a729846460b7bf43304a237e530cb59e18966d14bad5c083fbda289d154456f5",
+    "results-r9/after-snapshot-failure-isolation-390.png": "3c80742bf2739178984b75640572dac1a7f81db136b1fb43267f2684fb05f6f1",
+    "results-r9/after-restore-failure-isolation-390.png": "fe0fccb4d96c32d7bc13034837dd0a333fbb564bd54e0eea3629b00e005b2c77"
+  }
+}

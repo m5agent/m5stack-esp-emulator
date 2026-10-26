@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-25`。
+来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-26`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
@@ -28,6 +28,32 @@
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C routing is fixed; watchdog failures are timing/concurrency-sensitive and explicit thread/icount controls do not fix them; non-empty application frame remains OPEN; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; two independent two-instance no-stagger 4x120s gates pass 8/8, two independent three-instance 3x120s gates pass 6/6, two independent four-instance 4x120s gates pass 8/8, two independent five-instance 30-second-stagger 5x120s gates pass 10/10, two fixed-icount zero-stagger five-instance 5x120s gates pass 10/10, two fixed-icount zero-stagger six-instance 6x120s gates pass 12/12, and two fixed-icount zero-stagger eight-instance 8x120s gates pass 16/16 after hold/12 sweep-floor calibration; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN; the bounded-TCG host-memory result is validated only for the tested 7200s workload |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
+
+## 外接 Unit 库存与准入
+
+- Unit 登记：`27` 款；主机接线登记：`14` 款。
+- Runtime profile 状态：`implemented` 27。
+- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `48ab992f5ff63c1a91296051e1afcb5959877903`；包含 `14` 款主机、`27` 款 Unit。视觉库存不构成控制器或电气验证。
+- 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
+
+准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
+
+| 主机 | Profile 准入 Unit 数 | implemented | validated |
+| --- | ---: | ---: | ---: |
+| `atoms3r` | 26 | 26 | 0 |
+| `cardputer-adv` | 0 | 0 | 0 |
+| `cardputer-zero` | 0 | 0 | 0 |
+| `core2` | 0 | 0 | 0 |
+| `cores3` | 27 | 27 | 0 |
+| `nanoc6` | 0 | 0 | 0 |
+| `nesso-n1` | 0 | 0 | 0 |
+| `papercolor` | 0 | 0 | 0 |
+| `papermono` | 0 | 0 | 0 |
+| `stackchan` | 0 | 0 | 0 |
+| `stamplc` | 0 | 0 | 0 |
+| `sticks3` | 26 | 26 | 0 |
+| `stopwatch` | 26 | 26 | 0 |
+| `tab5` | 0 | 0 | 0 |
 
 ## 通用固件审查
 
@@ -61,31 +87,32 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
+| `UNIT-01` | 进行中 | 同步最新主线后，优先补外部 Agent 的 UIFlow 源码提交→可见 session/多 Unit→实时读写控制闭环；执行新三主机 IO，保留 ADC/Thermal/HUB、原 IR/Buzzer、PWM 初始化 QOM/完整回归、Heart 和视觉缺口 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`40` 个 Python 模块，`34034` 行；规模最大的模块如下。
+- `platform/tools`：`43` 个 Python 模块，`35035` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 9869 |
+| `device_service.py` | 10065 |
 | `firmware_manifest.py` | 3067 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1556 |
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`195` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`61` 个 patch 文件。
-- 文档：`214` 个 Markdown 页面，`19271` 行。
+- `tests/`：`87` 个可执行 Python 测试文件，分布在 `49` 个目录；`197` 个 evidence JSON。
+- `patches/`：`13` 个补丁组，`70` 个 patch 文件。
+- 文档：`275` 个 Markdown 页面，`26069` 行。
 
 ## 文档与测试
 
-- 平台测试：`499` 项。
-- Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
-- 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
-- 全量文档盘点：`214` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `137`，第三方来源说明 `2`。
+- 平台测试：`562` 项。
+- Docs 新鲜度登记：`77` 行；其中非历史页 `33` 行，历史固定页 `44` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `44`，实现/设计 `7`，参考 `13`，工作流/导航 `4`。
+- 全量文档盘点：`275` 个 Markdown 页面；职责分布：权威/专题页 `77`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `141`，未登记 docs 页面 `2`，第三方来源说明 `9`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。
 - 没有带显式旧复核日期的委派文档。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。

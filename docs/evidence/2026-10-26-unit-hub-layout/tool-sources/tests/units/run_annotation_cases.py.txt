@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""Prepared real-guest ENV/Relay annotation check. No session without --execute."""
+from __future__ import annotations
+
+import argparse
+import atexit
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'platform/tools'))
+sys.path.insert(0, str(ROOT / 'tests/units'))
+from check_batch_evidence import Checker  # noqa: E402
+from run_service_cases import Client, run_case, wait_for  # noqa: E402
+from web_ui_bridge import WebUIBridge  # noqa: E402
+
+FIRST = {'temperature-c': 31.5, 'humidity-pct': 67.0, 'pressure-pa': 98765.0}
+SECOND = {'temperature-c': 18.75, 'humidity-pct': 45.5, 'pressure-pa': 103200.0}
+SOURCES = (
+    'platform/web/sessions.js', 'platform/web/sessions.html', 'platform/web/sessions.css',
+    'platform/web/unit-panel.js', 'platform/web/unit-panel.css', 'platform/web/unit-annotations.js',
+    'platform/web/model-shell.js', 'platform/web/device-shell-factory.js',
+    'platform/web/unit-assembly-layout.js', 'tests/uiflow2/lib/rtc_probe.py',
+    'platform/web/unit-visual-mappings.js', 'platform/tests/unit_web_bridge.mjs',
+    'tests/units/run_service_cases.py', 'tests/units/web_ui_bridge.py',
+    'tests/units/check_batch_evidence.py', 'tests/uiflow2/run_profile_ui_test.py',
+    'tests/units/run_annotation_cases.py', 'platform/tests/unit_annotation_bridge.mjs',
+    'platform/tools/firmware_analysis.py', 'platform/tools/user_firmware_matrix.py',
+    'tests/units/probe/main.py', 'tests/units/probe/boot.py',
+    'platform/tools/device_service.py', 'platform/tools/serve.py', 'platform/tools/unit_runtime.py',
+    'platform/units/catalog.json', 'platform/units/host-ports.json', 'platform/units/runtime-profiles.json',
+)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def write_json(path, data):
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+
+def env_rows(serial, vector):
+    return [list(map(float, row)) for row in re.findall(r'UNIT_ENV ([\d.-]+) ([\d.-]+) ([\d.-]+)', serial)
+            if all(abs(float(value) - target) < tolerance
+                   for value, target, tolerance in zip(row, vector.values(), (0.2, 0.2, 1.0)))]
+
+
+class AnnotationTransport(WebUIBridge):
+    """Keep common runtime provenance and protocol; select the annotation subclass."""
+    def __init__(self, url, output):
+        self.output, self.url = output.resolve(), url
+        self.output.mkdir(parents=True, exist_ok=True)
+        self.stderr = (self.output / 'bridge.stderr.txt').open('w', encoding='utf-8')
+        node = os.environ.get('M5_UNIT_WEB_BRIDGE_NODE') or shutil.which('node')
+        if not node:
+            raise RuntimeError('Node.js required')
+        self.process = subprocess.Popen([node, str(ROOT / 'platform/tests/unit_annotation_bridge.mjs'), url, str(self.output)],
+                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
+                                        text=True, encoding='utf-8', bufsize=1, cwd=ROOT)
+        atexit.register(self.close)
+
+
+class AnnotationClient(Client):
+    def __init__(self, url, case, output):
+        super().__init__(url)
+        self.case, self.env_checked, self.relay_values = case, False, set()
+        self.guest_vectors = []
+        self.web_ui = AnnotationTransport(url, output)
+
+    def raw(self, path, method='GET', **kwargs):
+        parts = path.split('?')[0].split('/')
+        unit_get = method == 'GET' and len(parts) == 3 and parts[0] == 'sessions' and parts[2] == 'units'
+        if unit_get and self.case == 'env-iii' and not self.env_checked:
+            self.env_checked = True
+            sid = parts[1]
+            self._open_web_ui(sid)
+            serial = self.json(f'sessions/{sid}/serial?limit=262144', via_ui=False)['data']
+            assert env_rows(serial, FIRST), 'original runner must observe first guest vector before the second input'
+            self.guest_vectors.append({'vector': FIRST, 'matched_guest_rows': env_rows(serial, FIRST)})
+            self.web_ui.call('annotation', session_id=sid, phase='env-vector-1', expected=FIRST)
+            offset = len(serial)
+            self.json(f'sessions/{sid}/unit-input', method='POST', payload={'id': 'external1', 'values': SECOND})
+            serial = wait_for(self, sid, lambda text: bool(env_rows(text[offset:], SECOND)))
+            self.guest_vectors.append({'vector': SECOND, 'serial_offset': offset,
+                                       'matched_guest_rows': env_rows(serial[offset:], SECOND)})
+            self.web_ui.call('annotation', session_id=sid, phase='env-vector-2', expected=SECOND)
+        if method == 'DELETE' and len(parts) == 2 and parts[0] == 'sessions':
+            # Let the real API stop first, retain the same page for terminal UI.
+            transport, self.web_ui = self.web_ui, None
+            try:
+                data = super().raw(path, method=method, **kwargs)
+            finally:
+                self.web_ui = transport
+            try:
+                transport.call('terminal', session_id=parts[1])
+            finally:
+                transport.call('close', session_id=parts[1])
+            return data
+        data = super().raw(path, method=method, **kwargs)
+        if unit_get and self.case == 'relay':
+            value = json.loads(data)['units'][0]['properties']['output-level']
+            assert type(value) is bool
+            if value not in self.relay_values:
+                self.web_ui.call('annotation', session_id=parts[1], phase=f'relay-{int(value)}',
+                                 expected={'output-level': value})
+                self.relay_values.add(value)
+        return data
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--api-url', default='http://127.0.0.1:8787')
+    parser.add_argument('--device', choices=['cores3'], default='cores3')
+    parser.add_argument('--out-dir', type=Path)
+    parser.add_argument('--expected-runtime-sha256')
+    parser.add_argument('--execute', action='store_true', help='Create exactly two sequential visible sessions')
+    args = parser.parse_args()
+    if not args.execute:
+        print(json.dumps({'status': 'PREPARED_NOT_EXECUTED', 'sessions_started': 0, 'api_contacted': False,
+                          'plan': ['ENV: original probe, two UI vectors and fresh guest serial',
+                                   'Relay: original guest toggles, both controller/DOM annotation states',
+                                   'Each session: direct PID hash, ZIP before stop, purge=0, terminal clears numbers'],
+                          'pending_product_file': not (ROOT / 'platform/web/unit-annotations.js').exists()}, ensure_ascii=False))
+        return 0
+    if not args.out_dir or not re.fullmatch('[a-f0-9]{64}', args.expected_runtime_sha256 or ''):
+        parser.error('--execute requires a new --out-dir and exact --expected-runtime-sha256')
+    if urlparse(args.api_url).hostname not in {'localhost', '127.0.0.1', '::1'}:
+        parser.error('direct PID proof requires a local Device Service')
+    if os.environ.get('M5_UNIT_WEB_BRIDGE') == '1':
+        parser.error('unset M5_UNIT_WEB_BRIDGE; this adapter owns the bridge')
+    os.environ['M5_UNIT_EXPECT_RUNTIME_SHA256'] = args.expected_runtime_sha256
+    output = args.out_dir.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    frozen = {}
+    for name in SOURCES:
+        data = (ROOT / name).read_bytes()
+        frozen[name] = digest(data)
+        target = output / 'tool-sources' / (name + '.txt')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    write_json(output / 'source-freeze.json', frozen)
+    plain = Client(args.api_url)
+    assert plain.json('health')['capacity']['active_sessions'] == 0, 'coordinate an idle 8787 before executing'
+    reports = []
+    for case in ('env-iii', 'relay'):
+        directory = output / case
+        directory.mkdir()
+        client = AnnotationClient(args.api_url, case, directory / 'browser')
+        try:
+            result = run_case(client, argparse.Namespace(out_dir=directory / 'controller', device=args.device,
+                                                         control_no_unit=False), case)
+        finally:
+            client.web_ui.close()
+        sid = result.get('session_id')
+        web_path = directory / 'browser' / str(sid) / 'web-report.json'
+        web = json.loads(web_path.read_text()) if web_path.exists() else {}
+        proof_path = web_path.with_name('runtime-provenance.json')
+        proof = json.loads(proof_path.read_text()) if proof_path.exists() else {}
+        checks = {'original_guest_runner': result['status'] == 'PASS',
+                  'same_session_firmware': web.get('session_id') == sid and web.get('firmware_sha256') == result.get('firmware_sha256'),
+                  'direct_runtime': proof.get('status') == 'VERIFIED' and proof.get('runtime_binary_sha256') == args.expected_runtime_sha256,
+                  'annotation_exact_alignment': len(web.get('annotation_snapshots', [])) == 2
+                    and all(s.get('exact_http_controller_dom_alignment') for s in web.get('annotation_snapshots', [])),
+                  'terminal_clears_live_values': web.get('annotation_terminal', {}).get('live_annotation_fields') == 0,
+                  'no_browser_errors': not web.get('errors') and not web.get('annotation_asset_errors')
+                    and not web_path.with_name('bridge-errors.json').exists(),
+                  'frozen_sources_unchanged': all(digest((ROOT / name).read_bytes()) == sha for name, sha in frozen.items())}
+        served = {row['file']: row['sha256'] for row in web.get('annotation_served_assets', [])}
+        checks['annotation_assets_match_frozen_sources'] = all(served.get(name) == frozen[name] for name in
+            ('platform/web/unit-annotations.js', 'platform/web/unit-panel.js', 'platform/web/unit-panel.css', 'platform/web/model-shell.js', 'platform/web/unit-assembly-layout.js'))
+        if case == 'env-iii':
+            wanted = [(field, value) for vector in (FIRST, SECOND) for field, value in vector.items()]
+            actual = [(field, value) for post in web.get('posts', []) for field, value in post.get('request', {}).get('values', {}).items()]
+            checks['two_guest_vectors'] = len(client.guest_vectors) == 2 and all(row['matched_guest_rows'] for row in client.guest_vectors)
+            checks['exact_six_product_input_posts'] = len(web.get('posts', [])) == 6 and actual == wanted
+        else:
+            checks['both_guest_output_annotations'] = client.relay_values == {True, False}
+            checks['no_relay_input_posts'] = web.get('posts') == []
+            serial_path = directory / 'controller' / case / 'serial.txt'
+            serial = serial_path.read_text(encoding='utf-8') if serial_path.exists() else ''
+            checks['both_guest_output_markers'] = all(f'UNIT_RELAY {value}' in serial for value in (0, 1))
+        mutations = web.get('annotation_mutation_requests', [])
+        checks['no_unaccounted_browser_mutations'] = len(mutations) == (6 if case == 'env-iii' else 0) and all(
+            row.get('method') == 'POST' and row.get('path') == f'/api/v1/sessions/{sid}/unit-input' for row in mutations)
+        report = {'schema_version': 1, 'category': 'virtual-device-browser-unit-annotations', 'status': 'FAIL',
+                  'device_id': args.device, 'unit_id': case, 'runtime': 'qemu', 'session_id': sid,
+                  'firmware_sha256': result.get('firmware_sha256'), 'evidence_sha256': result.get('evidence_sha256'),
+                  'hardware_execution': 'NOT RUN', 'checks': checks, 'runtime_provenance': proof,
+                  'guest_vectors': client.guest_vectors, 'source_sha256': frozen,
+                  'controller_result': f'controller/{case}/result.json', 'browser_report': str(web_path.relative_to(directory)),
+                  'evidence': f'controller/{case}/evidence.zip'}
+        checker = Checker(directory)
+        manifest = None
+        try:
+            manifest, count = checker.zip_manifest(directory / 'controller' / case / 'evidence.zip', report, case)
+            report['zip_member_count'] = count
+            report['zip_running_session'] = manifest['session']
+            checks['strict_zip_before_stop'] = True
+        except Exception as error:
+            report['zip_check_error'] = str(error)
+            checks['strict_zip_before_stop'] = False
+        try:
+            assert manifest is not None, 'no valid running-session ZIP for direct runtime proof'
+            report['strict_runtime_proof'] = checker.direct_record(proof, manifest['session'], case, args.expected_runtime_sha256)
+            checks['direct_runtime_matches_zip'] = True
+        except Exception as error:
+            report['runtime_check_error'] = str(error)
+            checks['direct_runtime_matches_zip'] = False
+        checks['history_retained'] = result.get('checks', {}).get('stopped_with_history') is True
+        try:
+            checks['service_idle_after_case'] = plain.json('health')['capacity']['active_sessions'] == 0
+        except Exception as error:
+            checks['service_idle_after_case'] = False
+            report['health_error'] = str(error)
+        report['artifact_sha256'] = {str(path.relative_to(directory)): digest(path.read_bytes())
+                                    for path in sorted(directory.rglob('*')) if path.is_file()
+                                    and path.suffix not in {'.bin'} and 'files' not in path.parts}
+        try:
+            report_path = directory / 'report.json'
+            verified = checker.artifacts(report, {}, report_path)
+            report['strict_controller_detail'] = checker.controller_detail(report, report_path, verified)
+            assert manifest is not None, 'no valid running-session ZIP for browser detail'
+            report['strict_browser_detail'] = checker.browser_detail(report, report_path, verified, manifest)
+            checks['strict_guest_browser_artifacts'] = True
+        except Exception as error:
+            checks['strict_guest_browser_artifacts'] = False
+            report['artifact_check_error'] = str(error)
+        report['status'] = 'PASS' if all(checks.values()) else 'FAIL'
+        write_json(directory / 'report.json', report)
+        reports.append(report)
+        write_json(output / 'summary.json', reports)
+        print(f"ANNOTATION {case}: {report['status']}", flush=True)
+        if report['status'] != 'PASS':
+            break
+    return 0 if len(reports) == 2 and all(row['status'] == 'PASS' for row in reports) else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

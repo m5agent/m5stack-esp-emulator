@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "category": "whitelisted-verbatim-functional-evidence-archive",
+  "scope": "AtomS3R five control Units; original display probe r1",
+  "functional_status": "PASS",
+  "native_readability": "PARTIAL",
+  "source": ".work/unit-control-host-atom5-gen9-a8fe-20261026-r1",
+  "frozen_files": 380,
+  "original_source_count": 375,
+  "prepared_metadata_count": 5,
+  "named_probe_source_count_per_case": 17,
+  "packaged_python_source_count_per_case": 18,
+  "packaged_auxiliary_source": "The shared rtc_probe.py is the eighteenth VFS Python file; its complete source/hash is retained in the unchanged source freeze and snapshot tree, alongside readiness packaged_full_py_sha256.",
+  "redactions": [],
+  "excluded": [
+    "5 full-flash BIN files",
+    "bytecode",
+    "native toolchain binaries"
+  ],
+  "source_snapshots": 349,
+  "baseline_source_references": 31,
+  "source_reconstruction": "source-reconstruction.json",
+  "baseline_reference_boundary": "Two unchanged text sources containing static MAC fixture literals plus 28 images and one license are exact commit/path/blob/SHA references. Their original bytes were checked with git show; no actual execution artifact receives a scanning exemption.",
+  "binary_web_assets": "Hash-bound in unchanged source-before and exact baseline Git references; not duplicated as tool-source snapshots.",
+  "preparation_metadata": "Inner raw records inherit NOT RUN/BLOCKED preparation-time fields. They are retained verbatim; actual execution status comes from raw controller assertions, outer report, browser, ZIP and runtime proof.",
+  "hardware_execution": "NOT RUN",
+  "post_execution_review": "Explicitly separated from the 380-entry execution freeze; it includes review and normalization envelopes, never a recreated PID observation.",
+  "external_work_log": "NOT ARCHIVED: the configured agent-work-logs repository and workflow were unavailable; raw internal material remains in the original local execution directory."
+}

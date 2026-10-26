@@ -1,0 +1,39 @@
+{
+  "session_id": "4c0070b381ad4502ad209e286608c873",
+  "device_id": "atoms3r",
+  "state": "booting",
+  "supported": true,
+  "available": true,
+  "source": "live",
+  "captured_at": "2026-10-25T18:39:44.291835+00:00",
+  "components": {
+    "imu": {
+      "path": "/machine/bmi270",
+      "properties": {
+        "accel-x": 0,
+        "accel-y": 0,
+        "accel-z": 1,
+        "gyro-x": 0,
+        "gyro-y": 0,
+        "gyro-z": 0
+      }
+    },
+    "magnetometer": {
+      "path": "/machine/bmm150",
+      "properties": {
+        "mag-x": 0,
+        "mag-y": 0,
+        "mag-z": 0
+      }
+    },
+    "led": {
+      "path": "/machine/lp5562",
+      "properties": {
+        "red-pwm": 0,
+        "green-pwm": 0,
+        "blue-pwm": 0
+      }
+    }
+  },
+  "errors": {}
+}

@@ -1,0 +1,4475 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+  "firmware_sha256": "29f8e3dcf60dcb9078fde839a77ce78a149595c03c3988ca655f0cc9036445bd",
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "tof",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "visual_port": "grove",
+      "initial": {
+        "distance-mm": 1000
+      }
+    }
+  ],
+  "opened_at": "2026-10-26T00:44:44.383Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+    "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-26T00:44:44.285Z",
+  "session_created_at": "2026-10-26T00:44:44.355320+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-26T00:45:06.454Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 321,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 321
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-26T00:45:06.858Z",
+      "instance": "external1",
+      "field": "distance-mm",
+      "kind": "fill-and-tab",
+      "value": 1456,
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1456
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-26T00:45:06.452Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:06.437633+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 321,
+              "transactions": 6495,
+              "read-bytes": 2992,
+              "written-bytes": 3534,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 19,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 321
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:06.857Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:06.815274+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 7775,
+              "read-bytes": 3600,
+              "written-bytes": 4210,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 23,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "distance-mm": 1456
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-26T00:44:57.729Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "flashing",
+        "source": "unavailable",
+        "units": [],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:04.911Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "booting",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:04.908668+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 1481,
+              "read-bytes": 598,
+              "written-bytes": 903,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 4,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:05.419Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:05.416289+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 3035,
+              "read-bytes": 1342,
+              "written-bytes": 1714,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 9,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:05.924Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:05.921143+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 5099,
+              "read-bytes": 2326,
+              "written-bytes": 2800,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 15,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:06.431Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:06.426999+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1000,
+              "transactions": 6495,
+              "read-bytes": 2992,
+              "written-bytes": 3534,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 19,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:06.937Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:06.933456+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 8385,
+              "read-bytes": 3889,
+              "written-bytes": 4533,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 25,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:07.443Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:07.440404+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 9719,
+              "read-bytes": 4524,
+              "written-bytes": 5236,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 29,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:07.950Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:07.946994+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 11731,
+              "read-bytes": 5482,
+              "written-bytes": 6296,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 35,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:08.457Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:08.453398+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 13395,
+              "read-bytes": 6267,
+              "written-bytes": 7183,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 40,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:08.963Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:08.960802+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 14989,
+              "read-bytes": 7031,
+              "written-bytes": 8015,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 45,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:09.469Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:09.466323+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 17039,
+              "read-bytes": 8008,
+              "written-bytes": 9094,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 51,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-26T00:45:09.975Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/7a08a59e9bb24986ba104d47d3f37bf9/units",
+      "status": 200,
+      "response": {
+        "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T00:45:09.972338+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 18479,
+              "read-bytes": 8696,
+              "written-bytes": 9850,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 55,
+              "crc-errors": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "tof",
+            "name": "ToF",
+            "sku": "U010",
+            "visual_asset": {
+              "entry": "src/units/tof/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "VL53L0X",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "i2c",
+              "connector": "HY2.0-4P",
+              "address_7bit": [
+                41
+              ],
+              "pins": {
+                "yellow": {
+                  "signal": "SDA",
+                  "direction": "bidirectional"
+                },
+                "white": {
+                  "signal": "SCL",
+                  "direction": "bidirectional"
+                },
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+              "registers": [],
+              "gaps": [
+                "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+                "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+              ]
+            },
+            "inputs": {
+              "distance-mm": {
+                "type": "integer",
+                "label": "目标距离",
+                "default": 1000,
+                "default_source": "synthetic-test-fixture",
+                "unit": "mm",
+                "minimum": 30,
+                "maximum": 2000,
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/tof",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+              "inputs": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                }
+              },
+              "state": {
+                "distance-mm": {
+                  "property": "distance-mm"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                },
+                "samples-generated": {
+                  "property": "samples-generated",
+                  "path": "/chip"
+                },
+                "crc-errors": {
+                  "property": "crc-errors",
+                  "path": "/chip"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+                "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+                "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "native_frame": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "scope": "Development wiring admitted from confirmed host pins and shared controller routing. Device-local guest, Web and captured-frame evidence is required before PASS; CoreS3 evidence is not inherited."
+                }
+              }
+            },
+            "blocker": "Device-local evidence is required for each firmware and host. AtomS3R/StickS3/StopWatch wiring is admitted for development; their pending host_validation is not a functional PASS. Physical and remaining visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "6679dfb021cfafbe9a9dde7f6d7a6e4d69b14c4abe518f31fae9d8a688456cc0"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-26T00:45:06.487Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 321,
+              "transactions": 6495,
+              "read-bytes": 2992,
+              "written-bytes": 3534,
+              "input-events": 1,
+              "output-transitions": 0,
+              "samples-generated": 19,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "321",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "6495",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "2992",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "3534",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "19",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-26T00:45:06.891Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 7775,
+              "read-bytes": 3600,
+              "written-bytes": 4210,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 23,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "7775",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "3600",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "4210",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "23",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-26T00:45:07.477Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 9719,
+              "read-bytes": 4524,
+              "written-bytes": 5236,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 29,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "9719",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "4524",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "5236",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "29",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-26T00:45:10.006Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "tof",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {
+              "distance-mm": 1000
+            },
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "distance-mm": 1456,
+              "transactions": 18479,
+              "read-bytes": 8696,
+              "written-bytes": 9850,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 55,
+              "crc-errors": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "distance-mm",
+              "source": "输入 fixture",
+              "text": "1456",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "18479",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "8696",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "9850",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "samples-generated",
+              "source": "控制器状态",
+              "text": "55",
+              "rgb": []
+            },
+            {
+              "field": "crc-errors",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot_preparation": {
+        "scroll_x": 0,
+        "scroll_y": 0
+      },
+      "screenshot_capture": {
+        "method": "cdp-document-clip-without-element-scroll",
+        "clip": {
+          "x": 400,
+          "y": 163,
+          "width": 980,
+          "height": 1068
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        }
+      },
+      "screenshot": "003-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "flashing",
+  "opening_screenshot": "opened-flashing.png",
+  "closed_at": "2026-10-26T00:45:10.397Z"
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "source-replay-no-firmware-execution",
+  "status": "PASS",
+  "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patches": {
+    "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+    "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+    "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c"
+  },
+  "files_in_patch_set": 106,
+  "compared_source_files": 106,
+  "reverse_restored_clean_tree": true,
+  "binary": ".work/M5StopWatch-QEMU/build/qemu-source/build-ir-timing/qemu-system-xtensa",
+  "binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "date": "2026-10-26",
+  "category": "source-build-only",
+  "native_build_log": ".work/unit-runtime-rmt-timing-build.log",
+  "changes": [
+    "RMTMEM half-buffer consumption, threshold IRQ, guest acknowledge/refill and EOF completion",
+    "RMT APB/XTAL and fractional divider decoding; unsupported RC_FAST fails closed",
+    "Widen IR pulse conversion before multiplying microseconds to prevent 32-bit overflow",
+    "ENV and UART physical injection event counters"
+  ],
+  "known_bounds": [
+    "Finite non-DMA TX has a 4096-symbol capture cap; overflow raises controller TX error without fabricating a completed Unit frame",
+    "Continuous loop, DMA, RC_FAST calibration and physical timing are not validated by this build"
+  ],
+  "functional_validation": "NOT established by compilation/replay; Device Service evidence is recorded separately."
+}

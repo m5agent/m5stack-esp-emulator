@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26T00:59:28.252229+08:00",
+  "validation": "virtual-device validation",
+  "device_id": "cores3",
+  "unit_id": "relay",
+  "runtime": "qemu",
+  "status": "PASS",
+  "checks": {
+    "official_driver_ready": true,
+    "guest_gpio_output_readback": true,
+    "live_controller_state": true,
+    "nonempty_application_frame": true,
+    "evidence_complete": true,
+    "stopped_with_history": true
+  },
+  "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "probe_config.py": "9141e8c0d1202183509c0b925524533b4a2862ee842b72982e9ff10eb59f808a",
+    "main.py": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303"
+  },
+  "session_id": "821bd35b2f62457798468767c909f8bc",
+  "unit_state": {
+    "session_id": "821bd35b2f62457798468767c909f8bc",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T16:59:58.214263+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "relay",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "output-level": true,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 6
+        },
+        "errors": {}
+      }
+    ]
+  },
+  "frame_sha256": "4f04fa35863b798c99ca34c48f418ff950227a949b400d5bd3f10eebdbee722e",
+  "frame_metrics": {
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 76800,
+    "unique_colors": 16
+  },
+  "evidence_sha256": "9c0bc97b70b96d434c4f1fde906ed3441cd82e1150e71d30bc927936a601ff5b"
+}

@@ -1,0 +1,161 @@
+// Transport contract only. Runs the actual UnitPanel against a fixture server;
+// no firmware, QEMU, guest, or Device Service validation is claimed here.
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {readFile, mkdir, writeFile} from 'node:fs/promises';
+import {resolve, dirname, extname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {UnitWebBridge} from './unit_web_bridge.mjs';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const output = resolve(process.env.M5_UNIT_WEB_BRIDGE_TEST_OUT || '/tmp/m5-unit-web-bridge-contract');
+await mkdir(output, {recursive: true});
+const catalog = JSON.parse(await readFile(resolve(root, 'platform/units/catalog.json'), 'utf8')).units;
+const profiles = JSON.parse(await readFile(resolve(root, 'platform/units/runtime-profiles.json'), 'utf8')).units;
+const hosts = JSON.parse(await readFile(resolve(root, 'platform/units/host-ports.json'), 'utf8')).hosts;
+const definitions = catalog.map(unit => ({...unit, runtime: profiles[unit.id]}));
+const session = {session_id: 'bridge-fixture', device_id: 'cores3', runtime: 'fixture', state: 'booting', units: [
+  {id: 'keyboard', unit_id: 'cardkb', port_id: 'port-a'},
+  {id: 'encoders', unit_id: '8encoder', port_id: 'fixture-encoders'},
+  {id: 'hub1', unit_id: 'hub', port_id: 'fixture-hub'},
+  {id: 'nested-env', unit_id: 'env-iii', parent_id: 'hub1', port_id: 'grove-1'},
+  {id: 'nested-ncir', unit_id: 'ncir', parent_id: 'hub1', port_id: 'grove-2'},
+]};
+function defaultValue(schema) {
+  if (schema.default !== undefined) return structuredClone(schema.default);
+  if (schema.type === 'boolean') return false;
+  if (schema.type === 'array') return Array.from({length: schema.maxItems || schema.minItems}, () => defaultValue(schema.items));
+  if (schema.type === 'string') return '';
+  return schema.minimum > 0 ? schema.minimum : 0;
+}
+const state = session.units.map(attachment => {
+  const definition = definitions.find(unit => unit.id === attachment.unit_id);
+  return {...attachment, available: true, source: 'guest-qom-fixture', errors: {}, properties: Object.fromEntries(Object.entries({...definition.inputs, ...definition.outputs}).map(([field, schema]) => [field, defaultValue(schema)]))};
+});
+const payload = () => ({source: 'fixture', definitions, units: state});
+const requests = [];
+const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/platform/web/unit-panel.css"></head><body><nav id="capture-fixture-nav" style="position:sticky;top:0;z-index:5;height:32px;background:white">Capture fixture navigation</nav><article data-session-id="${session.session_id}"><main id="panel"></main></article><script type="module">
+import {createUnitPanel} from '/platform/web/unit-panel.js';
+const session = ${JSON.stringify(session)};
+const api = async (path, options) => {const response=await fetch(path, options); const data=await response.json(); if(!response.ok)throw Error(JSON.stringify(data));return data;};
+const commands=[];
+const shell={applyVisualState(values){commands.push(...values);}};
+const panel=await createUnitPanel(document.querySelector('#panel'),{session,shell,api});
+const visual={session,unitPanel:panel,shell:{model:{list:()=>[]}}};
+window.__unitWebBridgeProbe={state:{visuals:new Map([[session.session_id,visual]])}};
+window.bridgeFixtureSetSessionState=next=>{session.state=next;panel.updateSession(session);};
+window.bridgeFixtureTrusted=[];
+document.addEventListener('pointerdown',event=>window.bridgeFixtureTrusted.push({kind:'pointerdown',trusted:event.isTrusted,target:event.target.dataset.pressField}));
+</script></body></html>`;
+const server = createServer(async (request, response) => {
+  const path = new URL(request.url, 'http://localhost').pathname;
+  if (path === '/platform/web/sessions.html') { response.setHeader('Content-Type', 'text/html'); response.end(html); return; }
+  if (path.startsWith('/api/v1/')) {
+    response.setHeader('Content-Type', 'application/json');
+    if (path === '/api/v1/units') { response.end(JSON.stringify({units: definitions, hosts})); return; }
+    if (request.method === 'POST') {
+      let raw = ''; for await (const chunk of request) raw += chunk;
+      const body = JSON.parse(raw); requests.push(body);
+      const unit = state.find(unit => unit.id === body.id);
+      Object.assign(unit.properties, body.values);
+      // Keep all fixture shell component kinds unbound: this test verifies
+      // DOM transport, while model-shell tests separately verify components.
+    }
+    response.end(JSON.stringify(payload())); return;
+  }
+  const filename = resolve(root, `.${decodeURIComponent(path)}`);
+  if (!filename.startsWith(root + '/')) { response.writeHead(403).end(); return; }
+  try { response.setHeader('Content-Type', {'.js': 'text/javascript', '.css': 'text/css'}[extname(filename)] || 'application/octet-stream'); response.end(await readFile(filename)); }
+  catch { response.writeHead(404).end(); }
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const bridge = new UnitWebBridge(`http://127.0.0.1:${server.address().port}`, output, {requireMounted: false});
+try {
+  await bridge.open(session);
+  const page = bridge.item(session.session_id).page;
+  const setProductState = next => page.evaluate(next => window.bridgeFixtureSetSessionState(next), next);
+  const waitUntilReleased = async (label, action, release) => {
+    const before = requests.length;
+    let settled = false;
+    const pending = action().then(value => {settled = true; return value;}, error => {settled = true; throw error;});
+    pending.catch(() => {});
+    await page.waitForTimeout(150);
+    assert.equal(settled, false, label);
+    assert.equal(requests.length, before, `${label}: no premature POST`);
+    await release();
+    return pending;
+  };
+  assert.equal(await page.locator('[data-input-field="temperature-c"]').isEnabled(), false);
+  await waitUntilReleased('available QOM during booting must wait for the real product running state',
+    () => bridge.input(session.session_id, {id: 'nested-env', values: {'temperature-c': 30.25}}),
+    () => setProductState('running'));
+  const disabled = page.locator('[data-input-field="ambient-c"]');
+  await disabled.evaluate(control => {control.disabled = true;});
+  await waitUntilReleased('running session must still wait for the actual DOM control to be enabled',
+    () => bridge.input(session.session_id, {id: 'nested-ncir', values: {'ambient-c': 18.2}}),
+    () => setProductState('running'));
+  await setProductState('booting');
+  const heldDuringBoot = Array(50).fill(false); heldDuringBoot[1] = true;
+  await waitUntilReleased('trusted touch must wait for the real product running state',
+    () => bridge.input(session.session_id, {id: 'keyboard', values: {keys: heldDuringBoot}}),
+    () => setProductState('running'));
+  await bridge.input(session.session_id, {id: 'keyboard', values: {keys: Array(50).fill(false)}});
+  await setProductState('booting');
+  await waitUntilReleased('double-click must wait for the real product running state',
+    () => bridge.doubleTap(session.session_id, 'keyboard', 'keys', 24),
+    () => setProductState('running'));
+  const keyboard = Array(50).fill(false); keyboard[15] = true; keyboard[25] = true;
+  await bridge.input(session.session_id, {id: 'keyboard', values: {keys: keyboard}});
+  assert.deepEqual(state[0].properties.keys, keyboard);
+  keyboard[15] = false;
+  await bridge.input(session.session_id, {id: 'keyboard', values: {keys: keyboard}});
+  assert.equal(state[0].properties.keys[25], true, 'releasing one real touch must retain the second key');
+  keyboard[25] = false;
+  await bridge.input(session.session_id, {id: 'keyboard', values: {keys: keyboard}});
+  await bridge.doubleTap(session.session_id, 'keyboard', 'keys', 24);
+  assert.equal(state[0].properties.keys[24], false);
+  const counts = [1, -2, 123456, -123456, 2147483647, -2147483648, 7, 8];
+  const pressed = [true, false, true, false, false, true, false, true];
+  await bridge.input(session.session_id, {id: 'encoders', values: {counters: counts, pressed, 'switch-on': true}});
+  assert.deepEqual(state[1].properties.counters, counts);
+  assert.deepEqual(state[1].properties.pressed, pressed);
+  assert.equal(state[1].properties['switch-on'], true);
+  await bridge.input(session.session_id, {id: 'encoders', values: {pressed: Array(8).fill(false)}});
+  await bridge.input(session.session_id, {id: 'nested-env', values: {'temperature-c': 31.5, 'humidity-pct': 67, 'pressure-pa': 98765}});
+  await bridge.input(session.session_id, {id: 'nested-ncir', values: {'ambient-c': 17.3, 'object-c': 37.1}});
+  assert.equal(state[3].properties['temperature-c'], 31.5);
+  assert.equal(state[4].properties['ambient-c'], 17.3);
+  await page.evaluate(() => {
+    const title = document.createElement('h2');
+    title.id = 'capture-fixture-title';
+    title.textContent = 'Tall session card title';
+    document.querySelector('article').prepend(title);
+  });
+  await page.setViewportSize({width: 1440, height: 400});
+  assert.ok((await bridge.item(session.session_id).card.boundingBox()).height > 400, 'capture must exercise a card taller than the actual viewport');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  const navigationAtPageTop = (await page.locator('#capture-fixture-nav').boundingBox()).y;
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  assert.ok(await page.evaluate(() => window.scrollY > 0), 'fixture starts capture after an actual page scroll');
+  const snapshot = await bridge.capture(session.session_id, 'observed-units', true);
+  assert.deepEqual(snapshot.screenshot_preparation, {scroll_x: 0, scroll_y: 0}, 'capture restores the page top and waits a layout frame before the screenshot');
+  assert.equal((await page.locator('#capture-fixture-nav').boundingBox()).y, navigationAtPageTop, 'capture does not perform a second element scroll after restoring the page top');
+  const titleIsExposed = await page.locator('#capture-fixture-title').evaluate(title => {
+    const box = title.getBoundingClientRect();
+    const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    return title.contains(hit) && box.top >= document.querySelector('#capture-fixture-nav').getBoundingClientRect().bottom;
+  });
+  assert.equal(titleIsExposed, true, 'a tall-card screenshot must leave its real title below the sticky navigation');
+  const capture = await readFile(resolve(output, session.session_id, snapshot.screenshot));
+  assert.equal(capture.readUInt32BE(20), Math.ceil((await bridge.item(session.session_id).card.boundingBox()).height), 'PNG retains the full card below the viewport');
+  assert.equal(snapshot.units.length, 5);
+  const trusted = await bridge.item(session.session_id).page.evaluate(() => window.bridgeFixtureTrusted);
+  assert.ok(trusted.length >= 6 && trusted.every(event => event.trusted), 'contacts must be generated by the browser, not JS dispatchEvent');
+  const record = bridge.item(session.session_id).record;
+  assert.equal(record.errors.length, 0);
+  assert.equal(record.posts.length, requests.length);
+  await bridge.item(session.session_id).page.locator('.unit-card').evaluateAll(nodes => nodes.forEach(node => node.remove()));
+  await assert.rejects(bridge.capture(session.session_id, 'empty-dom-fault', false), /every session attachment exactly once/);
+  await writeFile(resolve(output, 'contract-report.json'), JSON.stringify({category: 'browser-ui-transport-contract', status: 'PASS', firmware_execution: 'NOT RUN', hardware_execution: 'NOT RUN', posts: requests.length, trusted_pointer_events: trusted.length, checks: ['scrolled-capture-restores-page-top', 'sticky-navigation-remains-at-capture-top', 'booting-available-qom-waits-for-product-running', 'running-disabled-dom-control-waits-for-enabled', 'trusted-touch-and-double-click-wait-for-running', 'cardkb-two-contact-hold-and-independent-release', 'single-real-mouse-double-click-four-posts', 'eight-encoder-array-number-checkbox-controls', 'nested-hub-instance-routing', 'real-http-response-observation', 'output-dom-equals-product-readback', 'trusted-browser-touch-events', 'empty-or-missing-attachment-dom-rejected'], source_sha256: record.source_sha256}, null, 2) + '\n');
+  console.log(`UNIT_WEB_BRIDGE_CONTRACT_OK posts=${requests.length} trusted=${trusted.length}`);
+} finally { await bridge.shutdown(); await new Promise(resolve => server.close(resolve)); }

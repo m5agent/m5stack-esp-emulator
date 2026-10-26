@@ -1,0 +1,28 @@
+{
+  "name": "m5stack-models.js",
+  "version": "0.1.0",
+  "description": "Evidence-based interactive M5Stack controller and Unit models built with Three.js and sticks3.js",
+  "type": "module",
+  "private": true,
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core/index.js",
+    "./loaders": "./src/loaders.js",
+    "./devices/*": "./src/devices/*/index.js",
+    "./units/*": "./src/units/*/index.js"
+  },
+  "scripts": {
+    "dev": "npm run catalog && vite demo --config vite.config.js --host 127.0.0.1 --port 5188 --strictPort",
+    "check": "node scripts/check.mjs && node scripts/check-details.mjs",
+    "catalog": "node scripts/catalog.mjs",
+    "build": "npm run catalog && vite build demo --config vite.config.js --outDir ../dist --emptyOutDir --base ./"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.5"
+  },
+  "license": "MIT"
+}

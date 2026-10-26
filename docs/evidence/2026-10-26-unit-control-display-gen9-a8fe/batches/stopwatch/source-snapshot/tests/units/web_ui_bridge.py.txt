@@ -1,0 +1,120 @@
+"""Optional real-product browser transport for positive Unit input tests.
+
+M5_UNIT_WEB_BRIDGE=1 routes Unit input POSTs through the product's DOM controls.
+The default Client remains REST-only. Use via_ui=False for API/schema negatives.
+This helper never creates, resets, or stops a Device Service session.
+"""
+from __future__ import annotations
+
+import atexit
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+from urllib.parse import urlparse
+
+
+def _process_executable(pid):
+    """Resolve the local process image without trusting Linux's short comm."""
+    if sys.platform.startswith("linux"):
+        path = Path(f"/proc/{pid}/exe").resolve(strict=True)
+        source = "Linux /proc PID executable"
+    elif sys.platform == "darwin":
+        path = Path(subprocess.check_output(["ps", "-p", str(pid), "-o", "comm="], text=True).strip())
+        source = "macOS ps comm"
+    else:
+        raise RuntimeError("local executable inspection requires Linux or macOS")
+    if not path.is_absolute() or not path.is_file():
+        raise RuntimeError("live process executable is unavailable")
+    return path, source
+
+
+class WebUIBridge:
+    def __init__(self, url):
+        root = Path(__file__).resolve().parents[2]
+        output = Path(os.environ.get("M5_UNIT_WEB_BRIDGE_OUT", ".work/unit-web-bridge")).resolve()
+        output.mkdir(parents=True, exist_ok=True)
+        self.output = output
+        self.url = url
+        self.stderr = (output / "bridge.stderr.txt").open("a", encoding="utf-8")
+        node = os.environ.get("M5_UNIT_WEB_BRIDGE_NODE") or shutil.which("node")
+        if not node:
+            raise RuntimeError("M5_UNIT_WEB_BRIDGE requires Node.js")
+        self.process = subprocess.Popen(
+            [node, str(root / "platform/tests/unit_web_bridge.mjs"), url, str(output)],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
+            text=True, encoding="utf-8", bufsize=1, cwd=root,
+        )
+        atexit.register(self.close)
+
+    def call(self, command, **values):
+        if self.process.poll() is not None:
+            raise RuntimeError("Unit Web bridge exited; inspect bridge.stderr.txt")
+        self.process.stdin.write(json.dumps({"command": command, **values}, allow_nan=False) + "\n")
+        self.process.stdin.flush()
+        line = self.process.stdout.readline()
+        if not line:
+            raise RuntimeError("Unit Web bridge closed before acknowledging the UI action")
+        result = json.loads(line)
+        if not result.get("ok"):
+            raise RuntimeError("Unit Web bridge: " + result.get("error", "unknown failure"))
+        return result.get("result")
+
+    def runtime_provenance(self, session, confirmation):
+        """Bind the live API lease to its executable, without publishing paths."""
+        worker = session.get("worker") or {}
+        proof = {
+            "session_id": session["session_id"], "kind": "direct-pid", "status": "NOT VERIFIED",
+            "observed_pid": session.get("pid"), "worker_id": worker.get("worker_id", session.get("worker_id")),
+            "worker_generation": worker.get("generation", session.get("worker_generation")),
+            "firmware_sha256": session.get("firmware_sha256"),
+        }
+        try:
+            if urlparse(self.url).hostname not in {"127.0.0.1", "localhost", "::1"}:
+                raise RuntimeError("remote worker executable cannot be inspected locally")
+            pid = session.get("pid")
+            if not isinstance(pid, int) or pid <= 0 or session.get("state") != "running":
+                raise RuntimeError("session has no live running PID")
+            path, executable_source = _process_executable(pid)
+            proof["runtime_binary_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+            proof["executable_name"] = path.name
+            confirmed = confirmation()
+            confirmed_worker = confirmed.get("worker") or {}
+            if any(confirmed.get(key) != session.get(key) for key in ("pid", "firmware_sha256")) or confirmed.get("state") != "running" or confirmed_worker.get("worker_id", confirmed.get("worker_id")) != proof["worker_id"] or confirmed_worker.get("generation", confirmed.get("worker_generation")) != proof["worker_generation"]:
+                raise RuntimeError("session PID or generation changed during executable sampling")
+            expected = os.environ.get("M5_UNIT_EXPECT_RUNTIME_SHA256")
+            if expected and proof["runtime_binary_sha256"] != expected:
+                raise RuntimeError("live executable hash differs from the explicitly required runtime")
+            proof["status"] = "VERIFIED"
+            proof["method"] = f"Live API PID; {executable_source}; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+        except Exception as error:
+            proof["error"] = str(error).replace(str(Path(__file__).resolve().parents[2]), "<workspace>")
+        directory = self.output / session["session_id"]
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "runtime-provenance.json").write_text(json.dumps(proof, indent=2) + "\n", encoding="utf-8")
+        if os.environ.get("M5_UNIT_EXPECT_RUNTIME_SHA256") and proof["status"] != "VERIFIED":
+            raise RuntimeError("Unit Web runtime provenance could not verify the required live executable")
+        return proof
+
+    def note_failure(self, session_id, phase, error):
+        path = self.output / session_id / "bridge-errors.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        failures = json.loads(path.read_text()) if path.exists() else []
+        failures.append({"phase": phase, "error": str(error).replace(str(Path(__file__).resolve().parents[2]), "<workspace>")})
+        path.write_text(json.dumps(failures, indent=2) + "\n", encoding="utf-8")
+
+    def close(self):
+        if self.process.poll() is None:
+            try:
+                self.call("shutdown")
+                self.process.wait(timeout=15)
+            except Exception:
+                self.process.terminate()
+                try:
+                    self.process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    self.process.kill()
+        self.stderr.close()

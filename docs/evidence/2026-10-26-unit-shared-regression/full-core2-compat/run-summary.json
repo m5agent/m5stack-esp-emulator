@@ -1,0 +1,4951 @@
+{
+  "schema_version": 1,
+  "validation": "repository shared-controller regression; virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "run_id": "full-core2-compat",
+  "status": "PASS",
+  "counts": {
+    "PASS": 67
+  },
+  "check_counts": {
+    "PASS": 274
+  },
+  "single_attempt_cases": 67,
+  "retry_used_cases": 0,
+  "provenance": "provenance.json",
+  "summary": "cases/summary.json",
+  "recorded_started_at": "2026-10-25T18:27:44.664919+00:00",
+  "recorded_finished_at": "2026-10-25T18:42:54.050720+00:00",
+  "recorded_exit_code": 0,
+  "recorded_binary_start_sha256": {
+    "xtensa": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "riscv32": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0"
+  },
+  "recorded_binary_end_sha256": {
+    "xtensa": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "riscv32": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0"
+  },
+  "recorded_rom_inventory": {
+    "xtensa": {
+      "QEMU,cgthree.bin": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d",
+      "QEMU,tcx.bin": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7",
+      "bios-256k.bin": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8",
+      "bios-microvm.bin": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee",
+      "bios.bin": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1",
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "kvmvapic.bin": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27",
+      "linuxboot.bin": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce",
+      "linuxboot_dma.bin": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950",
+      "multiboot.bin": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348",
+      "multiboot_dma.bin": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d",
+      "npcm7xx_bootrom.bin": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003",
+      "opensbi-riscv32-generic-fw_dynamic.bin": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51",
+      "opensbi-riscv64-generic-fw_dynamic.bin": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c",
+      "pvh.bin": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d",
+      "slof.bin": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7",
+      "u-boot-sam460-20100605.bin": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03",
+      "vgabios-ati.bin": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e",
+      "vgabios-bochs-display.bin": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff",
+      "vgabios-cirrus.bin": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2",
+      "vgabios-qxl.bin": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7",
+      "vgabios-ramfb.bin": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de",
+      "vgabios-stdvga.bin": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b",
+      "vgabios-virtio.bin": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772",
+      "vgabios-vmware.bin": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11",
+      "vgabios.bin": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57",
+      "vof-nvram.bin": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12",
+      "vof.bin": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+    },
+    "riscv32": {
+      "QEMU,cgthree.bin": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d",
+      "QEMU,tcx.bin": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7",
+      "bios-256k.bin": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8",
+      "bios-microvm.bin": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee",
+      "bios.bin": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1",
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "kvmvapic.bin": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27",
+      "linuxboot.bin": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce",
+      "linuxboot_dma.bin": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950",
+      "multiboot.bin": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348",
+      "multiboot_dma.bin": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d",
+      "npcm7xx_bootrom.bin": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003",
+      "opensbi-riscv32-generic-fw_dynamic.bin": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51",
+      "opensbi-riscv64-generic-fw_dynamic.bin": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c",
+      "pvh.bin": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d",
+      "slof.bin": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7",
+      "u-boot-sam460-20100605.bin": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03",
+      "vgabios-ati.bin": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e",
+      "vgabios-bochs-display.bin": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff",
+      "vgabios-cirrus.bin": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2",
+      "vgabios-qxl.bin": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7",
+      "vgabios-ramfb.bin": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de",
+      "vgabios-stdvga.bin": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b",
+      "vgabios-virtio.bin": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772",
+      "vgabios-vmware.bin": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11",
+      "vgabios.bin": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57",
+      "vof-nvram.bin": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12",
+      "vof.bin": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+    }
+  },
+  "recorded_tools_sha256": {
+    "tests/uiflow2/run_peripheral_matrix.py": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "archive_time_rom_inventory": {
+    "xtensa": {
+      "QEMU,cgthree.bin": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d",
+      "QEMU,tcx.bin": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7",
+      "bios-256k.bin": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8",
+      "bios-microvm.bin": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee",
+      "bios.bin": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1",
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "kvmvapic.bin": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27",
+      "linuxboot.bin": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce",
+      "linuxboot_dma.bin": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950",
+      "multiboot.bin": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348",
+      "multiboot_dma.bin": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d",
+      "npcm7xx_bootrom.bin": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003",
+      "opensbi-riscv32-generic-fw_dynamic.bin": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51",
+      "opensbi-riscv64-generic-fw_dynamic.bin": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c",
+      "pvh.bin": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d",
+      "slof.bin": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7",
+      "u-boot-sam460-20100605.bin": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03",
+      "vgabios-ati.bin": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e",
+      "vgabios-bochs-display.bin": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff",
+      "vgabios-cirrus.bin": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2",
+      "vgabios-qxl.bin": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7",
+      "vgabios-ramfb.bin": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de",
+      "vgabios-stdvga.bin": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b",
+      "vgabios-virtio.bin": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772",
+      "vgabios-vmware.bin": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11",
+      "vgabios.bin": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57",
+      "vof-nvram.bin": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12",
+      "vof.bin": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+    },
+    "riscv32": {
+      "QEMU,cgthree.bin": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d",
+      "QEMU,tcx.bin": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7",
+      "bios-256k.bin": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8",
+      "bios-microvm.bin": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee",
+      "bios.bin": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1",
+      "esp32-v3-rom-app.bin": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+      "esp32-v3-rom.bin": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+      "esp32c3-rom.bin": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99",
+      "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713",
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+      "kvmvapic.bin": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27",
+      "linuxboot.bin": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce",
+      "linuxboot_dma.bin": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950",
+      "multiboot.bin": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348",
+      "multiboot_dma.bin": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d",
+      "npcm7xx_bootrom.bin": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003",
+      "opensbi-riscv32-generic-fw_dynamic.bin": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51",
+      "opensbi-riscv64-generic-fw_dynamic.bin": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c",
+      "pvh.bin": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d",
+      "slof.bin": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7",
+      "u-boot-sam460-20100605.bin": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03",
+      "vgabios-ati.bin": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e",
+      "vgabios-bochs-display.bin": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff",
+      "vgabios-cirrus.bin": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2",
+      "vgabios-qxl.bin": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7",
+      "vgabios-ramfb.bin": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de",
+      "vgabios-stdvga.bin": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b",
+      "vgabios-virtio.bin": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772",
+      "vgabios-vmware.bin": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11",
+      "vgabios.bin": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57",
+      "vof-nvram.bin": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12",
+      "vof.bin": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+    }
+  },
+  "archive_time_tools_sha256": {
+    "tests/uiflow2/run_peripheral_matrix.py": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be",
+    "tests/uiflow2/run_profile_ui_test.py": "ae28e69ed3e2df5ea26092688bfe94a79e599e4530fa0616e0314415f10fa842",
+    "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+  },
+  "archive_time_hash_boundary": "Archive-time hashes verify retained current files only. They are not substituted for separately recorded execution-time metadata.",
+  "offline_replay": "offline-replay.json",
+  "cases": [
+    {
+      "case_id": "sticks3-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/sticks3-peripherals/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/sticks3-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/sticks3-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/sticks3-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "sticks3-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/sticks3-audio/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/sticks3-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/sticks3-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/sticks3-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/sticks3-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "sticks3-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/sticks3-mic/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/sticks3-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/sticks3-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/sticks3-mic.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/sticks3-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "cardputer-adv-sd",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-sd/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-sd/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-sd.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-sd.stderr",
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cardputer-adv-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-imu/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-imu/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-imu.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-imu.stderr",
+      "checks": [
+        {
+          "name": "cardputer_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cardputer-adv-keyboard",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "9cf5a06a7f0da3cd846c4d292b280149dd9cd8ee2683e0d1c6545b1829b3d1c5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9cf5a06a7f0da3cd846c4d292b280149dd9cd8ee2683e0d1c6545b1829b3d1c5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-keyboard/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 32
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-keyboard/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-keyboard.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-keyboard.stderr",
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cardputer-adv-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "9c3f6412803c6232d6447bc779181c7ff9303f8129989df9fa7f0810d3e71ab3",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9c3f6412803c6232d6447bc779181c7ff9303f8129989df9fa7f0810d3e71ab3",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-nfc/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-nfc/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-nfc.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-nfc.stderr",
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cardputer-adv-cc1101",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "6cf1d02ed179b31863233baec63805ba04164099632113717a9531640c132cd5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "6cf1d02ed179b31863233baec63805ba04164099632113717a9531640c132cd5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-cc1101/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-cc1101/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-cc1101.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-cc1101.stderr",
+      "checks": [
+        {
+          "name": "cardputer_cc1101_spi_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cardputer-adv-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "3f116209ad2783c71074833ddc3174e9651e5916e768220148990c00f868b2e9",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "3f116209ad2783c71074833ddc3174e9651e5916e768220148990c00f868b2e9",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-audio/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/cardputer-adv-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "cardputer-adv-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "14bc120099b3672dd48c5fabbe8eb97647a32b4e535493f676327b4ab13ef45d",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "14bc120099b3672dd48c5fabbe8eb97647a32b4e535493f676327b4ab13ef45d",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-mic/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-mic.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/cardputer-adv-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "atoms3r-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5atoms3r",
+      "composed_input_sha256": "d5cee5fbefd05e92f38295205cb8e1250bb2e3982f1be20ab0a09d3e3de1a698",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d5cee5fbefd05e92f38295205cb8e1250bb2e3982f1be20ab0a09d3e3de1a698",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "base_firmware_sha256_at_archive": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/atoms3r-peripherals/after.png",
+      "frame_metrics": {
+        "width": 128,
+        "height": 128,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/atoms3r-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/atoms3r-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/atoms3r-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "button",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "sticks3-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "ab17f043675f53ca3f0ad08d62539c21bf25fe7c6fccb61cc0e794fd720efa0e",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "aaf93d4a21879ce96c2203ecdcf142dc49dbb73fc0e071ace4e8fe64b2a9fba4",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/sticks3-ir/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/sticks3-ir/serial.log",
+      "case_stdout": "full-core2-compat/cases/sticks3-ir.stdout",
+      "case_stderr": "full-core2-compat/cases/sticks3-ir.stderr",
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/sticks3-ir/ir.rmt"
+      ]
+    },
+    {
+      "case_id": "sticks3-ir-rx",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5sticks3",
+      "composed_input_sha256": "eb2ab00292c38032fb26ec7f682df004288563ad2187515740c5feabb784be39",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "343c5ad02b4783d2f43378a4b84d2ddae2e6072e5cd7a79309ac3e54e504da7b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_firmware_sha256_at_archive": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/sticks3-ir-rx/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/sticks3-ir-rx/serial.log",
+      "case_stdout": "full-core2-compat/cases/sticks3-ir-rx.stdout",
+      "case_stderr": "full-core2-compat/cases/sticks3-ir-rx.stderr",
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/sticks3-ir-rx/nec-56-a3.rmt"
+      ]
+    },
+    {
+      "case_id": "cores3-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "9e1d4ef92460d22ba053191f38ebb52faf225d1585848e64c1726658bb835a8b",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9e1d4ef92460d22ba053191f38ebb52faf225d1585848e64c1726658bb835a8b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-peripherals/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cores3-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "ambient_light",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "proximity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "btn_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cores3-power-transitions",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "df995ac4c57da90794ac5407e910d2daa2ec6e544673fe4f0f097cbf82aefeed",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "df995ac4c57da90794ac5407e910d2daa2ec6e544673fe4f0f097cbf82aefeed",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-power-transitions/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cores3-power-transitions/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-power-transitions.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-power-transitions.stderr",
+      "checks": [
+        {
+          "name": "axp2101_initial_power_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_discharge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_charge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_runtime_sequence_complete",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cores3-usb-hid",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "1eacfa6052b603ba8cbb95612ceebec7387826019405b06e53872bcf29339e62",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "1eacfa6052b603ba8cbb95612ceebec7387826019405b06e53872bcf29339e62",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-usb-hid/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/cores3-usb-hid/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-usb-hid.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-usb-hid.stderr",
+      "checks": [
+        {
+          "name": "max3421e_config",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_chapter9_enumeration",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_report_descriptor",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_interrupt_in_report",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cores3-camera",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "0f4134dcdec788cc46b7361f32d7026ce6fb2660101f6dcb61df5f009c47f651",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "0f4134dcdec788cc46b7361f32d7026ce6fb2660101f6dcb61df5f009c47f651",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-camera/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 22
+      },
+      "serial": "full-core2-compat/cases/cores3-camera/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-camera.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-camera.stderr",
+      "checks": [
+        {
+          "name": "camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_change",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_stream",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stackchan-camera",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "6e82cc9f18f1a8b9ae5f39828fe25b9c58baaa80fded61656105aeff08fa6472",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "6e82cc9f18f1a8b9ae5f39828fe25b9c58baaa80fded61656105aeff08fa6472",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-camera/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 22
+      },
+      "serial": "full-core2-compat/cases/stackchan-camera/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-camera.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-camera.stderr",
+      "checks": [
+        {
+          "name": "stackchan_camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cores3-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "fc8ff62139f201bad74e4262730934103ddad203287d38dc9e0c3e5b8d84edf8",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "fc8ff62139f201bad74e4262730934103ddad203287d38dc9e0c3e5b8d84edf8",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-audio/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cores3-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-audio.stderr",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/cores3-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "cores3-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "d9f11f1638b02cb53e12a8c4ac9cdf5daa2704f2214fe5a3e70d083b1e852017",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d9f11f1638b02cb53e12a8c4ac9cdf5daa2704f2214fe5a3e70d083b1e852017",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-mic/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cores3-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-mic.stderr",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/cores3-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "stamplc-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "dd553531abd8af9463f6852eaec136cf4bfb2e998a8a166841184e40cc9dfba4",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "dd553531abd8af9463f6852eaec136cf4bfb2e998a8a166841184e40cc9dfba4",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-peripherals/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/stamplc-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-peripherals.stderr",
+      "checks": [
+        {
+          "name": "relay",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "digital_inputs",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rgb",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_current",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stopwatch-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "9bae49bd1daf4fdac0c041aa0309429b8469a36f0131faf512e8c32ce18dac32",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9bae49bd1daf4fdac0c041aa0309429b8469a36f0131faf512e8c32ce18dac32",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-peripherals/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stopwatch-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papermono-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "d17fafc70b01ee19a6efb08ced0b1e26dfec7d186ab52915d424ab1ef7acf9bd",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d17fafc70b01ee19a6efb08ced0b1e26dfec7d186ab52915d424ab1ef7acf9bd",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-peripherals/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-peripherals.stderr",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "sd_block_read_write",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papermono-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "0209985fc8f81fe77810ce3a3f492c339fb966dcaede240913d7b8bcef92f889",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "0209985fc8f81fe77810ce3a3f492c339fb966dcaede240913d7b8bcef92f889",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-buzzer/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-buzzer/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-buzzer.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-buzzer.stderr",
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "gpio42_i2s_tx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papermono-buzzer/buzzer.pcm"
+      ]
+    },
+    {
+      "case_id": "papermono-pdm-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "8a93a8f1503197ea7e494acf8b0ae2289845f9c85d36287cf750603bd9606630",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "8a93a8f1503197ea7e494acf8b0ae2289845f9c85d36287cf750603bd9606630",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-pdm-mic/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-pdm-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-pdm-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-pdm-mic.stderr",
+      "checks": [
+        {
+          "name": "pdm_mic_begin",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_i2s_rx_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papermono-pdm-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "papermono-rgb",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "47a9878f770e52c739673787066ab0ba151e7192931c00747821a8cad8e5b5f5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "47a9878f770e52c739673787066ab0ba151e7192931c00747821a8cad8e5b5f5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-rgb/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-rgb/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-rgb.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-rgb.stderr",
+      "checks": [
+        {
+          "name": "papermono_rgb_set",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papercolor-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "d305c7baa13171fc8dfaf86b3145aafee701ead00c11cdb9c5799bc56b9047ec",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d305c7baa13171fc8dfaf86b3145aafee701ead00c11cdb9c5799bc56b9047ec",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-peripherals/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 1
+      },
+      "serial": "full-core2-compat/cases/papercolor-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-peripherals.stderr",
+      "checks": [
+        {
+          "name": "m5pm1_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "m5pm1_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "papercolor_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papercolor-sd",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "7813440059b73d96b92620ebae6fc91a5abb6c43e3b311009a17f0fbdd801ea6",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "7813440059b73d96b92620ebae6fc91a5abb6c43e3b311009a17f0fbdd801ea6",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-sd/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 6
+      },
+      "serial": "full-core2-compat/cases/papercolor-sd/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-sd.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-sd.stderr",
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papercolor-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "b31c4c7db0c552f3d12833ef8e8ce300fa242e8a28100644d9baa5d6a0b422a0",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b31c4c7db0c552f3d12833ef8e8ce300fa242e8a28100644d9baa5d6a0b422a0",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-audio/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 6
+      },
+      "serial": "full-core2-compat/cases/papercolor-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papercolor-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "papercolor-sht4x",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "877234bcbfcb92db43c75fa87c6e0643ab0827bb46e9bd6c536cfa8204e2518a",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "877234bcbfcb92db43c75fa87c6e0643ab0827bb46e9bd6c536cfa8204e2518a",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-sht4x/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 6
+      },
+      "serial": "full-core2-compat/cases/papercolor-sht4x/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-sht4x.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-sht4x.stderr",
+      "checks": [
+        {
+          "name": "sht4x_measure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_crc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papercolor-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "b01e3951a14c8a87713fc2e25fdee1e08cb503eac399406ce1b54779de84d03b",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b01e3951a14c8a87713fc2e25fdee1e08cb503eac399406ce1b54779de84d03b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-mic/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 6
+      },
+      "serial": "full-core2-compat/cases/papercolor-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-mic.stderr",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papercolor-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "papermono-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "16839447a1adae68e74105e72be0ab9a920d99073efeee050a713c425f84b238",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "16839447a1adae68e74105e72be0ab9a920d99073efeee050a713c425f84b238",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-nfc/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-nfc/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-nfc.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-nfc.stderr",
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papermono-lora",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papermono",
+      "composed_input_sha256": "a244857bfa135695c5db3e3c8e28e48ef2437848c825f81f8be7b7890e82ceba",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "a244857bfa135695c5db3e3c8e28e48ef2437848c825f81f8be7b7890e82ceba",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "base_firmware_sha256_at_archive": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papermono-lora/after.png",
+      "frame_metrics": {
+        "width": 480,
+        "height": 800,
+        "unique_colors": 4
+      },
+      "serial": "full-core2-compat/cases/papermono-lora/serial.log",
+      "case_stdout": "full-core2-compat/cases/papermono-lora.stdout",
+      "case_stderr": "full-core2-compat/cases/papermono-lora.stderr",
+      "checks": [
+        {
+          "name": "lora_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stackchan-nfc",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "3da7fd9c89574f59e13f625662e3006e7adb62160e0f1da45839c125f975346d",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "3da7fd9c89574f59e13f625662e3006e7adb62160e0f1da45839c125f975346d",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-nfc/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 2
+      },
+      "serial": "full-core2-compat/cases/stackchan-nfc/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-nfc.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-nfc.stderr",
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stackchan-touch",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "637dbb922f8f70df6453e13ff3882c0701fc0e60b09c73a5570455cc9496b77a",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "637dbb922f8f70df6453e13ff3882c0701fc0e60b09c73a5570455cc9496b77a",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-touch/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-touch/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-touch.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-touch.stderr",
+      "checks": [
+        {
+          "name": "si12t_config",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_touch",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stackchan-rgb",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "cd4fdba5be7a58184483e377052c676d1e5b909062a46bd461b5f9ae97cc3cc2",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "cd4fdba5be7a58184483e377052c676d1e5b909062a46bd461b5f9ae97cc3cc2",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-rgb/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-rgb/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-rgb.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-rgb.stderr",
+      "checks": [
+        {
+          "name": "m5ioe1_led_cfg",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stackchan-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "f56c65d520b18e540bc3756e2f0c0d76ab8a2167887f9cd1260d7c2fc8636138",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "f56c65d520b18e540bc3756e2f0c0d76ab8a2167887f9cd1260d7c2fc8636138",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-audio/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-audio.stderr",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stackchan-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "stackchan-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "6521be498cc11da9646dc74e56ca4904408064e5fdeec3261ccc76318672366b",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "6521be498cc11da9646dc74e56ca4904408064e5fdeec3261ccc76318672366b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-mic/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-mic.stderr",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stackchan-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "stackchan-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "27b0c58dfe46f709d43fde58c11b5821cb4e244f3419f8a989fa39f9a8a8b933",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "39eae2322c2c3b50270f40d54ff3b4e14a50712551e92acd526dfbbdff140194",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-peripherals/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-peripherals.stderr",
+      "checks": [
+        {
+          "name": "stackchan_imu",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_axp2101_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_display_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_aw9523",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ina226",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ltr553_als",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_rtc_bm8563",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ir_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stackchan-peripherals/ir.rmt",
+        "full-core2-compat/cases/stackchan-peripherals/nec-56-a3.rmt"
+      ]
+    },
+    {
+      "case_id": "stackchan-servo",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stackchan",
+      "composed_input_sha256": "ee398bd2132092b6fd33322f67a05ae30488f593aee5e0b9bceff3afb4b7efa0",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "ee398bd2132092b6fd33322f67a05ae30488f593aee5e0b9bceff3afb4b7efa0",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "base_firmware_sha256_at_archive": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stackchan-servo/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stackchan-servo/serial.log",
+      "case_stdout": "full-core2-compat/cases/stackchan-servo.stdout",
+      "case_stderr": "full-core2-compat/cases/stackchan-servo.stderr",
+      "checks": [
+        {
+          "name": "servo_ping",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_torque",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_write",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stopwatch-vibration",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "a18c1d65de6ac8cf99f955b42a673f543b75f66e35257029524b75ba89ad46d1",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "a18c1d65de6ac8cf99f955b42a673f543b75f66e35257029524b75ba89ad46d1",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-vibration/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stopwatch-vibration/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-vibration.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-vibration.stderr",
+      "checks": [
+        {
+          "name": "vibration_pwm_on",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_pwm_off",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stopwatch-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "ee9d859de599d7f70620ee170de493eef90f43361123643569bf637de514c178",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "ee9d859de599d7f70620ee170de493eef90f43361123643569bf637de514c178",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-audio/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 2
+      },
+      "serial": "full-core2-compat/cases/stopwatch-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-audio.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stopwatch-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "stopwatch-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "b7aac280b82117dd1d049c9988e4124daaaace73ed3b34f92a598430cdf62763",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b7aac280b82117dd1d049c9988e4124daaaace73ed3b34f92a598430cdf62763",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-mic/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 2
+      },
+      "serial": "full-core2-compat/cases/stopwatch-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-mic.stderr",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stopwatch-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "atoms3r-lp5562",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5atoms3r",
+      "composed_input_sha256": "232ffe1b551287e969d79c468868e8ab3715b4f5cd6e788e87f0e3270e91d9b5",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "232ffe1b551287e969d79c468868e8ab3715b4f5cd6e788e87f0e3270e91d9b5",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "base_firmware_sha256_at_archive": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/atoms3r-lp5562/after.png",
+      "frame_metrics": {
+        "width": 128,
+        "height": 128,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/atoms3r-lp5562/serial.log",
+      "case_stdout": "full-core2-compat/cases/atoms3r-lp5562.stdout",
+      "case_stderr": "full-core2-compat/cases/atoms3r-lp5562.stderr",
+      "checks": [
+        {
+          "name": "lp5562_enable",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "atoms3r-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5atoms3r",
+      "composed_input_sha256": "a9cd60514c02955686e6e199e1884dc0844fd58e831a258877692311b247615a",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "9c1af55f9173418c6ee8bd596c84ecf82c26829883a9662059e792b3b4ffebf1",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "base_firmware_sha256_at_archive": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/atoms3r-ir/after.png",
+      "frame_metrics": {
+        "width": 128,
+        "height": 128,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/atoms3r-ir/serial.log",
+      "case_stdout": "full-core2-compat/cases/atoms3r-ir.stdout",
+      "case_stderr": "full-core2-compat/cases/atoms3r-ir.stderr",
+      "checks": [
+        {
+          "name": "atoms3r_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/atoms3r-ir/ir.rmt"
+      ]
+    },
+    {
+      "case_id": "cardputer-adv-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cardputeradv",
+      "composed_input_sha256": "e2cdced56fb4d9e083ddada0adf1b1dc911397cc6db4410ad86b055656483bcd",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "3b06086940a88636fdef044f247b65e659966378bf15a1a9e7b177492701adeb",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "base_firmware_sha256_at_archive": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cardputer-adv-ir/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 16
+      },
+      "serial": "full-core2-compat/cases/cardputer-adv-ir/serial.log",
+      "case_stdout": "full-core2-compat/cases/cardputer-adv-ir.stdout",
+      "case_stderr": "full-core2-compat/cases/cardputer-adv-ir.stderr",
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6623232,
+          "size": 1761280
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/cardputer-adv-ir/ir.rmt"
+      ]
+    },
+    {
+      "case_id": "papercolor-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "be5dc9a7190b433d4cfa3dee15046a059c10b3a963c9b61e24a61b5574ed5764",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "0a5ccaaa220937e4f8b145c915eb9f64cb2f3f4b9f03ebea5a9a83c7dcdbbfef",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-ir/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 6
+      },
+      "serial": "full-core2-compat/cases/papercolor-ir/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-ir.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-ir.stderr",
+      "checks": [
+        {
+          "name": "papercolor_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papercolor-ir/ir.rmt"
+      ]
+    },
+    {
+      "case_id": "core2-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "f4e1fde7b426ebff34a2b2ca849acbe776fde5f7544f53ca2bd58a07e829b6be",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "f4e1fde7b426ebff34a2b2ca849acbe776fde5f7544f53ca2bd58a07e829b6be",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-peripherals/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/core2-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-peripherals.stderr",
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "core2-audio",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "72f535ef94d100e6aaf950e8c32762bf21159bbd10bd721f22a0fe809c0054b4",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "72f535ef94d100e6aaf950e8c32762bf21159bbd10bd721f22a0fe809c0054b4",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-audio/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/core2-audio/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-audio.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-audio.stderr",
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/core2-audio/speaker.pcm"
+      ]
+    },
+    {
+      "case_id": "core2-mic",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "bedc3caac7a3ceb69b78cf07c5dcb90d3e59a5a47a76fc8f31d1bf7a8e079031",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "bedc3caac7a3ceb69b78cf07c5dcb90d3e59a5a47a76fc8f31d1bf7a8e079031",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-mic/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/core2-mic/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-mic.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-mic.stderr",
+      "checks": [
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/core2-mic/microphone.pcm"
+      ]
+    },
+    {
+      "case_id": "core2-power-monitor",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-power-monitor/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/core2-power-monitor/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-power-monitor.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-power-monitor.stderr",
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stamplc-can",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "ad9a8dfbac4314c39724d63b59685ed987bc0fe77083f62a8713faf7db9181d4",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "ad9a8dfbac4314c39724d63b59685ed987bc0fe77083f62a8713faf7db9181d4",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-can/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stamplc-can/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-can.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-can.stderr",
+      "checks": [
+        {
+          "name": "twai_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stamplc-rs485",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "87e546fb5eca9f26fedd94a59a5f14f78a0c8dd87fef292cee974b676f0abb88",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "87e546fb5eca9f26fedd94a59a5f14f78a0c8dd87fef292cee974b676f0abb88",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-rs485/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stamplc-rs485/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-rs485.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-rs485.stderr",
+      "checks": [
+        {
+          "name": "uart2_rs485_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stamplc-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "c37605b4044e77a4b81bbcb53e815b32a3e9afbac672bd94bb90d8ef96d7b066",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "c37605b4044e77a4b81bbcb53e815b32a3e9afbac672bd94bb90d8ef96d7b066",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-buzzer/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stamplc-buzzer/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-buzzer.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-buzzer.stderr",
+      "checks": [
+        {
+          "name": "speaker_buzzer_init",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_delta_sigma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/stamplc-buzzer/buzzer.pcm"
+      ]
+    },
+    {
+      "case_id": "core2-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-imu/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/core2-imu/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-imu.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-imu.stderr",
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "core2-axp192",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5core2",
+      "composed_input_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "base_firmware_sha256_at_archive": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/core2-axp192/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/core2-axp192/serial.log",
+      "case_stdout": "full-core2-compat/cases/core2-axp192.stdout",
+      "case_stderr": "full-core2-compat/cases/core2-axp192.stderr",
+      "checks": [
+        {
+          "name": "core2_axp192_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_current",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_charging",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stamplc-lm75",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "5392bf90ac1ef5eb006c712628256d8903e99824e2a5b87370b1262be390c555",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "5392bf90ac1ef5eb006c712628256d8903e99824e2a5b87370b1262be390c555",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-lm75/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stamplc-lm75/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-lm75.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-lm75.stderr",
+      "checks": [
+        {
+          "name": "lm75_i2c_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_temperature_encoding",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "papercolor-rgb",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5papercolor",
+      "composed_input_sha256": "1e4dea23d67bd5adebcf961ae66b56107284d7119833243e4d1b71fee46a170b",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "1e4dea23d67bd5adebcf961ae66b56107284d7119833243e4d1b71fee46a170b",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "base_firmware_sha256_at_archive": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/papercolor-rgb/after.png",
+      "frame_metrics": {
+        "width": 400,
+        "height": 600,
+        "unique_colors": 5
+      },
+      "serial": "full-core2-compat/cases/papercolor-rgb/serial.log",
+      "case_stdout": "full-core2-compat/cases/papercolor-rgb.stdout",
+      "case_stderr": "full-core2-compat/cases/papercolor-rgb.stderr",
+      "checks": [
+        {
+          "name": "rmt_led_init",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ws2812_wire_decode",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/papercolor-rgb/rgb.rmt"
+      ]
+    },
+    {
+      "case_id": "stamplc-onboard-io",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stamplc",
+      "composed_input_sha256": "b09c57f9dd6b60e56d8585cd63a3a95eb057e864f8d949c3e0832e7901c483c6",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "b09c57f9dd6b60e56d8585cd63a3a95eb057e864f8d949c3e0832e7901c483c6",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "base_firmware_sha256_at_archive": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stamplc-onboard-io/after.png",
+      "frame_metrics": {
+        "width": 240,
+        "height": 135,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stamplc-onboard-io/serial.log",
+      "case_stdout": "full-core2-compat/cases/stamplc-onboard-io.stdout",
+      "case_stderr": "full-core2-compat/cases/stamplc-onboard-io.stderr",
+      "checks": [
+        {
+          "name": "aw9523_relay_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pi4ioe_rgb_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "onboard_io_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "declared": {
+          "offset": 6557696,
+          "size": 1826816
+        },
+        "effective": {
+          "offset": 6557696,
+          "size": 1826816
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "cores3-aw9523-full",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5cores3",
+      "composed_input_sha256": "07a271c6afa73553eebca1bd783c1ff2915a49131b62ab95f5ebe8e135b1f1ed",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "07a271c6afa73553eebca1bd783c1ff2915a49131b62ab95f5ebe8e135b1f1ed",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_firmware_sha256_at_archive": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/cores3-aw9523-full/after.png",
+      "frame_metrics": {
+        "width": 320,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/cores3-aw9523-full/serial.log",
+      "case_stdout": "full-core2-compat/cases/cores3-aw9523-full.stdout",
+      "case_stderr": "full-core2-compat/cases/cores3-aw9523-full.stderr",
+      "checks": [
+        {
+          "name": "aw9523_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stopwatch-m5ioe1-full",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "888f2af03c5df6eaa9be11f85eba977c709d5c77a98a5c16788d8512d57aa34f",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "888f2af03c5df6eaa9be11f85eba977c709d5c77a98a5c16788d8512d57aa34f",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-m5ioe1-full/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stopwatch-m5ioe1-full/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-m5ioe1-full.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-m5ioe1-full.stderr",
+      "checks": [
+        {
+          "name": "m5ioe1_gpio_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_adc_conversion",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "stopwatch-m5pm1-full",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "m5stopwatch",
+      "composed_input_sha256": "7872f887cddbe44cbbada0d74165c3dd88fab5148a0b3bcded41d0faf11d7a72",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "7872f887cddbe44cbbada0d74165c3dd88fab5148a0b3bcded41d0faf11d7a72",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_firmware_sha256_at_archive": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "qemu_sha256_recorded": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "qemu_sha256_at_archive": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+      "frame_after": "full-core2-compat/cases/stopwatch-m5pm1-full/after.png",
+      "frame_metrics": {
+        "width": 466,
+        "height": 466,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/stopwatch-m5pm1-full/serial.log",
+      "case_stdout": "full-core2-compat/cases/stopwatch-m5pm1-full.stdout",
+      "case_stderr": "full-core2-compat/cases/stopwatch-m5pm1-full.stderr",
+      "checks": [
+        {
+          "name": "m5pm1_device_info_uid",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_power_and_hold",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_gpio_input_irq",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_adc_and_temperature",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_pwm",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_wake_watchdog_timer_rtc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_button_irq",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "nesso-peripherals",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "composed_input_sha256": "2f78fdd4daacc29cd27aa8274313ed05aa4f6e9b06eb378ddf18a8f43c916b33",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "2f78fdd4daacc29cd27aa8274313ed05aa4f6e9b06eb378ddf18a8f43c916b33",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "base_firmware_sha256_at_archive": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "qemu_sha256_recorded": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "qemu_sha256_at_archive": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "frame_after": "full-core2-compat/cases/nesso-peripherals/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/nesso-peripherals/serial.log",
+      "case_stdout": "full-core2-compat/cases/nesso-peripherals.stdout",
+      "case_stderr": "full-core2-compat/cases/nesso-peripherals.stderr",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "nesso-imu",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "composed_input_sha256": "d11295c0a0003b5dcff3c92cc3489685eeeb29e3d1449e5c03401afa56c4fd9d",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "d11295c0a0003b5dcff3c92cc3489685eeeb29e3d1449e5c03401afa56c4fd9d",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "base_firmware_sha256_at_archive": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "qemu_sha256_recorded": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "qemu_sha256_at_archive": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "frame_after": "full-core2-compat/cases/nesso-imu/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/nesso-imu/serial.log",
+      "case_stdout": "full-core2-compat/cases/nesso-imu.stdout",
+      "case_stderr": "full-core2-compat/cases/nesso-imu.stderr",
+      "checks": [
+        {
+          "name": "nesso_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "nesso-ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "composed_input_sha256": "bd170e8138a0b366ce5f2e4dd1587ed31e5d78dddf505b8dcb91490285942cd3",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "bd170e8138a0b366ce5f2e4dd1587ed31e5d78dddf505b8dcb91490285942cd3",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "base_firmware_sha256_at_archive": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "qemu_sha256_recorded": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "qemu_sha256_at_archive": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "frame_after": "full-core2-compat/cases/nesso-ir/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 17
+      },
+      "serial": "full-core2-compat/cases/nesso-ir/serial.log",
+      "case_stdout": "full-core2-compat/cases/nesso-ir.stdout",
+      "case_stderr": "full-core2-compat/cases/nesso-ir.stderr",
+      "checks": [
+        {
+          "name": "nesso_c6_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ir_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/nesso-ir/ir.rmt"
+      ]
+    },
+    {
+      "case_id": "nesso-lora",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "composed_input_sha256": "ea87a8729162ef017968a792316e3a17dba501ff324c856b279931ea0b6ef86f",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "ea87a8729162ef017968a792316e3a17dba501ff324c856b279931ea0b6ef86f",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "base_firmware_sha256_at_archive": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "qemu_sha256_recorded": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "qemu_sha256_at_archive": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "frame_after": "full-core2-compat/cases/nesso-lora/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/nesso-lora/serial.log",
+      "case_stdout": "full-core2-compat/cases/nesso-lora.stdout",
+      "case_stderr": "full-core2-compat/cases/nesso-lora.stderr",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": []
+    },
+    {
+      "case_id": "nesso-buzzer",
+      "status": "PASS",
+      "exit_code": 0,
+      "attempts": 1,
+      "retry_used": false,
+      "machine": "esp32c6",
+      "composed_input_sha256": "43a016c972099bc2a4fdd69c3836a7954bfad769640edb68d5a0c4423dde4bf7",
+      "composed_input_sha_source": "runner stdout before QEMU launch",
+      "postrun_mutable_flash_sha256": "43a016c972099bc2a4fdd69c3836a7954bfad769640edb68d5a0c4423dde4bf7",
+      "postrun_mutable_flash_scope": "Hash only; image not archived. This may differ after guest writes and is not substituted for the launch-input hash.",
+      "base_firmware_sha256_recorded": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "base_firmware_sha256_at_archive": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+      "qemu_sha256_recorded": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "qemu_sha256_at_archive": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+      "frame_after": "full-core2-compat/cases/nesso-buzzer/after.png",
+      "frame_metrics": {
+        "width": 135,
+        "height": 240,
+        "unique_colors": 18
+      },
+      "serial": "full-core2-compat/cases/nesso-buzzer/serial.log",
+      "case_stdout": "full-core2-compat/cases/nesso-buzzer.stdout",
+      "case_stderr": "full-core2-compat/cases/nesso-buzzer.stderr",
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_is_playing",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_i2s_gdma_out_eof",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "data_plane_files": [
+        "full-core2-compat/cases/nesso-buzzer/buzzer.pcm"
+      ]
+    }
+  ],
+  "recorded_command_boundary": "Original cases/summary.json is retained verbatim modulo disclosed text redaction. For papercolor-rgb, its recorded command field contains the WS2812 checker command because the matrix runner reused that local variable; it is not rewritten into a claimed historical launch command. Machine/base metadata is separately bound to the runtime-hashed runner case contract."
+}

@@ -1,6 +1,6 @@
 # 工作流总台账
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本页只回答“某项工作由哪条代码链负责、当前事实和未完成项应该去哪里看”。
 它不保存 PASS 计数、固件 SHA、运行流水或第二份执行顺序。
@@ -33,6 +33,7 @@
 | 真机同路径验证 | Device Test Center 和硬件证据流程 | 已有测试入口与分层规则；当前仓库结论仍以 virtual-device validation 为主 | `HW-01` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | 烧录、画面、触摸、RS-485、ESP-Hosted 和部分 I2C 可用，外设仍为 `partial` | `TAB5-01` |
 | 设备视觉保真 | `platform/web/device-shell*`、设备 renderer | 功能验证与视觉保真分开；StopWatch 是参考质量外壳 | `UI-01` |
+| 外接 Unit 与新外壳 | `platform/units/`、`unit_runtime.py`、`platform/web/model-shell.js`、Unit panel | 固定公开视觉源、官方芯片/接线目录与会话接口正在集成；guest 数据面单独验收 | `UNIT-01` |
 | CardputerZero | `patches/qemu-linux-arm64-cardputerzero/`、`tests/cardputer_zero/` | 独立 Linux ARM64 后端有显示、输入、音频、USB、摄像头和 Ethernet 子集 | `CZ-01` |
 
 ## Task ID 索引
@@ -53,6 +54,7 @@
 | `HW-01` | 待做 | 代表设备同固件 SHA 真机验证 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归 |
+| `UNIT-01` | 进行中 | 外壳固定版本、Unit 控制器与主机端口、Web 双向状态及逐型号证据 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 Task 的依赖、下一项最小交付和验收条件只在

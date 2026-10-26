@@ -1,0 +1,4539 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "05d957514a3b43149f5c110d778e90ba",
+  "firmware_sha256": "7d454d17fd7fbb68a48c73bc9581be6ab53a51910699a7018e61ad4a62db8df9",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "dual-button",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T19:22:17.041Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "6e0cc20e47db83c73f254a92a66ac3dfb84580aaad4f97bd2a0e8eedf854cccc",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:22:16.937Z",
+  "session_created_at": "2026-10-25T19:22:17.010458+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:22:34.978Z",
+      "instance": "external1",
+      "field": "blue-pressed",
+      "kind": "trusted-touch-down",
+      "request": {
+        "id": "external1",
+        "values": {
+          "blue-pressed": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:22:35.502Z",
+      "instance": "external1",
+      "field": "blue-pressed",
+      "kind": "trusted-touch-up",
+      "request": {
+        "id": "external1",
+        "values": {
+          "blue-pressed": false
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:22:36.435Z",
+      "instance": "external1",
+      "field": "red-pressed",
+      "kind": "trusted-touch-down",
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-pressed": true
+        }
+      },
+      "response_status": 200
+    },
+    {
+      "at": "2026-10-25T19:22:36.999Z",
+      "instance": "external1",
+      "field": "red-pressed",
+      "kind": "trusted-touch-up",
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-pressed": false
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:22:34.976Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:34.876938+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "blue-pressed": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:35.500Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:35.475530+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "blue-pressed": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:36.434Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:36.334769+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": true,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-pressed": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:36.998Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:36.978927+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "red-pressed": false
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:22:30.073Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:30.031983+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:34.150Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:34.136109+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:34.659Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:34.656486+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:35.237Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:35.233754+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:35.744Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:35.741062+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:36.249Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:36.246290+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:36.758Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:36.753544+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": true,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:37.265Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:37.262091+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:37.773Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:37.769804+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:38.278Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:38.275137+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:38.786Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:38.782732+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:22:39.299Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/05d957514a3b43149f5c110d778e90ba/units",
+      "status": 200,
+      "response": {
+        "session_id": "05d957514a3b43149f5c110d778e90ba",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:22:39.290184+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "dual-button",
+            "name": "Dual Button",
+            "sku": "U025",
+            "visual_asset": {
+              "entry": "src/units/dual-button/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/dual_button",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "two momentary switches",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "red button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                },
+                "white": {
+                  "signal": "blue button",
+                  "direction": "unit-to-host",
+                  "active_level": 0
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Two independent active-low button signals. Official product PinMap maps yellow to red button and white to blue button. UIFlow tuple is white then yellow; do not infer color names from the tuple order.",
+              "registers": [],
+              "gaps": []
+            },
+            "inputs": {
+              "red-pressed": {
+                "type": "boolean",
+                "label": "红键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              },
+              "blue-pressed": {
+                "type": "boolean",
+                "label": "蓝键按下",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": false
+              }
+            },
+            "outputs": {},
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/dual_button",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/dual_button.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/578/Sch_UNIT_DualButton_v1.1.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                }
+              },
+              "state": {
+                "red-pressed": {
+                  "property": "red-pressed"
+                },
+                "blue-pressed": {
+                  "property": "blue-pressed"
+                },
+                "input-level": {
+                  "property": "input-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:22:35.011Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": true,
+              "input-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": true
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0.35,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": false
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:35.536Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "2",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0.09238209238275306,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": false
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:36.469Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": true,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "3",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": true
+              },
+              "actuation": {
+                "depthMm": 0.343589526388943,
+                "targetDepthMm": 0.35,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": true
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:37.033Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0.09201330208552873,
+                "targetDepthMm": 0,
+                "settled": false
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": false
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:37.804Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": false
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:22:38.312Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "dual-button",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "red-pressed": false,
+              "blue-pressed": false,
+              "input-level": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 4,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "red-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "blue-pressed",
+              "source": "输入 fixture",
+              "text": "false",
+              "rgb": []
+            },
+            {
+              "field": "input-level",
+              "source": "控制器状态",
+              "text": "true",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "4",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/blue",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/red",
+              "kind": "button",
+              "state": {
+                "pressed": false
+              },
+              "actuation": {
+                "depthMm": 0,
+                "targetDepthMm": 0,
+                "settled": true
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  58.65,
+                  0
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": [
+            {
+              "type": "button-state",
+              "target": "grove/red",
+              "pressed": false
+            },
+            {
+              "type": "button-state",
+              "target": "grove/blue",
+              "pressed": false
+            }
+          ]
+        }
+      ],
+      "screenshot": "005-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:22:39.482Z"
+}

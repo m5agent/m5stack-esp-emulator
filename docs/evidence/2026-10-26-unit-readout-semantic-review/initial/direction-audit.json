@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "category": "independent-annotation-direction-audit",
+  "source_sha256": {
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757"
+  },
+  "outputs": [
+    {
+      "unit_id": "relay",
+      "field": "output-level",
+      "classification": "firmware-output-observation",
+      "evidence": "0033 get_output reads esp32_gpio_get_line(unit->yellow); no contact/load semantics inferred."
+    },
+    {
+      "unit_id": "buzzer",
+      "fields": [
+        "frequency-hz",
+        "duty-pct"
+      ],
+      "classification": "firmware-output-observation",
+      "evidence": "0033 LEDC MMIO writes call ledc_observe -> m5_unit_pwm_observe; GPIO matrix selects the attached yellow line; num_get reports controller-derived frequency/duty."
+    },
+    {
+      "unit_id": "thermal",
+      "field": "raw-fixture-ready",
+      "classification": "model-state",
+      "evidence": "0034 thermal_configured is have_eeprom && have_frame[0] && have_frame[1], not guest output."
+    },
+    {
+      "unit_id": "thermal",
+      "field": "control-word",
+      "classification": "model-control-register-state",
+      "evidence": "0034 thermal_control QOM setter and guest thermal_write pointer0x800d both update thermal_control; the latest writer is not identified by the payload."
+    }
+  ],
+  "other_annotated_units": "ENV III, PIR, Ultrasonic I2C, Color, ToF, Light, NCIR, Heart and TVOC expose annotated scalar fixture inputs; no derived clinical, electrical, acoustic or physical outputs are inferred.",
+  "hardware_execution": "NOT RUN",
+  "product_changes": "none"
+}

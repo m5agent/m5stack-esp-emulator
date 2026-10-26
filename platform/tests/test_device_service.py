@@ -191,6 +191,30 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.close_all()
         self.tmp.cleanup()
 
+    def test_unit_creation_uses_one_catalog_snapshot_for_wiring_and_contract(self):
+        registry = device_service_module.UnitRegistry()
+        with mock.patch.object(device_service_module, "UnitRegistry", side_effect=[registry]) as factory, mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session({
+                "device_id": "cores3", "units": [{"id": "button1", "unit_id": "button", "port_id": "port-a"}],
+            })
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(factory.call_count, 1)
+        self.assertEqual(session.unit_contract["source_hashes"], registry.source_hashes)
+        self.assertEqual(session.unit_contract["profiles"]["button"]["state"]["pressed"]["property"], "pressed")
+
+    def test_restore_without_unit_contract_does_not_reinterpret_current_catalog(self):
+        with mock.patch.object(device_service_module, "UnitRegistry", side_effect=AssertionError("legacy history must not load current catalog")):
+            session = DeviceSession(
+                self.service, session_id="c" * 32, spec=self.service.specs["cores3"],
+                firmware_id="d" * 64, firmware_path=Path(self.tmp.name) / "legacy.bin",
+                firmware_sha="d" * 64, firmware_source="uploaded", source_artifacts=[],
+                ttl_seconds=60, ready_marker=None, ready_timeout=10, ready_conditions=None,
+                units=[{"id": "old1", "unit_id": "removed-product", "port_id": "port-a"}],
+                restored=True, initial_state="stopped", events=[], persist=False,
+            )
+            self.assertIsNone(session.unit_contract)
+            self.assertEqual(session.unit_state()["contract_status"], "unrecorded")
+
     def test_http_companion_persists_requests_and_recovers_by_generation(
         self,
     ):

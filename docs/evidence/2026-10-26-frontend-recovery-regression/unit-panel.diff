@@ -1,0 +1,160 @@
+--- a/platform/web/unit-panel.js
++++ b/platform/web/unit-panel.js
+@@ -79,6 +79,7 @@
+     this.pending = new Map();
+     this.revision = 0;
+     this.pressSources = new Map();
++    this.releaseIntents = new Map();
+     this.cards = new Map();
+     this.states = new Map();
+     this.definitions = new Map();
+@@ -168,6 +169,7 @@
+     if (!ACTIVE.has(session.state)) {
+       clearTimeout(this.timer);
+       this.releaseHeld();
++      this.releaseIntents.clear();
+     } else if (!wasActive) {
+       this.schedule();
+     }
+@@ -294,7 +296,7 @@
+     return pending ? pending.value : this.states.get(id)?.properties?.[field];
+   }
+ 
+-  send(id, values) {
++  send(id, values, releaseIntent = null) {
+     if (this.session.state !== 'running') return Promise.resolve();
+     const revision = ++this.revision;
+     const pending = this.pending.get(id) || new Map();
+@@ -306,13 +308,68 @@
+       {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})},
+     )).then(payload => {
+       if (!this.disposed) this.apply(payload);
++      if (releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = !this.confirmRelease(releaseIntent);
+     }).catch(error => {
++      if (releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = true;
+       if (!this.disposed) this.note(id, `输入未确认：${error.message}`);
+     }).finally(() => {
+       for (const field of Object.keys(values)) if (pending.get(field)?.revision === revision) pending.delete(field);
+     });
+     this.queues.set(id, next);
+     return next;
++  }
++
++  releaseValue(intent) {
++    const unit = this.states.get(intent.id);
++    if (unit?.available !== true || Object.keys(unit.errors || {}).length) return undefined;
++    const value = unit.properties?.[intent.field];
++    if (intent.index === undefined) return typeof value === 'boolean' ? value : undefined;
++    return Number.isInteger(intent.index) && intent.index >= 0 && Array.isArray(value) && value.every(item => typeof item === 'boolean') && intent.index < value.length ? value[intent.index] : undefined;
++  }
++
++  confirmRelease(intent) {
++    if (this.releaseIntents.get(intent.key) !== intent || this.releaseValue(intent) !== false) return false;
++    this.releaseIntents.delete(intent.key);
++    return true;
++  }
++
++  recoverReleases(intents) {
++    if (this.disposed || this.session.state !== 'running') return;
++    const byId = new Map();
++    for (const intent of intents) {
++      if (this.releaseIntents.get(intent.key) !== intent || !intent.uncertain || this.pressSources.has(intent.key) || this.confirmRelease(intent)) continue;
++      if (this.releaseValue(intent) !== true) continue;
++      if (intent.retried) { this.note(intent.id, '松开仍未确认，请重新按下并松开。'); continue; }
++      if (intent.queued) continue;
++      intent.queued = true;
++      if (!byId.has(intent.id)) byId.set(intent.id, []);
++      byId.get(intent.id).push(intent);
++    }
++    for (const [id, releases] of byId) {
++      const previous = this.queues.get(id) || Promise.resolve();
++      const next = previous.catch(() => {}).then(async () => {
++        if (this.disposed || this.session.state !== 'running') return;
++        const active = releases.filter(intent => this.releaseIntents.get(intent.key) === intent && !this.pressSources.has(intent.key) && this.releaseValue(intent) === true);
++        const values = {};
++        for (const intent of active) {
++          if (intent.index === undefined) values[intent.field] = false;
++          else {
++            const value = values[intent.field] ||= [...this.states.get(id).properties[intent.field]];
++            for (const released of this.releaseIntents.values()) if (released.id === id && released.field === intent.field && Number.isInteger(released.index) && released.index >= 0 && released.index < value.length && !this.pressSources.has(released.key)) value[released.index] = false;
++            for (const held of this.pressSources.values()) if (held.id === id && held.field === intent.field && Number.isInteger(held.index) && held.index >= 0 && held.index < value.length) value[held.index] = true;
++          }
++        }
++        if (!Object.keys(values).length) return;
++        for (const intent of active) intent.retried = true;
++        const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/unit-input`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})});
++        if (this.disposed) return;
++        this.apply(payload);
++        for (const intent of active) this.confirmRelease(intent);
++      }).catch(error => { if (!this.disposed) this.note(id, `松开补偿未确认：${error.message}`); }).finally(() => {
++        for (const intent of releases) intent.queued = false;
++      });
++      this.queues.set(id, next);
++    }
+   }
+ 
+   setHeld(id, field, index, source, pressed) {
+@@ -325,12 +382,19 @@
+     if (after) this.pressSources.set(key, entry);
+     else this.pressSources.delete(key);
+     if (before === after) return;
++    let releaseIntent = null;
++    if (after) this.releaseIntents.delete(key);
++    else if (!this.disposed && this.session.state === 'running') {
++      releaseIntent = {key, id, field, index, uncertain: false, retried: false, queued: false};
++      this.releaseIntents.set(key, releaseIntent);
++    }
+     let value = after;
+     if (index !== undefined) {
+       const base = this.projected(id, field);
+       if (!Array.isArray(base) || index >= base.length || !base.every(item => typeof item === 'boolean')) {
+         entry.sources.delete(source);
+         this.pressSources.delete(key);
++        if (releaseIntent) releaseIntent.uncertain = true;
+         this.note(id, '等待控制器提供按键数组状态');
+         return;
+       }
+@@ -338,8 +402,9 @@
+       // A poll started before the previous POST may arrive after its ACK. Keep
+       // every locally owned hold when patching another index, even if that
+       // authoritative response contains an older released array.
++      for (const released of this.releaseIntents.values()) if (released.id === id && released.field === field && Number.isInteger(released.index) && released.index >= 0 && released.index < value.length && !this.pressSources.has(released.key)) value[released.index] = false;
+       for (const held of this.pressSources.values()) {
+-        if (held.id === id && held.field === field && held.index !== undefined) value[held.index] = true;
++        if (held.id === id && held.field === field && Number.isInteger(held.index) && held.index >= 0 && held.index < value.length) value[held.index] = true;
+       }
+       value[index] = after;
+     }
+@@ -347,7 +412,7 @@
+     for (const button of card?.querySelectorAll('[data-press-field]') || []) {
+       if (button.dataset.pressField === field && (index === undefined ? button.dataset.pressIndex === undefined : Number(button.dataset.pressIndex) === index)) button.setAttribute('aria-pressed', String(after));
+     }
+-    this.send(id, {[field]: value});
++    this.send(id, {[field]: value}, releaseIntent);
+   }
+ 
+   // Compatibility entry point for callers owning a single Unit Button.
+@@ -423,9 +488,14 @@
+     clearTimeout(this.timer);
+     if (this.disposed || this.refreshing || !(this.session.units || []).length) return;
+     this.refreshing = true;
++    // Only a GET started after uncertainty can confirm/retry that release.
++    const recoverable = [...this.releaseIntents.values()].filter(intent => intent.uncertain);
+     try {
+       const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/units`);
+-      if (!this.disposed) this.apply(payload);
++      if (!this.disposed) {
++        this.apply(payload);
++        this.recoverReleases(recoverable);
++      }
+     } catch (error) {
+       for (const [id, unit] of this.states) {
+         const unavailable = {...unit, available: false, errors: {...unit.errors, transport: error.message}};
+@@ -451,6 +521,7 @@
+     if (this.disposed) return;
+     this.releaseHeld();
+     this.disposed = true;
++    this.releaseIntents.clear();
+     this.generation += 1;
+     clearTimeout(this.timer);
+     window.removeEventListener('blur', this.release);

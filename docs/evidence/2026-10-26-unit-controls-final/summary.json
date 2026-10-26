@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-validation",
+  "captured_date": "2026-10-26",
+  "status": "PASS",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "runtime_binary_sha256": "1880891da692de06612aa0a10b2026c0209875f4641e837df29dc818bb3ac81d",
+  "hardware_execution": "NOT RUN",
+  "scope": "Five control Unit guest/controller cases only; not 27-Unit or physical-equivalence completion.",
+  "cases": [
+    {
+      "unit_id": "joystick-v11",
+      "status": "PASS",
+      "session_id": "1f10c0ec6e074f329f0807b3d1605b10",
+      "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+      "evidence_sha256": "9a5ac70c2132e86c795b8ae3b1d183934fcae6fb6cdb9c642b5660ca85631903",
+      "report": "joystick-v11/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "three_raw_bytes_reach_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "encoder",
+      "status": "PASS",
+      "session_id": "b2f39c8461744978b752bcb694551192",
+      "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+      "evidence_sha256": "53661932fead7fd1ffe22c1587ccf6cf5697e81acf50d39d7fec653935077805",
+      "report": "encoder/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "signed_int16_and_active_low_driver": true,
+        "same_guest_i2c_controller_counters": true,
+        "guest_led_writes_read_back": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "8encoder",
+      "status": "PASS",
+      "session_id": "f5d2c19fbf0441499e9b368feb480080",
+      "firmware_sha256": "b48ab0c95b8519ed2146ead739794af53e4ab34dd2a2beef447ce80c9c021c0a",
+      "evidence_sha256": "05e60032f85f78bb037783ab2d294904f7b6620541516c593ad9c622b48b9468",
+      "report": "8encoder/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "eight_signed_channels_buttons_and_switch": true,
+        "guest_counter_write_reset_and_address_change": true,
+        "same_guest_i2c_controller_counters": true,
+        "all_nine_guest_rgb_register_triplets": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "cardkb",
+      "status": "PASS",
+      "session_id": "1dd2681b89034ddaa15166ebe73c4237",
+      "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+      "evidence_sha256": "de9844290daf42c81d3b6b218d08552641a96c584bad67be4cd40ea8024c2baa",
+      "report": "cardkb/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "all_47_nonmodifier_keys_via_i2c": true,
+        "all_three_one_shot_modifiers": true,
+        "all_four_official_key_tables_and_modifier_locks": true,
+        "legacy_byte_consumption": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    },
+    {
+      "unit_id": "rfid2",
+      "status": "PASS",
+      "session_id": "be2b24920f0d48c6b366fbbf72680b26",
+      "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+      "evidence_sha256": "c4adee9f08ecaae55a3b6766018e653e6b95591cbac541e676317074b3d729dd",
+      "report": "rfid2/result.json",
+      "checks": {
+        "exact_official_driver_ready": true,
+        "request_anticollision_select_auth_block_write_read_halt": true,
+        "wrong_key_halt_and_antenna_negative_controls": true,
+        "four_seven_ten_byte_uid_cascade_select": true,
+        "card_removal_reaches_guest": true,
+        "same_guest_i2c_controller_counters": true,
+        "stopped_with_history": true
+      }
+    }
+  ]
+}

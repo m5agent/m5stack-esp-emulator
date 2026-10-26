@@ -1,0 +1,22 @@
+{
+  "device_id": "atoms3r",
+  "case": "button",
+  "started_at": "2026-10-25T19:44:06.690656+00:00",
+  "finished_at": "2026-10-25T19:44:42.174317+00:00",
+  "returncode": 0,
+  "expected_runtime_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "expected_generation": 9,
+  "runner_sha256": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "<repo>/tests/units/run_host_cases.py",
+    "--device",
+    "atoms3r",
+    "--case",
+    "button",
+    "--expected-runtime-sha256",
+    "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+    "--out-dir",
+    "<repo>/.work/unit-host-web-gen9-a8fe-20261026/controller"
+  ]
+}

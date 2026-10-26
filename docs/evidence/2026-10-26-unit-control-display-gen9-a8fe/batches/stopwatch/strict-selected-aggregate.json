@@ -1,0 +1,1148 @@
+{
+  "schema_version": 1,
+  "generator": "unit-batch-evidence-checker",
+  "checker_sha256": "7812270d6ccc6526e214c6312f64b73ad2c4d9399455044cfb66270d67f422f1",
+  "status": "PARTIAL",
+  "strict_direct": true,
+  "layers": {
+    "guest_controller": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "live_browser": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 5,
+        "NOT RUN": 22,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 5,
+      "direct_pid_units": 5,
+      "indirect_service_generation_units": 0
+    },
+    "bridge_contract": {
+      "status": "PARTIAL",
+      "counts": {
+        "PASS": 0,
+        "NOT RUN": 27,
+        "NOT VERIFIED": 0,
+        "FAIL": 0
+      },
+      "functional_pass_units": 0,
+      "direct_pid_units": 0,
+      "indirect_service_generation_units": 0
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "env-iii",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "pir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rgb",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "angle",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "color",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tof",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "light",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "relay",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "joystick-v11",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+        "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/opened-flashing.png": "39f15f8d2dd7a89e1c987efa2a25d36bf4d16bdb5a5028b75ab4ec0f54420b1a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/runtime-provenance.json": "414069c66c0e3b5cdbdb8bc335377e200acd2520c04a04b8d885a908657c0f52",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/web-report.json": "48be6e4519009750de43f1343ae38da4fd0696574f942133ffe0954a2f7059f4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/frame.png": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/result.json": "6ef358ee1c20cbd773062e00515852042a898c4ee8187920dc4657974d7fd9fd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/serial.txt": "d36b2a67d443ce6fd05c8bf526d84e6332f982f8ffe1f8545859e78f97341ad6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/history-frame.png": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+        },
+        "assertions": 4,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/result.json",
+          "report_sha256": "6ef358ee1c20cbd773062e00515852042a898c4ee8187920dc4657974d7fd9fd",
+          "assertions": 4
+        },
+        "wrapper_assertions": 14,
+        "session_id": "cc929c31fb104d1993e5b9bde89af695",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "f0164f60cef9666000e8cef68018b93076013ab671a039296b7caf3a93760144",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 6922,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json",
+        "report_sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/opened-flashing.png": "39f15f8d2dd7a89e1c987efa2a25d36bf4d16bdb5a5028b75ab4ec0f54420b1a",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/runtime-provenance.json": "414069c66c0e3b5cdbdb8bc335377e200acd2520c04a04b8d885a908657c0f52",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/web-report.json": "48be6e4519009750de43f1343ae38da4fd0696574f942133ffe0954a2f7059f4",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/frame.png": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/result.json": "6ef358ee1c20cbd773062e00515852042a898c4ee8187920dc4657974d7fd9fd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/serial.txt": "d36b2a67d443ce6fd05c8bf526d84e6332f982f8ffe1f8545859e78f97341ad6",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/history-frame.png": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png": {
+              "width": 980,
+              "height": 1229
+            }
+          }
+        },
+        "session_id": "cc929c31fb104d1993e5b9bde89af695",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "f0164f60cef9666000e8cef68018b93076013ab671a039296b7caf3a93760144",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip",
+        "evidence_sha256": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 6922,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/joystick-v11/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "cc929c31fb104d1993e5b9bde89af695",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "f0164f60cef9666000e8cef68018b93076013ab671a039296b7caf3a93760144",
+        "evidence_sha256": "142e6c3ea81a37f532a2cb0ee8a17e9054331f42460a10479746ddcf22c09aea",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "dual-button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "button",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ncir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "heart",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+        "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/opened-flashing.png": "91be3b43a353d64e6bcec30d203050c4041466d96d7c38f3679639c12031c0da",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/runtime-provenance.json": "6c62a332ddf2941521d92664971c2f89cc34c48f6edeb3b10c233eeb3adfd71d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/web-report.json": "424f58e9edf56ad7a39f44e9402724a49bfa479d5d848a7f48251f59fef4f52f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/frame.png": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/result.json": "7d7d4fe799ffa61095afae05a841e4029ff03d216b2498fab9a4c0ff48a11d0b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/serial.txt": "6e15d7b29d5a5809521c1852811be53d5df7e8c9aa13a7b7632cd716a2e78dfe",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/history-frame.png": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+        },
+        "assertions": 5,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/result.json",
+          "report_sha256": "7d7d4fe799ffa61095afae05a841e4029ff03d216b2498fab9a4c0ff48a11d0b",
+          "assertions": 5
+        },
+        "wrapper_assertions": 14,
+        "session_id": "ae01291813844608a88e3749de0c801f",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "6608f85402201482d74cf8ff958d7b997dd9cb1036df5aa868abba08e9e5a1db",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7041,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json",
+        "report_sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/opened-flashing.png": "91be3b43a353d64e6bcec30d203050c4041466d96d7c38f3679639c12031c0da",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/runtime-provenance.json": "6c62a332ddf2941521d92664971c2f89cc34c48f6edeb3b10c233eeb3adfd71d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/web-report.json": "424f58e9edf56ad7a39f44e9402724a49bfa479d5d848a7f48251f59fef4f52f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/frame.png": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/result.json": "7d7d4fe799ffa61095afae05a841e4029ff03d216b2498fab9a4c0ff48a11d0b",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/serial.txt": "6e15d7b29d5a5809521c1852811be53d5df7e8c9aa13a7b7632cd716a2e78dfe",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/history-frame.png": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/web-report.json",
+          "snapshots": 4,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png": {
+              "width": 980,
+              "height": 1211
+            }
+          }
+        },
+        "session_id": "ae01291813844608a88e3749de0c801f",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "6608f85402201482d74cf8ff958d7b997dd9cb1036df5aa868abba08e9e5a1db",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip",
+        "evidence_sha256": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7041,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "ae01291813844608a88e3749de0c801f",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "6608f85402201482d74cf8ff958d7b997dd9cb1036df5aa868abba08e9e5a1db",
+        "evidence_sha256": "062b0a6fddabf0b8b31e1fc82b6fa70637ba538beda723f29419a57951fa0208",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "thermal",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "tvoc",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "ir",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "hub",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "rfid2",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+        "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/opened-flashing.png": "f2c405fb2fcb8e6797c8537277d36f3e850d347aef94f3c6864f643ec67d1696",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/runtime-provenance.json": "33d1f12b1a7c0ae6b74e80d3b06c20957df3d83c6f1c1d0caef0821e5ebd4d71",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/web-report.json": "bd3e3640d90c17b0f0a70d510707388d407561147277894668b0e9d3f8a0c08e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/frame.png": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/result.json": "77c150411499b4a8907a712ea7e5a834130582ee1b1837c8873cb478a3bfc853",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/serial.txt": "e6ff4d64f2899f82440986f324372612d0b2e921adbf744ef6438db7e5d66127",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/history-frame.png": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/result.json",
+          "report_sha256": "77c150411499b4a8907a712ea7e5a834130582ee1b1837c8873cb478a3bfc853",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "e4ee0caf406545b6ad5eebc72ab4144c",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "dc407318c3ea9933168d86d35b52331aba9ca91e718fc932a4599c528a01eaf6",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 14014,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json",
+        "report_sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/opened-flashing.png": "f2c405fb2fcb8e6797c8537277d36f3e850d347aef94f3c6864f643ec67d1696",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/runtime-provenance.json": "33d1f12b1a7c0ae6b74e80d3b06c20957df3d83c6f1c1d0caef0821e5ebd4d71",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/web-report.json": "bd3e3640d90c17b0f0a70d510707388d407561147277894668b0e9d3f8a0c08e",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/frame.png": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/result.json": "77c150411499b4a8907a712ea7e5a834130582ee1b1837c8873cb478a3bfc853",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/serial.txt": "e6ff4d64f2899f82440986f324372612d0b2e921adbf744ef6438db7e5d66127",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/history-frame.png": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/web-report.json",
+          "snapshots": 6,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png": {
+              "width": 980,
+              "height": 1698
+            }
+          }
+        },
+        "session_id": "e4ee0caf406545b6ad5eebc72ab4144c",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "dc407318c3ea9933168d86d35b52331aba9ca91e718fc932a4599c528a01eaf6",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip",
+        "evidence_sha256": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 14014,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/rfid2/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "e4ee0caf406545b6ad5eebc72ab4144c",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "dc407318c3ea9933168d86d35b52331aba9ca91e718fc932a4599c528a01eaf6",
+        "evidence_sha256": "7d34570d3b6fd6daa656b090c8e77a24080eece8789bdda0c81024968dca396c",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "rs485",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "buzzer",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "fan",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "limit",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "cardkb",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+        "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/opened-flashing.png": "4813a66d28e974bcf050d6fb7bea5e7a5777f99659abb4e90b80b3534720afbd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/runtime-provenance.json": "3e538709b8c1387a3c2e02fbe8810956578e90b18a9002f22613b09fbe79d713",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/web-report.json": "a8eb21e4c303011caccf84b7ec286e9fe74cf790e76d4a8a0ec8fc0576f50699",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/frame.png": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/result.json": "1ca2fd51c7c6219f335a8262964e252c3c72aa1e4e2e678fa910fff6678a2c12",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/serial.txt": "3399902ae56cb86c4600524d6dce4560e77a1e752b9c59d0bd4fb3850b606b03",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/history-frame.png": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+        },
+        "assertions": 7,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/result.json",
+          "report_sha256": "1ca2fd51c7c6219f335a8262964e252c3c72aa1e4e2e678fa910fff6678a2c12",
+          "assertions": 7
+        },
+        "wrapper_assertions": 14,
+        "session_id": "1662c96e00a145d9ab2603775cbe1c24",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "7720a396b50369262d406ea2e248cf8f1e47648e03a71f980a23bcb1ca6fb8c5",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7849,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json",
+        "report_sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/opened-flashing.png": "4813a66d28e974bcf050d6fb7bea5e7a5777f99659abb4e90b80b3534720afbd",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/runtime-provenance.json": "3e538709b8c1387a3c2e02fbe8810956578e90b18a9002f22613b09fbe79d713",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/web-report.json": "a8eb21e4c303011caccf84b7ec286e9fe74cf790e76d4a8a0ec8fc0576f50699",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/frame.png": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/result.json": "1ca2fd51c7c6219f335a8262964e252c3c72aa1e4e2e678fa910fff6678a2c12",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/serial.txt": "3399902ae56cb86c4600524d6dce4560e77a1e752b9c59d0bd4fb3850b606b03",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/history-frame.png": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/web-report.json",
+          "snapshots": 412,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png": {
+              "width": 980,
+              "height": 2201
+            }
+          }
+        },
+        "session_id": "1662c96e00a145d9ab2603775cbe1c24",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "7720a396b50369262d406ea2e248cf8f1e47648e03a71f980a23bcb1ca6fb8c5",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip",
+        "evidence_sha256": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7849,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/cardkb/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "1662c96e00a145d9ab2603775cbe1c24",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "7720a396b50369262d406ea2e248cf8f1e47648e03a71f980a23bcb1ca6fb8c5",
+        "evidence_sha256": "2b7644d22d0228c013b055e87e2fbf1a8b4975b4e2a68aa7d171c31c233e4720",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    },
+    {
+      "unit_id": "key",
+      "guest_controller": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "live_browser": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+      },
+      "same_session_cohort": {
+        "status": "NOT VERIFIED",
+        "reason": "both guest and live-browser functional evidence are required"
+      },
+      "selection_note": "NOT RUN in this host batch; no other host or old firmware result is inherited."
+    },
+    {
+      "unit_id": "8encoder",
+      "guest_controller": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+        "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/opened-flashing.png": "c7fa167f529f68e7f6039f6dd9d675b182c2a348ecc394dd3b226c7457fb2f58",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/runtime-provenance.json": "a606a39e43f612a424ccfd81ef47ce7f4cb4b65cdae1257e87a067664fa0555c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/web-report.json": "13ad1f710557aa02238260e76c6ce3589ff1a31fb2022068ae64f88b056f4e5d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/frame.png": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/result.json": "f773d747e9ba9f458b122c9afab06ac74dec3c6d39ec457c32c92bca78ea9244",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/serial.txt": "67d84947f244126bf5b2d7c71bc8cd39eefdc86826c7b3897089da045650dec8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/history-frame.png": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+        },
+        "assertions": 6,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "controller_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/result.json",
+          "report_sha256": "f773d747e9ba9f458b122c9afab06ac74dec3c6d39ec457c32c92bca78ea9244",
+          "assertions": 6
+        },
+        "wrapper_assertions": 14,
+        "session_id": "073c17523e2e42a89475a66a2fdb44e3",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "4f6a0da208f28888f62ec42c2494259998572f21e053b133453464a2788aa13c",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7410,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json"
+        }
+      },
+      "live_browser": {
+        "status": "PASS",
+        "functional_status": "PASS",
+        "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json",
+        "report_sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a",
+        "artifact_sha256_verified": {
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/opened-flashing.png": "c7fa167f529f68e7f6039f6dd9d675b182c2a348ecc394dd3b226c7457fb2f58",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/runtime-provenance.json": "a606a39e43f612a424ccfd81ef47ce7f4cb4b65cdae1257e87a067664fa0555c",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/web-report.json": "13ad1f710557aa02238260e76c6ce3589ff1a31fb2022068ae64f88b056f4e5d",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/bridge.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/frame.png": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/result.json": "f773d747e9ba9f458b122c9afab06ac74dec3c6d39ec457c32c92bca78ea9244",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/serial.txt": "67d84947f244126bf5b2d7c71bc8cd39eefdc86826c7b3897089da045650dec8",
+          "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/history-frame.png": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+        },
+        "assertions": 14,
+        "firmware_flavor": "reference-app-with-vendored-official-control-drivers-host-probe",
+        "hardware_execution": "NOT RUN",
+        "browser_detail": {
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/web-report.json",
+          "snapshots": 3,
+          "instances": [
+            "external1"
+          ],
+          "screenshot_sha256": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad"
+          },
+          "screenshot_dimensions": {
+            "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png": {
+              "width": 980,
+              "height": 1542
+            }
+          }
+        },
+        "session_id": "073c17523e2e42a89475a66a2fdb44e3",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "4f6a0da208f28888f62ec42c2494259998572f21e053b133453464a2788aa13c",
+        "evidence": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip",
+        "evidence_sha256": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+        "zip_members": 10,
+        "runtime_proof": {
+          "proof_kind": "direct-pid",
+          "binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "direct_pid_observed": true,
+          "pid": 7410,
+          "worker_generation_observed": 9,
+          "status": "PASS",
+          "report": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/stopwatch/8encoder/report.json"
+        }
+      },
+      "bridge_contract": {
+        "status": "NOT RUN",
+        "functional_status": "NOT RUN",
+        "reason": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+      },
+      "same_session_cohort": {
+        "status": "PASS",
+        "session_id": "073c17523e2e42a89475a66a2fdb44e3",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "4f6a0da208f28888f62ec42c2494259998572f21e053b133453464a2788aa13c",
+        "evidence_sha256": "dabc41594fe7843833a05a7d10fcfb7a802b8fc3f9eeb2f3e5dd30db2ea54967",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "direct_pid_observed": true
+      },
+      "selection_note": "Selected from this separate host batch. Native readability covers its reviewed actual final frame only."
+    }
+  ],
+  "errors": [],
+  "catalog": "platform/units/catalog.json",
+  "catalog_sha256": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+  "expected_units": 27,
+  "expected_runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+  "required_layers": [
+    "guest_controller",
+    "live_browser"
+  ],
+  "selection_sha256": "2c951c86988f4d55493b01427e88dda4021da22068bdc7b5a406e0789810c130"
+}

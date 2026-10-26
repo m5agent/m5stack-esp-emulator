@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "HARNESS_FROZEN_NOT_LIVE_EXECUTED",
+  "captured_at": "2026-10-26T01:54:01.528014+00:00",
+  "script": ".work/unit-audio-live-20261026/observe-live.mjs",
+  "script_sha256": "824d399ae15a97ce1eb2e6f11efeeb243d718fd103d5e65fc6199802e30a9e1d",
+  "offline_self_check": ".work/unit-audio-live-20261026/self-check-final-r2/receipt.json",
+  "offline_self_check_sha256": "19be1112693b4288d99b4338f013cbe1a97e1a06ccc99e8b2a4ac6d764be8f96",
+  "api_contacted_during_preparation": false,
+  "sessions_created_or_stopped": 0,
+  "frozen_product_sources_unchanged": true,
+  "cli": "node .work/unit-audio-live-20261026/observe-live.mjs --session-id SID --expected-firmware-sha256 FWSHA --expected-runtime-sha256 RTSHA --expected-frequency 2000 --expected-duty-sequence 0,25,50,75,100,0 --duty-tolerance 0.1 --out .work/unit-audio-live-20261026/run-r1 --timeout-seconds 180",
+  "stages": [
+    "Attach provided ID during flashing/booting; wait for running actual readback and settled mount.",
+    "Observe default-muted no AudioContext/oscillator, then trusted product enable click.",
+    "Accept ordered actual guest-qom duties within controller quantization; bind each to raw real GET and frozen definition.",
+    "Measure native audio waveform through a passive analyser; never replace source or send runtime input.",
+    "After all phases and independently rebound direct-PID/runtime SHA proof, emit READY_FOR_ROOT_STOP.",
+    "Root obtains evidence and stops session; observer verifies actual product terminal silence, all observed contexts closed, and PID exit."
+  ],
+  "limits": [
+    "Fixed 2000Hz proves dynamic duty only, not dynamic frequency.",
+    "Host output sink muted for automated check; browser native waveform is captured, no physical acoustics claim.",
+    "Other session-specific reads are blocked; global read-only product inventory/list calls are needed to render the real UI.",
+    "All non-GET/cross-origin requests are blocked, recorded and fail validation.",
+    "No root session is created, stopped, reset, or mutated by this harness.",
+    "Initial 7-second zero must be observed; missed stages fail without synthesizing evidence."
+  ]
+}

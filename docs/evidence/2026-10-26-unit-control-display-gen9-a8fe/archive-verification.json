@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "status": "PUBLIC_INPUT_VERIFICATION_PASS",
+  "api_contacted": false,
+  "sessions_started": 0,
+  "completed_host_batches": [
+    "atoms3r",
+    "sticks3",
+    "stopwatch"
+  ],
+  "functional_selected_case_count": 15,
+  "native_readability_scope": "captured-final-native-frame-only",
+  "content_pattern_exemptions": [],
+  "checked_files_before_verification_receipt": 1691,
+  "images": [
+    {
+      "path": "batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/002-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1542,
+      "sha256": "e3320f7e29a87dce03d2f81361f9b45c7e9e342b256a31203c1b157d50a9c4fc"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/8encoder/browser/e7261bb2b0594279b5b4391ffe49fe31/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 895,
+      "sha256": "b6000a393f0b045c83d35abcbf9b247214995e0374490a9b077e783b98017d0b"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/8encoder/controller/8encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/8encoder/controller/8encoder/frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/8encoder/history-frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/411-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 2201,
+      "sha256": "549da9ea25abf1dd9922f96a0ccee7b92805c6169369f7a59173ad7a18b301ac"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/cardkb/browser/06bdca0887c24ddf9137209a3992b98b/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 2201,
+      "sha256": "0bce08e55b80570545c4199973c6a426fb50d597e9222b1386c73b4929cf7cfb"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/cardkb/controller/cardkb/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/cardkb/controller/cardkb/frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/cardkb/history-frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1211,
+      "sha256": "e77e7bd5c32b3a9a37d8d70f5a6dfba4a8ac8f6e1fe6d5d3fd05e29d6c9e6169"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/encoder/browser/4f2898598476490495fc371582535e40/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 755,
+      "sha256": "9956930995b6d5556b782a899f8f94b165fa3e2649a2a30fdf44d820fe3e2a1e"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/encoder/controller/encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/encoder/controller/encoder/frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/encoder/history-frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1229,
+      "sha256": "3969b6b314284e46015bd318eb86b26a350961ba4e828ef2cd7e3e055a1d72bf"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/joystick-v11/browser/341fc99a995741e38de3ed76eb9d401e/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 823,
+      "sha256": "3915455c3c44a2b3a1e8b9b785a1175229c4f9d682a01388a9b8c7b72e45698d"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/joystick-v11/controller/joystick-v11/frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/joystick-v11/history-frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/005-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1698,
+      "sha256": "3a8a291e18a78a3d6b15109a20b7290cd2b8837aefc9fa446290f3265f58017f"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/rfid2/browser/a442cb873a484af39f49fa8e868dd997/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 868,
+      "sha256": "3d4e455c165a0d366bed3199b6263816fea26c34e4955b742acd256c3f3a954b"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/rfid2/controller/rfid2/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/rfid2/controller/rfid2/frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+    },
+    {
+      "path": "batches/atoms3r/atoms3r/rfid2/history-frame.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+    },
+    {
+      "path": "batches/atoms3r/post-execution-review/native/8encoder.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a050390121ec1c7dfce27eca5d6367872c65cca3ac60b7ead47e2c496f92d9d6"
+    },
+    {
+      "path": "batches/atoms3r/post-execution-review/native/cardkb.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "1b613f4ba7a9470d8deda530e4476528f1b2fd06bfde4baa589de48670b5a30e"
+    },
+    {
+      "path": "batches/atoms3r/post-execution-review/native/encoder.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "4f987468677817ca3efa25354b4aea0c5bacd13a04666e4db9481bebbbd2ea0c"
+    },
+    {
+      "path": "batches/atoms3r/post-execution-review/native/joystick-v11.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "3133bf07f353fe17269b123493f04d293b3d7d7275778f5ed8030e1ad3bb993f"
+    },
+    {
+      "path": "batches/atoms3r/post-execution-review/native/rfid2.png",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "sha256": "a2d90563b191505476e080df47473c34f996605ca8346983546bd9cc7c79f662"
+    },
+    {
+      "path": "batches/sticks3/post-execution-review/native/8encoder.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+    },
+    {
+      "path": "batches/sticks3/post-execution-review/native/cardkb.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+    },
+    {
+      "path": "batches/sticks3/post-execution-review/native/encoder.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+    },
+    {
+      "path": "batches/sticks3/post-execution-review/native/joystick-v11.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+    },
+    {
+      "path": "batches/sticks3/post-execution-review/native/rfid2.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+    },
+    {
+      "path": "batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/002-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1542,
+      "sha256": "253b709213fe52d9923e09d26c7c4fcf6c38f192622dbf36b5d3041507605551"
+    },
+    {
+      "path": "batches/sticks3/sticks3/8encoder/browser/86a73786b4634bd7ba64ffa3908d97d2/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 702,
+      "sha256": "1bc6d201bdf8a57903dccc724604944045e17e900387725f58acecfa38a0f0bd"
+    },
+    {
+      "path": "batches/sticks3/sticks3/8encoder/controller/8encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+    },
+    {
+      "path": "batches/sticks3/sticks3/8encoder/controller/8encoder/frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+    },
+    {
+      "path": "batches/sticks3/sticks3/8encoder/history-frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "880252cbcab4d84090edef5b56548d12ce1ef268d2007f2759d686fdae87b1f8"
+    },
+    {
+      "path": "batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/411-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 2201,
+      "sha256": "026fb67e7216ea2fdd4b346a432697f1aa0b38194b92dcead2b9745271ce8c8e"
+    },
+    {
+      "path": "batches/sticks3/sticks3/cardkb/browser/65b979b649e64c9f8d74832349039f09/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1094,
+      "sha256": "76c6a2f864377af533e7b57a08eaf97a74a97bd1c9bf689dd08987686e079f68"
+    },
+    {
+      "path": "batches/sticks3/sticks3/cardkb/controller/cardkb/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+    },
+    {
+      "path": "batches/sticks3/sticks3/cardkb/controller/cardkb/frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+    },
+    {
+      "path": "batches/sticks3/sticks3/cardkb/history-frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "07734a8562b572421dae80fcbbb9224440b143b2e40f299655e30f6a4ec2c44f"
+    },
+    {
+      "path": "batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1211,
+      "sha256": "daf4193cc5ef3fb9c6956e584acb4a529e7002abddb34e63d5d3782455093a9d"
+    },
+    {
+      "path": "batches/sticks3/sticks3/encoder/browser/272d68e84e174535a0c19ddbfc1e6b8f/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 753,
+      "sha256": "a5e9b31df06755b449cd56f1a0491f4fdab843f62a3d91948abf5dc3ede721d1"
+    },
+    {
+      "path": "batches/sticks3/sticks3/encoder/controller/encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+    },
+    {
+      "path": "batches/sticks3/sticks3/encoder/controller/encoder/frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+    },
+    {
+      "path": "batches/sticks3/sticks3/encoder/history-frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "eefae59f9fbf2c44b27580edef598ae72a2ddc6540fddc3f6992b33c0a7532ab"
+    },
+    {
+      "path": "batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1229,
+      "sha256": "483146c6b32761a488ac968303cd1383093afb5b5a30fe269f8c2f743241b2ef"
+    },
+    {
+      "path": "batches/sticks3/sticks3/joystick-v11/browser/9b6b0d3a11b14290ba1b32182726b426/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 601,
+      "sha256": "376e8216fd1d8c7bf1a92e6ff6a8ec64c2c3350dee81d38447f49060477128a2"
+    },
+    {
+      "path": "batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+    },
+    {
+      "path": "batches/sticks3/sticks3/joystick-v11/controller/joystick-v11/frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+    },
+    {
+      "path": "batches/sticks3/sticks3/joystick-v11/history-frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "8b2d1ed49c9695a6043c40bf488c6ca7a0ff2f2f4eb95b6e9c1598b72cdd30c3"
+    },
+    {
+      "path": "batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/005-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1698,
+      "sha256": "f9b0b74ce78bc9e73bb096127ec2e8da4b5a6364a784ba48925e425b05d68e3f"
+    },
+    {
+      "path": "batches/sticks3/sticks3/rfid2/browser/6ef6a3236fe443d394b827be8ad10390/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 868,
+      "sha256": "a3cbca476b59421803fdbe3535c43f744b81476293326c97ada7270613b5eede"
+    },
+    {
+      "path": "batches/sticks3/sticks3/rfid2/controller/rfid2/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+    },
+    {
+      "path": "batches/sticks3/sticks3/rfid2/controller/rfid2/frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+    },
+    {
+      "path": "batches/sticks3/sticks3/rfid2/history-frame.png",
+      "format": "PNG",
+      "width": 135,
+      "height": 240,
+      "sha256": "1296c8838197cff0001396e774534cd8f973f5907bf8d774fa0d2386c87485f1"
+    },
+    {
+      "path": "batches/stopwatch/post-execution-review/native/8encoder.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+    },
+    {
+      "path": "batches/stopwatch/post-execution-review/native/cardkb.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+    },
+    {
+      "path": "batches/stopwatch/post-execution-review/native/encoder.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+    },
+    {
+      "path": "batches/stopwatch/post-execution-review/native/joystick-v11.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+    },
+    {
+      "path": "batches/stopwatch/post-execution-review/native/rfid2.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/002-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1542,
+      "sha256": "32f750284154e55125b98ded1de3f738ea55980f5d6b86b1fd52ec94248240ad"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/8encoder/browser/073c17523e2e42a89475a66a2fdb44e3/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 672,
+      "sha256": "c7fa167f529f68e7f6039f6dd9d675b182c2a348ecc394dd3b226c7457fb2f58"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/8encoder/controller/8encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/8encoder/controller/8encoder/frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/8encoder/history-frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "500255a8ec6213ac508a21631119332919c3f1729ee9d04653317ce2d3bae8b7"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/411-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 2201,
+      "sha256": "daf27f7fe048ef9055407ca78b4fd401e132d076da6141743a6fa342c97f302d"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/cardkb/browser/1662c96e00a145d9ab2603775cbe1c24/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1094,
+      "sha256": "4813a66d28e974bcf050d6fb7bea5e7a5777f99659abb4e90b80b3534720afbd"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/cardkb/controller/cardkb/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/cardkb/controller/cardkb/frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/cardkb/history-frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "ea59180766c2609d922e88efa7bf762498ea54e89d325ada28b605273c67d5e9"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1211,
+      "sha256": "c4f080fcbb2a1b5b6b538f11b57272572702c860709c214f22ab2139b30c0613"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/encoder/browser/ae01291813844608a88e3749de0c801f/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 533,
+      "sha256": "91be3b43a353d64e6bcec30d203050c4041466d96d7c38f3679639c12031c0da"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/encoder/controller/encoder/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/encoder/controller/encoder/frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/encoder/history-frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "36614f2d98d00d677492ead84331c007a040ebbe9312d48ea4d14e0cf793a967"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/003-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1229,
+      "sha256": "7f61d51ff9e4a7311a9506fcefa49c2d2787818782b31bf2fe122e114e06476d"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/joystick-v11/browser/cc929c31fb104d1993e5b9bde89af695/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 601,
+      "sha256": "39f15f8d2dd7a89e1c987efa2a25d36bf4d16bdb5a5028b75ab4ec0f54420b1a"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/joystick-v11/controller/joystick-v11/frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/joystick-v11/history-frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "dad72bff591b9d4137f642924aea317d06407ced39a3cb552a2eb0b6a2c77376"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/005-before-evidence.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 1698,
+      "sha256": "441dc33b6c59899de2492d3eab7c3bcd5a3bccf9a331d3a40b3ceb4f1463d94f"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/rfid2/browser/e4ee0caf406545b6ad5eebc72ab4144c/opened-flashing.png",
+      "format": "PNG",
+      "width": 980,
+      "height": 645,
+      "sha256": "f2c405fb2fcb8e6797c8537277d36f3e850d347aef94f3c6864f643ec67d1696"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/rfid2/controller/rfid2/evidence.zip:frames/current.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/rfid2/controller/rfid2/frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+    },
+    {
+      "path": "batches/stopwatch/stopwatch/rfid2/history-frame.png",
+      "format": "PNG",
+      "width": 466,
+      "height": 466,
+      "sha256": "a36bd583bbde354d69c6e7d1aca849985f3d1bef5879f603264a362c785c794c"
+    }
+  ],
+  "zip_members": 150,
+  "source_reconstruction_count_by_host": {
+    "atoms3r": 421,
+    "sticks3": 421,
+    "stopwatch": 421
+  },
+  "offline_metadata_contract": "PASS for exact selected subset; no network/socket/child process permitted during contract verification",
+  "hardware_execution": "NOT RUN",
+  "external_work_log": "NOT ARCHIVED"
+}

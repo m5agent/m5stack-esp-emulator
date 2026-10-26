@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "Only isolated source copies were mutated; no candidate/product/network/browser/session changes.",
+  "mutations_rejected": 5,
+  "results": [
+    {
+      "mutation": "range_guard",
+      "rejected": true,
+      "expected_failure": "schema-boundaries-reject-values-without-clamping-or-mutating",
+      "actual_failed_cases": [
+        "schema-boundaries-reject-values-without-clamping-or-mutating"
+      ],
+      "source_sha256": {
+        "platform/web/unit-annotations.js": "8786a50a50fe1f0e170f8ca724fea930f7a384b15a193c586cf30c35d4ef2cfa",
+        "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+        "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+      }
+    },
+    {
+      "mutation": "unit_source_guard",
+      "rejected": true,
+      "expected_failure": "outer-and-unit-source-must-both-be-live-controller-readback",
+      "actual_failed_cases": [
+        "outer-and-unit-source-must-both-be-live-controller-readback"
+      ],
+      "source_sha256": {
+        "platform/web/unit-annotations.js": "859c1f29b29cbfcba3f019349cd584d7ae7c07785d8f8f87e484d95f07e58cf5",
+        "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+        "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+      }
+    },
+    {
+      "mutation": "frozen_definition_guard",
+      "rejected": true,
+      "expected_failure": "legacy-inventory-fallback-cannot-be-presented-as-frozen-values",
+      "actual_failed_cases": [
+        "unavailable-errors-terminal-and-unfrozen-contracts-hide-values",
+        "legacy-inventory-fallback-cannot-be-presented-as-frozen-values"
+      ],
+      "source_sha256": {
+        "platform/web/unit-annotations.js": "1f25dfbd8fe0bb564ce0f0da60933b124a7437b14874ed6cfddccc281ef8a1e9",
+        "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+        "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+      }
+    },
+    {
+      "mutation": "thermal_origin",
+      "rejected": true,
+      "expected_failure": "thermal-readiness-and-control-register-have-explicit-origin-labels",
+      "actual_failed_cases": [
+        "thermal-readiness-and-control-register-have-explicit-origin-labels"
+      ],
+      "source_sha256": {
+        "platform/web/unit-annotations.js": "d566131b42c8247ff299a2401474dfb79b87fc50d5b858466bead36995c78b44",
+        "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7",
+        "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+      }
+    },
+    {
+      "mutation": "annotation_exception_isolation",
+      "rejected": true,
+      "expected_failure": "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+      "actual_failed_cases": [
+        "annotation-fault-does-not-turn-successful-release-ack-into-input-failure",
+        "annotation-fault-keeps-one-release-retry-and-no-poll-echo"
+      ],
+      "source_sha256": {
+        "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+        "platform/web/unit-panel.js": "81a0cabb29a54f43be830b183d3e21d94849ae54d2288e7e5f6f38b94e443119",
+        "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a"
+      }
+    }
+  ]
+}

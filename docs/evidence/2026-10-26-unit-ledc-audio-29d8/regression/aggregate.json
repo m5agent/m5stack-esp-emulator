@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "FAIL",
+  "scope": "Shared-controller repository regression; virtual-device validation",
+  "full_run": {
+    "status": "FAIL",
+    "counts": {
+      "PASS": 66,
+      "FAIL": 1
+    },
+    "check_counts": {
+      "PASS": 270,
+      "FAIL": 4
+    },
+    "all_single_attempt": true,
+    "summary_sha256": "867e10549229dc11692971d8cc383e2396fe3c465b8da3e2513924dbcebe1be9",
+    "provenance_sha256": "25004fd60862e545ceb20d22a6bf0774a3b46024ff5c0fc4d8759a5280ae9b9d"
+  },
+  "targeted_run": {
+    "case": "core2-imu",
+    "status": "PASS",
+    "summary_sha256": "bc126c9a4e006c8e0dba3d6d700eae4105950bb8830e71a1af8df53c34a8f345",
+    "boundary": "Separate diagnostic rerun. Never combined with full-r1 into a 67/67 full PASS."
+  },
+  "blocker": "Full-r1 Core2 IMU frame marker black despite expected guest serial samples. Isolated rerun green; exact scheduling/render ordering cause not established. Full clean regression gate remains open.",
+  "hardware_execution": "NOT RUN"
+}

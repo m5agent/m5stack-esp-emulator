@@ -1,0 +1,1746 @@
+{
+  "390": {
+    "canvas": [
+      17,
+      39,
+      372,
+      499
+    ],
+    "baseline_overlap_pairs": [
+      [
+        "grove",
+        "grove/grove-1"
+      ],
+      [
+        "grove",
+        "grove/grove-2"
+      ],
+      [
+        "grove",
+        "grove/grove-3"
+      ],
+      [
+        "grove/grove-1",
+        "grove/grove-2"
+      ],
+      [
+        "grove/grove-2",
+        "grove/grove-3"
+      ]
+    ],
+    "candidate_overlap_pairs": [],
+    "candidate_housings": [
+      {
+        "id": "host",
+        "bounds": [
+          175.69716791594558,
+          255.98406000856278,
+          300.8651631854436,
+          380.472352239206
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 202,
+        "size_px": [
+          125.167995269498,
+          124.4882922306432
+        ]
+      },
+      {
+        "id": "grove",
+        "bounds": [
+          88.13483681455642,
+          281.0691414460904,
+          144.63840009896592,
+          355.0965560613114
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 52,
+        "size_px": [
+          56.503563284409495,
+          74.027414615221
+        ]
+      },
+      {
+        "id": "grove/grove-1",
+        "bounds": [
+          79.1711928512994,
+          117.72774774321151,
+          135.7762727282558,
+          192.85464464346248
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 38,
+        "size_px": [
+          56.60507987695641,
+          75.12689690025097
+        ]
+      },
+      {
+        "id": "grove/grove-2",
+        "bounds": [
+          166.96395114117095,
+          117.72774774321151,
+          222.26647604731147,
+          192.82556755490035
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          55.30252490614052,
+          75.09781981168884
+        ]
+      },
+      {
+        "id": "grove/grove-3",
+        "bounds": [
+          253.47253365240095,
+          117.72774774321151,
+          309.8288071487006,
+          192.8255677134184
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          56.35627349629965,
+          75.09781997020688
+        ]
+      }
+    ],
+    "neighbor_gaps_px": [
+      31.187678412915147,
+      31.206057605089484
+    ],
+    "protected_boxes": [
+      {
+        "path": "lcd",
+        "kind": "display",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          189.8002494418054,
+          267.7361027148856,
+          287.4818541518911,
+          341.91882990818874
+        ]
+      },
+      {
+        "path": "usb",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          175.52251348523092,
+          307.5676265566168,
+          177.90150665797594,
+          327.11610980171235
+        ]
+      },
+      {
+        "path": "grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          175.51939867267637,
+          337.4036251800307,
+          177.96709565109455,
+          360.3871546990402
+        ]
+      },
+      {
+        "path": "grove/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          104.82244285156726,
+          351.6690193694574,
+          128.48052654026833,
+          354.90793709452265
+        ]
+      },
+      {
+        "path": "grove/grove-1",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          92.69815886826758,
+          293.98894982783213,
+          104.42479017173213,
+          317.09743568849774
+        ]
+      },
+      {
+        "path": "grove/grove-1/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          95.45480706717925,
+          190.34288463712798,
+          119.35611251955386,
+          193.51770776948553
+        ]
+      },
+      {
+        "path": "grove/grove-2",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          109.98787821736595,
+          293.98894982783213,
+          121.67617605634089,
+          317.09743568849774
+        ]
+      },
+      {
+        "path": "grove/grove-2/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          183.1317287299705,
+          189.7697796413363,
+          206.09793331727144,
+          192.90861347282998
+        ]
+      },
+      {
+        "path": "grove/grove-3",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          127.2775975664643,
+          293.98894982783213,
+          138.92756194094963,
+          317.09743568849774
+        ]
+      },
+      {
+        "path": "grove/grove-3/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          269.5727593013049,
+          189.77088368348473,
+          293.36990259108944,
+          192.90970542217008
+        ]
+      },
+      {
+        "path": "power",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          176.57248721523678,
+          281.4448598954318,
+          180.28727510594118,
+          294.49958723209886
+        ]
+      },
+      {
+        "path": "reset",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          264.65491465989487,
+          373.8076841682652,
+          281.4908391359063,
+          379.22343998548456
+        ]
+      }
+    ],
+    "cable_mating": [
+      {
+        "path": "grove/grove-1/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 0,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-2/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 7.119291619286993e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-3/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 4.440892098500626e-16,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 1.7763568394002505e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      }
+    ],
+    "cards": [
+      {
+        "port": "grove/grove-1",
+        "anchor": "grove/grove-1/sensor",
+        "bounds": [
+          29,
+          564.578125,
+          360,
+          707.9375
+        ],
+        "fields": [
+          {
+            "field": "temperature-c",
+            "text": "18.75 °C",
+            "font": "16px"
+          },
+          {
+            "field": "humidity-pct",
+            "text": "45.5 %RH",
+            "font": "16px"
+          },
+          {
+            "field": "pressure-pa",
+            "text": "103200 Pa",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-2",
+        "anchor": "grove/grove-2/sensor",
+        "bounds": [
+          29,
+          715.9375,
+          360,
+          806.515625
+        ],
+        "fields": [
+          {
+            "field": "distance-mm",
+            "text": "382 mm",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-3",
+        "anchor": "grove/grove-3/sensor",
+        "bounds": [
+          29,
+          814.515625,
+          360,
+          984.265625
+        ],
+        "fields": [
+          {
+            "field": "clear-raw",
+            "text": "1700 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "red-raw",
+            "text": "430 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "green-raw",
+            "text": "530 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "blue-raw",
+            "text": "740 raw16",
+            "font": "16px"
+          }
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "path": "grove/grove-1/sensor",
+        "point": [
+          107.7421693338581,
+          155.6472116477089
+        ]
+      },
+      {
+        "path": "grove/grove-2/sensor",
+        "point": [
+          194.61419902079606,
+          155.6035409608963
+        ]
+      },
+      {
+        "path": "grove/grove-3/sensor",
+        "point": [
+          281.4058440190682,
+          155.60463899839027
+        ]
+      },
+      {
+        "path": "grove/sensor",
+        "point": [
+          116.9572458459358,
+          317.4957631294214
+        ]
+      }
+    ]
+  },
+  "768": {
+    "canvas": [
+      17,
+      39,
+      750,
+      499
+    ],
+    "baseline_overlap_pairs": [
+      [
+        "grove",
+        "grove/grove-1"
+      ],
+      [
+        "grove",
+        "grove/grove-2"
+      ],
+      [
+        "grove",
+        "grove/grove-3"
+      ],
+      [
+        "grove/grove-1",
+        "grove/grove-2"
+      ],
+      [
+        "grove/grove-2",
+        "grove/grove-3"
+      ]
+    ],
+    "candidate_overlap_pairs": [],
+    "candidate_housings": [
+      {
+        "id": "host",
+        "bounds": [
+          359.24681677300936,
+          252.21114733819542,
+          520.6970871288593,
+          412.7846900677178
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 202,
+        "size_px": [
+          161.4502703558499,
+          160.5735427295224
+        ]
+      },
+      {
+        "id": "grove",
+        "bounds": [
+          246.30291287114076,
+          284.46218625604195,
+          319.62061403557607,
+          380.0532466616381
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 52,
+        "size_px": [
+          73.3177011644353,
+          95.59106040559618
+        ]
+      },
+      {
+        "id": "grove/grove-1",
+        "bounds": [
+          234.74098972836364,
+          73.87866749313982,
+          308.14574414081727,
+          171.29032017206814
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 38,
+        "size_px": [
+          73.40475441245363,
+          97.41165267892832
+        ]
+      },
+      {
+        "id": "grove/grove-2",
+        "bounds": [
+          347.9821144317456,
+          73.87866749313982,
+          419.3151063697678,
+          171.2424366339841
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          71.33299193802225,
+          97.3637691408443
+        ]
+      },
+      {
+        "id": "grove/grove-3",
+        "bounds": [
+          459.1817085067862,
+          73.87866749313982,
+          532.2590102716364,
+          171.24243689505656
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          73.07730176485018,
+          97.36376940191674
+        ]
+      }
+    ],
+    "neighbor_gaps_px": [
+      39.8363702909283,
+      39.86660213701839
+    ],
+    "protected_boxes": [
+      {
+        "path": "lcd",
+        "kind": "display",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          377.43829036106746,
+          267.36983298136107,
+          503.4274290367561,
+          363.0502625917976
+        ]
+      },
+      {
+        "path": "usb",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          359.12650165184925,
+          318.44217118668166,
+          362.2213883111884,
+          343.6407015044172
+        ]
+      },
+      {
+        "path": "grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          359.1213634573647,
+          356.5931474267674,
+          362.3290587784653,
+          386.37743133913835
+        ]
+      },
+      {
+        "path": "grove/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          268.0345939222682,
+          375.0952673013967,
+          298.77232647451115,
+          379.6117869100837
+        ]
+      },
+      {
+        "path": "grove/grove-1",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          252.17208108735525,
+          301.21589895555775,
+          267.3745174078457,
+          331.04736637161136
+        ]
+      },
+      {
+        "path": "grove/grove-1/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          255.75909958025437,
+          167.55407977560162,
+          286.90458336065535,
+          171.96957328968864
+        ]
+      },
+      {
+        "path": "grove/grove-2",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          274.4764209250068,
+          301.21589895555775,
+          289.6151040803951,
+          331.04736637161136
+        ]
+      },
+      {
+        "path": "grove/grove-2/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          368.8505239240169,
+          166.90169586302503,
+          398.4454250894009,
+          171.25532919006227
+        ]
+      },
+      {
+        "path": "grove/grove-3",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          296.7807607626583,
+          301.21589895555775,
+          311.8556907529446,
+          331.04736637161136
+        ]
+      },
+      {
+        "path": "grove/grove-3/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          479.9361733337509,
+          166.90311862519258,
+          510.9065543790128,
+          171.2567319329073
+        ]
+      },
+      {
+        "path": "power",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          360.4269425336026,
+          284.92698059223005,
+          365.31049883627276,
+          301.818464481904
+        ]
+      },
+      {
+        "path": "reset",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          473.39319573735395,
+          403.29561868033437,
+          495.3600533309859,
+          410.7344630489014
+        ]
+      }
+    ],
+    "cable_mating": [
+      {
+        "path": "grove/grove-1/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 0,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-2/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 7.119291619286993e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-3/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 4.440892098500626e-16,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 1.7763568394002505e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      }
+    ],
+    "cards": [
+      {
+        "port": "grove/grove-1",
+        "anchor": "grove/grove-1/sensor",
+        "bounds": [
+          29,
+          564.578125,
+          379.5,
+          707.9375
+        ],
+        "fields": [
+          {
+            "field": "temperature-c",
+            "text": "18.75 °C",
+            "font": "16px"
+          },
+          {
+            "field": "humidity-pct",
+            "text": "45.5 %RH",
+            "font": "16px"
+          },
+          {
+            "field": "pressure-pa",
+            "text": "103200 Pa",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-2",
+        "anchor": "grove/grove-2/sensor",
+        "bounds": [
+          387.5,
+          564.578125,
+          738,
+          707.9375
+        ],
+        "fields": [
+          {
+            "field": "distance-mm",
+            "text": "382 mm",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-3",
+        "anchor": "grove/grove-3/sensor",
+        "bounds": [
+          29,
+          715.9375,
+          379.5,
+          885.6875
+        ],
+        "fields": [
+          {
+            "field": "clear-raw",
+            "text": "1700 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "red-raw",
+            "text": "430 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "green-raw",
+            "text": "530 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "blue-raw",
+            "text": "740 raw16",
+            "font": "16px"
+          }
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "path": "grove/grove-1/sensor",
+        "point": [
+          271.8910373416672,
+          123.17815285040305
+        ]
+      },
+      {
+        "path": "grove/grove-2/sensor",
+        "point": [
+          383.6469266907683,
+          123.10587275341237
+        ]
+      },
+      {
+        "path": "grove/grove-3/sensor",
+        "point": [
+          495.31171233741014,
+          123.10728555922137
+        ]
+      },
+      {
+        "path": "grove/sensor",
+        "point": [
+          283.90954946233694,
+          331.2845416301702
+        ]
+      }
+    ]
+  },
+  "1024": {
+    "canvas": [
+      17,
+      39,
+      456,
+      459
+    ],
+    "baseline_overlap_pairs": [
+      [
+        "grove",
+        "grove/grove-1"
+      ],
+      [
+        "grove",
+        "grove/grove-2"
+      ],
+      [
+        "grove",
+        "grove/grove-3"
+      ],
+      [
+        "grove/grove-1",
+        "grove/grove-2"
+      ],
+      [
+        "grove/grove-2",
+        "grove/grove-3"
+      ]
+    ],
+    "candidate_overlap_pairs": [],
+    "candidate_housings": [
+      {
+        "id": "host",
+        "bounds": [
+          214.35578922753027,
+          233.67104756965668,
+          361.76690563939326,
+          380.28167354009014
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 202,
+        "size_px": [
+          147.411116411863,
+          146.61062597043346
+        ]
+      },
+      {
+        "id": "grove",
+        "bounds": [
+          111.23309436060678,
+          263.117648320734,
+          178.17534324987378,
+          350.3964426041043
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 52,
+        "size_px": [
+          66.94224888926699,
+          87.2787942833703
+        ]
+      },
+      {
+        "id": "grove/grove-1",
+        "bounds": [
+          100.67655583894071,
+          70.8457398850407,
+          167.6982881285723,
+          159.78681407014915
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 38,
+        "size_px": [
+          67.02173228963159,
+          88.94107418510845
+        ]
+      },
+      {
+        "id": "grove/grove-2",
+        "bounds": [
+          204.07062622028943,
+          70.8457398850407,
+          269.20074929413585,
+          159.7430943179855
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          65.13012307384642,
+          88.89735443294481
+        ]
+      },
+      {
+        "id": "grove/grove-3",
+        "bounds": [
+          305.60069037576125,
+          70.8457398850407,
+          372.3234441610593,
+          159.743094556356
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          66.72275378529804,
+          88.8973546713153
+        ]
+      }
+    ],
+    "neighbor_gaps_px": [
+      36.372338091717126,
+      36.3999410816254
+    ],
+    "protected_boxes": [
+      {
+        "path": "lcd",
+        "kind": "display",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          230.9653955470616,
+          247.51158663515577,
+          345.9989569466034,
+          334.871978888163
+        ]
+      },
+      {
+        "path": "usb",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          214.24593629081892,
+          294.1428519530572,
+          217.07170237108502,
+          317.1502057214244
+        ]
+      },
+      {
+        "path": "grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          214.2412448958547,
+          328.97635199835287,
+          217.17001018903355,
+          356.1706981792133
+        ]
+      },
+      {
+        "path": "grove/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          131.07506401598397,
+          345.86959188388397,
+          159.13995025933627,
+          349.993370657033
+        ]
+      },
+      {
+        "path": "grove/grove-1",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          116.59190012323742,
+          278.4145164376831,
+          130.47238545933737,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-1/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          119.86700396458008,
+          156.37546414294061,
+          148.30418480755492,
+          160.40700169928095
+        ]
+      },
+      {
+        "path": "grove/grove-2",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          136.95673214891926,
+          278.4145164376831,
+          150.77900807340427,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-2/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          223.12439140888503,
+          155.77980926624025,
+          250.14582290771386,
+          159.75486578223078
+        ]
+      },
+      {
+        "path": "grove/grove-3",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          157.32156417460112,
+          278.4145164376831,
+          171.0856306874712,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-3/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          324.55041913081607,
+          155.78110830995846,
+          352.8277235634464,
+          159.75614654743708
+        ]
+      },
+      {
+        "path": "power",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          215.43329535676756,
+          263.5420257581231,
+          219.89219458964035,
+          278.96468496173844
+        ]
+      },
+      {
+        "path": "reset",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          318.5763961080188,
+          371.6177387950879,
+          338.63309217176976,
+          378.40972713160556
+        ]
+      }
+    ],
+    "cable_mating": [
+      {
+        "path": "grove/grove-1/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 0,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-2/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 7.119291619286993e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-3/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 4.440892098500626e-16,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 1.7763568394002505e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      }
+    ],
+    "cards": [
+      {
+        "port": "grove/grove-1",
+        "anchor": "grove/grove-1/sensor",
+        "bounds": [
+          29,
+          524.578125,
+          444,
+          667.9375
+        ],
+        "fields": [
+          {
+            "field": "temperature-c",
+            "text": "18.75 °C",
+            "font": "16px"
+          },
+          {
+            "field": "humidity-pct",
+            "text": "45.5 %RH",
+            "font": "16px"
+          },
+          {
+            "field": "pressure-pa",
+            "text": "103200 Pa",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-2",
+        "anchor": "grove/grove-2/sensor",
+        "bounds": [
+          29,
+          675.9375,
+          444,
+          766.515625
+        ],
+        "fields": [
+          {
+            "field": "distance-mm",
+            "text": "382 mm",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-3",
+        "anchor": "grove/grove-3/sensor",
+        "bounds": [
+          29,
+          774.515625,
+          444,
+          944.265625
+        ],
+        "fields": [
+          {
+            "field": "clear-raw",
+            "text": "1700 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "red-raw",
+            "text": "430 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "green-raw",
+            "text": "530 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "blue-raw",
+            "text": "740 raw16",
+            "font": "16px"
+          }
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "path": "grove/grove-1/sensor",
+        "point": [
+          134.59616452934833,
+          115.85831347210714
+        ]
+      },
+      {
+        "path": "grove/grove-2/sensor",
+        "point": [
+          236.6341504567884,
+          115.79231860094173
+        ]
+      },
+      {
+        "path": "grove/grove-3/sensor",
+        "point": [
+          338.58895474285276,
+          115.79360855407168
+        ]
+      },
+      {
+        "path": "grove/sensor",
+        "point": [
+          145.56958863952502,
+          305.8684945318945
+        ]
+      }
+    ]
+  },
+  "1440": {
+    "canvas": [
+      17,
+      39,
+      456,
+      459
+    ],
+    "baseline_overlap_pairs": [
+      [
+        "grove",
+        "grove/grove-1"
+      ],
+      [
+        "grove",
+        "grove/grove-2"
+      ],
+      [
+        "grove",
+        "grove/grove-3"
+      ],
+      [
+        "grove/grove-1",
+        "grove/grove-2"
+      ],
+      [
+        "grove/grove-2",
+        "grove/grove-3"
+      ]
+    ],
+    "candidate_overlap_pairs": [],
+    "candidate_housings": [
+      {
+        "id": "host",
+        "bounds": [
+          214.35578922753027,
+          233.67104756965668,
+          361.76690563939326,
+          380.28167354009014
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 202,
+        "size_px": [
+          147.411116411863,
+          146.61062597043346
+        ]
+      },
+      {
+        "id": "grove",
+        "bounds": [
+          111.23309436060678,
+          263.117648320734,
+          178.17534324987378,
+          350.3964426041043
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 52,
+        "size_px": [
+          66.94224888926699,
+          87.2787942833703
+        ]
+      },
+      {
+        "id": "grove/grove-1",
+        "bounds": [
+          100.67655583894071,
+          70.8457398850407,
+          167.6982881285723,
+          159.78681407014915
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 38,
+        "size_px": [
+          67.02173228963159,
+          88.94107418510845
+        ]
+      },
+      {
+        "id": "grove/grove-2",
+        "bounds": [
+          204.07062622028943,
+          70.8457398850407,
+          269.20074929413585,
+          159.7430943179855
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          65.13012307384642,
+          88.89735443294481
+        ]
+      },
+      {
+        "id": "grove/grove-3",
+        "bounds": [
+          305.60069037576125,
+          70.8457398850407,
+          372.3234441610593,
+          159.743094556356
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "meshCount": 20,
+        "size_px": [
+          66.72275378529804,
+          88.8973546713153
+        ]
+      }
+    ],
+    "neighbor_gaps_px": [
+      36.372338091717126,
+      36.3999410816254
+    ],
+    "protected_boxes": [
+      {
+        "path": "lcd",
+        "kind": "display",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          230.9653955470616,
+          247.51158663515577,
+          345.9989569466034,
+          334.871978888163
+        ]
+      },
+      {
+        "path": "usb",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          214.24593629081892,
+          294.1428519530572,
+          217.07170237108502,
+          317.1502057214244
+        ]
+      },
+      {
+        "path": "grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          214.2412448958547,
+          328.97635199835287,
+          217.17001018903355,
+          356.1706981792133
+        ]
+      },
+      {
+        "path": "grove/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          131.07506401598397,
+          345.86959188388397,
+          159.13995025933627,
+          349.993370657033
+        ]
+      },
+      {
+        "path": "grove/grove-1",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          116.59190012323742,
+          278.4145164376831,
+          130.47238545933737,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-1/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          119.86700396458008,
+          156.37546414294061,
+          148.30418480755492,
+          160.40700169928095
+        ]
+      },
+      {
+        "path": "grove/grove-2",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          136.95673214891926,
+          278.4145164376831,
+          150.77900807340427,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-2/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          223.12439140888503,
+          155.77980926624025,
+          250.14582290771386,
+          159.75486578223078
+        ]
+      },
+      {
+        "path": "grove/grove-3",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          157.32156417460112,
+          278.4145164376831,
+          171.0856306874712,
+          305.6519432088625
+        ]
+      },
+      {
+        "path": "grove/grove-3/grove",
+        "kind": "port",
+        "interactive": false,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          324.55041913081607,
+          155.78110830995846,
+          352.8277235634464,
+          159.75614654743708
+        ]
+      },
+      {
+        "path": "power",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          215.43329535676756,
+          263.5420257581231,
+          219.89219458964035,
+          278.96468496173844
+        ]
+      },
+      {
+        "path": "reset",
+        "kind": "button",
+        "interactive": true,
+        "method": "own component geometry; excludes attached module subtree",
+        "bounds": [
+          318.5763961080188,
+          371.6177387950879,
+          338.63309217176976,
+          378.40972713160556
+        ]
+      }
+    ],
+    "cable_mating": [
+      {
+        "path": "grove/grove-1/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 0,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-2/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 7.119291619286993e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/grove-3/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 4.440892098500626e-16,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      },
+      {
+        "path": "grove/cable",
+        "sourceErrorMm": 0,
+        "targetErrorMm": 1.7763568394002505e-15,
+        "sourceAngleRad": 0,
+        "targetAngleRad": 0,
+        "coveredComponents": {
+          "lcd": 0,
+          "power": 0,
+          "reset": 0
+        }
+      }
+    ],
+    "cards": [
+      {
+        "port": "grove/grove-1",
+        "anchor": "grove/grove-1/sensor",
+        "bounds": [
+          29,
+          524.578125,
+          444,
+          667.9375
+        ],
+        "fields": [
+          {
+            "field": "temperature-c",
+            "text": "18.75 °C",
+            "font": "16px"
+          },
+          {
+            "field": "humidity-pct",
+            "text": "45.5 %RH",
+            "font": "16px"
+          },
+          {
+            "field": "pressure-pa",
+            "text": "103200 Pa",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-2",
+        "anchor": "grove/grove-2/sensor",
+        "bounds": [
+          29,
+          675.9375,
+          444,
+          766.515625
+        ],
+        "fields": [
+          {
+            "field": "distance-mm",
+            "text": "382 mm",
+            "font": "16px"
+          }
+        ]
+      },
+      {
+        "port": "grove/grove-3",
+        "anchor": "grove/grove-3/sensor",
+        "bounds": [
+          29,
+          774.515625,
+          444,
+          944.265625
+        ],
+        "fields": [
+          {
+            "field": "clear-raw",
+            "text": "1700 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "red-raw",
+            "text": "430 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "green-raw",
+            "text": "530 raw16",
+            "font": "16px"
+          },
+          {
+            "field": "blue-raw",
+            "text": "740 raw16",
+            "font": "16px"
+          }
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "path": "grove/grove-1/sensor",
+        "point": [
+          134.59616452934833,
+          115.85831347210714
+        ]
+      },
+      {
+        "path": "grove/grove-2/sensor",
+        "point": [
+          236.6341504567884,
+          115.79231860094173
+        ]
+      },
+      {
+        "path": "grove/grove-3/sensor",
+        "point": [
+          338.58895474285276,
+          115.79360855407168
+        ]
+      },
+      {
+        "path": "grove/sensor",
+        "point": [
+          145.56958863952502,
+          305.8684945318945
+        ]
+      }
+    ]
+  }
+}

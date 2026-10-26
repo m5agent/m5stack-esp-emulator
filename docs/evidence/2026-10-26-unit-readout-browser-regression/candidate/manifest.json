@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "category": "unpromoted-unit-readout-rail-candidate",
+  "frozen_at": "2026-10-25T20:36:19.479323+00:00",
+  "promoted": false,
+  "product_source_modified_by_candidate": false,
+  "base_source_sha256": {
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/unit-panel.js": "8b917825e13ed0c9be9b2a781aca5d7c5d7f49be006cdf026a509ded9afcf688",
+    "platform/web/unit-panel.css": "2ad7daff50fbe818d9b7c78625a5f744445c2827c1f39819301b627e22aad72f"
+  },
+  "base_drift": {
+    "platform/web/model-shell.js": false,
+    "platform/web/unit-panel.js": false,
+    "platform/web/unit-panel.css": false
+  },
+  "candidate_files": {
+    "platform/web/model-shell.js": "ce31caf07cc8f39d1ad7b51623fd1183f0deade42ef1bfae5d38784866304a7a",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-panel.css": "88d26958b317ede6e30759eb7d92932a81eba7ebeeb18b68a6753a556985b6eb",
+    "platform/web/unit-panel.js": "351644deb266ffa68bad7eb767c02feca93ba32dd8671b30a930a8e3e6a137b7"
+  },
+  "patches": {
+    "candidate.patch": "b091eb4638c08921726a559d2e6392489be174abb2206ce7c71f8c8af4778b87",
+    "shell-and-rail.patch": "abaa7147fc4cd40429f547d6f6abb14fdb658a7ca3435674c0ce49b956b604c2",
+    "panel-glue.patch": "5d588adbfa3063d26536ebad83e335d1f9cb1185d93fccef6bdc3df5b491b983"
+  },
+  "browser_test": {
+    "file": "browser-only.mjs",
+    "sha256": "e73a65ab6341f9901612c0ea0a0ef9b24a7cfcf58aad5c779210ee16d58b4324"
+  },
+  "browser_result": {
+    "file": "rail-browser-only-results-5/report.json",
+    "sha256": "d39a977daf9cbf75f7544c59f407da8ee1b6020416e618c7c45e11133574ce42",
+    "status": "PASS",
+    "checks": 15
+  },
+  "visual_review": {
+    "file": "visual-review.json",
+    "sha256": "8c70d934df5d292feb655e4ebd5dfc8c78ea81a41da239ee282525b4aba33b0c",
+    "readout_placement_status": "PASS",
+    "overall_scene_status": "PARTIAL",
+    "open_boundary": "UNIT-HOST-15 existing nested assembly overlap"
+  },
+  "token_audit": {
+    "file": "rail-token-audit.json",
+    "sha256": "60e071115b97804520a45c105600f4565a1525994778a498bbc8bb12b96b3158",
+    "issues": 0
+  },
+  "p2_continuity": {
+    "file": "p2-continuity.json",
+    "sha256": "90d2806e59d24b971d319bfb4562f933820d66df4055467fbb30945ab654ff9a",
+    "unchanged_methods": 7
+  },
+  "design": {
+    "file": "DESIGN.md",
+    "sha256": "7f0adf12929b23e10ffbba197f3bca4deaac4bb368edb655e9da1b842126358d"
+  },
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN"
+}

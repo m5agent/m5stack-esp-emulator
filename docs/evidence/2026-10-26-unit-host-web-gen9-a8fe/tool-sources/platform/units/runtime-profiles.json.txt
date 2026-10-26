@@ -1,0 +1,1648 @@
+{
+  "schema_version": 1,
+  "units": {
+    "env-iii": {
+      "status": "implemented",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        }
+      },
+      "state": {
+        "temperature-c": {
+          "property": "temperature-c"
+        },
+        "humidity-pct": {
+          "property": "humidity-pct"
+        },
+        "pressure-pa": {
+          "property": "pressure-pa"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+        "report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609",
+        "evidence_sha256": "e716be571cac956ec0d34092eb467597d308afb27e934ce22edebf942091e74d",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      },
+      "host_validation": {
+        "atoms3r": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "sticks3": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "stopwatch": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        }
+      }
+    },
+    "pir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "motion": {
+          "property": "motion"
+        }
+      },
+      "state": {
+        "motion": {
+          "property": "motion"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+        "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+        "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "ultrasonic-i2c": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+        "report_sha256": "f80d5ab03773e837fa7c34306472623f8b2c15c8b1636c9cd5ee719dc29f4ef1",
+        "evidence_sha256": "e66a78e60a1ef75ea5c7caa895b5221af55dc4cf1b955e3deb5540297a0589a2",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "rgb": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {},
+      "state": {
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+        "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+        "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "angle": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "voltage-mv": {
+          "property": "voltage-mv"
+        }
+      },
+      "state": {
+        "voltage-mv": {
+          "property": "voltage-mv"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "0f5698216b15f8b492a660f2378e4474c6c7b374494b7016b27939aa9725e286",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+        "report_sha256": "032536a141000e72ac532df106f7c85b3f29f5e91e36fc9b0dda0132c2acc2e9",
+        "evidence_sha256": "7aefc5af1e2a5a3e04b7c5ad22c5ddef34f7fd1fb49f8766dab282f3dadd9012",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "color": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "clear-raw": {
+          "property": "clear-raw"
+        },
+        "red-raw": {
+          "property": "red-raw"
+        },
+        "green-raw": {
+          "property": "green-raw"
+        },
+        "blue-raw": {
+          "property": "blue-raw"
+        }
+      },
+      "state": {
+        "clear-raw": {
+          "property": "clear-raw"
+        },
+        "red-raw": {
+          "property": "red-raw"
+        },
+        "green-raw": {
+          "property": "green-raw"
+        },
+        "blue-raw": {
+          "property": "blue-raw"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+        "report_sha256": "5185ff4642e9cb4443a4576e58206a5b52b10573bba79895d12b381a33c7cd9a",
+        "evidence_sha256": "94e67034f75420299f7004c8dae3d82d9e3773f350ca86b28bc6b366301ff4ab",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "tof": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "distance-mm": {
+          "property": "distance-mm"
+        }
+      },
+      "state": {
+        "distance-mm": {
+          "property": "distance-mm"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+        "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+        "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "light": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        }
+      },
+      "state": {
+        "analog-mv": {
+          "property": "analog-mv"
+        },
+        "digital-level": {
+          "property": "digital-level"
+        },
+        "adc-samples": {
+          "property": "adc-samples"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "581b50329cdc854a7cfaee5fd5b8ca2637e96cf05c1c19066f176fa1c8c9337e",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/light/report.json",
+        "report_sha256": "1f01d560c4af783c0f36820effa93f958d93cc5266fdc544b24032799d40fbe9",
+        "evidence_sha256": "1a3c75a0324c4b4724fbf7e0d4e9e7a0c2a1e313a57286a7aba812890cf51374",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "relay": {
+      "status": "implemented",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {},
+      "state": {
+        "output-level": {
+          "property": "output-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+        "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+        "evidence_sha256": "185cb5989db63a65c3f84b7c0c1587a94a3e3fad806d761244951a98ef43440d",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      },
+      "host_validation": {
+        "atoms3r": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "sticks3": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "stopwatch": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        }
+      }
+    },
+    "joystick-v11": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        }
+      },
+      "state": {
+        "x-raw": {
+          "property": "x-raw"
+        },
+        "y-raw": {
+          "property": "y-raw"
+        },
+        "button-raw": {
+          "property": "button-raw"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "23a1f02ff98b5061071bf662e5b4bbf7d6ae93604dfe3cf5d65d23a1dd2bc3f8",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/joystick-v11/report.json",
+        "report_sha256": "8e5738904ba049484e9b53f8fc09668f9d5ed666bbcfcfc4daee7da32eab7576",
+        "evidence_sha256": "6cf4bfb984e00f0f113625cc6d94df85115048743caede8b4f23f5267e52ef22",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "dual-button": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "red-pressed": {
+          "property": "red-pressed"
+        },
+        "blue-pressed": {
+          "property": "blue-pressed"
+        }
+      },
+      "state": {
+        "red-pressed": {
+          "property": "red-pressed"
+        },
+        "blue-pressed": {
+          "property": "blue-pressed"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "7d454d17fd7fbb68a48c73bc9581be6ab53a51910699a7018e61ad4a62db8df9",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/dual-button/report.json",
+        "report_sha256": "d0079097e2aa4422fb960ae6731efaa2a15758fda4c0b3e0f9aaa52c8adc0f69",
+        "evidence_sha256": "202b46c874055d1f40f003800ce3306be0e1242fa3472f61c9aa4291c80fd110",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "button": {
+      "status": "implemented",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "input-level": {
+          "property": "input-level"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+        "report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0",
+        "evidence_sha256": "798d3876cc2915f5efdee477652c4e32eaf6c739cff4fe28d26bfe6711cfc3b7",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      },
+      "host_validation": {
+        "atoms3r": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "sticks3": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        },
+        "stopwatch": {
+          "status": "NOT RUN",
+          "scope": "Admission staged for device-local validation; CoreS3 evidence is not inherited."
+        }
+      }
+    },
+    "ncir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "ambient-c": {
+          "property": "ambient-c"
+        },
+        "object-c": {
+          "property": "object-c"
+        }
+      },
+      "state": {
+        "ambient-c": {
+          "property": "ambient-c"
+        },
+        "object-c": {
+          "property": "object-c"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+        "report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a",
+        "evidence_sha256": "bf23aa8205c1049c5488bb2d9edf8054eb7d7e3c517bcee332a0b504c0aa7be0",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "heart": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "ir-sample": {
+          "property": "ir-sample"
+        },
+        "red-sample": {
+          "property": "red-sample"
+        }
+      },
+      "state": {
+        "ir-sample": {
+          "property": "ir-sample"
+        },
+        "red-sample": {
+          "property": "red-sample"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+        "report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f",
+        "evidence_sha256": "69dce7487e18d126df94fc7b3a0b5195c82f9d957849e2beff2d486be7381046",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "encoder": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "counter": {
+          "property": "counter"
+        },
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "counter": {
+          "property": "counter"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "mode": {
+          "property": "mode"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "647a81e674791956a54ff9910c7567e95c8923a0794a25846ea68c60c8af5707",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/encoder/report.json",
+        "report_sha256": "35155e4e22d819ac0a24706c16dfb60d167bbb5dc79fa4b45c0cf7d112db1046",
+        "evidence_sha256": "3e9a724a20b1994f176901580aa72a1f72dc09414366ab8751c6ac3c515ae512",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "thermal": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "eeprom-hex": {
+          "property": "eeprom-hex"
+        },
+        "frame0-hex": {
+          "property": "frame0-hex"
+        },
+        "frame1-hex": {
+          "property": "frame1-hex"
+        },
+        "control-word": {
+          "property": "control-word"
+        }
+      },
+      "state": {
+        "eeprom-hex": {
+          "property": "eeprom-hex"
+        },
+        "frame0-hex": {
+          "property": "frame0-hex"
+        },
+        "frame1-hex": {
+          "property": "frame1-hex"
+        },
+        "control-word": {
+          "property": "control-word"
+        },
+        "raw-fixture-ready": {
+          "property": "raw-fixture-ready"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "676a607d6bb8cf76e47a461d338d23dc62cc3d4f573778959f666066658cca8c",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/thermal/report.json",
+        "report_sha256": "588297e3a669f7e2a12d2310331b7a2a7fdae53c76f4c4a07d7b5bf78193845e",
+        "evidence_sha256": "ae79aadf8aeae84f1761a819317b55451c7bccfae0a82e407efb3fd901fe59b4",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "tvoc": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "eco2-ppm": {
+          "property": "eco2-ppm"
+        },
+        "tvoc-ppb": {
+          "property": "tvoc-ppb"
+        },
+        "raw-h2": {
+          "property": "raw-h2"
+        },
+        "raw-ethanol": {
+          "property": "raw-ethanol"
+        }
+      },
+      "state": {
+        "eco2-ppm": {
+          "property": "eco2-ppm"
+        },
+        "tvoc-ppb": {
+          "property": "tvoc-ppb"
+        },
+        "raw-h2": {
+          "property": "raw-h2"
+        },
+        "raw-ethanol": {
+          "property": "raw-ethanol"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "samples-generated": {
+          "property": "samples-generated",
+          "path": "/chip"
+        },
+        "crc-errors": {
+          "property": "crc-errors",
+          "path": "/chip"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+        "report_sha256": "dfb26af771be109f21034ce41d137dc1e85ad398baf912bdd29627cfd5816ee9",
+        "evidence_sha256": "15772b4cfa6fdb5527ce977cea05a26988573d47497ae4815497e82c29cac97d",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "ir": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "The original UIFlow2 IR wrapper callback remains unstable under GC; the recorded PASS requires the explicitly labelled custom callback-root patch. Other host/firmware paths and physical IR behaviour remain unvalidated.",
+      "inputs": {
+        "rx-pulses-us": {
+          "property": "rx-pulses-us"
+        }
+      },
+      "state": {
+        "rx-pulses-us": {
+          "property": "rx-pulses-us"
+        },
+        "tx-pulses-us": {
+          "property": "tx-pulses-us"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "61717ec53987187d1ec67545e833d57ecd3e4ff1b5b63101080a74d9a4300868",
+        "firmware_flavor": "custom-guest-ir-callback-root-patch",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/ir/report.json",
+        "report_sha256": "8f9a1dd957d3be2d084e8bcd1336c3d216a6a848467f423a0e9a122b959eda6c",
+        "evidence_sha256": "d477f6392a6c3d13ae59cb188f587e150e07eb5f143203d67080abccdd3273b1",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN",
+        "ir_callback_patch": {
+          "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+          "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+          "driver_path": "io_drivers/ir.py",
+          "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+          "patched_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+          "original_driver_unchanged": true,
+          "native_module_modified": false,
+          "scope": "Custom guest wrapper keeps its nested native callback reachable from self; no QEMU or native parser change."
+        }
+      },
+      "original_driver_compatibility": {
+        "status": "OPEN",
+        "report": "docs/evidence/2026-10-26-unit-io-final/ir-callback-root-comparison.json"
+      }
+    },
+    "hub": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {},
+      "state": {
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "5fca91b7115e1035540aeba56fc0cb79a31c789dc310ff830b5250c64d71ddc1",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+        "report_sha256": "22caa9654bdb8f424b0d1bb033de00d82a2fe0bad6bbe3e3a80b13aaf65d7f02",
+        "evidence_sha256": "7fd44b8e0200cb95ecc5a479c1f4f2313105ad7cdbdad6b32836d186352f0442",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "rfid2": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "card-present": {
+          "property": "card-present"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "card-data-hex": {
+          "property": "card-data-hex"
+        }
+      },
+      "state": {
+        "card-present": {
+          "property": "card-present"
+        },
+        "uid-hex": {
+          "property": "uid-hex"
+        },
+        "card-data-hex": {
+          "property": "card-data-hex"
+        },
+        "selected": {
+          "property": "selected"
+        },
+        "authenticated": {
+          "property": "authenticated"
+        },
+        "fifo-level": {
+          "property": "fifo-level"
+        },
+        "card-reads": {
+          "property": "card-reads"
+        },
+        "card-writes": {
+          "property": "card-writes"
+        },
+        "command-errors": {
+          "property": "command-errors"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "5540f2774de344edbde136d200d7f6b1a525fddc16b310f685ca3d3df3b90f4c",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rfid2/report.json",
+        "report_sha256": "63295d26db12901d78c21fa4c8a886a19c48e8acffd476ef5dda8afcdae65efa",
+        "evidence_sha256": "7480768a09731b75b332b123f992636f3d4d1256006882863167ea3a71c5ef18",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "rs485": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "rx-hex": {
+          "property": "rx-hex"
+        }
+      },
+      "state": {
+        "rx-hex": {
+          "property": "rx-hex"
+        },
+        "tx-hex": {
+          "property": "tx-hex"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "69b58693b1523aca682a0dc84103cec54b346bdff66b6dd3c4bc33c9d41854f8",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/rs485/report.json",
+        "report_sha256": "48ca454ecaa3ef97ab0efe75f9e01bd48a1849851d2ce02c2c6c62d49cd183ea",
+        "evidence_sha256": "25acc429e7a8226cf029e475d97218db500cd694094e0ae663099799b06052fe",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "buzzer": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {},
+      "state": {
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "duty-pct": {
+          "property": "duty-pct"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "d06e243cb5575daacd43cdfe02fe0c45d5ccdd1aa25988b17566696370f8b911",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/buzzer/report.json",
+        "report_sha256": "faa367f93298c417fda615f45aeab1f140b275ee7bdbf9020f2d0001386f22ae",
+        "evidence_sha256": "c6166e9eed590cab663782e1282d3be7bb3c4cb0ca57965b3f7c23e348183ca3",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "fan": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {},
+      "state": {
+        "duty-pct": {
+          "property": "duty-pct"
+        },
+        "frequency-hz": {
+          "property": "frequency-hz"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "4dcfff91e39fb5420b9fec3312be2236855db3ac57bc528b709e7059770de615",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/fan/report.json",
+        "report_sha256": "27931c994d75f0a4cac3a5253594dac37b9536008a6a8c78f5745a3b56e1ce13",
+        "evidence_sha256": "a88ed47dffe737600d75262deb0f14f931b3b68c380684d31ada562458fae856",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "limit": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "6ca87eee44b7b467e7b12958c3e6d81fbea784a7158957ffa91aed2a1bbe40c9",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/limit/report.json",
+        "report_sha256": "0f82bcc5d98de5002f1ff1aa0e5152c3d76423b0f16926a3488ed94e9ad88442",
+        "evidence_sha256": "bda03a822811b42539d17c261b9d1accf817703671f9397e746dad70f0eee7a0",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "cardkb": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        }
+      },
+      "state": {
+        "keycode": {
+          "property": "keycode"
+        },
+        "keys": {
+          "property": "keys"
+        },
+        "key-ids": {
+          "property": "key-ids"
+        },
+        "queued-keys": {
+          "property": "queued-keys"
+        },
+        "modifier-mode": {
+          "property": "modifier-mode"
+        },
+        "key-overflows": {
+          "property": "key-overflows"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/cardkb/report.json",
+        "report_sha256": "e2f3ae9aa963904838e0d8d87154f85a72bea93b1a631c25959f047759b8a403",
+        "evidence_sha256": "8e2162a2122e65f590c856c9cdacbf2c938a18c8c3003e85a483accf87e63f0f",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "key": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "pressed": {
+          "property": "pressed"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "input-level": {
+          "property": "input-level"
+        },
+        "led-frames": {
+          "property": "led-frames"
+        },
+        "incomplete-frames": {
+          "property": "incomplete-frames"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "1b437be4008af99e015aea2fe9282a00519d4730d6213e082f062a20b4215bbd",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/key/report.json",
+        "report_sha256": "012c02e1e17c36e646452d799e6c9bc89dad594a6ac9f908b526b4e73dc9de2f",
+        "evidence_sha256": "efa24854e8f992c20c97378bec0e427b45e23c9a574e361eaa1e90cccf190fd1",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 8,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    },
+    "8encoder": {
+      "status": "implemented",
+      "hosts": [
+        "cores3"
+      ],
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "inputs": {
+        "counters": {
+          "property": "counters"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "switch-on": {
+          "property": "switch-on"
+        }
+      },
+      "state": {
+        "counters": {
+          "property": "counters"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "switch-on": {
+          "property": "switch-on"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "increments": {
+          "property": "increments"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "firmware_sha256": "b48ab0c95b8519ed2146ead739794af53e4ab34dd2a2beef447ce80c9c021c0a",
+        "firmware_flavor": "reference-app-with-original-unit-drivers",
+        "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/8encoder/report.json",
+        "report_sha256": "9d7e14cb640317feb34f13861d3557aea909cf511bfd8ceeba60c2d62752b5cb",
+        "evidence_sha256": "f974f5ef05eba462a3b088ce8a5184acc12b9e4385a021ecc79e296bf1817474",
+        "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+        "runtime_proof_kind": "direct-pid",
+        "worker_generation": 7,
+        "live_browser": "PASS",
+        "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+        "hardware": "NOT RUN"
+      }
+    }
+  }
+}

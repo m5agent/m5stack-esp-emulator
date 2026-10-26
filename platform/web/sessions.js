@@ -1,3 +1,6 @@
+import { createDeviceShell } from './device-shell-factory.js?v=20261026a';
+import { createUnitPanel, createUnitPicker } from './unit-panel.js';
+
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const THREE_PREVIEW_LIMIT = 4;
 const FRAME_INTERVAL_MS = 125;
@@ -16,6 +19,7 @@ const state = {
   busy: false,
   showHistory: false,
   frameLoopStarted: false,
+  unitPicker: null,
 };
 
 const $ = id => document.getElementById(id);
@@ -99,8 +103,19 @@ class SessionVisual {
     this.destroyed = false;
     this.allowThree = allowThree;
     this.threeAttempted = false;
+    this.shellGeneration = 0;
+    this.shellLoading = false;
     this.placeholder = framePlaceholder(session);
     this.container.innerHTML = `<span class="no-frame">${escapeHtml(this.placeholder)}</span>`;
+    const unitContainer = this.container.closest('.session-card')?.querySelector('[data-unit-panel]');
+    if (unitContainer) {
+      createUnitPanel(unitContainer, { session, shell: null, api }).then(panel => {
+        if (this.destroyed) { panel.dispose(); return; }
+        this.unitPanel = panel;
+        panel.updateSession(this.session);
+        if (this.shell) panel.setShell(this.shell);
+      }).catch(error => console.warn('Unit panel initialization failed.', error));
+    }
     this.init().catch(error => {
       console.warn('Session preview initialization failed.', error);
       this.setMessage(this.placeholder);
@@ -109,6 +124,7 @@ class SessionVisual {
 
   updateSession(session) {
     this.session = session;
+    this.unitPanel?.updateSession(session);
     if (!ACTIVE_STATES.has(session.state)) this.releaseActiveControls();
     if (!this.frameBlob && !this.shell) {
       this.placeholder = framePlaceholder(session);
@@ -117,7 +133,19 @@ class SessionVisual {
   }
 
   setThreeAllowed(allowThree) {
+    const changed = this.allowThree !== allowThree;
     this.allowThree = allowThree;
+    if (changed && !allowThree) {
+      this.shellGeneration += 1;
+      this.threeAttempted = false;
+      this.releaseActiveControls();
+      this.unitPanel?.setShell(null);
+      this.shell?.dispose();
+      this.shell = null;
+      this.container.classList.remove('is-three');
+      if (this.frameBlob) this.setGenericFrame(this.frameBlob);
+      else this.setMessage(this.placeholder);
+    }
     if (allowThree && !this.threeAttempted) {
       this.init().catch(error => {
         console.warn('Session preview initialization failed.', error);
@@ -127,7 +155,8 @@ class SessionVisual {
   }
 
   async init() {
-    if (!this.allowThree || this.threeAttempted) return;
+    if (!this.allowThree || this.threeAttempted || this.shellLoading) return;
+    const generation = ++this.shellGeneration;
     this.threeAttempted = true;
     const catalogPath = state.devicePaths.get(this.session.device_id);
     if (!catalogPath) {
@@ -144,21 +173,31 @@ class SessionVisual {
       profile = await response.json();
       state.deviceProfiles.set(this.session.device_id, profile);
     }
-    const renderer = profile.shell?.renderer;
-    if (this.destroyed || !['sticks3-three', 'cores3-three'].includes(renderer)) return;
+    if (this.destroyed || !this.allowThree || generation !== this.shellGeneration) return;
+    this.shellLoading = true;
+    // Constructors and disposal may replace their host's children. Give each
+    // load its own detached mount so a stale result never touches a new owner.
+    const mount = document.createElement('div');
+    mount.style.width = '100%';
+    mount.style.height = '100%';
+    mount.style.minWidth = '0';
+    mount.style.minHeight = '0';
+    let shell = null;
     try {
-      const module = renderer === 'cores3-three'
-        ? await import('/platform/web/cores3-viewer.js?v=20261022e')
-        : await import('/platform/web/sticks3-viewer.js?v=20261022e');
-      const Shell = renderer === 'cores3-three'
-        ? module.CoreS3ThreeShell
-        : module.StickS3ThreeShell;
-      if (this.destroyed) return;
-      this.container.replaceChildren();
+      shell = await createDeviceShell(mount, profile, { live: true });
+      if (this.destroyed || !this.allowThree || generation !== this.shellGeneration) { shell.dispose?.(); return; }
+      this.container.replaceChildren(mount);
       this.container.classList.add('is-three');
-      this.shell = new Shell(this.container, profile);
+      this.shell = shell;
+      this.unitPanel?.setShell(shell);
       this.shell.setViewMode('shell');
       this.shell.on('control', event => this.handleControl(event));
+      this.shell.on('unit-input', event => this.unitPanel?.handleInput(event));
+      this.shell.on('reset', () => {
+        if (this.session.state !== 'running') return;
+        api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/reset`, { method: 'POST' })
+          .catch(error => console.warn('Session reset failed.', error));
+      });
       this.shell.on('touch', ({ x, y, action }) => {
         if (action !== 'start' || this.session.state !== 'running') return;
         api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
@@ -167,13 +206,28 @@ class SessionVisual {
           body: JSON.stringify({ kind: 'touch', x, y, settle_seconds: 0.05 }),
         }).catch(error => console.warn('Session touch injection failed.', error));
       });
+      this.shell.setDeviceState?.(state.deviceStates.get(this.session.session_id));
       if (this.frameBlob) await this.applyThreeFrame();
     } catch (error) {
+      if (shell) {
+        if (this.shell === shell) {
+          this.unitPanel?.setShell(null);
+          this.shell = null;
+        }
+        try { shell.dispose?.(); }
+        catch (cleanupError) { console.warn('Session shell cleanup failed.', cleanupError); }
+      }
+      if (this.destroyed || !this.allowThree || generation !== this.shellGeneration || this.shell) return;
       console.warn('3D session preview unavailable; using the framebuffer image.', error);
-      this.shell = null;
       this.container.classList.remove('is-three');
       this.setMessage(this.placeholder);
       if (this.frameBlob) this.setGenericFrame(this.frameBlob);
+    } finally {
+      this.shellLoading = false;
+      if (!this.destroyed && this.allowThree && !this.shell && generation !== this.shellGeneration) {
+        this.threeAttempted = false;
+        this.init().catch(error => console.warn('Session preview retry failed.', error));
+      }
     }
   }
 
@@ -220,9 +274,9 @@ class SessionVisual {
     return id === 'power' ? 'p' : id;
   }
 
-  handleControl({ id, down }) {
+  handleControl({ id, key: runtimeKey, down }) {
     if (this.session.state !== 'running') return;
-    const key = this.controlKey(id);
+    const key = runtimeKey || this.controlKey(id);
     if (down) {
       this.activeControls.add(key);
       clearTimeout(this.controlReleaseTimers.get(key));
@@ -271,6 +325,7 @@ class SessionVisual {
   destroy() {
     this.destroyed = true;
     this.releaseActiveControls();
+    this.unitPanel?.dispose();
     this.shell?.dispose();
     this.shell = null;
     if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
@@ -311,6 +366,7 @@ function createSessionCard(session, allowThree) {
         <span><small>Gyro</small><strong data-runtime="gyro">—</strong></span>
       </div>
       <div class="session-runtime-note" data-field="runtime-note" hidden></div>
+      <div data-unit-panel></div>
       <div class="session-actions">
         <button class="btn" data-action="wait" type="button">等待运行</button>
         <button class="btn" data-action="renew" type="button">续期</button>
@@ -437,6 +493,8 @@ async function loadCatalog() {
   state.devices = payload.devices || [];
   state.devicePaths = new Map(catalog.devices.map(device => [device.id, device.path]));
   renderDevices();
+  state.unitPicker?.dispose();
+  state.unitPicker = await createUnitPicker($('unitPicker'), { api, deviceId: $('deviceSelect').value });
 }
 
 async function refreshSessions() {
@@ -549,6 +607,7 @@ async function refreshDeviceState(session) {
       `/api/v1/sessions/${encodeURIComponent(session.session_id)}/device-state`
     );
     state.deviceStates.set(session.session_id, payload);
+    state.visuals.get(session.session_id)?.shell?.setDeviceState?.(payload);
     const card = document.querySelector(`[data-session-id="${session.session_id}"]`);
     if (card) updateDeviceStateUi(card, payload, session);
   } catch (error) {
@@ -613,6 +672,8 @@ async function createSession() {
   const ttl = Number($('ttlInput').value || 600);
   if (!deviceId) return;
   const payload = { device_id: deviceId, ttl_seconds: ttl };
+  const units = state.unitPicker?.attachments() || [];
+  if (units.length) payload.units = units;
   if (deviceId === 'tab5') {
     payload.ready_marker = 'TAB5_UI_DRAWN';
     payload.ready_timeout_seconds = 240;
@@ -671,6 +732,9 @@ $('saveTokenBtn').addEventListener('click', () => {
 });
 
 $('createBtn').addEventListener('click', createSession);
+$('deviceSelect').addEventListener('change', () => {
+  state.unitPicker?.loadDevice($('deviceSelect').value).catch(error => showError(error.message));
+});
 $('refreshBtn').addEventListener('click', refreshSessions);
 $('historyBtn').addEventListener('click', () => {
   state.showHistory = !state.showHistory;
@@ -712,6 +776,7 @@ async function init() {
 }
 
 window.addEventListener('beforeunload', () => {
+  state.unitPicker?.dispose();
   for (const visual of state.visuals.values()) visual.destroy();
 });
 

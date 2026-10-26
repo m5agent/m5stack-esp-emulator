@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -31,9 +31,13 @@
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
+| P1 | Unit 外设集成 | 固定版本主机外壳、官方芯片协议、主机总线接线和 Web 双向状态 | 视觉模型和寄存器实现不能替代同 guest 的数据面证据 |
 | P2 | CardputerZero | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 ## 当前执行顺序
+
+用户新增的 `UNIT-01` 在独立工作树并行推进，避免阻断主线现有调查；实现契约
+见 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)。
 
 1. `RUNTIME-03`：Core2 shared board bus 已修正；继续隔离 legacy UIFlow
    启动期长同步路径与 QEMU 虚拟时间/宿主调度的交互。
@@ -62,6 +66,7 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
+| `UNIT-01` | 进行中 | 同步最新主线后，优先补外部 Agent 的 UIFlow 源码提交→可见 session/多 Unit→实时读写控制闭环；执行新三主机 IO，保留 ADC/Thermal/HUB、原 IR/Buzzer、PWM 初始化 QOM/完整回归、Heart 和视觉缺口 | 新固件重新验证；全批逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时
@@ -258,9 +263,9 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 
 ### UI-01
 
-当前缺口：StopWatch 是唯一参考质量外壳，CoreS3/StickS3 有专门 renderer；
-其余设备仍是通用近似外壳。每台设备需要结构尺寸、面板开孔、材质、hitbox
-和截图阈值。
+当前缺口：14 款主机已接入固定版本模型外壳，加载失败时保留原 renderer
+回退；StopWatch 仍是唯一参考质量外壳。模型接入不替代逐设备结构尺寸、
+面板开孔、材质、hitbox 和截图阈值的保真验收。
 
 ## P2：CardputerZero
 

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "category": "root-observed-tool-result",
+  "status": "PASS",
+  "device_id": "stopwatch",
+  "runner_exit_code": 0,
+  "recorded_at_utc": "2026-10-25T22:13:06.495608+00:00",
+  "scope": "Root records an actual completed unified-exec tool result. This is not a new wrapper-emitted or kernel process observation.",
+  "tool_result_reference": {
+    "tool": "tools.write_stdin",
+    "session_id": 26164,
+    "chunk_id": "763a04",
+    "observed_exit_code": 0,
+    "raw_result": {
+      "path": ".work/unit-control-display-stop5-observed-tool-result-20261026.json",
+      "sha256": "21860d25114002e2a6953dddebcefc47591b847d85a502961264c8e617f55379"
+    }
+  },
+  "summary": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/summary.json",
+    "sha256": "b575863cecda7917b17123305b0231944bd97efeaa6f66fd0edda483e2c804d3"
+  },
+  "source_before": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/source-before.json",
+    "sha256": "0f3623c629fda7d6194650ac34a62dfc43707a0e50a6f02b83980c3cf76f28b6"
+  },
+  "history_receipt": {
+    "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/post-execution-history/receipt.json",
+    "sha256": "c858f9b0f0152f0a73d0e8f5d4716b4b4ecacf02978488ef83cd9d2fa70b8410"
+  },
+  "execution_wrapper": {
+    "path": ".work/unit-host-control-display-candidate-20261026/execute_control_display.py",
+    "sha256": "83431e8e300ec5fa43adb8712570a24e44e734c50760545462ef8aafd2cd2158"
+  },
+  "reports": {
+    "joystick-v11": {
+      "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/joystick-v11/report.json",
+      "sha256": "5dd9bb6fff6cb62d7740677b40741291d26c4e30b3dafe929b4c86396f4e33d7"
+    },
+    "encoder": {
+      "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/encoder/report.json",
+      "sha256": "188c5998ef0b6860da6be8b587abd8f36f9714dec4fc3c4d404d41a89d6311b4"
+    },
+    "8encoder": {
+      "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/8encoder/report.json",
+      "sha256": "cac639f8d068c80f5e606964740dcaeaf9328b8fff4b3f6bb21c3270fb20482a"
+    },
+    "cardkb": {
+      "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/cardkb/report.json",
+      "sha256": "1d102baff97a1aa003dae0501d9643e155e6f0f11be91bf5af3c6f7bb539376b"
+    },
+    "rfid2": {
+      "path": ".work/unit-control-display-stop5-gen9-a8fe-20261026-r1/stopwatch/rfid2/report.json",
+      "sha256": "d63e9823e9b31919361f3b93c29ed623a91b242f8fc0d3b249260e0c87231c19"
+    }
+  }
+}

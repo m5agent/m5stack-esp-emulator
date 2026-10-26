@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "category": "virtual-device-validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "unit_id": "cardkb",
+  "port_id": "port-a",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "firmware_sha256": "851912852b3a86be8dd665c9574a43616f429f95ae5349591843d317eef62f48",
+  "probe_sha256": {
+    "control_drivers/__init__.py": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "control_drivers/cardkb.py": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377",
+    "control_drivers/encoder.py": "703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255",
+    "control_drivers/encoder8.py": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+    "control_drivers/joystick.py": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "control_drivers/mfrc522/__init__.py": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+    "control_drivers/mfrc522/cmd.py": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+    "control_drivers/mfrc522/firmware.py": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+    "control_drivers/mfrc522/reg.py": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+    "control_drivers/pahub.py": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+    "control_drivers/unit_helper.py": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "main.py": "3338be4c7aa0a2c3228c139d1d983446d9dc07279b4601dde0f037d17596c531",
+    "probe_config.py": "7ee0ac2926263c020a7649e2cd40b0b7cd0bdfe6a3b3ab7efd10647a98f3b6b8"
+  },
+  "checks": {
+    "exact_official_driver_ready": true,
+    "all_47_nonmodifier_keys_via_i2c": true,
+    "all_three_one_shot_modifiers": true,
+    "all_four_official_key_tables_and_modifier_locks": true,
+    "legacy_byte_consumption": true,
+    "same_guest_i2c_controller_counters": true,
+    "stopped_with_history": true
+  },
+  "session_id": "841f6c6233264934b657941b3a260bc2",
+  "unit_state": {
+    "session_id": "841f6c6233264934b657941b3a260bc2",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-25T19:06:36.003544+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "cardkb",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "keycode": 0,
+          "keys": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "key-ids": [
+            "esc",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+            "backspace",
+            "tab",
+            "q",
+            "w",
+            "e",
+            "r",
+            "t",
+            "y",
+            "u",
+            "i",
+            "o",
+            "p",
+            "fn",
+            "shift",
+            "a",
+            "s",
+            "d",
+            "f",
+            "g",
+            "h",
+            "j",
+            "k",
+            "l",
+            "enter",
+            "sym",
+            "z",
+            "x",
+            "c",
+            "v",
+            "b",
+            "n",
+            "m",
+            "comma",
+            "period",
+            "space",
+            "up",
+            "left",
+            "right",
+            "down"
+          ],
+          "queued-keys": 0,
+          "modifier-mode": 0,
+          "key-overflows": 0,
+          "led-rgb": 0,
+          "transactions": 22334,
+          "read-bytes": 22331,
+          "written-bytes": 1,
+          "input-events": 413,
+          "output-transitions": 15,
+          "i2c-address": 95
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "cardkb",
+        "name": "CardKB v1.1",
+        "sku": "U035-B",
+        "visual_asset": {
+          "entry": "src/units/cardkb/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/Unit_CardKB_v1.1",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "ATmega8A",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            95
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "CardKB v1.1 uses I2C address 0x5F and a key-code byte stream. Product documents 50 keys, shift/sym/fn transformations and one status RGB LED. The current shared driver also supports newer report-mode devices; that v2 path is not inherited by this v1.1 product.",
+          "registers": [
+            {
+              "legacy_v1_1": "readfrom(0x5F,1): 0 means no key; nonzero is a key code",
+              "newer_shared_driver": "The current driver also probes 0xF1 and supports v2 report mode; v2 is not asserted for U035-B."
+            }
+          ],
+          "gaps": [
+            "Keyboard matrix, modifier-lock behavior and consume-on-read/empty semantics require matching v1.1 firmware evidence; do not inherit new CardKB v2 report registers."
+          ]
+        },
+        "inputs": {
+          "keycode": {
+            "type": "integer",
+            "label": "键码",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw8",
+            "minimum": 0,
+            "maximum": 255,
+            "readOnly": false
+          },
+          "keys": {
+            "type": "array",
+            "label": "50个物理键",
+            "items": {
+              "type": "boolean"
+            },
+            "minItems": 50,
+            "maxItems": 50,
+            "readOnly": false,
+            "order_source": "fixtures/cardkb-keymap.json"
+          }
+        },
+        "outputs": {
+          "led-rgb": {
+            "type": "integer",
+            "label": "修饰键状态灯",
+            "unit": "rgb24",
+            "minimum": 0,
+            "maximum": 16777215,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/Unit_CardKB_v1.1",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/cardkb.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "8ef7fb3c6d8fcb20e621427d42fe3756352792bcbe23165a36b444d40566a377"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/806/Unit_CardKB_v1_1_User_Manual_EN.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "planned",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3"
+          ],
+          "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+          "inputs": {
+            "keycode": {
+              "property": "keycode"
+            },
+            "keys": {
+              "property": "keys"
+            }
+          },
+          "state": {
+            "keycode": {
+              "property": "keycode"
+            },
+            "keys": {
+              "property": "keys"
+            },
+            "key-ids": {
+              "property": "key-ids"
+            },
+            "queued-keys": {
+              "property": "queued-keys"
+            },
+            "modifier-mode": {
+              "property": "modifier-mode"
+            },
+            "key-overflows": {
+              "property": "key-overflows"
+            },
+            "led-rgb": {
+              "property": "led-rgb"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "i2c-address": {
+              "property": "i2c-address"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "5dd0aea55a699d193724fad098915f02c5374aabbd9eac367e1fb2c95049a128",
+            "report": "docs/evidence/2026-10-26-unit-controls-service/cardkb/result.json",
+            "hardware": "NOT RUN",
+            "full_unit_matrix": "NOT RUN"
+          }
+        },
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Keyboard matrix, modifier-lock behavior and consume-on-read/empty semantics require matching v1.1 firmware evidence; do not inherit new CardKB v2 report registers.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ]
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+    },
+    "contract_status": "frozen"
+  },
+  "frame_sha256": "6af2b726d3244dffdeddca89dda2ff93f2aaf86693b67da9d54cfd6704e4254c",
+  "evidence_sha256": "8e2162a2122e65f590c856c9cdacbf2c938a18c8c3003e85a483accf87e63f0f"
+}

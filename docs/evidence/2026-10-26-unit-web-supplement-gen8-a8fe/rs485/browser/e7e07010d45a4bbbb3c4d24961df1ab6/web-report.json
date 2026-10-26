@@ -1,0 +1,3429 @@
+{
+  "schema_version": 1,
+  "category": "real-product-unit-web-transport",
+  "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+  "firmware_sha256": "69b58693b1523aca682a0dc84103cec54b346bdff66b6dd3c4bc33c9d41854f8",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rs485",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "opened_at": "2026-10-25T19:26:55.406Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/sessions.html": "0b80da6bdf7dad2ba5c11bc34ebb8b4c8781d6047ef54d8a2d73c9793b6a7e24",
+    "platform/web/unit-panel.js": "42910b1822912b0e1b3032824edb99c44e78eaab5bb8ee6ff34ccb36045f2c27",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/web/device-shell-factory.js": "57cbb42d68f5471ba8897ffa390f5078377e1d76543181d01a9d8d677dd2c804",
+    "platform/tests/unit_web_bridge.mjs": "6e0cc20e47db83c73f254a92a66ac3dfb84580aaad4f97bd2a0e8eedf854cccc",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  },
+  "prepared_at": "2026-10-25T19:26:55.294Z",
+  "session_created_at": "2026-10-25T19:26:55.369011+00:00",
+  "browser_version": "156.0.8078.48",
+  "hardware_execution": "NOT RUN",
+  "instrumentation": "Appends a read-only reference to existing sessions module objects; no API/function behavior replacement. Inputs use fill/Tab, checkbox, mouse, or trusted browser touch contacts.",
+  "actions": [
+    {
+      "at": "2026-10-25T19:27:13.286Z",
+      "instance": "external1",
+      "field": "rx-hex",
+      "kind": "fill-and-tab",
+      "value": "706565722d746f2d6775657374007fff",
+      "request": {
+        "id": "external1",
+        "values": {
+          "rx-hex": "706565722d746f2d6775657374007fff"
+        }
+      },
+      "response_status": 200
+    }
+  ],
+  "posts": [
+    {
+      "at": "2026-10-25T19:27:13.285Z",
+      "method": "POST",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/unit-input",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:13.278152+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 16,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      },
+      "request": {
+        "id": "external1",
+        "values": {
+          "rx-hex": "706565722d746f2d6775657374007fff"
+        }
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "at": "2026-10-25T19:27:09.307Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:08.294256+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:11.700Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:11.682352+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:12.209Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:12.206422+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:12.714Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:12.711757+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:13.224Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:13.218425+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:13.731Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:13.726860+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:14.243Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:14.233277+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:14.748Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:14.745784+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    },
+    {
+      "at": "2026-10-25T19:27:15.253Z",
+      "method": "GET",
+      "path": "/api/v1/sessions/e7e07010d45a4bbbb3c4d24961df1ab6/units",
+      "status": 200,
+      "response": {
+        "session_id": "e7e07010d45a4bbbb3c4d24961df1ab6",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-25T19:27:15.250416+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rs485",
+            "name": "RS485",
+            "sku": "U034",
+            "visual_asset": {
+              "entry": "src/units/rs485/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rs485",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "MAX485 / SP485EEN",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "uart-rs485",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "Unit UART_RX / host TX",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "Unit UART_TX / host RX",
+                  "direction": "unit-to-host"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "TTL/UART to differential RS485 transceiver. Official driver sends host UART TX over yellow and receives on white (UIFlow tuple white,yellow); default init helper is 9600 8N1. Unit protocol bytes depend on the connected peer; no generic fixed Modbus address is implied.",
+              "registers": [],
+              "gaps": [
+                "Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.",
+                "Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes."
+              ]
+            },
+            "inputs": {
+              "rx-hex": {
+                "type": "string",
+                "label": "对端发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": false,
+                "maxLength": 8192
+              }
+            },
+            "outputs": {
+              "tx-hex": {
+                "type": "string",
+                "label": "主机发送字节",
+                "default": "",
+                "default_source": "synthetic-test-fixture",
+                "pattern": "^(?:[0-9A-Fa-f]{2})*$",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rs485",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rs485.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/SP485EEN_en.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "planned",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3"
+              ],
+              "blocker": "Controller model is compiled; same-guest and Web validation are pending",
+              "inputs": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                }
+              },
+              "state": {
+                "rx-hex": {
+                  "property": "rx-hex"
+                },
+                "tx-hex": {
+                  "property": "tx-hex"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              }
+            },
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Product lists external DC12V input and red wire 5V; exact power direction/regulation and automatic direction-control timing need schematic confirmation.; Electrical differential voltage, bus termination and collision behavior are not inferred from UART bytes.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ]
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "649a051e61e219ec38e07fa49121c93a9484e00b1fb38e87f2e80c01662c702d"
+        },
+        "contract_status": "frozen"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "at": "2026-10-25T19:27:12.242Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:12.747Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:13.256Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 16,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:13.319Z",
+      "phase": "after-ui-input",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 16,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:13.764Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "37",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:14.277Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "37",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:14.782Z",
+      "phase": "observed-units",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "37",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T19:27:15.286Z",
+      "phase": "before-evidence",
+      "session_state": "running",
+      "units": [
+        {
+          "instance": "external1",
+          "readback": {
+            "id": "external1",
+            "unit_id": "rs485",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "rx-hex": "706565722d746f2d6775657374007fff",
+              "tx-hex": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "transactions": 0,
+              "read-bytes": 16,
+              "written-bytes": 37,
+              "input-events": 1,
+              "output-transitions": 0
+            },
+            "errors": {}
+          },
+          "values": [
+            {
+              "field": "rx-hex",
+              "source": "输入 fixture",
+              "text": "706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "tx-hex",
+              "source": "固件输出观测",
+              "text": "67756573742d746f2d70656572007fff6563686f3a706565722d746f2d6775657374007fff",
+              "rgb": []
+            },
+            {
+              "field": "transactions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            },
+            {
+              "field": "read-bytes",
+              "source": "控制器状态",
+              "text": "16",
+              "rgb": []
+            },
+            {
+              "field": "written-bytes",
+              "source": "控制器状态",
+              "text": "37",
+              "rgb": []
+            },
+            {
+              "field": "input-events",
+              "source": "控制器状态",
+              "text": "1",
+              "rgb": []
+            },
+            {
+              "field": "output-transitions",
+              "source": "控制器状态",
+              "text": "0",
+              "rgb": []
+            }
+          ],
+          "mounted_port": "grove",
+          "components": [
+            {
+              "path": "grove/grove",
+              "kind": "port",
+              "state": {
+                "connector": "grove",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/sensor",
+              "kind": "component",
+              "state": {}
+            },
+            {
+              "path": "grove/terminal",
+              "kind": "port",
+              "state": {
+                "connector": "ht3.96-4p",
+                "module": null
+              }
+            },
+            {
+              "path": "grove/unitFrame",
+              "kind": "unit-frame",
+              "state": {
+                "position": [
+                  0,
+                  50.65,
+                  -1.4
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "space": "module-port",
+                "inputPort": "grove"
+              }
+            },
+            {
+              "path": "grove/cable",
+              "kind": "cable",
+              "state": {
+                "slack": 10,
+                "bend": [
+                  0,
+                  0,
+                  -1
+                ],
+                "faceDistanceMm": 35,
+                "curveLengthMm": 34.20950536243909,
+                "source": {
+                  "position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "outward": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                "target": {
+                  "position": [
+                    0,
+                    35,
+                    0
+                  ],
+                  "quaternion": [
+                    0,
+                    0,
+                    1,
+                    6.123233995736766e-17
+                  ],
+                  "outward": [
+                    -1.2246467991473532e-16,
+                    -1,
+                    0
+                  ]
+                },
+                "wireCount": 4,
+                "plugCount": 2,
+                "space": "module-port"
+              }
+            }
+          ],
+          "dom_matches_product_readback": true,
+          "readback_matches_real_http_response": true,
+          "verified_visual_commands": []
+        }
+      ],
+      "screenshot": "007-before-evidence.png"
+    }
+  ],
+  "errors": [],
+  "first_product_session_state": "running",
+  "closed_at": "2026-10-25T19:27:15.686Z"
+}

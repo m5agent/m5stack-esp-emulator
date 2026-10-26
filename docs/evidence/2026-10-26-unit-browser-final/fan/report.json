@@ -1,0 +1,94 @@
+{
+  "category": "virtual-device-browser-drive-activity",
+  "status": "PASS",
+  "captured_at": "2026-10-25T17:43:37.064Z",
+  "unit_id": "fan",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_sha256": "a7c9ea03b4c700a0eba523ec13ebeeab488cafae0c42c21fe3a3866272bdae18",
+  "shaft_speed": "UNMODELED",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/sessions.js": "806c31be38fc1bb211c82936083ef3af0a6fb8fa82bfe1c0896a122b319542c8",
+    "platform/web/unit-panel.js": "7d9fe1b33cc910ec3f933f4dd62ac42dc1d68bf3b29f4190941e27cff87bb3dc",
+    "platform/web/unit-panel.css": "7defd11694f390ed77f220cd06f5eb2ab9ecb8ac39773e5d66be3a2fc3a2b0b7",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/web/model-shell.js": "2b47101d2179c02174541174941b8634ccbbd2f212904b33831459115ab44bfe",
+    "platform/tests/test_unit_fan_service_browser.mjs": "e17479f0d3bf0ae94c8f21ae80a3cafb9d041864d36ee9fa3eef10c522b32179"
+  },
+  "checks": {
+    "observed_guest_pwm_enables_graphical_activity": true,
+    "zero_pwm_stops_graphical_activity": true,
+    "evidence_before_stop": true,
+    "terminal_state_stops_or_disposes_graphical_activity": true,
+    "stopped_with_history": true
+  },
+  "page_errors": [],
+  "session_id": "61b997cb2ab9433d8f5067cb8badcd3a",
+  "browser_version": "156.0.8078.48",
+  "active_observations": [
+    {
+      "available": true,
+      "properties": {
+        "duty-pct": 29.39453125,
+        "frequency-hz": 1000,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 11
+      },
+      "active": true,
+      "angle": 2.97,
+      "rpmState": 0
+    },
+    {
+      "available": true,
+      "properties": {
+        "duty-pct": 29.39453125,
+        "frequency-hz": 1000,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 11
+      },
+      "active": true,
+      "angle": 5.976000000000131,
+      "rpmState": 0
+    }
+  ],
+  "zero_duty_observations": [
+    {
+      "available": true,
+      "properties": {
+        "duty-pct": 0,
+        "frequency-hz": 1000,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 19
+      },
+      "active": false,
+      "angle": 335.7359999999981,
+      "rpmState": 0
+    },
+    {
+      "available": true,
+      "properties": {
+        "duty-pct": 0,
+        "frequency-hz": 1000,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 19
+      },
+      "active": false,
+      "angle": 335.7359999999981,
+      "rpmState": 0
+    }
+  ],
+  "evidence_sha256": "d08d88a725ccf500569770ca9641b36b5a66d2e53963de0311122dca35903647"
+}

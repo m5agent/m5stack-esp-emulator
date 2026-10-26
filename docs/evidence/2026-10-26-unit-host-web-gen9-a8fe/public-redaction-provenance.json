@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-25T19:52:36.446130+00:00",
+  "source_execution_summary_sha256": "3af0af00ce997e5fe48034d8314f33fda0cd4df9ec8b98eee0e5a1262d90a3b4",
+  "scope": "Internal originals remain unchanged. Firmware/ROM/Flash/eFuse binaries excluded. Evidence ZIP and raw controller JSON are byte-identical.",
+  "text_redactions": [
+    {
+      "file": "controller/atoms3r/button/runner.stdout.txt",
+      "source_sha256": "0e218b7fb28f073d408b1930766b610198109ef2ddf8135cdf99b168e59c377e",
+      "archived_sha256": "6243eb6c3fbb3b3eb5eec8e7d47a6f58b8290b11a53ab026376f1790471126d0",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/atoms3r/env-iii/runner.stdout.txt",
+      "source_sha256": "b81c627fddc8e98dab81373e9c3bfee3f78f9738278d87061b71d4896e7cc47c",
+      "archived_sha256": "d4792797e53b9bdce4c428301ac743c8a814e601bb5dc736faaa7f4727a03487",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/atoms3r/relay/runner.stdout.txt",
+      "source_sha256": "3f57d0fc65f7541270bff18135894eb6bb6c32afb9cd250c2dfe0e5086931095",
+      "archived_sha256": "95eb02eec21ac63142595dc84af6545a541218729a1cb84e4c23fb79e6beaea9",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/sticks3/button/runner.stdout.txt",
+      "source_sha256": "1ea78af94b655df084711d0267627f888e81f08f6ae26ed795efda84d63f9be7",
+      "archived_sha256": "03f1a0af34592725c2271c5f8305018df459fe1022d58fef23528966f9463736",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/sticks3/env-iii/runner.stdout.txt",
+      "source_sha256": "69644c087901fb91ef6703a346493e14a9b6140ad4dc34ac4cf0e41968bb5268",
+      "archived_sha256": "8b30f2b6c9ab05d873b0ab60781bceea00cf1326af05bd5f5c94ef6a3262ac32",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/sticks3/relay/runner.stdout.txt",
+      "source_sha256": "847889e7e80b936ad7fddd99adf8a5ec61f6f7254ed28b3230a0dbe679dd89a3",
+      "archived_sha256": "5e1ce2feba458890699a8c7f878cc27bd304be5faf9a3e4f3c0d9cf37f72ae4e",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/stopwatch/button/runner.stdout.txt",
+      "source_sha256": "42872aaf4ccb158d8db78ffba761195915b4ae01beef682b0ee9b3fc10a4978f",
+      "archived_sha256": "bec336da84ab26d03c56d3ac763666ac6d62c3b22c97c636d1d420d670e87014",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/stopwatch/env-iii/runner.stdout.txt",
+      "source_sha256": "4a4ff55993cf6f1cea740d2544c40470989087d3d8437ba3f21d6f906941536f",
+      "archived_sha256": "04586bb6a74ca56dfc22efe75449c1b4c53a93cebb17bc7bfc4a0ed851921a0c",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    },
+    {
+      "file": "controller/stopwatch/relay/runner.stdout.txt",
+      "source_sha256": "3687dc1e247f0ef2a7e46e5206229b76423ae6e9f46e6398621d9cb10e13cdb6",
+      "archived_sha256": "5eb33411a4a2d36360a73020189d1950d9d479deea0fdd05f3bd314870e50bca",
+      "change": "Personal absolute repository path replaced with <repo>; no guest/controller/ZIP data changed."
+    }
+  ],
+  "derived_wrapper_changes": [
+    {
+      "file": "reports/atoms3r/button/report.json",
+      "source_sha256": "9f3707d0973874c976abfb1213ad3ba09d8efc1898bc5280f2dc90d3257d1e31",
+      "archived_sha256": "604c4fcf1b1c1e95402141de15ca05c582a49df6083a520c2ae84f7b55a36c26",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/atoms3r/relay/report.json",
+      "source_sha256": "feb94380bebfaaf0fc0be7eeb38cd8c0a99ce273bd33e159ecd5c474bd3a76ec",
+      "archived_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/atoms3r/env-iii/report.json",
+      "source_sha256": "75cc5c011b94f02dc46212355a6abbd3108dc5110b68b4c70c17c080652468fc",
+      "archived_sha256": "fdcbd5269a7365d240e3bf87f803d6d43a6188a639be003b4313cc958f250318",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/sticks3/button/report.json",
+      "source_sha256": "a38bbdefad4e673ffa9b69795f70c18ecfe53e626df29835b21329b3d5ec9109",
+      "archived_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/sticks3/relay/report.json",
+      "source_sha256": "54d842c895db667ca46b748a55942119bbddaebe9b5653a9f979365d865f43ad",
+      "archived_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/sticks3/env-iii/report.json",
+      "source_sha256": "977494ac2f13b5b8d75e56542bb5ebd91f015aa176f850687b9bcb8c40b8721b",
+      "archived_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/stopwatch/button/report.json",
+      "source_sha256": "e0d5d9c18e484ba51f98185dbaf946ec0490f9ad30c0c8599be723105b64c1bc",
+      "archived_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/stopwatch/relay/report.json",
+      "source_sha256": "4adccf67849db30f59b13394200dd730b3613d6841097bbfa2bd56af65672ce2",
+      "archived_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    },
+    {
+      "file": "reports/stopwatch/env-iii/report.json",
+      "source_sha256": "f98092530983c29612268a78dbb2d26a234b4ed59c437379f3b7d0ceb43c528f",
+      "archived_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678",
+      "change": "Only artifact_sha256 values for the disclosed redacted runner.stdout text change."
+    }
+  ]
+}
