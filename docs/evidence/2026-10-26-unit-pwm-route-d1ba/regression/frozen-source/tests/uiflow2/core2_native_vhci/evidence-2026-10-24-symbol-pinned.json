@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-vhci-ble-gatt",
+  "status": "PASS",
+  "scope": "stock UIFlow2 built-in-controller build using the native ESP32 VHCI host API, with QEMU GDB bridging HCI to an external Bumble controller and peer",
+  "firmware": {
+    "path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/image/uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "size": 16777216,
+    "public_base": "platform/.cache/firmware/core2/uiflow2.bin",
+    "public_base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "elf": ".work/uiflow2-core2-symbols/micropython.elf",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "uses_stock_internal_controller_build": true
+  },
+  "runtime": {
+    "qemu": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+    "qemu_sha256": "8342b75c8ab2ccfd23ff0303f85539fe93fe5e74fd476d4f0b902ab607061e60",
+    "gdb": "/Users/m5agent/.espressif/tools/xtensa-esp-elf-gdb/16.3_20250913/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb",
+    "gdb_bridge": "tests/uiflow2/core2_radio_probe/native_vhci_bridge.py",
+    "gdb_bridge_sha256": "52b14af13ae7cbba95da11d1294f0fbc1ed7ee55520385a0657f0cb545ed8b99",
+    "symbol_source": "pinned",
+    "controller_boundary": "ESP32 VHCI host API",
+    "external_controller": "Bumble"
+  },
+  "attempts": [
+    {
+      "status": "PASS",
+      "terminal": "peer_pass",
+      "firmware_sha256_before": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "firmware_sha256_after": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "serial_markers": {
+        "CORE2_HCI_BOOT": true,
+        "CORE2_HCI_MAIN_START": true,
+        "CORE2_HCI_BLE_READY": true,
+        "CORE2_HCI_BLE_RX": true,
+        "CORE2_HCI_BLE_ACK_SENT": true
+      },
+      "peer_markers": {
+        "BLE_BUMBLE_FOUND": true,
+        "BLE_BUMBLE_CONNECTED": true,
+        "BLE_BUMBLE_GATT_DISCOVERED": true,
+        "BLE_BUMBLE_SUBSCRIBED": true,
+        "BLE_BUMBLE_WRITE": true,
+        "BLE_BUMBLE_NOTIFICATION_OK": true,
+        "BLE_BUMBLE_PASS": true
+      },
+      "bridge_markers": {
+        "NATIVE_VHCI_BRIDGE_READY": true,
+        "NATIVE_VHCI_H2C": true,
+        "NATIVE_VHCI_C2H": true,
+        "NATIVE_VHCI_H2C 0201": true,
+        "NATIVE_VHCI_C2H 0201": true
+      },
+      "serial_sha256": "13181bce1f97c82fb1a01df126853573d9d1e578aec16dd3c4d0fd4633e20195",
+      "peer_log_sha256": "8e9dd7f00f3da1f4ad3822319ed411e8c3f2053e3355bac1a19def4dc2aac6f8",
+      "bridge_log_sha256": "919c1ccc9b3dccff7bd4200e28c86b75f3f25feba869d576225d3c3fc15f2161",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      },
+      "serial_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-1/serial.log",
+      "peer_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-1/ble-probe.log",
+      "bridge_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-1/native-vhci-gdb.log",
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 52556 (<unknown process>)\n",
+      "attempt": 1
+    },
+    {
+      "status": "PASS",
+      "terminal": "peer_pass",
+      "firmware_sha256_before": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "firmware_sha256_after": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "serial_markers": {
+        "CORE2_HCI_BOOT": true,
+        "CORE2_HCI_MAIN_START": true,
+        "CORE2_HCI_BLE_READY": true,
+        "CORE2_HCI_BLE_RX": true,
+        "CORE2_HCI_BLE_ACK_SENT": true
+      },
+      "peer_markers": {
+        "BLE_BUMBLE_FOUND": true,
+        "BLE_BUMBLE_CONNECTED": true,
+        "BLE_BUMBLE_GATT_DISCOVERED": true,
+        "BLE_BUMBLE_SUBSCRIBED": true,
+        "BLE_BUMBLE_WRITE": true,
+        "BLE_BUMBLE_NOTIFICATION_OK": true,
+        "BLE_BUMBLE_PASS": true
+      },
+      "bridge_markers": {
+        "NATIVE_VHCI_BRIDGE_READY": true,
+        "NATIVE_VHCI_H2C": true,
+        "NATIVE_VHCI_C2H": true,
+        "NATIVE_VHCI_H2C 0201": true,
+        "NATIVE_VHCI_C2H 0201": true
+      },
+      "serial_sha256": "15f1da296ef21f692bc3dc3c25e9c3edafb311c20271509f9bf1103d41af9a4f",
+      "peer_log_sha256": "cffb78421f9e221d68bbda43e4b6032f506a5935f083c4868fa6881879cec2aa",
+      "bridge_log_sha256": "9621af2849670a05b34bcaccfdd843f774e1a3f7ab4366f3f2c052fa4d7a3417",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      },
+      "serial_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-2/serial.log",
+      "peer_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-2/ble-probe.log",
+      "bridge_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-2/native-vhci-gdb.log",
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 52556 (<unknown process>)\n",
+      "attempt": 2
+    },
+    {
+      "status": "PASS",
+      "terminal": "peer_pass",
+      "firmware_sha256_before": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "firmware_sha256_after": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "serial_markers": {
+        "CORE2_HCI_BOOT": true,
+        "CORE2_HCI_MAIN_START": true,
+        "CORE2_HCI_BLE_READY": true,
+        "CORE2_HCI_BLE_RX": true,
+        "CORE2_HCI_BLE_ACK_SENT": true
+      },
+      "peer_markers": {
+        "BLE_BUMBLE_FOUND": true,
+        "BLE_BUMBLE_CONNECTED": true,
+        "BLE_BUMBLE_GATT_DISCOVERED": true,
+        "BLE_BUMBLE_SUBSCRIBED": true,
+        "BLE_BUMBLE_WRITE": true,
+        "BLE_BUMBLE_NOTIFICATION_OK": true,
+        "BLE_BUMBLE_PASS": true
+      },
+      "bridge_markers": {
+        "NATIVE_VHCI_BRIDGE_READY": true,
+        "NATIVE_VHCI_H2C": true,
+        "NATIVE_VHCI_C2H": true,
+        "NATIVE_VHCI_H2C 0201": true,
+        "NATIVE_VHCI_C2H 0201": true
+      },
+      "serial_sha256": "c9cd020a306374e723e4cd3adfc9d7ca4cc48cbf69e18b7d6470ec8320c8980c",
+      "peer_log_sha256": "9121d5bcc1163003ce1ff0b0c137044d2049498a3e1937971aa52c9c0903485c",
+      "bridge_log_sha256": "52caf2dbc56840fbe53ae6327466e48fb684ee1d0401ec198752b0631b8271bf",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      },
+      "serial_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-3/serial.log",
+      "peer_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-3/ble-probe.log",
+      "bridge_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-3/native-vhci-gdb.log",
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 52556 (<unknown process>)\n",
+      "attempt": 3
+    },
+    {
+      "status": "PASS",
+      "terminal": "peer_pass",
+      "firmware_sha256_before": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "firmware_sha256_after": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "serial_markers": {
+        "CORE2_HCI_BOOT": true,
+        "CORE2_HCI_MAIN_START": true,
+        "CORE2_HCI_BLE_READY": true,
+        "CORE2_HCI_BLE_RX": true,
+        "CORE2_HCI_BLE_ACK_SENT": true
+      },
+      "peer_markers": {
+        "BLE_BUMBLE_FOUND": true,
+        "BLE_BUMBLE_CONNECTED": true,
+        "BLE_BUMBLE_GATT_DISCOVERED": true,
+        "BLE_BUMBLE_SUBSCRIBED": true,
+        "BLE_BUMBLE_WRITE": true,
+        "BLE_BUMBLE_NOTIFICATION_OK": true,
+        "BLE_BUMBLE_PASS": true
+      },
+      "bridge_markers": {
+        "NATIVE_VHCI_BRIDGE_READY": true,
+        "NATIVE_VHCI_H2C": true,
+        "NATIVE_VHCI_C2H": true,
+        "NATIVE_VHCI_H2C 0201": true,
+        "NATIVE_VHCI_C2H 0201": true
+      },
+      "serial_sha256": "c9cd020a306374e723e4cd3adfc9d7ca4cc48cbf69e18b7d6470ec8320c8980c",
+      "peer_log_sha256": "c0722a4202d2fb90fe61c26af3828d97b881172b11c290f269bfd49ed6f77146",
+      "bridge_log_sha256": "095ce7897c64ea41b6f5c7d3030ddacb95846aeb4d0181d88bf726ad7b909a69",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      },
+      "serial_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-4/serial.log",
+      "peer_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-4/ble-probe.log",
+      "bridge_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-4/native-vhci-gdb.log",
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 52556 (<unknown process>)\n",
+      "attempt": 4
+    },
+    {
+      "status": "PASS",
+      "terminal": "peer_pass",
+      "firmware_sha256_before": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "firmware_sha256_after": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+      "serial_markers": {
+        "CORE2_HCI_BOOT": true,
+        "CORE2_HCI_MAIN_START": true,
+        "CORE2_HCI_BLE_READY": true,
+        "CORE2_HCI_BLE_RX": true,
+        "CORE2_HCI_BLE_ACK_SENT": true
+      },
+      "peer_markers": {
+        "BLE_BUMBLE_FOUND": true,
+        "BLE_BUMBLE_CONNECTED": true,
+        "BLE_BUMBLE_GATT_DISCOVERED": true,
+        "BLE_BUMBLE_SUBSCRIBED": true,
+        "BLE_BUMBLE_WRITE": true,
+        "BLE_BUMBLE_NOTIFICATION_OK": true,
+        "BLE_BUMBLE_PASS": true
+      },
+      "bridge_markers": {
+        "NATIVE_VHCI_BRIDGE_READY": true,
+        "NATIVE_VHCI_H2C": true,
+        "NATIVE_VHCI_C2H": true,
+        "NATIVE_VHCI_H2C 0201": true,
+        "NATIVE_VHCI_C2H 0201": true
+      },
+      "serial_sha256": "d58b7a24ef73dc4f766707dbfc190e44a896b20dfe9e19bf0019401fa0f804ac",
+      "peer_log_sha256": "90acdf3f6711625629830dccb78eb68076ecc602fb5d86081efb707ffbe61512",
+      "bridge_log_sha256": "beea20ee3cca2a09fd5ed1bf099e8ed0030b1de034142d7345e2680db581fcd5",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      },
+      "serial_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-5/serial.log",
+      "peer_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-5/ble-probe.log",
+      "bridge_log_path": "/private/tmp/m5-core2-pinned-exact-5x.HWmHzr/attempt-5/native-vhci-gdb.log",
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 52556 (<unknown process>)\n",
+      "attempt": 5
+    }
+  ],
+  "passed_attempts": 5,
+  "total_attempts": 5,
+  "gatt": {
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_CORE2_PROBE",
+    "notification": "ACK:M5_CORE2_PROBE"
+  },
+  "not_claimed": [
+    "bit-exact Espressif BT baseband/controller internal execution",
+    "RF range, timing, coexistence or performance",
+    "BLE pairing, security or production-throughput behavior",
+    "real-hardware behavior"
+  ]
+}

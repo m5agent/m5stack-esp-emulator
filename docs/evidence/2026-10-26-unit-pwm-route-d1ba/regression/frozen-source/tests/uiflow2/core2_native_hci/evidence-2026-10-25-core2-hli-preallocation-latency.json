@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-delivery-latency",
+  "validation": "virtual-device validation",
+  "firmware_sha256": "5ed4fcfad22c50d10d9a1af48bdb8e7b7e125a6fa278d3f8e30e53bd03aa43db",
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "nimble_hci_command_timeout_ns": 2000000000,
+  "comparison": [
+    {
+      "implementation": "nested guest allocator calls only while CPU0 halted",
+      "qemu_sha256": "d69dcfa1ebb48cd8ed32361648226a96b036f93f1262f72811e6e1d30ec655c9",
+      "bumble_received_ns": 3534214148703000,
+      "device_to_hli_ns": 3534217808423000,
+      "delivery_delay_ns": 3659720000,
+      "result": "FAIL",
+      "detail": "Command Status was queued behind ACL delivery and missed the 2-second NimBLE command-ack budget"
+    },
+    {
+      "implementation": "preallocated guest HCI events and ACL mbufs",
+      "qemu_sha256": "f2bc2b4d5e4a5a8a0a8b3b4cf3ccd36ea2a67f44a57413bc7c575b304e2159e5",
+      "bumble_received_ns": 3535006415711000,
+      "device_to_hli_ns": 3535006743223000,
+      "delivery_delay_ns": 327512000,
+      "result": "PASS",
+      "detail": "Command Status delivery stayed below the NimBLE command-ack budget"
+    }
+  ],
+  "performance_claim": "trace-derived virtual-device delivery latency only",
+  "not_claimed": [
+    "physical BT controller timing",
+    "RF behavior",
+    "hardware validation"
+  ]
+}

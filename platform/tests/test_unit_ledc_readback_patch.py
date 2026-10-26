@@ -37,7 +37,8 @@ class LedcReadbackPatchTests(unittest.TestCase):
         node = next(n for n in tree.body if isinstance(n, ast.Assign)
                     and any(isinstance(t, ast.Name) and t.id == 'PATCHES' for t in n.targets))
         patches = ast.literal_eval(node.value)
-        self.assertEqual(patches[-2:], (
+        position = patches.index(PATCH.relative_to(ROOT).as_posix())
+        self.assertEqual(patches[position - 1:position + 1], (
             'patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch',
             PATCH.relative_to(ROOT).as_posix()))
         self.assertEqual(len(patches), len(set(patches)))

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "helper_sha256": "7754602baba7e7f4d089eb9a0d4967db87ec502716960cebafcd8975fd77ce7a",
+  "checks": [
+    {
+      "name": "unsafe path rejected: '../x'",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe path rejected: '/tmp/x'",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe path rejected: 'x//y'",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe path rejected: 'x/./y'",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe path rejected: 'x\\\\y'",
+      "status": "PASS"
+    },
+    {
+      "name": "MD exact bytes and transport",
+      "status": "PASS"
+    },
+    {
+      "name": "different bytes never overwrite",
+      "status": "PASS"
+    },
+    {
+      "name": "PCM and RMT preserved as real binary data planes",
+      "status": "PASS"
+    },
+    {
+      "name": "native disguised raw rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "unclassified binary rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "PNG in raw decoded",
+      "status": "PASS"
+    },
+    {
+      "name": "truncated PNG rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "PPM omitted only after full RGB equivalence",
+      "status": "PASS"
+    },
+    {
+      "name": "excluded flash has exact omission SHA",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP raw CRC and member manifest",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP traversal rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP duplicate rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP symlink rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP manifest file-set mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP manifest hash mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "ZIP CRC corruption rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "nested checksum follows MD transport without editing list",
+      "status": "PASS"
+    },
+    {
+      "name": "nested checksum permits only exact known omission",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown nested missing file rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong omission digest rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "missing terminal full summary rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "helper AST and zero socket/subprocess calls",
+      "status": "PASS"
+    }
+  ],
+  "check_count": 27,
+  "unexpected_external_calls": [],
+  "API_guest_execution": 0,
+  "archive_assembled": false
+}

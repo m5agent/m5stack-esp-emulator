@@ -1,0 +1,34 @@
+{
+  "recorded_at": "2026-10-26T05:43:16.026256+00:00",
+  "record_type": "root observation of actual tool termination and end assets; not OS launch trace",
+  "full_exec_session_id": 78269,
+  "full_observed_exit_code": 0,
+  "targeted_exec_session_id": 5831,
+  "targeted_observed_exit_code": 0,
+  "source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "runtime_env": {
+    "M5_QEMU_XTENSA": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa",
+    "M5_QEMU_XTENSA_ROM_DIR": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/pc-bios",
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": ".work/py312"
+  },
+  "full_argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--out-dir",
+    ".work/unit-pwm-route-regression-20261026/full-r1"
+  ],
+  "full_summary_sha256": "0d518bee9a554c91f185fe55d78728639aa604b5072fe3f94eb6f97a08ed5d91",
+  "cases_pass": 67,
+  "assertions_pass": 274,
+  "all_single_attempt_no_retry": true,
+  "end_runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+  "source_freeze_files": 388,
+  "source_drift": {},
+  "provenance_limitations": [
+    "prepare fixes 388 source hashes and expected Xtensa runtime; existing cold-build manifest binds that runtime",
+    "No complete full-start ROM/C6 freeze; independent mid-run/pre-C6 and end observations are separate",
+    "papercolor-rgb summary command is checker argv; launch only static reconstruction from frozen code"
+  ]
+}

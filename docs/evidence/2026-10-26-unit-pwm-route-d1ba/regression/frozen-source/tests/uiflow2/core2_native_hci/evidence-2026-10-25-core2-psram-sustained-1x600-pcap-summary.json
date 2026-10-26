@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "core2-psram-sustained-pcap-summary",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "scope": "capture-summary-not-rf-validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "attempt": 1,
+  "bytes": 97951,
+  "sha256": "36cc73c801e7b931a81d63c44545abf964c0ecbea06126c65dc5ba83f343de8a",
+  "packets": 912,
+  "flows": 208,
+  "dns_queries": [
+    "example.com.",
+    "mpy-esp32.local.",
+    "ntp.aliyun.com."
+  ],
+  "dhcp_message_types": {
+    "discover": 1,
+    "offer": 1,
+    "request": 1,
+    "ack": 1
+  },
+  "not_claimed": [
+    "real-hardware RF behavior",
+    "WPA3 or group-key multicast",
+    "TLS plaintext",
+    "physical cache or PSRAM timing"
+  ]
+}

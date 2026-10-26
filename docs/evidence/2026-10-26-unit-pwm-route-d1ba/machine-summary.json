@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "category": "custom raw-PWM route initialization A/B and shared-controller repository regression",
+  "baseline": {
+    "status": "FAIL_REPRODUCED",
+    "session_id": "ab786205af4c4168854d8bf9e7f04743",
+    "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+    "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+    "caller_request_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+    "runtime_provenance": {
+      "session_id": "ab786205af4c4168854d8bf9e7f04743",
+      "kind": "direct-pid",
+      "status": "VERIFIED",
+      "observed_pid": 36166,
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 11,
+      "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+      "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "executable_name": "qemu-system-xtensa",
+      "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+    }
+  },
+  "candidate": {
+    "status": "PASS",
+    "session_id": "fcd0e701ce164bfba7a146d6e46f097e",
+    "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+    "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+    "caller_request_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+    "runtime_provenance": {
+      "session_id": "fcd0e701ce164bfba7a146d6e46f097e",
+      "kind": "direct-pid",
+      "status": "VERIFIED",
+      "observed_pid": 36496,
+      "worker_id": "worker-b71031d2aef3428b",
+      "worker_generation": 12,
+      "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+      "runtime_binary_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executable_name": "qemu-system-xtensa",
+      "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+    }
+  },
+  "sample_guest_bounds_ms": {
+    "baseline": [
+      9,
+      3837
+    ],
+    "candidate": [
+      6150,
+      10230
+    ]
+  },
+  "full_matrix": {
+    "cases": 67,
+    "counts": {
+      "PASS": 67
+    },
+    "assertions": {
+      "PASS": 274
+    },
+    "all_single_attempt_no_retry": true,
+    "no_targeted_splice": true,
+    "all_ROM_C6_full_start_freeze": "NOT AVAILABLE",
+    "papercolor_rgb_launch_evidence": "STATIC_RECONSTRUCTION",
+    "actual_per_case_argv_trace": "NOT AVAILABLE"
+  },
+  "targeted_cores3": {
+    "cases": 7,
+    "counts": {
+      "PASS": 7
+    }
+  },
+  "hardware": "NOT RUN",
+  "external_work_log": "SKIPPED_BY_USER",
+  "limitations": [
+    "Virtual-device evidence only; hardware NOT RUN.",
+    "Each A/B batch has eight fresh UART-before / real units-QOM / UART-after windows covering about four guest seconds, not a continuous 60-second soak or the first instant of initialization.",
+    "Candidate output-transitions=1 counts observer property changes, not physical PWM pulses.",
+    "The generic evidence ZIP QOM snapshot has a node limit; actual frozen UnitRegistry /units queries provide the per-window frequency and duty fields.",
+    "Original Buzzer.once timer bug, full-cycle/latch/fade behavior, and physical acoustic/electrical equivalence remain OPEN.",
+    "Full-matrix prepare records 388 source hashes and the expected Xtensa pin; no complete all-ROM/C6 full-start freeze exists. Cold-build, mid-run, C6-before and end observations retain their actual observation times and never recreate a full-start freeze.",
+    "papercolor-rgb original summary.command is overwritten by the WS2812 checker command. Its launch is STATIC_RECONSTRUCTION from frozen source; functional assertions are separate. No actual per-case argv trace is claimed.",
+    "Six IR cases have final mutable Flash image hashes different from their stdout initial-image hashes. The prepared source files remain byte-identical; no rewrite cause or immutable final-BIN claim is inferred.",
+    "Older candidate platform logs retain 628 passed, 22 skipped and 2 stale-snapshot failures; the later root environment result is a separate 652 passed, zero skipped run."
+  ]
+}

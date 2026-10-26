@@ -1,0 +1,565 @@
+{
+  "status": "PASS_WITH_SCOPE_LIMITS",
+  "cases": [
+    {
+      "batch": "baseline-r1",
+      "independent_review": "PASS_WITH_SCOPE_LIMITS",
+      "observed_result": "FAIL_REPRODUCED",
+      "session_id": "ab786205af4c4168854d8bf9e7f04743",
+      "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+      "caller_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "request_canonical_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+      "request_file_sha256": "f962aad86932ab1c84a9925bc764f473b8f0f61a24f60efb8328531364d9975d",
+      "effective_source_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "owned_pid": 36166,
+      "guest_audit": {
+        "pwm_constructor": "PWM(Pin(PWM_GPIO), freq=PWM_FREQUENCY_HZ, duty_u16=0)",
+        "post_constructor_PWM_setters": 0,
+        "getter_forms": [
+          "freq",
+          "duty_u16"
+        ],
+        "BuzzerUnit_Haptic_SoftTimer_imported": false,
+        "configured_hold_ms": 60000,
+        "config": {
+          "PWM_GPIO": 2,
+          "PWM_FREQUENCY_HZ": 2000,
+          "HOLD_MS": 60000,
+          "HEARTBEAT_MS": 250
+        },
+        "scope": "Caller source audit only; no dynamic native MMIO trace claimed."
+      },
+      "sample_windows": [
+        {
+          "sequence": 0,
+          "HTTP_indices": {
+            "before": 257,
+            "state": 258,
+            "after": 259
+          },
+          "UART_lower": 343,
+          "UART_upper": 367,
+          "guest_sample_before": 0,
+          "guest_sample_after": 1,
+          "guest_elapsed_before_ms": 9,
+          "guest_elapsed_after_ms": 267,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 1,
+          "HTTP_indices": {
+            "before": 260,
+            "state": 261,
+            "after": 262
+          },
+          "UART_lower": 391,
+          "UART_upper": 415,
+          "guest_sample_before": 2,
+          "guest_sample_after": 3,
+          "guest_elapsed_before_ms": 520,
+          "guest_elapsed_after_ms": 776,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 2,
+          "HTTP_indices": {
+            "before": 263,
+            "state": 264,
+            "after": 265
+          },
+          "UART_lower": 440,
+          "UART_upper": 465,
+          "guest_sample_before": 4,
+          "guest_sample_after": 5,
+          "guest_elapsed_before_ms": 1033,
+          "guest_elapsed_after_ms": 1284,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 3,
+          "HTTP_indices": {
+            "before": 266,
+            "state": 267,
+            "after": 268
+          },
+          "UART_lower": 490,
+          "UART_upper": 515,
+          "guest_sample_before": 6,
+          "guest_sample_after": 7,
+          "guest_elapsed_before_ms": 1539,
+          "guest_elapsed_after_ms": 1794,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 4,
+          "HTTP_indices": {
+            "before": 269,
+            "state": 270,
+            "after": 271
+          },
+          "UART_lower": 540,
+          "UART_upper": 565,
+          "guest_sample_before": 8,
+          "guest_sample_after": 9,
+          "guest_elapsed_before_ms": 2045,
+          "guest_elapsed_after_ms": 2305,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 5,
+          "HTTP_indices": {
+            "before": 272,
+            "state": 273,
+            "after": 274
+          },
+          "UART_lower": 591,
+          "UART_upper": 617,
+          "guest_sample_before": 10,
+          "guest_sample_after": 11,
+          "guest_elapsed_before_ms": 2558,
+          "guest_elapsed_after_ms": 2818,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 6,
+          "HTTP_indices": {
+            "before": 275,
+            "state": 276,
+            "after": 277
+          },
+          "UART_lower": 643,
+          "UART_upper": 669,
+          "guest_sample_before": 12,
+          "guest_sample_after": 13,
+          "guest_elapsed_before_ms": 3074,
+          "guest_elapsed_after_ms": 3325,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        },
+        {
+          "sequence": 7,
+          "HTTP_indices": {
+            "before": 278,
+            "state": 279,
+            "after": 280
+          },
+          "UART_lower": 695,
+          "UART_upper": 721,
+          "guest_sample_before": 14,
+          "guest_sample_after": 15,
+          "guest_elapsed_before_ms": 3580,
+          "guest_elapsed_after_ms": 3837,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 0,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 0
+        }
+      ],
+      "guest_elapsed_sampling_bounds_ms": [
+        9,
+        3837
+      ],
+      "last_ZIP_heartbeat": [
+        20,
+        5105,
+        2000,
+        0
+      ],
+      "HTTP_events": 289,
+      "API_Unit_input_POSTs": 0,
+      "browser": {
+        "running_snapshots": 10,
+        "readbacks": 10,
+        "actions": 0,
+        "posts": 0
+      },
+      "ZIP": {
+        "sha256": "7d266a6b24dafb7b5c07b7562af2226b29a0983541ea6f9bfb147f9874eaf40c",
+        "members": 11,
+        "before_stop": true,
+        "GET_HTTP_index": 284,
+        "DELETE_HTTP_index": 285,
+        "QOM_snapshot_truncated": true,
+        "QOM_Unit_endpoint_source": "Frozen UnitRegistry.state calls qom(/machine/units/external1, descriptor.property); per-window actual /units is authoritative for fields outside truncated generic snapshot."
+      },
+      "cleanup": {
+        "history_retained": true,
+        "source_and_frame_retained": true,
+        "mutable_flash_released": true,
+        "owned_PID_exit_recorded": true,
+        "worker_lease_ended": true,
+        "service_idle": true,
+        "PID_exit_independent_live_reprobe": "NOT PERFORMED; historical process exit is a saved runner observation"
+      },
+      "frames": {
+        "running": {
+          "sha256": "f62c8a610d95ad745d1cbab453e229a85c0953aaa295258dda93018b98f782d7",
+          "bytes": 3041,
+          "native_size": [
+            320,
+            240
+          ]
+        },
+        "ZIP_current": {
+          "sha256": "33bd6e291bdb16e452b92c9be77e3ffe30fee25de92b6d141724f3d5930326fc",
+          "bytes": 3075,
+          "native_size": [
+            320,
+            240
+          ]
+        },
+        "history": {
+          "sha256": "33bd6e291bdb16e452b92c9be77e3ffe30fee25de92b6d141724f3d5930326fc",
+          "bytes": 3075,
+          "native_size": [
+            320,
+            240
+          ]
+        }
+      },
+      "startup_warning": "i2c.master port not initialized before PWMR_READY appears in both batches; no guest exception markers in reviewed hold interval.",
+      "source_files_unchanged": true,
+      "source_inventory_sha256": "befbda4e641e78414a76c19cf461f374de308764da63474b33308a8b393e2bd1",
+      "source_artifact_files": 646
+    },
+    {
+      "batch": "candidate-r1",
+      "independent_review": "PASS_WITH_SCOPE_LIMITS",
+      "observed_result": "PASS",
+      "session_id": "fcd0e701ce164bfba7a146d6e46f097e",
+      "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+      "caller_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "request_canonical_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+      "request_file_sha256": "f962aad86932ab1c84a9925bc764f473b8f0f61a24f60efb8328531364d9975d",
+      "effective_source_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "worker_generation": 12,
+      "owned_pid": 36496,
+      "guest_audit": {
+        "pwm_constructor": "PWM(Pin(PWM_GPIO), freq=PWM_FREQUENCY_HZ, duty_u16=0)",
+        "post_constructor_PWM_setters": 0,
+        "getter_forms": [
+          "freq",
+          "duty_u16"
+        ],
+        "BuzzerUnit_Haptic_SoftTimer_imported": false,
+        "configured_hold_ms": 60000,
+        "config": {
+          "PWM_GPIO": 2,
+          "PWM_FREQUENCY_HZ": 2000,
+          "HOLD_MS": 60000,
+          "HEARTBEAT_MS": 250
+        },
+        "scope": "Caller source audit only; no dynamic native MMIO trace claimed."
+      },
+      "sample_windows": [
+        {
+          "sequence": 0,
+          "HTTP_indices": {
+            "before": 31,
+            "state": 32,
+            "after": 33
+          },
+          "UART_lower": 957,
+          "UART_upper": 1009,
+          "guest_sample_before": 24,
+          "guest_sample_after": 26,
+          "guest_elapsed_before_ms": 6150,
+          "guest_elapsed_after_ms": 6663,
+          "fresh_heartbeats": 2,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 1,
+          "HTTP_indices": {
+            "before": 34,
+            "state": 35,
+            "after": 36
+          },
+          "UART_lower": 1035,
+          "UART_upper": 1061,
+          "guest_sample_before": 27,
+          "guest_sample_after": 28,
+          "guest_elapsed_before_ms": 6916,
+          "guest_elapsed_after_ms": 7175,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 2,
+          "HTTP_indices": {
+            "before": 37,
+            "state": 38,
+            "after": 39
+          },
+          "UART_lower": 1087,
+          "UART_upper": 1113,
+          "guest_sample_before": 29,
+          "guest_sample_after": 30,
+          "guest_elapsed_before_ms": 7429,
+          "guest_elapsed_after_ms": 7681,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 3,
+          "HTTP_indices": {
+            "before": 40,
+            "state": 41,
+            "after": 42
+          },
+          "UART_lower": 1139,
+          "UART_upper": 1165,
+          "guest_sample_before": 31,
+          "guest_sample_after": 32,
+          "guest_elapsed_before_ms": 7934,
+          "guest_elapsed_after_ms": 8194,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 4,
+          "HTTP_indices": {
+            "before": 43,
+            "state": 44,
+            "after": 45
+          },
+          "UART_lower": 1191,
+          "UART_upper": 1217,
+          "guest_sample_before": 33,
+          "guest_sample_after": 34,
+          "guest_elapsed_before_ms": 8445,
+          "guest_elapsed_after_ms": 8702,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 5,
+          "HTTP_indices": {
+            "before": 46,
+            "state": 47,
+            "after": 48
+          },
+          "UART_lower": 1243,
+          "UART_upper": 1269,
+          "guest_sample_before": 35,
+          "guest_sample_after": 36,
+          "guest_elapsed_before_ms": 8958,
+          "guest_elapsed_after_ms": 9216,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 6,
+          "HTTP_indices": {
+            "before": 49,
+            "state": 50,
+            "after": 51
+          },
+          "UART_lower": 1295,
+          "UART_upper": 1321,
+          "guest_sample_before": 37,
+          "guest_sample_after": 38,
+          "guest_elapsed_before_ms": 9470,
+          "guest_elapsed_after_ms": 9724,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        },
+        {
+          "sequence": 7,
+          "HTTP_indices": {
+            "before": 52,
+            "state": 53,
+            "after": 54
+          },
+          "UART_lower": 1347,
+          "UART_upper": 1374,
+          "guest_sample_before": 39,
+          "guest_sample_after": 40,
+          "guest_elapsed_before_ms": 9979,
+          "guest_elapsed_after_ms": 10230,
+          "fresh_heartbeats": 1,
+          "getter_frequency_hz": 2000,
+          "getter_duty_u16": 0,
+          "QOM_frequency_hz": 2000,
+          "QOM_duty_pct": 0,
+          "input_events": 0,
+          "output_transitions": 1
+        }
+      ],
+      "guest_elapsed_sampling_bounds_ms": [
+        6150,
+        10230
+      ],
+      "last_ZIP_heartbeat": [
+        43,
+        10994,
+        2000,
+        0
+      ],
+      "HTTP_events": 63,
+      "API_Unit_input_POSTs": 0,
+      "browser": {
+        "running_snapshots": 10,
+        "readbacks": 10,
+        "actions": 0,
+        "posts": 0
+      },
+      "ZIP": {
+        "sha256": "cd4c46e59a96d5fca9b4073c80a131bfde696614ce7920ddbac78a1b2660b7c1",
+        "members": 11,
+        "before_stop": true,
+        "GET_HTTP_index": 58,
+        "DELETE_HTTP_index": 59,
+        "QOM_snapshot_truncated": true,
+        "QOM_Unit_endpoint_source": "Frozen UnitRegistry.state calls qom(/machine/units/external1, descriptor.property); per-window actual /units is authoritative for fields outside truncated generic snapshot."
+      },
+      "cleanup": {
+        "history_retained": true,
+        "source_and_frame_retained": true,
+        "mutable_flash_released": true,
+        "owned_PID_exit_recorded": true,
+        "worker_lease_ended": true,
+        "service_idle": true,
+        "PID_exit_independent_live_reprobe": "NOT PERFORMED; historical process exit is a saved runner observation"
+      },
+      "frames": {
+        "running": {
+          "sha256": "15c67a98b433c5c4ee46c29b1cd3ba88b01403d509218cd2a565dc1a0f327187",
+          "bytes": 3072,
+          "native_size": [
+            320,
+            240
+          ]
+        },
+        "ZIP_current": {
+          "sha256": "15c67a98b433c5c4ee46c29b1cd3ba88b01403d509218cd2a565dc1a0f327187",
+          "bytes": 3072,
+          "native_size": [
+            320,
+            240
+          ]
+        },
+        "history": {
+          "sha256": "15c67a98b433c5c4ee46c29b1cd3ba88b01403d509218cd2a565dc1a0f327187",
+          "bytes": 3072,
+          "native_size": [
+            320,
+            240
+          ]
+        }
+      },
+      "startup_warning": "i2c.master port not initialized before PWMR_READY appears in both batches; no guest exception markers in reviewed hold interval.",
+      "source_files_unchanged": true,
+      "source_inventory_sha256": "a97bc8c3309fe43ddb2d6c5bdc3c06990e05e0ff4f548412a9e15e1e0cf4e2f5",
+      "source_artifact_files": 195
+    }
+  ],
+  "supplemental_original_check_saved": {
+    "baseline-r1": {
+      "status": "FAIL_REPRODUCED",
+      "harness_check_status": "PASS",
+      "sample_windows": 8,
+      "no_post_init_pwm_setter": true,
+      "hardware": "NOT RUN"
+    },
+    "candidate-r1": {
+      "status": "PASS",
+      "harness_check_status": "PASS",
+      "sample_windows": 8,
+      "no_post_init_pwm_setter": true,
+      "hardware": "NOT RUN"
+    }
+  },
+  "actual_API_browser_guest_subprocess_calls_during_review": 0,
+  "original_files_modified": false,
+  "conclusion": "Identical raw-PWM caller/request/effective source/derived firmware reproduces old-runtime initialization observer 0 Hz and candidate 2000 Hz at exact zero duty in eight fresh ordered windows each.",
+  "limits": [
+    "Only sampled no-setter initialization windows; not a completed 60000 ms hold or earliest post-constructor instant continuous proof.",
+    "Caller PWM setters absent; native getter/source reasoning is static and not a dynamic MMIO trace.",
+    "Generic ZIP QOM snapshot is node-limited/truncated; per-window actual /units QOM reads carry the frequency/duty evidence.",
+    "Raw PWM diagnostic does not close original BuzzerUnit.once callback/timer risk, complete waveform-period semantics, full shared-runtime regression, or hardware/acoustic/electrical behavior.",
+    "Native PNG readability is assessed separately for exact captured bytes; frames show getter 2000 Hz in both batches and do not themselves classify route QOM."
+  ]
+}

@@ -1,0 +1,392 @@
+{
+  "device_id": "cores3",
+  "unit_id": "buzzer",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a"
+    }
+  ],
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+  "caller_request_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+  "ready_marker": "PWMR_READY",
+  "expected_size": [
+    320,
+    240
+  ],
+  "guest_audit": {
+    "five_files": true,
+    "pwm_constructors": 1,
+    "post_constructor_setters": 0,
+    "getter_calls": [
+      "freq",
+      "duty_u16"
+    ],
+    "hold_ms": 60000,
+    "callback_or_softtimer_driver": "NOT IMPORTED"
+  },
+  "status": "FAIL_REPRODUCED",
+  "validation": "custom raw-PWM initialization diagnostic; not original BuzzerUnit/once validation",
+  "initialization_status": "FAIL_REPRODUCED",
+  "expect_init_frequency_hz": 0,
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_worker_generation": 11,
+  "started_at": "2026-10-26T05:26:35.291115+00:00",
+  "samples": [
+    {
+      "before": {
+        "sample": 0,
+        "elapsed_ms": 9,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 1,
+        "elapsed_ms": 267,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        343,
+        367
+      ],
+      "prefix": "samples/00",
+      "http_indices": {
+        "before": 257,
+        "state": 258,
+        "after": 259
+      }
+    },
+    {
+      "before": {
+        "sample": 2,
+        "elapsed_ms": 520,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 3,
+        "elapsed_ms": 776,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        391,
+        415
+      ],
+      "prefix": "samples/01",
+      "http_indices": {
+        "before": 260,
+        "state": 261,
+        "after": 262
+      }
+    },
+    {
+      "before": {
+        "sample": 4,
+        "elapsed_ms": 1033,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 5,
+        "elapsed_ms": 1284,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        440,
+        465
+      ],
+      "prefix": "samples/02",
+      "http_indices": {
+        "before": 263,
+        "state": 264,
+        "after": 265
+      }
+    },
+    {
+      "before": {
+        "sample": 6,
+        "elapsed_ms": 1539,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 7,
+        "elapsed_ms": 1794,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        490,
+        515
+      ],
+      "prefix": "samples/03",
+      "http_indices": {
+        "before": 266,
+        "state": 267,
+        "after": 268
+      }
+    },
+    {
+      "before": {
+        "sample": 8,
+        "elapsed_ms": 2045,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 9,
+        "elapsed_ms": 2305,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        540,
+        565
+      ],
+      "prefix": "samples/04",
+      "http_indices": {
+        "before": 269,
+        "state": 270,
+        "after": 271
+      }
+    },
+    {
+      "before": {
+        "sample": 10,
+        "elapsed_ms": 2558,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 11,
+        "elapsed_ms": 2818,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        591,
+        617
+      ],
+      "prefix": "samples/05",
+      "http_indices": {
+        "before": 272,
+        "state": 273,
+        "after": 274
+      }
+    },
+    {
+      "before": {
+        "sample": 12,
+        "elapsed_ms": 3074,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 13,
+        "elapsed_ms": 3325,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        643,
+        669
+      ],
+      "prefix": "samples/06",
+      "http_indices": {
+        "before": 275,
+        "state": 276,
+        "after": 277
+      }
+    },
+    {
+      "before": {
+        "sample": 14,
+        "elapsed_ms": 3580,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "after": {
+        "sample": 15,
+        "elapsed_ms": 3837,
+        "getter_frequency_hz": 2000,
+        "getter_duty_u16": 0
+      },
+      "frequency-hz": 0,
+      "duty-pct": 0,
+      "fresh_uart_interval": [
+        695,
+        721
+      ],
+      "prefix": "samples/07",
+      "http_indices": {
+        "before": 278,
+        "state": 279,
+        "after": 280
+      }
+    }
+  ],
+  "checks": {
+    "eight_fresh_initialization_windows_without_post_init_setter": true,
+    "zip_before_stop": true,
+    "history_flash_pid_idle": true,
+    "real_dom_http_output_only": true
+  },
+  "hardware": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "effective_source_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 250,
+          "sha256": "0a08c7e1ca55572cd420588e01038dfe8224f85696248a99998a40e44a7d48e2",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 72,
+          "sha256": "61378ccfe007d8383d4973a156c4d9df1815c059a00916cd09d4985fdc48d1a7",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 161,
+          "sha256": "613fb4ecf4d978b40310f943004840d982b06fc0fd635000251815dd88a8892a",
+          "origin": "caller"
+        },
+        {
+          "path": "pwm_route_program.py",
+          "size": 1238,
+          "sha256": "d08094f0684202ac2306f0a8e9978b7050923253ddc1ca30d865c1d583ee5cc4",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 5,
+      "caller_source_bytes": 1745,
+      "generated_files": [],
+      "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "a7b8e3a4b7841e1e03933da45c2035d9b1974513f49ceeb24edbd18eef5d2116",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+  "firmware_id": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+  "session_id": "ab786205af4c4168854d8bf9e7f04743",
+  "runtime_provenance": {
+    "session_id": "ab786205af4c4168854d8bf9e7f04743",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 36166,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 11,
+    "firmware_sha256": "81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "frame": {
+    "sha256": "f62c8a610d95ad745d1cbab453e229a85c0953aaa295258dda93018b98f782d7",
+    "size_bytes": 3041,
+    "native_size": [
+      320,
+      240
+    ],
+    "readability": "NOT INFERRED_FROM_DECODE"
+  },
+  "evidence_sha256": "7d266a6b24dafb7b5c07b7562af2226b29a0983541ea6f9bfb147f9874eaf40c",
+  "evidence_summary": {
+    "members": 11,
+    "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+    "pid": 36166
+  },
+  "cleanup": {
+    "pid": 36166,
+    "pid_gone": true,
+    "flash_retained": false,
+    "active_sessions": 0
+  },
+  "browser": {
+    "running_snapshots": 10,
+    "unit_input_posts": 0,
+    "control_actions": 0
+  },
+  "harness_check_status": "PASS",
+  "finished_at": "2026-10-26T05:27:23.420589+00:00"
+}

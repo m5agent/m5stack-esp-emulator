@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "device": "stackchan",
+  "backend": "qemu-esp32s3",
+  "scope": "QEMU simulation only; not real-hardware validation",
+  "imu": {
+    "type": 6,
+    "raw_0x0c_to_0x17": "000400f8000ca400b8feec01",
+    "accel": [0.25, -0.5, 0.75],
+    "gyro_api": [10.0, -20.0, 30.0],
+    "note": "QOM values are injected after firmware boot so live sampling is exercised instead of M5Unified boot-time gyro zero calibration."
+  },
+  "rtc": {
+    "chip": "BM8563-compatible PCF8563",
+    "address": "0x51",
+    "qom_unix_time": 1792630923,
+    "injected_read": "2026-10-22 01:02:14",
+    "write_read": "2026-10-22 12:34:56",
+    "next_read": "2026-10-22 12:34:57"
+  },
+  "ltr553": {
+    "address": "0x23",
+    "ambient_light": 640,
+    "proximity": 321,
+    "qom": ["light-level", "proximity-level"]
+  },
+  "aw9523": {
+    "output_readback": 1,
+    "injected_input": 0
+  },
+  "ina226": {
+    "bus_voltage_v": 4.0,
+    "current_a": 0.25,
+    "power_w": 1.0,
+    "firmware_shunt_ohms": 0.08,
+    "schematic_shunt_ohms": 0.01,
+    "note": "The official UIFlow2 StackChan driver configures shunt_resistor=0.08. The schematic labels R18 as 10 mOhm; the mismatch needs firmware/hardware clarification."
+  },
+  "ir": {
+    "tx_address": "0x56",
+    "tx_command": "0xa3",
+    "rx_address": 86,
+    "rx_command": 163,
+    "captured_symbols": 34
+  },
+  "result": "PASS"
+}

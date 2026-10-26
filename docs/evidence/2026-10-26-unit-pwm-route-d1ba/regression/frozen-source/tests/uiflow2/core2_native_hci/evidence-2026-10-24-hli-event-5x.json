@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "stage": "HCI-3b",
+  "component": "HLI controller event delivery",
+  "status": "PASS",
+  "validation_level": "virtual-device validation",
+  "firmware": {
+    "family": "stock UIFlow2 v2.5.3",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf": {
+    "sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49"
+  },
+  "qemu": {
+    "sha256": "5af8ac0d1d067f49273ae306783a3717f732e6ce995c89dd79cda64c5301f26e",
+    "patch": "patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch",
+    "patch_sha256": "0525e5b8f3a81241de919e3cb4c092a3aa5a6ab395de5ee2b85d714cf8f7c518",
+    "machine": "m5core2",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "symbols": {
+    "vhci_env_p": "0x3ffcc0a4",
+    "malloc": "0x4009945c",
+    "g_rw_schd_queue": "0x3ffcb890",
+    "s_meta_queue_ptr": "0x3ffc1158",
+    "ble_transport_alloc_evt": "0x402676f0",
+    "ble_transport_to_hs_evt_impl": "0x4025a31c"
+  },
+  "guest_configuration": {
+    "CONFIG_BTDM_CTRL_HLI": 1,
+    "nimble_cpu": 1,
+    "controller_cpu": 0,
+    "hli_software_interrupt": 29
+  },
+  "event_under_test": {
+    "h4": "040e0401030c00",
+    "host_buffer": "0e0401030c00",
+    "name": "Command Complete: HCI Reset",
+    "allocation": "ble_transport_alloc_evt(0)",
+    "delivery_callback": "ble_transport_to_hs_evt_impl",
+    "queue_event": 13
+  },
+  "runs": [
+    {
+      "run": 1,
+      "status": "PASS",
+      "reset_command": "01030c00",
+      "next_command": "01011000",
+      "hli_posts": 1,
+      "hli_consumed": 1,
+      "hli_event_buffers": 1,
+      "hli_errors": 0,
+      "h2c_incomplete_writes": 3,
+      "malformed_packets": 0,
+      "dropped_packets": 0
+    },
+    {
+      "run": 2,
+      "status": "PASS",
+      "reset_command": "01030c00",
+      "next_command": "01011000",
+      "hli_posts": 1,
+      "hli_consumed": 1,
+      "hli_event_buffers": 1,
+      "hli_errors": 0,
+      "h2c_incomplete_writes": 4,
+      "malformed_packets": 0,
+      "dropped_packets": 0
+    },
+    {
+      "run": 3,
+      "status": "PASS",
+      "reset_command": "01030c00",
+      "next_command": "01011000",
+      "hli_posts": 1,
+      "hli_consumed": 1,
+      "hli_event_buffers": 1,
+      "hli_errors": 0,
+      "h2c_incomplete_writes": 2,
+      "malformed_packets": 0,
+      "dropped_packets": 0
+    },
+    {
+      "run": 4,
+      "status": "PASS",
+      "reset_command": "01030c00",
+      "next_command": "01011000",
+      "hli_posts": 1,
+      "hli_consumed": 1,
+      "hli_event_buffers": 1,
+      "hli_errors": 0,
+      "h2c_incomplete_writes": 2,
+      "malformed_packets": 0,
+      "dropped_packets": 0
+    },
+    {
+      "run": 5,
+      "status": "PASS",
+      "reset_command": "01030c00",
+      "next_command": "01011000",
+      "hli_posts": 1,
+      "hli_consumed": 1,
+      "hli_event_buffers": 1,
+      "hli_errors": 0,
+      "h2c_incomplete_writes": 2,
+      "malformed_packets": 0,
+      "dropped_packets": 0
+    }
+  ],
+  "conclusion": "The firmware HLI ISR/controller task consumed a pool-allocated real HCI Event and the guest advanced from HCI Reset to Read Local Version in 5/5 runs.",
+  "incomplete_write_note": "Non-final writes to the VHCI H2C length field are counted separately and are not classified as malformed H4 packets.",
+  "not_claimed": [
+    "complete HCI command sequence",
+    "controller ACL delivery",
+    "BLE connection or GATT",
+    "Device Service repeated lease",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-transport",
+  "scope": "virtual-device transport-only",
+  "status": "PASS",
+  "qemu": "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+  "checks": {
+    "peer_opened": true,
+    "event_and_fragmented_acl_packets": true,
+    "rx_bytes": true,
+    "rx_queue_depth": true,
+    "no_malformed_packet": true,
+    "bounded_queue_depth": true,
+    "accepted_packets_before_overflow": true,
+    "overflow_packet_dropped": true,
+    "queue_full_error": true,
+    "peer_closed": true,
+    "qemu_clean_exit": true
+  },
+  "qemu_exit_code": 0
+}

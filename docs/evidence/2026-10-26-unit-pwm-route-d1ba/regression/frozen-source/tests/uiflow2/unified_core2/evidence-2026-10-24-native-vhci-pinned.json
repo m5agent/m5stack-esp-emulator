@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "core2",
+  "ble_transport": "native-vhci",
+  "firmware": {
+    "path": "/private/tmp/m5-core2-unified-pinned.0SdovD/image.bin",
+    "bytes": 16777216,
+    "sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "terminal": "pass",
+      "checks": {
+        "serial:UNIFIED_CORE2_BOARD": true,
+        "serial:UNIFIED_CORE2_DISPLAY 320 240": true,
+        "serial:UNIFIED_CORE2_POWER": true,
+        "serial:UNIFIED_CORE2_IMU": true,
+        "serial:UNIFIED_CORE2_RTC": true,
+        "serial:UNIFIED_CORE2_INA3221": true,
+        "serial:UNIFIED_CORE2_MIC": true,
+        "serial:UNIFIED_CORE2_AUDIO_PASS": true,
+        "serial:UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15": true,
+        "serial:UNIFIED_CORE2_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_DNS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_BLE_READY": true,
+        "serial:UNIFIED_CORE2_BLE_RX": true,
+        "serial:UNIFIED_CORE2_BLE_ACK_SENT": true,
+        "serial:UNIFIED_CORE2_AUDIO_HOLD": true,
+        "serial:UNIFIED_CORE2_READY": true,
+        "peer:BLE_BUMBLE_FOUND": true,
+        "peer:BLE_BUMBLE_CONNECTED": true,
+        "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+        "peer:BLE_BUMBLE_SUBSCRIBED": true,
+        "peer:BLE_BUMBLE_WRITE": true,
+        "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+        "peer:BLE_BUMBLE_PASS": true,
+        "serial:UNIFIED_CORE2_TOUCH": true,
+        "numeric:accel": true,
+        "numeric:gyro": true,
+        "http:controlled_request": true,
+        "frame:nonblank": true,
+        "frame:input_changed": true,
+        "qom:power": true,
+        "qom:ina3221": true,
+        "qom:imu": true,
+        "audio:pcm_nonzero": true,
+        "audio:pcm_peak_to_peak": true,
+        "microphone:source": true,
+        "bridge:ready": true,
+        "bridge:h2c": true,
+        "bridge:c2h": true,
+        "bridge:acl_h2c": true,
+        "bridge:acl_c2h": true
+      },
+      "frame": {
+        "before": {
+          "nonblack": 8935,
+          "colors": 30
+        },
+        "after": {
+          "nonblack": 16211,
+          "colors": 45
+        },
+        "changed": true
+      },
+      "qom": {
+        "/machine/axp2101.vbat-mv": 4000,
+        "/machine/axp2101.vin-mv": 5000,
+        "/machine/axp2101.charging": true,
+        "/machine/ina3221-40.bus1-mv": 4800,
+        "/machine/ina3221-40.current1-ma": 240,
+        "/machine/pcf8563.unix-time": 1792649290,
+        "/machine/mpu6886.accel-x": 0.25,
+        "/machine/mpu6886.gyro-x": 10
+      },
+      "audio": {
+        "bytes": 1700352,
+        "nonzeros": 697837,
+        "peak_to_peak": 255,
+        "sha256": "4136b6db1a4671b60493205164dfecc7bfcc6871b7a2dca7270fdf94ad86e922"
+      },
+      "microphone": {
+        "source_bytes": 32000,
+        "source_nonzeros": 31760,
+        "source_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+      },
+      "http_requests": [
+        {
+          "path": "/unified",
+          "host": "qemu.test"
+        }
+      ],
+      "serial_bytes": 1932,
+      "serial_sha256": "2212e9ab3cd17185c085df9f9b81c0eed5a1a2085e622f25272e71bcc7e9f220",
+      "peer_log_bytes": 4342,
+      "peer_log_sha256": "0bc5ae015b3f9905fc467f3d0cfc2c95bced3a258e7298af071706cb2f75d54b",
+      "bridge_log_sha256": "bdc1a817dc8a133f43dc80ba3c9b1e05e2e3a1eba90d478da3b8fc3f91b1c3ac",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      }
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "terminal": "pass",
+      "checks": {
+        "serial:UNIFIED_CORE2_BOARD": true,
+        "serial:UNIFIED_CORE2_DISPLAY 320 240": true,
+        "serial:UNIFIED_CORE2_POWER": true,
+        "serial:UNIFIED_CORE2_IMU": true,
+        "serial:UNIFIED_CORE2_RTC": true,
+        "serial:UNIFIED_CORE2_INA3221": true,
+        "serial:UNIFIED_CORE2_MIC": true,
+        "serial:UNIFIED_CORE2_AUDIO_PASS": true,
+        "serial:UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15": true,
+        "serial:UNIFIED_CORE2_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_DNS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_BLE_READY": true,
+        "serial:UNIFIED_CORE2_BLE_RX": true,
+        "serial:UNIFIED_CORE2_BLE_ACK_SENT": true,
+        "serial:UNIFIED_CORE2_AUDIO_HOLD": true,
+        "serial:UNIFIED_CORE2_READY": true,
+        "peer:BLE_BUMBLE_FOUND": true,
+        "peer:BLE_BUMBLE_CONNECTED": true,
+        "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+        "peer:BLE_BUMBLE_SUBSCRIBED": true,
+        "peer:BLE_BUMBLE_WRITE": true,
+        "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+        "peer:BLE_BUMBLE_PASS": true,
+        "serial:UNIFIED_CORE2_TOUCH": true,
+        "numeric:accel": true,
+        "numeric:gyro": true,
+        "http:controlled_request": true,
+        "frame:nonblank": true,
+        "frame:input_changed": true,
+        "qom:power": true,
+        "qom:ina3221": true,
+        "qom:imu": true,
+        "audio:pcm_nonzero": true,
+        "audio:pcm_peak_to_peak": true,
+        "microphone:source": true,
+        "bridge:ready": true,
+        "bridge:h2c": true,
+        "bridge:c2h": true,
+        "bridge:acl_h2c": true,
+        "bridge:acl_c2h": true
+      },
+      "frame": {
+        "before": {
+          "nonblack": 8935,
+          "colors": 30
+        },
+        "after": {
+          "nonblack": 16211,
+          "colors": 45
+        },
+        "changed": true
+      },
+      "qom": {
+        "/machine/axp2101.vbat-mv": 4000,
+        "/machine/axp2101.vin-mv": 5000,
+        "/machine/axp2101.charging": true,
+        "/machine/ina3221-40.bus1-mv": 4800,
+        "/machine/ina3221-40.current1-ma": 240,
+        "/machine/pcf8563.unix-time": 1792649290,
+        "/machine/mpu6886.accel-x": 0.25,
+        "/machine/mpu6886.gyro-x": 10
+      },
+      "audio": {
+        "bytes": 1744896,
+        "nonzeros": 726206,
+        "peak_to_peak": 255,
+        "sha256": "3b9a8517fb255ef03bed0c5cc9e966e8b28b25654d7978e61a984c0993b118c8"
+      },
+      "microphone": {
+        "source_bytes": 32000,
+        "source_nonzeros": 31760,
+        "source_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+      },
+      "http_requests": [
+        {
+          "path": "/unified",
+          "host": "qemu.test"
+        }
+      ],
+      "serial_bytes": 1932,
+      "serial_sha256": "abc49dda1f3c5cdb2d4301d0b04d03e1fa98a6e2d2284942c62678a234a27a60",
+      "peer_log_bytes": 4342,
+      "peer_log_sha256": "b3b0be45406f23465bade1d81b22de3fc28bf205c53a49d3f2b75d3c660807fa",
+      "bridge_log_sha256": "856cac0be42799f7c1401a314630d691a8c95d9928d515e052a4257f30ac7f43",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      }
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "terminal": "pass",
+      "checks": {
+        "serial:UNIFIED_CORE2_BOARD": true,
+        "serial:UNIFIED_CORE2_DISPLAY 320 240": true,
+        "serial:UNIFIED_CORE2_POWER": true,
+        "serial:UNIFIED_CORE2_IMU": true,
+        "serial:UNIFIED_CORE2_RTC": true,
+        "serial:UNIFIED_CORE2_INA3221": true,
+        "serial:UNIFIED_CORE2_MIC": true,
+        "serial:UNIFIED_CORE2_AUDIO_PASS": true,
+        "serial:UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15": true,
+        "serial:UNIFIED_CORE2_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_DNS": true,
+        "serial:UNIFIED_CORE2_PUBLIC_HTTP_PASS": true,
+        "serial:UNIFIED_CORE2_BLE_READY": true,
+        "serial:UNIFIED_CORE2_BLE_RX": true,
+        "serial:UNIFIED_CORE2_BLE_ACK_SENT": true,
+        "serial:UNIFIED_CORE2_AUDIO_HOLD": true,
+        "serial:UNIFIED_CORE2_READY": true,
+        "peer:BLE_BUMBLE_FOUND": true,
+        "peer:BLE_BUMBLE_CONNECTED": true,
+        "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+        "peer:BLE_BUMBLE_SUBSCRIBED": true,
+        "peer:BLE_BUMBLE_WRITE": true,
+        "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+        "peer:BLE_BUMBLE_PASS": true,
+        "serial:UNIFIED_CORE2_TOUCH": true,
+        "numeric:accel": true,
+        "numeric:gyro": true,
+        "http:controlled_request": true,
+        "frame:nonblank": true,
+        "frame:input_changed": true,
+        "qom:power": true,
+        "qom:ina3221": true,
+        "qom:imu": true,
+        "audio:pcm_nonzero": true,
+        "audio:pcm_peak_to_peak": true,
+        "microphone:source": true,
+        "bridge:ready": true,
+        "bridge:h2c": true,
+        "bridge:c2h": true,
+        "bridge:acl_h2c": true,
+        "bridge:acl_c2h": true
+      },
+      "frame": {
+        "before": {
+          "nonblack": 8935,
+          "colors": 30
+        },
+        "after": {
+          "nonblack": 16211,
+          "colors": 45
+        },
+        "changed": true
+      },
+      "qom": {
+        "/machine/axp2101.vbat-mv": 4000,
+        "/machine/axp2101.vin-mv": 5000,
+        "/machine/axp2101.charging": true,
+        "/machine/ina3221-40.bus1-mv": 4800,
+        "/machine/ina3221-40.current1-ma": 240,
+        "/machine/pcf8563.unix-time": 1792649310,
+        "/machine/mpu6886.accel-x": 0.25,
+        "/machine/mpu6886.gyro-x": 10
+      },
+      "audio": {
+        "bytes": 1705984,
+        "nonzeros": 802116,
+        "peak_to_peak": 255,
+        "sha256": "e6667c24fa7097eb49ad303e7e6d0effa286674a1f4f7fd229e0d148fdc5aad8"
+      },
+      "microphone": {
+        "source_bytes": 32000,
+        "source_nonzeros": 31760,
+        "source_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+      },
+      "http_requests": [
+        {
+          "path": "/unified",
+          "host": "qemu.test"
+        }
+      ],
+      "serial_bytes": 1932,
+      "serial_sha256": "b027a264cff4f7fbb10d2c1511267fd357b443592222df140544f664831e3ecb",
+      "peer_log_bytes": 4342,
+      "peer_log_sha256": "29f097f2967e0452b3805801120501949dbf1acbe0caae13316a46e55a7d7430",
+      "bridge_log_sha256": "fcd2543c3b2b42d306605924110475862115436c7187e45c074fd288a656cb20",
+      "native_symbols": {
+        "M5_NATIVE_VHCI_SEND_PC": 1076913368,
+        "M5_NATIVE_VHCI_ENV_PTR": 1073528996,
+        "M5_NATIVE_VHCI_IDLE_PC": 1074345336
+      }
+    }
+  ],
+  "selected_attempt": 1,
+  "require_all_attempts": true,
+  "not_claimed": [
+    "real-hardware behavior",
+    "bit-exact Espressif BT baseband/controller implementation",
+    "RF privacy, security, range or performance",
+    "hardware equivalence of deterministic TCG/icount scheduling"
+  ]
+}

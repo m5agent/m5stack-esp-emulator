@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-hci3b-api-boundary-audit",
+  "stage": "HCI-3b",
+  "status": "FAIL",
+  "scope": "QEMU API-boundary experiments for stock Core2 VHCI with an external Bumble controller",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "observations": {
+    "gdb_return_contract": {
+      "api_pc": "0x403064d8",
+      "return_pc": "0x402670a8",
+      "window_base_before": "0xf",
+      "window_base_after": "0xf",
+      "finding": "The breakpoint fires before the callee entry instruction. Returning to esp_vhci_host_send_packet's wrapper call site leaves WINDOW_BASE unchanged; rotating the window in the QEMU hook corrupts the caller frame."
+    },
+    "internal_controller_relay": {
+      "qemu_sha256": "70386d43064fed0d7839c7be30604b191eab1af1eff73981b2b8344c94926d00",
+      "h2c_packets": 54,
+      "c2h_delivered": 57,
+      "c2h_errors": 0,
+      "malformed_packets": 75,
+      "dropped_packets": 2,
+      "gatt_discovered": false,
+      "notification_subscribed": false,
+      "finding": "Keeping the firmware's internal controller active while injecting external-controller C2H reaches connect and the first ATT exchange, but the two controller state machines conflict and the second ATT request triggers a host reset."
+    },
+    "api_mmio_override": {
+      "qemu_sha256": "ebcf8f9a43a65702b54a137a0acd7d7c6f99f823452e08bf9a0301ef8d3e75b3",
+      "result": "FAIL",
+      "finding": "Returning a synthetic retw instruction by shadowing the API entry with MMIO captures H2C, but disturbs Xtensa instruction fetch/TB state and produces a cache-disabled panic."
+    },
+    "api_breakpoint_partial": {
+      "qemu_sha256": "457e549c4dbfaad0c67d137aaa9bc2c041a592b4ded23cfdabcf861f579bb26d",
+      "h2c_packets": 32,
+      "c2h_delivered": 44,
+      "c2h_errors": 1,
+      "c2h_send_available": 34,
+      "malformed_packets": 0,
+      "dropped_packets": 0,
+      "gatt_discovered": true,
+      "notification_subscribed": true,
+      "peer_write_sent": true,
+      "guest_received_write": false,
+      "finding": "A QEMU CPU breakpoint hook at API_vhci_host_send_packet bypasses the internal controller, sends the real H2C packet to Bumble and returns at the wrapper call site. This is the first no-GDB run to discover NUS and subscribe, but the final guest write/notification transaction exhausts the nested callback execution budget."
+    },
+    "api_breakpoint_budget_variant": {
+      "qemu_sha256": "be9c3c064582a698ceb0e4b60e16c629d0db8fd8bd2fcacd2f924f579e2bc7a5",
+      "h2c_packets": 31,
+      "c2h_delivered": 42,
+      "c2h_errors": 1,
+      "malformed_packets": 0,
+      "dropped_packets": 0,
+      "gatt_discovered": true,
+      "notification_subscribed": false,
+      "finding": "Increasing the nested callback budget changes the failure point but does not close the transaction; this confirms execution budget alone is not the root cause."
+    }
+  },
+  "findings": {
+    "controller_boundary": "A stable backend must intercept the VHCI host API, not merely observe the internal controller's H2C shared-memory write.",
+    "return_semantics": "At the pre-entry API breakpoint, return PC is in the next Xtensa window while WINDOW_BASE remains on the caller. The hook must read that return PC without permanently rotating the live window.",
+    "remaining_blocker": "C2H delivery, nested host callback execution and send_available must be represented as one explicit transaction. The current nested guest-call implementation is non-deterministic after the first ATT exchanges.",
+    "retained": false
+  },
+  "not_claimed": [
+    "complete HCI/GATT sequence",
+    "Device Service repeated lease",
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware",
+    "RF or coexistence behavior"
+  ]
+}

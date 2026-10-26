@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "core2",
+  "firmware": {
+    "bytes": 16777216,
+    "sha256": "dd86e207090df06af6703c5b0c933774fb45f37023078c55af8e1bf4d9a0a37d"
+  },
+  "runtime": {
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off",
+    "qemu_memory_mb": 0,
+    "qom_injection_pauses_guest": false
+  },
+  "stability": {
+    "first_attempt_runs": 10,
+    "first_attempt_passes": 10,
+    "retries_used": 0,
+    "runs": [
+      {
+        "run": 1,
+        "status": "PASS",
+        "serial_sha256": "f4bed0d2d9d9e2759adc4cca4c55475a37c6132a3095a7b4e68590021704330e",
+        "peer_log_sha256": "6ee203d957c386ced8e018e0590c25757f7764aa505ea732001d46ad57f8a77c"
+      },
+      {
+        "run": 2,
+        "status": "PASS",
+        "serial_sha256": "c2acd0e66b3e1c4db5f967dacc50e7b6ca1874fd15ba9f210c3c911fab053864",
+        "peer_log_sha256": "2788e9cf6edf4dc585bdf762151844ff2b92457f1d08d2e35bd173a5ef8aba64"
+      },
+      {
+        "run": 3,
+        "status": "PASS",
+        "serial_sha256": "bc64b6e326e96e961582c0df666b932d21ccd195a9fe3bc1be468a5295feba29",
+        "peer_log_sha256": "7776c3f08650c15d5fdd91137a2b3c6649dececebaed3f826d07394ce276f41a"
+      },
+      {
+        "run": 4,
+        "status": "PASS",
+        "serial_sha256": "abf9d7b3ec463de7a482d6d498641f5261c71eae2edd6255a510d84d8b0c4e7e",
+        "peer_log_sha256": "dd7591a37d9af8820f97db2cdcb4fbf3d74225046fbc60bb387347c2b1ca3245"
+      },
+      {
+        "run": 5,
+        "status": "PASS",
+        "serial_sha256": "a307cc19c77c2ecb714324987e42bb1f32cf8a648820c510ec16ac9a9fd9849d",
+        "peer_log_sha256": "b1e93c073f451fa0f20ed673e45914a644fa9eba5735841785929f86fd82d549"
+      },
+      {
+        "run": 6,
+        "status": "PASS",
+        "serial_sha256": "ab9efcdeb4ca36c03424811bb4dfc7a9b5d8749690368c122de2f97c1144950f",
+        "peer_log_sha256": "559799064caa2867da38ed2ce48f4dab87ed76b9e2c2488207fb53eb30812561"
+      },
+      {
+        "run": 7,
+        "status": "PASS",
+        "serial_sha256": "aa91aadd7d333d655acdb2b46a081f3de6724fd5cbb22597453f07e02ea2d75b",
+        "peer_log_sha256": "4ff7d4bc10fc416b959baf264eeebe0de5809624884b03f89e2a75bf887406dc"
+      },
+      {
+        "run": 8,
+        "status": "PASS",
+        "serial_sha256": "6586742e13d6adf2729205f6c9157ce2c695ad431f74966889ea213d584827f3",
+        "peer_log_sha256": "de3127ecaf602401464fd604fbcb6796631e190ce9c24f76b1edbbaa195b2c47"
+      },
+      {
+        "run": 9,
+        "status": "PASS",
+        "serial_sha256": "60ba26af87139eef311cad829ad266af143f13e03e7cbc897698d97f41ce5172",
+        "peer_log_sha256": "b5b033a2ade4c6b694c8504751e8d75295c44c2350365ec89c81c7cd38c601f7"
+      },
+      {
+        "run": 10,
+        "status": "PASS",
+        "serial_sha256": "8427657390827c46013a3c122a9f8ab88e14dca45facb97232d49a576827f435",
+        "peer_log_sha256": "ddc2f194bac905376af5cc89c80eeaca94b743bbc1470af4daf492cbd232ab87"
+      }
+    ]
+  },
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "touch_redraw": true,
+    "axp2101": true,
+    "ina3221": true,
+    "mpu6886": true,
+    "pcf8563": true,
+    "speaker_pcm": true,
+    "microphone_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "public_dns": true,
+    "public_http": true,
+    "ble_offload_connect": true,
+    "ble_offload_nus_discovery": true,
+    "ble_offload_nus_subscription": true,
+    "ble_offload_nus_write": true,
+    "ble_offload_guest_rx": true,
+    "ble_offload_notify_ack": true
+  },
+  "device_service_validation": {
+    "runtime": "qemu-unified",
+    "profile": "core2-unified",
+    "environment_gate": "M5_CORE2_RADIO_QEMU",
+    "network_status": "PASS",
+    "network_checks": 14,
+    "pcap_packets": 50,
+    "pcap_sha256": "5804a39508162efd167a62addfeb59e69ea84be896d7a9d59b3e33ba4773fd72",
+    "dns_names": [
+      "example.com.",
+      "ntp.aliyun.com."
+    ],
+    "public_http_status": 200,
+    "evidence_zip_sha256": "3c2d0de43af9be8e936bda357284ae27d1a1a84da61fb036f839830491782635"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32 Bluetooth controller/radio model",
+    "physical RF security, range or performance",
+    "hardware equivalence of deterministic TCG/icount scheduling",
+    "untrusted-firmware sandboxing"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "status": "CANDIDATE_OFFLINE_AND_COLD_BUILD_PASS_GUEST_PENDING",
+  "at": "2026-10-26T05:23:22.392716+00:00",
+  "root_base_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+  "binary": ".work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa",
+  "build_manifest_sha256": "614c614829bab795485ada7f7e26b938df0152754638faf263b61caa816c3002",
+  "source_receipt_sha256": "d544b05af5578546e65cd8b40bd0495fe78f4282fec65b770328aea9f6f4befe",
+  "owned_source_files": 106,
+  "patches": {
+    "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+    "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+    "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c",
+    "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch": "bfb18690400f3385ccf4224e34f0021f1c5179e47f62e9b321aff6c4a06bdae8",
+    "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+    "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302"
+  },
+  "tracked_whitelist_sha256": {
+    "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302",
+    "scripts/bootstrap-unit-runtime.py": "ed1ce0d8f4fa8bc353679e636dc47c709ac1ff9fe89714bcc2538622f6b25b32",
+    "patches/qemu-unit-runtime/README.md": "c111c963bf3fa6504c37d86c2489351d390c1876879d2b9a8f940a31a9803f0e",
+    "patches/qemu-m5stack-peripherals/README.md": "026e84d5692fd4f26d9fdc0a32a0e55cb2362fc67b6532681b637485d78cfcde",
+    "platform/tests/test_unit_ledc_readback_patch.py": "53e3cf079ccfd40b5c08696bf1ecbabbe8667f6ec75da7441f6c83ba651a8ca6",
+    "platform/tests/test_unit_pwm_route_patch.py": "7da4d0916746fd4c5cff76b20a7baf56d8d8737fad2474ac86467b0b39c4eb54"
+  },
+  "source_replay_reverse_to_clean_and_forward": "PASS",
+  "new_source_and_qemu_objects": true,
+  "qemu_objects_copied": false,
+  "read_only_dependencies_unchanged": true,
+  "frozen_29d8_source_and_binary_unchanged": true,
+  "related_contract_tests": {
+    "ran": 8,
+    "status": "PASS"
+  },
+  "actual_c_fragments": {
+    "status": "PASS",
+    "candidate_cases": 18,
+    "baseline_route_hz": 0,
+    "baseline_after_manual_observer_hz": 2000,
+    "baseline_cross_layout_frequency": 2000,
+    "unchanged_functions": [
+      "esp32_ledc_read",
+      "esp32_ledc_write",
+      "esp32_ledc_get_percent",
+      "num_get",
+      "esp32_gpio_matrix_out_signal",
+      "ledc_observe"
+    ],
+    "hardware": "NOT RUN"
+  },
+  "platform_tests": {
+    "ran": 652,
+    "passed": 628,
+    "skipped": 22,
+    "failed": 2,
+    "failures": [
+      "docs platform test count stale",
+      "generated project snapshot stale"
+    ],
+    "status": "DOC_GENERATION_PENDING_ROOT"
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "STALE_EXPECTED_NEW_PATCH_AND_TEST_COUNTS"
+  },
+  "scope": "GPIO OUT_SEL mutation refreshes real same-layout LEDC state via observer only; no MMIO write replay or LED intensity side effects; zero duty retains configured frequency; output/timer masks and readback remain unchanged. g->s3 filters cross-layout endpoint writes.",
+  "excluded": [
+    "PWM waveform",
+    "full-cycle/active-latch/pending update timing",
+    "fade",
+    "new clock sources",
+    "inversion semantics",
+    "hardware equivalence"
+  ],
+  "api_browser_guest_functional_calls": 0,
+  "hardware": "NOT RUN",
+  "unit_host_20": "OPEN_PENDING_ROOT_DEVICE_SERVICE_AB_AND_SHARED_REGRESSION",
+  "functional_and_full_matrix_owner": "root"
+}

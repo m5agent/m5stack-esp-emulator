@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-two-hour-soak-diagnostic",
+  "date": "2026-10-24",
+  "status": "DIAGNOSTIC_PASS",
+  "gate_result": "DIAGNOSTIC_PASS",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "device_id": "core2",
+  "scope": "behavioral soak only; not an artifact-bound milestone gate",
+  "firmware": {
+    "sha256": "4e1012c419d04e7188bb8c45476f6f5eb4d509f227bc4e385a805ce011916e02",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu": {
+    "pre_run_sha256_observed": "e65c6f5cad2ee2c11efb1cf13ce81639c53666ac22c708fb81501cfb689614c1",
+    "end_of_run_sha256_observed": "d970ddb54bf5fa070cf10d721f024f20a342a3837e3d19b564300f74f3f16fc1",
+    "artifact_bound": false,
+    "reason": "The QEMU path was rebuilt during the run. The running process retained its mapped image, but the original runner hashed the path at the end rather than before the first lease, so this run cannot claim one immutable QEMU artifact across the full hold."
+  },
+  "session": {
+    "session_id": "3bfc2ea7342a45bfb7994ec813371374",
+    "state_entered_running_at": "2026-10-24T10:48:57.449554+00:00",
+    "hold_seconds_requested": 7200,
+    "hold_completed": true,
+    "hold_state": "running",
+    "final_state_after_capture": "stopped",
+    "error": null
+  },
+  "checks": {
+    "wifi_dhcp_http": "PASS",
+    "public_dns_http": "PASS",
+    "external_nus_gatt": "PASS",
+    "active_ble_link_during_hold": "PASS",
+    "native_hci_health": "PASS",
+    "frame_nonblank": "PASS",
+    "pcap": "PASS",
+    "panic": "NOT OBSERVED"
+  },
+  "native_hci_health_at_end": {
+    "hli_valid": 1,
+    "hli_posts": 45,
+    "hli_consumed": 45,
+    "hli_errors": 0,
+    "hli_c2h_events": 36,
+    "hli_c2h_acls": 9,
+    "hli_queue_depth": 0,
+    "meta_queue_depth": 0,
+    "tx_queue_depth": 0,
+    "dropped_packets": 0,
+    "peer_closed": 0,
+    "last_error": 0,
+    "connection_pool_free": 3,
+    "l2cap_pool_free": 9,
+    "gatt_pool_free": 3
+  },
+  "host_process_rss_kib_samples": [
+    {
+      "at": "2026-10-24T11:37:51.814Z",
+      "rss_kib": 933968
+    },
+    {
+      "at": "2026-10-24T11:44:21.113Z",
+      "rss_kib": 960720
+    },
+    {
+      "at": "2026-10-24T11:58:55.389Z",
+      "rss_kib": 339120
+    },
+    {
+      "at": "2026-10-24T12:07:37.335Z",
+      "rss_kib": 189088
+    },
+    {
+      "at": "2026-10-24T12:24:20.804Z",
+      "rss_kib": 270160
+    },
+    {
+      "at": "2026-10-24T12:33:10.470Z",
+      "rss_kib": 309120
+    },
+    {
+      "at": "2026-10-24T12:36:52.353Z",
+      "rss_kib": 325424
+    },
+    {
+      "at": "2026-10-24T12:40:07.887Z",
+      "rss_kib": 338016
+    },
+    {
+      "at": "2026-10-24T12:41:29.802Z",
+      "rss_kib": 343376
+    },
+    {
+      "at": "2026-10-24T12:41:47.782Z",
+      "rss_kib": 343632
+    },
+    {
+      "at": "2026-10-24T12:47:35.730Z",
+      "rss_kib": 365776
+    },
+    {
+      "at": "2026-10-24T12:47:49.809Z",
+      "rss_kib": 369664
+    },
+    {
+      "at": "2026-10-24T12:48:45.517Z",
+      "rss_kib": 370560
+    }
+  ],
+  "host_process_rss_observation": "RSS was volatile and not monotonic; this run records samples but does not classify a leak or set a memory threshold.",
+  "artifacts": {
+    "frame_png": {
+      "bytes": 3710,
+      "sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b"
+    },
+    "serial_log": {
+      "bytes": 1903,
+      "sha256": "59fc4c20e6bc4bbbbf0d3a0782265264af4dcbabfdb9163814e7b62810649fb3"
+    },
+    "ble_peer_log": {
+      "bytes": 4447,
+      "sha256": "d7866831ea2b5495081eb0efb24ee06905cb6dd0580941e89073c488462f2321"
+    },
+    "pcap": {
+      "bytes": 68392,
+      "sha256": "0e93caa9db1fdccd066841db319c74095275f22b1a2f29b7ab9a39ac3ae21cbb"
+    },
+    "qom_snapshot": {
+      "bytes": 56114,
+      "sha256": "5f9b1b4243f954b72bce270efa26b5cf4a3ac7e7838ac7f0efa9f9e079cd4702"
+    },
+    "evidence_zip": {
+      "bytes": 55345,
+      "sha256": "5daaf2341f884a414461b78102df52570740b97b54f8952b974f10e4e128242d"
+    }
+  },
+  "not_claimed": [
+    "artifact-bound two-hour PASS",
+    "bit-exact Espressif BT controller/baseband",
+    "physical cache/PSRAM timing",
+    "RF behavior or physical hardware validation"
+  ]
+}

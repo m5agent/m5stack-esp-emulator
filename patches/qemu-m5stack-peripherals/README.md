@@ -14,7 +14,8 @@ For the reproducible external-Unit Xtensa source, follow
 [`qemu-unit-runtime/README.md`](../qemu-unit-runtime/README.md): its pinned public
 base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0036-core2-soft-i2c-handoff-compat.patch`, then
-`0037-s3-ledc-duty-readback.patch`. Patch `0036` removes the permanent
+`0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`.
+Patch `0036` removes the permanent
 classic ESP32 software-I2C disable introduced with Unit routing; it preserves
 Core2's hardware/software switching while retaining the S3 handoff behavior.
 Patch `0037` adds S3-only DUTY/DUTY_R low-19-bit readback from the existing
@@ -24,6 +25,15 @@ output enable or timer pause. Pending/current-cycle separation, active-latch,
 fade and physical timing remain explicit gaps; see the fixed official sources
 and validation scope in the prelude README. A source/contract check is not a
 new runtime or firmware PASS.
+Patch `0038` is a candidate for GPIO-route initialization observation: a real
+matrix OUT_SEL change refreshes same-layout LEDC state without replaying MMIO
+writes or LED intensity side effects. It retains zero-duty frequency, the
+existing unroute getter gate and readback semantics, and filters cross-layout
+Unit observers. It does not extend current-cycle/fade or physical timing.
+The initial candidate has passed same-firmware Device Service initialization
+and shared-controller regression gates: `UNIT-HOST-20` is FIXED only for route
+observation. Full-cycle/fade and physical behavior remain OPEN; see the
+[scoped evidence](../../docs/evidence/2026-10-26-unit-pwm-route-d1ba/README.md).
 Do not apply these on top of an arbitrary historical snapshot.
 
 The peripheral work adds:

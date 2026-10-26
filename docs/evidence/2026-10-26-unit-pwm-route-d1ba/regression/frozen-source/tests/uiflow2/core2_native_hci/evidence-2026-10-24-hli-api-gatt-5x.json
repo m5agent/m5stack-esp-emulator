@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-full-sequence-5x",
+  "stage": "HCI-3b",
+  "gate_result": "PASS",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "scope": "stock Core2, no GDB, API-boundary H2C, firmware HLI event/ACL, external Bumble NUS GATT",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "29b30d78d8634aad22877f3f893d8f35a8b10870c8b4870e26c7eaf3cfc4ccdf",
+  "runtime": {
+    "accelerator": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off",
+    "gdb_bridge": false,
+    "hli_c2h": true,
+    "api_boundary_h2c_hook": true
+  },
+  "att": {
+    "payload": "M5_CORE2_PROBE",
+    "pdu_bytes": 17,
+    "default_mtu": 23,
+    "payload_fits_default_mtu": true
+  },
+  "runs": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "hli_events": 39,
+      "hli_acls": 9,
+      "l2cap_mtu_rejects": 0,
+      "python_gatts_on_write": 1,
+      "python_notify": 1,
+      "api_h2c_errors_before_peer_failure": true,
+      "post_pass_teardown_api_errors": 0
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "hli_events": 39,
+      "hli_acls": 9,
+      "l2cap_mtu_rejects": 0,
+      "python_gatts_on_write": 1,
+      "python_notify": 1,
+      "api_h2c_errors_before_peer_failure": true,
+      "post_pass_teardown_api_errors": 1
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "hli_events": 39,
+      "hli_acls": 9,
+      "l2cap_mtu_rejects": 0,
+      "python_gatts_on_write": 1,
+      "python_notify": 1,
+      "api_h2c_errors_before_peer_failure": true,
+      "post_pass_teardown_api_errors": 1
+    },
+    {
+      "attempt": 4,
+      "status": "PASS",
+      "hli_events": 39,
+      "hli_acls": 9,
+      "l2cap_mtu_rejects": 0,
+      "python_gatts_on_write": 1,
+      "python_notify": 1,
+      "api_h2c_errors_before_peer_failure": true,
+      "post_pass_teardown_api_errors": 2
+    },
+    {
+      "attempt": 5,
+      "status": "PASS",
+      "hli_events": 39,
+      "hli_acls": 9,
+      "l2cap_mtu_rejects": 0,
+      "python_gatts_on_write": 1,
+      "python_notify": 1,
+      "api_h2c_errors_before_peer_failure": true,
+      "post_pass_teardown_api_errors": 1
+    }
+  ],
+  "checks": {
+    "ble_controller_ready": "5/5",
+    "advertisement_found": "5/5",
+    "ble_connected": "5/5",
+    "nus_service_discovered": "5/5",
+    "notification_subscribed": "5/5",
+    "guest_received_write": "5/5",
+    "guest_sent_notification": "5/5",
+    "bumble_received_notification": "5/5",
+    "hli_queue_empty": "5/5",
+    "meta_queue_empty": "5/5",
+    "malformed_packets_zero": "5/5",
+    "dropped_packets_zero": "5/5"
+  },
+  "root_cause_of_previous_failure": {
+    "summary": "The previous 21-byte probe produced a 24-byte ATT PDU, exceeding the guest's default 23-byte ATT MTU. ble_l2cap_rx rejected it before ATT dispatch.",
+    "evidence": [
+      "previous probe: 21 bytes + 3-byte ATT header = 24 bytes",
+      "trace-l2cap-chan-found=9 and trace-l2cap-mtu-reject=1",
+      "trace-l2cap-rxfn=8 and trace-att-rx=8 for the oversized run",
+      "same path with a 15-byte probe: 17-byte ATT PDU, mtu-reject=0, ATT/GATT/notify PASS"
+    ]
+  },
+  "teardown_boundary": "The HCI peer may be closed immediately after BLE_BUMBLE_PASS; the resulting post-pass H2C EIO does not affect the completed GATT transaction.",
+  "patch_series": [
+    "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
+    "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch"
+  ],
+  "patch_validation": {
+    "qemu_base_commit": "da100c9",
+    "base_native_hci_0002_c_sha256": "5e9858c893d7219cd04558c5abde7ec5ead1f4d5fe967c15cbf72a19f2fc77c3",
+    "base_native_hci_0002_h_sha256": "e91d0cfd07d02ef9edde3ed689240af9c3765b86c25dde36d679f2588018b68f",
+    "0003_sha256": "66fa5dd604a762da388a52201d44e7f52be24f93818139b65e04efb25d427a1f",
+    "0004_sha256": "21f9d23b325cd4e4479062151a2c09a51ef2a330f090d845e79588a92de51dc6",
+    "git_apply_check": "PASS",
+    "result_files_match_intermediate": "PASS"
+  },
+  "not_claimed": [
+    "Device Service HCI-4 repeated lease",
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware or RF validation"
+  ]
+}

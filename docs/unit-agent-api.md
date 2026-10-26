@@ -435,7 +435,10 @@ missing-fixture 负控 PASS、原 IR 的待审观察和原 Buzzer FAIL。具体�
   自然 timer-zero FAIL，手动 OFF 后的零不补自然停止 PASS。旧 IO harness
   对输出类 Buzzer 误要求输入 POST，附加 `browser_error` 属 harness 误分类，
   不代表产品浏览器故障。两种 custom 场景单列，不升级原驱动结论。
-- PWM 初始化 QOM route、完整周期语义和共享 runtime 全量门禁仍 OPEN。
-  最新完整矩阵仍为 66/67 case、270/274 check，Core2 IMU 单例复测不拼为
-  全量 PASS。硬件验证为 **NOT RUN**；虚拟数值与显示不证明物理电气、温度、
-  红外、声学或 RF 行为。
+- PWM 初始化 route 已由 `0038` 修复：同固件无后续 setter 的新旧运行时
+  八窗对照通过，新 `d1ba` 独立完整矩阵 67/67 case、274/274 check PASS。
+  只覆盖实际采样窗口，原 Buzzer.once、完整 PWM 周期/latch/fade 与偶发
+  Core2 marker 根因仍分别开放；完整 ROM/C6 起始 freeze 和一个摘要命令字段
+  有明确取证限制，详见[PWM归档](evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。
+  旧66/67不改写，单例复测不拼接。硬件验证为 **NOT RUN**；虚拟数值与显示
+  不证明物理电气、温度、红外、声学或 RF 行为。

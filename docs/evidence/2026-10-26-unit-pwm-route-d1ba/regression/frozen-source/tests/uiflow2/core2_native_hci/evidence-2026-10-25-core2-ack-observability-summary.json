@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-late-ack-observability",
+  "date": "2026-10-25",
+  "validation": "virtual-device validation",
+  "status": "FAIL",
+  "firmware_sha256": "5ed4fcfad22c50d10d9a1af48bdb8e7b7e125a6fa278d3f8e30e53bd03aa43db",
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "c1c7e448971c4f189784ff7bba00327a29807c24afd49f65cb4aa0cca2e6e9ce",
+  "aggregate": {
+    "attempts_requested": 5,
+    "attempts_passed": 3,
+    "attempts_failed": 2,
+    "maximum_concurrent_sessions": 5,
+    "stagger_seconds": 0,
+    "hold_seconds_per_attempt": 20,
+    "input_assets_unchanged_during_run": true
+  },
+  "default_profile_validation": {
+    "status": "PASS",
+    "attempts_requested": 1,
+    "attempts_passed": 1,
+    "hold_seconds_per_attempt": 10,
+    "qemu_sha256": "c1c7e448971c4f189784ff7bba00327a29807c24afd49f65cb4aa0cca2e6e9ce",
+    "hli_posts": 45,
+    "hli_consumed": 45,
+    "hli_errors": 0,
+    "panic_count": 0
+  },
+  "first_ack_window": {
+    "command": "HCI Reset 0x0c03",
+    "command_trace_ns": 3548831929177000,
+    "bumble_response_trace_ns": 3548831929991000,
+    "first_hli_delivery_trace_ns": 3548836436297000,
+    "response_to_hli_delay_ns": 4506306000,
+    "reset_commands_before_first_hli": 3,
+    "guest_ack_timeout_count_before_first_hli": 2,
+    "first_hli_packet": "040e0401030c00",
+    "first_hli_packet_is_late_reset_complete": true
+  },
+  "guest_ack_state": {
+    "at_first_hci_rx_evt": {
+      "ack_pointer": null,
+      "semaphore_count_register": 0
+    },
+    "at_first_hci_rx_ack_check": {
+      "ack_pointer": null,
+      "semaphore_count_register": 0
+    },
+    "interpretation": "The initial semaphore is empty and no stale ACK pointer exists before the timeout. The failure begins with delayed delivery, not a spurious semaphore release."
+  },
+  "late_event_order": [
+    {
+      "step": 1,
+      "event": "late Reset Complete delivered to HLI",
+      "packet": "040e0401030c00",
+      "trace_ns": 3548836436297000
+    },
+    {
+      "step": 2,
+      "event": "guest starts next command",
+      "packet": "01011000",
+      "trace_ns": 3548836437210000
+    },
+    {
+      "step": 3,
+      "event": "another late Reset Complete delivered",
+      "packet": "040e0401030c00",
+      "trace_ns": 3548836437487000
+    },
+    {
+      "step": 4,
+      "event": "Bumble returns the new command response",
+      "packet": "040e0c0101100009000009ffff0000",
+      "trace_ns": 3548836437538000
+    },
+    {
+      "step": 5,
+      "event": "third late Reset Complete delivered",
+      "packet": "040e0401030c00",
+      "trace_ns": 3548836438074000
+    },
+    {
+      "step": 6,
+      "event": "NimBLE schedules reset for process-ack error",
+      "error_code": 12,
+      "trace_ns": 3548836438295000
+    }
+  ],
+  "failure_chain": [
+    "HCI Reset response reached QEMU but HLI delivery was delayed for 4.506306 seconds of host trace time.",
+    "The guest timed out and issued more HCI Reset commands while older Reset Complete packets were still pending.",
+    "HLI recovery released the older Reset Complete packets after the guest had advanced to another command.",
+    "NimBLE matched a late Reset Complete with the wrong command and scheduled reset with ble_hs_hci_process_ack error 12.",
+    "The reset path later reached LoadProhibited at ble_hs_hci_process_ack, symbol 0x402630cc.",
+    "The final PC=0 trap is secondary to the reset loop."
+  ],
+  "rejected_experiments": [
+    {
+      "name": "schedule HLI immediately after H4 receive",
+      "status": "NOT STABLE",
+      "detail": "Reduced the first observed HLI window but did not remove zero-stagger failures."
+    },
+    {
+      "name": "observe pending HLI consumption from asynchronous CPU work",
+      "status": "NOT STABLE",
+      "detail": "The observed batch remained below full pass."
+    },
+    {
+      "name": "gate H2C commands until the HLI queue is valid",
+      "status": "NOT STABLE",
+      "detail": "Did not close startup/GATT failures and was reverted."
+    },
+    {
+      "name": "permit multiple HLI posts before prior consumption",
+      "status": "REJECTED",
+      "detail": "A no-trace five-instance batch failed all five attempts."
+    }
+  ],
+  "evidence": {
+    "aggregate": "evidence-2026-10-25-core2-concurrent-5x20-ack-observability.json",
+    "default_profile_run": "evidence-2026-10-25-core2-ack-observability-default-1x.json",
+    "qemu_trace": "evidence-2026-10-25-core2-ack-observability-trace-summary.log",
+    "serial": "evidence-2026-10-25-core2-ack-observability-serial-summary.log",
+    "peer": "evidence-2026-10-25-core2-ack-observability-peer-summary.log"
+  },
+  "not_claimed": [
+    "zero-stagger five-instance stability",
+    "a QEMU behavioral fix",
+    "bit-exact Espressif BT controller/baseband",
+    "physical cache/PSRAM timing",
+    "physical hardware or RF validation"
+  ]
+}

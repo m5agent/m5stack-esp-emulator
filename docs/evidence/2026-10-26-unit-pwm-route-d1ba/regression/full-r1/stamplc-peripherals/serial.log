@@ -1,0 +1,20 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0xcf8
+load:0x403c8700,len:0xb34
+load:0x403cb700,len:0x2d24
+entry 0x403c8890
+E (747) i2c.master: this port has not been initialized, please initialize it first
+STAMPLC_PERIPHERAL_MAIN
+E (977) i2c.master: this port has not been initialized, please initialize it first
+STAMPLC_RTC 2026-10-22 07:08:09
+E (2221) i2c.master: this port has not been initialized, please initialize it first
+STAMPLC_INPUTS 1 1 1 1
+STAMPLC_INA 5.00 0.031
+STAMPLC_RGB True False False
+STAMPLC_INA 12.00 0.500
+STAMPLC_INA 15.00 0.750
+STAMPLC_RELAY 1 PRESS 1

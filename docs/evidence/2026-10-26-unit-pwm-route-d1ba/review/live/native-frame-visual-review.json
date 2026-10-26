@@ -1,0 +1,55 @@
+{
+  "status": "READABLE_CAPTURED_NATIVE_FRAMES_ONLY",
+  "inspection": "Actual view_image of baseline running, candidate running, and baseline history. ZIP/history byte identities bind remaining captures.",
+  "native_size": [
+    320,
+    240
+  ],
+  "frames": [
+    {
+      "batch": "baseline-r1",
+      "capture": "running",
+      "source": ".work/unit-pwm-route-acceptance-20261026/baseline-r1/frame.png",
+      "sha256": "f62c8a610d95ad745d1cbab453e229a85c0953aaa295258dda93018b98f782d7",
+      "visible_sample": 16,
+      "actual_visual_inspection": true,
+      "readable_text": [
+        "PWM initial route",
+        "No post-init setter",
+        "INIT HOLD",
+        "get 2000 Hz",
+        "duty_u16 0",
+        "sample 16"
+      ],
+      "clipping_observed": false
+    },
+    {
+      "batch": "candidate-r1",
+      "capture": "running",
+      "source": ".work/unit-pwm-route-acceptance-20261026/candidate-r1/frame.png",
+      "sha256": "15c67a98b433c5c4ee46c29b1cd3ba88b01403d509218cd2a565dc1a0f327187",
+      "visible_sample": 40,
+      "actual_visual_inspection": true,
+      "readable_text": [
+        "PWM initial route",
+        "No post-init setter",
+        "INIT HOLD",
+        "get 2000 Hz",
+        "duty_u16 0",
+        "sample 40"
+      ],
+      "clipping_observed": false
+    },
+    {
+      "batch": "baseline-r1",
+      "capture": "history_and_byte_identical_ZIP",
+      "source": ".work/unit-pwm-route-acceptance-20261026/baseline-r1/history-frame.png",
+      "sha256": "33bd6e291bdb16e452b92c9be77e3ffe30fee25de92b6d141724f3d5930326fc",
+      "visible_sample": 20,
+      "actual_visual_inspection": true,
+      "clipping_observed": false
+    }
+  ],
+  "hardware": "NOT RUN",
+  "all_frames_over_time": "NOT CLAIMED"
+}

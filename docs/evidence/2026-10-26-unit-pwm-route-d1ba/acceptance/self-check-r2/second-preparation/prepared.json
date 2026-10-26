@@ -1,0 +1,33 @@
+{
+  "device_id": "cores3",
+  "unit_id": "buzzer",
+  "runtime": "qemu",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "buzzer",
+      "port_id": "port-a"
+    }
+  ],
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+  "caller_request_sha256": "6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644",
+  "ready_marker": "PWMR_READY",
+  "expected_size": [
+    320,
+    240
+  ],
+  "guest_audit": {
+    "five_files": true,
+    "pwm_constructors": 1,
+    "post_constructor_setters": 0,
+    "getter_calls": [
+      "freq",
+      "duty_u16"
+    ],
+    "hold_ms": 60000,
+    "callback_or_softtimer_driver": "NOT IMPORTED"
+  },
+  "status": "PREPARED_NO_API_OR_RUNTIME",
+  "validation": "custom raw-PWM initialization diagnostic; not original BuzzerUnit/once validation"
+}

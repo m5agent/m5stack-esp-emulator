@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-c2h-delivery-stability",
+  "scope": "virtual-device H2C and C2H callback transport",
+  "status": "PASS",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "qemu_sha256": "f5ec86620e29fa2854ecb0bff6c480a794757cb1e9fe62069352183434dfb15e",
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "h2c_packet": "01030c00",
+      "next_packet": "01011000",
+      "h2c_packets": 2,
+      "c2h_delivered": 1,
+      "c2h_errors": 0,
+      "c2h_last_status": 0
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "h2c_packet": "01030c00",
+      "next_packet": "01011000",
+      "h2c_packets": 2,
+      "c2h_delivered": 1,
+      "c2h_errors": 0,
+      "c2h_last_status": 0
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "h2c_packet": "01030c00",
+      "next_packet": "01011000",
+      "h2c_packets": 2,
+      "c2h_delivered": 1,
+      "c2h_errors": 0,
+      "c2h_last_status": 0
+    },
+    {
+      "attempt": 4,
+      "status": "PASS",
+      "h2c_packet": "01030c00",
+      "next_packet": "01011000",
+      "h2c_packets": 2,
+      "c2h_delivered": 1,
+      "c2h_errors": 0,
+      "c2h_last_status": 0
+    },
+    {
+      "attempt": 5,
+      "status": "PASS",
+      "h2c_packet": "01030c00",
+      "next_packet": "01011000",
+      "h2c_packets": 2,
+      "c2h_delivered": 1,
+      "c2h_errors": 0,
+      "c2h_last_status": 0
+    }
+  ],
+  "passed_attempts": 5,
+  "total_attempts": 5,
+  "not_claimed": [
+    "complete HCI command sequence",
+    "BLE connection or GATT",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ]
+}

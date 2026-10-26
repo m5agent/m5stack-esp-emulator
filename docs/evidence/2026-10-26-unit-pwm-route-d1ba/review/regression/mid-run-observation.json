@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-26T05:33:17.488890+00:00",
+  "stage": "MID_FULL_RUN_BEFORE_C6_CASES_OBSERVED",
+  "not_full_start_freeze": true,
+  "assets": {
+    "xtensa_binary": {
+      "path": ".work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa",
+      "size": 21948456,
+      "sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff"
+    },
+    "c6_binary": {
+      "path": ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+      "size": 17009744,
+      "sha256": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0"
+    }
+  },
+  "roms": {
+    "xtensa": {
+      "QEMU,cgthree.bin": {
+        "size": 850,
+        "sha256": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d"
+      },
+      "QEMU,tcx.bin": {
+        "size": 1402,
+        "sha256": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7"
+      },
+      "bios-256k.bin": {
+        "size": 262144,
+        "sha256": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8"
+      },
+      "bios-microvm.bin": {
+        "size": 131072,
+        "sha256": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee"
+      },
+      "bios.bin": {
+        "size": 131072,
+        "sha256": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1"
+      },
+      "esp32-v3-rom-app.bin": {
+        "size": 455722,
+        "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442"
+      },
+      "esp32-v3-rom.bin": {
+        "size": 455722,
+        "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b"
+      },
+      "esp32c3-rom.bin": {
+        "size": 393216,
+        "sha256": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99"
+      },
+      "esp32s3_rev0_rom.bin": {
+        "size": 393216,
+        "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      },
+      "kvmvapic.bin": {
+        "size": 9216,
+        "sha256": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27"
+      },
+      "linuxboot.bin": {
+        "size": 1024,
+        "sha256": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce"
+      },
+      "linuxboot_dma.bin": {
+        "size": 1536,
+        "sha256": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950"
+      },
+      "multiboot.bin": {
+        "size": 1024,
+        "sha256": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348"
+      },
+      "multiboot_dma.bin": {
+        "size": 1024,
+        "sha256": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d"
+      },
+      "npcm7xx_bootrom.bin": {
+        "size": 768,
+        "sha256": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003"
+      },
+      "opensbi-riscv32-generic-fw_dynamic.bin": {
+        "size": 268312,
+        "sha256": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51"
+      },
+      "opensbi-riscv64-generic-fw_dynamic.bin": {
+        "size": 272504,
+        "sha256": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c"
+      },
+      "pvh.bin": {
+        "size": 1536,
+        "sha256": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d"
+      },
+      "slof.bin": {
+        "size": 995000,
+        "sha256": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7"
+      },
+      "u-boot-sam460-20100605.bin": {
+        "size": 524288,
+        "sha256": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03"
+      },
+      "vgabios-ati.bin": {
+        "size": 39424,
+        "sha256": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e"
+      },
+      "vgabios-bochs-display.bin": {
+        "size": 28672,
+        "sha256": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff"
+      },
+      "vgabios-cirrus.bin": {
+        "size": 38912,
+        "sha256": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2"
+      },
+      "vgabios-qxl.bin": {
+        "size": 39424,
+        "sha256": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7"
+      },
+      "vgabios-ramfb.bin": {
+        "size": 28672,
+        "sha256": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de"
+      },
+      "vgabios-stdvga.bin": {
+        "size": 39424,
+        "sha256": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b"
+      },
+      "vgabios-virtio.bin": {
+        "size": 39424,
+        "sha256": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772"
+      },
+      "vgabios-vmware.bin": {
+        "size": 39424,
+        "sha256": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11"
+      },
+      "vgabios.bin": {
+        "size": 38912,
+        "sha256": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57"
+      },
+      "vof-nvram.bin": {
+        "size": 16384,
+        "sha256": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12"
+      },
+      "vof.bin": {
+        "size": 3456,
+        "sha256": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+      }
+    },
+    "c6": {
+      "QEMU,cgthree.bin": {
+        "size": 850,
+        "sha256": "a99f3a06fdac5cf5d72bd0fd24647d897302c3ff8e918add65168185f8cbdf4d"
+      },
+      "QEMU,tcx.bin": {
+        "size": 1402,
+        "sha256": "92da99a770ab24f96c33c78382940cac8b25e88cb110634c1b32aa2d8cb852e7"
+      },
+      "bios-256k.bin": {
+        "size": 262144,
+        "sha256": "f1d4f396011197eb989029659cde250751cc711c336b8fbbe6f77cfe0dc5dcd8"
+      },
+      "bios-microvm.bin": {
+        "size": 131072,
+        "sha256": "42780e1ab9161752848475529a25c39d7c76baee82a1b2ddff666c2f7de7bbee"
+      },
+      "bios.bin": {
+        "size": 131072,
+        "sha256": "8244f3e5eaca828cc0a6a963f1fad15d68d8d3c0b5c80b8451b3067a85f14ae1"
+      },
+      "esp32-v3-rom-app.bin": {
+        "size": 455722,
+        "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442"
+      },
+      "esp32-v3-rom.bin": {
+        "size": 455722,
+        "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b"
+      },
+      "esp32c3-rom.bin": {
+        "size": 393216,
+        "sha256": "0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99"
+      },
+      "esp32c6-rom.bin": {
+        "size": 327680,
+        "sha256": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713"
+      },
+      "esp32s3_rev0_rom.bin": {
+        "size": 393216,
+        "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      },
+      "kvmvapic.bin": {
+        "size": 9216,
+        "sha256": "cdf057a71b07e3b52b19cbe210bdefa59250d01a9810b960f7fe1f98eed95a27"
+      },
+      "linuxboot.bin": {
+        "size": 1024,
+        "sha256": "1ecfb26c19da9dc00cdec0d0d738db69aeea4f1231c0c0ffc483ff69b3cda6ce"
+      },
+      "linuxboot_dma.bin": {
+        "size": 1536,
+        "sha256": "9c49e255340c78fc12e54ed043462bca02fb7fca29b7cfab62ff88a5344b6950"
+      },
+      "multiboot.bin": {
+        "size": 1024,
+        "sha256": "13a3f9f119797b8776105f020f36572ce6a20fa2c60d3b8112818bfaefcdd348"
+      },
+      "multiboot_dma.bin": {
+        "size": 1024,
+        "sha256": "e01667420ee78a318ea44627d2dd68058d3377d024e6eb7237700afe2e86507d"
+      },
+      "npcm7xx_bootrom.bin": {
+        "size": 768,
+        "sha256": "1e643db3e209e801f30f4492fdbdafca3e8f251a7b8e12239249eb480f081003"
+      },
+      "opensbi-riscv32-generic-fw_dynamic.bin": {
+        "size": 268312,
+        "sha256": "bf3798af44effe522ae2ec801a103bf012179f170210ff8bf217dbac56c2af51"
+      },
+      "opensbi-riscv64-generic-fw_dynamic.bin": {
+        "size": 272504,
+        "sha256": "0e6f495e3313e6e2a6e7d5a5dd613a76623bc65c230b6058bb60c372331ef12c"
+      },
+      "pvh.bin": {
+        "size": 1536,
+        "sha256": "918ff03a118615c2f4611a5df2d9496aabe099b5cfaaf69e544ebf973305d59d"
+      },
+      "slof.bin": {
+        "size": 995000,
+        "sha256": "9a9047e0d949097724dec83260f04fc1dd1e55af0b7debbcad3889ff7114ffb7"
+      },
+      "u-boot-sam460-20100605.bin": {
+        "size": 524288,
+        "sha256": "be88ed96a6f50d5ba8ad7bf019f48e7f73acee95402d90d0dac3775d9c7a8d03"
+      },
+      "vgabios-ati.bin": {
+        "size": 39424,
+        "sha256": "9d4d1f32a7e059de82c09c19fc25e276a39d96a1a516605a32ba704596e10d8e"
+      },
+      "vgabios-bochs-display.bin": {
+        "size": 28672,
+        "sha256": "d5fd6992dfdf0c980996b79c5ea13b9c8b36342c1dc94fcd682a6c3e8df850ff"
+      },
+      "vgabios-cirrus.bin": {
+        "size": 38912,
+        "sha256": "305d3b15f67e65f1899a1664621f6b471e4345d33fd9eb4f6320b4559f6a04f2"
+      },
+      "vgabios-qxl.bin": {
+        "size": 39424,
+        "sha256": "e81cc2807ebb9a1467b1933d192a4313424b499b73e7674257f07cd2171e01c7"
+      },
+      "vgabios-ramfb.bin": {
+        "size": 28672,
+        "sha256": "31b26b2288ed5594b65a234e797ee7105d225d48086170b27ab518c3fb69b7de"
+      },
+      "vgabios-stdvga.bin": {
+        "size": 39424,
+        "sha256": "651513519f9e0d5b99d3b051a8f5c68db69e987339b59a441d371068c34c146b"
+      },
+      "vgabios-virtio.bin": {
+        "size": 39424,
+        "sha256": "746f38c2023dbbc071503113f970bcf69d49c6e7c55fa8c0e3748dbccba42772"
+      },
+      "vgabios-vmware.bin": {
+        "size": 39424,
+        "sha256": "c12841eb2b057b6d99bfbc7ab72bea896e2b5cd694c93b026d7510de2b68ca11"
+      },
+      "vgabios.bin": {
+        "size": 38912,
+        "sha256": "f0defab87465236d0d22b6000bd2c270e05a56ff3bb7fd209a56069caed86d57"
+      },
+      "vof-nvram.bin": {
+        "size": 16384,
+        "sha256": "cf97201f9403212ab75287bf209bfb7710cb5f253e8fe80723cf43760a9e8a12"
+      },
+      "vof.bin": {
+        "size": 3456,
+        "sha256": "8c88070f252075111468e7b2a8043209e7798c3fb136326227390ea50f168f13"
+      }
+    }
+  },
+  "owned_full_run_processes": [
+    {
+      "pid": 38956,
+      "ppid": 38955,
+      "command": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa -M m5papercolor -drive file=.work/unit-pwm-route-regression-20261026/full-r1/papercolor-mic/uiflow2-ui-test.bin,if=mtd,format=raw -drive if=none,id=efuse,file=.work/unit-pwm-route-regression-20261026/full-r1/papercolor-mic/efuse.bin,format=raw -L /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/pc-bios -display none -serial file:.work/unit-pwm-route-regression-20261026/full-r1/papercolor-mic/serial.log -serial file:.work/unit-pwm-route-regression-20261026/full-r1/papercolor-mic/serial1.log -qmp unix:/tmp/m5-profile-38955.sock,server=on,wait=off -global driver=nvram.esp32s3.efuse,property=drive,value=efuse"
+    }
+  ],
+  "process_control_calls": 0,
+  "API_calls": 0,
+  "limitation": "Mid-run read-only observation. No complete all-ROM/C6 full-start freeze exists; do not label this as start provenance.",
+  "process_selection": "Exact executable argv[0] basename qemu-system-* plus this full-r1 flash path; shell wrapper excluded"
+}

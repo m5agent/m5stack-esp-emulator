@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "nanoc6",
+  "profile": "nanoc6-board-hci-ble",
+  "firmware": {
+    "path": "/private/tmp/m5-nanoc6-unified-wifi-ble-service.bin",
+    "bytes": 4194304,
+    "sha256": "c1c8bb84266fa1dcb337ddd6a629f95dccbe586452c77bcf894161dc238e0b05"
+  },
+  "checks": {
+    "serial:NANOC6_HCI_BOARD 140": true,
+    "serial:NANOC6_HCI_RGB 1 00FF00": true,
+    "serial:NANOC6_HCI_BLUE 1": true,
+    "serial:NANOC6_HCI_IR 0x56 0xA3": true,
+    "serial:NANOC6_HCI_BUTTON_READY": true,
+    "serial:NANOC6_HCI_BUTTON_PRESS": true,
+    "serial:NANOC6_HCI_BUTTON_RELEASE": true,
+    "serial:NANOC6_HCI_BLUE 0": true,
+    "serial:NANOC6_HCI_READY": true,
+    "serial:NANOC6_HCI_BLE_READY": true,
+    "serial:NANOC6_HCI_BLE_RX": true,
+    "serial:NANOC6_HCI_BLE_ACK_SENT": true,
+    "serial:NANOC6_HCI_WIFI_SCAN": true,
+    "serial:NANOC6_HCI_WIFI_CONNECTED 10.0.2.15": true,
+    "serial:NANOC6_HCI_HTTP_PASS": true,
+    "peer:BLE_BUMBLE_FOUND": true,
+    "peer:BLE_BUMBLE_CONNECTED": true,
+    "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+    "peer:BLE_BUMBLE_SUBSCRIBED": true,
+    "peer:BLE_BUMBLE_WRITE": true,
+    "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+    "peer:BLE_BUMBLE_PASS": true,
+    "http:controlled_request": true,
+    "gpio:rgb_power": true,
+    "gpio:blue_on": true,
+    "gpio:button_idle_high": true,
+    "gpio:blue_off": true,
+    "gpio:button_release_high": true,
+    "rmt:ws2812_green": true,
+    "rmt:nec": true
+  },
+  "gpio": {
+    "before": {
+      "gpio7": true,
+      "gpio9": true,
+      "gpio19": true
+    },
+    "after": {
+      "gpio7": false,
+      "gpio9": true,
+      "gpio19": true
+    }
+  },
+  "rmt": {
+    "capture_bytes": 328,
+    "capture_sha256": "666821946b3596fe483a011b6517c5e96ebddabd87d73a164a1a43b8a742b118",
+    "ws2812_check": "WS2812 PASS expected=00ff00 offset=16",
+    "nec_check": "PASS NEC offset=48 address=0x56 command=0xa3"
+  },
+  "serial_bytes": 1160,
+  "serial_sha256": "28ceb3e9b97814ef4085ff1f089b554a74dbbe94631b30c2e822a640b783d427",
+  "peer_log_bytes": 4472,
+  "peer_log_sha256": "b5c90ea70709464c1c1e11f5c5a76d9eb8df16771b8113fa7c61cfc5931d5551",
+  "http_requests": [
+    {
+      "path": "/unified",
+      "host": "qemu.test"
+    }
+  ],
+  "network": {
+    "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+    "wifi_markers": [
+      "NANOC6_HCI_WIFI_SCAN",
+      "NANOC6_HCI_WIFI_CONNECTED 10.0.2.15",
+      "NANOC6_HCI_HTTP_PASS"
+    ],
+    "ble": "PASS via UART1 HCI offload"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-C6 Bluetooth controller/radio model",
+    "RF privacy, security, range or performance"
+  ]
+}

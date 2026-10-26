@@ -1,0 +1,205 @@
+{
+  "status": "HELPER_CHECKS_ONLY_FULL_REVIEW_PENDING",
+  "samples": [
+    {
+      "case": "cardputer-adv-imu",
+      "frames": {
+        "before": {
+          "ppm_sha256": "9c3a83c4c33cb7a0b9c2ebd505d746aafb04af10f145fc0ef9223f9b38769837",
+          "png_sha256": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+          "width": 240,
+          "height": 135,
+          "pixels_sha256": "71492cd8ee96369e2797d85a074016133e4b3f54b6a10072425ef71bd4e003e0",
+          "nonblack": 5519,
+          "unique_colors_capped_256": 17
+        },
+        "after": {
+          "ppm_sha256": "9c3a83c4c33cb7a0b9c2ebd505d746aafb04af10f145fc0ef9223f9b38769837",
+          "png_sha256": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+          "width": 240,
+          "height": 135,
+          "pixels_sha256": "71492cd8ee96369e2797d85a074016133e4b3f54b6a10072425ef71bd4e003e0",
+          "nonblack": 5519,
+          "unique_colors_capped_256": 17
+        },
+        "marker": {
+          "x": 4,
+          "y": 4,
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "dark": false,
+          "pass": true
+        }
+      },
+      "sources": {
+        "current_mutable_flash_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+        "packaged_python": {
+          "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+          "boot.py": "027c8d6e1bcd933ea6dee1c5318b995867ff512fa35ff8308240ebe33c8b5c09",
+          "main.py": "619f7d493161de5d1e94a282f4e60af932bbbe805125a37b4f14fda098b027c9"
+        },
+        "scope": "Actual final LittleFS readback. Initial image hash is independently read from raw runner stdout."
+      },
+      "data_planes": {
+        "qom_injections": {
+          "scope": "Frozen profile command + frozen runner ordering and guest/frame effects; qom-set is not itself a controller readback",
+          "optional_debug_readbacks": []
+        }
+      }
+    },
+    {
+      "case": "sticks3-audio",
+      "frames": {
+        "before": {
+          "ppm_sha256": "76f6cb3dcc3bb3b55ff37fc3531dfea05b5fb4d7e3602dc29e99b4e554e60f80",
+          "png_sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7",
+          "width": 135,
+          "height": 240,
+          "pixels_sha256": "44593fd8dce1ce0251185a1ebed97615f69ff5d5e44a0e4d157768e20040563a",
+          "nonblack": 1756,
+          "unique_colors_capped_256": 16
+        },
+        "after": {
+          "ppm_sha256": "76f6cb3dcc3bb3b55ff37fc3531dfea05b5fb4d7e3602dc29e99b4e554e60f80",
+          "png_sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7",
+          "width": 135,
+          "height": 240,
+          "pixels_sha256": "44593fd8dce1ce0251185a1ebed97615f69ff5d5e44a0e4d157768e20040563a",
+          "nonblack": 1756,
+          "unique_colors_capped_256": 16
+        },
+        "marker": {
+          "x": 4,
+          "y": 4,
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "dark": false,
+          "pass": true
+        }
+      },
+      "sources": {
+        "current_mutable_flash_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+        "packaged_python": {
+          "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+          "boot.py": "a744c706ae9375a6aea53d9e3a5dddf86b408d98f11d0fa35b7aa157c60c8f3c",
+          "main.py": "080e8d17b02236753c66328384411ace56774ea530bb9878bb05d1e32c788ca1"
+        },
+        "scope": "Actual final LittleFS readback. Initial image hash is independently read from raw runner stdout."
+      },
+      "data_planes": {
+        "qom_expect": [
+          [
+            "/machine/m5pm1",
+            "pa-enabled",
+            "true"
+          ]
+        ],
+        "captured_pcm": {
+          "sha256": "5997924a0ad5b89c1881b598bade247fac8ba97f3b64cda2fd312b4d1e712135",
+          "bytes": 65536,
+          "samples": 32768,
+          "nonzero": 32758,
+          "peak_to_peak": 2881
+        }
+      }
+    },
+    {
+      "case": "cardputer-adv-sd",
+      "frames": {
+        "before": {
+          "ppm_sha256": "d29fc916b74208f7ed67fb455adb38c3ed15527098d0a6b4f95fdcf1c53fc642",
+          "png_sha256": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+          "width": 240,
+          "height": 135,
+          "pixels_sha256": "11ca62170f77aa61a0064457309e8c4273fde747fc83cc368caa055a1c956918",
+          "nonblack": 2716,
+          "unique_colors_capped_256": 16
+        },
+        "after": {
+          "ppm_sha256": "d29fc916b74208f7ed67fb455adb38c3ed15527098d0a6b4f95fdcf1c53fc642",
+          "png_sha256": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+          "width": 240,
+          "height": 135,
+          "pixels_sha256": "11ca62170f77aa61a0064457309e8c4273fde747fc83cc368caa055a1c956918",
+          "nonblack": 2716,
+          "unique_colors_capped_256": 16
+        },
+        "marker": {
+          "x": 4,
+          "y": 4,
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "dark": false,
+          "pass": true
+        }
+      },
+      "sources": {
+        "current_mutable_flash_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879",
+        "packaged_python": {
+          "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+          "boot.py": "349044fae7f4785ccd85e6f0f0c6c0ee0115e934f5c23435f919cd6bd668545f",
+          "main.py": "84846e46c4372a7e8adc452953df8b53a88e3c24488a2f465a33dec8b1e61913"
+        },
+        "scope": "Actual final LittleFS readback. Initial image hash is independently read from raw runner stdout."
+      },
+      "data_planes": {
+        "disk": {
+          "sha256": "35c03ed774d1fa8bb1470ac294729f82b0ad7df95f922518c4227d527cee87de",
+          "sector": 100,
+          "length": 512
+        }
+      }
+    },
+    {
+      "case": "sticks3-ir",
+      "frames": {
+        "before": {
+          "ppm_sha256": "e8c37c149b4e33688fa28db0dda0f8bcad34dade54e6e736c5f52c33d43c6172",
+          "png_sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+          "width": 135,
+          "height": 240,
+          "pixels_sha256": "66ad2ff5a6a425bae5a86f023d5e4b92a62094446b8281e5ee42789848ac97f6",
+          "nonblack": 1357,
+          "unique_colors_capped_256": 15
+        },
+        "after": {
+          "ppm_sha256": "e8c37c149b4e33688fa28db0dda0f8bcad34dade54e6e736c5f52c33d43c6172",
+          "png_sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+          "width": 135,
+          "height": 240,
+          "pixels_sha256": "66ad2ff5a6a425bae5a86f023d5e4b92a62094446b8281e5ee42789848ac97f6",
+          "nonblack": 1357,
+          "unique_colors_capped_256": 15
+        }
+      },
+      "sources": {
+        "current_mutable_flash_sha256": "aaf93d4a21879ce96c2203ecdcf142dc49dbb73fc0e071ace4e8fe64b2a9fba4",
+        "packaged_python": {
+          "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+          "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "main.py": "a7c1fc3437e3df5068af57d24043856fc6b17ce8b2789a51d876b11b3160529d"
+        },
+        "scope": "Actual final LittleFS readback. Initial image hash is independently read from raw runner stdout."
+      },
+      "data_planes": {
+        "rmt_nec": {
+          "sha256": "e49369575476368a1349d721e15ce957c7b5a4712c6d4bd90b51ee956c58a597",
+          "address": 86,
+          "command": 163,
+          "offset": 0
+        }
+      }
+    }
+  ],
+  "API_guest_case_execution": 0,
+  "full_matrix_result": "PENDING"
+}

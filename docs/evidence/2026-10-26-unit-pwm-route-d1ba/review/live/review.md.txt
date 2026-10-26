@@ -1,0 +1,77 @@
+# 纯 PWM 初始化 route：两批实际证据独立复核
+
+结论：`PASS_WITH_SCOPE_LIMITS`，未发现推翻本次窄范围 A/B 结论的问题。
+同一 CoreS3 source API 请求、caller/effective source 和派生 firmware 下，旧 runtime
+复现初始化 QOM observer `0 Hz / 0%`，候选 runtime 的八个新鲜窗口均为
+`2000 Hz / 0%`。基线保持 `FAIL_REPRODUCED`，不改写成初始化 PASS。
+
+| 批次 | 原结果 | Runtime | Worker generation | 八窗 QOM | 实际采样 guest elapsed |
+| --- | --- | --- | --- | --- | --- |
+| baseline-r1 | FAIL_REPRODUCED | 29d8…d28d | 11 | 8 × 0 Hz / 0% | 9–3837 ms |
+| candidate-r1 | PASS | d1ba…45ff | 12 | 8 × 2000 Hz / 0% | 6150–10230 ms |
+
+固件 SHA 为 `81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11`；
+caller/effective CAS 为 `9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b`。
+canonical request SHA 为 `6e3eea816fa0f5d5d35188d47609714d6719e67152e4c2d7850be46baf9f7644`。
+两批 source-request.json 的实际文件字节也完全相同。
+
+复核没有重跑 API、浏览器、guest、编译或 BIN，也没有修改原件。独立脚本重新从
+原 `http/index.json`、request/response raw、五份 caller、samples、浏览器报告、
+direct PID 记录和 evidence ZIP 建立对应关系；原 harness `check_saved` 在禁止
+HTTP/socket/子进程的条件下另跑通过，只作为补充。
+
+每批的八份 QOM `/units` 样本都位于实际 GET serial-before → GET units →
+GET serial-after 顺序中；after UART 保留完整 prefix，并出现新的、计数和 elapsed
+均严格递增的 `PWMR_HOLD` heartbeat。窗口顺序不重叠。两批所有 getter heartbeat
+均为 `2000 / 0`，没有 `PWMR_HOLD_DONE`，也没有 guest exception 标记。
+候选第一窗跨两个 heartbeat，其余窗至少一个；准确 offsets、HTTP indices、
+时间和计数范围见 `independent-live-review.json`。
+
+五份 caller 的 AST 和实际字节均独审：仅一次
+`PWM(Pin(PWM_GPIO), freq=PWM_FREQUENCY_HZ, duty_u16=0)`；其后只有无参数
+`pwm.freq()` 和 `pwm.duty_u16()` getter。配置为 GPIO2 / 2000 Hz / HOLD_MS=60000 /
+HEARTBEAT_MS=250。没有原 BuzzerUnit、Haptic 或 SoftTimer 路径，也没有动态代码或
+alias 绕行。这个结论限于 caller；不宣称动态 native MMIO trace。
+
+原始 HTTP mutation 每批只有 source compose、source-pinned session create 和
+`DELETE ?purge=0`，没有 BIN intake 或 unit-input。真实产品浏览器每批各有 10 份
+running DOM snapshot、10 份 HTTP readback、零 actions、零 POST、零 errors；
+每个 DOM 字段都重新对上实际 browser HTTP 与 Unit properties。
+
+direct PID executable SHA、firmware、worker identity/generation 和 active lease
+在运行态 HTTP、独立 sampler 文件和 ZIP manifest 中相符。ZIP 的每个 member
+hash/length、source artifact/provenance、固定 Unit contract 和 board pins 均复核，
+且原始下载发生在实际 purge=0 stop 之前。history 留存 source/native frame，完整
+mutable Flash 已释放，worker lease 已结束，运行前后 health 均为零 active sessions。
+owned PID 退出是原 runner 记录的 `pid_gone=true`，本次没有对历史 PID 做新的
+live re-probe，不把离线报告描述为重新证明过去的系统调用。
+
+QOM 通用 ZIP snapshot 具有 node limit，并带 `__truncated__`。频率/占空比的八窗
+证据来自实际 `/units`，其固定源码 `UnitRegistry.state` 对每字段调用
+`qom('/machine/units/external1', descriptor.property)`，没有 Python default 回退；
+它的 contract hashes 与 ZIP 和源码 snapshot 相符。不要把通用 snapshot 说成
+完整导出了该 Unit 的每个 QOM 属性。
+
+`output-transitions` 在基线八窗中保持 0，候选八窗中保持 1。当前模型定义是
+frequency/duty 属性发生变化时增加计数，候选的初始化 observer 更新产生 1；
+它不表示在零占空比时测到一个物理 PWM 脉冲。每窗 `input-events` 均为 0。
+
+两批 pre-READY 都有一条 `i2c.master` port not initialized 的启动日志；审阅的
+hold 区间没有异常标记。本报告保留这一事实，不使用“启动日志完全无错误”的表述。
+
+实际 native PNG 已目视检查，三种唯一像素内容的标题、无 setter 说明、INIT HOLD、
+getter frequency/duty 和 sample 数字均完整可读，没有发现裁剪。只对捕获帧成立：
+
+| 捕获 | 可见 sample | SHA256 |
+| --- | --- | --- |
+| baseline running | 16 | f62c8a610d95ad745d1cbab453e229a85c0953aaa295258dda93018b98f782d7 |
+| baseline ZIP/history | 20 | 33bd6e291bdb16e452b92c9be77e3ffe30fee25de92b6d141724f3d5930326fc |
+| candidate running/ZIP/history | 40 | 15c67a98b433c5c4ee46c29b1cd3ba88b01403d509218cd2a565dc1a0f327187 |
+
+不同渠道是独立采样，基线 running 与后续 ZIP/history 的 sample 数不同。两批帧
+都显示 guest getter 为 2000 Hz；初始化 route 的差异由实际 QOM 窗口确认，截图
+只支持对应捕获时刻的 guest 可读性。
+
+本结论不扩大到完整 60000 ms hold、上电后第一瞬间的连续状态、原 BuzzerUnit.once
+回调/timer 风险、完整周期 waveform 语义、共享 runtime 完整回归、其它主机或
+硬件声学/电气行为。full regression 是否通过应由其自己的终态证据回答。

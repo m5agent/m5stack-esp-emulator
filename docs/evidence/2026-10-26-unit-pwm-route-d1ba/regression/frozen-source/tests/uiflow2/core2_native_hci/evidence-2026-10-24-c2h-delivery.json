@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-c2h-delivery",
+  "scope": "virtual-device H2C and C2H callback transport",
+  "status": "PASS",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "qemu_sha256": "f5ec86620e29fa2854ecb0bff6c480a794757cb1e9fe62069352183434dfb15e",
+  "checks": {
+    "stock_hci_reset_captured": true,
+    "qom_h2c_packet_count": true,
+    "qom_h2c_byte_count": true,
+    "peer_received_packet": true,
+    "reset_complete_delivered": true,
+    "guest_command_progressed": true,
+    "qom_callback_status_zero": true,
+    "qom_callback_no_errors": true,
+    "qom_send_available_called": true,
+    "qemu_clean_exit": true
+  },
+  "packet": "01030c00",
+  "h2c_packets": 1,
+  "h2c_bytes": 4,
+  "next_packet": "01011000",
+  "c2h_delivered": 1,
+  "h2c_packets_after_c2h": 2,
+  "c2h_send_available": 1,
+  "c2h_errors": 0,
+  "c2h_last_status": 0,
+  "not_claimed": [
+    "complete HCI command sequence",
+    "BLE connection or GATT",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ],
+  "qemu_exit_code": 0
+}

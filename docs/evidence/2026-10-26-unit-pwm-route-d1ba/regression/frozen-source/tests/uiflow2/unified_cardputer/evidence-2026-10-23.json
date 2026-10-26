@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "cardputer-adv",
+  "firmware_sha256": "4225708360dc517a752aad6efe6fdbe3b99def8e7f30b31c6b6977055ba194ba",
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "keyboard_redraw": true,
+    "imu": true,
+    "speaker_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [240, 135],
+    "before_nonblack_pixels": 8372,
+    "before_unique_colors": 31,
+    "after_nonblack_pixels": 8350,
+    "after_unique_colors": 31,
+    "changed_after_key": true
+  },
+  "audio": {
+    "bytes": 33280,
+    "nonzero_bytes": 33113,
+    "sha256": "18144d056a21247b13702aeabeadf6b41bbdfb9cd8082daf63be41ca9383b666"
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_port": 18082,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "name": "M5-CPTR-ADV-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_CPTR_ADV",
+    "notification": "ACK:M5_CPTR_ADV"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

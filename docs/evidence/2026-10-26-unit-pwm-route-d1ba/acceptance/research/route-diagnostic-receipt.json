@@ -1,0 +1,24 @@
+{
+  "status": "REPRODUCED_MODEL_GAP",
+  "scope": "offline actual-C fragment ordering diagnostic; no guest or QEMU execution",
+  "head": "5cf58191af2938ecd86f991455b47145872fb08e",
+  "source_functions": {
+    "esp32_gpio_write": "aaa6a1e1b5386e283737c872a461e9bd52264f8ad3d244637fc62a4dbf8441d2",
+    "esp32_gpio_matrix_out_signal": "d9458b87820f57bfb2e3b4871c086cc6d1fc9cee5c2f17f0db9ae041ad90e305",
+    "m5_unit_pwm_observe": "4ef63f1721bf84b9228abc2fc5cbe390f33ed9e5455a609e41a40d2269770a70",
+    "num_get": "811441e439a6f0817457246a63fae6bca68f8cb44727672a9012d98658741f2e"
+  },
+  "result": {
+    "after_actual_route_write_hz": 0,
+    "after_identical_ledc_observer_hz": 2000,
+    "duty_pct": 0
+  },
+  "next_experiment": "Replay LEDC register state on actual GPIO output-route mutation, then verify original initialization path in a separate Device Service session. No fix implemented.",
+  "diagnostic_c_sha256": "94616dee4884f3192b3b255fb8f27242077bc12f06638d161e41cc91121188f7",
+  "source_file_sha256": {
+    "hw/gpio/esp32_gpio.c": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+    "hw/m5stopwatch/m5_unit_gpio.c": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d"
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "compile_command": "clang -std=c11 -Wall -Wextra -Wno-unused-parameter diagnostic.c -o diagnostic"
+}

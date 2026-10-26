@@ -1,0 +1,1027 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-service-attempts",
+  "stage": "HCI-4",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "service_api": "/api/v1",
+  "firmware": {
+    "sha256": "5ed4fcfad22c50d10d9a1af48bdb8e7b7e125a6fa278d3f8e30e53bd03aa43db",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "80d3c50d1cc1d24a9686492bcb064891d43b7058c4e829ba2dc5879fbfee8881",
+  "tool_hashes": {
+    "runner": "4b92a201bf52755cbf2d3ebecb4afb6f15cbd9d4cfe86faac6e2a297ba6a2a20",
+    "device_service": "2201e850a7ccc19a22df6c687b3bd4725b0dfdd5409f5db240d3cc78846f867f",
+    "qemu_accel": "018aebbe1b127b1e34647a62739950e625a6395d504de0344733cb984482cd33",
+    "ble_runtime_limits": "6a2cd0afee89b0a5f4c7bb081882018db8908f0adeb056885740b3ef3cf45a07",
+    "ble_probe": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+    "network_policy": "f231fafa4888150d4a0d8d008ce4ae75fe444dbaf7db6d3b78abe32a3ef4cf9a",
+    "unified_http_guestfwd": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+  },
+  "input_hash_bound_at": "before_first_lease",
+  "input_assets_unchanged_during_run": true,
+  "input_asset_drift": {},
+  "attempts_requested": 4,
+  "attempts_completed": 4,
+  "attempts_passed": 3,
+  "attempts_failed": 1,
+  "concurrency_requested": 2,
+  "maximum_concurrent_sessions": 2,
+  "concurrency_observed": true,
+  "attempt_batches": [
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "stagger_seconds": 0,
+  "hold_seconds_per_attempt": 120.0,
+  "ble_linger_seconds": 180.0,
+  "ble_reconnect_cycles": 1,
+  "psram_required": true,
+  "psram_gate": "FAIL",
+  "ready_timeout_seconds_requested": 240.0,
+  "ready_timeout_seconds_effective": 240.0,
+  "first_failure": {
+    "attempt": "attempt-3",
+    "failure_phase": null,
+    "failure_class": "check_failed",
+    "failure_error": null,
+    "network_status": "PASS",
+    "hold_state": "running",
+    "failure_diagnostics": {
+      "panic_count": 0,
+      "first_panic": null,
+      "last_panic": null,
+      "observed_serial_markers": [
+        "UNIFIED_CORE2_BOOT",
+        "UNIFIED_CORE2_MAIN",
+        "UNIFIED_CORE2_DISPLAY",
+        "UNIFIED_CORE2_READY",
+        "UNIFIED_CORE2_WIFI_CONNECTED",
+        "UNIFIED_CORE2_HTTP_PASS",
+        "UNIFIED_CORE2_PUBLIC_DNS",
+        "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+        "UNIFIED_CORE2_BLE_READY",
+        "UNIFIED_CORE2_BLE_RX",
+        "UNIFIED_CORE2_BLE_ACK_SENT",
+        "UNIFIED_CORE2_PSRAM_INIT_PASS",
+        "UNIFIED_CORE2_PSRAM_SWEEP",
+        "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+        "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+        "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+        "UNIFIED_CORE2_STRESS_HEARTBEAT"
+      ],
+      "peer_gatt_timeout": false,
+      "session_read_error": null,
+      "cleanup_error": null
+    }
+  },
+  "checks_per_attempt": {
+    "active_ble_link_during_hold": "PASS",
+    "api_evidence": "PASS",
+    "ble_cycle_count": "PASS",
+    "bounded_tcg_cache": "PASS",
+    "evidence_zip": "PASS",
+    "external_nus_gatt": "PASS",
+    "frame_png": "PASS",
+    "hold_stable": "PASS",
+    "manifest_session_binding": "PASS",
+    "native_hci_health": "FAIL",
+    "pcap_file_in_evidence_zip": "PASS",
+    "psram_guest_stress": "PASS",
+    "psram_machine_capacity": "PASS",
+    "psram_sustained_stress": "PASS",
+    "public_dns_http": "PASS",
+    "wifi_dhcp_http": "PASS",
+    "hci_transport": "ESP32 native HCI device + HLI to Bumble",
+    "frame_sha256": "cd2f2033fa92dabd8a60dd4e81bbefd3656b855123e762aef5080188ddf5192f",
+    "qom_nodes": 31
+  },
+  "runs": [
+    {
+      "attempt": "attempt-1",
+      "status": "PASS",
+      "failure_phase": null,
+      "failure_class": null,
+      "failure_error": null,
+      "frame_bytes": 3731,
+      "frame_sha256": "cd2f2033fa92dabd8a60dd4e81bbefd3656b855123e762aef5080188ddf5192f",
+      "qom_nodes": 31,
+      "qom_memory_bytes": 8388608,
+      "evidence_bytes": 56621,
+      "serial_sha256": "2b4694f6854cb3b2b8ad2cd7d022824768b216f580a2e3aaba93b215acc34cb9",
+      "peer_log_sha256": "a4b54b0c0c93b3b49408b6e9de29806ac6656f0f35112b5bef13fef6e979f4e4",
+      "pcap_bytes": 22519,
+      "native_hci_health": {
+        "hli-valid": 1,
+        "hli-posts": 45,
+        "hli-consumed": 45,
+        "hli-errors": 0,
+        "hli-c2h-events": 36,
+        "hli-c2h-acls": 9,
+        "hli-queue-depth": 0,
+        "meta-queue-depth": 0,
+        "conn-pool-valid": 1,
+        "hs-conns-head": 1073623624,
+        "conn-pool-free": 3,
+        "l2cap-pool-valid": 1,
+        "l2cap-pool-free": 9,
+        "gatts-pool-valid": 1,
+        "gatts-pool-free": 3,
+        "hci-trace-packets": 0,
+        "api-send-trace-packets": 0,
+        "hli-deferred-not-halted": 34,
+        "trace-hci-cmd-tx": 24,
+        "trace-hs-sched-reset": 0,
+        "trace-gap-adv-start": 1,
+        "trace-gap-adv-stop": 0,
+        "dropped-packets": 0,
+        "tx-queue-depth": 0,
+        "last-error": 0,
+        "peer-closed": 0
+      },
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "init_pass_count": 1,
+        "stress_pass_count": 1,
+        "heartbeats": [
+          [
+            20,
+            3,
+            1,
+            0
+          ],
+          [
+            32,
+            6,
+            2,
+            1
+          ],
+          [
+            45,
+            10,
+            3,
+            1
+          ],
+          [
+            56,
+            13,
+            4,
+            1
+          ],
+          [
+            67,
+            16,
+            5,
+            2
+          ],
+          [
+            77,
+            19,
+            6,
+            2
+          ],
+          [
+            88,
+            22,
+            7,
+            2
+          ],
+          [
+            99,
+            25,
+            8,
+            3
+          ],
+          [
+            110,
+            28,
+            9,
+            3
+          ],
+          [
+            121,
+            31,
+            10,
+            3
+          ]
+        ],
+        "http_recheck_pass_count": 10,
+        "public_recheck_pass_count": 3,
+        "verified_bytes": 32505856,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PASS",
+      "hold_state": "running",
+      "hold_error": null,
+      "session_started_epoch": 1792909446.513528,
+      "session_finished_epoch": 1792909609.183158,
+      "qemu_accelerator": "tcg,thread=single,tb-size=128",
+      "hold_resource_samples": {
+        "state_polls": 24,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": 549184,
+        "rss_kib_min": 549184,
+        "rss_kib_max": 549344,
+        "rss_kib_end": 549344,
+        "rss_kib_delta": 160,
+        "rss_kib_samples": [
+          549184,
+          549264,
+          549328,
+          549344
+        ],
+        "phys_footprint_kib_start": 211968,
+        "phys_footprint_kib_min": 192512,
+        "phys_footprint_kib_max": 211968,
+        "phys_footprint_kib_end": 192512,
+        "phys_footprint_kib_delta": -19456,
+        "phys_footprint_kib_samples": [
+          211968,
+          203776,
+          192512,
+          192512
+        ]
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_BLE_READY",
+          "UNIFIED_CORE2_BLE_RX",
+          "UNIFIED_CORE2_BLE_ACK_SENT",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS",
+          "UNIFIED_CORE2_PSRAM_SWEEP",
+          "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+          "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+          "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+          "UNIFIED_CORE2_STRESS_HEARTBEAT"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    },
+    {
+      "attempt": "attempt-2",
+      "status": "PASS",
+      "failure_phase": null,
+      "failure_class": null,
+      "failure_error": null,
+      "frame_bytes": 3731,
+      "frame_sha256": "cd2f2033fa92dabd8a60dd4e81bbefd3656b855123e762aef5080188ddf5192f",
+      "qom_nodes": 31,
+      "qom_memory_bytes": 8388608,
+      "evidence_bytes": 56206,
+      "serial_sha256": "dcc81dc79bdb67a786c9fef6aa89907fe8a498dd04bd6aba9ce70398a541c4d6",
+      "peer_log_sha256": "01fb4e9d8091c5ffacd863d08fd71c8057a5d0377a570c526c234c472b1f2bb7",
+      "pcap_bytes": 24966,
+      "native_hci_health": {
+        "hli-valid": 1,
+        "hli-posts": 45,
+        "hli-consumed": 45,
+        "hli-errors": 0,
+        "hli-c2h-events": 36,
+        "hli-c2h-acls": 9,
+        "hli-queue-depth": 0,
+        "meta-queue-depth": 0,
+        "conn-pool-valid": 1,
+        "hs-conns-head": 1073623812,
+        "conn-pool-free": 3,
+        "l2cap-pool-valid": 1,
+        "l2cap-pool-free": 9,
+        "gatts-pool-valid": 1,
+        "gatts-pool-free": 3,
+        "hci-trace-packets": 0,
+        "api-send-trace-packets": 0,
+        "hli-deferred-not-halted": 27,
+        "trace-hci-cmd-tx": 24,
+        "trace-hs-sched-reset": 0,
+        "trace-gap-adv-start": 1,
+        "trace-gap-adv-stop": 0,
+        "dropped-packets": 0,
+        "tx-queue-depth": 0,
+        "last-error": 0,
+        "peer-closed": 0
+      },
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33
+        ],
+        "init_pass_count": 1,
+        "stress_pass_count": 1,
+        "heartbeats": [
+          [
+            11,
+            2,
+            1,
+            0
+          ],
+          [
+            23,
+            4,
+            2,
+            0
+          ],
+          [
+            34,
+            7,
+            3,
+            1
+          ],
+          [
+            47,
+            11,
+            4,
+            1
+          ],
+          [
+            59,
+            14,
+            5,
+            1
+          ],
+          [
+            69,
+            17,
+            6,
+            2
+          ],
+          [
+            80,
+            20,
+            7,
+            2
+          ],
+          [
+            91,
+            23,
+            8,
+            2
+          ],
+          [
+            102,
+            26,
+            9,
+            3
+          ],
+          [
+            112,
+            29,
+            10,
+            3
+          ],
+          [
+            127,
+            33,
+            11,
+            4
+          ]
+        ],
+        "http_recheck_pass_count": 11,
+        "public_recheck_pass_count": 4,
+        "verified_bytes": 34603008,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PASS",
+      "hold_state": "running",
+      "hold_error": null,
+      "session_started_epoch": 1792909446.512314,
+      "session_finished_epoch": 1792909610.3287628,
+      "qemu_accelerator": "tcg,thread=single,tb-size=128",
+      "hold_resource_samples": {
+        "state_polls": 24,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": 511184,
+        "rss_kib_min": 511184,
+        "rss_kib_max": 511504,
+        "rss_kib_end": 511504,
+        "rss_kib_delta": 320,
+        "rss_kib_samples": [
+          511184,
+          511312,
+          511312,
+          511504
+        ],
+        "phys_footprint_kib_start": 194560,
+        "phys_footprint_kib_min": 191488,
+        "phys_footprint_kib_max": 194560,
+        "phys_footprint_kib_end": 191488,
+        "phys_footprint_kib_delta": -3072,
+        "phys_footprint_kib_samples": [
+          194560,
+          191488,
+          191488,
+          191488
+        ]
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_BLE_READY",
+          "UNIFIED_CORE2_BLE_RX",
+          "UNIFIED_CORE2_BLE_ACK_SENT",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS",
+          "UNIFIED_CORE2_PSRAM_SWEEP",
+          "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+          "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+          "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+          "UNIFIED_CORE2_STRESS_HEARTBEAT"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    },
+    {
+      "attempt": "attempt-3",
+      "status": "FAIL",
+      "failure_phase": null,
+      "failure_class": "check_failed",
+      "failure_error": null,
+      "frame_bytes": 3731,
+      "frame_sha256": "cd2f2033fa92dabd8a60dd4e81bbefd3656b855123e762aef5080188ddf5192f",
+      "qom_nodes": 31,
+      "qom_memory_bytes": 8388608,
+      "evidence_bytes": 52625,
+      "serial_sha256": "c1c309ad08de8ac3549cbad9287ba1efa0d98230960db2eac8f7f573fee672dd",
+      "peer_log_sha256": "7f65d31ec960eef1e95ce1e1f3087c867bbcd48cc05c01ae282f7b119446e36d",
+      "pcap_bytes": 22962,
+      "native_hci_health": {
+        "hli-valid": 1,
+        "hli-posts": 45,
+        "hli-consumed": 45,
+        "hli-errors": 3,
+        "hli-c2h-events": 36,
+        "hli-c2h-acls": 9,
+        "hli-queue-depth": 0,
+        "meta-queue-depth": 0,
+        "conn-pool-valid": 1,
+        "hs-conns-head": 1073623740,
+        "conn-pool-free": 3,
+        "l2cap-pool-valid": 1,
+        "l2cap-pool-free": 9,
+        "gatts-pool-valid": 1,
+        "gatts-pool-free": 3,
+        "hci-trace-packets": 0,
+        "api-send-trace-packets": 0,
+        "hli-deferred-not-halted": 27,
+        "trace-hci-cmd-tx": 24,
+        "trace-hs-sched-reset": 0,
+        "trace-gap-adv-start": 1,
+        "trace-gap-adv-stop": 0,
+        "dropped-packets": 0,
+        "tx-queue-depth": 0,
+        "last-error": 0,
+        "peer-closed": 0
+      },
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "init_pass_count": 1,
+        "stress_pass_count": 1,
+        "heartbeats": [
+          [
+            11,
+            2,
+            1,
+            0
+          ],
+          [
+            24,
+            3,
+            2,
+            0
+          ],
+          [
+            35,
+            6,
+            3,
+            1
+          ],
+          [
+            45,
+            9,
+            4,
+            1
+          ],
+          [
+            56,
+            12,
+            5,
+            1
+          ],
+          [
+            66,
+            14,
+            5,
+            2
+          ],
+          [
+            77,
+            18,
+            6,
+            2
+          ],
+          [
+            88,
+            21,
+            7,
+            2
+          ],
+          [
+            98,
+            24,
+            8,
+            3
+          ],
+          [
+            109,
+            27,
+            9,
+            3
+          ],
+          [
+            120,
+            30,
+            10,
+            3
+          ]
+        ],
+        "http_recheck_pass_count": 11,
+        "public_recheck_pass_count": 3,
+        "verified_bytes": 32505856,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PASS",
+      "hold_state": "running",
+      "hold_error": null,
+      "session_started_epoch": 1792909610.332639,
+      "session_finished_epoch": 1792909771.0808508,
+      "qemu_accelerator": "tcg,thread=single,tb-size=128",
+      "hold_resource_samples": {
+        "state_polls": 24,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": 526944,
+        "rss_kib_min": 526944,
+        "rss_kib_max": 527248,
+        "rss_kib_end": 527248,
+        "rss_kib_delta": 304,
+        "rss_kib_samples": [
+          526944,
+          527088,
+          527088,
+          527248
+        ],
+        "phys_footprint_kib_start": 205824,
+        "phys_footprint_kib_min": 192512,
+        "phys_footprint_kib_max": 205824,
+        "phys_footprint_kib_end": 193536,
+        "phys_footprint_kib_delta": -12288,
+        "phys_footprint_kib_samples": [
+          205824,
+          192512,
+          192512,
+          193536
+        ]
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_BLE_READY",
+          "UNIFIED_CORE2_BLE_RX",
+          "UNIFIED_CORE2_BLE_ACK_SENT",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS",
+          "UNIFIED_CORE2_PSRAM_SWEEP",
+          "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+          "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+          "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+          "UNIFIED_CORE2_STRESS_HEARTBEAT"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    },
+    {
+      "attempt": "attempt-4",
+      "status": "PASS",
+      "failure_phase": null,
+      "failure_class": null,
+      "failure_error": null,
+      "frame_bytes": 3731,
+      "frame_sha256": "cd2f2033fa92dabd8a60dd4e81bbefd3656b855123e762aef5080188ddf5192f",
+      "qom_nodes": 31,
+      "qom_memory_bytes": 8388608,
+      "evidence_bytes": 60022,
+      "serial_sha256": "d92c86e6c1941556dd47528a4e0ecfe5f962136e72a71a42b291ab29a66a7ae1",
+      "peer_log_sha256": "7f52b8e56c6496d09bcaf3b873965de251d104cafd7363723c0c3cc0f4700ca2",
+      "pcap_bytes": 22333,
+      "native_hci_health": {
+        "hli-valid": 1,
+        "hli-posts": 45,
+        "hli-consumed": 45,
+        "hli-errors": 0,
+        "hli-c2h-events": 36,
+        "hli-c2h-acls": 9,
+        "hli-queue-depth": 0,
+        "meta-queue-depth": 0,
+        "conn-pool-valid": 1,
+        "hs-conns-head": 1073623648,
+        "conn-pool-free": 3,
+        "l2cap-pool-valid": 1,
+        "l2cap-pool-free": 9,
+        "gatts-pool-valid": 1,
+        "gatts-pool-free": 3,
+        "hci-trace-packets": 0,
+        "api-send-trace-packets": 0,
+        "hli-deferred-not-halted": 198,
+        "trace-hci-cmd-tx": 24,
+        "trace-hs-sched-reset": 0,
+        "trace-gap-adv-start": 1,
+        "trace-gap-adv-stop": 0,
+        "dropped-packets": 0,
+        "tx-queue-depth": 0,
+        "last-error": 0,
+        "peer-closed": 0
+      },
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "init_pass_count": 1,
+        "stress_pass_count": 1,
+        "heartbeats": [
+          [
+            20,
+            3,
+            1,
+            0
+          ],
+          [
+            31,
+            6,
+            2,
+            1
+          ],
+          [
+            44,
+            10,
+            3,
+            1
+          ],
+          [
+            55,
+            13,
+            4,
+            1
+          ],
+          [
+            65,
+            15,
+            5,
+            2
+          ],
+          [
+            77,
+            19,
+            6,
+            2
+          ],
+          [
+            87,
+            22,
+            7,
+            2
+          ],
+          [
+            98,
+            24,
+            8,
+            3
+          ],
+          [
+            110,
+            28,
+            9,
+            3
+          ],
+          [
+            122,
+            31,
+            10,
+            3
+          ]
+        ],
+        "http_recheck_pass_count": 10,
+        "public_recheck_pass_count": 3,
+        "verified_bytes": 32505856,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PASS",
+      "hold_state": "running",
+      "hold_error": null,
+      "session_started_epoch": 1792909610.3317518,
+      "session_finished_epoch": 1792909773.4779708,
+      "qemu_accelerator": "tcg,thread=single,tb-size=128",
+      "hold_resource_samples": {
+        "state_polls": 24,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": 552224,
+        "rss_kib_min": 552224,
+        "rss_kib_max": 552304,
+        "rss_kib_end": 552304,
+        "rss_kib_delta": 80,
+        "rss_kib_samples": [
+          552224,
+          552272,
+          552304,
+          552304
+        ],
+        "phys_footprint_kib_start": 217088,
+        "phys_footprint_kib_min": 194560,
+        "phys_footprint_kib_max": 217088,
+        "phys_footprint_kib_end": 194560,
+        "phys_footprint_kib_delta": -22528,
+        "phys_footprint_kib_samples": [
+          217088,
+          204800,
+          194560,
+          194560
+        ]
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_BLE_READY",
+          "UNIFIED_CORE2_BLE_RX",
+          "UNIFIED_CORE2_BLE_ACK_SENT",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS",
+          "UNIFIED_CORE2_PSRAM_SWEEP",
+          "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+          "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+          "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+          "UNIFIED_CORE2_STRESS_HEARTBEAT"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    }
+  ],
+  "boundary": {
+    "isolation": "trusted-host",
+    "gdb_bridge": false,
+    "session_reuse": "up to 4 independent leases and QEMU processes with concurrency 2",
+    "pcap": "captured in each evidence ZIP; packet summaries are finalized during stop/retention handling",
+    "not_claimed": [
+      "bit-exact Espressif BT controller/baseband",
+      "physical 8 MiB PSRAM capacity",
+      "physical cache/PSRAM timing",
+      "physical hardware or RF validation",
+      "malware sandboxing"
+    ]
+  }
+}

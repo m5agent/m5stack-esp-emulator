@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "status": "OPEN_INITIAL_PWM_QOM_OBSERVATION_GAP",
+  "captured_at": "2026-10-26T02:11:59.673282+00:00",
+  "issue_id": "UNIT-HOST-20",
+  "session_id": "69e4366e0b824f86ac1407f61916f701",
+  "firmware_sha256": "c06818dc352cf519f6b5e973391a3fa77967b0c0d838843d4f52415ebe083af7",
+  "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "worker_generation": 10,
+  "original_audio_result": "FAIL",
+  "original_error": "AssertionError: observed frequency differs from fixed-frequency contract",
+  "serial_ready_event": {
+    "at": "2026-10-26T02:03:16.046173+00:00",
+    "event": "serial_marker",
+    "marker": "LEDC_DIAG_READY"
+  },
+  "running_event": {
+    "at": "2026-10-26T02:03:16.046884+00:00",
+    "event": "state",
+    "from": "booting",
+    "to": "running"
+  },
+  "audio_enable_at": "2026-10-26T02:03:17.170Z",
+  "enable_seconds_after_ready": 1.123827,
+  "zero_frequency_observations": [
+    {
+      "at": "2026-10-26T02:03:16.518419+00:00",
+      "body": "units-000.json",
+      "body_sha256": "4d0b52ceef5589f593ec68bc6c8d3bff8cd6a97fe06c493c6938e04d50d39eed",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:17.025627+00:00",
+      "body": "units-001.json",
+      "body_sha256": "3c6612ff2eeeb1ca3fd4719b7fbd16f1b6f620ba73728449fa8a7c2a30b167ef",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:17.534544+00:00",
+      "body": "units-002.json",
+      "body_sha256": "6198ff1d8ace529e126149cb128cdc332a74614b3e97be6afeb880f4097794ac",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:18.043180+00:00",
+      "body": "units-003.json",
+      "body_sha256": "1891115c69857aca2fba236196e9941844c95eb6e47fb85a51a75e6e8dffda3c",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:18.548997+00:00",
+      "body": "units-004.json",
+      "body_sha256": "f30f98195c21139ca35393e1e1a37f9d25b1b1131b3a08331cf7ff175ff7fd55",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:19.058964+00:00",
+      "body": "units-005.json",
+      "body_sha256": "972bc8919cbfceb58a9fb8f1d16a0703b6e286ff34bdc1649698daa8e639360f",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:19.567552+00:00",
+      "body": "units-006.json",
+      "body_sha256": "1f4c4faeb93136304da3024a84cdfadd532d59f6efbf0997fcade89bb887f847",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:20.076454+00:00",
+      "body": "units-007.json",
+      "body_sha256": "ac0726c289633f9094ca53c12d7866564d03035ffc713df132a283470ae40e49",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:20.587643+00:00",
+      "body": "units-008.json",
+      "body_sha256": "d4eae6d3c2d07abda97a422f3aeff7bd5f8867010b304c0bef3b21e9c947b02b",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:21.100676+00:00",
+      "body": "units-009.json",
+      "body_sha256": "6c59911c0fb2b6fd927bf9d34fd1ca3899a4c655c48ab31ebf88e46efa413a62",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:21.614279+00:00",
+      "body": "units-010.json",
+      "body_sha256": "51a5fa7b81b45068409ad0e052a26e0e6ec86c6c3d02ca2211a1f9b22d10a3c2",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:22.124993+00:00",
+      "body": "units-011.json",
+      "body_sha256": "abf8c9d1415aa9e26d10690ba486ee4d1c122581c2c22bb2975eaed0d26e56a1",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:22.634368+00:00",
+      "body": "units-012.json",
+      "body_sha256": "746ba2a30c1b90249ac8e1a441212bb38735f1b52e6142a8080f1874bc130ad2",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:23.140430+00:00",
+      "body": "units-013.json",
+      "body_sha256": "d1c5652fe48cd839a895acde72207b299e66320480664a9068cff1e71053fc23",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:23.652930+00:00",
+      "body": "units-014.json",
+      "body_sha256": "6c0455113146f12d08021c1b3b06b4f8a51d9fc6e6f9bee7d8d4778d27bb0966",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:24.159209+00:00",
+      "body": "units-015.json",
+      "body_sha256": "502f0527f67c0b344374960399d0ba8e5356de029150ac53145e93fea571e77b",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:24.670836+00:00",
+      "body": "units-016.json",
+      "body_sha256": "1eca7b262b1743b5210ef0a5760e9b7d32bb527c66da1e653f67dec4aa9bdc4a",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:25.178836+00:00",
+      "body": "units-017.json",
+      "body_sha256": "c52ff699276d61bc3383732c80a782a51b629e786b7d28b241c1c126a22d3703",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:25.685624+00:00",
+      "body": "units-018.json",
+      "body_sha256": "6f611df83a002f425e037b1a3fb508939563eca05a73b1ba35997d1518f7f87f",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:26.194575+00:00",
+      "body": "units-019.json",
+      "body_sha256": "fca8cbdabffd5524c7f0c18850ab9da6c617df231d34c2d06d5755704d880eae",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:26.706226+00:00",
+      "body": "units-020.json",
+      "body_sha256": "6a2af4af6af1dd586df76eaacdb94bd079895bf78a3c4af8bcae72d929cdfb17",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:27.213384+00:00",
+      "body": "units-021.json",
+      "body_sha256": "e056536ac3a7f1c69e1bbc9642fbd475a0fc850b88f258e3353a81ae534e007f",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:27.725030+00:00",
+      "body": "units-022.json",
+      "body_sha256": "cf477faff8a85034e04cc954fcd057082df6e89832dd3b0f56c57a215000c066",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:28.236700+00:00",
+      "body": "units-023.json",
+      "body_sha256": "3af3280475efd56129c9615ec62cbe0503d1a70e2ed69bde5b8c6f55b498f625",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:28.750257+00:00",
+      "body": "units-024.json",
+      "body_sha256": "679ff94aedd70e76f2d1d124fdb38612fcf3b57c3858699d52eab9b3570ad2b2",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:29.265499+00:00",
+      "body": "units-025.json",
+      "body_sha256": "4d55ef30bab1f8a4a7ec8c03c0d93eac37eea0cc99921daad38fb084ce680083",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:29.774804+00:00",
+      "body": "units-026.json",
+      "body_sha256": "2c5b574f4bc0556a4f7dea5d1718437198c56a72f7aa07880b3fbe39b889322a",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:30.286639+00:00",
+      "body": "units-027.json",
+      "body_sha256": "d604edec50b1fe2f99bf5d767722ce65826c65e5b0b60e55408904162dace61a",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:30.796526+00:00",
+      "body": "units-028.json",
+      "body_sha256": "64b25f5327f9fc8a58401611726db7d0705d436a16fe8f75b54d89da7cc0544b",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:31.307913+00:00",
+      "body": "units-029.json",
+      "body_sha256": "7e01a03878d3bbee80f9315ba130ceffd0c49e7b876814b7064dd5a6f5038dee",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:31.816444+00:00",
+      "body": "units-030.json",
+      "body_sha256": "5bd2fb28ad5f49c6da95d67ceb81f52bef81d6af71f396e462ccf4d6239dfb1f",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:32.328601+00:00",
+      "body": "units-031.json",
+      "body_sha256": "bc6eea200bb80525933e6347224d46c29715e024a424e3fbaecba1432b4e7620",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:32.836268+00:00",
+      "body": "units-032.json",
+      "body_sha256": "72680750893f4d3179f0357c7f29301a0358e925e788121aa4f0ffc61aad943a",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:33.344170+00:00",
+      "body": "units-033.json",
+      "body_sha256": "a7836782470faef893df63913ad942489d146ef263ff2e488430dc1680a59606",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:33.858158+00:00",
+      "body": "units-034.json",
+      "body_sha256": "bc37a376b2cccf6859f5f59f0936be94547966fd1050995a906708326920d844",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:34.370312+00:00",
+      "body": "units-035.json",
+      "body_sha256": "296a1ec04f188d4cf04b2da910ab2b57095da15c24a1ba720abb0ef51e594c07",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:34.884507+00:00",
+      "body": "units-036.json",
+      "body_sha256": "6b6f72bb524fb3da0834bcc588a7c52ffd280f8b41ae93a0662885950d613558",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:35.399545+00:00",
+      "body": "units-037.json",
+      "body_sha256": "92e0cdc8c4121cf4f13a13579d855d53568699351fd0b10e0bd2d92a34dc04ab",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    },
+    {
+      "at": "2026-10-26T02:03:35.911677+00:00",
+      "body": "units-038.json",
+      "body_sha256": "050264ba038cdf4d163af10234dc0efad88b4769da7f76857f01c6d96a5d3732",
+      "phase_before": null,
+      "phase_after": null,
+      "output_transitions": 0
+    }
+  ],
+  "first_2000hz_zero_observation": {
+    "at": "2026-10-26T02:03:36.419949+00:00",
+    "body": "units-039.json",
+    "body_sha256": "d3f9d91925c3fceebd6d59202c37820c674be1aa09f9e518c3d033054368e902",
+    "phase_before": [
+      "0",
+      "zero",
+      "0"
+    ],
+    "phase_after": [
+      "0",
+      "zero",
+      "0"
+    ],
+    "output_transitions": 1
+  },
+  "original_browser_receipt_sha256": "98fc24ed60a07d43f4185fa27000a7c7aa7544aca838591174a8115a07f92685",
+  "original_root_report_sha256": "99f7fbfac25b6ef4865217170943d4b18a34b736e401bfd8102b5087069c01eb",
+  "original_root_observations_sha256": "d8e1a37c0ff84bb91ad440eeaab069ffe6a61684e50151ea7b590d721bbe43f5",
+  "evidence_zip_sha256": "ae2d32684b9cafb660290d1f662f545cf3c7b542049153fbf1cb22d025ebf4f8",
+  "sources": [
+    {
+      "path": ".work/unit-runtime-source-ledc-readback/qemu/hw/misc/esp32_ledc.c",
+      "sha256": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5",
+      "snapshot": "sources/.work/unit-runtime-source-ledc-readback/qemu/hw/misc/esp32_ledc.c.txt",
+      "pinned_by_root_execution_preparer": true
+    },
+    {
+      "path": ".work/unit-runtime-source-ledc-readback/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "sha256": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d",
+      "snapshot": "sources/.work/unit-runtime-source-ledc-readback/qemu/hw/m5stopwatch/m5_unit_gpio.c.txt",
+      "pinned_by_root_execution_preparer": false
+    },
+    {
+      "path": ".work/unit-runtime-source-ledc-readback/qemu/hw/gpio/esp32_gpio.c",
+      "sha256": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+      "snapshot": "sources/.work/unit-runtime-source-ledc-readback/qemu/hw/gpio/esp32_gpio.c.txt",
+      "pinned_by_root_execution_preparer": false
+    },
+    {
+      "path": ".work/buzzer-ledc-readback-review-20261026/machine_pwm-78ff170.c",
+      "sha256": "12a69b211b6132256a6425c50f1d8a7191bac9bb8faa72bc0b1a58e78c0806ce",
+      "snapshot": "sources/.work/buzzer-ledc-readback-review-20261026/machine_pwm-78ff170.c.txt",
+      "pinned_by_root_execution_preparer": false
+    },
+    {
+      "path": ".work/buzzer-ledc-readback-review-20261026/idf-ledc.c",
+      "sha256": "a27e4e1832757d0b53cd6613ff58a6f4bdeb999db0aec835c6ca26e3def69b3e",
+      "snapshot": "sources/.work/buzzer-ledc-readback-review-20261026/idf-ledc.c.txt",
+      "pinned_by_root_execution_preparer": false
+    },
+    {
+      "path": ".work/unit-ledc-mmio-diagnostic-20261026-r1/guest_audio/mmio_program.py",
+      "sha256": "b8e80e96eb53ce3baeb6febdb1ec5b91d6040039b8aff93b91ff6140c963e676",
+      "snapshot": "sources/.work/unit-ledc-mmio-diagnostic-20261026-r1/guest_audio/mmio_program.py.txt",
+      "pinned_by_root_execution_preparer": true
+    }
+  ],
+  "source_consistent_path": [
+    "Guest PWM constructor completes, then emits READY, then waits 20 seconds before the first explicit duty_u16(0).",
+    "Fixed official MicroPython apply_duty new-channel branch calls ledc_channel_config then reconfigure_pin; subsequent duty setters use LEDC set/update.",
+    "Fixed official IDF ledc_channel_config writes duty/update/binds timer before its GPIO matrix output binding.",
+    "Current pinned runtime LEDC writes call ledc_observe, which invokes m5_unit_pwm_observe; endpoint update occurs only when GPIO matrix route already matches.",
+    "Current GPIO matrix register write stores route and notifies digital line/IRQ changes, but does not replay LEDC observer.",
+    "QOM numeric getter reads cached endpoint frequency/duty and route-filters the result; it does not reconstruct LEDC timer state."
+  ],
+  "confidence": "Observed post-READY delay and controller observer-routing source gap are confirmed. Exact native MMIO ordering in the dirty firmware build is not dynamically traced; no full root-cause/repair PASS.",
+  "not_the_explanation": "Browser did not enable before PWM constructor/READY: enable is after the recorded serial READY and running transition. Waiting for READY alone cannot guarantee fixed-frequency QOM readback.",
+  "followup_scope": "Root may create separately hashed custom audio firmware with actual guest duty_u16(0) after construction, before READY+20s; this is explicit probe behavior and does not close the route-observer gap or change the prior firmware result.",
+  "api_contacted": false,
+  "original_files_modified": 0
+}

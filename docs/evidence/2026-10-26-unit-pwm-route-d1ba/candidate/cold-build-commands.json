@@ -1,0 +1,38 @@
+{
+  "cwd": ".work/unit-runtime-source-pwm-route/qemu/build",
+  "commands": [
+    [
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/configure",
+      "--target-list=xtensa-softmmu",
+      "--python=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-ledc-readback/venv/bin/python",
+      "--enable-gcrypt",
+      "--enable-slirp",
+      "--disable-docs",
+      "--disable-werror",
+      "--disable-gtk",
+      "--disable-gnutls",
+      "--disable-nettle",
+      "--disable-vnc",
+      "--disable-curl",
+      "--disable-libssh",
+      "--disable-zstd",
+      "--disable-bzip2",
+      "--disable-curses",
+      "--disable-auth-pam",
+      "--disable-dbus-display",
+      "--disable-tpm",
+      "--disable-sdl",
+      "--disable-cocoa",
+      "--disable-png",
+      "--extra-cflags=-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-ledc-readback/deps/include",
+      "--extra-ldflags=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-ledc-readback/deps/lib/libgcrypt.a /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-ledc-readback/deps/lib/libgpg-error.a"
+    ],
+    [
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-ledc-readback/venv/bin/ninja",
+      "-j8",
+      "qemu-system-xtensa"
+    ]
+  ],
+  "api_guest_calls": 0,
+  "qemu_objects_copied": false
+}

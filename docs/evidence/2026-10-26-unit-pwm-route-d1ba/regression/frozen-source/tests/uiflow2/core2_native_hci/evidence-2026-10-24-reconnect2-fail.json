@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-reconnect-boundary",
+  "stage": "CORE2-02",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "recorded_at": "2026-10-24",
+  "superseded_by": "evidence-2026-10-24-hci4-reconnect2-3x.json",
+  "question": "Can one stock Core2 guest complete a second external NUS GATT transaction after the peer disconnects?",
+  "baseline": {
+    "status": "PASS",
+    "scope": "one scan/connect/NUS subscribe/write/notify/disconnect transaction",
+    "evidence": [
+      "evidence-2026-10-24-hci4-service-5x.json",
+      "evidence-2026-10-24-hci4-active-ble-hold120-2x.json"
+    ],
+    "interpretation": "The first BLE transaction and a two-minute active-link hold pass. They do not prove a second connection in the same guest."
+  },
+  "build": {
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "667ec84c9e53ce73b0e63c7be69284837ff00b77a9194577ef757c164e8e31a1"
+  },
+  "variants": [
+    {
+      "name": "stock-advertising-lifecycle",
+      "firmware_sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982",
+      "firmware_bytes": 16777216,
+      "guest_changes": "none; stock BLEUARTServer calls gap_advertise immediately from the disconnect IRQ",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "serial_error_marker": "HCI process ack returned 12",
+        "serial_error_marker_count": 14969,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "dd61afb4a3dcac17cd5f0a529a967eb0a9864322d808e84b117179493a8053c1",
+        "peer_log_sha256": "98f07c54d96a60465a43870c19b850a6e1fd743eef5bca76473461ce9a20eac1",
+        "pcap_bytes": 6427,
+        "evidence_zip_bytes": 93323,
+        "evidence_zip_sha256": "7531f3ca24426d3d42cf663d7388e2903cc4697d73ec2da444fd13503e0e97a3"
+      }
+    },
+    {
+      "name": "guest-scheduled-readvertise",
+      "firmware_sha256": "62693f5377264da0dda2bd9aaa0dc34aec624b88c51f13e3aa863622e090a198",
+      "firmware_bytes": 16777216,
+      "guest_changes": "test-only ReconnectableBLEUARTServer schedules gap_advertise 500 ms after disconnect",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "readvertise_result": "OSError(-12,)",
+        "serial_error_marker": "HCI process ack returned 12",
+        "serial_error_marker_count": 17144,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "89a3dc7c35bb4db48820b0377160dede5567d2518b2e3cbc9e3f4e6d87844917",
+        "peer_log_sha256": "472877dd9ea8cfe90749004babd567f2e2cf45f2f6871901e6bfb10ce880d28d",
+        "pcap_bytes": 6485,
+        "evidence_zip_bytes": 89426,
+        "evidence_zip_sha256": "d23710c4d9912ade2eeaa39125aa3756e1d43084f23d95a0e97056a6d648424d"
+      }
+    },
+    {
+      "name": "no-readvertise-control",
+      "firmware_sha256": "4b4dadcf961220fe6dd4f77104e837af2cc833ccf9cb1d148ac26cb52e439e92",
+      "firmware_bytes": 16777216,
+      "guest_changes": "test-only IRQ override removes the connection and deliberately does not advertise again",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "serial_error_marker": null,
+        "serial_error_marker_count": 0,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "631338883cd72ed28b675b96385ddf283353ecb47e93e772a9ed6115860aa553",
+        "peer_log_sha256": "a2fb5b8010b14a22921540b26979d5bbbccd05a01b4efd067d2f3f3cc0931d40",
+        "pcap_bytes": 6787,
+        "evidence_zip_bytes": 36992,
+        "evidence_zip_sha256": "211c1032478b40bb736e2ca53364b7262c50388ffb2e7ab909b3b6838dd8c45f"
+      }
+    }
+  ],
+  "classification": {
+    "result": "Bumble returned an invalid response for a no-response HCI command",
+    "confirmed": [
+      "The stock and delayed-readvertising variants complete cycle 1, disconnect, then emit repeated NimBLE 'HCI process ack returned 12' and never expose a second advertisement.",
+      "The true no-readvertise control completes cycle 1 without any NimBLE reset, proving disconnect alone is harmless.",
+      "QEMU HLI delivery is ordered and error-free; connection, L2CAP and GATT pools remain available.",
+      "The external Bumble compatibility handler incorrectly returned Command Status for HCI_Host_Number_of_Completed_Packets (0x0c35).",
+      "The stale 0x0c35 ACK was consumed by the next LE Set Advertising Data command, so ble_hs_hci_process_ack returned BLE_HS_ECONTROLLER (12).",
+      "Bluetooth Core Vol 4, Part E, 7.3.35 defines no Command Complete or Command Status response for this command."
+    ],
+    "not_claimed": [
+      "physical RF, bit-exact ESP32 BT controller/baseband or controller firmware equivalence",
+      "multi-hour coexistence or hardware validation",
+      "pairing, security or encrypted reconnect"
+    ],
+    "next_checks": [
+      "Keep the corrected no-response handling under unit test.",
+      "Run repeated two-cycle leases and multi-cycle soak in the follow-up evidence."
+    ]
+  },
+  "root_cause": {
+    "component": "external Bumble controller compatibility layer",
+    "invalid_reply_opcode": "0x0c35",
+    "next_affected_command": "0x2008",
+    "nimble_error": 12,
+    "fix": "return no HCI event for HCI_Host_Number_of_Completed_Packets"
+  },
+  "reproduction": {
+    "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
+    "network_options": {
+      "ble_reconnect_cycles": 2,
+      "ble_reconnect_delay_seconds": 2
+    },
+    "service": "runtime=qemu-unified, profile=core2-native-hci, trusted-host isolation"
+  }
+}

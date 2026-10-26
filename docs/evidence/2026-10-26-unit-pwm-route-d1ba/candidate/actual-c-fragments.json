@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "candidate": {
+    "source_kind": "candidate",
+    "function_sha256": {
+      "esp32_gpio_matrix_out_signal": "d9458b87820f57bfb2e3b4871c086cc6d1fc9cee5c2f17f0db9ae041ad90e305",
+      "esp32_gpio_write": "82a5a4566e85388b27aa565a95243826fa8ae9b5585882c714115c8ced60d3ce",
+      "m5_unit_pwm_observe": "b8e9ef3a93c658f5d50ce7fc0ab59f91075da8046cd3d6975b6e9280222e4867",
+      "num_get": "811441e439a6f0817457246a63fae6bca68f8cb44727672a9012d98658741f2e",
+      "ledc_observe": "6a4d335997810c7502bf29cf2ad4b4fe57c31532f3de8529b0a2c7595ccf7d86",
+      "esp32_ledc_read": "12a90f94999be676982c8144c8804fb135ed232c839301aafeb2d1cd498bb07f",
+      "esp32_ledc_get_percent": "7c93a7e2a6f5f43ffe94bac85f13f0f157cd6e014b8088f952b1a033aa9756a0",
+      "esp32_ledc_write": "4e220e021ceba7773472f6e8e03624d736e0c6cf90fcd4912e5e4b8c65eb43ac",
+      "esp32_ledc_realize": "dcb4b4cdd73bd0304705b9854d978b41c5c73594dc88d823d9fadc4e8f417571",
+      "esp32_ledc_gpio_route_changed": "98157f8efab2789ba04314a4bffb33166981a568a6c24d886cffd2c1eefb873e",
+      "esp32_ledc_unrealize": "c7940d56130af5291853a95a42cba8be8cc09aa22fa1d7068ea218259062896c"
+    },
+    "source_file_sha256": {
+      "hw/gpio/esp32_gpio.c": "a76a241d6a2a66fe55583ec79cd55562ef0efba57230f9897e3bfe42bf63925a",
+      "hw/m5stopwatch/m5_unit_gpio.c": "feaf115d043cbcd5ca777708ff78b9f7dcb85e3c726d2663f1f09b974657bc3f",
+      "hw/misc/esp32_ledc.c": "a82e8cde98b13d5972fea594a0dec304d796955d3baa7d3136ff9b9aeb5f50b8"
+    },
+    "harness_sha256": "00333b894fc4dcc85f506beb1eebc8063de9a55f1f43366b4a918c4fa712c9bf",
+    "compile_command": [
+      "/usr/bin/clang",
+      "-std=gnu11",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Wno-unused-function",
+      "-Wno-sign-compare",
+      "-Werror",
+      "-DBASELINE=0",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-pwm-route-candidate-20261026/candidate.c",
+      "-o",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-pwm-route-candidate-20261026/candidate"
+    ],
+    "result": {
+      "status": "PASS",
+      "scope": "actual C fragments, host stubs, no firmware execution",
+      "route_write_side_effects": 0,
+      "cross_layout_endpoint_writes": 0,
+      "cases": 18
+    }
+  },
+  "baseline": {
+    "source_kind": "baseline",
+    "function_sha256": {
+      "esp32_gpio_matrix_out_signal": "d9458b87820f57bfb2e3b4871c086cc6d1fc9cee5c2f17f0db9ae041ad90e305",
+      "esp32_gpio_write": "aaa6a1e1b5386e283737c872a461e9bd52264f8ad3d244637fc62a4dbf8441d2",
+      "m5_unit_pwm_observe": "4ef63f1721bf84b9228abc2fc5cbe390f33ed9e5455a609e41a40d2269770a70",
+      "num_get": "811441e439a6f0817457246a63fae6bca68f8cb44727672a9012d98658741f2e",
+      "ledc_observe": "6a4d335997810c7502bf29cf2ad4b4fe57c31532f3de8529b0a2c7595ccf7d86",
+      "esp32_ledc_read": "12a90f94999be676982c8144c8804fb135ed232c839301aafeb2d1cd498bb07f",
+      "esp32_ledc_get_percent": "7c93a7e2a6f5f43ffe94bac85f13f0f157cd6e014b8088f952b1a033aa9756a0",
+      "esp32_ledc_write": "4e220e021ceba7773472f6e8e03624d736e0c6cf90fcd4912e5e4b8c65eb43ac",
+      "esp32_ledc_realize": "bbe00f78b3ef0cb2d19f0ccc8630e06bb16ef0a884838579971097e4f4b40fce"
+    },
+    "source_file_sha256": {
+      "hw/gpio/esp32_gpio.c": "ef0bd6aae004f7e41abba44df82c8f0c5d807b376762d24669e87c50a02a8dc2",
+      "hw/m5stopwatch/m5_unit_gpio.c": "88140240b9aa77b50ebd3325eccb260491da80f6c7aa8bb934b7aa7d61497e7d",
+      "hw/misc/esp32_ledc.c": "3c54791864fe2237a6f5022cb8e5c78f074e5f277807947b371af2477ea508f5"
+    },
+    "harness_sha256": "0b39e273f4645207aa40fdd626b9ea06cfebeeb3b960842de3bcb89ba50851c9",
+    "compile_command": [
+      "/usr/bin/clang",
+      "-std=gnu11",
+      "-Wall",
+      "-Wextra",
+      "-Wno-unused-parameter",
+      "-Wno-unused-function",
+      "-Wno-sign-compare",
+      "-Werror",
+      "-DBASELINE=1",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-pwm-route-candidate-20261026/baseline.c",
+      "-o",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-pwm-route-candidate-20261026/baseline"
+    ],
+    "result": {
+      "baseline_route_hz": 0,
+      "manual_observer_hz": 2000,
+      "baseline_cross_layout_frequency": 2000
+    }
+  },
+  "unchanged_actual_functions": [
+    "esp32_ledc_read",
+    "esp32_ledc_write",
+    "esp32_ledc_get_percent",
+    "num_get",
+    "esp32_gpio_matrix_out_signal",
+    "ledc_observe"
+  ],
+  "api_browser_guest_calls": 0,
+  "hardware": "NOT RUN"
+}

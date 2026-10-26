@@ -1,0 +1,7 @@
+# PWM 归档与authority文档独审
+
+PASS，无未关闭问题。1923份保留文件及439份omission逐项与原件hash/字节核对；7份Markdown仅改存储后缀，934条nested SHA解析成功。20份PCM、9份RMT与原非UTF8 servo UART完整保留；ZIP CRC/成员manifest正常。
+
+归档真实复制到无.work的新checkout，默认main在禁止任何write/API/进程的条件下audit PASS；负控均预期拒绝。原归档审前后指纹未变，本报告仅覆盖root加入此报告前的成品。
+
+六份authority文档未见越界：初始化route有界关闭；旧失败、偶发根因、原Buzzer/完整周期/硬件和provenance限制均保留；652零skip与原log相符。新完整67/274与Core2绿色marker来自原full轮，不拼接targeted。

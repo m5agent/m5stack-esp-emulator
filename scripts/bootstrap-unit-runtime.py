@@ -32,6 +32,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch",
     "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch",
     "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch",
+    "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

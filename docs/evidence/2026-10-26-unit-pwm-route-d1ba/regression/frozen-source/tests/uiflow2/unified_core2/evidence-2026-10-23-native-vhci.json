@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-unified-native-vhci",
+  "timestamp": "2026-10-23T20:59:00+08:00",
+  "status": "PASS",
+  "scope": "simulation-only same-QEMU-guest board, WiFi, public network, native-VHCI BLE and external Bumble GATT",
+  "firmware": {
+    "sha256": "f19597358e93279e8996f469aadf6e4a828c5e5285ef2f31212290c3df597ba2",
+    "size": 16777216,
+    "uses_stock_internal_controller_build": true
+  },
+  "runtime": {
+    "qemu_sha256": "329aa7bfd26707e97017b748172e8fba3542a932be1f08c05f5790ffc08eb44a",
+    "native_vhci_bridge_sha256": "a44a18a98a5b413d8e8ef7a5f7a65c9f3a42290c16d5285ac3d2be0a59c530b1",
+    "unified_runner_sha256": "42670556697e98a4e2d0b6b0898079048ff5a7ef9df2d0caee1d6a5fdec00d90",
+    "hci_stream_sha256": "76792f3df96c5edc962c3df04c71b77816e8cc4efbdc5e93ccfabc4d60092420",
+    "controller_boundary": "ESP32 VHCI host API",
+    "external_controller": "Bumble"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "serial_sha256": "6494151279f3f59f73fb85a63e4b43ff16f5dbb377942345b8a49ea8091916ed",
+      "peer_log_sha256": "d4d52e0ac4a268479a87bf4622394fda106e8bf658a9b4433d78be7ab5510377",
+      "bridge_log_sha256": "d26163f34056e32b2855214e5cdcf565e3a8fb8c5477f991edf099116fc6fd6f",
+      "frame_before_nonblack": 8889,
+      "frame_after_nonblack": 16357,
+      "frame_changed": true
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "serial_sha256": "8d7e1216f60ff74f018fb21ca8765e10cd4212458f3bfe0352feaa4382cdb746",
+      "peer_log_sha256": "56074ef04aef6dab467c2fdcea2163a7ea0516c8130b4ceb498285e17de42e6c",
+      "bridge_log_sha256": "88aded2a82e32aad3d168314e321238e84deca1b2f84afc7e1669f7bfb569d29",
+      "frame_before_nonblack": 8889,
+      "frame_after_nonblack": 16357,
+      "frame_changed": true
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "serial_sha256": "e769fa1c1a86c6bd116bb4fba67458835a83309877310fc591322654098e9757",
+      "peer_log_sha256": "989f8873a9dc3ceab86a26408feca96bb9edb59ab1803bb5edda6d7df9ae3d6d",
+      "bridge_log_sha256": "639f440336c61569c425f2cd7ef48565764fbe5c6625e003e3cdd14fb50e34e4",
+      "frame_before_nonblack": 8935,
+      "frame_after_nonblack": 16403,
+      "frame_changed": true
+    }
+  ],
+  "checks": {
+    "board_and_display": true,
+    "power_imu_rtc_ina": true,
+    "audio_and_microphone": true,
+    "wifi_dhcp": true,
+    "controlled_http": true,
+    "public_dns_http": true,
+    "ble_external_scan_connect_gatt": true,
+    "ble_notify_readback": true,
+    "frame_nonblank_and_touch_redraw": true,
+    "qom_values": true,
+    "bridge_h2c_c2h_acl": true
+  },
+  "passed_attempts": 3,
+  "total_attempts": 3,
+  "not_claimed": [
+    "Device Service same-lease integration",
+    "bit-exact Espressif BT baseband/controller execution",
+    "RF range, timing, coexistence or power",
+    "BLE pairing, security or production throughput",
+    "real-hardware behavior"
+  ]
+}

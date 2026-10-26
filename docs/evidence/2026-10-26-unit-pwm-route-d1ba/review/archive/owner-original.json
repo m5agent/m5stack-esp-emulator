@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "offline byte-provenance, MD transport, exact omissions, nested hashes, ZIP CRC/member manifests, images, UTF8/privacy and bounded result binding",
+  "provenance_files": 1923,
+  "transported_markdown": 7,
+  "omitted_files": 439,
+  "checks": {
+    "utf8_payloads": 1765,
+    "images_decoded": 174,
+    "zip_copies": 4,
+    "zip_members": 44,
+    "rmt_files": 9,
+    "pcm_files": 20,
+    "pcm_bytes": 3359488,
+    "binary_servo_uart_files": 1,
+    "nested_checksum_entries": 934
+  },
+  "source_work_directories_required_for_audit": false,
+  "full_matrix_functional_counts": {
+    "PASS": 67
+  },
+  "hardware": "NOT RUN",
+  "limitations": [
+    "Virtual-device evidence only; hardware NOT RUN.",
+    "Each A/B batch has eight fresh UART-before / real units-QOM / UART-after windows covering about four guest seconds, not a continuous 60-second soak or the first instant of initialization.",
+    "Candidate output-transitions=1 counts observer property changes, not physical PWM pulses.",
+    "The generic evidence ZIP QOM snapshot has a node limit; actual frozen UnitRegistry /units queries provide the per-window frequency and duty fields.",
+    "Original Buzzer.once timer bug, full-cycle/latch/fade behavior, and physical acoustic/electrical equivalence remain OPEN.",
+    "Full-matrix prepare records 388 source hashes and the expected Xtensa pin; no complete all-ROM/C6 full-start freeze exists. Cold-build, mid-run, C6-before and end observations retain their actual observation times and never recreate a full-start freeze.",
+    "papercolor-rgb original summary.command is overwritten by the WS2812 checker command. Its launch is STATIC_RECONSTRUCTION from frozen source; functional assertions are separate. No actual per-case argv trace is claimed.",
+    "Six IR cases have final mutable Flash image hashes different from their stdout initial-image hashes. The prepared source files remain byte-identical; no rewrite cause or immutable final-BIN claim is inferred.",
+    "Older candidate platform logs retain 628 passed, 22 skipped and 2 stale-snapshot failures; the later root environment result is a separate 652 passed, zero skipped run."
+  ]
+}

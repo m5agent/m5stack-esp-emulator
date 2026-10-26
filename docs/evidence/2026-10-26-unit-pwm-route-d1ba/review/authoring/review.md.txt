@@ -1,0 +1,7 @@
+# PWM 初始化 A/B harness 独审
+
+PASS，无未关闭问题。12份作者交付hash匹配，五文件caller无构造后setter或回调驱动；baseline与candidate共用请求/CAS，不嵌入运行时预期。独立离线sandbox通过56项检查，禁止socket/HTTP/Client/子进程调用，实际外部调用为0。
+
+八个UART前界→实际QOM→新UART后界窗口、同固件/caller/effective/request A/B、PID/worker、DOM/HTTP、ZIP-before-stop与history/Flash/PID清理均已静态核对；纯函数负控覆盖错误数值、非live状态、陈旧UART、hold完成、setter和A/B身份变化。
+
+此审查仅为离线作者/判断器证据，不是功能或硬件PASS。采样位于60秒guest hold内，不代表完整60秒连续覆盖；getter链证为静态源路径，未声称动态MMIO trace。作者文件未改。

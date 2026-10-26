@@ -1,0 +1,9 @@
+{
+  "status": "STATIC_MODEL_COUNTER_SEMANTICS",
+  "patch": "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch",
+  "patch_sha256": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302",
+  "definition": "if (g->frequency != frequency || g->duty != percent) { g->unit->output_transitions++; }",
+  "baseline_constant": 0,
+  "candidate_constant": 1,
+  "scope": "Observer property-change counter, not physical pulse count. Sampling shows no changes across each set of eight windows."
+}

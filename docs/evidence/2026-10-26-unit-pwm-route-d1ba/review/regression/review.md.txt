@@ -1,0 +1,7 @@
+# d1ba 完整矩阵独审
+
+PASS_WITH_PROVENANCE_LIMITATIONS
+
+一次 full-r1 的原67case/274assertion逐例离线重算；不拼接任何targeted结果。runtime/ROM仅按真实prepared、cold-build、mid/end及每case reference hash分层，不宣称完整all-ROM/C6启动前后冻结。papercolor-rgb原profile命令为冻结源码静态反推，summary实际保存WS2812 checker命令。
+
+实际统计：{"PASS": 67}；assertions：{"PASS": 274}。错误：{}。hardware NOT RUN。详见review.json逐例原始文件hash及Core2 marker像素。

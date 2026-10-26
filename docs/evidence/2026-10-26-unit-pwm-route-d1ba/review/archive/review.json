@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "scope": "Fixed archive before root appends this archive review; copied/omitted original bytes, metadata/transport/nested SHA, binary UART/PCM/RMT, original ZIP and standalone default read-only audit. No new functional/hardware execution.",
+  "reviewed_archive_fingerprint": {
+    "files": 1931,
+    "bytes": 25114771,
+    "all_files_index_sha256": "97432dc274c5585e255ae9eb8ddd4d9c037e73301f259e85b01ed99a6411aa6f",
+    "top_manifest_sha256": "7c28f4b85dce71c7bf4435e5713dc7e051c3f6ef7fe67599841e5888e4183440",
+    "auditor_sha256": "7754602baba7e7f4d089eb9a0d4967db87ec502716960cebafcd8975fd77ce7a"
+  },
+  "archive_unchanged_after_review": true,
+  "provenance_original_files_compared": 1923,
+  "exact_omission_original_files_compared": 439,
+  "omission_reasons": {
+    "excluded firmware/ROM/flash/native/build/cache artifact": 153,
+    "redundant PPM; RGB pixels verified equal to retained PNG at assembly": 286
+  },
+  "transported_markdown": 7,
+  "nested_checksum_entries": 934,
+  "zip_copies": 2,
+  "zip_members": 22,
+  "pcm_files": 20,
+  "pcm_bytes": 3359488,
+  "rmt_files": 9,
+  "binary_servo_uart": {
+    "bytes": 70,
+    "sha256": "303ec9e947dd715aa2aa88a60beecee036c4bf819f6089e6a4bb1d879b8f05bd",
+    "raw_non_UTF8_preserved": true
+  },
+  "standalone_without_work": "PASS; true archive copy in fresh checkout, default main, all filesystem write functions denied",
+  "negative_controls": [
+    "source-file-symlink",
+    "source-ancestor-symlink",
+    "unsafe-relative:../escape",
+    "unsafe-relative:/absolute",
+    "unsafe-relative:bad\\name",
+    "quoted-json-credential",
+    "unknown-binary-UART-is-not-silently-decoded",
+    "unaligned-PCM",
+    "unaligned-RMT",
+    "assemble-missing-terminal-gate-before-mkdir"
+  ],
+  "external_calls": [],
+  "open_findings": [],
+  "authority_docs_review": {
+    "status": "PASS_NO_SCOPE_OVERCLAIM_FOUND",
+    "files_sha256": {
+      "docs/unit-integration-host-issues.md": "94a94ee448d2ab3b9a65366345544cb2ae0e8c608bab22bbc2e25a625e4a125e",
+      "docs/project-status.md": "c7fef0afd03a6d1e7c125c096c5616da6e4a835a00adf5120f339c82afd798ee",
+      "docs/project-backlog.md": "0fc6d640d5f671d4ad000533333b47e5b0b48d57e8edf4d005f8f09e54afa6f2",
+      "docs/unit-agent-api.md": "2599c23f0061c39565cb10cd037834e26b21c1c4421bb3ced546db8364c57dd1",
+      "docs/plans/2026-10-25-unit-runtime-integration.md": "5799d36c492e1a061f74c9339dc76ae64192367bd9e0405b7363be02e69600fa",
+      "docs/validation-ledger.md": "815ac91cc4d6e01e95cced409c428374a2b6db15a8db0185f0c978e066004728"
+    },
+    "boundaries": [
+      "HOST20 closes only initialization route",
+      "HOST21 old66/67 and intermittent cause remain open",
+      "HOST22 records command overwrite without claiming actual launch trace",
+      "67/274 is one independent full run; no targeted splice",
+      "A/B sampling about4s inside60s hold; no full-soak or hardware claim",
+      "ROM/C6 full-start and IR mutable Flash limitations retained; actual 652 zero-skip root log checked"
+    ]
+  },
+  "hardware": "NOT RUN"
+}

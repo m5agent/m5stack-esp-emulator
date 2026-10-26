@@ -158,3 +158,23 @@ Button/Relay/ENV III 九个源码 API 会话全部通过，原 host probe、板�
 总线隔离、显示与原断言保留。该结果只授予这九个新固件/场景，不继承其它
 二十四种 Unit；精确 source pin、同 guest/Web/QOM、ZIP、直接 PID 及清理见
 [三主机源码归档](../evidence/2026-10-26-unit-source-hosts-29d8/README.md)。
+
+后续 `UNIT-HOST-20` 采用独立候选源码/冷构建处理 GPIO matrix 路由建立后的
+PWM 观察器刷新。通知只重算现有 LEDC 寄存器，不重放寄存器写入或强设 Unit
+值，保留 `0037` 的读回及 immediate-duty/fade 边界。验收使用同一 caller CAS
+与固件 SHA：首次 PWM 初始化后只读取 getter/heartbeat，在固定旧运行时与
+候选运行时分别经可见 Device Service 取新串口→QOM→新串口、实际 DOM 和
+停止前 ZIP，不加入补偿 zero setter，不混入原 Buzzer SoftTimer 故障。
+路由建立、移走、换 channel、零 duty、输出屏蔽及布局隔离另有实际 C 合同；
+共享控制器候选还须冷构建和完整矩阵门禁。未取得这些证据前，本条保持 OPEN，
+旧完整轮与旧初始化失败记录均保留。
+
+`0038` 的同固件可见 A/B 已完成：旧29d8为 `FAIL_REPRODUCED`，新d1ba八窗
+2000Hz/0%通过，无后续setter。冷构建、18组实际C片段、两轮独审及新独立完整
+矩阵67/67、274/274通过，平台652项零跳过通过；`UNIT-HOST-20` 只关闭初始化
+路由观察，原Buzzer与完整PWM周期仍开放。旧66/67保留，新Core2绿帧不关闭偶发
+根因。完整ROM/C6无全轮起始freeze、PaperColor RGB命令摘要覆盖以及六个IR例
+mutable Flash hash变化均如实保留，最终Python源码与输入冻结一致。
+详见[本块证据](../evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。外部
+agent-work-logs继续 `SKIPPED_BY_USER`。本块提交后再次fetch/merge，再按新HEAD
+准备三主机其余IO源码会话；此前Fan3证据与后续21例分批记录。

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-mtu-negative-case",
+  "stage": "HCI-3b",
+  "status": "FAIL",
+  "expected_failure": true,
+  "validation": "virtual-device validation",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "29b30d78d8634aad22877f3f893d8f35a8b10870c8b4870e26c7eaf3cfc4ccdf",
+  "input": {
+    "payload": "M5_CORE2_NATIVE_PROBE",
+    "payload_bytes": 21,
+    "att_pdu_bytes": 24,
+    "default_att_mtu": 23
+  },
+  "counters": {
+    "hli_c2h_events": 38,
+    "hli_c2h_acls": 9,
+    "hli_errors": 0,
+    "trace_acl_process": 9,
+    "trace_l2cap_rx": 9,
+    "trace_l2cap_chan_found": 9,
+    "trace_l2cap_rxfn": 8,
+    "trace_l2cap_mtu_reject": 1,
+    "trace_att_rx": 8,
+    "trace_att_write": 1,
+    "trace_att_write_handle": 1,
+    "trace_python_gatts_on_write": 0,
+    "trace_python_notify": 0
+  },
+  "trace_sequence": [
+    "l2cap_rx conn_handle=1 pb=2",
+    "l2cap_chan_found cid=4",
+    "l2cap_mtu_reject cid=4"
+  ],
+  "conclusion": "The external NUS write reaches L2CAP but is rejected before ATT dispatch because the 24-byte ATT PDU exceeds the guest default MTU of 23. This is a test-payload defect, not a controller ACK failure.",
+  "superseded_by": "evidence-2026-10-24-hli-api-gatt-5x.json",
+  "not_claimed": [
+    "controller transaction failure",
+    "physical hardware or RF validation"
+  ]
+}

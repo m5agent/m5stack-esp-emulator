@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "device": "tab5",
+  "backend": "esp-emu-native",
+  "scope": "ESP32-P4 controller-level register probe; not real-hardware validation",
+  "i2c": {
+    "port": 1,
+    "sda_gpio": 31,
+    "scl_gpio": 32,
+    "scan_7bit": [50, 65, 67, 68, 80, 85, 104],
+    "ina226_manufacturer_id": "0x5449",
+    "ina226_calibration_writeback": "0x1234",
+    "pi4ioe_1_chip_id": "0xA2",
+    "pi4ioe_1_output_writeback": "0x55",
+    "pi4ioe_2_chip_id": "0xA2",
+    "pi4ioe_2_output_writeback": "0x55",
+    "rx8130_register_writeback_hex": "57301203211026",
+    "bmi270_chip_id": "0x00",
+    "bmi270_status": "PARTIAL: address responds; UIFlow2 boot clears the preloaded CHIP_ID to 0. An explicit main.py write of 0x24 succeeds, so the native controller and register device are working. A real BMI270 reset/init state machine and dynamic samples remain required."
+  },
+  "display": {
+    "size": "1280x720",
+    "before_nonblack_pixels": 74981,
+    "after_nonblack_pixels": 74629,
+    "changed_channels": 880,
+    "touch": [640, 520]
+  },
+  "charger": {
+    "pi4ioe2_input_register_0x0f_charging": "0x00",
+    "power_is_charging_charging": true,
+    "pi4ioe2_input_register_0x0f_discharging": "0x40",
+    "power_is_charging_discharging": false,
+    "charge_enable_output_bit": 1,
+    "status": "PARTIAL: PI4IOE CHG_STAT/CHG_EN register path and Power.isCharging decode pass for both charging (0x00) and discharging (0x40); IP2326 analog current/termination behavior and hot state injection remain absent"
+  },
+  "power_api": {
+    "charging_normal": {
+      "bus_voltage_register": "0x1900",
+      "current_register": "0xB000",
+      "battery_voltage_mv": 8000,
+      "battery_current_ma": 1248,
+      "battery_level_pct": 87
+    },
+    "discharging_low": {
+      "bus_voltage_register": "0x1680",
+      "current_register": "0x2000",
+      "battery_voltage_mv": 7200,
+      "battery_current_ma": -501,
+      "battery_level_pct": 37
+    }
+  },
+  "rtc_api": {
+    "write_target": "2026-10-22 12:34:56",
+    "readback": "2026-10-22 12:34:56 (weekday=3)",
+    "status": "PARTIAL: direct machine.I2C write/read reaches RX8130 registers; progression and dynamic host time injection remain absent. machine.RTC only changes the P4 system clock and is not counted as external RTC evidence"
+  },
+  "notes": [
+    "This validates the actual P4 I2C controller and UIFlow2 machine.I2C path.",
+    "The esp-emu --i2c-dev backend is a writable register file, not a dynamic chip model.",
+    "PI4IOE2 CHG_STAT is active-low; the earlier 0x40 observation correctly decoded as not charging.",
+    "The diagnostic probe confirms CHIP_ID register zero can store 0x24 after boot; the preload is overwritten before main.py by the UIFlow2 boot board path.",
+    "Dynamic values, GPIO side effects and interrupt injection remain partial.",
+    "The final framebuffer/touch run used native riscv64-elf-gdb; Docker was not on the critical path."
+  ]
+}

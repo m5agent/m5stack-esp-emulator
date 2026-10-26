@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "core2-native-hci-resolved-psram",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "QEMU memory configuration observation; not physical PSRAM or cache timing validation",
+  "device_id": "core2",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "validation": "virtual-device validation",
+  "session_id": "ce28ae0117914a3a84b448a79b12046c",
+  "qom_snapshot_id": "d438fd1b69da4dce94b0415f6dc02a5c",
+  "qom_snapshot_captured_at": "2026-10-24T13:10:08.529701+00:00",
+  "qom_snapshot_sha256": "0d8ca2b8c744874a1e2aa36130a2e59323b774c223f5f96b1ad797be54382e6d",
+  "qemu_sha256": "d970ddb54bf5fa070cf10d721f024f20a342a3837e3d19b564300f74f3f16fc1",
+  "cli_memory_mib": 0,
+  "resolved_memory_bytes": 4194304,
+  "resolved_memory_mib": 4,
+  "has_psram": true,
+  "psram_region": "/machine/soc/dport/psram[0]",
+  "interpretation": "The m5core2 machine keeps its 4 MiB default memory and PSRAM region even though the service passes CLI -m 0. Runtime evidence must distinguish the CLI request from QOM-effective memory.",
+  "not_claimed": [
+    "physical Core2 8 MiB PSRAM capacity",
+    "physical cache or PSRAM timing",
+    "bit-exact hardware memory behavior",
+    "RF or other physical behavior"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-guest-h2c-capture",
+  "scope": "virtual-device guest-to-QEMU transport",
+  "status": "PASS",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "bytes": 16777216
+  },
+  "checks": {
+    "stock_hci_reset_captured": true,
+    "qom_h2c_packet_count": true,
+    "qom_h2c_byte_count": true,
+    "peer_received_packet": true,
+    "qemu_clean_exit": true
+  },
+  "packet": "01030c00",
+  "h2c_packets": 1,
+  "h2c_bytes": 4,
+  "qemu_exit_code": 0,
+  "not_claimed": [
+    "guest C2H delivery",
+    "complete HCI command sequence",
+    "BLE discovery or GATT",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ]
+}

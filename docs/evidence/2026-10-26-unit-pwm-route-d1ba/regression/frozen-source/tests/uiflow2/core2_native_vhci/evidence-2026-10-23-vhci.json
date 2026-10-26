@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-vhci-ble-gatt",
+  "timestamp": "2026-10-23T20:39:00+08:00",
+  "status": "PASS",
+  "scope": "stock UIFlow2 built-in-controller build using the native ESP32 VHCI host API, with QEMU GDB bridging HCI to an external Bumble controller and peer",
+  "firmware": {
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "size": 16777216,
+    "public_base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "uses_stock_internal_controller_build": true
+  },
+  "runtime": {
+    "qemu_sha256": "6cb2e0dd7f866efa273022c2b21f6f2e8b79767502e5c350b9170bf732c34ae7",
+    "gdb_bridge_sha256": "d304d46d6e2c67fee2c1f273522e03a4bc29b9d09a1c550bea69f0e9ad0f135c",
+    "runner_sha256": "a15b1bede13af04bc000b55ced0694792d38366a9d5e673831a2d3e51f7ca7f5",
+    "hci_stream_sha256": "d7e8d549079dc7945e2855f1b44e6ee4ea278cb20f3b5f51dc6cc9f4652dce6f",
+    "controller_boundary": "ESP32 VHCI host API",
+    "external_controller": "Bumble"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "serial_sha256": "e5b67f0abb5e6667a82801e47ec37ddd10a040973e8edde84baf5cb5b8ddc0f1",
+      "peer_log_sha256": "a7ffe359c4b98f5d99adf2e5c136e98bc4e00597c156542c36b8993206295853",
+      "bridge_log_sha256": "ac90c62a2d510502bf4321acc761dcf190a6a4e87003836bacb7da186c191b39"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "serial_sha256": "fa04dfdd0c51029b9ca92e33ca18921abe30632844738713124c1b11ab9983b9",
+      "peer_log_sha256": "25e1cf6491cef505f087d452c792eced37f06a12cc68cc0bfbcec65997c714e3",
+      "bridge_log_sha256": "2fd1fbd52099acd7f0442d9a12e16de09d16b4d1d0792f97d635e7584abf5608"
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "serial_sha256": "fce5e2da7f2c52cb0b685d0d8ab746a475b65d1e447adb74b1b8b7e8be110fa1",
+      "peer_log_sha256": "cd4aff4f755fb783cdda8e869d5a62c8396ebe16774c145f1b30b7fc380b298f",
+      "bridge_log_sha256": "139397a8510e7921f7d21270c9178c258a37d572429d971a680382c77370ac13"
+    },
+    {
+      "attempt": 4,
+      "status": "PASS",
+      "serial_sha256": "d58b7a24ef73dc4f766707dbfc190e44a896b20dfe9e19bf0019401fa0f804ac",
+      "peer_log_sha256": "db62df8fddea8d45f313d8df82c764b3da8587a5106aa43dcd7e2bf93a1c7def",
+      "bridge_log_sha256": "baa3ba13c619eb0ff6d5d741420c5294938a2fde8508bc565bdf3b5bca34566c"
+    },
+    {
+      "attempt": 5,
+      "status": "PASS",
+      "serial_sha256": "2e86613de32fec3aabbcdab3b990196cb35f0516b9f0e36b990934745b923ac4",
+      "peer_log_sha256": "c339746b762c78b3c4c785d5fc20b07b7692b7885cd70aa8458b7b6a34bcd61c",
+      "bridge_log_sha256": "ddb9c7643f8b28dbc761e7f5536b9eb0ea3ff52ace7372b7c0cbef6c3edb59ab"
+    }
+  ],
+  "checks": {
+    "serial_guest_rx": true,
+    "serial_guest_ack": true,
+    "peer_found": true,
+    "peer_connected": true,
+    "peer_gatt_discovered": true,
+    "peer_subscribed": true,
+    "peer_write": true,
+    "peer_notification_ok": true,
+    "peer_pass": true,
+    "bridge_h2c": true,
+    "bridge_c2h": true,
+    "bridge_acl_h2c": true,
+    "bridge_acl_c2h": true
+  },
+  "gatt": {
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_CORE2_PROBE",
+    "notification": "ACK:M5_CORE2_PROBE"
+  },
+  "passed_attempts": 5,
+  "total_attempts": 5,
+  "not_claimed": [
+    "bit-exact Espressif BT baseband/controller internal execution",
+    "RF range, timing, coexistence or performance",
+    "BLE pairing, security or production-throughput behavior",
+    "real-hardware behavior"
+  ]
+}

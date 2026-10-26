@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "sticks3",
+  "firmware": {
+    "path": "/private/tmp/m5-sticks3-unified-public.bin",
+    "bytes": 8388608,
+    "sha256": "9c12fe83013c0e735b2af0f7f3ef28299cee43118404fed3bb08db005fa59bdf"
+  },
+  "checks": {
+    "serial:UNIFIED_STICKS3_BOARD 26": true,
+    "serial:UNIFIED_STICKS3_IMU": true,
+    "serial:UNIFIED_STICKS3_POWER": true,
+    "serial:UNIFIED_STICKS3_AUDIO_PASS": true,
+    "serial:UNIFIED_STICKS3_WIFI_CONNECTED 10.0.2.15": true,
+    "serial:UNIFIED_STICKS3_HTTP_PASS": true,
+    "serial:UNIFIED_STICKS3_BLE_READY": true,
+    "serial:UNIFIED_STICKS3_BLE_RX": true,
+    "serial:UNIFIED_STICKS3_BLE_ACK_SENT": true,
+    "serial:UNIFIED_STICKS3_READY": true,
+    "serial:UNIFIED_STICKS3_BTN_A 1": true,
+    "peer:BLE_BUMBLE_FOUND": true,
+    "peer:BLE_BUMBLE_CONNECTED": true,
+    "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+    "peer:BLE_BUMBLE_SUBSCRIBED": true,
+    "peer:BLE_BUMBLE_WRITE": true,
+    "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+    "peer:BLE_BUMBLE_PASS": true,
+    "http:controlled_request": true,
+    "network:public_dns": true,
+    "network:public_http": true,
+    "frame:nonblank": true,
+    "frame:button_changed": true,
+    "qom:power": true,
+    "qom:audio_pa": true,
+    "qom:imu": true,
+    "audio:pcm_nonzero": true
+  },
+  "frame": {
+    "before": {
+      "nonblack": 8076,
+      "colors": 31
+    },
+    "after": {
+      "nonblack": 8054,
+      "colors": 31
+    },
+    "changed": true
+  },
+  "audio": {
+    "bytes": 66560,
+    "nonzeros": 64540,
+    "sha256": "731fa3d1f42a1fbde058957b95766bcb2c0bf134f3cb28a514f48be0bbead556"
+  },
+  "qom": {
+    "/machine/m5pm1.vbat-mv": 4000,
+    "/machine/m5pm1.pa-enabled": true,
+    "/machine/bmi270.accel-z": 1
+  },
+  "http_requests": [
+    {
+      "path": "/unified",
+      "host": "qemu.test"
+    }
+  ],
+  "network": {
+    "wifi": "PASS via QEMU ESP32-S3 MAC/DMA and SLiRP",
+    "ble": "PASS via UART1 HCI offload",
+    "public_dns": "PASS",
+    "public_http": "PASS",
+    "public_required": true
+  },
+  "serial_bytes": 2128,
+  "serial_sha256": "270de73d8a03e9b93b4b97ba5cf9e78d1d672cf7a5d5130f34be0a28c3c897bd",
+  "peer_log_bytes": 407,
+  "peer_log_sha256": "ae799886024b2eaf8d2618826d0d6d4c7cc65d33add9f9aa49a5740aca84f4dc",
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "RF privacy, security, range or performance",
+    "public TLS certificate validation",
+    "stable public DNS or HTTP availability"
+  ]
+}

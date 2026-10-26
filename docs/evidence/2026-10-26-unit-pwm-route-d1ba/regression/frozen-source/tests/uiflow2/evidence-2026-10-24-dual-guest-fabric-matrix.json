@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-full-matrix-after-dual-guest-fabric",
+  "generated_at": "2026-10-24T06:47:32.400919+08:00",
+  "source_base_commit": "72c2b8d59edc0f446fb35809d4c8e73c818dd9f5",
+  "qemu": {
+    "sha256": "70386d43064fed0d7839c7be30604b191eab1af1eff73981b2b8344c94926d00",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "qemu_patch": {
+    "file": "patches/qemu-m5stack-peripherals/0028-esp32-wifi-dual-guest-fabric.patch",
+    "reverse_check": "PASS"
+  },
+  "peripheral_matrix": {
+    "summary_sha256": "f4791cbf3a1e59c3c0eb613ba62918cfa96782d1a08a1d433f9fe7292ae985d8",
+    "cases": 67,
+    "checks": 274,
+    "pass": 67,
+    "fail": 0,
+    "checks_pass": 274,
+    "attempts_per_case": 1,
+    "retry_used": false
+  },
+  "interactive_case_hardening": {
+    "case": "cardputer-adv-keyboard",
+    "first_run": {
+      "status": "FAIL",
+      "pass": 66,
+      "fail": 1,
+      "summary_sha256": "f2f2ddd4c2e97b469586e97aee741c640fd359a82360298f20d039e3d00abeb7",
+      "reason": "The guest still displayed keys: 0 before the 6 second input window closed."
+    },
+    "changes": {
+      "wait_seconds": 10,
+      "post_input_wait_seconds": 2
+    },
+    "targeted_rerun": "PASS",
+    "final_full_matrix": "PASS"
+  },
+  "core2_cases": {
+    "core2-peripherals": {
+      "attempts": 1,
+      "serial_sha256": "23febbc111d25a1309a841f017bf9ae78bd5a6510bf1c7c74c731312ed75b32e"
+    },
+    "core2-audio": {
+      "attempts": 1,
+      "serial_sha256": "198a11bbc9b9f792e894cb81daa8004589ff5201ff2db0877225691b9a5f18bb"
+    },
+    "core2-mic": {
+      "attempts": 1,
+      "serial_sha256": "47a3e3ac38213ea243c9ec8c0dc0e8df4ea99cfc53dd44c518789a78ca236484"
+    },
+    "core2-power-monitor": {
+      "attempts": 1,
+      "serial_sha256": "403827317cb6aa666554204286165e39abeed7e9417a917c70abd723dcd12e89"
+    },
+    "core2-imu": {
+      "attempts": 1,
+      "serial_sha256": "9cfaed1d09998cbd4faef51f2e8e9199f15c616e9ce0c4dbb5ba14b55118be53"
+    },
+    "core2-axp192": {
+      "attempts": 1,
+      "serial_sha256": "13f318559be832b7caed68f0097a94ff7394e69582a39dbe571f8d96b208de70"
+    }
+  },
+  "not_claimed": [
+    "physical hardware",
+    "physical cache/PSRAM equivalence",
+    "bit-exact Espressif Bluetooth controller",
+    "RF, power, acoustic or optical equivalence"
+  ]
+}

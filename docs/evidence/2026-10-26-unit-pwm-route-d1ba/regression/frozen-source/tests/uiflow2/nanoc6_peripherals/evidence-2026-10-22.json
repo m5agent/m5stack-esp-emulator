@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "device": "nanoc6",
+  "backend": "qemu-esp32c6",
+  "scope": "QEMU simulation only; not real-hardware validation",
+  "board": {
+    "model": 140,
+    "profile": "M5SW_C6_BOARD=nanoc6",
+    "isolation": "Nesso N1 panel, SX1262 and board I2C devices are not instantiated"
+  },
+  "rgb": {
+    "api": "hardware.RGB()",
+    "power_gpio": 19,
+    "data_gpio": 20,
+    "grb": "00ff00",
+    "rmt_symbols": 24,
+    "rmt_capture_bytes": 192,
+    "power_level_after_init": true
+  },
+  "button": {
+    "gpio": 9,
+    "active_low": true,
+    "qom_path": "/machine",
+    "qom_property": "button-gpio9",
+    "idle_high_before": true,
+    "press_observed": true,
+    "release_observed": true,
+    "idle_high_after": true
+  },
+  "blue_led": {
+    "gpio": 7,
+    "on_observed": true,
+    "off_observed": true
+  },
+  "regressions": {
+    "nanoc6_console": "PASS",
+    "nesso_peripherals": "PASS"
+  }
+}

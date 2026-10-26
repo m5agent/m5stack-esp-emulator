@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "OFFLINE_AUTHORING_READY_FOR_INDEPENDENT_REVIEW",
+  "files": {
+    "run_acceptance.py": {
+      "sha256": "3d8c6257359920837aa4a49616d062f19aca5310dca6744f60d96645261d8635",
+      "size": 27074
+    },
+    "source_api_common.py": {
+      "sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+      "size": 46310
+    },
+    "self_check.py": {
+      "sha256": "ba30482724d007b5edd1d1f6461f19d83c956c784793d5b8738ee5b74ba910e7",
+      "size": 7718
+    },
+    "research_inputs.py": {
+      "sha256": "6ac5bd8ee6bc691570c69c2d3b51494fd723cdb7a608e059da1555a8f88bc3ae",
+      "size": 4915
+    },
+    "README.md": {
+      "sha256": "181947445c9a37f29b67063114172c73008ea8a3278d0ab8afdd9270185e7649",
+      "size": 5877
+    },
+    "research-proof.json": {
+      "sha256": "d964e19bea49ea90902c0f55e4250bc00730f3adfc745293f452c768b57f2d42",
+      "size": 11573
+    },
+    "common-origin.json": {
+      "sha256": "b0acbfe67da3ace46c7be90ffc61c38b43ba59d080775996ec363bd9f6da3153",
+      "size": 484
+    },
+    "guest/boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "size": 24
+    },
+    "guest/main.py": {
+      "sha256": "0a08c7e1ca55572cd420588e01038dfe8224f85696248a99998a40e44a7d48e2",
+      "size": 250
+    },
+    "guest/probe_config.py": {
+      "sha256": "61378ccfe007d8383d4973a156c4d9df1815c059a00916cd09d4985fdc48d1a7",
+      "size": 72
+    },
+    "guest/probe_logging.py": {
+      "sha256": "613fb4ecf4d978b40310f943004840d982b06fc0fd635000251815dd88a8892a",
+      "size": 161
+    },
+    "guest/pwm_route_program.py": {
+      "sha256": "d08094f0684202ac2306f0a8e9978b7050923253ddc1ca30d865c1d583ee5cc4",
+      "size": 1238
+    }
+  },
+  "self_check": "self-check-r2/result.json",
+  "self_check_count": 38,
+  "source_cas_sha256": "9466b7607d32aea64bc0cfdb704d950d2a42bb6d24ef593609a567f94b82478b",
+  "live_execution": "NOT RUN",
+  "runtime_sha256": "required CLI exact expected value; no default",
+  "worker_generation": "observed live, optional expected value; no default",
+  "input_post_calls": 0,
+  "guest_pwm_post_init_setters": 0
+}

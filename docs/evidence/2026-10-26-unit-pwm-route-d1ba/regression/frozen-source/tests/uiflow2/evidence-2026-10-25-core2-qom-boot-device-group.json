@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-core2-device-group-after-qom-boot-fix",
+  "generated_at": "2026-10-25T16:26:23.558576+08:00",
+  "qemu": {
+    "sha256": "b5b2d878132cb6a8a314cb0f9f9fd0a1843c67fad8558cba268837e9942d304b",
+    "accelerator": "tcg,thread=single,tb-size=128",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "runner": {
+    "file": "tests/uiflow2/run_peripheral_matrix.py",
+    "sha256": "338bd5d0555fa6377851bd1b04517daea768a48b477725e1008e2d105e2e4447"
+  },
+  "device_group": {
+    "device": "core2",
+    "cases": 6,
+    "checks": 24,
+    "pass": 6,
+    "fail": 0,
+    "attempts_per_case": 1,
+    "retry_used": false,
+    "summary_sha256": "a0afc29dbef66e2e3f2402fd3fb820d5fd90bccbc778182e7e699fada5bbfe5f"
+  },
+  "cases": {
+    "core2-peripherals": {
+      "status": "PASS",
+      "serial_sha256": "8092e98e1531637ee1a7bf406bdd25e5eaa186a265de6e897705ce0806df4c4a"
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "serial_sha256": "8524c11c9c102c99d5fdce2a48e8de22a09b3ff0b0d98bcb46f4ece13639aba1"
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "serial_sha256": "2392150e6f5eda0c4469fbb8577c6a95f9c8dc80c81a646d6907382e87f208d6"
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "serial_sha256": "d8f558f48e2d4c903953b2940f4d8ba86c2a137f2a5a98e7107bb5b9b5a83872"
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "serial_sha256": "c151619a95e26efa48e96d28e0bbcb1be87fb6272d997e415a473d05a6e13945"
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "serial_sha256": "d38c3d8650c63946712466ec328720df5993579ebcf6a37e19d97fca3f2eb5ec"
+    }
+  },
+  "not_claimed": [
+    "physical hardware",
+    "electrical measurements",
+    "physical cache/PSRAM timing",
+    "bit-exact Bluetooth controller"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-full-sequence",
+  "stage": "HCI-3b",
+  "gate_result": "OPEN",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "scope": "stock Core2 firmware, QEMU API-boundary H2C, firmware HLI event/ACL delivery and external Bumble NUS exchange",
+  "superseded_by": "evidence-2026-10-24-hli-api-gatt-5x.json",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "9146ef38d2bedc68e019eae74aa8680660adf2c32c0ee716f296f93a87032816",
+  "runtime": {
+    "accelerator": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off",
+    "gdb_bridge": false,
+    "hli_c2h": true,
+    "api_boundary_h2c_hook": true
+  },
+  "progression": {
+    "controller_ready": true,
+    "advertisement_found": true,
+    "ble_connected": true,
+    "nus_service_discovered": true,
+    "notification_subscribed": true,
+    "nus_write_sent_by_peer": true,
+    "guest_received_write_marker": false,
+    "guest_ack_marker": false,
+    "notification_observed": false
+  },
+  "counters": {
+    "h2c_packets": 35,
+    "hli_posts": 47,
+    "hli_consumed": 47,
+    "hli_event_buffers": 38,
+    "hli_acl_buffers": 9,
+    "hli_c2h_events": 38,
+    "hli_c2h_acls": 9,
+    "hli_errors": 1,
+    "hli_queue_depth": 0,
+    "meta_queue_depth": 0,
+    "rx_queue_depth": 0,
+    "malformed_packets": 0,
+    "dropped_packets": 0,
+    "api_h2c_packets": 35,
+    "api_h2c_errors_final": 15,
+    "tx_queue_depth_final": 15,
+    "last_tx_errno": 5
+  },
+  "observed_order": [
+    "Bumble completed discovery, connection, NUS discovery and CCCD subscription",
+    "Bumble sent the NUS write payload M5_CORE2_NATIVE_PROBE",
+    "guest did not emit CORE2_HCI_BLE_RX or CORE2_HCI_BLE_ACK_SENT",
+    "Bumble logged BLE_BUMBLE_FAIL notification timeout",
+    "at the first visible BLE failure snapshot QEMU already counted one API H2C write error and one HLI error",
+    "after peer teardown, the guest emitted more H2C commands and QEMU accumulated 15 failed writes with errno=5"
+  ],
+  "repeat_observations": {
+    "same_build_runs": 2,
+    "same_stages_reached": 2,
+    "notification_timeout": 2,
+    "hli_errors_at_failure_snapshot": 1,
+    "api_h2c_errors_at_failure_snapshot": 1,
+    "note": "A prior experimental build had hli-errors=0, but it did not include the same hook set as this rebuilt diagnostic. These two matched runs are the current comparison baseline."
+  },
+  "blocker_at_time": "The guest-side NUS write path produced no notification/ACK before Bumble timed out; the test payload was later found to exceed the default ATT MTU",
+  "secondary_observation": "notification timeout is the first application-level failure marker. One H2C write error is already present at that visible failure snapshot, and more EIO writes accumulate during teardown. The current evidence cannot assign the earliest EIO to a packet or prove whether it precedes the notification timeout, so it must not be used as the sole root cause",
+  "root_cause": "The 21-byte probe produced a 24-byte ATT PDU, exceeding the guest default ATT MTU of 23. Protocol-stack tracing later showed one L2CAP MTU rejection before ATT dispatch.",
+  "resolution": "A 15-byte probe produces a 17-byte ATT PDU; HLI/API-boundary H2C then completes ATT write, Python handler, notification and Bumble ACK in 5/5 runs.",
+  "experiment": {
+    "retained": true,
+    "reproducible_from_committed_worktree": true,
+    "note": "The hooks are retained in 0003-esp32-native-hci-api-transaction.patch and 0004-xtensa-ccount-tb-yield.patch. This evidence remains the negative case for the invalid probe size."
+  },
+  "not_claimed": [
+    "complete HCI/GATT sequence",
+    "HCI-4 repeated lease",
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware or RF validation"
+  ]
+}
