@@ -51,6 +51,9 @@
           },
           "wiring_status": "confirmed",
           "physical_presence": "main-device",
+          "admitted_unit_ids": [
+            "servo8-hat"
+          ],
           "evidence": [
             {
               "url": "https://docs.m5stack.com/en/core/StickS3",
@@ -105,6 +108,9 @@
           },
           "wiring_status": "confirmed",
           "physical_presence": "main-device",
+          "admitted_unit_ids": [
+            "8servos"
+          ],
           "evidence": [
             {
               "url": "https://docs.m5stack.com/en/core/CoreS3",
@@ -113,7 +119,7 @@
             }
           ],
           "limitations": [
-            "The connector is modeled while its front-panel visual port remains disabled."
+            "Runtime admission is scoped to 8Servos; the front-panel visual port remains disabled."
           ]
         },
         {

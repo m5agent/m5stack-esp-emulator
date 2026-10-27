@@ -155,6 +155,16 @@ class UnitRuntimeContractTests(unittest.TestCase):
         }])
         self.assertEqual(nfc[0]["pins"], {"yellow": 2, "white": 1})
         with self.assertRaises(UnitError) as caught:
+            self.registry.attachments("cores3", "qemu", [{
+                "id": "color", "unit_id": "color", "port_id": "port-b",
+            }])
+        self.assertEqual(caught.exception.code, "unit_port_not_supported")
+        with self.assertRaises(UnitError) as caught:
+            self.registry.attachments("sticks3", "qemu", [{
+                "id": "env", "unit_id": "env-iii", "port_id": "hat",
+            }])
+        self.assertEqual(caught.exception.code, "unit_port_not_supported")
+        with self.assertRaises(UnitError) as caught:
             self.registry.attachments("cores3", "qemu", [
                 {"id": "hub", "unit_id": "hub", "port_id": "port-a"},
                 {"id": "stick-a", "unit_id": "joystick2", "parent_id": "hub", "port_id": "grove-1"},

@@ -53,7 +53,8 @@
 AtomS3R 的 SYS_SCL=0 与当前 soft fallback=48 的差异需要后续本机路由检查。
 
 CoreS3 Port A 仍为 SDA 2 / SCL 1，Port B 为 SDA 9 / SCL 8。当前运行时
-新增 `8servos@0x25` 的 Port B 寄存器路径；两个 Joystick2 可经 Port A
+仅对 `8servos@0x25` 放行 Port B 寄存器路径，避免把该总线上的其它
+Unit 自动视为已验收；两个 Joystick2 可经 Port A
 被动 HUB 分配到 `0x63`/`0x64`；NFC Unit 复用确定性 ST25R3916
 `0x50` fixture。它们只证明 guest I2C 控制器、路由和设备本地寄存器/事务，
 不证明舵机、机械摇杆、RF/天线或电气行为。

@@ -90,7 +90,8 @@ print(i2c0.scan(), card.uid_str if card else "none")
 
 - `0048-unit-servos8-joystick2-nfc.patch` 增加 StickS3
   `servo8-hat@0x36`、CoreS3 `8servos@0x25`、Joystick2 `0x63`/`0x64`
-  和 ST25R3916 NFC `0x50` 的 guest 可见 I2C 路径；
+  和 ST25R3916 NFC `0x50` 的 guest 可见 I2C 路径；专用 Hat2-Bus/PORT.B
+  只放行本次验证的 HAT/8Servos，不向其它 Unit 继承端口准入；
 - Cardputer-ADV 只对匹配参考应用 segment 的 UIFlow2 镜像应用 17 个白名单
   ADC calibration/version eFuse 字段，并在 evidence 中写入
   `units/adc-calibration.json`；
