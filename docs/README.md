@@ -148,6 +148,8 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [公共main.mpy实时入口](plans/2026-10-27-public-main-mpy-runtime.md) | 实施计划 | `2026-10-27` | 真实bytecode canary、会话身份绑定、显式base Preview与同VM import派发/恢复；stock能力保持分层 |
 | [FlashLight路由历史](plans/2026-10-27-flashlight-route-history.md) | 实施计划 | `2026-10-27` | UNIT-HOST-38真实GPIO路由生命周期、旧资格失效与新EN复位恢复；冷route/PWM/S1保持独立 |
 | [FlashLight冷pad观察](plans/2026-10-27-flashlight-cold-pad-observation.md) | 实施计划 | `2026-10-27` | UNIT-HOST-37真实GPIO/IOMUX/OE/来源事件、无边沿连续低基线与原驱动自然复位；不造边沿或借用未知历史 |
+| [Core2 首帧与网络修复](plans/2026-10-27-core2-startup-issues.md) | 实施计划 | `2026-10-27` | issues #2/#3 的固件身份核对、离线 WLAN 控制器与 UIFlow2 LVGL 实际画面验证；不继承 legacy LVGL7 结论 |
+| [Core2 启动修复验收](evidence/2026-10-27-core2-startup/README.md) | 历史证据 | `2026-10-27` | 固定 UIFlow2 v2.5.3 的离线 WLAN、实际 LVGL 画面及运行时/历史保留门禁；原始私有归档与硬件边界分开 |
 | [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |
 | [Scroll与Roller485官方协议审计](unit-research/scroll-roller485.md) | 参考依据 | `2026-10-26` | 固定官方驱动/内部固件；Scroll独立partial模型与RGB队列/回绕/bootloader缺口，Roller485仍visual-only；来源存在不替代逐主机验证 |
 | [Encoder 协议冲突](unit-research/encoder-protocol-conflicts.md) | 参考依据 | `2026-10-26` | 官方文字与 executable driver 的按压极性冲突；保留原证据并按驱动路径验证 |
@@ -191,6 +193,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 - [Unit 接入期间的主机问题](unit-integration-host-issues.md)
 - [Unit 官方芯片与协议研究](unit-research/official-protocols.md)
 - [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md)
+- [Core2 首帧、离线 WLAN 与 LVGL 修复](evidence/2026-10-27-core2-startup/README.md)
 - [固定版本外壳浏览器集成证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-model-integration/README.md)
 - [Encoder 官方协议冲突](unit-research/encoder-protocol-conflicts.md)
 - [Unit 首批控制器运行证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-runtime/README.md)

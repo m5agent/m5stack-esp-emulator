@@ -275,6 +275,10 @@ SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-fi
 
 开放范围：
 
+- issues #2/#3 的原始私有完整 Core2 应用归档复跑；公开最小启动路径与
+  UIFlow2 LVGL 字形已修复验证，不能替代原归档或私有业务验收；
+- Cardputer-ADV 当前参考样本的 IMU 全零；未修改主线也复现，需核对
+  guest 板型识别、IMU 类型和 I2C 初始化，不能用 QOM setter 代替 guest 数据；
 - 真实 key、Realtime、音频和云端业务结果；
 - 更多设备、ESP32 LX6/P4 和 vendor/MicroPython framework；
 - 新的 SD/NVS、输入和网络 fixture；

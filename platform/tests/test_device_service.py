@@ -1032,6 +1032,46 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ],
         )
 
+    def test_core2_launch_uses_deterministic_clock_with_or_without_radio(self):
+        # Capture the executable command, rather than only the argument helper:
+        # plain Core2 sessions used to omit the radio lane's clock settings.
+        class LaunchCaptured(Exception):
+            pass
+
+        for device_id, runtime in (
+            ("core2", "qemu"),
+            ("core2", "qemu-wifi"),
+            ("cores3", "qemu"),
+        ):
+            with self.subTest(device=device_id, runtime=runtime):
+                session = self._stopped_session(session_id=uuid.uuid4().hex)
+                session.spec = self.service.specs[device_id]
+                session.runtime = runtime
+                session.state = "booting"
+                if runtime == "qemu-wifi":
+                    session.network_config = {
+                        "profile": "core2-openmac", "nic": "misc.esp32_wifi",
+                    }
+                with mock.patch.object(
+                    device_service_module, "core2_radio_qemu_path",
+                    return_value=session.spec.qemu,
+                ), mock.patch.object(
+                    device_service_module.subprocess, "Popen",
+                    side_effect=LaunchCaptured,
+                ) as launch:
+                    with self.assertRaises(LaunchCaptured):
+                        session._launch()
+                command = launch.call_args.args[0]
+                if device_id == "core2":
+                    self.assertEqual(command.count("-accel"), 1)
+                    self.assertEqual(command.count("-icount"), 1)
+                    clock_args = device_service_module.core2_accel_args()
+                    index = command.index("-accel")
+                    self.assertEqual(command[index:index + len(clock_args)], clock_args)
+                else:
+                    self.assertNotIn("-icount", command)
+                    self.assertNotIn("-accel", command)
+
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
             "core2-native-vhci",

@@ -245,6 +245,22 @@ Verified source baseline:
 
 The camera frame path is a simulation data plane, not real-camera validation.
 
+`0049-core2-offline-wifi-controller.patch` is an incremental board-wiring fix
+for the reconstructed Xtensa source stack documented in
+[`qemu-unit-runtime/README.md`](../qemu-unit-runtime/README.md). It realizes the
+existing Core2 WiFi MAC/DMA/IRQ when there is no configured WiFi backend, then
+disables the synthetic radio and AP timers. It does not attach a host network
+or alter explicit WiFi NICs. Offline controller availability does not establish
+WiFi connectivity, physical RF behavior or hardware validation.
+
+`0050-esp32-spi-panel-dma-transaction.patch` fixes classic SPI panel delivery in
+the same reconstructed source stack. OUT_LINK arms a DMA chain; USR consumes it
+once through SSI and the panel within the MOSI length. Long ordinary FIFO writes
+repeat the selected register bank safely. This removes duplicated/stale pixel
+streams in UIFlow2 LVGL flushes. Descriptor owner/writeback, DMA interrupt/error
+status, receive DMA and continuation across USR commands retain their existing
+model boundaries; the patch does not establish physical display timing.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

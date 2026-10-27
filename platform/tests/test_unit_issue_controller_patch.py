@@ -21,7 +21,10 @@ class UnitIssueControllerPatchTests(unittest.TestCase):
                 for target in node.targets
             )
         )
-        self.assertEqual(patches[-1], PATCH)
+        self.assertIn(PATCH, patches)
+        self.assertGreater(patches.index(PATCH), patches.index(
+            "patches/qemu-m5stack-peripherals/0047-unit-flashlight-cold-pad-observation.patch"
+        ))
         self.assertEqual(len(patches), len(set(patches)))
 
     def test_patch_only_touches_the_three_unit_controller_sources(self):

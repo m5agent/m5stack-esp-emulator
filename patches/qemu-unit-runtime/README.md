@@ -13,6 +13,9 @@ FlashLight model in `0045`, then scoped route-lifecycle invalidation in `0046`.
 `0047` adds controller-owned cold-pad observation, and `0048` adds the
 official UIFlow2-compatible 8Servos HAT, 8Servos Unit, Joystick2 and NFC Unit
 register/controller attachments.
+`0049` keeps the Core2 WiFi controller present when no WiFi network backend
+is configured, with its synthetic radio disabled.
+`0050` fixes the classic SPI panel's DMA transaction boundary and FIFO stream.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -24,6 +27,11 @@ No firmware, ROM, executable or credential is added by these patches.
    `6cdce334bfa5541a5e46c860a9b40a4fe5a13aae`; these are different Git objects.
 3. Apply `0001-reconstructed-xtensa-source.patch` from this directory.
 4. Apply `0002-wifi-radio-lifecycle-compat.patch` from this directory.
+   Apply `qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch`
+   before the Unit layers. The reconstructed source otherwise retains the
+   older timer arithmetic that defers an equal CCOMPARE deadline by 2^32
+   cycles. This existing timer fix is independent of the Unit I2C patch with
+   the same numerical prefix.
 5. Apply `qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch`,
    `0034-unit-i2c-sensors.patch`, `0035-unit-i2c-controls.patch`, then
    `0036-core2-soft-i2c-handoff-compat.patch`, then
@@ -34,7 +42,9 @@ No firmware, ROM, executable or credential is added by these patches.
    `0045-unit-flashlight-aw3641.patch`, then
    `0046-unit-flashlight-route-lifecycle.patch`, then
    `0047-unit-flashlight-cold-pad-observation.patch`, then
-   `0048-unit-servos8-joystick2-nfc.patch`.
+   `0048-unit-servos8-joystick2-nfc.patch`, then
+   `0049-core2-offline-wifi-controller.patch`, then
+   `0050-esp32-spi-panel-dma-transaction.patch`.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
@@ -137,6 +147,35 @@ CoreS3 Joystick2 at `0x63`/`0x64`, and the existing deterministic ST25R3916
 fixture as an NFC Unit at `0x50`. It models guest-visible registers,
 transactions and synthetic fixture state. It does not model servo motion,
 current, RF, antenna behavior, electrical limits or physical hardware.
+
+`0049` fixes a separate Core2 board-wiring omission. A default Ethernet NIC
+can consume the unnamed QEMU network configuration before WiFi initialization;
+with no explicit WiFi NIC, the old path omitted the on-chip MAC register map
+and interrupt route entirely. Core2 now realizes the existing WiFi MAC/DMA/IRQ
+model even without a backend, and immediately disables its `radio-enabled`
+property to cancel synthetic AP beacons and queued injections. It creates no
+host network backend and supplies no Python WLAN values. Explicit WiFi NICs
+retain their configured backend and radio behavior; other boards retain their
+existing initialization. This is controller availability for offline driver
+initialization, not proof of connectivity, RF behavior or physical hardware.
+
+`0050` fixes visible LVGL text corruption in the classic ESP32 SPI panel path.
+The existing implementation streamed the DMA chain immediately on OUT_LINK,
+then streamed stale FIFO bytes again on USR, repeating the last FIFO pixel for
+the remainder. OUT_LINK now only arms the descriptor chain. The following USR
+clocks descriptor bytes through SSI and the panel once, bounded by MOSI length,
+and clears the pending chain. Ordinary long non-DMA writes repeat the selected
+FIFO bank rather than reading past it or synthesizing a last-pixel tail.
+The real driver path is LVGL `gfx_lvgl_flush` through M5GFX `pushImage`,
+`Panel_LCD::writePixels` and classic `Bus_SPI::writeBytes`; it is not a Python
+display shortcut. The same UIFlow2 probe rendered torn full-width lines before
+this patch and readable text at its requested coordinates afterwards.
+
+This change covers transmit data delivery and its transaction boundary. It does
+not add descriptor-owner/writeback semantics, DMA error/IRQ status, receive DMA
+or descriptor continuation across several USR commands. Short chains deliver
+only their actual bytes, and a bounded descriptor walk prevents cyclic chains
+from hanging the host. Physical display timing remains outside this validation.
 
 ## Why a prelude is necessary
 

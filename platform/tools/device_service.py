@@ -5829,7 +5829,9 @@ class DeviceSession:
                 "-gdb",
                 f"tcp::{self.gdb_port}",
             ]
-        if core2_radio:
+        if self.spec.id == "core2":
+            # Ordinary board sessions run the same dual-core guest and timers
+            # as radio sessions; both need the deterministic LX6 clock.
             command.extend(core2_accel_args())
         if self.storage_config:
             if not self.sd_card_image.is_file():
