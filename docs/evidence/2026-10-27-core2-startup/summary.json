@@ -1101,5 +1101,14 @@
     "Legacy UIFlow1 v1.15.4 LVGL7 interrupt/completion wait",
     "Physical hardware, RF, power, electrical or timing equivalence",
     "Generic DMA owner/writeback, IRQ/error, RX or cross-USR descriptor continuation"
-  ]
+  ],
+  "ci_portability_followup": {
+    "first_run": "40461010640",
+    "first_status": "FAIL_TEST_HARNESS_ONLY",
+    "reason": "Linux GCC -Werror rejected mixed signedness in the test-only MIN helper conditional branches",
+    "change": "Cast both helper result branches to uint64_t; retain compiler warnings as errors",
+    "targeted_local_test": "PASS",
+    "runtime_changed": false,
+    "linux_gcc_confirmation": "PENDING_NEXT_CI"
+  }
 }

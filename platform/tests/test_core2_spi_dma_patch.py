@@ -55,7 +55,7 @@ STUBS = r"""
 #include <stdlib.h>
 #include <string.h>
 #define ESP32_SPI_BUF_WORDS 16
-#define MIN(a,b) ((uint64_t)(a) < (uint64_t)(b) ? (a) : (b))
+#define MIN(a,b) ((uint64_t)(a) < (uint64_t)(b) ? (uint64_t)(a) : (uint64_t)(b))
 typedef struct {} M5SpiPanelState;
 typedef struct {
     uint32_t data_reg[16], m5_dma_out_link;
