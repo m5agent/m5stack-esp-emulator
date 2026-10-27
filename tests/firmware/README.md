@@ -34,6 +34,13 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+## Core2 UIFlow2 startup
+
+[`core2_startup/`](core2_startup/README.md) replays the public Core2 display,
+Widgets, LVGL and offline WLAN startup paths through visible Device Service
+sessions, with pinned stock executable bytes and retained-history checks.
+It does not replace private full-application or legacy UIFlow1 validation.
+
 ## Core2 8 MiB PSRAM bank switch
 
 [`core2_psram_himem/`](core2_psram_himem/) builds a small ESP-IDF firmware that

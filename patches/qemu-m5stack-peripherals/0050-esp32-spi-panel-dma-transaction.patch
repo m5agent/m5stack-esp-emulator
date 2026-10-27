@@ -1,0 +1,133 @@
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+index 8add1d97..62c8d49f 100644
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -44,25 +44,32 @@ enum {
+ #define ESP32_SPI_REG_SIZE    0x1000
+ 
+ static void esp32_spi_do_command(Esp32SpiState* state, uint32_t cmd_reg);
++static void esp32_spi_txrx_buffer(Esp32SpiState *s, void *buf,
++                                    int tx_bytes, int rx_bytes);
+ 
+-static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link)
++static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link,
++                                  uint32_t remaining, bool command_phase)
+ {
+     uint32_t desc_addr = 0x3ff00000u | (link & 0xfffff);
+ 
+-    while (true) {
++    for (unsigned descriptors = 0; remaining && descriptors < 4096;
++         descriptors++) {
+         uint32_t desc[3];
+         uint32_t length, eof, buf;
+ 
+         cpu_physical_memory_read(desc_addr, desc, sizeof(desc));
+         length = (desc[0] >> 12) & 0xfff;
++        length = MIN(length, remaining);
+         eof = (desc[0] >> 30) & 1;
+         buf = desc[1];
+         if (length) {
+             uint8_t *data = g_malloc(length);
+             cpu_physical_memory_read(buf, data, length);
++            esp32_spi_txrx_buffer(s, data, length, 0);
+             m5_spi_panel_write((M5SpiPanelState *)s->m5_panel,
+-                               data, length, false);
++                               data, length, command_phase);
+             g_free(data);
++            remaining -= length;
+         }
+         if (eof || desc[2] == 0) {
+             break;
+@@ -186,9 +193,9 @@ static void esp32_spi_write(void *opaque, hwaddr addr,
+             fprintf(stderr, "[esp32-spi-dma] link=%08lx\n",
+                     (unsigned long)value);
+         }
+-        if (s->m5_panel && (value & (1u << 29))) {
+-            esp32_spi_m5_dma_panel(s, value);
+-        }
++        /* OUT_LINK arms the DMA engine; only a subsequent USR transaction
++         * clocks these bytes onto the SPI bus. */
++        s->m5_dma_out_link = value & (1u << 29) ? value : 0;
+         break;
+     }
+ }
+@@ -235,28 +242,38 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     for (int i = 0; i < t->extra_dummy_bytes; i++) {
+         ssi_transfer(s->spi, 0xff);
+     }
+-    esp32_spi_txrx_buffer(s, t->data, t->data_tx_bytes, t->data_rx_bytes);
+-    if (s->m5_panel) {
+-        if (t->data_tx_bytes) {
+-            bool command_phase = s->m5_dc_pin >= 0
+-                               ? !esp32_gpio_get_line(s->m5_dc_pin)
+-                               : false;
+-            uint32_t valid_bytes = MIN(t->data_tx_bytes,
+-                                       ESP32_SPI_BUF_WORDS * sizeof(uint32_t));
+-            m5_spi_panel_write((M5SpiPanelState *)s->m5_panel,
+-                               (const uint8_t *)t->data,
+-                               valid_bytes, command_phase);
+-            if (!command_phase && t->data_tx_bytes > valid_bytes
+-                && valid_bytes >= 2) {
+-                const uint8_t *src = (const uint8_t *)t->data;
+-                uint32_t tail_len = t->data_tx_bytes - valid_bytes;
+-                uint8_t *tail = g_malloc(tail_len);
+-                for (uint32_t i = 0; i < tail_len; i++) {
+-                    tail[i] = src[valid_bytes - 2 + (i & 1)];
+-                }
++    if (!s->m5_panel) {
++        esp32_spi_txrx_buffer(s, t->data, t->data_tx_bytes, t->data_rx_bytes);
++    } else {
++        bool command_phase = s->m5_dc_pin >= 0
++                           ? !esp32_gpio_get_line(s->m5_dc_pin) : false;
++
++        if (s->m5_dma_out_link && t->data_tx_bytes) {
++            esp32_spi_m5_dma_panel(s, s->m5_dma_out_link,
++                                   t->data_tx_bytes, command_phase);
++            s->m5_dma_out_link = 0;
++        } else {
++            uint32_t capacity = ESP32_SPI_BUF_WORDS * sizeof(uint32_t);
++            uint32_t remaining = t->data_tx_bytes;
++
++            if (t->data == &s->data_reg[ESP32_SPI_BUF_WORDS / 2]) {
++                capacity /= 2;
++            }
++            esp32_spi_txrx_buffer(s, t->data, MIN(remaining, capacity),
++                                  MIN(t->data_rx_bytes, capacity));
++            while (remaining) {
++                uint32_t length = MIN(remaining, capacity);
++
+                 m5_spi_panel_write((M5SpiPanelState *)s->m5_panel,
+-                                   tail, tail_len, false);
+-                g_free(tail);
++                                   (const uint8_t *)t->data,
++                                   length, command_phase);
++                remaining -= length;
++                if (remaining) {
++                    /* The classic controller repeats its FIFO for long
++                     * non-DMA writes; never read past that register bank. */
++                    esp32_spi_txrx_buffer(s, t->data,
++                                          MIN(remaining, capacity), 0);
++                }
+             }
+         }
+     }
+@@ -423,6 +440,7 @@ static void esp32_spi_reset_hold(Object *obj, ResetType type)
+     s->user2_reg = FIELD_DP32(0, SPI_USER2, COMMAND_BITLEN, 4);
+     s->user2_reg = FIELD_DP32(s->user2_reg, SPI_USER2, COMMAND_VALUE, 0);
+     s->status_reg = 0;
++    s->m5_dma_out_link = 0;
+ }
+ 
+ static void esp32_spi_realize(DeviceState *dev, Error **errp)
+diff --git a/include/hw/ssi/esp32_spi.h b/include/hw/ssi/esp32_spi.h
+index 29851052..dff31990 100644
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -30,6 +30,7 @@ typedef struct Esp32SpiState {
+     uint32_t mosi_dlen_reg;
+     uint32_t miso_dlen_reg;
+     uint32_t pin_reg;
++    uint32_t m5_dma_out_link;
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;

@@ -46,7 +46,7 @@ Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.
 - Tab5、CardputerZero 和视觉外壳仍是可用子集，不能继承 S3/C6/Core2 的
   完整度。
 
-当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。
+当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。Core2 UIFlow2 公开最小首帧/WLAN 路径及 SPI DMA 双消费导致的 LVGL 撕裂已修复，离线 MAC/MMIO/DMA/IRQ、Widgets、正常字形与显式 WiFi 分别验证；[本轮证据](evidence/2026-10-27-core2-startup/README.md)不关闭旧 UIFlow1 LVGL7 `RUNTIME-03`，原始私有完整应用及物理硬件也不继承通过。
 
 ## 本轮目标盘点
 
@@ -374,7 +374,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | StickS3 | ESP32-S3 / QEMU | 显示、按键、电源、IMU、音频、IR、WiFi/BLE；Hat2-Bus 8Servos 控制器路径 | RF、舵机机械/电流和真机 `NOT RUN` |
 | CoreS3 | ESP32-S3 / QEMU | 显示、触摸、电源、IMU、音频、摄像头、USB Host；Port B 8Servos、双 Joystick2 和 NFC Unit 控制器路径 | 启动菜单透明/调色板图像仍有模拟条纹；新增 Unit 只覆盖寄存器与虚拟 fixture |
 | AtomS3R | ESP32-S3 / QEMU | 显示、按键、IMU、磁力计、RGB、IR | 高保真外观和真机 |
-| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SD、NFC、CC1101、IR；精确 app-bound synthetic ADC calibration 和 Canvas/键盘/扬声器/IMU 启动路径 | 高保真外观、物理 ADC 精度/电气特性和真机 |
+| Cardputer-ADV | ESP32-S3 / QEMU | 显示、键盘、IMU、音频、SD、NFC、CC1101、IR；精确 app-bound synthetic ADC calibration 和 Canvas/键盘/扬声器/IMU 启动路径 | 当前参考样本 IMU 全零（未修改主线也复现）、高保真外观、物理 ADC 精度/电气特性和真机 |
 | PaperColor | ESP32-S3 / QEMU | Spectra 6、按键、电源、SHT4X、音频、SD、RGB、IR | 刷新时序和光学真机表现 |
 | PaperMono | ESP32-S3 / QEMU | 灰度屏、触摸、电源、IMU、RTC、音频、NFC、LoRa、RGB | 刷新手感和显示真机表现 |
 | StackChan | ESP32-S3 / QEMU | 显示、触摸、摄像头、环境/运动传感器、音频、NFC、IR、舵机 | 机械运动、声学和光学 |

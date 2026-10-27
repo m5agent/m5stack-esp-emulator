@@ -1,0 +1,31 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 6e01160b..cd8b9918 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -940,6 +940,15 @@ static void esp32_machine_init_openeth(Esp32SocState *ss)
+ 
+     DeviceState *wifi_dev = qemu_create_nic_device(
+         TYPE_ESP32_WIFI, true, NULL);
++    bool offline_wifi = false;
++
++    if (!wifi_dev && m5_board == M5_BOARD_CORE2) {
++        /* The on-chip MAC exists even without a configured network backend.
++         * Keep its register/DMA/IRQ path available to the guest WiFi driver,
++         * but do not create an AP or attach a host network implicitly. */
++        wifi_dev = qdev_new(TYPE_ESP32_WIFI);
++        offline_wifi = true;
++    }
+     if (wifi_dev) {
+         ss->wifi_dev = wifi_dev;
+         sbd = SYS_BUS_DEVICE(wifi_dev);
+@@ -949,6 +958,10 @@ static void esp32_machine_init_openeth(Esp32SocState *ss)
+             sbd, 0,
+             qdev_get_gpio_in(DEVICE(&ss->intmatrix),
+                              ETS_WIFI_MAC_INTR_SOURCE));
++        if (offline_wifi) {
++            object_property_set_bool(OBJECT(wifi_dev), "radio-enabled", false,
++                                     &error_fatal);
++        }
+     }
+ }
+ 

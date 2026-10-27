@@ -1,0 +1,1114 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "base_commit": "a0ad8150b112afe1273100514c7ef0808bd4477b",
+  "scope": "Public Core2 UIFlow2 V2.5.3 startup paths, actual LVGL glyph rendering and explicit WiFi lifecycle; private complete archives unavailable",
+  "runtime": {
+    "qemu_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "binary_sha256": "712851db882fed73696a2598f9ba5c036d4d26a21e7ef11e59aca41ca1e84f2e",
+    "source_receipt_sha256": "bc9b3986b7622740bfe8a892abb0ae81e30fee75c4b7ef21220a5dbae380fdcd",
+    "source_file_count": 109,
+    "patches": {
+      "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+      "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+      "patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch": "fe39a13eafa9139480f3a050f93431d0d06e94745dce57cedd554bd0f8779e73",
+      "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+      "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+      "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c",
+      "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch": "bfb18690400f3385ccf4224e34f0021f1c5179e47f62e9b321aff6c4a06bdae8",
+      "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+      "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302",
+      "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch": "03f34ee350be9d7fade560c3fe94ed8e6914209350348dd44c8ac4ef4d1c16ea",
+      "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+      "patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch": "52e384a59fad2ba0739bfbaa7b515f49bbee97d59a11583c1a53e9a060f58626",
+      "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+      "patches/qemu-m5stack-peripherals/0047-unit-flashlight-cold-pad-observation.patch": "3ec07fa849ee3b2ca646378359135e619bd428022361039a53644f82919dbaa4",
+      "patches/qemu-m5stack-peripherals/0048-unit-servos8-joystick2-nfc.patch": "bda0038c4239fb2d21c8d17f30bc2107cfb977f8d8a9e5a6ed3fc58aa304f7fe",
+      "patches/qemu-m5stack-peripherals/0049-core2-offline-wifi-controller.patch": "a5c397ee75fa30b0926dc7299079c7440ba4eb56355c0d4a76b1b051c1a0adb1",
+      "patches/qemu-m5stack-peripherals/0050-esp32-spi-panel-dma-transaction.patch": "a1139f76b6191fb6612978b2c5d39a3fd7d399c836de9a95081565b18f525956"
+    }
+  },
+  "startup_cases": {
+    "display": {
+      "status": "PASS",
+      "session_id_sha256": "affbfdbab1d8af330573759e483e8998d02a047d4f722dd00556915880043093",
+      "firmware_sha256": "c8a0930a520b22468593d4f972530a6dc675662f85daa81fa50cc139ff8a476c",
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "application_sha256": "c02171cfdde7a51e19c40dbe3e1e1b95033a0087591d34c69f88ebbfdd49de47",
+      "source_file_sha256": {
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+        "boot.py": "fba278c9b406e6acb81a8c2d2aba467b945b843369c8e9d19dfb2c3558f625e5",
+        "main.py": "898e87291595fdcd4565b096ee98abf22ffe18e25cc21929a0289fb1a97426a8"
+      },
+      "checks": {
+        "uiflow2_version": true,
+        "ready_marker": true,
+        "done_marker": true,
+        "no_traceback_wdt_or_error": true,
+        "single_boot": true,
+        "qom_data": true,
+        "radio_matches_runtime": true,
+        "application_frame": true,
+        "runtime_unchanged": true,
+        "zip_uiflow2_version": true,
+        "zip_ready_marker": true,
+        "zip_done_marker": true,
+        "zip_no_traceback_wdt_or_error": true,
+        "zip_single_boot": true,
+        "evidence_before_stop": true,
+        "evidence_session_running": true,
+        "zip_application_frame": true,
+        "stopped_with_history": true,
+        "flash_released": true,
+        "runtime_pid_gone": true,
+        "history_frame_exact": true,
+        "history_serial_retained": true,
+        "history_application_frame": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 76800,
+        "unique_colors": 16,
+        "sha256": "b42b50d76903ec39921324feaa6e139089edf9a691a1dead1d9c3d0f815f5221",
+        "bytes": 1170
+      },
+      "evidence": {
+        "sha256": "9767d4521c2c4245577ed7a458f5fb66615d5c8634fa727fb0f1d32a2b386bc0",
+        "bytes": 8810,
+        "member_count": 7,
+        "session_state": "running",
+        "before_stop": true,
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 76800,
+          "unique_colors": 16,
+          "sha256": "b42b50d76903ec39921324feaa6e139089edf9a691a1dead1d9c3d0f815f5221",
+          "bytes": 1170
+        }
+      },
+      "serial_sha256": "61ef98a8928cc6f32db94e2c79d22cf4ddd8bb4f98394c3b15dca498bf72b284",
+      "serial_markers": [
+        "CORE2_STARTUP_BOOT",
+        "CORE2_STARTUP:display:BEGIN",
+        "CORE2_STARTUP:display:M5_READY",
+        "CORE2_STARTUP:display:READY",
+        "CORE2_STARTUP:display:DONE"
+      ]
+    },
+    "widgets": {
+      "status": "PASS",
+      "session_id_sha256": "78efc59e9622bcb8e5636abaa7e2c477eeb1337334db22344e09b0af403a2ae7",
+      "firmware_sha256": "22315a5bf1903901eb12c79b175d304482b4ae67248b69e33af3144cbc4212f7",
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "application_sha256": "c02171cfdde7a51e19c40dbe3e1e1b95033a0087591d34c69f88ebbfdd49de47",
+      "source_file_sha256": {
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+        "boot.py": "fba278c9b406e6acb81a8c2d2aba467b945b843369c8e9d19dfb2c3558f625e5",
+        "main.py": "adff1643442915cde2f29a6cde59297bb05272fa4de88b04f7e11a66cc7825f6"
+      },
+      "checks": {
+        "uiflow2_version": true,
+        "ready_marker": true,
+        "done_marker": true,
+        "no_traceback_wdt_or_error": true,
+        "single_boot": true,
+        "qom_data": true,
+        "radio_matches_runtime": true,
+        "application_frame": true,
+        "runtime_unchanged": true,
+        "zip_uiflow2_version": true,
+        "zip_ready_marker": true,
+        "zip_done_marker": true,
+        "zip_no_traceback_wdt_or_error": true,
+        "zip_single_boot": true,
+        "evidence_before_stop": true,
+        "evidence_session_running": true,
+        "zip_application_frame": true,
+        "stopped_with_history": true,
+        "flash_released": true,
+        "runtime_pid_gone": true,
+        "history_frame_exact": true,
+        "history_serial_retained": true,
+        "history_application_frame": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 76800,
+        "unique_colors": 30,
+        "sha256": "114719e15e227099b389cc2e2761e9f374dd3296506def1eb42faa11e0f2a1cb",
+        "bytes": 3150
+      },
+      "evidence": {
+        "sha256": "98b10e6d95a08defb61700259e43e68a281b709f8ce303556a61b798ee5e9b2d",
+        "bytes": 10874,
+        "member_count": 7,
+        "session_state": "running",
+        "before_stop": true,
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 76800,
+          "unique_colors": 30,
+          "sha256": "114719e15e227099b389cc2e2761e9f374dd3296506def1eb42faa11e0f2a1cb",
+          "bytes": 3150
+        }
+      },
+      "serial_sha256": "df8b58789af1ea410938bb5fb12acab7f35bcabb41f4cc7b5f105baeb1b0f936",
+      "serial_markers": [
+        "CORE2_STARTUP_BOOT",
+        "CORE2_STARTUP:widgets:BEGIN",
+        "CORE2_STARTUP:widgets:READY",
+        "CORE2_STARTUP:widgets:DONE"
+      ]
+    },
+    "lvgl": {
+      "status": "PASS",
+      "session_id_sha256": "d66a5234e2cbc131b7a6cadef0ddde529eb25418b7ad2690b737657d9fa915eb",
+      "firmware_sha256": "04602ff0a321160b32fd6dffb885c927aeedc0ae9b0a5eff726f85baa2c1c7c7",
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "application_sha256": "c02171cfdde7a51e19c40dbe3e1e1b95033a0087591d34c69f88ebbfdd49de47",
+      "source_file_sha256": {
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+        "boot.py": "fba278c9b406e6acb81a8c2d2aba467b945b843369c8e9d19dfb2c3558f625e5",
+        "main.py": "98e4d531be1b28bcae8c84d28119fc5e034802b1d99e7cd47ea11c4b92261448"
+      },
+      "checks": {
+        "uiflow2_version": true,
+        "ready_marker": true,
+        "done_marker": true,
+        "no_traceback_wdt_or_error": true,
+        "single_boot": true,
+        "qom_data": true,
+        "radio_matches_runtime": true,
+        "application_frame": true,
+        "lvgl_background": true,
+        "lvgl_label_region": true,
+        "lvgl_label_foreground": true,
+        "lvgl_glyph_structure": true,
+        "runtime_unchanged": true,
+        "zip_uiflow2_version": true,
+        "zip_ready_marker": true,
+        "zip_done_marker": true,
+        "zip_no_traceback_wdt_or_error": true,
+        "zip_single_boot": true,
+        "evidence_before_stop": true,
+        "evidence_session_running": true,
+        "zip_application_frame": true,
+        "zip_lvgl_background": true,
+        "zip_lvgl_label_region": true,
+        "zip_lvgl_label_foreground": true,
+        "zip_lvgl_glyph_structure": true,
+        "stopped_with_history": true,
+        "flash_released": true,
+        "runtime_pid_gone": true,
+        "history_frame_exact": true,
+        "history_serial_retained": true,
+        "history_application_frame": true,
+        "history_lvgl_background": true,
+        "history_lvgl_label_region": true,
+        "history_lvgl_label_foreground": true,
+        "history_lvgl_glyph_structure": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 76800,
+        "unique_colors": 16,
+        "sha256": "591fae89f1088a228dd401caaaf17c5c20baf78367f4faf6310e459330f314d2",
+        "bytes": 1690,
+        "background_rgb": [
+          16,
+          20,
+          24
+        ],
+        "foreground_pixels": 1121,
+        "foreground_bbox": [
+          12,
+          27,
+          217,
+          40
+        ],
+        "foreground_rows": 14,
+        "maximum_horizontal_run": 16
+      },
+      "evidence": {
+        "sha256": "8318afd7ff1e3212afec5cd1af0968177be5e79a59650d9b050a03072da958d5",
+        "bytes": 9387,
+        "member_count": 7,
+        "session_state": "running",
+        "before_stop": true,
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 76800,
+          "unique_colors": 16,
+          "sha256": "591fae89f1088a228dd401caaaf17c5c20baf78367f4faf6310e459330f314d2",
+          "bytes": 1690,
+          "background_rgb": [
+            16,
+            20,
+            24
+          ],
+          "foreground_pixels": 1121,
+          "foreground_bbox": [
+            12,
+            27,
+            217,
+            40
+          ],
+          "foreground_rows": 14,
+          "maximum_horizontal_run": 16
+        }
+      },
+      "serial_sha256": "3449d2e1c350352664ab0143d1156d7b5e48774422ecbdb8fdee98b4aa784828",
+      "serial_markers": [
+        "CORE2_STARTUP_BOOT",
+        "CORE2_STARTUP:lvgl:BEGIN",
+        "CORE2_STARTUP:lvgl:INIT_READY",
+        "CORE2_STARTUP:lvgl:READY",
+        "CORE2_STARTUP:lvgl:DONE"
+      ]
+    },
+    "network": {
+      "status": "PASS",
+      "session_id_sha256": "864eaea1555931fbf8fdab457915115e858e7f26b37585c7616c21353df8cc05",
+      "firmware_sha256": "1f95a80183bdc61da4539f937d381be1cb895355950c9e062d6b71b2fde76350",
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "application_sha256": "c02171cfdde7a51e19c40dbe3e1e1b95033a0087591d34c69f88ebbfdd49de47",
+      "source_file_sha256": {
+        "rtc_probe.py": "eec79290e848ff1952b0f4299557e8196df46249d0b3d77fd37f57521fcee4c9",
+        "boot.py": "fba278c9b406e6acb81a8c2d2aba467b945b843369c8e9d19dfb2c3558f625e5",
+        "main.py": "5da2d0baf858f55300bb2428abc79a6e20ffb917c387099a0b6b156340e13bef"
+      },
+      "checks": {
+        "uiflow2_version": true,
+        "ready_marker": true,
+        "done_marker": true,
+        "no_traceback_wdt_or_error": true,
+        "single_boot": true,
+        "wlan_active_returned": true,
+        "disconnected_reported": true,
+        "bounded_network_transport_error": true,
+        "qom_data": true,
+        "radio_matches_runtime": true,
+        "application_frame": true,
+        "runtime_unchanged": true,
+        "zip_uiflow2_version": true,
+        "zip_ready_marker": true,
+        "zip_done_marker": true,
+        "zip_no_traceback_wdt_or_error": true,
+        "zip_single_boot": true,
+        "zip_wlan_active_returned": true,
+        "zip_disconnected_reported": true,
+        "zip_bounded_network_transport_error": true,
+        "evidence_before_stop": true,
+        "evidence_session_running": true,
+        "zip_application_frame": true,
+        "stopped_with_history": true,
+        "flash_released": true,
+        "runtime_pid_gone": true,
+        "history_frame_exact": true,
+        "history_serial_retained": true,
+        "history_application_frame": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "nonblack_pixels": 76800,
+        "unique_colors": 16,
+        "sha256": "479ae992aa030fa2e581e82cb3c85a6cafcf16ca5304dca94ed6ae2776d42fb1",
+        "bytes": 938
+      },
+      "evidence": {
+        "sha256": "7a8827002db577ca6ac7424f2dea5e70e85d392268c78dfa82b4d14421ee11f1",
+        "bytes": 8695,
+        "member_count": 7,
+        "session_state": "running",
+        "before_stop": true,
+        "frame_metrics": {
+          "width": 320,
+          "height": 240,
+          "nonblack_pixels": 76800,
+          "unique_colors": 16,
+          "sha256": "479ae992aa030fa2e581e82cb3c85a6cafcf16ca5304dca94ed6ae2776d42fb1",
+          "bytes": 938
+        }
+      },
+      "serial_sha256": "56447b386f10db9c415eb36c7f8faeb2dea3af6d6a8e5042839e915665e877f9",
+      "serial_markers": [
+        "CORE2_STARTUP_BOOT",
+        "CORE2_STARTUP:network:BEGIN",
+        "CORE2_STARTUP:network:BACKGROUND_READY",
+        "CORE2_STARTUP:network:OBJECT_READY",
+        "CORE2_STARTUP:network:ACTIVE True elapsed_ms 181",
+        "CORE2_STARTUP:network:CONNECTED False",
+        "CORE2_STARTUP:network:NTP_ERROR OSError(118,) elapsed_ms 0",
+        "CORE2_STARTUP:network:READY",
+        "CORE2_STARTUP:network:DONE"
+      ]
+    }
+  },
+  "checks": {
+    "core2_device_group": {
+      "status": "PASS",
+      "case_counts": {
+        "PASS": 6
+      },
+      "check_count": 24,
+      "raw_summary_sha256": "dd8d423c02e4a51e97dd0fd5bd37bf6e459a5d9e33a8ced5812d1371afe3c3ec",
+      "cases": {
+        "core2-peripherals": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "f4e1fde7b426ebff34a2b2ca849acbe776fde5f7544f53ca2bd58a07e829b6be"
+        },
+        "core2-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "72f535ef94d100e6aaf950e8c32762bf21159bbd10bd721f22a0fe809c0054b4"
+        },
+        "core2-mic": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "bedc3caac7a3ceb69b78cf07c5dcb90d3e59a5a47a76fc8f31d1bf7a8e079031"
+        },
+        "core2-power-monitor": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e"
+        },
+        "core2-imu": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b"
+        },
+        "core2-axp192": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3"
+        }
+      }
+    },
+    "full_peripheral_matrix": {
+      "status": "FAIL",
+      "case_counts": {
+        "PASS": 66,
+        "FAIL": 1
+      },
+      "check_count": 274,
+      "raw_summary_sha256": "2541764b5c2c09fd67bc3758b4843d629751a2b72ae54f4db1b80983c3569799",
+      "cases": {
+        "sticks3-peripherals": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18"
+        },
+        "sticks3-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55"
+        },
+        "sticks3-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8"
+        },
+        "cardputer-adv-sd": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "52e444ae5260bd0195cc8c836cd8bc7c9cb769ec44668ac8c10579bbae12d879"
+        },
+        "cardputer-adv-imu": {
+          "status": "FAIL",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206"
+        },
+        "cardputer-adv-keyboard": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "9cf5a06a7f0da3cd846c4d292b280149dd9cd8ee2683e0d1c6545b1829b3d1c5"
+        },
+        "cardputer-adv-nfc": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "9c3f6412803c6232d6447bc779181c7ff9303f8129989df9fa7f0810d3e71ab3"
+        },
+        "cardputer-adv-cc1101": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "6cf1d02ed179b31863233baec63805ba04164099632113717a9531640c132cd5"
+        },
+        "cardputer-adv-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "3f116209ad2783c71074833ddc3174e9651e5916e768220148990c00f868b2e9"
+        },
+        "cardputer-adv-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "14bc120099b3672dd48c5fabbe8eb97647a32b4e535493f676327b4ab13ef45d"
+        },
+        "atoms3r-peripherals": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "d5cee5fbefd05e92f38295205cb8e1250bb2e3982f1be20ab0a09d3e3de1a698"
+        },
+        "sticks3-ir": {
+          "status": "PASS",
+          "checks": 1,
+          "attempts": 1,
+          "firmware_sha256": "ab17f043675f53ca3f0ad08d62539c21bf25fe7c6fccb61cc0e794fd720efa0e"
+        },
+        "sticks3-ir-rx": {
+          "status": "PASS",
+          "checks": 2,
+          "attempts": 1,
+          "firmware_sha256": "eb2ab00292c38032fb26ec7f682df004288563ad2187515740c5feabb784be39"
+        },
+        "cores3-peripherals": {
+          "status": "PASS",
+          "checks": 9,
+          "attempts": 1,
+          "firmware_sha256": "9e1d4ef92460d22ba053191f38ebb52faf225d1585848e64c1726658bb835a8b"
+        },
+        "cores3-power-transitions": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "df995ac4c57da90794ac5407e910d2daa2ec6e544673fe4f0f097cbf82aefeed"
+        },
+        "cores3-usb-hid": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "1eacfa6052b603ba8cbb95612ceebec7387826019405b06e53872bcf29339e62"
+        },
+        "cores3-camera": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "0f4134dcdec788cc46b7361f32d7026ce6fb2660101f6dcb61df5f009c47f651"
+        },
+        "stackchan-camera": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "6e82cc9f18f1a8b9ae5f39828fe25b9c58baaa80fded61656105aeff08fa6472"
+        },
+        "cores3-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "fc8ff62139f201bad74e4262730934103ddad203287d38dc9e0c3e5b8d84edf8"
+        },
+        "cores3-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "d9f11f1638b02cb53e12a8c4ac9cdf5daa2704f2214fe5a3e70d083b1e852017"
+        },
+        "stamplc-peripherals": {
+          "status": "PASS",
+          "checks": 8,
+          "attempts": 1,
+          "firmware_sha256": "dd553531abd8af9463f6852eaec136cf4bfb2e998a8a166841184e40cc9dfba4"
+        },
+        "stopwatch-peripherals": {
+          "status": "PASS",
+          "checks": 6,
+          "attempts": 1,
+          "firmware_sha256": "9bae49bd1daf4fdac0c041aa0309429b8469a36f0131faf512e8c32ce18dac32"
+        },
+        "papermono-peripherals": {
+          "status": "PASS",
+          "checks": 8,
+          "attempts": 1,
+          "firmware_sha256": "d17fafc70b01ee19a6efb08ced0b1e26dfec7d186ab52915d424ab1ef7acf9bd"
+        },
+        "papermono-buzzer": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "0209985fc8f81fe77810ce3a3f492c339fb966dcaede240913d7b8bcef92f889"
+        },
+        "papermono-pdm-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "8a93a8f1503197ea7e494acf8b0ae2289845f9c85d36287cf750603bd9606630"
+        },
+        "papermono-rgb": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "47a9878f770e52c739673787066ab0ba151e7192931c00747821a8cad8e5b5f5"
+        },
+        "papercolor-peripherals": {
+          "status": "PASS",
+          "checks": 6,
+          "attempts": 1,
+          "firmware_sha256": "d305c7baa13171fc8dfaf86b3145aafee701ead00c11cdb9c5799bc56b9047ec"
+        },
+        "papercolor-sd": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "7813440059b73d96b92620ebae6fc91a5abb6c43e3b311009a17f0fbdd801ea6"
+        },
+        "papercolor-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "b31c4c7db0c552f3d12833ef8e8ce300fa242e8a28100644d9baa5d6a0b422a0"
+        },
+        "papercolor-sht4x": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "877234bcbfcb92db43c75fa87c6e0643ab0827bb46e9bd6c536cfa8204e2518a"
+        },
+        "papercolor-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "b01e3951a14c8a87713fc2e25fdee1e08cb503eac399406ce1b54779de84d03b"
+        },
+        "papermono-nfc": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "16839447a1adae68e74105e72be0ab9a920d99073efeee050a713c425f84b238"
+        },
+        "papermono-lora": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "a244857bfa135695c5db3e3c8e28e48ef2437848c825f81f8be7b7890e82ceba"
+        },
+        "stackchan-nfc": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "3da7fd9c89574f59e13f625662e3006e7adb62160e0f1da45839c125f975346d"
+        },
+        "stackchan-touch": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "637dbb922f8f70df6453e13ff3882c0701fc0e60b09c73a5570455cc9496b77a"
+        },
+        "stackchan-rgb": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "cd4fdba5be7a58184483e377052c676d1e5b909062a46bd461b5f9ae97cc3cc2"
+        },
+        "stackchan-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "f56c65d520b18e540bc3756e2f0c0d76ab8a2167887f9cd1260d7c2fc8636138"
+        },
+        "stackchan-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "6521be498cc11da9646dc74e56ca4904408064e5fdeec3261ccc76318672366b"
+        },
+        "stackchan-peripherals": {
+          "status": "PASS",
+          "checks": 10,
+          "attempts": 1,
+          "firmware_sha256": "27b0c58dfe46f709d43fde58c11b5821cb4e244f3419f8a989fa39f9a8a8b933"
+        },
+        "stackchan-servo": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "ee398bd2132092b6fd33322f67a05ae30488f593aee5e0b9bceff3afb4b7efa0"
+        },
+        "stopwatch-vibration": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "a18c1d65de6ac8cf99f955b42a673f543b75f66e35257029524b75ba89ad46d1"
+        },
+        "stopwatch-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "ee9d859de599d7f70620ee170de493eef90f43361123643569bf637de514c178"
+        },
+        "stopwatch-mic": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "b7aac280b82117dd1d049c9988e4124daaaace73ed3b34f92a598430cdf62763"
+        },
+        "atoms3r-lp5562": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "232ffe1b551287e969d79c468868e8ab3715b4f5cd6e788e87f0e3270e91d9b5"
+        },
+        "atoms3r-ir": {
+          "status": "PASS",
+          "checks": 1,
+          "attempts": 1,
+          "firmware_sha256": "a9cd60514c02955686e6e199e1884dc0844fd58e831a258877692311b247615a"
+        },
+        "cardputer-adv-ir": {
+          "status": "PASS",
+          "checks": 1,
+          "attempts": 1,
+          "firmware_sha256": "e2cdced56fb4d9e083ddada0adf1b1dc911397cc6db4410ad86b055656483bcd"
+        },
+        "papercolor-ir": {
+          "status": "PASS",
+          "checks": 1,
+          "attempts": 1,
+          "firmware_sha256": "be5dc9a7190b433d4cfa3dee15046a059c10b3a963c9b61e24a61b5574ed5764"
+        },
+        "core2-peripherals": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "f4e1fde7b426ebff34a2b2ca849acbe776fde5f7544f53ca2bd58a07e829b6be"
+        },
+        "core2-audio": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "72f535ef94d100e6aaf950e8c32762bf21159bbd10bd721f22a0fe809c0054b4"
+        },
+        "core2-mic": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "bedc3caac7a3ceb69b78cf07c5dcb90d3e59a5a47a76fc8f31d1bf7a8e079031"
+        },
+        "core2-power-monitor": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e"
+        },
+        "stamplc-can": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "ad9a8dfbac4314c39724d63b59685ed987bc0fe77083f62a8713faf7db9181d4"
+        },
+        "stamplc-rs485": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "87e546fb5eca9f26fedd94a59a5f14f78a0c8dd87fef292cee974b676f0abb88"
+        },
+        "stamplc-buzzer": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "c37605b4044e77a4b81bbcb53e815b32a3e9afbac672bd94bb90d8ef96d7b066"
+        },
+        "core2-imu": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b"
+        },
+        "core2-axp192": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3"
+        },
+        "stamplc-lm75": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "5392bf90ac1ef5eb006c712628256d8903e99824e2a5b87370b1262be390c555"
+        },
+        "papercolor-rgb": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "1e4dea23d67bd5adebcf961ae66b56107284d7119833243e4d1b71fee46a170b"
+        },
+        "stamplc-onboard-io": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "b09c57f9dd6b60e56d8585cd63a3a95eb057e864f8d949c3e0832e7901c483c6"
+        },
+        "cores3-aw9523-full": {
+          "status": "PASS",
+          "checks": 3,
+          "attempts": 1,
+          "firmware_sha256": "07a271c6afa73553eebca1bd783c1ff2915a49131b62ab95f5ebe8e135b1f1ed"
+        },
+        "stopwatch-m5ioe1-full": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "888f2af03c5df6eaa9be11f85eba977c709d5c77a98a5c16788d8512d57aa34f"
+        },
+        "stopwatch-m5pm1-full": {
+          "status": "PASS",
+          "checks": 9,
+          "attempts": 1,
+          "firmware_sha256": "7872f887cddbe44cbbada0d74165c3dd88fab5148a0b3bcded41d0faf11d7a72"
+        },
+        "nesso-peripherals": {
+          "status": "PASS",
+          "checks": 8,
+          "attempts": 1,
+          "firmware_sha256": "2f78fdd4daacc29cd27aa8274313ed05aa4f6e9b06eb378ddf18a8f43c916b33"
+        },
+        "nesso-imu": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "d11295c0a0003b5dcff3c92cc3489685eeeb29e3d1449e5c03401afa56c4fd9d"
+        },
+        "nesso-ir": {
+          "status": "PASS",
+          "checks": 2,
+          "attempts": 1,
+          "firmware_sha256": "bd170e8138a0b366ce5f2e4dd1587ed31e5d78dddf505b8dcb91490285942cd3"
+        },
+        "nesso-lora": {
+          "status": "PASS",
+          "checks": 4,
+          "attempts": 1,
+          "firmware_sha256": "ea87a8729162ef017968a792316e3a17dba501ff324c856b279931ea0b6ef86f"
+        },
+        "nesso-buzzer": {
+          "status": "PASS",
+          "checks": 5,
+          "attempts": 1,
+          "firmware_sha256": "43a016c972099bc2a4fdd69c3836a7954bfad769640edb68d5a0c4423dde4bf7"
+        }
+      }
+    },
+    "platform_unittest": {
+      "status": "PASS",
+      "tests": 1261,
+      "skipped": 1,
+      "log_sha256": "7ef66f3f36073d865ebcce4c8fbd5753db6a0369e2549442e7c7776638083fe4"
+    },
+    "runtime_coverage": {
+      "status": "PASS"
+    },
+    "peripheral_catalog": {
+      "status": "PASS"
+    },
+    "qemu_profiles": {
+      "status": "PASS"
+    },
+    "project_snapshot": {
+      "status": "PASS"
+    }
+  },
+  "failure_controls": {
+    "missing_wifi_mmio": {
+      "status": "EXPECTED_FAIL",
+      "runtime_sha256": "5ef6e84b16b86ea19efe3d151e85be8b37699eab8c89740043dabe62be507039",
+      "session_id_sha256": "9dd456b19e72d6f17628d11951aa131141d524b522d9f739f53ecbce5b696d12",
+      "firmware_sha256": "1f95a80183bdc61da4539f937d381be1cb895355950c9e062d6b71b2fde76350",
+      "error": "guest startup markers or bounded network result timed out",
+      "serial_sha256": "754dbea4da92e73342959cf646cffefa49301288d91b87b0fa7dc24a6068f17a",
+      "stopped_with_history": true,
+      "evidence_zip_sha256": "ad48967939f82349641056f949d1c3c41044b12e348a84d5ad193b8d3b39bf66",
+      "last_marker": "CORE2_STARTUP:network:OBJECT_READY",
+      "same_firmware_as_pass": true,
+      "frame_bytes": 584,
+      "frame_sha256": "edfc4e53308dc44c7fec99aa8e442dc4f1a4599aa8176169394364da2e1cbbed"
+    },
+    "lvgl_double_consumption": {
+      "status": "EXPECTED_FAIL",
+      "runtime_sha256": "c6338ea2510801dc9befd6a69ff99732d3c524f2abeb5a6905f4ae4c4a6e5bd0",
+      "frame_sha256": "096c7f19910d1a16c2e35f7e79715a425ddbf699bf69c5f6d649670437e53229",
+      "foreground_pixels": 2202,
+      "foreground_bbox": [
+        0,
+        23,
+        319,
+        49
+      ],
+      "maximum_horizontal_run": 320,
+      "reason": "serial DONE and multiple colors were insufficient; actual image contained full-width stripes"
+    },
+    "initial_capture_runner": {
+      "status": "INFRA_ERROR",
+      "reason": "GET qom-snapshot returned 404; corrected to POST and verified with an actual HTTP Handler test. Original failures retained locally."
+    },
+    "cardputer_imu_existing_baseline": {
+      "classification": "PREEXISTING_SAMPLE_GAP",
+      "firmware_sha256": "17526534fd963701a2dd8e28c05f0bf62ce4a94cd463defd4aef548769630206",
+      "baseline_runtime_sha256": "05746f86c530b560ebcdc50e05cddedf79aab1f0e63f7c8ecd00c49c5a969aa1",
+      "baseline_status": "FAIL",
+      "candidate_status": "FAIL",
+      "root_cause": "Not confirmed; investigate guest board/IMU identification and I2C initialization",
+      "baseline_summary_sha256": "6626ed2ddbf72f8c89d7c9214361c773315873b3313cdbf24e3d8f539583be52",
+      "candidate_confirmation_summary_sha256": "f22fa08ccf8b5e461c4b7d13a94a43c2fcbd71d13902e9ad31f53d734c5c5da8"
+    }
+  },
+  "radio": {
+    "status": "PASS",
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac",
+    "scope": "Stock UIFlow2 WiFi scan/association/DHCP and a controlled local HTTP fixture; public networking and BLE are NOT RUN.",
+    "firmware": {
+      "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "application_sha256": "c02171cfdde7a51e19c40dbe3e1e1b95033a0087591d34c69f88ebbfdd49de47",
+      "derived_sha256": "42b98a7896345a9e5f62ffbefdce305ce17d493ddf73457b8881699e5fcc57f8",
+      "original_probe_sha256": "0fa330ffb80f542a95b2ad6e0fe3575e16d2f81474843be8b87fceedae0d093b",
+      "effective_probe_sha256": "4b1f348783da4be981b1bf23eacceef93119120994d9f9d24390e236e36ca8e4",
+      "boot_sha256": "c98dc661986ac0d806d227a6e19ba3b7156a3b84f79e21139d3e19d18e6ec854",
+      "only_original_source_substitution": "__HTTP_PORT__",
+      "m5_display_wrapper_added": false
+    },
+    "checks": {
+      "both_pass": true,
+      "different_session_ids": true,
+      "different_process_ids": true,
+      "same_firmware": true,
+      "sequential_cleanup": true
+    },
+    "runs": [
+      {
+        "status": "PASS",
+        "session_id_sha256": "965e375ce1b8dd31c90ad3c3b5981647e5308a128a6e3460c2729f4cc4b48bb9",
+        "firmware_sha256": "42b98a7896345a9e5f62ffbefdce305ce17d493ddf73457b8881699e5fcc57f8",
+        "checks": {
+          "stock_version": true,
+          "single_boot": true,
+          "no_guest_error_or_reset": true,
+          "active": true,
+          "scan_nonempty": true,
+          "known_ap": true,
+          "connect_returned": true,
+          "connected": true,
+          "dhcp_address": true,
+          "http_200": true,
+          "terminal_pass": true,
+          "explicit_radio_enabled": true,
+          "network_marker_proof": true,
+          "controlled_http_observed": true,
+          "frame_captured": true,
+          "runtime_unchanged": true,
+          "zip_stock_version": true,
+          "zip_single_boot": true,
+          "zip_no_guest_error_or_reset": true,
+          "zip_active": true,
+          "zip_scan_nonempty": true,
+          "zip_known_ap": true,
+          "zip_connect_returned": true,
+          "zip_connected": true,
+          "zip_dhcp_address": true,
+          "zip_http_200": true,
+          "zip_terminal_pass": true,
+          "evidence_requested_running": true,
+          "pcap_packets": true,
+          "pcap_well_formed": true,
+          "pcap_dhcp_dora": true,
+          "pcap_http_guest_payload": true,
+          "pcap_http_host_payload": true,
+          "stopped_with_history": true,
+          "flash_released": true,
+          "runtime_pid_gone": true,
+          "history_frame_exact": true,
+          "history_serial_retained": true,
+          "history_stock_version": true,
+          "history_single_boot": true,
+          "history_no_guest_error_or_reset": true,
+          "history_active": true,
+          "history_scan_nonempty": true,
+          "history_known_ap": true,
+          "history_connect_returned": true,
+          "history_connected": true,
+          "history_dhcp_address": true,
+          "history_http_200": true,
+          "history_terminal_pass": true
+        },
+        "pcap": {
+          "sha256": "fef07101f59b92336a34ec32e9cc5d0f9f18449714659fa416c094215d81959d",
+          "bytes": 4600,
+          "packets": 36,
+          "dhcp_message_types": {
+            "ack": 1,
+            "discover": 1,
+            "offer": 1,
+            "request": 1
+          },
+          "tcp_flow_count": 2
+        },
+        "frame": {
+          "width": 320,
+          "height": 240,
+          "bytes": 302,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+        },
+        "evidence": {
+          "sha256": "0c36117023b52c28070f26f1c53ebf893f1eac7e53f962644911ae83d66b7d91",
+          "bytes": 11596,
+          "member_count": 9,
+          "session_state": "running",
+          "before_stop": true
+        },
+        "controlled_http_gets": 1
+      },
+      {
+        "status": "PASS",
+        "session_id_sha256": "fad148f0d4594a0785221f58094a34d49305c44555739f670f1e20146f722fbb",
+        "firmware_sha256": "42b98a7896345a9e5f62ffbefdce305ce17d493ddf73457b8881699e5fcc57f8",
+        "checks": {
+          "stock_version": true,
+          "single_boot": true,
+          "no_guest_error_or_reset": true,
+          "active": true,
+          "scan_nonempty": true,
+          "known_ap": true,
+          "connect_returned": true,
+          "connected": true,
+          "dhcp_address": true,
+          "http_200": true,
+          "terminal_pass": true,
+          "explicit_radio_enabled": true,
+          "network_marker_proof": true,
+          "controlled_http_observed": true,
+          "frame_captured": true,
+          "runtime_unchanged": true,
+          "zip_stock_version": true,
+          "zip_single_boot": true,
+          "zip_no_guest_error_or_reset": true,
+          "zip_active": true,
+          "zip_scan_nonempty": true,
+          "zip_known_ap": true,
+          "zip_connect_returned": true,
+          "zip_connected": true,
+          "zip_dhcp_address": true,
+          "zip_http_200": true,
+          "zip_terminal_pass": true,
+          "evidence_requested_running": true,
+          "pcap_packets": true,
+          "pcap_well_formed": true,
+          "pcap_dhcp_dora": true,
+          "pcap_http_guest_payload": true,
+          "pcap_http_host_payload": true,
+          "stopped_with_history": true,
+          "flash_released": true,
+          "runtime_pid_gone": true,
+          "history_frame_exact": true,
+          "history_serial_retained": true,
+          "history_stock_version": true,
+          "history_single_boot": true,
+          "history_no_guest_error_or_reset": true,
+          "history_active": true,
+          "history_scan_nonempty": true,
+          "history_known_ap": true,
+          "history_connect_returned": true,
+          "history_connected": true,
+          "history_dhcp_address": true,
+          "history_http_200": true,
+          "history_terminal_pass": true
+        },
+        "pcap": {
+          "sha256": "825fe1490a5a07a14f849b2bc5803d068498820f69ec086eb2091b6a68d74b2b",
+          "bytes": 4123,
+          "packets": 30,
+          "dhcp_message_types": {
+            "ack": 1,
+            "discover": 1,
+            "offer": 1,
+            "request": 1
+          },
+          "tcp_flow_count": 2
+        },
+        "frame": {
+          "width": 320,
+          "height": 240,
+          "bytes": 302,
+          "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+        },
+        "evidence": {
+          "sha256": "b64fcf7cc7cc47fc85e704d368b9b8bc82f17692231592a7baf35863ca698396",
+          "bytes": 11461,
+          "member_count": 9,
+          "session_state": "running",
+          "before_stop": true
+        },
+        "controlled_http_gets": 1
+      }
+    ]
+  },
+  "secondary_runtimes": {
+    "unchanged_c6_binary_sha256": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+    "scope": "Unchanged ESP32-C6 backend reused only for its matrix cases; not the Xtensa runtime"
+  },
+  "controller_c_replay": {
+    "status": "PASS",
+    "tests": 2,
+    "log_sha256": "de96220afd8f418f6e743f3eec10f6948619cef62c03ce655a4881d2ca5de728"
+  },
+  "source_replay": {
+    "status": "PASS",
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "patch_count": 17,
+    "final_source_files": 109,
+    "base_files_byte_equal": 44,
+    "new_files_removed_on_reverse": 65,
+    "final_forward_byte_equal": 109,
+    "full_reverse_and_forward": true,
+    "binary_sha256": "712851db882fed73696a2598f9ba5c036d4d26a21e7ef11e59aca41ca1e84f2e"
+  },
+  "radio_runner_packaging_audit": {
+    "executed_runner_sha256": "43fcac6be495015df195c9a8ae17a807acd2113272f6f6520341615f27af36c9",
+    "tracked_runner_sha256": "2a32e55ecd372138336d6ad45e690ed725dbdb836241e9b271f7dd26c43874fb",
+    "execution_logic_ast_unchanged": true,
+    "changes": "Repository-relative paths, CLI defaults and aliases, unused import removal; original executions retained"
+  },
+  "retained_history_followup": {
+    "status": "PASS",
+    "scope": "Final runner serial and frame checks re-evaluated against all four already-retained original histories; no guest rerun or tool identity backfill"
+  },
+  "not_claimed": [
+    "Private complete application archives or private backend behavior",
+    "Public NTP response, DNS or NTP receive timeout from the offline transport-error test",
+    "Legacy UIFlow1 v1.15.4 LVGL7 interrupt/completion wait",
+    "Physical hardware, RF, power, electrical or timing equivalence",
+    "Generic DMA owner/writeback, IRQ/error, RX or cross-USR descriptor continuation"
+  ],
+  "ci_portability_followup": {
+    "first_run": "40461010640",
+    "first_status": "FAIL_TEST_HARNESS_ONLY",
+    "reason": "Linux GCC -Werror rejected mixed signedness in the test-only MIN helper conditional branches",
+    "change": "Cast both helper result branches to uint64_t; retain compiler warnings as errors",
+    "targeted_local_test": "PASS",
+    "runtime_changed": false,
+    "linux_gcc_confirmation": "PENDING_NEXT_CI"
+  }
+}

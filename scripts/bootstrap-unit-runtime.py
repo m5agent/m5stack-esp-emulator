@@ -27,6 +27,7 @@ SLIRP_COMMIT = "26be815b86e8d49add8c9a8b320239b9594ff03d"
 PATCHES = (
     "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
     "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch",
+    "patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch",
     "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch",
     "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch",
     "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch",
@@ -39,6 +40,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch",
     "patches/qemu-m5stack-peripherals/0047-unit-flashlight-cold-pad-observation.patch",
     "patches/qemu-m5stack-peripherals/0048-unit-servos8-joystick2-nfc.patch",
+    "patches/qemu-m5stack-peripherals/0049-core2-offline-wifi-controller.patch",
+    "patches/qemu-m5stack-peripherals/0050-esp32-spi-panel-dma-transaction.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",
