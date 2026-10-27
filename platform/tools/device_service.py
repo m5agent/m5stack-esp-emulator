@@ -134,7 +134,13 @@ from run_tab5_ui_test import (
 )
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
 from unit_runtime import UnitError, UnitRegistry  # noqa: E402
-from unit_adc_fixture import apply_s3_adc_calibration, load_fixture as load_adc_fixture, verify_firmware as verify_adc_firmware  # noqa: E402
+from unit_adc_fixture import (  # noqa: E402
+    CARDPUTER_FIXTURE,
+    FIXTURE as UNIT_ADC_FIXTURE,
+    apply_s3_adc_calibration,
+    load_fixture as load_adc_fixture,
+    verify_firmware as verify_adc_firmware,
+)
 from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_directory import (  # noqa: E402
     WorkerDirectory,
@@ -5714,29 +5720,43 @@ class DeviceSession:
         )
         if wifi_mac:
             set_s3_efuse_mac(efuse_data, wifi_mac)
-        if self.spec.backend == "qemu-esp32s3" and any(
-            unit["unit_id"] in {"angle", "light"} for unit in self.units
-        ):
-            frozen = (self.unit_contract or {}).get("fixtures", {}).get("esp32s3-adc")
-            if frozen:
-                raw = frozen["raw_utf8"].encode("utf-8")
-                if hashlib.sha256(raw).hexdigest() != frozen["sha256"]:
-                    raise ServiceError("runtime_model_gap", "frozen ADC fixture hash mismatch", 409)
-                fixture = load_adc_fixture(raw=raw)
+        if self.spec.backend == "qemu-esp32s3":
+            adc_path = None
+            adc_raw = None
+            if any(unit["unit_id"] in {"angle", "light"} for unit in self.units):
+                frozen = (self.unit_contract or {}).get("fixtures", {}).get("esp32s3-adc")
+                if frozen:
+                    adc_raw = frozen["raw_utf8"].encode("utf-8")
+                    if hashlib.sha256(adc_raw).hexdigest() != frozen["sha256"]:
+                        raise ServiceError("runtime_model_gap", "frozen ADC fixture hash mismatch", 409)
+                    adc_path = UNIT_ADC_FIXTURE
+            elif self.spec.id == "cardputer-adv":
+                adc_path = CARDPUTER_FIXTURE
+            if adc_path is not None:
+                fixture = load_adc_fixture(path=adc_path, raw=adc_raw)
+                fixture_bytes = adc_raw if adc_raw is not None else adc_path.read_bytes()
                 firmware = self.firmware_path.read_bytes()
                 try:
                     verify_adc_firmware(firmware, fixture)
                 except ValueError:
                     receipt = {
                         "schema_version": 1, "status": "not-applied",
-                        "fixture_sha256": frozen["sha256"],
+                        "fixture_sha256": hashlib.sha256(fixture_bytes).hexdigest(),
                         "reason": "application bytes do not match the synthetic calibration profile; raw ADC remains available",
                         "hardware_validation": False,
                     }
                 else:
-                    receipt = {**apply_s3_adc_calibration(
-                        efuse_data, backend=self.spec.backend, firmware=firmware, fixture_raw=raw,
-                    ), "status": "applied"}
+                    calibration_args = {
+                        "backend": self.spec.backend,
+                        "firmware": firmware,
+                        "fixture_path": adc_path,
+                    }
+                    if adc_raw is not None:
+                        calibration_args["fixture_raw"] = adc_raw
+                    receipt = {
+                        **apply_s3_adc_calibration(efuse_data, **calibration_args),
+                        "status": "applied",
+                    }
                 atomic_write_json(self.unit_adc_calibration_path, receipt)
         efuse.write_bytes(efuse_data)
         try:
@@ -7690,8 +7710,8 @@ class DeviceSession:
                 files["units/runtime.json"] = self.unit_config_path.read_bytes()
             if self.unit_state_path.is_file():
                 files["units/state.json"] = self.unit_state_path.read_bytes()
-            if self.unit_adc_calibration_path.is_file():
-                files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
+        if self.unit_adc_calibration_path.is_file():
+            files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
         if "serial" in include:
             for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
                 if path.is_file():

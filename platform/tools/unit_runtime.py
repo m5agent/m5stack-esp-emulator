@@ -274,7 +274,17 @@ class UnitRegistry:
                 interface = self.units[leaf["unit_id"]]["interface"]
                 if interface["bus"] != "i2c":
                     raise UnitError("unit_bus_conflict", "parallel GPIO, ADC, PWM, RMT and UART attachments require an explicit contention model", 409)
-                current = set(interface.get("address_7bit", []))
+                profile = self.profiles[leaf["unit_id"]]
+                address_input = profile.get("address_input")
+                if address_input:
+                    current = {
+                        leaf["initial"].get(
+                            address_input,
+                            profile.get("default_address_7bit"),
+                        )
+                    }
+                else:
+                    current = set(interface.get("address_7bit", []))
                 if addresses & current:
                     raise UnitError("unit_address_conflict", "passive HUB cannot separate duplicate I2C addresses", 409)
                 addresses.update(current)

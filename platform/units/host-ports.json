@@ -35,6 +35,30 @@
             }
           ],
           "limitations": []
+        },
+        {
+          "id": "hat",
+          "label": "HAT2-BUS",
+          "visual_port": null,
+          "connector": "2.54-16P Hat2-Bus",
+          "pins": {
+            "yellow": 8,
+            "white": 0
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/StickS3",
+              "checked_at": "2026-10-27",
+              "locator": "PinMap > Hat2-Bus"
+            }
+          ],
+          "limitations": []
         }
       ],
       "unconfirmed": []
@@ -80,7 +104,7 @@
             "control": "unknown"
           },
           "wiring_status": "confirmed",
-          "physical_presence": "accessory-or-configuration-dependent",
+          "physical_presence": "main-device",
           "evidence": [
             {
               "url": "https://docs.m5stack.com/en/core/CoreS3",
@@ -89,7 +113,7 @@
             }
           ],
           "limitations": [
-            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+            "The connector is modeled while its front-panel visual port remains disabled."
           ]
         },
         {

@@ -13,6 +13,7 @@ export const CARDKB_KEY_IDS = Object.freeze([
 const MOMENTARY = {
   button: {press: 'pressed'}, limit: {press: 'pressed'}, key: {press: 'pressed'},
   encoder: {press: 'pressed'}, scroll: {press: 'pressed'}, 'dual-button': {red: 'red-pressed', blue: 'blue-pressed'},
+  joystick2: {press: 'button-pressed'},
 };
 const JOINTS = {
   angle: {'voltage-mv': ['rotation']},
@@ -199,6 +200,10 @@ const AUDIT = {
   '2relay': {readback: ['output-1-level', 'output-2-level'], note: 'U131 white=Relay1=led-1, yellow=Relay2=led-2. Fixed-blue nominal powered indication; GPIO pads are not contacts or load measurements.'},
   flashlight: {readback: ['output-known', 'pad-synchronized', 'gpio-route-supported', 'flash-mode', 'en-level', 'active', 'flash-level-pct', 'timeout-ms'], note: 'U152 D1 fixed-white appearance requires qualified controller readback. Flash brightness represents a relative digital code; Torch appearance is qualitative. No photometry or S1 visual-detent mapping.'},
   'joystick-v11': {binding: {'x-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'y-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'button-raw': 'Catalog preserves raw button byte; pressed polarity is unconfirmed.'}},
+  joystick2: {readback: ['button-pressed'], binding: {'x-position': 'Mapped signed axis to tilt orientation/range requires mechanical calibration.', 'y-position': 'Mapped signed axis to tilt orientation/range requires mechanical calibration.'}, note: 'The official driver reports pressed as a boolean; analog range, center, direction and mechanical travel remain unmodeled.'},
+  '8servos': {binding: {modes: 'Mode registers do not establish a physical actuator state.', angles: 'Guest angle registers do not prove mechanical angle, servo type or direction.', pulses: 'Pulse request does not prove output timing or servo response.', 'pwm-duty': 'Duty register does not prove output waveform or connected load.'}, note: 'All visual motions remain panel-only without a device-local servo calibration.'},
+  'servo8-hat': {readback: ['power-state'], binding: {angles: 'Guest angle registers do not prove mechanical angle or servo response.', pulses: 'Pulse request does not prove output timing or servo response.'}, note: 'Power register is observed controller state; rail current and servo motion are not modeled.'},
+  nfc: {note: 'UID and I2C transaction state are panel-only; no NFC field, antenna, range or card-electrical visualization is inferred.'},
   'dual-button': {input: ['red-pressed', 'blue-pressed'], readback: ['red-pressed', 'blue-pressed']},
   button: {input: ['pressed'], readback: ['pressed']}, ncir: {}, heart: {},
   encoder: {input: ['pressed'], readback: ['pressed'], binding: {counter: 'Counter units per physical revolution, zero and direction are unconfirmed.', 'led-rgb': 'Uniform colors map by permutation invariance; distinct LED index 1/2 colors require physical-location evidence.'}},

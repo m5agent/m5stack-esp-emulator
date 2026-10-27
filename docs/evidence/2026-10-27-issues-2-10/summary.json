@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "scope": "GitHub issues #2-#10 sequential revalidation",
+  "validation_kind": "virtual-device validation",
+  "hardware_validation": false,
+  "base_commit": "8a0d99a03e3205564011bb123e0ee981587bebe7",
+  "runtime": {
+    "binary_sha256": "9aca9a8db5143ad133510795cd228ed8ac23c388ea197267d7b2b4750e58eb82",
+    "source_receipt_sha256": "1219a45d8ad495509e01088f87af5fe7e41719bb4661e6e60afc42fdce035b26",
+    "patch_count": 14,
+    "source_file_count": 109,
+    "last_patch": "patches/qemu-m5stack-peripherals/0048-unit-servos8-joystick2-nfc.patch",
+    "last_patch_sha256": "bda0038c4239fb2d21c8d17f30bc2107cfb977f8d8a9e5a6ed3fc58aa304f7fe"
+  },
+  "checks": {
+    "platform_unittest": {
+      "status": "PASS",
+      "tests": 1241,
+      "skipped": 1
+    },
+    "unit_runtime": {
+      "status": "PASS",
+      "tests": 18
+    },
+    "unit_adc_fixture": {
+      "status": "PASS",
+      "tests": 17
+    },
+    "unit_issue_controller_patch": {
+      "status": "PASS",
+      "tests": 2
+    },
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "unit_visual_mappings": "PASS",
+    "unit_panel": "PASS",
+    "unit_annotation_bridge": "PASS",
+    "unit_web_bridge": "PASS",
+    "bootstrap_source_receipt": "PASS",
+    "patch_0048_reverse_check": "PASS",
+    "full_uiflow2_matrix": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "issues": {
+    "2": {
+      "title": "Core2 UIFlow2 apps never reach a first frame",
+      "verdict": "OPEN_FAIL_REPRODUCED",
+      "device": "core2",
+      "runtime": "qemu",
+      "session_id": "ae3d913d352248a7b03419082736a349",
+      "firmware_sha256": "2b1cb7d57ec40fb3f142d951801ec1741e00db55b5629f08f230caa42f2aa6cd",
+      "serial_bytes": 9568,
+      "serial_markers": {
+        "ISSUE2_DONE": false,
+        "WDT_OR_RESET": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "png_bytes": 302,
+        "nonblack_pixels": 0,
+        "unique_colors": 1,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+      },
+      "evidence_zip_sha256": "0ba6851e011e8570a9713d1ab7074341ab2f18985b4643befab31c0883bc690b",
+      "post_run_state": "booting",
+      "stopped": true
+    },
+    "3": {
+      "title": "Core2 NTP/Wi-Fi wait before first draw",
+      "verdict": "OPEN_FAIL_REPRODUCED",
+      "device": "core2",
+      "runtime": "qemu-wifi",
+      "profile": "core2-openmac",
+      "session_id": "2d59cedb0bc746d79bacaec64832d47a",
+      "firmware_sha256": "591dfd5e21d438a925c2ef497b37202b4366dcc7adfb1d890446296baf365c72",
+      "serial_bytes": 3707,
+      "serial_markers": {
+        "ISSUE3_DONE": false,
+        "WDT_OR_RESET": true
+      },
+      "network_proof_status": "PARTIAL",
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "png_bytes": 302,
+        "nonblack_pixels": 0,
+        "unique_colors": 1,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+      },
+      "evidence_zip_sha256": "0624026bd41f0cc8a0587b59a1a3c3fc9cb8619152db4091397ae509528dec7b",
+      "post_run_state": "booting",
+      "stopped": true
+    },
+    "4": {
+      "title": "StickS3 ENV III / QMP6988",
+      "verdict": "PASS_ALREADY_FIXED_ON_MAIN",
+      "device": "sticks3",
+      "runtime": "qemu",
+      "session_id": "87104dffe4854012b54136318c916409",
+      "firmware_sha256": "93a547011be37a2b5f062ad7a56da108a95600119d360481adef10c634ed8d76",
+      "program_source_sha256": "f9fd8eaa6dfb09b251fcc5fcd58a1cf61b43686af101d3bc7a3787c1df333d4a",
+      "program_state": "completed",
+      "serial_markers": {
+        "ISSUE4_VALUES": "23.5 47.0 1002.5",
+        "ISSUE4_DONE": true
+      },
+      "data_plane": {
+        "temperature_c": 23.5,
+        "humidity_pct": 47,
+        "pressure_pa": 100250,
+        "transactions": 22,
+        "read_bytes": 46,
+        "written_bytes": 15,
+        "input_events": 3
+      },
+      "frame": {
+        "width": 135,
+        "height": 240,
+        "png_bytes": 948,
+        "nonblack_pixels": 31449,
+        "unique_colors": 17,
+        "sha256": "7fb997f562af80ca1e52611b1e8e9a11e294916749c627a3d44ff4f2af7cb10d"
+      },
+      "evidence_zip_sha256": "19980b3f624a86e352b81054916846972e5a230651d65d02d3060a60856ad581",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "5": {
+      "title": "StickS3 Servo8 HAT",
+      "verdict": "PASS_FIXED",
+      "device": "sticks3",
+      "runtime": "qemu",
+      "session_id": "afde8580679649f4956a990f1a387f1f",
+      "firmware_sha256": "93a547011be37a2b5f062ad7a56da108a95600119d360481adef10c634ed8d76",
+      "program_source_sha256": "4c7694cddfca505d4081c8a7d3fbe282422f4c58cc1723e62a65fea156a26b85",
+      "program_state": "completed",
+      "serial_markers": {
+        "ISSUE5_SCAN": "[54]",
+        "ISSUE5_ANGLE": "90",
+        "POWER": "1",
+        "ISSUE5_DONE": true
+      },
+      "data_plane": {
+        "transactions": 8,
+        "read_bytes": 2,
+        "written_bytes": 6,
+        "output_transitions": 2,
+        "angles": [90, 0, 0, 0, 0, 0, 0, 0],
+        "power_state": 1
+      },
+      "frame": {
+        "width": 135,
+        "height": 240,
+        "png_bytes": 950,
+        "nonblack_pixels": 31488,
+        "unique_colors": 17,
+        "sha256": "d8c657e4247e3651a0542c70303a4cf3b3f78c0bbf20d6214063c17678eaa6d4"
+      },
+      "evidence_zip_sha256": "03d54e2b6caf375f83502a6991836b93f376749471852ecbb47d568a4cc3beab",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "6": {
+      "title": "CoreS3 8Servos Unit",
+      "verdict": "PASS_FIXED",
+      "device": "cores3",
+      "runtime": "qemu",
+      "session_id": "97e3ec05059547bb90092a18f0bf8332",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "program_source_sha256": "fd160bae63b176a7784aef29d7a4b95cdb77d8b9763a9d1fed69610debcb9b0b",
+      "program_state": "completed",
+      "serial_markers": {
+        "ISSUE6_PORT_A": "[64]",
+        "ISSUE6_PORT_B": "[37]",
+        "ISSUE6_ENCODER": "0",
+        "ANGLE": "90",
+        "ISSUE6_DONE": true
+      },
+      "data_plane": {
+        "port_a_i2c_address": 64,
+        "port_b_i2c_address": 37,
+        "encoder_counter": 0,
+        "servo_mode": 3,
+        "servo_angle": 90,
+        "transactions": 12,
+        "read_bytes": 3,
+        "written_bytes": 7,
+        "output_transitions": 2
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "png_bytes": 1172,
+        "nonblack_pixels": 75825,
+        "unique_colors": 17,
+        "sha256": "fffb04dab20624bb7782fd4ac1b40836875ed812c434c5b45c29332776b7ddc9"
+      },
+      "evidence_zip_sha256": "9c2962015f3f85beac571a38eff897f25e4867332a91a8fbc4a85f2c7079d299",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "7": {
+      "title": "CoreS3 Joystick2 Units",
+      "verdict": "PASS_FIXED",
+      "device": "cores3",
+      "runtime": "qemu",
+      "session_id": "aeddd9b4f67345909174da28769b3f8a",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "program_source_sha256": "68b452117b96858287aedc95bb4faa821a27afd35dbc9653ee1472dac2b1da3f",
+      "program_state": "completed",
+      "serial_markers": {
+        "ISSUE7_SCAN": "[99, 100]",
+        "ISSUE7_A_XY": "0 0",
+        "ISSUE7_B_XY": "1200 -800",
+        "BUTTON": true,
+        "ISSUE7_DONE": true
+      },
+      "data_plane": {
+        "address_a": 99,
+        "address_b": 100,
+        "a_position": [0, 0],
+        "b_position": [1200, -800],
+        "b_button_pressed": true
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "png_bytes": 1143,
+        "nonblack_pixels": 75602,
+        "unique_colors": 17,
+        "sha256": "a2185f6f331fff83badc8616ca96edb7a8077bc98cd7fb7c4837739d628f746e"
+      },
+      "evidence_zip_sha256": "16532177a15b05f8ce5fa56690c530090ae99ebdfb2e63c03295c60db40441e4",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "8": {
+      "title": "CoreS3 NFC ST25R3916",
+      "verdict": "PASS_FIXED",
+      "device": "cores3",
+      "runtime": "qemu",
+      "session_id": "a4f65ddd7ade49c2ba464e4382ebd142",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "program_source_sha256": "eb6a51958763d8336e954dfe168d640bb960e7deac164a6d391606c296ed585d",
+      "program_state": "completed",
+      "serial_markers": {
+        "ISSUE8_SCAN": "[80]",
+        "ISSUE8_DETECT": "DEADBEEF",
+        "ISSUE8_DONE": true
+      },
+      "data_plane": {
+        "i2c_address": 80,
+        "tag_uid": "DEADBEEF",
+        "transactions": 275,
+        "read_bytes": 74,
+        "written_bytes": 235
+      },
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "png_bytes": 985,
+        "nonblack_pixels": 75786,
+        "unique_colors": 17,
+        "sha256": "694b0ad3db8146fea59050ff40275b7d37d745b31559eaf8d263d13c5921176c"
+      },
+      "evidence_zip_sha256": "379108d1a74fafd5280592f4248e4207b907ed5b7100c49ad1e37a288a0c4469",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "9": {
+      "title": "Cardputer-ADV ADC calibration",
+      "verdict": "PASS_FIXED",
+      "device": "cardputer-adv",
+      "runtime": "qemu",
+      "session_id": "087fc3390f5949ceb83de0551d7f8b14",
+      "firmware_sha256": "3522f71a614fdf505191403b576379eda39baec03fcb2d4e4c758c975fd50580",
+      "serial_markers": {
+        "ADC_CALIBRATION_ERROR": false,
+        "FATAL_ERROR": false
+      },
+      "adc_calibration": {
+        "status": "applied",
+        "fixture_id": "esp32s3-cardputer-ideal-adc-v1",
+        "fixture_sha256": "31dc49637ee27c5c327faa4f618afa10acf5c5210d254f908de82e48b2fddc13",
+        "application_segment_sha256": "b5cc34b9fb1487d027b09b8b2cd9cab460b3349dff7245c163e88f45be778e53",
+        "hardware_validation": false,
+        "identity_or_security_fields_changed": false
+      },
+      "frame": {
+        "width": 240,
+        "height": 135,
+        "png_bytes": 796,
+        "nonblack_pixels": 31881,
+        "unique_colors": 17,
+        "sha256": "1c2f1165bf6a65b828614ce9bb7f0fdbcf3efc22b65ca50e68a2bfb6de20f725"
+      },
+      "evidence_zip_sha256": "66820458b9400da53b9bd40330112676bf952ef40d373ce5cb325397c6eafa8a",
+      "post_run_state": "running",
+      "stopped": true
+    },
+    "10": {
+      "title": "Cardputer-ADV Tetris setup stall",
+      "verdict": "PASS_SETUP_PATH_FIXED",
+      "device": "cardputer-adv",
+      "runtime": "qemu",
+      "session_id": "099513ad37cf495eb0a6d921ae21ceb3",
+      "firmware_sha256": "2225b3b468b1494ed2b6189f80bcef71c71c7bd2bc392635c998d062ca90d484",
+      "serial_markers": {
+        "FATAL_ERROR": false
+      },
+      "visual_markers": [
+        "Canvas",
+        "MatrixKeyboard",
+        "GPIO0",
+        "Speaker",
+        "IMU",
+        "ALL SETUP OK"
+      ],
+      "adc_calibration": {
+        "status": "applied",
+        "fixture_id": "esp32s3-cardputer-ideal-adc-v1",
+        "fixture_sha256": "31dc49637ee27c5c327faa4f618afa10acf5c5210d254f908de82e48b2fddc13",
+        "application_segment_sha256": "b5cc34b9fb1487d027b09b8b2cd9cab460b3349dff7245c163e88f45be778e53",
+        "hardware_validation": false,
+        "identity_or_security_fields_changed": false
+      },
+      "frame": {
+        "width": 240,
+        "height": 135,
+        "png_bytes": 852,
+        "nonblack_pixels": 31444,
+        "unique_colors": 17,
+        "sha256": "3c2b37650bf78b047c2c932aa09fd0eb7471f0a80274641f6d79c79ee86affd2"
+      },
+      "evidence_zip_sha256": "fd644b5c5e709b72f615e1b5c252afbcab64e09bb29d2e74887c9bdd89b9fee2",
+      "post_run_state": "running",
+      "stopped": true,
+      "limitation": "The original complete Tetris source was unavailable; validation covers the issue's setup path and first successful frame, not game logic."
+    }
+  },
+  "not_claimed": [
+    "physical hardware behavior",
+    "servo motion, current or power switching",
+    "Joystick2 mechanical travel or calibration",
+    "NFC RF, antenna, range or a physical card",
+    "ADC or battery electrical accuracy",
+    "Tetris frame-by-frame game logic"
+  ]
+}

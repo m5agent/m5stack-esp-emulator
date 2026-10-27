@@ -10,6 +10,9 @@ S3 LEDC duty-register readback fix in `0037` and the GPIO-route observation
 candidate in `0038`, then the independent bounded Scroll controller in `0043`
 and dual GPIO 2Relay in `0044`, then the partial AW3641E GPIO-edge/timer
 FlashLight model in `0045`, then scoped route-lifecycle invalidation in `0046`.
+`0047` adds controller-owned cold-pad observation, and `0048` adds the
+official UIFlow2-compatible 8Servos HAT, 8Servos Unit, Joystick2 and NFC Unit
+register/controller attachments.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -29,7 +32,9 @@ No firmware, ROM, executable or credential is added by these patches.
    `0043-unit-scroll-controller.patch`, then
    `0044-unit-2relay-gpio.patch`, then
    `0045-unit-flashlight-aw3641.patch`, then
-   `0046-unit-flashlight-route-lifecycle.patch`.
+   `0046-unit-flashlight-route-lifecycle.patch`, then
+   `0047-unit-flashlight-cold-pad-observation.patch`, then
+   `0048-unit-servos8-joystick2-nfc.patch`.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
@@ -125,6 +130,13 @@ falling edge and a complete long-low reset. New-runtime Device Service checks
 establish only the scoped route-history admission below; the independent full
 matrix retains its Core2 IMU failure (UNIT-HOST-21), not an all-green release.
 Cold-route/no-edge recovery, dynamic S1, PWM and physical behavior remain OPEN.
+
+`0048` adds only device-local I2C register/controller paths for issue fixes:
+StickS3 Hat2-Bus `servo8-hat` at `0x36`, CoreS3 Port B `8servos` at `0x25`,
+CoreS3 Joystick2 at `0x63`/`0x64`, and the existing deterministic ST25R3916
+fixture as an NFC Unit at `0x50`. It models guest-visible registers,
+transactions and synthetic fixture state. It does not model servo motion,
+current, RF, antenna behavior, electrical limits or physical hardware.
 
 ## Why a prelude is necessary
 

@@ -1,6 +1,72 @@
 {
   "schema_version": 1,
   "units": {
+    "servo8-hat": {
+      "status": "implemented",
+      "hosts": ["sticks3"],
+      "blocker": "Only the official UIFlow2 HAT register path and virtual-device session are covered. Servo motion, current, power switching and electrical behavior remain unvalidated.",
+      "inputs": {},
+      "state": {
+        "transactions": {"property": "transactions"},
+        "read-bytes": {"property": "read-bytes"},
+        "written-bytes": {"property": "written-bytes"},
+        "output-transitions": {"property": "output-transitions"},
+        "angles": {"property": "angles"},
+        "pulses": {"property": "pulses"},
+        "power-state": {"property": "power-state"}
+      }
+    },
+    "8servos": {
+      "status": "implemented",
+      "hosts": ["cores3"],
+      "blocker": "Only the official UIFlow2 Unit register path and virtual-device session are covered. Servo motion, ADC inputs, current and electrical behavior remain unvalidated.",
+      "inputs": {},
+      "state": {
+        "transactions": {"property": "transactions"},
+        "read-bytes": {"property": "read-bytes"},
+        "written-bytes": {"property": "written-bytes"},
+        "output-transitions": {"property": "output-transitions"},
+        "modes": {"property": "modes"},
+        "angles": {"property": "angles"},
+        "pulses": {"property": "pulses"},
+        "pwm-duty": {"property": "pwm-duty"}
+      }
+    },
+    "joystick2": {
+      "status": "implemented",
+      "hosts": ["cores3"],
+      "blocker": "Only the official UIFlow2 Unit register path and virtual-device session are covered. Analog calibration, mechanical travel and optical RGB behavior remain unvalidated.",
+      "address_input": "i2c-address",
+      "default_address_7bit": 99,
+      "inputs": {
+        "x-position": {"property": "x-position"},
+        "y-position": {"property": "y-position"},
+        "button-pressed": {"property": "button-pressed"},
+        "i2c-address": {"property": "i2c-address", "creation_only": true}
+      },
+      "state": {
+        "transactions": {"property": "transactions"},
+        "read-bytes": {"property": "read-bytes"},
+        "written-bytes": {"property": "written-bytes"},
+        "input-events": {"property": "input-events"},
+        "x-position": {"property": "x-position"},
+        "y-position": {"property": "y-position"},
+        "button-pressed": {"property": "button-pressed"},
+        "i2c-address": {"property": "i2c-address"}
+      }
+    },
+    "nfc": {
+      "status": "implemented",
+      "hosts": ["cores3"],
+      "blocker": "Uses the existing deterministic ST25R3916 I2C fixture. No RF field, antenna, physical range, electrical or secure-card behavior is modeled.",
+      "inputs": {},
+      "state": {
+        "transactions": {"path": "/controller", "property": "transactions"},
+        "read-bytes": {"path": "/controller", "property": "read-bytes"},
+        "written-bytes": {"path": "/controller", "property": "written-bytes"},
+        "tag-uid": {"path": "/controller", "property": "tag-uid"}
+      }
+    },
     "env-iii": {
       "status": "implemented",
       "hosts": [

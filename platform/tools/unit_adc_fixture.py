@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "platform/units/fixtures/esp32s3-adc-calibration.json"
+CARDPUTER_FIXTURE = ROOT / "platform/units/fixtures/cardputer-adv-adc-calibration.json"
 BLOCK_OFFSETS = {0: 0, 1: 24, 2: 48}
 FIELD_LAYOUT = {
     "BLK_VERSION_MAJOR": (2, 128, 2),
@@ -110,9 +111,10 @@ def apply_s3_adc_calibration(
 ) -> dict:
     """Patch a fresh session's virtual eFuse in memory, preserving other bits.
 
-    Call only for an explicit Angle/Light Unit execution. A nonzero conflicting
-    calibration field fails before any mutation; real/unknown firmware fails
-    admission. This function never flashes, erases or accesses a physical chip.
+    Call only for an explicit Angle/Light Unit execution or the admitted
+    Cardputer-ADV battery ADC path. A nonzero conflicting calibration field
+    fails before any mutation; real/unknown firmware fails admission. This
+    function never flashes, erases or accesses a physical chip.
     """
     fixture_bytes = fixture_raw if fixture_raw is not None else fixture_path.read_bytes()
     if not isinstance(fixture_bytes, bytes):

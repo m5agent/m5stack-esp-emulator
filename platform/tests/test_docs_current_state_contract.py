@@ -54,9 +54,15 @@ class DocsCurrentStateContractTests(DocsContractBase):
         self.assertTrue({"roller485", "puzzle", "fader", "midi"} <= visual_only)
         catalog = project_snapshot.load_json(project_snapshot.UNIT_CATALOG)
         registered = {unit["id"] for unit in catalog["units"]}
+        registered_visual = {
+            unit.get("visual_model_id", unit["id"]) for unit in catalog["units"]
+        }
         self.assertIn("scroll", registered)
-        self.assertFalse(registered & visual_only)
-        self.assertEqual(len(registered) + len(visual_only), units["visual_source"]["units"])
+        self.assertFalse(registered_visual & visual_only)
+        self.assertEqual(
+            len(registered_visual) + len(visual_only),
+            units["visual_source"]["units"],
+        )
         self.assertEqual(sum(units["runtime_status"].values()), len(registered))
         load_json = project_snapshot.load_json
 

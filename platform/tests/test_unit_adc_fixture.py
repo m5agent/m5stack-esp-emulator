@@ -221,6 +221,37 @@ class UnitAdcFixtureTests(unittest.TestCase):
             with self.subTest(value=str(value)[:30]), self.assertRaises(ValueError):
                 adc.expected_ideal_input(value)
 
+    def test_cardputer_fixture_uses_its_own_s3_application_binding(self):
+        cardputer = adc.load_fixture(path=adc.CARDPUTER_FIXTURE)
+        self.assertEqual(cardputer["id"], "esp32s3-cardputer-ideal-adc-v1")
+        self.assertEqual(cardputer["backend"], "qemu-esp32s3")
+        self.assertIs(cardputer["hardware_validation"], False)
+        self.assertEqual(
+            cardputer["firmware_binding"]["reference_sha256"],
+            "a3961c8eda7358771c8e06c9160648e87ada973d23c6f71c9939b76fa973bed9",
+        )
+        self.assertEqual(
+            cardputer["firmware_binding"]["application_segment_sha256"],
+            "b5cc34b9fb1487d027b09b8b2cd9cab460b3349dff7245c163e88f45be778e53",
+        )
+        self.assertNotEqual(
+            cardputer["firmware_binding"],
+            self.fixture["firmware_binding"],
+        )
+
+        code = b"cardputer-application-bytes" * 8
+        cardputer["firmware_binding"].update(
+            application_offset=32,
+            application_segment_bytes=len(code),
+            application_segment_sha256=hashlib.sha256(code).hexdigest(),
+        )
+        image = b"n" * 32 + code + b"session-vfs"
+        adc.verify_firmware(image, cardputer)
+        changed = bytearray(image)
+        changed[32] ^= 1
+        with self.assertRaises(ValueError):
+            adc.verify_firmware(bytes(changed), cardputer)
+
 
 if __name__ == "__main__":
     unittest.main()
