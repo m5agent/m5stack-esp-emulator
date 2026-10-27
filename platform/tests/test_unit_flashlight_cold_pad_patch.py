@@ -293,8 +293,12 @@ class FlashLightColdPadPatchTests(unittest.TestCase):
         path = cls.directory / ("candidate.c" if current else "old.c")
         path.write_text(source)
         binary = path.with_suffix(".bin")
+        # Preserve replayed GPIO bytes, including its signed -1 sentinels in
+        # unsigned ternaries. GCC diagnoses those under -Wextra; every other
+        # enabled warning remains an error in this standalone host harness.
         result = subprocess.run([shutil.which("cc"), "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror",
                                  "-Wno-unused-parameter", "-Wno-unused-function", "-Wno-unused-variable",
+                                 "-Wno-sign-compare",
                                  "-DOLD_RUNTIME=" + str(int(not current)), str(path), "-o", str(binary)],
                                 capture_output=True, text=True, timeout=30)
         if result.returncode:

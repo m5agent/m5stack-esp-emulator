@@ -360,9 +360,12 @@ class UnitFlashlightRoutePatchTests(unittest.TestCase):
                     source = folder / "route.c"
                     source.write_text(program(unit, gpio))
                     binary = folder / "route"
+                    # Replayed matrix query bytes retain a signed -1 sentinel
+                    # in an unsigned ternary. Keep GCC's other warnings fatal.
                     build = subprocess.run([
                         shutil.which("cc"), "-std=c11", "-O0", "-Wall", "-Wextra",
                         "-Werror", "-Wno-unused-function", "-Wno-unused-parameter",
+                        "-Wno-sign-compare",
                         str(source), "-o", str(binary)], capture_output=True, text=True)
                     self.assertEqual(build.returncode, 0, build.stderr)
                     result = subprocess.run([str(binary)], capture_output=True, text=True)

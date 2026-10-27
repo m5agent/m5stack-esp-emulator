@@ -62,11 +62,27 @@ static int64_t qemu_clock_get_ns(int clock) { assert(clock==QEMU_CLOCK_VIRTUAL);
 static QEMUTimer *timer_new_ns(int clock,void (*cb)(void *),void *opaque) { assert(clock==QEMU_CLOCK_VIRTUAL);assert(timer_count<ARRAY_SIZE(timers));QEMUTimer *t=calloc(1,sizeof(*t));t->cb=cb;t->opaque=opaque;timers[timer_count++]=t;return t; }
 static void timer_mod_ns(QEMUTimer *t,int64_t at) { assert(at>=now_ns);t->at=at;t->pending=true; }
 static void timer_del(QEMUTimer *t) { t->pending=false; }
-static void advance(int64_t target) {
- assert(target>=now_ns);unsigned count=0;
- for(;;) { QEMUTimer *next=NULL;for(unsigned i=0;i<timer_count;i++)if(timers[i]->pending&&timers[i]->at<=target&&(!next||timers[i]->at<next->at))next=timers[i];
-  if(!next)break;assert(++count<10000);now_ns=next->at;next->pending=false;next->cb(next->opaque);
- }now_ns=target;
+static void advance(int64_t target)
+{
+    assert(target >= now_ns);
+    unsigned count = 0;
+    for (;;) {
+        QEMUTimer *next = NULL;
+        for (unsigned i = 0; i < timer_count; i++) {
+            if (timers[i]->pending && timers[i]->at <= target &&
+                (!next || timers[i]->at < next->at)) {
+                next = timers[i];
+            }
+        }
+        if (!next) {
+            break;
+        }
+        assert(++count < 10000);
+        now_ns = next->at;
+        next->pending = false;
+        next->cb(next->opaque);
+    }
+    now_ns = target;
 }
 static int pads[49],routes[49];static bool driven[49];
 typedef void (*PadFn)(void *,int,int);

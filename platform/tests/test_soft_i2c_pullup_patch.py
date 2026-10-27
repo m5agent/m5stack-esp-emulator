@@ -63,9 +63,12 @@ class SoftI2CPullupPatchTests(unittest.TestCase):
             path = directory / (name + ".c")
             path.write_text(source)
             binary = path.with_suffix(".bin")
+            # The unmodified GPIO replay uses signed -1/unsigned ternaries.
+            # Match the cold-pad harness exception and retain all other -Werror.
             result = subprocess.run([
                 shutil.which("cc"), "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror",
                 "-Wno-unused-parameter", "-Wno-unused-function", "-Wno-unused-variable",
+                "-Wno-sign-compare",
                 "-DOLD_RUNTIME=0", "-DWITH_PULLUPS=" + str(int(current)),
                 str(path), "-o", str(binary),
             ], capture_output=True, text=True, timeout=30)
