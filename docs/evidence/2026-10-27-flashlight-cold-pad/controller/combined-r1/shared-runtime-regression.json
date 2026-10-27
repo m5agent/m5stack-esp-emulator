@@ -1,0 +1,26 @@
+{
+  "status": "FAIL - NOT ACCEPTED",
+  "scope": "Separate parent-owned narrow runtime regression; this archive provides C logic evidence only",
+  "cases": [
+    {
+      "case": "cores3-peripherals",
+      "original_serial_sha256": "9ea4b0ebc4fb7f85e40976ab9408541e0e7f8e426ad4d82babb1c814b8b692bd",
+      "status": "FAIL runtime shared regression; not accepted",
+      "selected_serial_lines": [
+        "CORES3_POWER -2 0 1"
+      ]
+    },
+    {
+      "case": "cores3-aw9523-full",
+      "original_serial_sha256": "baad115d5d9c6bcf14124f2505cf0127d13f49d3e13850033631bbe776be7266",
+      "status": "FAIL runtime shared regression; not accepted",
+      "selected_serial_lines": []
+    },
+    {
+      "case": "core2-axp192",
+      "original_serial_sha256": "77042c81f91f33abdd6167667bc91221667cc21c5a302199ff7e816fdcff0fc1",
+      "status": "PASS existing AXP path",
+      "selected_serial_lines": []
+    }
+  ]
+}

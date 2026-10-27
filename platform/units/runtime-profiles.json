@@ -4227,6 +4227,18 @@
           "scope": "Original single pulse and nominal timeout, explicit long-low reset/recovery, known steady Torch, actual original-driver encoding observations, invalid/out-of-envelope unknown. Only qualified observed commands; no full table guest or hardware equivalence.",
           "unknown_waveforms_remain_unknown": true
         }
+      },
+      "cold_pad_candidate": {
+        "status": "C_LOGIC_AND_TARGETED_REGRESSION_ONLY",
+        "patch": "0047-unit-flashlight-cold-pad-observation.patch",
+        "runtime_binary_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096",
+        "report": "docs/evidence/2026-10-27-flashlight-cold-pad/README.md",
+        "unit_api": "NOT RUN",
+        "mounted_web": "NOT RUN",
+        "full_matrix": "NOT RUN",
+        "hardware": "NOT RUN",
+        "scope": "Fresh known-low t0/actual pad commit source lifecycle C implementation; CoreS3 soft-I2C pullup regression repair. No new Unit/host acceptance is inherited from historical validation.",
+        "public_contract": "Existing frozen Unit/Web readback contract retained. New pad observation QOM diagnostics are not added to public Unit state until versioned admission is validated."
       }
     }
   }

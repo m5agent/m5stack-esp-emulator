@@ -1,0 +1,49 @@
+{
+  "patch": "patches/qemu-m5stack-peripherals/0047-unit-flashlight-cold-pad-observation.patch",
+  "sha256": "3ec07fa849ee3b2ca646378359135e619bd428022361039a53644f82919dbaa4",
+  "reverse_check": "PASS",
+  "old_source_receipt_sha256": "a3083ae9af0b653c5a3dffad64e29932e52ab3d268cc60e78c73098e0d83be0e",
+  "files": {
+    "hw/gpio/esp32_gpio.c": {
+      "old": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4",
+      "new": "1a54d71afdfeb0a2444991e8116386a07b100f20f9bbd5f98f27f77cc5363e67"
+    },
+    "include/hw/gpio/esp32_gpio.h": {
+      "old": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+      "new": "ec1de9ac0f750c81d1ccc30ed7729e1316b2a63121f911eacc5eb9a8bb4b1a81"
+    },
+    "hw/xtensa/esp32s3.c": {
+      "old": "855296725ce5feb522c453bde62ede3d243ab238e769d9d41efb8bad7a4037c8",
+      "new": "0d9b8d494ae440f91a32005a521e5e89353ce836f6021be00ce3e28d3102c107"
+    },
+    "hw/m5stopwatch/m5_unit_gpio.c": {
+      "old": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+      "new": "050c5d4d305267506d7e67d405dd2350602e631cf8377cb05db9aa1a19c2e26d"
+    },
+    "hw/m5stopwatch/m5_unit_runtime.h": {
+      "old": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496",
+      "new": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926"
+    },
+    "hw/gpio/esp32s3_gpio_pad_aux.c": {
+      "old": null,
+      "new": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87"
+    },
+    "include/hw/gpio/esp32s3_gpio_pad_aux.h": {
+      "old": null,
+      "new": "e6ebf222cf20d85337168d9ae51399484a466d176d5b9995b125057892ef2a19"
+    },
+    "hw/misc/esp32s3_rtc_cntl.c": {
+      "old": "40ac860cee7c16b06a8b7eecf86942bcd3062d4b9bd40d8b3bcdc7e3bc99d19d",
+      "new": "42895db5c8d1286452ebd61e1ac9bcf4fa2d23452db9db6290d70100f3fd665b"
+    },
+    "hw/gpio/meson.build": {
+      "old": "488af00f0ce6e297b766aa074036f30453dd9b7e6fef2b6acdac2b1f63f469f0",
+      "new": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83"
+    },
+    "hw/m5stopwatch/esp32s3_soft_i2c.c": {
+      "old": "245d6e1be47f22caf145961357b4b2ef90ef2b15e67f868b1ae31f377410e2d2",
+      "new": "ee46e8b948e5a116fee9ca44cfa1039d54959c7f44614f80b739707779fa03a9"
+    }
+  },
+  "scope": "Exact ten-file diff against verified complete old 12-patch postimage; no binary or firmware"
+}

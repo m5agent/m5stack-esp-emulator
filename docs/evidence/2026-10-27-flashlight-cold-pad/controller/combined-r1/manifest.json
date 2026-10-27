@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "files": {
+    "README.md": {
+      "sha256": "2651aa695523a75c6b96e1b15dedc8c1ecbbafb50d631b601388c6c99036e84e",
+      "bytes": 3209
+    },
+    "candidate-source-manifest.json": {
+      "sha256": "d7b45985da385dd0a10dcc567535d0b813e22b3889ee336a768d49bda6c8028a",
+      "bytes": 1601
+    },
+    "old-source-manifest.json": {
+      "sha256": "0e2e3677dc9e2f6de81e1977451cf0d9262460563e734ca977944cf64946e563",
+      "bytes": 1181
+    },
+    "permanent-fixture.c": {
+      "sha256": "da4bfcf7a1d47186da72f319562d65aee036bfd4777461ad928dfdcdf6deb17b",
+      "bytes": 31518
+    },
+    "permanent-test.py.txt": {
+      "sha256": "ee4ebc5b7efe0e2ecba82bc57ee3c8a7832eefcf8f32213c290c0410ebd53c2d",
+      "bytes": 14005
+    },
+    "portable-old-cold.stderr": {
+      "sha256": "7cae3a134ff082bcbbff3ecff0a04e067ac80e49e54935a510b485742cda458f",
+      "bytes": 137
+    },
+    "portable-old-cold.stdout": {
+      "sha256": "f35141503838e779bca5976d8d178a5c12b4fea793010d5c83842455e65270e9",
+      "bytes": 322
+    },
+    "portable-receipt.json": {
+      "sha256": "4fa4b156701dfab1db6c49e050e530a8d6a1677be7bb136aa7543470ccbcecf3",
+      "bytes": 5505
+    },
+    "portable-results.json": {
+      "sha256": "6daac734dc160aeb4aa75f1fa7105b6a1182ca2f6dbdae0b0df6fe462a716f4b",
+      "bytes": 20767
+    },
+    "programs/candidate.c": {
+      "sha256": "f399d40b1c0ffcb857883fc7ee435721e37d4a02196028b8eeb4f03cf3f53a8e",
+      "bytes": 105365
+    },
+    "programs/old.c": {
+      "sha256": "fdc9ceb448e1863081dcad8a4d622f4cf7f5789c5ce584d9a13a6f175ebbae8b",
+      "bytes": 62550
+    },
+    "shared-runtime-regression.json": {
+      "sha256": "16c870e9cf578890d44a5c2aaf03f1a881c5db7b6d71a212bb3177d6cf249745",
+      "bytes": 912
+    },
+    "source-provenance.json": {
+      "sha256": "6cdf53d02d0a50b252f94f6326deb25763c21ffe83c7c62421ce6088b082ef09",
+      "bytes": 4665
+    },
+    "sources/candidate/hw/gpio/esp32_gpio.c": {
+      "sha256": "1a54d71afdfeb0a2444991e8116386a07b100f20f9bbd5f98f27f77cc5363e67",
+      "bytes": 33998
+    },
+    "sources/candidate/hw/gpio/esp32s3_gpio_pad_aux.c": {
+      "sha256": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
+      "bytes": 10329
+    },
+    "sources/candidate/hw/m5stopwatch/m5_unit_gpio.c": {
+      "sha256": "050c5d4d305267506d7e67d405dd2350602e631cf8377cb05db9aa1a19c2e26d",
+      "bytes": 38606
+    },
+    "sources/candidate/hw/m5stopwatch/m5_unit_runtime.h": {
+      "sha256": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926",
+      "bytes": 1805
+    },
+    "sources/candidate/include/hw/gpio/esp32_gpio.h": {
+      "sha256": "ec1de9ac0f750c81d1ccc30ed7729e1316b2a63121f911eacc5eb9a8bb4b1a81",
+      "bytes": 7226
+    },
+    "sources/candidate/include/hw/gpio/esp32s3_gpio_pad_aux.h": {
+      "sha256": "e6ebf222cf20d85337168d9ae51399484a466d176d5b9995b125057892ef2a19",
+      "bytes": 1729
+    },
+    "sources/old/hw/gpio/esp32_gpio.c": {
+      "sha256": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4",
+      "bytes": 13271
+    },
+    "sources/old/hw/m5stopwatch/m5_unit_gpio.c": {
+      "sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+      "bytes": 34424
+    },
+    "sources/old/hw/m5stopwatch/m5_unit_runtime.h": {
+      "sha256": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496",
+      "bytes": 1861
+    },
+    "sources/old/include/hw/gpio/esp32_gpio.h": {
+      "sha256": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+      "bytes": 937
+    },
+    "verify.py": {
+      "sha256": "92807bc26d94c33c93a66ffc8d64025a2e2ad98d222dc0d6dd00e2bec9ab0dcb",
+      "bytes": 4150
+    },
+    "whole-tu-cold.stdout": {
+      "sha256": "60b779ddc2ca82c428347113d54db7758590141f2bfa2cd37df50314d58eb010",
+      "bytes": 396
+    },
+    "whole-tu-harness.c": {
+      "sha256": "a2eba642e7ca8d09fcdc7de6bc093f05ea747564ca4d3f82300e3e6e93928125",
+      "bytes": 26572
+    },
+    "whole-tu-old-cold.stderr": {
+      "sha256": "c4256d4eed9d6a1fd09a178b7e132d47eb91c455f0dce7d22467ecf998636cdd",
+      "bytes": 140
+    },
+    "whole-tu-old-cold.stdout": {
+      "sha256": "f35141503838e779bca5976d8d178a5c12b4fea793010d5c83842455e65270e9",
+      "bytes": 322
+    },
+    "whole-tu-old-harness.c": {
+      "sha256": "5d0051e7098fe1db504ce80f526f200c5f3b86bd65b70f6fb51594d0ab6e5560",
+      "bytes": 7547
+    },
+    "whole-tu-old-source-before.json": {
+      "sha256": "3895390444ffa7df3784a24e76022e944cb7ea69bab106f60c386e249e77a971",
+      "bytes": 538
+    },
+    "whole-tu-receipt.json": {
+      "sha256": "2ef58fb2bd64cf8d000b9f31919f40a2b453cff5a66976335bac0110fab9d082",
+      "bytes": 2996
+    },
+    "whole-tu-source-after.json": {
+      "sha256": "b082a340b270a8e81ba436ab7664cf1607ddd77de553d9d302f9d8e90ea9df89",
+      "bytes": 851
+    },
+    "whole-tu-source-before.json": {
+      "sha256": "b082a340b270a8e81ba436ab7664cf1607ddd77de553d9d302f9d8e90ea9df89",
+      "bytes": 851
+    }
+  }
+}

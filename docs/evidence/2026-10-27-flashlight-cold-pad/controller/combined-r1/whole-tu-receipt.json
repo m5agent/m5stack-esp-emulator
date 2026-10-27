@@ -1,0 +1,170 @@
+{
+  "source_unchanged_during_run": true,
+  "mode": "candidate",
+  "results": [
+    {
+      "case": "cold",
+      "returncode": 0
+    },
+    {
+      "case": "cold-pin9",
+      "returncode": 0
+    },
+    {
+      "case": "cold-pin10",
+      "returncode": 0
+    },
+    {
+      "case": "cold-pin39",
+      "returncode": 0
+    },
+    {
+      "case": "known-low-baseline",
+      "returncode": 0
+    },
+    {
+      "case": "same-low",
+      "returncode": 0
+    },
+    {
+      "case": "equivalent-oe",
+      "returncode": 0
+    },
+    {
+      "case": "inverted-edges",
+      "returncode": 0
+    },
+    {
+      "case": "writer-route",
+      "returncode": 0
+    },
+    {
+      "case": "writer-oe-source",
+      "returncode": 0
+    },
+    {
+      "case": "writer-iomux",
+      "returncode": 0
+    },
+    {
+      "case": "writer-pull-conflict",
+      "returncode": 0
+    },
+    {
+      "case": "writer-external",
+      "returncode": 0
+    },
+    {
+      "case": "writer-force",
+      "returncode": 0
+    },
+    {
+      "case": "writer-bias",
+      "returncode": 0
+    },
+    {
+      "case": "writer-rtc-mux",
+      "returncode": 0
+    },
+    {
+      "case": "writer-rtc-hold",
+      "returncode": 0
+    },
+    {
+      "case": "writer-digital-hold",
+      "returncode": 0
+    },
+    {
+      "case": "writer-rtc-force-hold",
+      "returncode": 0
+    },
+    {
+      "case": "writer-digital-force-hold",
+      "returncode": 0
+    },
+    {
+      "case": "writer-rtc-isolation",
+      "returncode": 0
+    },
+    {
+      "case": "writer-digital-isolation",
+      "returncode": 0
+    },
+    {
+      "case": "writer-wrapper-isolation",
+      "returncode": 0
+    },
+    {
+      "case": "pad-out",
+      "returncode": 0
+    },
+    {
+      "case": "pad-enable",
+      "returncode": 0
+    },
+    {
+      "case": "pad-external",
+      "returncode": 0
+    },
+    {
+      "case": "open-drain-direct",
+      "returncode": 0
+    },
+    {
+      "case": "open-drain-mmio",
+      "returncode": 0
+    },
+    {
+      "case": "high-roundtrip-flash",
+      "returncode": 0
+    },
+    {
+      "case": "high-roundtrip-torch",
+      "returncode": 0
+    },
+    {
+      "case": "unsupported-low",
+      "returncode": 0
+    },
+    {
+      "case": "late-reset-500000",
+      "returncode": 0
+    },
+    {
+      "case": "late-reset-500001",
+      "returncode": 0
+    },
+    {
+      "case": "gpio-reset-low",
+      "returncode": 0
+    },
+    {
+      "case": "gpio-reset-retains-hold",
+      "returncode": 0
+    },
+    {
+      "case": "gpio-reset-retains-mux",
+      "returncode": 0
+    },
+    {
+      "case": "gpio-reset-active",
+      "returncode": 0
+    },
+    {
+      "case": "sticky-sleep",
+      "returncode": 0
+    },
+    {
+      "case": "sticky-force-pd",
+      "returncode": 0
+    },
+    {
+      "case": "release-owner",
+      "returncode": 0
+    }
+  ],
+  "scope": "Whole actual GPIO/AW/aux source C logic only; QEMU clock/QOM/IRQ/MR environment shims",
+  "guest": "NOT RUN",
+  "runtime": "NOT RUN",
+  "physical_hardware": "NOT RUN"
+}

@@ -1,0 +1,412 @@
+[
+  {
+    "mode": "candidate",
+    "case": "cold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500001ns at=500001 known=1 active=0 phase=1 en=0 low=0 reset_at=-1 edges=0 rising=0 resets=1\nPASS cold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "60b779ddc2ca82c428347113d54db7758590141f2bfa2cd37df50314d58eb010",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "cold-pin9",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500001ns at=500001 known=1 active=0 phase=1 en=0 low=0 reset_at=-1 edges=0 rising=0 resets=1\nPASS cold-pin9 (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "75edb8a7c6dd6694a6539aae44b98fc1c2c0c8b49978927aaa764b4c84da3f7a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "cold-pin10",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500001ns at=500001 known=1 active=0 phase=1 en=0 low=0 reset_at=-1 edges=0 rising=0 resets=1\nPASS cold-pin10 (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "57deefb752d9e7b2d3dbd7b52e644e20dfbe663601ac2249cc5976634820bebf",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "cold-pin39",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0\nstage=at-500001ns at=500001 known=1 active=0 phase=1 en=0 low=0 reset_at=-1 edges=0 rising=0 resets=1\nPASS cold-pin39 (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "e1761e452ab8f85db2d2ce44ddc4a660f857dc481a2bd42bcd6a3cdada2bea5c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "known-low-baseline",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS known-low-baseline (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "2ac472efb1ed387a94cd77b821348bbc975b5a52285b0b84f2eaf18b195ebe31",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "same-low",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS same-low (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "a2917f481f52c9089e51538316a47b35aa2b666cf22532734ade848d3f53abe1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "equivalent-oe",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS equivalent-oe (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "0376d3c6aab4ca0713f8fe7b72f976979e0f9ea11faad81e3dfe7371b754cb9d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "inverted-edges",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS inverted-edges (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "2f9b30fe9a0ee29245e05db4095e6eace74a162ce5a5f13e7b86c028ac100720",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-route",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-route (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "49210551e7cc770dbab4e2519ac3689f0f5ed2a185092263e2b2362adc28cac7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-oe-source",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-oe-source (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "6c4a930dc2ecf64ee58eb9b6126723f942c331b448b83a667fbb6a67e41505b6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-iomux",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-iomux (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "b6f1229838f885c5eb60df6c917b9770af02139409933c31b72776866feb3208",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-pull-conflict",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-pull-conflict (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "a5d7506eaafdb4486fb54a16ddfb62a18d2d99b69343e2f12d810134be51da2f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-external",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-external (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "54ae32cdb8b823e2912ccd3088aa96c3d08ecf0b9f9f25e1dc59bffaf520d442",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-force",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-force (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "40b71e09a3b025f71a76d76a3f8665a91a8fa8f791a5af0c21328c32e0f16d89",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-bias",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-bias (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "821c28dd9193a4152a02948189f795bae0e438c5a767c1b781dc79ae65df6030",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-rtc-mux",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-rtc-mux (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "a7fbdd666e6e8200da5145fd4c38f2152adb299fd4d8edbe14998d4a74dffd86",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-rtc-hold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-rtc-hold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "e1d66e9b94dbf4da3ac97b7a787f0071c19352e166355d1f6b6fee5d8db7c30d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-digital-hold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-digital-hold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "6ceafa3f8d2b5713fa63895e1195d4b042e6c4700d7b853b5f7db5df7c19f5bc",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-rtc-force-hold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-rtc-force-hold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "bdaaf4a75cf375ae20f372a9f826494de796baddf60d1ca1f092c8eb85fced0c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-digital-force-hold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-digital-force-hold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "3ba0e11b67cd8260d69574293acb184ef34d754362714ea3317f3f5f28e21835",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-rtc-isolation",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-rtc-isolation (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "a2cb9ea89967e44b0de09cb047322deac13a603cdff41969d19e460c6a411ebd",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-digital-isolation",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-digital-isolation (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "aa3b6d9a23c633c4b90a4d0215a4a783eec265d25ad5dbacc284cc6888e22ae0",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "writer-wrapper-isolation",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "stage=source-restored-new-low at=500000 known=0 active=0 phase=6 en=0 low=500000 reset_at=1000001 edges=0 rising=0 resets=0\nPASS writer-wrapper-isolation (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "d9619b319f37b01bad4337c976afd52fd89ef428b034dccca65abf497d5bdc82",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "pad-out",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS pad-out (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "8798a31e64aae8da5857ab6400ed9c8aa092a1374df6a858583fda2966746d99",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "pad-enable",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS pad-enable (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "b79acb6530652ac9c57651d9293b48bdbb2191f14311f06507ae1a33ce969348",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "pad-external",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS pad-external (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "b1a3ec5231ad8fc350e951cc0d3a2fa91b19b3c1c9aff8972e587ea6899be707",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "open-drain-direct",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS open-drain-direct (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "55e6bc20732451eab581f7f373afe7861d60f366957936a92bac34ce6eed1a09",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "open-drain-mmio",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS open-drain-mmio (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "810bf872fe701c97120b5a002aec80d6f95379e6307691b69a19bf92bbd32c3c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "high-roundtrip-flash",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS high-roundtrip-flash (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "4637b5122a7be070b20c2e0cf87a5858870dcecd84453e9af262532954c185b3",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "high-roundtrip-torch",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS high-roundtrip-torch (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "09b7b66313af8292899e227dbf9d008f4ae8e3f1495496f9392fc5ca80bd8047",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "unsupported-low",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS unsupported-low (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "cd40cd1727f947da4a0f0b7ca9b204598a8ef0ef667163ba6a4ed9b8ffd11d49",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "late-reset-500000",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS late-reset-500000 (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "4ab7db6ca228447210508243e705fe84911d0128dae28fb18a9960724adb6481",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "late-reset-500001",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS late-reset-500001 (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "13e9168ed6d12427b9d1d473f0cd58914ff2364a7bd44a7f00c8c4056901f41a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "gpio-reset-low",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS gpio-reset-low (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "c2ad607d8420f2189d3259841f707ebc66b3312ccc5e8c89eb8a8693fd5889d8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "gpio-reset-retains-hold",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS gpio-reset-retains-hold (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "b45a4d46c11f8bece6c18ef86a2acf23cd9752638ae5f5462ecca728f93c9d65",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "gpio-reset-retains-mux",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS gpio-reset-retains-mux (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "cff869a6dc86870056081184cff6c09b815c4fc34cc3990ed73cc2ba500337ef",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "gpio-reset-active",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS gpio-reset-active (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "181e7f429a5707994860b4168f13246fcee95dc95fa8a6d6910a5f3aefd83a73",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "sticky-sleep",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS sticky-sleep (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "e7cd6f88753834767ae1d93d057ff5ff82caaa57d329e0415b87867fcb833c79",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "sticky-force-pd",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS sticky-force-pd (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "99895154fa1b1a8acf092c880723fac4c37b025c14d9202d6167ea7da4163848",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "candidate",
+    "case": "release-owner",
+    "returncode": 0,
+    "expected_result": true,
+    "stdout_utf8": "PASS release-owner (CANDIDATE actual-source C logic; no guest/hardware claim)\n",
+    "stderr_utf8": "",
+    "stdout_sha256": "3b5235df5872a7015daed1ebed5c42e00444e008323ba306e6825a23690c1823",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "mode": "old",
+    "case": "cold",
+    "returncode": -6,
+    "expected_result": true,
+    "stdout_utf8": "stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=-1 reset_at=-1 edges=0 rising=0 resets=0\nstage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=-1 reset_at=-1 edges=0 rising=0 resets=0\nstage=at-500001ns at=500001 known=0 active=0 phase=6 en=0 low=-1 reset_at=-1 edges=0 rising=0 resets=0\n",
+    "stderr_utf8": "Assertion failed: (aw3641_output_known(aw) && !aw->active && aw->phase == AW3641_READY_LOW), function assert_off, file old.c, line 1118.\n",
+    "stdout_sha256": "f35141503838e779bca5976d8d178a5c12b4fea793010d5c83842455e65270e9",
+    "stderr_sha256": "7cae3a134ff082bcbbff3ecff0a04e067ac80e49e54935a510b485742cda458f"
+  }
+]

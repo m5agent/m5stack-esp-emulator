@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_soft_i2c_pullup_patch.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "scope": "Two permanent standard-C patch-replay unit tests; no .work/QEMU configuration/glib/network needed by the tests. No guest/hardware result.",
+  "test_inputs": {
+    "platform/tests/test_soft_i2c_pullup_patch.py": "4902941d4163bd7500f7a49ac53344682bb0ee2b07ef191f277797fbe49028ca",
+    "platform/tests/fixtures/soft_i2c_pullup_harness.c": "087b9291a7b9ca8774e676ab755ae9db9c8eb6635f31298ad76a87006469a5b7",
+    "platform/tests/test_unit_flashlight_cold_pad_patch.py": "ee4ebc5b7efe0e2ecba82bc57ee3c8a7832eefcf8f32213c290c0410ebd53c2d",
+    "platform/tests/fixtures/flashlight_cold_pad_harness.c": "da4bfcf7a1d47186da72f319562d65aee036bfd4777461ad928dfdcdf6deb17b"
+  },
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "5d1eaabf3700c6038af14dbba1cb85b123b286be02f3769dae9a2c96a84c8f93"
+}

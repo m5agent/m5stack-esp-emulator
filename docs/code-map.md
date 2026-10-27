@@ -12,7 +12,7 @@
 [`run_binary_checkpoint_admission.py`](../tests/units/run_binary_checkpoint_admission.py)，
 范围与兼容固件构建分层见[证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
 
-FlashLight的EN边沿/虚拟定时器在`0045-unit-flashlight-aw3641.patch`；`0046-unit-flashlight-route-lifecycle.patch`从真实GPIO OUT_SEL提交撤销旧资格/计时来源，当前patch的MMIO→内部状态正负回归在`platform/tests/test_unit_flashlight_route_patch.py`，创建期fixture门禁在`unit_runtime.input_values`、实际白灯反馈在`unit-visual-mappings.js`。严格base/CAS门禁在`FirmwareStore._explicit_uiflow_base/create`；包容量在`ProgramPackageStore`及`serve.py --max-program-packages`。对应[分层证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)包含固件loader诊断、失败attempt、八会话、默认mounted Web与独立完整矩阵。
+FlashLight的EN边沿/虚拟定时器在`0045-unit-flashlight-aw3641.patch`；`0046-unit-flashlight-route-lifecycle.patch`从真实GPIO OUT_SEL提交撤销旧资格/计时来源，0046历史MMIO→内部状态正负回归在`platform/tests/test_unit_flashlight_route_patch.py`，创建期fixture门禁在`unit_runtime.input_values`、实际白灯反馈在`unit-visual-mappings.js`。严格base/CAS门禁在`FirmwareStore._explicit_uiflow_base/create`；包容量在`ProgramPackageStore`及`serve.py --max-program-packages`。对应[分层证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)包含固件loader诊断、失败attempt、八会话、默认mounted Web与独立完整矩阵。 0047在GPIO控制器/RTC aux建立pad commit观察，AW消费连续可信低；完整当前栈的纯C重放在`test_unit_flashlight_cold_pad_patch.py`与fixture，soft-I2C owned弱上拉修复及首候选失败见[收尾记录](evidence/2026-10-27-flashlight-cold-pad/README.md)。
 
 ## 单一事实源
 

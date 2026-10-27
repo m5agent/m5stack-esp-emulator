@@ -72,7 +72,7 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
 共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
 二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，1.46已接有条件公共入口且CoreS3 stock/兼容固件及Web通过，继续更多固件/主机、reset/重连后能力恢复与完整清场；FlashLight部分数字路径/四host和CoreS3 mounted已验，动态S1、PWM/冷route边界仍开放，见[新证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。4Relay/FlashLight新协议冲突与模型边界见[本块证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
-FlashLight的OUT_SEL旧资格问题已按[限定路由证据](evidence/2026-10-27-flashlight-route-history/README.md)闭合；37冷route仍需真实控制器有效pad来源/无边沿连续低观察，不以额外fall绕过；36hard-reset、OEN/IOMUX、S1/PWM另验。
+FlashLight的OUT_SEL旧资格问题已按[限定路由证据](evidence/2026-10-27-flashlight-route-history/README.md)闭合；0047已有真实GPIO/IOMUX/RTC来源与无边沿连续低的C实现，软I2C显式上拉修复记录在[本轮收尾](evidence/2026-10-27-flashlight-cold-pad/README.md)。用户要求当前bug修完即收尾，37仍需新runtime四host原constructor/API/取消再Run与mounted Web，及独立完整矩阵；准备包不算执行。36hard-reset、S1/PWM和电气边界继续开放。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。

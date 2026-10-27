@@ -1,0 +1,4 @@
+stage=after-original-cold-MMIO-path at=0 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0
+stage=at-500000ns at=500000 known=0 active=0 phase=6 en=0 low=0 reset_at=500001 edges=0 rising=0 resets=0
+stage=at-500001ns at=500001 known=1 active=0 phase=1 en=0 low=0 reset_at=-1 edges=0 rising=0 resets=1
+PASS cold (CANDIDATE actual-source C logic; no guest/hardware claim)

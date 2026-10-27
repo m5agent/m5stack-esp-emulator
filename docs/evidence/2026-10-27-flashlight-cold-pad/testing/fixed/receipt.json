@@ -1,0 +1,34 @@
+{
+  "started_at": "2026-10-27T01:13:54.847947+00:00",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--out-dir",
+    "${REPO}/.work/unit-host37-regression-fixed-20261027-r1/affected/run",
+    "--device",
+    "cores3",
+    "--device",
+    "atoms3r",
+    "--device",
+    "sticks3",
+    "--device",
+    "stopwatch",
+    "--case",
+    "core2-axp192"
+  ],
+  "cwd": "${REPO}",
+  "explicit_environment": {
+    "M5_QEMU_XTENSA": "${REPO}/.work/unit-runtime-source-cold-pad-fixed-final/qemu/build/qemu-system-xtensa",
+    "M5_QEMU_XTENSA_ROM_DIR": "${REPO}/.work/unit-runtime-source-cold-pad-fixed-final/qemu/pc-bios",
+    "M5_PYTHON_DEPS": "${REPO}/.work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096",
+  "source_receipt_sha256": "d3f7524edeedf4dfe9125e43c0661cb6778b0f5c022f7c9da59f39db43e85374",
+  "retries": false,
+  "scope": "Repository shared-controller regression, not visible service functional acceptance",
+  "returncode": 0,
+  "finished_at": "2026-10-27T01:18:02.506882+00:00",
+  "runtime_after_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+}

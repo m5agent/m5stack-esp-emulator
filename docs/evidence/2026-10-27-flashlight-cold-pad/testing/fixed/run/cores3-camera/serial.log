@@ -1,0 +1,18 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0xcf8
+load:0x403c8700,len:0xb34
+load:0x403cb700,len:0x2d18
+entry 0x403c8890
+E (927) i2c.master: this port has not been initialized, please initialize it first
+cam_hal: FB-SIZE: 0 != 153600
+cam_hal: FB-SIZE: 122880 != 153600
+cam_hal: FB-SIZE: 138240 != 153600
+cam_hal: FB-SIZE: 138240 != 153600
+cam_hal: FB-SIZE: 138240 != 153600
+CORES3_CAMERA_PASS 320x240 153600 bytes
+CORES3_CAMERA_FRAME_CHANGE 1 153600 bef7bef7e4ede4ede4ede4ede4ede4ed
+CORES3_CAMERA_FRAMESTREAM PASS 1

@@ -148,6 +148,11 @@
 | [公共main.mpy实时入口](plans/2026-10-27-public-main-mpy-runtime.md) | 实施计划 | `2026-10-27` | 真实bytecode canary、会话身份绑定、显式base Preview与同VM import派发/恢复；stock能力保持分层 |
 | [公共main.mpy验收](evidence/2026-10-27-public-main-mpy/README.md) | 验收证据 | `2026-10-27` | gen45 CoreS3 stock/兼容固件与真实Web、14执行/8MPY、nonce/owner与PIR闭环、资源清理；optional browser body PARTIAL保留 |
 | [FlashLight路由历史](plans/2026-10-27-flashlight-route-history.md) | 实施计划 | `2026-10-27` | UNIT-HOST-38真实GPIO路由生命周期、旧资格失效与新EN复位恢复；冷route/PWM/S1保持独立 |
+| [FlashLight冷pad观察](plans/2026-10-27-flashlight-cold-pad-observation.md) | 实施计划 | `2026-10-27` | UNIT-HOST-37真实GPIO/IOMUX/OE/来源事件、无边沿连续低基线与原驱动自然复位；不造边沿或借用未知历史 |
+| [冷pad与当前bug收尾](evidence/2026-10-27-flashlight-cold-pad/README.md) | 验收证据 | `2026-10-27` | 0047源码/C/冷构建、首候选CoreS3回归与弱上拉修复；新Unit API/Web和完整矩阵未运行，不关闭37 |
+| [冷pad首阶段C组合](evidence/2026-10-27-flashlight-cold-pad/controller/combined-r1/README.md) | 验收证据 | `2026-10-27` | 40实际C场景与旧源码负控；首候选runtime共享回归FAIL不改写 |
+| [CoreS3官方上拉依据](evidence/2026-10-27-flashlight-cold-pad/research/cores3-pullups/README.md) | 验收证据 | `2026-10-27` | 官方原理图R20/R32及固定M5GFX探测源码；弱拉冲突保持unknown，不转授stock BIN对应 |
+| [软I2C上拉修复C证据](evidence/2026-10-27-flashlight-cold-pad/controller/soft-i2c-fix/README.md) | 验收证据 | `2026-10-27` | 真实bridge初始化前后负控、独立弱bias与Core2兼容；运行时另验 |
 | [FlashLight路由历史证据](evidence/2026-10-27-flashlight-route-history/README.md) | 验收证据 | `2026-10-27` | 0046真实GPIO路由失效、12patch冷构建、四主机八lane168执行与CoreS3 mounted13阶段；原失败/7个optional空体保留，完整矩阵66/67，冷route仍开放 |
 | [二进制checkpoint与兼容构建证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) | 验收证据 | `2026-10-27` | 四host双lane旧程序保护、8ZIP与圆屏oracle负控；官方CoreS3候选只完成本地build，未guest准入；Unit协议冲突与反馈分层 |
 | [Preview 控制组与 2Relay 证据](evidence/2026-10-27-preview-controls-and-2relay/README.md) | 验收证据 | `2026-10-27` | 官方U131研究、相机负控、四主机HUB与2Relay最终会话、失败/不完整尝试及清理；完整矩阵66/67独立保留，硬件NOT RUN |

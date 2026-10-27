@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-27T00:57:30.437522+00:00",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--out-dir",
+    "${REPO}/.work/unit-host37-regression-20261027-r1/narrow/run",
+    "--case",
+    "cores3-peripherals",
+    "--case",
+    "cores3-aw9523-full",
+    "--case",
+    "core2-axp192"
+  ],
+  "cwd": "${REPO}",
+  "explicit_environment": {
+    "M5_QEMU_XTENSA": "${REPO}/.work/unit-runtime-source-cold-pad-final/qemu/build/qemu-system-xtensa",
+    "M5_QEMU_XTENSA_ROM_DIR": "${REPO}/.work/unit-runtime-source-cold-pad-final/qemu/pc-bios",
+    "M5_PYTHON_DEPS": "${REPO}/.work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "runtime_sha256": "825fd698edf016470c385d4bbaea61225108049074572344782950ab58c2aee0",
+  "source_receipt_sha256": "9b98bd724f91d8b0b89c2fbbc74db16ba367b51e954e9c6d25519be17f43f585",
+  "retries": false,
+  "scope": "Repository shared-controller regression, not visible service functional acceptance"
+}

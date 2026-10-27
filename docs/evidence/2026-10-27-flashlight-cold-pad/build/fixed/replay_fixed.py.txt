@@ -1,0 +1,202 @@
+from pathlib import Path
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import time
+import traceback
+
+ROOT = Path.cwd()
+OUT = ROOT / '.work/unit-host37-source-replay-fixed-20261027-r1'
+OUT.mkdir(exist_ok=False)
+TEMP = OUT / 'independent-qemu'
+TEMP.mkdir()
+BASE = '40edccac415693c5130f91c01d84176ae6008566'
+FINAL = ROOT / '.work/unit-runtime-source-cold-pad-fixed-final/qemu'
+CANDIDATE = ROOT / '.work/unit-runtime-source-cold-pad-candidate/qemu'
+OLD = ROOT / '.work/unit-runtime-source-route-history-final/qemu'
+EARLIER = ROOT / '.work/unit-runtime-source-flashlight-final/qemu'
+BOOTSTRAP = ROOT / 'scripts/bootstrap-unit-runtime.py'
+RECEIPT = FINAL / '.m5-unit-runtime-source.json'
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def sha_bytes(data):
+    return hashlib.sha256(data).hexdigest()
+
+tree = ast.parse(BOOTSTRAP.read_text())
+constants = {}
+for item in tree.body:
+    if isinstance(item, ast.Assign):
+        for target in item.targets:
+            if isinstance(target, ast.Name) and target.id in ('PATCHES', 'QEMU_COMMIT'):
+                constants[target.id] = ast.literal_eval(item.value)
+patches = list(constants['PATCHES'])
+assert constants['QEMU_COMMIT'] == BASE
+source_receipt = json.loads(RECEIPT.read_text())
+names = sorted(source_receipt['files'])
+patch_paths = {name: [line[6:] for line in (ROOT / name).read_text().splitlines()
+                      if line.startswith('+++ b/')] for name in patches}
+union = sorted(set(path for paths in patch_paths.values() for path in paths))
+assert len(patches) == 13 and len(names) == 109
+assert union == names
+assert list(source_receipt['patches']) == patches
+assert source_receipt['qemu']['commit'] == BASE
+assert all(sha(ROOT / name) == source_receipt['patches'][name] for name in patches)
+assert all(sha(FINAL / name) == source_receipt['files'][name] for name in names)
+last_paths = patch_paths[patches[-1]]
+assert len(last_paths) == 10
+
+# Only this process's index and object database receive Git writes. GIT_DIR and
+# GIT_WORK_TREE are removed from the inherited environment to prevent redirection.
+env = {key: value for key, value in os.environ.items()
+       if key not in ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE',
+                      'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES')}
+env.update(GIT_OPTIONAL_LOCKS='0', GIT_INDEX_FILE=str(TEMP / 'isolated.index'))
+steps = []
+record = {'schema_version': 1, 'status': 'RUNNING',
+          'scope': 'Independent temporary Git object database and index; fixed-base source-only forward/reverse/forward replay. No source worktree/index writes, build, guest, service, or hardware execution.',
+          'started_unix': time.time(), 'qemu_commit': BASE,
+          'bootstrap_sha256': sha(BOOTSTRAP), 'source_receipt_sha256': sha(RECEIPT),
+          'patches': source_receipt['patches'], 'patch_count': len(patches),
+          'source_file_union_count': len(union), 'source_file_union': union,
+          'patch_paths': patch_paths, 'steps': steps}
+
+def save():
+    (OUT / 'receipt.json').write_text(json.dumps(record, indent=2) + '\n')
+
+def run(argv, label, *, cwd=TEMP):
+    argv = list(map(str, argv))
+    result = subprocess.run(argv, cwd=cwd, env=env, capture_output=True)
+    stdout_path = label + '.stdout.raw'
+    stderr_path = label + '.stderr.raw'
+    (OUT / stdout_path).write_bytes(result.stdout)
+    (OUT / stderr_path).write_bytes(result.stderr)
+    steps.append({'label': label, 'argv': argv, 'cwd': str(cwd),
+                  'exit_code': result.returncode,
+                  'stdout_path': stdout_path, 'stderr_path': stderr_path,
+                  'stdout_sha256': sha_bytes(result.stdout),
+                  'stderr_sha256': sha_bytes(result.stderr)})
+    save()
+    if result.returncode:
+        raise RuntimeError(f'{label}: exit {result.returncode}')
+    return result.stdout
+
+def text_run(argv, label, **kwargs):
+    return run(argv, label, **kwargs).decode().strip()
+
+def snapshot(source):
+    source_record = {'source': str(source), 'files': {}, 'control_files': {}}
+    if not source.exists():
+        source_record['exists'] = False
+        return source_record
+    source_record['exists'] = True
+    for name in names:
+        path = source / name
+        source_record['files'][name] = sha(path) if path.is_file() else None
+    for name in ('.git/index', '.git/HEAD', '.m5-unit-runtime-source.json'):
+        path = source / name
+        source_record['control_files'][name] = sha(path) if path.is_file() else None
+    # Existing accepted runtime artifacts are read-only inputs. The final source
+    # is concurrently being built by the parent and its build outputs are omitted.
+    if source in (OLD, EARLIER):
+        binary = source / 'build/qemu-system-xtensa'
+        source_record['accepted_runtime_sha256'] = sha(binary) if binary.is_file() else None
+    return source_record
+
+try:
+    before = {key: snapshot(value) for key, value in (
+        ('final', FINAL), ('candidate', CANDIDATE), ('old_accepted', OLD),
+        ('earlier_accepted', EARLIER))}
+    record['source_snapshots_before'] = before
+    save()
+    text_run(['git', 'init', '--quiet', TEMP], '00-init')
+    text_run(['git', '-c', 'maintenance.auto=false', '-c', 'gc.auto=0',
+              'fetch', '--no-tags', '--depth=1', str(FINAL), BASE], '01-fetch-fixed-base')
+    text_run(['git', 'update-ref', 'refs/heads/replay-base', BASE], '02-local-base-ref')
+    text_run(['git', 'symbolic-ref', 'HEAD', 'refs/heads/replay-base'], '03-local-head')
+    commit = text_run(['git', 'rev-parse', 'HEAD'], '04-base-commit')
+    base_tree = text_run(['git', 'rev-parse', 'HEAD^{tree}'], '05-base-tree')
+    assert commit == BASE
+    base_names = set(run(['git', 'ls-tree', '-r', '--name-only', BASE],
+                         '06-base-file-list').decode().splitlines())
+    existing = sorted(set(names) & base_names)
+    added = sorted(set(names) - base_names)
+    record.update(base_tree=base_tree, base_existing_count=len(existing),
+                  base_existing_files=existing, base_new_count=len(added),
+                  base_new_files=added)
+    text_run(['git', 'read-tree', BASE], '07-read-base-index')
+    forward = []
+    for index, name in enumerate(patches):
+        label = f'10-forward-{index:02d}-{Path(name).stem}'
+        text_run(['git', 'apply', '--cached', '--check', ROOT / name], label + '-check')
+        text_run(['git', 'apply', '--cached', ROOT / name], label + '-apply')
+        current_tree = text_run(['git', 'write-tree'], label + '-tree')
+        forward.append({'patch': name, 'tree_after': current_tree})
+    postimage = forward[-1]['tree_after']
+    record.update(forward=forward, postimage_tree=postimage)
+    replay_hashes = {}
+    bindings = {}
+    for index, name in enumerate(names):
+        data = run(['git', 'show', f'{postimage}:{name}'], f'20-source-{index:03d}')
+        replay_hashes[name] = sha_bytes(data)
+        assert replay_hashes[name] == source_receipt['files'][name], name
+        assert replay_hashes[name] == sha(FINAL / name), name
+    for name in last_paths:
+        bindings[name] = {'applied_tree_sha256': replay_hashes[name],
+                          'final_receipt_sha256': source_receipt['files'][name],
+                          'final_source_sha256': sha(FINAL / name),
+                          'candidate_sha256': sha(CANDIDATE / name)}
+        assert len(set(bindings[name].values())) == 1, name
+    record.update(applied_source_sha256=replay_hashes,
+                  all_109_sources_match_final_receipt=True,
+                  patch_0047_nine_file_bindings=bindings,
+                  patch_0047_all_nine_match_candidate=True)
+    reverse = []
+    for index, name in enumerate(reversed(patches)):
+        label = f'30-reverse-{index:02d}-{Path(name).stem}'
+        text_run(['git', 'apply', '--cached', '--reverse', '--check', ROOT / name], label + '-check')
+        text_run(['git', 'apply', '--cached', '--reverse', ROOT / name], label + '-apply')
+        current_tree = text_run(['git', 'write-tree'], label + '-tree')
+        reverse.append({'patch': name, 'tree_after': current_tree})
+    assert reverse[-1]['tree_after'] == base_tree
+    record.update(reverse=reverse, reversed_tree=reverse[-1]['tree_after'],
+                  reverse_equals_fixed_base_tree=True)
+    restored = []
+    for index, name in enumerate(patches):
+        label = f'40-restore-{index:02d}-{Path(name).stem}'
+        text_run(['git', 'apply', '--cached', '--check', ROOT / name], label + '-check')
+        text_run(['git', 'apply', '--cached', ROOT / name], label + '-apply')
+        current_tree = text_run(['git', 'write-tree'], label + '-tree')
+        restored.append({'patch': name, 'tree_after': current_tree})
+    assert restored[-1]['tree_after'] == postimage
+    record.update(restore=restored, restored_tree=restored[-1]['tree_after'],
+                  restore_equals_first_forward_tree=True)
+    assert not (TEMP / '.git/objects/info/alternates').exists()
+    record['independent_object_store_without_alternates'] = True
+    record['isolated_index_sha256'] = sha(TEMP / 'isolated.index')
+    after = {key: snapshot(value) for key, value in (
+        ('final', FINAL), ('candidate', CANDIDATE), ('old_accepted', OLD),
+        ('earlier_accepted', EARLIER))}
+    record['source_snapshots_after'] = after
+    record['source_immutability'] = {key: before[key] == after[key] for key in before}
+    assert all(record['source_immutability'].values()), record['source_immutability']
+    assert sha(BOOTSTRAP) == record['bootstrap_sha256']
+    assert sha(RECEIPT) == record['source_receipt_sha256']
+    assert all(sha(ROOT / name) == source_receipt['patches'][name] for name in patches)
+    record['status'] = 'PASS'
+except BaseException as error:
+    record['status'] = 'FAIL'
+    record['error'] = str(error)
+    (OUT / 'exception.txt').write_text(traceback.format_exc())
+    raise
+finally:
+    record['finished_unix'] = time.time()
+    save()
+
+print(json.dumps({key: record[key] for key in (
+    'status', 'patch_count', 'source_file_union_count', 'base_existing_count',
+    'base_new_count', 'base_tree', 'postimage_tree', 'reversed_tree',
+    'restored_tree', 'source_immutability')}, indent=2))

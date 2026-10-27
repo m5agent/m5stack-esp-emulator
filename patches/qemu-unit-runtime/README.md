@@ -265,3 +265,10 @@ route-history checks. The independent full matrix is 66 PASS / 1 Core2 IMU FAIL;
 UNIT-HOST-38 closes only for the documented OUT_SEL path. Cold-route/no-edge,
 hard-reset, full OEN/IOMUX, dynamic S1, PWM and hardware equivalence remain
 separate. See the [scoped evidence](../../docs/evidence/2026-10-27-flashlight-route-history/README.md).
+
+`0047-unit-flashlight-cold-pad-observation.patch` adds controller-owned pad
+commits, fresh continuous-low FlashLight reset and explicit weak soft-I2C bus
+pull-ups. The first candidate exposed a CoreS3 detection regression; its
+failure and the repair are preserved in the [cold-pad record](../../docs/evidence/2026-10-27-flashlight-cold-pad/README.md).
+New Unit API/Web and a new full matrix remain unrun at this wrap-up boundary;
+C/source/build checks must not upgrade the older guest validation records.

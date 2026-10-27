@@ -17,7 +17,8 @@ base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
 then `0043-unit-scroll-controller.patch`, `0044-unit-2relay-gpio.patch`, and
 `0045-unit-flashlight-aw3641.patch`, then
-`0046-unit-flashlight-route-lifecycle.patch`. The intervening `0039`–`0042` files
+`0046-unit-flashlight-route-lifecycle.patch`, then
+`0047-unit-flashlight-cold-pad-observation.patch`. The intervening `0039`–`0042` files
 belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
 `0045` adds a partial U152 AW3641E observer on yellow EN GPIO pad edges and
 QEMU virtual time. Its S1 Flash/Torch fixture freezes after all creation inputs
@@ -36,6 +37,22 @@ CoreS3 mounted Web route-history checks; see the
 The independent full matrix remains 66 PASS / 1 Core2 IMU FAIL. Cold-route/no-edge
 behavior, dynamic S1, PWM, full OEN/IOMUX, hard-reset observation and physical
 equivalence stay OPEN.
+`0047` supersedes the extra-falling-edge recovery rule with a controller-owned
+pad observation. A newly known low starts its own >500us reset interval without
+fabricating an edge. MMIO OUT/ENABLE/route/PAD_DRIVER, IO_MUX, external/force,
+direct open-drain, reset and RTC ownership commits synchronously update the
+observer. S3 GPIO256 applies OUT_INV and OEN_INV; OEN_SEL is equivalent for this
+route. R1 is an owned passive bias. Unmodeled RTC/hold/power/USB ownership and
+ambiguous source conflicts withdraw qualification. It does not implement RTC,
+peripheral or PWM waveforms, the sleep FSM, electrical behavior, or a general
+GPIO interrupt receiver model. The new C suite replays the complete stack;
+the 0046 suite remains a fixed historical negative-control regression.
+The soft-I2C bridge now owns explicit weak SDA/SCL pull-ups instead of relying
+on the GPIO compatibility default. This preserves M5GFX's external-pull-up
+board probe when it temporarily enables internal pull-downs. Opposing weak
+sources remain unknown; compatibility reads do not establish electrical
+thresholds. CoreS3 R20/R32 evidence and the failed first candidate are retained
+in the [cold-pad record](../../docs/evidence/2026-10-27-flashlight-cold-pad/README.md).
 `0044` adds U131's two independent GPIO pad observers and schematic R3/R6
 digital pull-downs. White is channel 1, yellow channel 2; each transition
 counter is independent. Outputs are read-only. This is nominal-powered

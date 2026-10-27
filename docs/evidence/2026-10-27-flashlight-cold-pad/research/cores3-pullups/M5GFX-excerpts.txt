@@ -1,0 +1,179 @@
+M5GFX.cpp.txt SHA256 4d1cf1345a6cb9477c371ce3a12fade45bb32f4e3fe53725a2a81ddb3588c997
+138: 
+139:   // I2Cデバイスの存在をチェックする。
+140:   // SDA,SCLのプルアップが確認できない場合は0を返す。
+141:   // 内部でパッドを backup/restore するので、呼び出し側はこの後に probe_i2c_t を作れば
+142:   // 探索前の状態を復元先にできる (プルアップ試験を自前で行うブロックは試験前の backup を渡す)。
+143:   // プルアップが確認できた場合は ~0u を返すが、存在しないデバイスに対応するビットは 0 となる。
+144:   // つまり、引数のアドレスリストにある全てのデバイスが存在する場合は ~0u となる。
+145:   __attribute__ ((unused))
+146:   static uint32_t _detect_i2c_device(uint8_t pin_sda, uint8_t pin_scl, const uint8_t* addr_list) {
+147:     gpio::pin_backup_t backup_pins[] = { pin_sda, pin_scl };
+148: 
+149:     const uint8_t cmd_i2c_stop_list[] = {
+150:     lgfx::gpio::command_write_low  , pin_scl,
+151:     lgfx::gpio::command_delay_usec , 3,
+152:     lgfx::gpio::command_write_low  , pin_sda,
+153:     lgfx::gpio::command_delay_usec , 3,
+154:     lgfx::gpio::command_write_high , pin_scl, // SCL high
+155:     lgfx::gpio::command_delay_usec , 5,
+156:     lgfx::gpio::command_write_high , pin_sda, // SDA high (I2C STOP)
+157:     lgfx::gpio::command_delay_usec , 5,
+158:     lgfx::gpio::command_end
+159:     };
+160: 
+161:     {
+162:       lgfx::pinMode(pin_scl, lgfx::pin_mode_t::output);
+163:       lgfx::pinMode(pin_sda, lgfx::pin_mode_t::output);
+164:       // force I2C stop
+165:       for (size_t i = 0; i < 8; ++i) {
+166:         lgfx::gpio::command(cmd_i2c_stop_list);
+167:       }
+168:     }
+169: 
+170:     const uint8_t cmd_list[] = {
+171:     lgfx::gpio::command_write_low          , pin_scl,
+172:     lgfx::gpio::command_read               , pin_scl,  // low チェック
+173:     lgfx::gpio::command_write_low          , pin_sda,
+174:     lgfx::gpio::command_read               , pin_sda,  // low チェック
+175:     lgfx::gpio::command_mode_input_pulldown, pin_scl,
+176:     lgfx::gpio::command_delay_usec         , 10,
+177:     lgfx::gpio::command_read               , pin_scl, // pulldownチェック (外部プルアップがあるならここでHIGHになる)
+178:     lgfx::gpio::command_mode_input_pullup  , pin_scl,
+179:     lgfx::gpio::command_mode_input_pulldown, pin_sda,
+180:     lgfx::gpio::command_delay_usec         , 10,
+181:     lgfx::gpio::command_read               , pin_sda, // pulldownチェック (外部プルアップがあるならここでHIGHになる)
+182:     lgfx::gpio::command_mode_input_pullup  , pin_sda,
+183:     lgfx::gpio::command_end
+184:     };
+185: 
+186:     // ここでSDA,SCL各2回,合計4回のreadチェックが行われる。
+187:     uint32_t result = lgfx::gpio::command(cmd_list);
+188:     // I2Cピンであれば0x03になっているはず
+189:     if (result == 0x03) {
+190:       // 全ビットを立てる
+191:       result = ~0u;
+192: 
+193:       // アドレスの存在確認はソフトウェア I2C ポートで行う (オープンドレイン駆動で
+194:       // ACK 競合が起きず、ハードウェアのペリフェラルにも触れない)
+195:       lgfx::i2c::init(probe_i2c_port, pin_sda, pin_scl);
+196:       for (; addr_list[0] != 0; ++addr_list) {
+197:         uint_fast8_t addr7bit = addr_list[0];
+198:         bool hit = lgfx::i2c::beginTransaction(probe_i2c_port, addr7bit, 100000, false).has_value()
+199:                 && lgfx::i2c::endTransaction(probe_i2c_port).has_value();
+200:         result = (result << 1) + hit;
+201:         ESP_LOGV(LIBRARY_NAME, "[Autodetect] i2c addr:%02x = %s", (int)addr7bit, hit ? "hit" : "--");
+202:       }
+203:       lgfx::i2c::release(probe_i2c_port);
+204:     } else {
+205:       result = 0;
+206:     }
+207:     for (auto pin: backup_pins) { pin.restore(); }
+208:     return result;
+209:   }
+210: 
+211:   static constexpr std::uint32_t m5pm1_i2c_freq = 100000;
+212:   static constexpr std::uint32_t m5ioe1_i2c_freq = 100000;
+213:   static constexpr std::uint8_t m5pm1_i2c_addr = 0x6E; // M5PM1 device i2c address
+580:   static constexpr uint8_t ft5x06_ili9342c_firmid = 0x10;
+581:   static constexpr uint8_t ft5x06_ili9342e_firmid = 0x12;
+582:   static constexpr uint8_t ft5x06_m5stack_vendor = 0x11;
+583:   static constexpr int32_t ft5x06_version_i2c_freq = 100000;
+584:   static constexpr int_fast16_t i2c_port = I2C_NUM_1;
+585:   static constexpr int_fast16_t i2c_sda = GPIO_NUM_12;
+586:   static constexpr int_fast16_t i2c_scl = GPIO_NUM_11;
+587:   static constexpr int_fast16_t chain_captain_i2c_sda = GPIO_NUM_3;
+588:   static constexpr int_fast16_t chain_captain_i2c_scl = GPIO_NUM_2;
+589: 
+590:   struct Panel_M5StackCoreS3 : public lgfx::Panel_ILI9342
+1760:     switch (pkg_ver) {
+1761:     case 0: // EFUSE_PKG_VERSION_ESP32S3:     // QFN56
+1762: 
+1763:       if (board == 0 || board == board_t::board_M5StackCoreS3 || board == board_t::board_M5StackCoreS3SE
+1764:           || board == board_t::board_M5StackChan)
+1765:       {
+1766:         static constexpr uint8_t i2c_addr_list[] = {
+1767:           (uint8_t)axp_i2c_addr,
+1768:           (uint8_t)aw9523_i2c_addr,
+1769:           0u
+1770:         };
+1771:         uint32_t i2c_result = _detect_i2c_device(i2c_sda, i2c_scl, i2c_addr_list);
+1772: 
+1773:         if (i2c_result == ~0u) {
+1774:           probe_i2c_t probe(i2c_sda, i2c_scl);
+1775:           auto chk_aw  = lgfx::i2c::readRegister8(probe_i2c_port, aw9523_i2c_addr, 0x10, i2c_freq);
+1776:           if (chk_aw .has_value() && chk_aw .value() == 0x23)
+1777:           {
+1778:             auto result = lgfx::gpio::command(
+1779:               (const uint8_t[]) {
+1780:               lgfx::gpio::command_mode_input_pullup, GPIO_NUM_35,
+1781:               lgfx::gpio::command_mode_input_pullup, GPIO_NUM_36,
+1782:               lgfx::gpio::command_mode_input_pullup, GPIO_NUM_37,
+
+esp32-common.cpp.txt SHA256 f946662aaecf2b897e425d6293d232c712137517eb41e2973f94a5bc36d0b70b
+545:     if ((size_t)gpio_num >= GPIO_NUM_MAX) return;
+546: 
+547:     /// GPIO OUTPUT enの場合はGPIO_ENABLE_W1TS, disの場合はGPIO_ENABLE_W1TCの該当ビットを立てる。
+548:     /// レジスタのアドレスをテーブル化しておき、演算で対象レジスタを切り替える。
+549:     static constexpr volatile uint32_t* gpio_en_regs[] =
+550:     {
+551:       (volatile uint32_t*)GPIO_ENABLE_W1TC_REG,
+552:       (volatile uint32_t*)GPIO_ENABLE_W1TS_REG,
+553: #if defined ( GPIO_ENABLE1_W1TC_REG )
+554:       (volatile uint32_t*)GPIO_ENABLE1_W1TC_REG,
+555:       (volatile uint32_t*)GPIO_ENABLE1_W1TS_REG,
+556: #endif
+557:     };
+558:     /// pin番号が32未満かどうかで分岐する。 bit0は OUTPUT en。
+559:     // auto gpio_en_reg = gpio_en_regs[((pin >> 5) << 1) + (mode == pin_mode_t::output ? 1 : 0)];
+560: 
+561:     auto io_mux_reg = (volatile uint32_t*)(_lgfx_io_mux_reg(pin));
+562:     auto io_mux_val = *io_mux_reg; // &  ~(FUN_PU_M | FUN_PD_M | SLP_PU_M | SLP_PD_M | MCU_SEL_M);
+563: 
+564: #if SOC_RTCIO_INPUT_OUTPUT_SUPPORTED
+565:     if (!LGFX_GPIO_RTC_INDEPENDENT && rtc_gpio_is_valid_gpio(gpio_num)) {
+566:       rtc_gpio_deinit(gpio_num);
+567:       if (mode == pin_mode_t::input_pulldown)
+568:       { rtc_gpio_pulldown_en((gpio_num_t)pin); }
+569:       else
+570:       { rtc_gpio_pulldown_dis((gpio_num_t)pin); }
+571: 
+572:       if (mode == pin_mode_t::input_pullup)
+573:       { rtc_gpio_pullup_en((gpio_num_t)pin); }
+574:       else
+575:       { rtc_gpio_pullup_dis((gpio_num_t)pin); }
+576:     }
+577:     else
+578: #endif
+579:     {
+580:       io_mux_val &= ~(FUN_PU_M | FUN_PD_M | SLP_PU_M | SLP_PD_M);
+581:       switch (mode) {
+582:       case pin_mode_t::input_pullup:    io_mux_val |= FUN_PU_M | SLP_PU_M;   break;
+583:       case pin_mode_t::input_pulldown:  io_mux_val |= FUN_PD_M | SLP_PD_M;   break;
+584:       default:   break;
+585:       }
+586:     }
+587:     io_mux_val &= ~(MCU_SEL_M);
+588:     io_mux_val |= FUN_IE_M | (PIN_FUNC_GPIO << MCU_SEL_S);
+589: 
+590:     *io_mux_reg = io_mux_val;
+591: 
+592:     // レジスタ構造体のメンバ名はチップ毎に異なるため、命名差を吸収する LL/ROM API へ委譲する
+593: #if __has_include(<hal/gpio_ll.h>)
+594:     if (mode == pin_mode_t::output) { gpio_ll_od_disable(&GPIO, (gpio_num_t)pin); }
+595:     else                            { gpio_ll_od_enable (&GPIO, (gpio_num_t)pin); } // OpenDrain
+596: #else // ESP-IDF v3 系 (無印 ESP32 のみ)
+597:     GPIO.pin[pin].pad_driver = (mode == pin_mode_t::output) ? 0 : 1; // 1 = OpenDrain / 0 = normal output
+598: #endif
+599:     if (mode != pin_mode_t::output) {
+600:       gpio_hi(pin);
+601:     }
+602:     auto gpio_en_reg = gpio_en_regs[((pin >> 5) << 1) + 1];
+603:     *gpio_en_reg = 1u << (pin & 31);
+604: #if __has_include(<esp_rom_gpio.h>)
+605:     esp_rom_gpio_connect_out_signal(pin, SIG_GPIO_OUT_IDX, false, false);
+606: #else // ESP-IDF v3 系 (無印 ESP32 のみ)
+607:     GPIO.func_out_sel_cfg[pin].func_sel = SIG_GPIO_OUT_IDX;
+608: #endif
+609:   }
+

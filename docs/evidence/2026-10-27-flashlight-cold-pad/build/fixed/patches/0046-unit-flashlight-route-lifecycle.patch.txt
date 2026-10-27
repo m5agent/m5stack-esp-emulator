@@ -1,0 +1,107 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+index 7d59d0c..fc52d7a 100644
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -20,6 +20,7 @@
+ #include "hw/gpio/esp32_gpio.h"
+ #include "hw/misc/esp32_ledc.h"
+ #include "../m5stopwatch/m5stopwatch.h"
++#include "../m5stopwatch/m5_unit_runtime.h"
+ 
+ 
+ 
+@@ -277,6 +278,8 @@ static void esp32_gpio_write(void *opaque, hwaddr addr,
+                 addr < output_base + (g_gpio_s3 ? 49 : 40) * 4 &&
+                 ((previous ^ (uint32_t)value) & 0x3ff)) {
+                 esp32_ledc_gpio_route_changed(g_gpio_s3);
++                m5_unit_gpio_route_changed(g_gpio_s3,
++                                           (addr - output_base) / 4);
+             }
+             /*
+              * GPIO_PIN0_REG starts at 0x74 on ESP32-S3.  M5GFX's
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+index 95cfba1..af78442 100644
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -126,14 +126,31 @@ static void aw3641_unqualified(AW3641State *s, const char *reason)
+     aw3641_output(s, false, false);
+ }
+ 
++/* Losing the observed route/pad is a lifecycle break, not a pad edge.
++ * No previous low interval, pulse train or pending timer may qualify a later
++ * GPIO restoration.  Recovery requires a new observed GPIO falling edge and
++ * the complete documented long-low interval.  Keep the edge trace/counters
++ * and last-program value as history; never infer an LEDC/RMT waveform here.
++ */
++static void aw3641_observation_lost(AW3641State *s, const char *reason)
++{
++    aw3641_unqualified(s, reason);
++    timer_del(s->reset_timer);
++    s->epoch++;
++    s->reset_at_ns = s->settle_at_ns = s->timeout_at_ns = -1;
++    s->low_since_ns = s->first_rise_ns = -1;
++    s->pulses = s->flash_level_pct = s->timeout_ms = 0;
++    s->pulse_count_capped = false;
++}
++
+ static bool aw3641_timer_source(AW3641State *s)
+ {
+     if (!aw3641_pad_synchronized(s)) {
+-        aw3641_unqualified(s, "pad-callback-not-synchronized");
++        aw3641_observation_lost(s, "pad-callback-not-synchronized");
+         return false;
+     }
+     if (!aw3641_gpio_route(s)) {
+-        aw3641_unqualified(s, "gpio-route-not-observed");
++        aw3641_observation_lost(s, "gpio-route-not-observed");
+         return false;
+     }
+     return true;
+@@ -256,10 +273,12 @@ static void aw3641_pad_changed(void *opaque, int pin, int value)
+     s->last_edge_ns = now;
+     aw3641_trace(s, high, now);
+     if (!aw3641_gpio_route(s)) {
+-        aw3641_unqualified(s, "gpio-route-not-observed");
++        aw3641_observation_lost(s, "gpio-route-not-observed");
++        return;
+     }
+     if (!aw3641_pad_synchronized(s)) {
+-        aw3641_unqualified(s, "pad-callback-not-synchronized");
++        aw3641_observation_lost(s, "pad-callback-not-synchronized");
++        return;
+     }
+     if (!high) {
+         s->low_since_ns = now;
+@@ -610,6 +629,20 @@ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten,
+     return fallback;
+ }
+ 
++void m5_unit_gpio_route_changed(bool s3, unsigned pin)
++{
++    for (GPIOUnit *g = gpio_units; g; g = g->next) {
++        if (g->s3 == s3 && g->unit->yellow == (int)pin && g->flashlight) {
++            /* Restoring GPIO also discards any unsupported/cold low interval;
++             * route changes never supply a new pad edge or reset baseline.
++             */
++            aw3641_observation_lost(g->flashlight,
++                aw3641_gpio_route(g->flashlight) ?
++                "awaiting-long-low-after-route-change" : "gpio-route-not-observed");
++        }
++    }
++}
++
+ void m5_unit_pwm_observe(bool s3, unsigned channel, uint32_t timer,
+                           uint32_t duty, uint32_t conf)
+ {
+diff --git a/hw/m5stopwatch/m5_unit_runtime.h b/hw/m5stopwatch/m5_unit_runtime.h
+index 0344b61..3f06795 100644
+--- a/hw/m5stopwatch/m5_unit_runtime.h
++++ b/hw/m5stopwatch/m5_unit_runtime.h
+@@ -36,6 +36,7 @@ bool m5_unit_gpio_supported(const char *id);
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp);
+ void m5_unit_gpio_initial_complete(M5Unit *unit);
+ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten, bool s3, uint16_t fallback);
++void m5_unit_gpio_route_changed(bool s3, unsigned pin);
+ void m5_unit_pwm_observe(bool s3, unsigned channel, uint32_t timer, uint32_t duty, uint32_t conf);
+ void m5_unit_rmt_tx(unsigned channel, const uint32_t *symbols, unsigned count, double tick_hz);
+ void m5_unit_rmt_rx_arrived(void);

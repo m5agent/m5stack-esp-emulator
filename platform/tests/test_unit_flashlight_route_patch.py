@@ -1,6 +1,6 @@
-"""Rebuild current AW3641 patch stack and exercise its real route-commit hunk.
+"""Rebuild the historical 0046 AW3641 stack and exercise its route-commit hunk.
 
-The 26-case suite compiles the current patch postimage, never a copied model.
+The 26-case suite compiles that fixed patch postimage, never a copied model.
 Clock/QOM and surrounding pad storage are synthetic. Independent full-controller
 source extraction evidence is separate; this is not guest or hardware evidence.
 """
@@ -342,10 +342,11 @@ class UnitFlashlightRoutePatchTests(unittest.TestCase):
         position = patches.index("patches/qemu-m5stack-peripherals/" + STACK[-1])
         self.assertEqual(patches[position - 1:position + 1], tuple(
             "patches/qemu-m5stack-peripherals/" + name for name in STACK[-2:]))
-        # Fail when a future stack edit touches this file without being replayed.
+        # Keep the 0046 negative control fixed. The full successor stack and
+        # its changed pad semantics are covered by the cold-pad patch suite.
         touching = [Path(name).name for name in patches
                     if f"diff --git a/{UNIT} b/{UNIT}\n" in (ROOT / name).read_text()]
-        self.assertEqual(touching, list(STACK))
+        self.assertEqual(touching, [*STACK, "0047-unit-flashlight-cold-pad-observation.patch"])
 
     @unittest.skipUnless(shutil.which("cc") and shutil.which("git"), "C compiler or Git unavailable")
     def test_current_patch_routes_lifecycle_and_old_postimage_is_negative_control(self):

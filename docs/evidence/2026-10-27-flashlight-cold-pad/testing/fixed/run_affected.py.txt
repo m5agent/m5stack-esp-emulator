@@ -1,0 +1,20 @@
+from pathlib import Path
+import argparse,datetime,hashlib,json,os,subprocess,sys
+root=Path.cwd(); parser=argparse.ArgumentParser();parser.add_argument('lane',choices=['affected']);a=parser.parse_args()
+out=root/'.work/unit-host37-regression-fixed-20261027-r1'/a.lane
+out.mkdir(exist_ok=False)
+runtime=root/'.work/unit-runtime-source-cold-pad-fixed-final/qemu/build/qemu-system-xtensa'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+assert sha(runtime)=='faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096'
+env={'M5_QEMU_XTENSA':str(runtime),'M5_QEMU_XTENSA_ROM_DIR':str(runtime.parent.parent/'pc-bios'),'M5_PYTHON_DEPS':str(root/'.work/py312'),'PYTHONPATH':'platform/tools:platform/tests:tests/units:.work/py312'}
+cmd=['/opt/miniconda3/bin/python3.12','-B','tests/uiflow2/run_peripheral_matrix.py','--out-dir',str(out/'run')]
+for device in ['cores3','atoms3r','sticks3','stopwatch']:cmd+=['--device',device]
+cmd+=['--case','core2-axp192']
+r={'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'argv':cmd,'cwd':str(root),'explicit_environment':env,'runtime_sha256':sha(runtime),'source_receipt_sha256':sha(runtime.parent.parent/'.m5-unit-runtime-source.json'),'retries':False,'scope':'Repository shared-controller regression, not visible service functional acceptance'}
+(out/'launch.json').write_text(json.dumps(r,indent=2)+'\n')
+with (out/'stdout.log').open('wb') as stream:
+    result=subprocess.run(cmd,cwd=root,env=dict(os.environ,**env),stdout=stream,stderr=subprocess.STDOUT)
+r.update(returncode=result.returncode,finished_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),runtime_after_sha256=sha(runtime))
+(out/'receipt.json').write_text(json.dumps(r,indent=2)+'\n')
+print(json.dumps({'lane':a.lane,'returncode':result.returncode}))
+sys.exit(result.returncode)

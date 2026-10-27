@@ -1,0 +1,115 @@
+{
+  "scope": "Post-run mutable flash fingerprints only; these are not captured prelaunch input hashes. Base input pins and composition commands are in summary.json. No firmware bytes are archived.",
+  "cases": {
+    "sticks3-peripherals": {
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "mutable_flash_after_run_sha256": "d9fb0a0a0f7fe4f6056aa4e7df43e8b3eb5bae45f84ba6e8697b02e89a5cce18",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "sticks3-audio": {
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "mutable_flash_after_run_sha256": "b9cd649b319bbc263c535c17a975eea0d1ef36c5321c7b4e1a43f7b317f4fb55",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "sticks3-mic": {
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "mutable_flash_after_run_sha256": "1b8d7d0367d7eafed14d3e13fe235f01a347136094e675f41a7e55c4c5ebcec8",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "atoms3r-peripherals": {
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "mutable_flash_after_run_sha256": "d5cee5fbefd05e92f38295205cb8e1250bb2e3982f1be20ab0a09d3e3de1a698",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "sticks3-ir": {
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "mutable_flash_after_run_sha256": "aaf93d4a21879ce96c2203ecdcf142dc49dbb73fc0e071ace4e8fe64b2a9fba4",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "sticks3-ir-rx": {
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "mutable_flash_after_run_sha256": "343c5ad02b4783d2f43378a4b84d2ddae2e6072e5cd7a79309ac3e54e504da7b",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-peripherals": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "9e1d4ef92460d22ba053191f38ebb52faf225d1585848e64c1726658bb835a8b",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-power-transitions": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "df995ac4c57da90794ac5407e910d2daa2ec6e544673fe4f0f097cbf82aefeed",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-usb-hid": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "1eacfa6052b603ba8cbb95612ceebec7387826019405b06e53872bcf29339e62",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-camera": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "0f4134dcdec788cc46b7361f32d7026ce6fb2660101f6dcb61df5f009c47f651",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-audio": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "fc8ff62139f201bad74e4262730934103ddad203287d38dc9e0c3e5b8d84edf8",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-mic": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "d9f11f1638b02cb53e12a8c4ac9cdf5daa2704f2214fe5a3e70d083b1e852017",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-peripherals": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "9bae49bd1daf4fdac0c041aa0309429b8469a36f0131faf512e8c32ce18dac32",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-vibration": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "a18c1d65de6ac8cf99f955b42a673f543b75f66e35257029524b75ba89ad46d1",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-audio": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "ee9d859de599d7f70620ee170de493eef90f43361123643569bf637de514c178",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-mic": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "b7aac280b82117dd1d049c9988e4124daaaace73ed3b34f92a598430cdf62763",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "atoms3r-lp5562": {
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "mutable_flash_after_run_sha256": "232ffe1b551287e969d79c468868e8ab3715b4f5cd6e788e87f0e3270e91d9b5",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "atoms3r-ir": {
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "mutable_flash_after_run_sha256": "9c1af55f9173418c6ee8bd596c84ecf82c26829883a9662059e792b3b4ffebf1",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "core2-axp192": {
+      "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "mutable_flash_after_run_sha256": "eae0f22f52e8e43cb9db20b3978a467adaa1bef225271a6d0f66776e2bd6f1e3",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "cores3-aw9523-full": {
+      "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "mutable_flash_after_run_sha256": "07a271c6afa73553eebca1bd783c1ff2915a49131b62ab95f5ebe8e135b1f1ed",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-m5ioe1-full": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "888f2af03c5df6eaa9be11f85eba977c709d5c77a98a5c16788d8512d57aa34f",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    },
+    "stopwatch-m5pm1-full": {
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "mutable_flash_after_run_sha256": "7872f887cddbe44cbbada0d74165c3dd88fab5148a0b3bcded41d0faf11d7a72",
+      "runtime_sha256": "faee96da9f041583a6003a26523fa5378a88a4bc8f01b15492922076abf73096"
+    }
+  }
+}

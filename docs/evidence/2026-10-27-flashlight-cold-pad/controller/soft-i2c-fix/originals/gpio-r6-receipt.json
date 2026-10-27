@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "scope": "actual candidate GPIO controller fragments and actual MMIO/reset/IOMUX writer functions; host clock/QOM/IRQ/aux-blocker stubs; no guest/QEMU execution or hardware PASS",
+  "source_sha256": "1a54d71afdfeb0a2444991e8116386a07b100f20f9bbd5f98f27f77cc5363e67",
+  "header_sha256": "ec1de9ac0f750c81d1ccc30ed7729e1316b2a63121f911eacc5eb9a8bb4b1a81",
+  "harness_sha256": "3ea4c36e069943132439496ee9a51473ba4b06b9b55b75374574d8a268bb9289",
+  "compile_argv": [
+    "clang",
+    "-std=gnu11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Wno-unused-parameter",
+    "-Wno-unused-function",
+    "-O1",
+    "-g",
+    "<REPO>/.work/unit-host37-controller-c-check-20261027-r6/harness.c",
+    "-o",
+    "<REPO>/.work/unit-host37-controller-c-check-20261027-r6/harness"
+  ],
+  "compile_exit_code": 0,
+  "results": [
+    {
+      "case": "basic",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "truth64",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "peripheral",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "helpers",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "bias",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "override",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "ordering",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "capacity",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "external-conflict",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

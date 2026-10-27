@@ -1,0 +1,260 @@
+{
+  "candidate_cases": 40,
+  "candidate_pass": 40,
+  "old_cold_real_failure": {
+    "mode": "old",
+    "case": "cold",
+    "returncode": -6,
+    "expected_result": true
+  },
+  "all_expected": true,
+  "results": [
+    {
+      "mode": "candidate",
+      "case": "cold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "cold-pin9",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "cold-pin10",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "cold-pin39",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "known-low-baseline",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "same-low",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "equivalent-oe",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "inverted-edges",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-route",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-oe-source",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-iomux",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-pull-conflict",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-external",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-force",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-bias",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-rtc-mux",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-rtc-hold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-digital-hold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-rtc-force-hold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-digital-force-hold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-rtc-isolation",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-digital-isolation",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "writer-wrapper-isolation",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "pad-out",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "pad-enable",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "pad-external",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "open-drain-direct",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "open-drain-mmio",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "high-roundtrip-flash",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "high-roundtrip-torch",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "unsupported-low",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "late-reset-500000",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "late-reset-500001",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "gpio-reset-low",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "gpio-reset-retains-hold",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "gpio-reset-retains-mux",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "gpio-reset-active",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "sticky-sleep",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "sticky-force-pd",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "candidate",
+      "case": "release-owner",
+      "returncode": 0,
+      "expected_result": true
+    },
+    {
+      "mode": "old",
+      "case": "cold",
+      "returncode": -6,
+      "expected_result": true
+    }
+  ],
+  "scope": "Actual patch-replayed C controller/consumer/aux algorithms, synthetic host facilities; no guest/hardware claim"
+}
