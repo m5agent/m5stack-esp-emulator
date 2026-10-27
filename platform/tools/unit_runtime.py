@@ -246,6 +246,13 @@ class UnitRegistry:
                     raise UnitError("unit_port_not_supported", "selected physical port wiring is not confirmed", 409)
                 if port.get("physical_presence") != "main-device":
                     raise UnitError("unit_port_not_supported", "port requires an accessory configuration not attached to this host", 409)
+                admitted_units = port.get("admitted_unit_ids")
+                if admitted_units is not None and row["unit_id"] not in admitted_units:
+                    raise UnitError(
+                        "unit_port_not_supported",
+                        f"{row['unit_id']} is not admitted on {port_id}",
+                        409,
+                    )
                 pins, visual_port = port.get("pins", {}), port.get("visual_port")
             if any(type(pins.get(wire)) is not int or pins[wire] < 0 for wire in ("yellow", "white")):
                 raise UnitError("unit_port_not_supported", "host pin mapping is incomplete", 409)
@@ -274,7 +281,17 @@ class UnitRegistry:
                 interface = self.units[leaf["unit_id"]]["interface"]
                 if interface["bus"] != "i2c":
                     raise UnitError("unit_bus_conflict", "parallel GPIO, ADC, PWM, RMT and UART attachments require an explicit contention model", 409)
-                current = set(interface.get("address_7bit", []))
+                profile = self.profiles[leaf["unit_id"]]
+                address_input = profile.get("address_input")
+                if address_input:
+                    current = {
+                        leaf["initial"].get(
+                            address_input,
+                            profile.get("default_address_7bit"),
+                        )
+                    }
+                else:
+                    current = set(interface.get("address_7bit", []))
                 if addresses & current:
                     raise UnitError("unit_address_conflict", "passive HUB cannot separate duplicate I2C addresses", 409)
                 addresses.update(current)

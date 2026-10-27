@@ -4922,6 +4922,215 @@
         "No calibrated outer-shell S1 detent binding or LED color temperature measurement.",
         "UNIT-HOST-36 reset-observer gap remains open; a mismatched pad revokes output-known."
       ]
+    },
+    {
+      "id": "servo8-hat",
+      "name": "8Servos HAT v1.1",
+      "sku": "HAT-8SERVOS-1.1",
+      "visual_model_id": "8servos",
+      "visual_asset": {
+        "entry": "src/units/8servos/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/hat/hat_8servos_1.1",
+      "checked_at": "2026-10-27",
+      "chips": [
+        {
+          "part": "STM32F030F4",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "StickS3 Hat2-Bus",
+        "address_7bit": [54],
+        "pins": {
+          "yellow": {"signal": "SDA", "direction": "bidirectional"},
+          "white": {"signal": "SCL", "direction": "bidirectional"},
+          "red": {"signal": "5V", "direction": "power"},
+          "black": {"signal": "GND", "direction": "ground"}
+        },
+        "power": {"nominal_v": 5, "source": "official-product-PinMap"}
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "At 0x36, channels 1..8 use angle registers 0x00..0x07, big-endian pulse registers 0x10..0x1F and power control register 0x30.",
+        "registers": [
+          {"register": "0x00..0x07", "length": 1, "encoding": "angle:uint8"},
+          {"register": "0x10..0x1F", "length": 2, "encoding": "pulse:big-endian uint16"},
+          {"register": "0x30", "length": 1, "encoding": "power:uint8"}
+        ],
+        "gaps": []
+      },
+      "inputs": {},
+      "outputs": {
+        "angles": {"type": "array", "access": "read-only"},
+        "pulses": {"type": "array", "access": "read-only"},
+        "power-state": {"type": "integer", "access": "read-only", "minimum": 0, "maximum": 1}
+      },
+      "evidence": [
+        {"kind": "official-product", "url": "https://docs.m5stack.com/en/hat/hat_8servos_1.1", "checked_at": "2026-10-27", "claims": ["identity", "PinMap", "functions"]},
+        {"kind": "official-driver", "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/hat/servo8.py", "checked_at": "2026-10-27", "sha256": "f44b99541fd8aaac92f232b166f5c2127177944adb589eef931b913ab8c8ebf8", "claims": ["guest register path"]}
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {"status": "unsupported", "required_data_plane": "SoC I2C controller transactions to a device-local register model"},
+      "blocker": "Runtime implementation is tracked by runtime-profiles.json.",
+      "input_semantics": "No synthetic input controls are exposed.",
+      "output_semantics": "Observed guest angle, pulse and power registers.",
+      "limitations": ["No servo current, mechanical position or electrical validation."]
+    },
+    {
+      "id": "8servos",
+      "name": "8Servos Unit",
+      "sku": "U165",
+      "visual_asset": {
+        "entry": "src/units/8servos/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/servos8",
+      "checked_at": "2026-10-27",
+      "chips": [{"part": "8-channel servo controller", "status": "officially-documented"}],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [37],
+        "pins": {
+          "yellow": {"signal": "SDA", "direction": "bidirectional"},
+          "white": {"signal": "SCL", "direction": "bidirectional"},
+          "red": {"signal": "5V", "direction": "power"},
+          "black": {"signal": "GND", "direction": "ground"}
+        },
+        "power": {"nominal_v": 5, "source": "official-product-PinMap"}
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "At 0x25, channel mode registers are 0x00..0x07; servo angles are 0x50..0x57, little-endian pulse values 0x60..0x6F and PWM duties 0x90..0x97.",
+        "registers": [
+          {"register": "0x00..0x07", "length": 1, "encoding": "mode:uint8"},
+          {"register": "0x50..0x57", "length": 1, "encoding": "angle:uint8"},
+          {"register": "0x60..0x6F", "length": 2, "encoding": "pulse:little-endian uint16"},
+          {"register": "0x90..0x97", "length": 1, "encoding": "duty:uint8"}
+        ],
+        "gaps": []
+      },
+      "inputs": {},
+      "outputs": {
+        "modes": {"type": "array", "access": "read-only"},
+        "angles": {"type": "array", "access": "read-only"},
+        "pulses": {"type": "array", "access": "read-only"},
+        "pwm-duty": {"type": "array", "access": "read-only"}
+      },
+      "evidence": [
+        {"kind": "official-product", "url": "https://docs.m5stack.com/en/unit/servos8", "checked_at": "2026-10-27", "claims": ["identity", "PinMap", "functions"]},
+        {"kind": "official-driver", "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/servos8.py", "checked_at": "2026-10-27", "sha256": "fd914df8a6f30bb8a785115ed2b4734e4beb2fc353c087b3d799c25dfa72517f", "claims": ["guest register path"]}
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {"status": "unsupported", "required_data_plane": "SoC I2C controller transactions to a device-local register model"},
+      "blocker": "Runtime implementation is tracked by runtime-profiles.json.",
+      "input_semantics": "No synthetic input controls are exposed.",
+      "output_semantics": "Observed guest mode, angle, pulse and duty registers.",
+      "limitations": ["No ADC channel, current, servo or electrical validation."]
+    },
+    {
+      "id": "joystick2",
+      "name": "Joystick2 Unit",
+      "sku": "U169",
+      "visual_asset": {
+        "entry": "src/units/joystick2/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/joystick2",
+      "checked_at": "2026-10-27",
+      "chips": [{"part": "Joystick2 controller", "status": "officially-documented"}],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [99, 100],
+        "pins": {
+          "yellow": {"signal": "SDA", "direction": "bidirectional"},
+          "white": {"signal": "SCL", "direction": "bidirectional"},
+          "red": {"signal": "5V", "direction": "power"},
+          "black": {"signal": "GND", "direction": "ground"}
+        },
+        "power": {"nominal_v": 5, "source": "official-product-PinMap"}
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "At 0x63 or 0x64, signed little-endian X/Y ADC values are in 0x00..0x03, button status in 0x20, mapped positions in 0x50..0x53 and firmware version in 0xFE.",
+        "registers": [
+          {"register": "0x00..0x03", "length": 4, "encoding": "x:int16le,y:int16le"},
+          {"register": "0x20", "length": 1, "encoding": "button:active-low uint8"},
+          {"register": "0x50..0x53", "length": 4, "encoding": "x:int16le,y:int16le"}
+        ],
+        "gaps": []
+      },
+      "inputs": {
+        "x-position": {"type": "integer", "label": "X", "default": 0, "minimum": -32768, "maximum": 32767},
+        "y-position": {"type": "integer", "label": "Y", "default": 0, "minimum": -32768, "maximum": 32767},
+        "button-pressed": {"type": "boolean", "label": "Pressed", "default": false},
+        "i2c-address": {"type": "integer", "label": "I2C address", "default": 99, "minimum": 99, "maximum": 100}
+      },
+      "outputs": {},
+      "evidence": [
+        {"kind": "official-product", "url": "https://docs.m5stack.com/en/unit/joystick2", "checked_at": "2026-10-27", "claims": ["identity", "PinMap", "functions"]},
+        {"kind": "official-driver", "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/joystick2.py", "checked_at": "2026-10-27", "sha256": "dedb046148f906513ed132aa592d135136d7dc333135f09ec3f2306dbbaf682c", "claims": ["guest register path"]}
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {"status": "unsupported", "required_data_plane": "SoC I2C controller transactions to a device-local register model"},
+      "blocker": "Runtime implementation is tracked by runtime-profiles.json.",
+      "input_semantics": "Synthetic axis and button state delivered through controller-visible registers.",
+      "output_semantics": "Observed guest address writes and input read transactions.",
+      "limitations": ["No analog calibration, mechanical travel or RGB optical validation."]
+    },
+    {
+      "id": "nfc",
+      "name": "NFC Unit",
+      "sku": "U049",
+      "visual_asset": {
+        "entry": "src/units/nfc/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/nfc",
+      "checked_at": "2026-10-27",
+      "chips": [{"part": "ST25R3916", "status": "officially-documented"}],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [80],
+        "pins": {
+          "yellow": {"signal": "SDA", "direction": "bidirectional"},
+          "white": {"signal": "SCL", "direction": "bidirectional"},
+          "red": {"signal": "5V", "direction": "power"},
+          "black": {"signal": "GND", "direction": "ground"}
+        },
+        "power": {"nominal_v": 5, "source": "official-product-PinMap"}
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "ST25R3916 I2C command/register/FIFO protocol at 0x50 with a deterministic ISO14443A NTAG fixture.",
+        "registers": [],
+        "gaps": []
+      },
+      "inputs": {},
+      "outputs": {
+        "transactions": {"type": "integer", "access": "read-only"},
+        "read-bytes": {"type": "integer", "access": "read-only"},
+        "written-bytes": {"type": "integer", "access": "read-only"}
+      },
+      "evidence": [
+        {"kind": "official-product", "url": "https://docs.m5stack.com/en/unit/nfc", "checked_at": "2026-10-27", "claims": ["identity", "PinMap", "functions"]},
+        {"kind": "official-driver", "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/nfc.py", "checked_at": "2026-10-27", "sha256": "fb45a7172ffb2bf1dbf0b884fcc6968ef11f520b0b9eaf61826342b08c00eeca", "claims": ["guest NFCUnit path"]}
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {"status": "unsupported", "required_data_plane": "SoC I2C controller transactions to the existing ST25R3916 model"},
+      "blocker": "Runtime implementation is tracked by runtime-profiles.json.",
+      "input_semantics": "The model starts with a deterministic synthetic NTAG fixture.",
+      "output_semantics": "Guest-visible ST25R3916 operations; no RF field is modeled.",
+      "limitations": ["No RF, antenna, range, electrical or secure-card validation."]
     }
   ],
   "model_status_values": [

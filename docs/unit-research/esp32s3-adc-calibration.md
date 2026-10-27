@@ -1,6 +1,6 @@
 # ESP32-S3 Unit ADC 合成校准
 
-核对日期：`2026-10-26`。
+核对日期：`2026-10-27`。
 
 Angle 官方驱动的 `get_voltage()` 调用 MicroPython `ADC.read_uv()`。
 空白的虚拟 eFuse 没有有效 S3 ADC 校准版本，ESP-IDF curve-fitting 因而返回
@@ -26,6 +26,18 @@ VFS/NVS 等 app 范围以外的 session overlay 可以变化。未知或修改�
 不能套用该 fixture。公开同版本 IDF 是数值公式依据；`dirty` 固件私有改动
 与公开源码逐字相同并未得到证明，最终行为仍须由同一 session 的 guest
 数据和控制器计数核对。
+
+## Cardputer-ADV 电池 ADC
+
+Cardputer-ADV UIFlow2 `V2.5.3` 的 `Power.getBatteryLevel()` 走同一 IDF
+curve-fitting scheme。单独 fixture
+`platform/units/fixtures/cardputer-adv-adc-calibration.json` 绑定 Cardputer
+参考镜像 `a3961c8e…` 的实际 app segment
+`b5cc34b9…`；session 仍可用不同 VFS/NVS overlay。Service 只在该设备、
+`qemu-esp32s3` 且 app bytes 匹配时应用，receipt 写入
+`units/adc-calibration.json`。该路径已使真实 `Power.getBatteryLevel()` 和
+Canvas/键盘/扬声器/IMU 启动标记到达可见 frame；它不是物理电池、ADC
+精度、GPIO 电气或生产校准证据。
 
 ## 官方依据
 
@@ -127,7 +139,8 @@ Host C 执行不算 guest 或 virtual-device PASS。
 
 ## 服务接入与证据
 
-仅在明确挂载 Angle/Light 的 session 中考虑校准。Unit contract 在创建时
+Angle/Light 使用会话冻结的 Unit fixture；Cardputer-ADV 使用 app-bound
+Cardputer fixture。Unit contract 在创建时
 读取固定白名单 fixture 一次，将 `{raw_utf8,sha256}` 存入
 `contract.fixtures['esp32s3-adc']`，并登记 `source_hashes`。Launch 校验该
 冻结 hash，调用 `load_fixture(raw=raw)`，用实际 app bytes 通过准入后调用：

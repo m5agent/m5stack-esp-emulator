@@ -406,7 +406,15 @@ def summarize_units(device_ids: set[str]) -> dict:
 
     visual_units = identifiers([{"id": value} for value in vendor.get("units", [])], "id", "visual Units")
     visual_hosts = identifiers([{"id": value} for value in vendor.get("controllers", [])], "id", "visual hosts")
-    require(unit_ids <= visual_units, "Unit catalog references a missing visual model: " + ",".join(sorted(unit_ids - visual_units)))
+    unit_visual_ids = {
+        unit.get("visual_model_id", unit_id): unit_id
+        for unit_id, unit in ((row["id"], row) for row in catalog["units"])
+    }
+    require(
+        set(unit_visual_ids) <= visual_units,
+        "Unit catalog references a missing visual model: "
+        + ",".join(sorted(set(unit_visual_ids) - visual_units)),
+    )
     require(visual_hosts <= device_ids, "visual vendor contains unknown hosts")
     commit = vendor.get("source_commit")
     require(isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit) is not None, "visual source_commit must be an exact Git SHA")
@@ -421,7 +429,7 @@ def summarize_units(device_ids: set[str]) -> dict:
             for host in sorted(host_ids)
         ],
         "visual_source": {"repository": vendor["source_repository"], "commit": commit, "hosts": len(visual_hosts), "units": len(visual_units),
-                          "visual_only_units": sorted(visual_units - unit_ids), "scope": vendor.get("scope", "visual-only")},
+                          "visual_only_units": sorted(visual_units - set(unit_visual_ids)), "scope": vendor.get("scope", "visual-only")},
         "admission_boundary": "Admission counts only implemented/validated profiles and their declared hosts with confirmed main-device wiring. Admission is not same-device firmware, Web, physical or hardware validation; planned/partial/unsupported profiles are not admitted and implemented is not promoted to validated.",
     }
 

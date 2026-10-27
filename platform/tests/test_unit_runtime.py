@@ -17,7 +17,7 @@ class UnitRuntimeContractTests(unittest.TestCase):
 
     def test_full_visual_batch_has_explicit_runtime_boundaries(self):
         inventory = self.registry.inventory()
-        self.assertEqual(len(inventory["units"]), 30)
+        self.assertEqual(len(inventory["units"]), 34)
         self.assertEqual(len(inventory["hosts"]), 14)
         for unit in inventory["units"]:
             self.assertIsInstance(unit["inputs"], dict)
@@ -128,9 +128,49 @@ class UnitRuntimeContractTests(unittest.TestCase):
         registry.profiles["relay"].update(status="implemented", hosts=["cores3"])
         with self.assertRaises(UnitError) as caught:
             registry.attachments("cores3", "qemu", [{
-                "id": "relay1", "unit_id": "relay", "port_id": "port-b",
+                "id": "relay1", "unit_id": "relay", "port_id": "port-c",
             }])
         self.assertEqual(caught.exception.code, "unit_port_not_supported")
+
+    def test_issue_unit_routes_and_controller_models_are_admitted(self):
+        hat = self.registry.attachments("sticks3", "qemu", [{
+            "id": "servo", "unit_id": "servo8-hat", "port_id": "hat",
+        }])
+        self.assertEqual(hat[0]["pins"], {"yellow": 8, "white": 0})
+        servo = self.registry.attachments("cores3", "qemu", [{
+            "id": "servo", "unit_id": "8servos", "port_id": "port-b",
+        }])
+        self.assertEqual(servo[0]["pins"], {"yellow": 9, "white": 8})
+        sticks = self.registry.attachments("cores3", "qemu", [
+            {"id": "hub", "unit_id": "hub", "port_id": "port-a"},
+            {"id": "stick-a", "unit_id": "joystick2", "parent_id": "hub", "port_id": "grove-1"},
+            {
+                "id": "stick-b", "unit_id": "joystick2", "parent_id": "hub",
+                "port_id": "grove-2", "initial": {"i2c-address": 0x64},
+            },
+        ])
+        self.assertEqual([row["initial"].get("i2c-address") for row in sticks[1:]], [None, 0x64])
+        nfc = self.registry.attachments("cores3", "qemu", [{
+            "id": "nfc", "unit_id": "nfc", "port_id": "port-a",
+        }])
+        self.assertEqual(nfc[0]["pins"], {"yellow": 2, "white": 1})
+        with self.assertRaises(UnitError) as caught:
+            self.registry.attachments("cores3", "qemu", [{
+                "id": "color", "unit_id": "color", "port_id": "port-b",
+            }])
+        self.assertEqual(caught.exception.code, "unit_port_not_supported")
+        with self.assertRaises(UnitError) as caught:
+            self.registry.attachments("sticks3", "qemu", [{
+                "id": "env", "unit_id": "env-iii", "port_id": "hat",
+            }])
+        self.assertEqual(caught.exception.code, "unit_port_not_supported")
+        with self.assertRaises(UnitError) as caught:
+            self.registry.attachments("cores3", "qemu", [
+                {"id": "hub", "unit_id": "hub", "port_id": "port-a"},
+                {"id": "stick-a", "unit_id": "joystick2", "parent_id": "hub", "port_id": "grove-1"},
+                {"id": "stick-b", "unit_id": "joystick2", "parent_id": "hub", "port_id": "grove-2"},
+            ])
+        self.assertEqual(caught.exception.code, "unit_address_conflict")
 
     def test_hub_children_share_real_pins_and_resolve_parent_first(self):
         attachments = self.registry.attachments("cores3", "qemu", [

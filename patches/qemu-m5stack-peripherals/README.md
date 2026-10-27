@@ -18,7 +18,8 @@ base and two prelude patches are followed by `0033`, `0034`, `0035`,
 then `0043-unit-scroll-controller.patch`, `0044-unit-2relay-gpio.patch`, and
 `0045-unit-flashlight-aw3641.patch`, then
 `0046-unit-flashlight-route-lifecycle.patch`, then
-`0047-unit-flashlight-cold-pad-observation.patch`. The intervening `0039`–`0042` files
+`0047-unit-flashlight-cold-pad-observation.patch`, then
+`0048-unit-servos8-joystick2-nfc.patch`. The intervening `0039`–`0042` files
 belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
 `0045` adds a partial U152 AW3641E observer on yellow EN GPIO pad edges and
 QEMU virtual time. Its S1 Flash/Torch fixture freezes after all creation inputs
@@ -47,6 +48,11 @@ ambiguous source conflicts withdraw qualification. It does not implement RTC,
 peripheral or PWM waveforms, the sleep FSM, electrical behavior, or a general
 GPIO interrupt receiver model. The new C suite replays the complete stack;
 the 0046 suite remains a fixed historical negative-control regression.
+`0048` adds the official UIFlow2-compatible register banks and routed I2C
+attachments for StickS3 `servo8-hat` at `0x36`, CoreS3 `8servos` at `0x25`,
+Joystick2 at `0x63`/`0x64`, and the deterministic ST25R3916 NFC Unit fixture
+at `0x50`. It covers controller-visible setup and register/data-plane
+behavior, not physical servo, ADC/current, RF/antenna or electrical equivalence.
 The soft-I2C bridge now owns explicit weak SDA/SCL pull-ups instead of relying
 on the GPIO compatibility default. This preserves M5GFX's external-pull-up
 board probe when it temporarily enables internal pull-downs. Opposing weak

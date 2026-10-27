@@ -181,7 +181,7 @@ assert.deepEqual(input('joystick-v11', 'press', 'up', {bindings: joystickBinding
 checks.push('evidence-required-calibration-permutation-range-and-detent-validation');
 
 const report = visualMappingCoverage(catalog);
-assert.equal(catalog.units.length, 30);
+assert.equal(catalog.units.length, 34);
 assert.deepEqual([...report.registered_unit_ids].sort(), catalog.units.map(unit => unit.id).sort());
 assert.equal(report.units.some(unit => unit.status === 'unregistered'), false);
 for (const unit of catalog.units) {
@@ -193,7 +193,7 @@ for (const unit of catalog.units) {
 assert.equal(report.units.find(unit => unit.unit_id === '8encoder').status, 'requires-binding');
 assert.equal(report.units.find(unit => unit.unit_id === 'fan').status, 'activity-only');
 assert.equal(report.units.find(unit => unit.unit_id === 'hub').status, 'passive');
-checks.push('all-30-products-and-every-catalog-field-audited');
+checks.push('all-34-products-and-every-catalog-field-audited');
 report.checks = checks;
 report.status = 'PASS';
 report.source_sha256 = Object.fromEntries(await Promise.all([

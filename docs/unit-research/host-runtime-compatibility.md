@@ -39,7 +39,7 @@
 
 | 主机 | 已确认主口 yellow / white | white 的 ADC | 板内资源与扩展前检查 |
 | --- | --- | --- | --- |
-| StickS3 | CUSTOM 9 / 10 | ADC1 ch9；C 映射存在 | 系统 I2C=47/48，按键=11/12，内置 IR=46/42，与主 Grove 不重叠。外部与内置 IR/RGB 仍共享 RMT 分配器，必须验证独立 channel。43/44 是 Hat2 bus 信号，console 测试应声明未装 HAT。 |
+| StickS3 | CUSTOM 9 / 10；Hat2-Bus 8 / 0 | ADC1 ch9；C 映射存在 | 系统 I2C=47/48，按键=11/12，内置 IR=46/42，与主 Grove 不重叠。外部与内置 IR/RGB 仍共享 RMT 分配器，必须验证独立 channel。`servo8-hat` 只建模 Hat2-Bus I2C SDA 8 / SCL 0 和 `0x36` 寄存器，不表示其它 HAT 功能或 43/44 都已挂载。 |
 | StopWatch | PORT.A 10 / 11 | **ADC2 ch0**；C 映射存在 | 系统 I2C=47/48，按键=2/1，与 Grove 分离。UART0 43/44 经 M5IOE1 扩展口 USB/UART mux，官方默认 UART；不能把切到 USB 后的空 serial 当 guest 未运行。Grove 5V 由 M5PM1 管理，当前 Unit 数据面没有证明断电副作用。 |
 | AtomS3R | CUSTOM 2 / 1 | ADC1 ch0；C 映射存在 | 官方 SYS_SDA=47、SYS_SCL=0；当前 board 的 soft-I2C fallback 仍初始化 47/48，不能用 fallback 的存在替代 guest 实际 pin route 证明。USER=41，IR=45，显示 MOSI=21/SCK=15/CS=14，与 Grove 分离。 |
 | Cardputer-Adv | CUSTOM 2 / 1 | ADC1 ch0；C 映射存在 | 内部 I2C=8/9（键盘/IMU/codec），与 Grove 分离。**43 是 audio LRCK，44 是 IR TX**，通用 UART0 43/44 probe 会重配板内引脚；须先选定可观测且无冲突的日志方案。显示、键盘及 SD 必须同时保留功能。 |
@@ -51,6 +51,13 @@
 上述板内接线于本次审计重新读取官方产品 PinMap。原始网页含完整产品内容，
 未作为运行证据加入正向结果。它们与 `host-ports.json` 主 Grove pin 一致；
 AtomS3R 的 SYS_SCL=0 与当前 soft fallback=48 的差异需要后续本机路由检查。
+
+CoreS3 Port A 仍为 SDA 2 / SCL 1，Port B 为 SDA 9 / SCL 8。当前运行时
+仅对 `8servos@0x25` 放行 Port B 寄存器路径，避免把该总线上的其它
+Unit 自动视为已验收；两个 Joystick2 可经 Port A
+被动 HUB 分配到 `0x63`/`0x64`；NFC Unit 复用确定性 ST25R3916
+`0x50` fixture。它们只证明 guest I2C 控制器、路由和设备本地寄存器/事务，
+不证明舵机、机械摇杆、RF/天线或电气行为。
 
 ## 不能直接复制 CoreS3 probe 的部分
 

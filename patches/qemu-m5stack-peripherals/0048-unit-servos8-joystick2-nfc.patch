@@ -1,0 +1,297 @@
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -20,6 +20,7 @@
+ #include "qapi/qmp/qbool.h"
+ #include "hw/i2c/i2c.h"
+ #include "hw/qdev-properties.h"
++#include "m5stopwatch.h"
+ #include "m5_unit_runtime.h"
+ 
+ #define TYPE_M5_UNIT_CONTROL "m5-unit-i2c-control"
+@@ -33,6 +34,7 @@
+ typedef enum {
+     CONTROL_JOYSTICK, CONTROL_ENCODER, CONTROL_ENCODER8,
+     CONTROL_CARDKB, CONTROL_RFID2, CONTROL_SCROLL,
++    CONTROL_JOYSTICK2, CONTROL_SERVO8, CONTROL_SERVO8_HAT,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -43,6 +45,8 @@
+     unsigned write_pos, read_pos;
+     bool reading, memory_request;
+     uint8_t joystick[3];
++    int16_t joystick2_x, joystick2_y;
++    bool joystick2_pressed;
+     int32_t counter[8], increments[8];
+     bool pressed[8], switch_on;
+     uint32_t leds[9];
+@@ -517,6 +521,9 @@
+     if (!strcmp(name, "x-raw")) { value = s->joystick[0]; }
+     else if (!strcmp(name, "y-raw")) { value = s->joystick[1]; }
+     else if (!strcmp(name, "button-raw")) { value = s->joystick[2]; }
++    else if (!strcmp(name, "x-position")) { value = s->joystick2_x; }
++    else if (!strcmp(name, "y-position")) { value = s->joystick2_y; }
++    else if (!strcmp(name, "power-state")) { value = s->regs[0x30]; }
+     else if (!strcmp(name, "counter")) { value = s->counter[0]; }
+     else if (!strcmp(name, "source-count")) { value = s->scroll_source_count; }
+     else if (!strcmp(name, "increments")) { value = s->increments[0]; }
+@@ -549,14 +556,34 @@
+     M5UnitControl *s = opaque;
+     int64_t value, lo = 0, hi = 255;
+     if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (!strcmp(name, "i2c-address")) {
++        if (s->kind != CONTROL_JOYSTICK2 || (value != 0x63 && value != 0x64)) {
++            error_setg(errp, "i2c-address must be 0x63 or 0x64 for Joystick2");
++            return;
++        }
++        BusChild *child;
++        QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++            I2CSlave *other = I2C_SLAVE(child->child);
++            if (other != I2C_SLAVE(s) && other->address == value) {
++                error_setg(errp, "Joystick2 I2C address is already in use");
++                return;
++            }
++        }
++        i2c_slave_set_address(I2C_SLAVE(s), value);
++        s->regs[0xff] = value;
++        return;
++    }
+     if (s->kind == CONTROL_SCROLL && !strcmp(name, "source-count")) {
+         scroll_source_set(s, value, errp);
+         return;
+     }
+-    if (!strcmp(name, "counter")) { lo = -32768; hi = 32767; }
++    if (!strcmp(name, "counter") || !strcmp(name, "x-position") ||
++        !strcmp(name, "y-position")) { lo = -32768; hi = 32767; }
+     else if (!strcmp(name, "button-raw")) { hi = 1; }
+     if (value < lo || value > hi) { error_setg(errp, "%s outside [%" PRId64 ",%" PRId64 "]", name, lo, hi); return; }
+     if (!strcmp(name, "counter")) { s->counter[0] = value; }
++    else if (!strcmp(name, "x-position")) { s->joystick2_x = value; }
++    else if (!strcmp(name, "y-position")) { s->joystick2_y = value; }
+     else if (!strcmp(name, "keycode")) {
+         if (value && s->key_count == KEY_FIFO_SIZE) { error_setg(errp, "CardKB input FIFO full"); return; }
+         if (!value) { s->key_head = s->key_count = 0; }
+@@ -568,7 +595,8 @@
+ static void bool_get(Object *obj, Visitor *v, const char *name, void *opaque, Error **errp)
+ {
+     M5UnitControl *s = opaque;
+-    bool value = !strcmp(name, "pressed") ? s->pressed[0] :
++    bool value = !strcmp(name, "button-pressed") ? s->joystick2_pressed :
++                 !strcmp(name, "pressed") ? s->pressed[0] :
+                  !strcmp(name, "switch-on") ? s->switch_on :
+                  !strcmp(name, "timer-rollover-supported") ||
+                  !strcmp(name, "bootloader-supported") ||
+@@ -583,7 +611,8 @@
+     M5UnitControl *s = opaque;
+     bool value;
+     if (!visit_type_bool(v, name, &value, errp)) { return; }
+-    if (!strcmp(name, "pressed")) { s->pressed[0] = value; }
++    if (!strcmp(name, "button-pressed")) { s->joystick2_pressed = value; }
++    else if (!strcmp(name, "pressed")) { s->pressed[0] = value; }
+     else if (!strcmp(name, "switch-on")) { s->switch_on = value; }
+     else {
+         if (s->card_present != value) {
+@@ -606,6 +635,18 @@
+         else if (!strcmp(name, "pressed")) { qlist_append_bool(list, s->pressed[i]); }
+         else if (!strcmp(name, "counters")) { qlist_append_int(list, s->counter[i]); }
+         else if (!strcmp(name, "increments")) { qlist_append_int(list, s->increments[i]); }
++        else if (!strcmp(name, "modes")) { qlist_append_int(list, s->regs[i]); }
++        else if (!strcmp(name, "angles")) {
++            qlist_append_int(list, s->regs[s->kind == CONTROL_SERVO8_HAT ? i : 0x50 + i]);
++        } else if (!strcmp(name, "pulses")) {
++            unsigned reg = s->kind == CONTROL_SERVO8_HAT ? 0x10 + i * 2 : 0x60 + i * 2;
++            int value = s->kind == CONTROL_SERVO8_HAT
++                ? (int16_t)((s->regs[reg] << 8) | s->regs[reg + 1])
++                : (int16_t)(s->regs[reg] | (s->regs[reg + 1] << 8));
++            qlist_append_int(list, value);
++        } else if (!strcmp(name, "pwm-duty")) {
++            qlist_append_int(list, s->regs[0x90 + i]);
++        }
+         else { qlist_append_int(list, s->leds[i]); }
+     }
+     QObject *value = QOBJECT(list);
+@@ -711,6 +752,21 @@
+ {
+     memcpy(s->read_snapshot, s->regs, 256);
+     if (s->kind == CONTROL_JOYSTICK) { memcpy(s->read_snapshot + 0x52, s->joystick, 3); }
++    else if (s->kind == CONTROL_JOYSTICK2) {
++        uint16_t x = (uint16_t)s->joystick2_x;
++        uint16_t y = (uint16_t)s->joystick2_y;
++        s->read_snapshot[0x00] = x;
++        s->read_snapshot[0x01] = x >> 8;
++        s->read_snapshot[0x02] = y;
++        s->read_snapshot[0x03] = y >> 8;
++        s->read_snapshot[0x20] = !s->joystick2_pressed;
++        s->read_snapshot[0x50] = x;
++        s->read_snapshot[0x51] = x >> 8;
++        s->read_snapshot[0x52] = y;
++        s->read_snapshot[0x53] = y >> 8;
++        s->read_snapshot[0xfe] = 1;
++        s->read_snapshot[0xff] = I2C_SLAVE(s)->address;
++    }
+     else if (s->kind == CONTROL_ENCODER) {
+         uint16_t count = s->counter[0];
+         s->read_snapshot[0x10] = count; s->read_snapshot[0x11] = count >> 8;
+@@ -841,6 +897,19 @@
+         } else { return 1; }
+         s->pointer++;
+     } else if (s->kind == CONTROL_JOYSTICK) { return 1; }
++    else if (s->kind == CONTROL_JOYSTICK2) {
++        s->regs[reg] = value;
++        if (reg >= 0x30 && reg <= 0x32) { output_changed(s); }
++        if (reg != 0xff) {
++            s->pointer++;
++        } else {
++            i2c_slave_set_address(dev, value);
++        }
++    } else if (s->kind == CONTROL_SERVO8 || s->kind == CONTROL_SERVO8_HAT) {
++        if (s->regs[reg] != value) { output_changed(s); }
++        s->regs[reg] = value;
++        s->pointer++;
++    }
+     /* CardKB v1.1 accepts legacy writes but has no invented v2 report bank. */
+     return 0;
+ }
+@@ -903,7 +972,10 @@
+ 
+ bool m5_unit_controls_supported(const char *unit_id)
+ {
+-    static const char *const ids[] = {"joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll"};
++    static const char *const ids[] = {
++        "joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll",
++        "joystick2", "8servos", "servo8-hat",
++    };
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+ }
+@@ -921,6 +993,20 @@
+         s->kind = CONTROL_JOYSTICK; address = 0x52;
+         s->joystick[0] = s->joystick[1] = 128;
+         add_int(s, "x-raw", true); add_int(s, "y-raw", true); add_int(s, "button-raw", true);
++    } else if (!strcmp(unit->unit_id, "joystick2")) {
++        s->kind = CONTROL_JOYSTICK2; address = 0x63;
++        s->regs[0x20] = 1;
++        add_int(s, "x-position", true); add_int(s, "y-position", true);
++        add_bool(s, "button-pressed", true);
++    } else if (!strcmp(unit->unit_id, "8servos")) {
++        s->kind = CONTROL_SERVO8; address = 0x25;
++        s->regs[0xfe] = 1;
++        add_array(s, "modes", false); add_array(s, "angles", false);
++        add_array(s, "pulses", false); add_array(s, "pwm-duty", false);
++    } else if (!strcmp(unit->unit_id, "servo8-hat")) {
++        s->kind = CONTROL_SERVO8_HAT; address = 0x36;
++        add_int(s, "power-state", false); add_array(s, "angles", false);
++        add_array(s, "pulses", false);
+     } else if (!strcmp(unit->unit_id, "encoder")) {
+         s->kind = CONTROL_ENCODER; address = 0x40;
+         add_int(s, "counter", true); add_bool(s, "pressed", true);
+@@ -965,7 +1051,7 @@
+         add_int(s, "fifo-level", false); add_int(s, "card-reads", false);
+         add_int(s, "card-writes", false); add_int(s, "command-errors", false);
+     }
+-    add_int(s, "i2c-address", false);
++    add_int(s, "i2c-address", s->kind == CONTROL_JOYSTICK2);
+     object_property_add_child(OBJECT(unit), "controller", OBJECT(s));
+     qdev_prop_set_uint8(DEVICE(s), "address", address);
+     i2c_slave_realize_and_unref(I2C_SLAVE(s), unit->bus, errp);
+--- a/hw/m5stopwatch/m5_unit_runtime.c
++++ b/hw/m5stopwatch/m5_unit_runtime.c
+@@ -464,7 +464,8 @@
+ bool m5_unit_extra_supported(const char *id)
+ {
+     return m5_unit_sensor_supported(id) ||
+-           m5_unit_controls_supported(id);
++           m5_unit_controls_supported(id) ||
++           !strcmp(id, "nfc");
+ }
+ void m5_unit_extra_realize(M5Unit *u, Error **errp)
+ {
+@@ -472,5 +473,16 @@
+         m5_unit_sensor_realize(u, errp);
+     } else if (m5_unit_controls_supported(u->unit_id)) {
+         m5_unit_controls_realize(u, errp);
++    } else if (!strcmp(u->unit_id, "nfc")) {
++        DeviceState *nfc;
++        if (!u->bus) {
++            error_setg(errp, "NFC Unit requires a routed I2C bus");
++            return;
++        }
++        nfc = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(nfc, "model", "st25r3916");
++        qdev_prop_set_uint8(nfc, "address", 0x50);
++        object_property_add_child(OBJECT(u), "controller", OBJECT(nfc));
++        qdev_realize_and_unref(nfc, (BusState *)u->bus, errp);
+     } else { error_setg(errp, "Unit protocol module is unavailable"); }
+ }
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -108,6 +108,9 @@
+     uint8_t st25_mode;
+     bool st25_read_space_b;
+     uint8_t st25_tag[180];
++    int64_t transactions;
++    int64_t read_bytes;
++    int64_t written_bytes;
+     uint8_t aw9523_irq_bits;
+     uint8_t pi4ioe_irq_bits;
+     uint8_t key_event;
+@@ -1075,6 +1078,9 @@
+ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    if (ev == I2C_START_SEND || ev == I2C_START_RECV) {
++        s->transactions++;
++    }
+     if (ev == I2C_START_SEND) {
+         s->ptr_set = false;
+         s->st25_mode = 0;
+@@ -1102,6 +1108,7 @@
+ static uint8_t dev_recv(I2CSlave *i2c)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    s->read_bytes++;
+     if (s->model == M_INA3221) {
+         uint16_t value = ina3221_reg16(s, s->read_start);
+         uint8_t raw = s->ina3221_read_index & 1
+@@ -1130,6 +1137,7 @@
+ static int dev_send(I2CSlave *i2c, uint8_t data)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    s->written_bytes++;
+     if (s->model == M_ST25R3916) {
+         if (s->trace) {
+             qemu_log("[st25r3916] tx mode=%u data=%02x\n",
+@@ -1418,6 +1426,18 @@
+ static void prop_get_i64(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     visit_type_int64(v, name, (int64_t *)op, errp);
++}
++static void prop_get_st25_uid(Object *o, Visitor *v, const char *name,
++                              void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    char text[9];
++    char *value = text;
++
++    g_snprintf(text, sizeof(text), "%02X%02X%02X%02X",
++               s->st25_tag[0], s->st25_tag[1],
++               s->st25_tag[2], s->st25_tag[3]);
++    visit_type_str(v, name, &value, errp);
+ }
+ static void prop_set_i64(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+@@ -1810,6 +1830,14 @@
+         s->model = M_ST25R3916;
+         s->regs[0x3F] = 0x2A;
+         st25_init_tag(s);
++        object_property_add(OBJECT(s), "transactions", "int",
++                            prop_get_i64, NULL, NULL, &s->transactions);
++        object_property_add(OBJECT(s), "read-bytes", "int",
++                            prop_get_i64, NULL, NULL, &s->read_bytes);
++        object_property_add(OBJECT(s), "written-bytes", "int",
++                            prop_get_i64, NULL, NULL, &s->written_bytes);
++        object_property_add(OBJECT(s), "tag-uid", "str",
++                            prop_get_st25_uid, NULL, NULL, s);
+     } else if (!strcmp(m, "sht40")) {
+         s->model = M_SHT40;
+         s->temperature_c = 25.0;
