@@ -1,0 +1,9 @@
+# DAC2 artwork
+
+Two final ordinary PNGs come from the exact U012-B production artwork supplied by the user: the front T-shaped terminal/title/Grove label, and the rectangular rear GP8413/I2C label. The packaging-name artwork was excluded. The front preserves its original die-cut outlines around the mounting bores. The rear preserves `DAC 2`, `15-Bits △VOUT 0.2%`, `PORT. A. I2C`, `GP8413` and SCL/SDA/5V/GND. The front preserves V0/G/V1/G, DC:0~10V, DAC2, Address:0x59 and G/V/D/C.
+
+Original vector glyph and shape contours were rasterized at 2400 × 2085 and 2400 × 1800 pixels. The converter marked compound paths as even-odd; nonzero winding was restored to preserve the original letter/counter contours. Original fills and visible panels were retained. This is recorded as `source-vector-raster`, including the conversion repair, rather than a byte-identical unmodified export. No product photograph crop or enlarged preview bitmap is used.
+
+The two PNGs project onto existing native shell surface triangles. The front print is 16 × 13.8996 mm centred at [0, -1.75, 3.8]; the rear is 16 × 12 mm centred at [0, 7.45, -3.8]. Projection does not close the original ports, bores or cutouts. `artwork:false` removes both panels while keeping all physical positions, normals, indices and transforms identical. Physical registration is an appearance estimate; exhaustive browser pixel re-review was deferred.
+
+Private spreadsheet records, private source/download links, original filenames, vector files and rasterization intermediates remain outside the public repository. Only the two final PNGs, registration data and this provenance description are included. Printed artwork, names and trademarks retain their respective rights. See [artwork.json](artwork.json) for final PNG dimensions, hashes and source classification.

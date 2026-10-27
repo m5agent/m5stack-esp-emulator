@@ -1,0 +1,66 @@
+{
+  "id": "dds",
+  "sku": "U105",
+  "kind": "reference-redraw",
+  "sourceArtworkDistributed": false,
+  "method": "New code-drawn high-resolution text and shapes from exact U105 official photographs, rasterized directly. No photo crop or enlargement is used as a texture. Only final ordinary PNG is distributed.",
+  "files": [
+    {
+      "path": "src/units/dds/reference-redraw-front.png",
+      "sha256": "2c2b04c1effff55e30e53bad0de2a092bc5af16226c0d42b32c84e48ccc0dabc",
+      "pixels": [
+        1920,
+        4356
+      ],
+      "sizeMm": [
+        16,
+        36.3
+      ],
+      "positionMm": [
+        0,
+        2.95,
+        3.8
+      ],
+      "face": "front",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "DDS complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_06.webp",
+        "sha256": "50b92d9587bdb45253d9e6e149dae558eb9a8f842e0180520326bd74d4fb2512"
+      }
+    },
+    {
+      "path": "src/units/dds/reference-redraw-back.png",
+      "sha256": "ac6f48679f58bae7c27aa25e8961fa65ab0def16a7f02df705901b4a5e71e33e",
+      "pixels": [
+        1944,
+        4344
+      ],
+      "sizeMm": [
+        16.2,
+        36.2
+      ],
+      "positionMm": [
+        0,
+        3,
+        -3.8
+      ],
+      "face": "back",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "DDS complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_02.webp",
+        "sha256": "bce78beceec8c5416cce8986c475889cda4ad90c4c6d43297bb62745db4334ac"
+      }
+    }
+  ],
+  "limitations": [
+    "Typography, colour, line shape, diagram arrangement and physical registration are reconstructed visual details.",
+    "Front Direct Digital Synthesis title and SINE/SQUARE/TRIANGLE/SAWTOOTH curves and back DDS/UNIT/OPA365/AD9833/STM32/SPI/MCLK/I2C/25MHz/PORT.A.I2C/SCL/SDA/5V/GND are transcribed from same-model photos.",
+    "Curves and block diagram are fixed printed artwork, not generated waveforms or circuit simulation.",
+    "Observed25MHz rear print is preserved; it does not resolve the10MHz product-text versus25M schematic reference-clock question.",
+    "No unreadable identifiers, serial numbers or QR patterns are invented. Source photographs, vector originals, private source tables and generation assets are not distributed."
+  ]
+}

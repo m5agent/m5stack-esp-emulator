@@ -1,0 +1,348 @@
+{
+  "savedAt": "2026-10-26T13:22:54.554598+00:00",
+  "stage": "modeled",
+  "scope": "New Accel/OP90/OP180 complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 110,
+    "modeled": 124,
+    "verified": 0
+  },
+  "localHead": "32c95e05ded1bb7f1ff6437f5bce0db9bf91eefd",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "accel",
+      "status": "pass",
+      "report": "docs/research/accel/smoke.json",
+      "meshes": 75,
+      "triangles": 30440
+    },
+    {
+      "id": "op90",
+      "status": "pass",
+      "report": "docs/research/op90/smoke.json",
+      "meshes": 57,
+      "triangles": 9468
+    },
+    {
+      "id": "op180",
+      "status": "pass",
+      "report": "docs/research/op180/smoke.json",
+      "meshes": 59,
+      "triangles": 21380
+    }
+  ],
+  "pngCount": 4,
+  "rasters": [
+    {
+      "path": "src/units/accel/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        1230
+      ],
+      "sha256": "372ce5b17abaf20b949b01fa0bb5f821aac0b485003ed2fe16914f7af9ce2b0b"
+    },
+    {
+      "path": "src/units/accel/reference-redraw-front.png",
+      "pixels": [
+        1910,
+        1310
+      ],
+      "sha256": "2d6c7da1091427a71cabc588daacda9d88fbea3d0e37393bb600b6f04cd52de1"
+    },
+    {
+      "path": "src/units/op90/reference-redraw-back.png",
+      "pixels": [
+        2400,
+        1800
+      ],
+      "sha256": "adc1f1dccaa4df4363ec8a8b22e8cd45f84d02e3db7d21ca88f7191d02f1957d"
+    },
+    {
+      "path": "src/units/op180/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "sha256": "d13f03033cbdea6b3cfb1dff2cc62b0f790bc7292daa1b396651ba9842f4c045"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "accel",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "op90",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "op180",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-ADXL345-and-fixed-OP90-OP180-interrupter-structures",
+      "passive-anchors-reject-acceleration-tilt-occlusion-count-and-angular-functions",
+      "no-invented-buttons-LEDs-joints-displays-speakers-or-visible-IR",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-cable-and-independent-selective-detach",
+      "host-framebuffer-preserved"
+    ],
+    "scope": "New actual passive sensor/interrupter assemblies and external appearance APIs only;Node canvas stub,no browser,acceleration,tilt,fall,vibration,occlusion,optical count,visible IR,GPIO,I2C,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "accel",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "op90",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "op180",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-ADXL345-and-fixed-OP90-OP180-interrupter-structures",
+      "passive-anchors-reject-acceleration-tilt-occlusion-count-and-angular-functions",
+      "no-invented-buttons-LEDs-joints-displays-speakers-or-visible-IR",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-cable-and-independent-selective-detach",
+      "host-framebuffer-preserved"
+    ],
+    "scope": "New actual passive sensor/interrupter assemblies and external appearance APIs only;Node canvas stub,no browser,acceleration,tilt,fall,vibration,occlusion,optical count,visible IR,GPIO,I2C,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "accel",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "op90",
+        "status": "frozen",
+        "checkedFiles": 11
+      },
+      {
+        "id": "op180",
+        "status": "frozen",
+        "checkedFiles": 11
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "b081a8b866f0b834076b268aa2159ebc388fd8806162f8a8f757b0e4b12f4b94",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "b7ea004755b6366fdf30d68e26130c5264a4c530b41c3f14607259fa5dc2244e",
+      "logDistributed": false
+    },
+    "livePreview": "124-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 870,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [],
+  "previewAssets": [
+    {
+      "id": "accel",
+      "file": "assets/accel-ZElfq65K.js",
+      "sha256": "b9b44e6733140537f9dfd62c708631f3fe3637ef50e7f964c51eb2b329a2caf8"
+    },
+    {
+      "id": "op90",
+      "file": "assets/op90-DcMrZD19.js",
+      "sha256": "b82491cb39a7f426bfece2d2bcc2ea397dae66d0c1b1b9a2e5ad456a9fff6364"
+    },
+    {
+      "id": "op180",
+      "file": "assets/op180-DwlxoKvr.js",
+      "sha256": "c01b91fc6a0e7e84bada2080bf43850e59057e9c69f34fc636dee6209a4fa214"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/accel/assembly.js",
+      "sha256": "58e164058397978a0e753cdfc963765353c873bcc720f8921673a5aab4a4c4e0"
+    },
+    {
+      "path": "src/units/accel/cad-map.json",
+      "sha256": "e3f63d1363773ce83bfbf3d898252d4650ee8f5d6f49b7983e4b5c4b6b9cf1e0"
+    },
+    {
+      "path": "src/units/accel/dimensions.js",
+      "sha256": "aa08d957f2549865170dd746aa947200488e8c3b970737b49c63683afbcff82f"
+    },
+    {
+      "path": "src/units/accel/geometry-data.js",
+      "sha256": "4d282927833d44a6772d41e688c363db857768a16cbc956be97a43d712065d70"
+    },
+    {
+      "path": "src/units/accel/index.js",
+      "sha256": "383902ac8bf21a1269989abb41c78726ee26377aec89ded7730b36020d5f6d03"
+    },
+    {
+      "path": "src/units/accel/reference-redraw-back.png",
+      "sha256": "372ce5b17abaf20b949b01fa0bb5f821aac0b485003ed2fe16914f7af9ce2b0b"
+    },
+    {
+      "path": "src/units/accel/reference-redraw-front.png",
+      "sha256": "2d6c7da1091427a71cabc588daacda9d88fbea3d0e37393bb600b6f04cd52de1"
+    },
+    {
+      "path": "src/units/accel/stickers.js",
+      "sha256": "ef7bcb78f1566b9e8455352ccdbf1fb4478997d516a178d0c3c06d39e63bb64b"
+    },
+    {
+      "path": "docs/research/accel/artwork.json",
+      "sha256": "fbaed60383dfc96bbbdb2d25898814c858c2b932c776a6bb1c1acf74093e80ed"
+    },
+    {
+      "path": "docs/research/accel/modeling.md",
+      "sha256": "4fb573a92c05cf00862c7d1767f23afc1c449bbe27262fff02a0a8b9766d110b"
+    },
+    {
+      "path": "docs/research/accel/smoke.json",
+      "sha256": "f68363a41137e78a97805e4a7d421770fffe705e724bd3a99678c53bc200cb45"
+    },
+    {
+      "path": "docs/research/accel/sources.json",
+      "sha256": "09a63351e82d36d31e1d3b8b9ac1e9c61326fb4ca23d9e1b5973294cef8c1dc5"
+    },
+    {
+      "path": "src/units/op90/assembly.js",
+      "sha256": "8ac2167302536ff29c34599bca3b76cc9bd6484655c6933d8785b802a537ba4e"
+    },
+    {
+      "path": "src/units/op90/cad-map.json",
+      "sha256": "99d0ea5e8518148e276a9a65dc8e02bda7795131b905e74eb3218dd31d7bbda4"
+    },
+    {
+      "path": "src/units/op90/dimensions.js",
+      "sha256": "0b5a068024e320ca12b9d4086a9d4eda56045762455d880fde15d8dcdf113b2a"
+    },
+    {
+      "path": "src/units/op90/geometry-data.js",
+      "sha256": "1eb6f18f953fababd1884c842f48685739b9634512e719a16affd576abfa471e"
+    },
+    {
+      "path": "src/units/op90/index.js",
+      "sha256": "61e5fe07f9b029d860bd2f686e55c9e13e75ed6b0c3167d918a412ea87f4d483"
+    },
+    {
+      "path": "src/units/op90/reference-redraw-back.png",
+      "sha256": "adc1f1dccaa4df4363ec8a8b22e8cd45f84d02e3db7d21ca88f7191d02f1957d"
+    },
+    {
+      "path": "src/units/op90/stickers.js",
+      "sha256": "00928887ea21d70e176e357d8b62aba2718ff465a947c6237a876270f80a502e"
+    },
+    {
+      "path": "docs/research/op90/artwork.json",
+      "sha256": "29e48b42e9685d926df0bf7c23aa5aa73078fc83e516fb5586088d9a979bdae8"
+    },
+    {
+      "path": "docs/research/op90/modeling.md",
+      "sha256": "98162f2c96364cb16751efd87f15e5d62da73783d7c3562ccb4e04a3b66213b1"
+    },
+    {
+      "path": "docs/research/op90/smoke.json",
+      "sha256": "3f75ce9e6f7d4fd865a5009be7b9f02ba23bf08e05e0ce6149588e1a6ab9fc56"
+    },
+    {
+      "path": "docs/research/op90/sources.json",
+      "sha256": "d0113f589cb9b69a709b79ef5bbc2570ec393e37cce22ca711db0b560b30fffb"
+    },
+    {
+      "path": "src/units/op180/assembly.js",
+      "sha256": "485ddbe9fe8edf2fdbfe07a0ef9bfe29daa38da3eac4f51edb2764d93d4ee0f6"
+    },
+    {
+      "path": "src/units/op180/cad-map.json",
+      "sha256": "59db48e363d5c121911b7e4aab91b9d79c41c511ebda9953588fdaf371a5f712"
+    },
+    {
+      "path": "src/units/op180/dimensions.js",
+      "sha256": "1e395317c3404f851c30a9f1da87ab9b1dcfddf8ec114b78e98ceeb53b32ef2a"
+    },
+    {
+      "path": "src/units/op180/geometry-data.js",
+      "sha256": "ec2a84ef149f69a4aee102fd276a9a18c2adc7c969848f07b7f50cc28b3fcec2"
+    },
+    {
+      "path": "src/units/op180/index.js",
+      "sha256": "6ef1e5d4219954973985456b0747ccd690d76e0b454435d9647bd1933769c6a0"
+    },
+    {
+      "path": "src/units/op180/reference-redraw-back.png",
+      "sha256": "d13f03033cbdea6b3cfb1dff2cc62b0f790bc7292daa1b396651ba9842f4c045"
+    },
+    {
+      "path": "src/units/op180/stickers.js",
+      "sha256": "98b8e10e6ed48c6bc55f83c9cd0d8631f1792aabfc278904e79c87210b80bf8a"
+    },
+    {
+      "path": "docs/research/op180/artwork.json",
+      "sha256": "125cd9dcc9272021c274af17ec46840075f7985e1d4868f23a80ab9841c2ffbb"
+    },
+    {
+      "path": "docs/research/op180/modeling.md",
+      "sha256": "2d6ede8e8c10575a9065a7428e40d9ff9c3731cc28f14629ceb03194f487b2eb"
+    },
+    {
+      "path": "docs/research/op180/smoke.json",
+      "sha256": "792090832a8904577ee516821ed5ee95a841fa70fd0eac5d761f4f597e6d7485"
+    },
+    {
+      "path": "docs/research/op180/sources.json",
+      "sha256": "383d2c512f0b516e73f330f85f5477c4d0bbd3cc4a64b44a455190e5a72a89e7"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Accel owns its actual ADXL345/HT7533/AO3400A and PCB; no acceleration, tilt, fall, vibration, I2C or electrical behavior",
+    "OP90 owns its actual fixed right-angle optical interrupter and detection air gap; no hinge, visible IR, occlusion, count or electrical behavior",
+    "OP180 owns its actual fixed flat optical interrupter and detection air gap; no hinge, visible IR, occlusion, count or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows the user-requested112-model Git sync;current Git state is recorded separately"
+  ]
+}

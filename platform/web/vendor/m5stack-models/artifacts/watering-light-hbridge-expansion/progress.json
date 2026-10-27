@@ -1,0 +1,401 @@
+{
+  "savedAt": "2026-10-26T11:26:56.913288+00:00",
+  "stage": "modeled",
+  "scope": "New Watering/HBridge v1.1/DLight complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 86,
+    "modeled": 100,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "watering",
+      "status": "pass",
+      "report": "docs/research/watering/smoke.json",
+      "meshes": 107,
+      "triangles": 30452
+    },
+    {
+      "id": "hbridge-v11",
+      "status": "pass",
+      "report": "docs/research/hbridge-v11/smoke.json",
+      "meshes": 165,
+      "triangles": 109426
+    },
+    {
+      "id": "dlight",
+      "status": "pass",
+      "report": "docs/research/dlight/smoke.json",
+      "meshes": 64,
+      "triangles": 23938
+    }
+  ],
+  "pngCount": 5,
+  "rasters": [
+    {
+      "path": "src/units/watering/reference-redraw-motor.png",
+      "pixels": [
+        2600,
+        1600
+      ],
+      "sha256": "98caad348c74685123f36d903ce9df0dd603fc48510e8eb9cdafba73f5655371"
+    },
+    {
+      "path": "src/units/watering/source-vector-back.png",
+      "pixels": [
+        2400,
+        3000
+      ],
+      "sha256": "9c1d2bbeab2f6a6d0e9cdde9b726162d237d823608f4ce5bd89798b9aa293fab"
+    },
+    {
+      "path": "src/units/hbridge-v11/reference-redraw-back.png",
+      "pixels": [
+        1280,
+        2816
+      ],
+      "sha256": "6b8df63f1b8dba1264c1252cd42a1464004d5260b0804f98626f5a85a41abd83"
+    },
+    {
+      "path": "src/units/hbridge-v11/reference-redraw-front.png",
+      "pixels": [
+        1280,
+        2112
+      ],
+      "sha256": "3b4a974c20cd7691e23aaec5153ac84c8a466972b53183c073720156b0f16077"
+    },
+    {
+      "path": "src/units/dlight/reference-redraw-back.png",
+      "pixels": [
+        2560,
+        1920
+      ],
+      "sha256": "e8fe607350a122b91bc972216f1e2b155e4d54429a00dd6cfe32d21efab010d6"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "watering",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster",
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "hbridge-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "dlight",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "two-open-wall-hoses-independent-external-shape-and-roundtrip",
+      "five-real-covered-and-uncovered-stable-actuators",
+      "four-real-terminal-screw-heads-and-installed-capacitor",
+      "no-invented-pump-rotation-light-or-electrical-state",
+      "non-Grove-mating-type-rejection",
+      "configured-artwork-toggle-preserves-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, water, moisture, pumping, PWM, motor, lux, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "watering",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster",
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "hbridge-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "dlight",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "two-open-wall-hoses-independent-external-shape-and-roundtrip",
+      "five-real-covered-and-uncovered-stable-actuators",
+      "four-real-terminal-screw-heads-and-installed-capacitor",
+      "no-invented-pump-rotation-light-or-electrical-state",
+      "non-Grove-mating-type-rejection",
+      "configured-artwork-toggle-preserves-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, water, moisture, pumping, PWM, motor, lux, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "watering",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "hbridge-v11",
+        "status": "frozen",
+        "checkedFiles": 16
+      },
+      {
+        "id": "dlight",
+        "status": "frozen",
+        "checkedFiles": 11
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "3d16f65e0405bf7fecf143e783cb1afbc210e68de8705d55f14e1394ecbbe6b4",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "4eb4a8866d5c9d06cfc4ecf16e49b5e1ac54bd313f629ee44fbf1f29dc66e60c",
+      "logDistributed": false
+    },
+    "livePreview": "100-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 652,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "hbridge-v11",
+      "record": "docs/research/hbridge-v11/sources.json",
+      "feedback_id": "b5968f0e92364881bee61f5bea7d41c9",
+      "accepted": true
+    },
+    {
+      "product": "dlight",
+      "record": "docs/research/dlight/sources.json",
+      "feedback_id": "da4b7c91844c46b89ae2a29951908a79",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "watering",
+      "file": "assets/watering-CTpxRbhl.js",
+      "sha256": "67a86d1607088bb892004c7322b35bcf5d8337627abb3f4f93f151ae0785fc36"
+    },
+    {
+      "id": "hbridge-v11",
+      "file": "assets/hbridge-v11-DJPkMuNS.js",
+      "sha256": "ead93d7cf4127331a76965c69fcde443270c38102bb3967e0bcd79b0d0a95c22"
+    },
+    {
+      "id": "dlight",
+      "file": "assets/dlight-Cn-J69DT.js",
+      "sha256": "6a97f2b82653ab75914eaf005f23d2b9c7b6296ed52d90e4db04c4f24a102d9b"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/watering/Hose.js",
+      "sha256": "4c9b92f136c50047c4d06910aaff1233b6f820fc2e44c4380a35a9059efb9a04"
+    },
+    {
+      "path": "src/units/watering/assembly.js",
+      "sha256": "46835866e4d100464752a49807781be05eb4b89386bb4c76d81910aa0d8c97c0"
+    },
+    {
+      "path": "src/units/watering/cad-map.json",
+      "sha256": "1c5bc38f4233b6bce3dfbd5f4390af55cd0420d7b006214efd159838b2d0d91a"
+    },
+    {
+      "path": "src/units/watering/dimensions.js",
+      "sha256": "e811bf769c2d31b731e07940b7e3e0d539fc9ddc91fae58bfad0098c5d22255c"
+    },
+    {
+      "path": "src/units/watering/geometry-data.js",
+      "sha256": "81863d26245e33efdeac6f0204fe1059139b01f32e9f31002cf3649c8093b89e"
+    },
+    {
+      "path": "src/units/watering/index.js",
+      "sha256": "5f8a985df715f60f6b3d4ca31bd283a4e7032a2beb555398dcd20293d23a4cc5"
+    },
+    {
+      "path": "src/units/watering/reference-redraw-motor.png",
+      "sha256": "98caad348c74685123f36d903ce9df0dd603fc48510e8eb9cdafba73f5655371"
+    },
+    {
+      "path": "src/units/watering/source-vector-back.png",
+      "sha256": "9c1d2bbeab2f6a6d0e9cdde9b726162d237d823608f4ce5bd89798b9aa293fab"
+    },
+    {
+      "path": "src/units/watering/stickers.js",
+      "sha256": "65345d524357b07f9cbc13176d955890ca9809cfa0e8b05f7be54c46e6183df7"
+    },
+    {
+      "path": "docs/research/watering/artwork.json",
+      "sha256": "0c0d6bcd8ca3e960b8d36c73cd7c3de191373dbb806b854db1887ba5eedee17d"
+    },
+    {
+      "path": "docs/research/watering/artwork.md",
+      "sha256": "108c646871a349741170a1d3dd32e959fdc30e2e80c05b30b8b88b948877b43e"
+    },
+    {
+      "path": "docs/research/watering/modeling.md",
+      "sha256": "fb53740ab9ab9dc11fae457787e8517036562de45a13ba8196bd8956337f0c85"
+    },
+    {
+      "path": "docs/research/watering/smoke.json",
+      "sha256": "2c4e93337fa93de1435bfbb5054bd3a6565de7dd1eeddac4191e6625676de9a6"
+    },
+    {
+      "path": "docs/research/watering/sources.json",
+      "sha256": "9ed8af58f1cfae621556021cd094fccb01ce1917d98838b9c578e68923db7788"
+    },
+    {
+      "path": "src/units/hbridge-v11/TerminalPlug.js",
+      "sha256": "f8de556efc4525bf7f9cba7680d73baf4a17c7993d5f27b6ac72184dc7cd6a3a"
+    },
+    {
+      "path": "src/units/hbridge-v11/assembly.js",
+      "sha256": "0f19b8d4ea6c8fd117eac108fd5d375b63478616519b4f9a028228f53a8cc28b"
+    },
+    {
+      "path": "src/units/hbridge-v11/cad-map.json",
+      "sha256": "2e9ce29b43c152f2f749e753511eec4ea672000d3b113f24e3bd9aee7fbdde8e"
+    },
+    {
+      "path": "src/units/hbridge-v11/capacitor.js",
+      "sha256": "210fd8062032787546b20d89e6eb4d3f1a13926b0ab0fb451019e3ccf09caee5"
+    },
+    {
+      "path": "src/units/hbridge-v11/connectors.js",
+      "sha256": "2d6087f31e77c34b897f904f7b802ed7196cd5a645ca1e52425ea07834c4fed1"
+    },
+    {
+      "path": "src/units/hbridge-v11/dimensions.js",
+      "sha256": "0908dbee5aa218e156b7e90cf9e17a3f2bd5f971403da9dc7f057ae7377d3c13"
+    },
+    {
+      "path": "src/units/hbridge-v11/geometry-data.js",
+      "sha256": "c59604d318c1690df423f67171ae16c0d9f1df918e04e3003973ffe5a9989d6d"
+    },
+    {
+      "path": "src/units/hbridge-v11/index.js",
+      "sha256": "dd4c28821131ef814473a5281e3bd0bfee053d9ea051d4c3396a9b10f3d4ef88"
+    },
+    {
+      "path": "src/units/hbridge-v11/reference-redraw-back.png",
+      "sha256": "6b8df63f1b8dba1264c1252cd42a1464004d5260b0804f98626f5a85a41abd83"
+    },
+    {
+      "path": "src/units/hbridge-v11/reference-redraw-front.png",
+      "sha256": "3b4a974c20cd7691e23aaec5153ac84c8a466972b53183c073720156b0f16077"
+    },
+    {
+      "path": "src/units/hbridge-v11/stickers.js",
+      "sha256": "31c66ff61322f5460afbab4a0ecb0fdbcae458dfc6066eb71b9ce41e5d70f627"
+    },
+    {
+      "path": "docs/research/hbridge-v11/artwork.json",
+      "sha256": "d6770a86a11aad3c572e94c307df65d4cf0d02712f82e9f93548b66bce5fef89"
+    },
+    {
+      "path": "docs/research/hbridge-v11/artwork.md",
+      "sha256": "b84ebf711b691b4dba835d3f12f6cf3d77dd6cacf01c47219b55142201b1b608"
+    },
+    {
+      "path": "docs/research/hbridge-v11/modeling.md",
+      "sha256": "bc8038bc207f5d6d598067434f2de89181928021b2a62de7feef9f77f0015b69"
+    },
+    {
+      "path": "docs/research/hbridge-v11/smoke.json",
+      "sha256": "bf2f1ac746a2a234e19103789c19495b36b72191671cfaeb104056398536edff"
+    },
+    {
+      "path": "docs/research/hbridge-v11/sources.json",
+      "sha256": "34ca2a220d3a46f87553a1a6aea38529cf74c16510f7369a5276c98afcbc27d8"
+    },
+    {
+      "path": "src/units/dlight/assembly.js",
+      "sha256": "5fde505974e33894bb9203b6e9587100d44d3b12650ecaced967b5531ac6be82"
+    },
+    {
+      "path": "src/units/dlight/cad-map.json",
+      "sha256": "79321dce29685c9d7ed31cd1cbff947064f0069040f111c78cf84909f1e9f579"
+    },
+    {
+      "path": "src/units/dlight/dimensions.js",
+      "sha256": "4aa9c121106875a6b6e5b032049f79f49c4c2f2a48512a528922f0b1ad108e48"
+    },
+    {
+      "path": "src/units/dlight/geometry-data.js",
+      "sha256": "60c669784e64614d376354b901c3753178bb038272949c6e4464f70c21ef877d"
+    },
+    {
+      "path": "src/units/dlight/index.js",
+      "sha256": "f2f048375b277e5762d138429331fbfd298a9b0089df13a9bffd716beefdf1e6"
+    },
+    {
+      "path": "src/units/dlight/reference-redraw-back.png",
+      "sha256": "e8fe607350a122b91bc972216f1e2b155e4d54429a00dd6cfe32d21efab010d6"
+    },
+    {
+      "path": "src/units/dlight/stickers.js",
+      "sha256": "d25a487a72808bb365ea3c2e4b440ceffb9d3ba7d5624f64895a216ae24b4402"
+    },
+    {
+      "path": "docs/research/dlight/artwork.json",
+      "sha256": "457880210e5b791a17f02bd4b6dda7b2901176c07b56da9013548ee45f4d1c91"
+    },
+    {
+      "path": "docs/research/dlight/modeling.md",
+      "sha256": "42cf3009fc9b40dab2b9dbc5ccb160aa67866cb9461cdd2dd0a69966867c31f5"
+    },
+    {
+      "path": "docs/research/dlight/smoke.json",
+      "sha256": "603ccc993e47ab28646b00f89172ea104a5d4b42de7f179e80b6271be5161ebf"
+    },
+    {
+      "path": "docs/research/dlight/sources.json",
+      "sha256": "90d9f3fc44f75e222b8c342e4960ec533159e92dfeaea43affdd54751e591ce8"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Watering owns its pump, capacitance probe and fluid ports; no moisture, water, pumping, motor or electrical simulation",
+    "HBridge v1.1 owns its actual terminal, supplied plug, capacitor and physical selector; no motor, voltage, PWM, protection or electrical model",
+    "DLight owns its actual optical window, BH1750FVI package and PCB; no lux, light-field, ADC, firmware or electrical model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

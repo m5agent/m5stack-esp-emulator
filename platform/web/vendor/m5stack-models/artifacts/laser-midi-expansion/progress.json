@@ -1,0 +1,392 @@
+{
+  "savedAt": "2026-10-26T10:05:22.069132+00:00",
+  "stage": "modeled",
+  "scope": "New Laser TX/RX/MIDI complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 71,
+    "modeled": 85,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "laser-tx",
+      "status": "pass",
+      "report": "docs/research/laser-tx/smoke.json",
+      "meshes": 64,
+      "triangles": 19830
+    },
+    {
+      "id": "laser-rx",
+      "status": "pass",
+      "report": "docs/research/laser-rx/smoke.json",
+      "meshes": 49,
+      "triangles": 15274
+    },
+    {
+      "id": "midi",
+      "status": "pass",
+      "report": "docs/research/midi/smoke.json",
+      "meshes": 230,
+      "triangles": 52568
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/laser-tx/reference-redraw-back.png",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sha256": "f1cba8f1019cc2a818c649c8a42b6675652b6c0d80251c4fc1b7faf233c8fc3e"
+    },
+    {
+      "path": "src/units/laser-tx/reference-redraw-front.png",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sha256": "f387fb617a9b73d695f27583ac8cf084aab2ba581a10d7e8b7fd8bf43488454f"
+    },
+    {
+      "path": "src/units/laser-rx/reference-redraw-back.png",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sha256": "6e3aa0c144abdb14270a9b73dbd13a8632f28a0a99e0d74f44cb59e5bf45e248"
+    },
+    {
+      "path": "src/units/laser-rx/reference-redraw-front.png",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sha256": "7b133c1bbf31cfe26db9a9bd1fd2af55ac0a70cc4b3dd4bf2445666bd8f0b869"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-back.png",
+      "pixels": [
+        4200,
+        3405
+      ],
+      "sha256": "dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-front.png",
+      "pixels": [
+        4200,
+        2997
+      ],
+      "sha256": "43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "laser-tx",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "laser-rx",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "midi",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "distinct-transmit-and-receive-optics-with-passive-anchors",
+      "fixed-red-emitter-output-is-independent",
+      "actual-retained-MIDI-selector-with-input-intent",
+      "five-real-DIN-TRS-ports-reject-Grove",
+      "artwork-toggle-keeps-physical-buffers-and-world-assembly",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; Node canvas stub, no browser, optical propagation/sensing/communication, MIDI routing, audio, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "laser-tx",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "laser-rx",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "midi",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "distinct-transmit-and-receive-optics-with-passive-anchors",
+      "fixed-red-emitter-output-is-independent",
+      "actual-retained-MIDI-selector-with-input-intent",
+      "five-real-DIN-TRS-ports-reject-Grove",
+      "artwork-toggle-keeps-physical-buffers-and-world-assembly",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; Node canvas stub, no browser, optical propagation/sensing/communication, MIDI routing, audio, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "laser-tx",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "laser-rx",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "midi",
+        "status": "frozen",
+        "checkedFiles": 13
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "0d4f012d988bc183ac7dab94524178041011b81fe913bb429e8f9f7840ee37f3",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "54eca27e1ca49946420706a8380695f09bf2f2e973ab1bbd070943140b32c715",
+      "logDistributed": false
+    },
+    "livePreview": "85-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 520,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "laser-tx",
+      "record": "docs/research/laser-tx/sources.json",
+      "feedback_id": "b27af2e5d7b74fbbb1fc919b44cc8ac1",
+      "accepted": true
+    },
+    {
+      "product": "midi",
+      "record": "docs/research/midi/sources.json",
+      "feedback_id": "483f51e99d0646a98323a77676cfd3e2",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "laser-tx",
+      "file": "assets/laser-tx-BiSxokIg.js",
+      "sha256": "cc7d9154c8b4e3d4a7b295fb3f739d08ee17988d3d06d646dabc1786487a419f"
+    },
+    {
+      "id": "laser-rx",
+      "file": "assets/laser-rx-DgSDJOI-.js",
+      "sha256": "8081664eb1a5e342f91c99a05f98623ff9bcb3fc9f14481c039e3d2abe852ddb"
+    },
+    {
+      "id": "midi",
+      "file": "assets/midi-BjWfz6No.js",
+      "sha256": "ca15316b0ba43485d8aa94b8f054ed20cde8d05edbd2b9931c479c0f84fff1b5"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/laser-tx/assembly.js",
+      "sha256": "72484eab1e95b8f052a1b252e81e80bcecd57b4546508db223c9e542c7580508"
+    },
+    {
+      "path": "src/units/laser-tx/cad-map.json",
+      "sha256": "73eeb65db910015eebff59aad0b56ccf67d399fe969cc53dd2b6ac516d2b3e32"
+    },
+    {
+      "path": "src/units/laser-tx/dimensions.js",
+      "sha256": "cc02764c32b1172dba6221cf15e7a3a69ba45d96f866bb5d0316087e979565cc"
+    },
+    {
+      "path": "src/units/laser-tx/geometry-data.js",
+      "sha256": "116eaec0cd3f846a98f6764a8cf9f79ae61bde23f2e3c9736f4ce3f363d47dfb"
+    },
+    {
+      "path": "src/units/laser-tx/index.js",
+      "sha256": "dff67890e36391843e9bbd8296e877ff7b9168e9d19d7e34650a2e8775ef98a8"
+    },
+    {
+      "path": "src/units/laser-tx/reference-redraw-back.png",
+      "sha256": "f1cba8f1019cc2a818c649c8a42b6675652b6c0d80251c4fc1b7faf233c8fc3e"
+    },
+    {
+      "path": "src/units/laser-tx/reference-redraw-front.png",
+      "sha256": "f387fb617a9b73d695f27583ac8cf084aab2ba581a10d7e8b7fd8bf43488454f"
+    },
+    {
+      "path": "src/units/laser-tx/stickers.js",
+      "sha256": "e6d3ae3ffb2f514ae5a64ee8f14f8905c033f35d3bff16568be5294a41c0ca42"
+    },
+    {
+      "path": "docs/research/laser-tx/artwork.json",
+      "sha256": "089e4a98fe575e824ac1056c52840ba21406680c4b8f1b2b3b9acf075d321b36"
+    },
+    {
+      "path": "docs/research/laser-tx/modeling.md",
+      "sha256": "71888d046ede42454cc638e3aa7e558fce5c983d88f35fe09e86cbfc48fe5b8e"
+    },
+    {
+      "path": "docs/research/laser-tx/smoke.json",
+      "sha256": "ef0920ee97e4b6507aa852f68d02c5dca6543d2f518ea0f5ac82b3df73df98f8"
+    },
+    {
+      "path": "docs/research/laser-tx/sources.json",
+      "sha256": "f3f05a722924803dbc40873e3f231ad0c339a7377e3d32af714110a99e38d9b8"
+    },
+    {
+      "path": "src/units/laser-rx/assembly.js",
+      "sha256": "372889b55a0fd74a6c7c96682fa312a4fd49b5f7863ec0340fc9c7c3ce82062b"
+    },
+    {
+      "path": "src/units/laser-rx/cad-map.json",
+      "sha256": "c5342366db2a4c78d56f34bfaa96b8e8c98bfcdee05b72203103e523b5813790"
+    },
+    {
+      "path": "src/units/laser-rx/dimensions.js",
+      "sha256": "3457ff9c3af89efe3cabb256dd0035d84328885525dfcf927d5d2ca5c393bdab"
+    },
+    {
+      "path": "src/units/laser-rx/geometry-data.js",
+      "sha256": "37f43ff81fb33b6839f826974a1dca2cd6c8fdf64e251d25c49c41c6ebb06434"
+    },
+    {
+      "path": "src/units/laser-rx/index.js",
+      "sha256": "9faf0f297a0ea346b79e463e1f6aac9f192be795d62a2bff77d52c7e82c1c8cc"
+    },
+    {
+      "path": "src/units/laser-rx/reference-redraw-back.png",
+      "sha256": "6e3aa0c144abdb14270a9b73dbd13a8632f28a0a99e0d74f44cb59e5bf45e248"
+    },
+    {
+      "path": "src/units/laser-rx/reference-redraw-front.png",
+      "sha256": "7b133c1bbf31cfe26db9a9bd1fd2af55ac0a70cc4b3dd4bf2445666bd8f0b869"
+    },
+    {
+      "path": "src/units/laser-rx/stickers.js",
+      "sha256": "7d4fbfc16751e82e2db22ac2e2a357811f9286d51132ab748f0a4566aae51764"
+    },
+    {
+      "path": "docs/research/laser-rx/artwork.json",
+      "sha256": "1ac64ab5093a763c99aa41c467f4bb156d14906a4d9f09670fa2f9a9fd90b0a3"
+    },
+    {
+      "path": "docs/research/laser-rx/artwork.md",
+      "sha256": "be8dc3b6b073b2ec95c8d9aa3ca7df20478a43954d3681d6afe981cd8be0aec5"
+    },
+    {
+      "path": "docs/research/laser-rx/modeling.md",
+      "sha256": "2cb39c329cb229c6651cd4570ec6d9a9576de54d5f765cc788c4161d7fea3514"
+    },
+    {
+      "path": "docs/research/laser-rx/smoke.json",
+      "sha256": "3438bfbd63302b8a349591d48b68686f777e06d0ad22f698357c73ff0fe37ab1"
+    },
+    {
+      "path": "docs/research/laser-rx/sources.json",
+      "sha256": "7eba6fd0ea0b3101e4e474252ef7900fee36c1d6cba4c423b31fa780e5211ccb"
+    },
+    {
+      "path": "src/units/midi/assembly.js",
+      "sha256": "a399b9df2a0c1201067b99af229a1342d1184f4a2ff32d323f397e61533b0a27"
+    },
+    {
+      "path": "src/units/midi/cad-map.json",
+      "sha256": "902dd995ce41ef356644f64ce95579239bd60202cf597707c71ce7bbb5889b52"
+    },
+    {
+      "path": "src/units/midi/dimensions.js",
+      "sha256": "3e29893e8780ba80c7c67eb583bdbbef06ce93c950e9cbac45a5e84b9a267ae8"
+    },
+    {
+      "path": "src/units/midi/geometry-data.js",
+      "sha256": "0483c56a6d027819d996ed81b06732eaaed709c306523a2f10d7c89b0d624279"
+    },
+    {
+      "path": "src/units/midi/index.js",
+      "sha256": "a81015f7def446cbc4d2d802dc1c527467c3801bc23ed78433adc95659cb7469"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-back.png",
+      "sha256": "dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-front.png",
+      "sha256": "43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196"
+    },
+    {
+      "path": "src/units/midi/stickers.js",
+      "sha256": "4842e884bc019f0ddfb3df63a3220aa98c452ec77bd268d96afae3634b24c8bd"
+    },
+    {
+      "path": "docs/research/midi/artwork.json",
+      "sha256": "931e35763daa10739cca1fd26640b269a499ba8ff3802f01a45d4d12632eab2f"
+    },
+    {
+      "path": "docs/research/midi/artwork.md",
+      "sha256": "0be5368ace099aa523b587f4fb114062ef8fe13d9acb27e33a4ab52525f5f4e1"
+    },
+    {
+      "path": "docs/research/midi/modeling.md",
+      "sha256": "046cb5757b33d658c9427c3f6f37046dd96374c5b14b8fac54cfebaf44f2f804"
+    },
+    {
+      "path": "docs/research/midi/smoke.json",
+      "sha256": "aefe2aeaeb1b98f6ffe89f2cae24393271097f0aae35fb69c65cb689750cc20d"
+    },
+    {
+      "path": "docs/research/midi/sources.json",
+      "sha256": "84978426c40a18eba5b4337412aa329dcc8c539aa53ab44c094bf581141d77c4"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, component, connector interior, installation and lens details retain documented appearance estimates",
+    "Laser TX/RX own their physical optical assemblies; no invented controls, projected beam, propagation, sensing, inter-device communication, electrical or firmware behavior",
+    "MIDI owns real DIN/TRS receptacles and retained Bypass/Separate cap position; no MIDI routing, sound synthesis, audio, protocol or electrical behavior",
+    "Synchronous sticker PNGs are exact-model documented reference redraws; CSV, private URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, isolated private Scroll and unresolved StackChan production-fit checkpoint preserved"
+  ]
+}

@@ -179,15 +179,18 @@ export class ThreeDeviceShell {
     this.hideOverlay();
   }
 
-  async setImage(image, sequence = ++this.frameSeq) {
+  async setImage(image, sequence = ++this.frameSeq, commitGuard = () => true) {
+    if (this.disposed || !commitGuard()) return false;
     const bitmap = await createImageBitmap(image);
     try {
+      if (this.disposed || !commitGuard()) return false;
       const context = this.display.getContext2D();
       context.clearRect(0, 0, this.display.width, this.display.height);
       context.drawImage(bitmap, 0, 0, this.display.width, this.display.height);
       this.display.present();
       this.frameSeq = sequence;
       this.hideOverlay();
+      return true;
     } finally {
       bitmap.close();
     }
@@ -203,6 +206,7 @@ export class ThreeDeviceShell {
   }
 
   dispose() {
+    this.disposed = true;
     this.viewer.dispose();
   }
 }

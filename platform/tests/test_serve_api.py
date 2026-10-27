@@ -79,6 +79,21 @@ class ServePeripheralApiTests(unittest.TestCase):
         self.assertEqual(payload["kind"], "imu")
         self.assertTrue(payload["interfaces"])
 
+    def test_external_unit_inventory_is_separate_from_board_models(self):
+        payload = self.get_json("/api/v1/units?device_id=cores3")
+        self.assertEqual(len(payload["units"]), 30)
+        self.assertEqual([host["device_id"] for host in payload["hosts"]], ["cores3"])
+        port = next(port for port in payload["hosts"][0]["ports"] if port["id"] == "port-a")
+        self.assertEqual(port["pins"], {"yellow": 2, "white": 1})
+        self.assertEqual(port["visual_port"], "grove")
+
+    def test_unit_protocol_description_does_not_claim_guest_execution(self):
+        payload = self.get_json("/api/v1/units/env-iii")
+        self.assertEqual(payload["interface"]["address_7bit"], [0x44, 0x70])
+        self.assertIn(payload["runtime"]["status"], {"developing", "implemented", "validated"})
+        if payload["runtime"]["status"] != "validated":
+            self.assertTrue(payload["runtime"]["blocker"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

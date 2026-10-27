@@ -1,15 +1,295 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-26`.
+Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.34.0` and bounded
+Status: local MVP with unified-device runtime contract `1.46.0` and bounded
 storage retention implemented on `2026-10-24`.
 
-The service creates an on-demand virtual M5Stack device, flashes an exact
-firmware artifact into an isolated virtual-flash copy, and exposes serial,
-frame, input and QOM operations through HTTP.
+The service creates an on-demand virtual M5Stack device, initializes its isolated
+virtual Flash with an exact firmware artifact once at session creation, and
+exposes serial, frame, input and QOM operations through HTTP. Subsequent UIFlow2
+live Run requests execute programs in that running device; they do not repeat
+firmware initialization.
+
+UIFlow2 live programming can use `program_mode="uiflow-live"` at session
+creation on admitted S3 reference devices. It initializes the guest UART REPL
+route once, then `POST /sessions/{id}/program` interrupts and executes each new complete
+Python source checkpoint or complete file package inside that same guest, without reflashing
+or resetting the VM. `GET /sessions/{id}/program` returns execution and immutable
+source revision identities. Source is limited to 64 KiB UTF-8; submissions require
+`expected_execution_id` (null initially). Cleanup is interrupt-only: native module,
+timer, callback and thread state is not guaranteed to reset. See the
+[Unit Agent API](unit-agent-api.md) for initialization and exact boundaries;
+The Preview/Run coordinator below has bounded API and Web acceptance; SSE and
+the AIFlow consumer remain future work. QEMU readers can explicitly
+share demand-driven frame samples with `max_age_ms` and conditional GET; this
+does not create a background stream or an AIFlow consumer integration.
+The mode rejects direct firmware_id/source-pin parameters and incompatible
+runtime/readiness settings. Existing caller-prepared firmware sessions can
+still opt into `program_transport="uart-repl"` explicitly; this lower-level
+option leaves the guest UART route to the caller. The Live sessions page offers
+an explicit programming checkbox and a per-session editor with execution
+identity checks. A late response never replaces the local source draft.
+
+
+### Verified main.mpy entrypoints
+
+API 1.46 adds conditional binary execution to the same-guest path. Session
+`program_mode=uiflow-live` and Preview creation accept an optional
+`base_firmware_id` + `expected_base_sha256` pair. The base must pass the existing
+manifest, actual-byte, partition, security/capability and PSRAM checks; the SHA
+pins normalized stored Flash bytes. Ordinary sessions still omit firmware_id
+and uiflow_source_sha256 in this mode. Default creation uses the cached reference.
+
+After the service's inert UART bootstrap, while the Session is still booting,
+a fixed official-compiler bytecode canary executes through the actual importer.
+It proves if-main, real file, main/__main__/import module identity and restoration
+of the REPL owner/cache/cwd/path. The probe uses no M5 or Unit APIs, consumes no
+Program execution/package quota, and removes its exact fixture. Unexpected
+protocol/FS failure or unconfirmed restoration fails startup. Cleanly unsupported
+semantics leave main.py available. Manually prepared UART sessions are not
+interrupted for automatic probing.
+
+`GET /sessions/{id}` and `/program` return `program_capabilities`, with status
+verified/unsupported/unknown, mpy_entrypoint, fixed canary provenance and identity
+(session/device/firmware/runtime/PID/process start token/worker generation).
+Only current verified proof grants main.mpy. Reset, restore/reattach and owner
+restoration failure revoke or discard the old proof. Historical evidence stays
+in program-capabilities.json/events/ZIP; it does not re-enable live execution.
+Preview exposes independent runtime_capabilities and derives capabilities.main_mpy
+from its actual Session. Immutable create configuration never grants capability.
+Preparing/unknown submissions return 409 before Run allocation or cancellation.
+
+A complete binary package uses the same storage/deployment transaction, actual
+guest hashes and managed dependency cleanup. The importer runs
+`__import__('main', None, None, False, 0)` without rewriting caller bytecode.
+Binary LOAD means **import request dispatched**, not application body entry;
+state running therefore leaves application_started/application_ready null.
+Finite return proves completion. DONE/ERROR are emitted only after owner/cache/
+cwd/path restoration; RESTORE_ERROR leaves ownership unknown and revokes the
+capability. Application output, QOM and frame are separate functional evidence.
+After a confirmed raw prompt, LOAD without DONE/ERROR also leaves ownership
+unconfirmed and revokes MPY admission; a prompt alone proves interruption only.
+Ctrl-C still has the interrupt-only native/IRQ/thread boundary.
+
+The managed Web consumer loads main.mpy as a read-only original checkpoint and
+runs the same revision. “New main.py” forks a separate source draft, removes the
+root main.mpy and preserves dependencies/resources; it neither writes nor runs
+until the user submits. Old checkpoints remain immutable. Current virtual-device
+acceptance is recorded separately; this API description alone grants no PASS.
+
+### Same-guest complete files
+
+`POST /sessions/{id}/program` accepts either the existing `source` string or a
+`files` object. `files` is a complete snapshot, with `main.py` or a session-admitted `main.mpy` as its script
+entrypoint; each path maps to `{encoding: "utf8"|"base64", data: string}`. Both
+forms use `expected_execution_id`, the same console owner and the same guest.
+`GET /devices` advertises `program_source_kinds` for admitted devices.
+Its `program_features` also declares admitted runtimes, `main.py` entrypoint,
+bytecode-only `.mpy` dependencies and unsupported native emitters. These
+are cached-reference defaults; current `Session.program_capabilities` can
+add a verified binary entrypoint. Source uses
+`fresh-exec-globals` namespace and interrupt-only cleanup. Unadmitted devices
+return an empty object. `__name__` starts as `__main__` for script execution;
+the application dictionary does not replace the REPL module in
+`sys.modules['__main__']`. Ordinary `.mpy` import is not a script entrypoint:
+the current firmware preserves its module name, so an if-main guard will not run.
+
+Package limits are 1 MiB decoded content, 64 files and 256 KiB per file. Paths
+are canonical relative UTF-8 POSIX paths, at most 192 bytes/eight components;
+absolute paths, traversal, backslashes, aliases/casefold collisions, file/parent
+collisions and any `boot.py` are rejected. `/program` and `POST /program-revisions` admit 2 MiB JSON
+bodies for base64 overhead; other endpoints retain their existing limits.
+The legacy source limit/default timeout remain 64 KiB/10 seconds. Package
+timeout defaults to 120 seconds and covers both deployment and start
+acknowledgement, not application lifetime.
+
+Public checkpoints use `POST /program-revisions`, with exactly the required
+`source_kind="uiflow2-package"`, an explicit root `entrypoint`, and complete `files`.
+Storage accepts `main.py` or `main.mpy`; the chosen file must exist. Binary
+entrypoint storage preserves the original bytes and rejects a root `main.py`
+or `main/` directory that would shadow `main.mpy`. Storage does not install a
+loader. Unsupported, booting or unknown sessions retain
+`mpy_entrypoint=false` / `main_mpy=false`, and reject that entrypoint
+with 409 `program_mpy_entrypoint_unsupported` before allocating an execution,
+admitting a Run or cancelling the previous program. Unsupported inline Run
+requests also fail before consuming a package slot. Existing Python package
+identities and stored records remain compatible.
+The response is `{revision, limits}`; duplicate content returns 201 with the
+same ID and original `created_at`. `GET /program-revisions/{revision_id}`
+returns verified metadata and limits. Stored does not mean compiled or run.
+`GET /program-revisions/{revision_id}/files` adds the complete immutable `files`
+mapping alongside the same `revision` and `limits`. Every file uses canonical
+base64, including binary resources and MPY dependencies. It verifies all stored
+paths, sizes, hashes and the content ID before returning, without creating an
+execution or interrupting a guest. Existing metadata-only GET remains unchanged.
+Clients editing `main.py` must preserve the remaining files and submit a complete
+new snapshot; a missing file means deletion. The response remains bounded by the
+decoded package limits and the 2 MiB JSON envelope.
+Old `uiflow2-python` store IDs are not accepted as complete package references.
+
+A third `/sessions/{id}/program` request form accepts only `revision_id`,
+`expected_execution_id` and optional `timeout_seconds` (1–120, default 120).
+It verifies and uses the existing package without recreating the revision.
+Do not include `source`, `files`, `entrypoint` or `source_kind` in this form.
+Stale expected execution returns 409 before interrupt; unknown package returns
+404 and corrupt stored bytes fail closed. Structural MPY checks on public
+save/reference reject known invalid/native containers before execution
+allocation. Guest version/small-int compatibility still needs the actual
+transfer and can fail after the old program has been interrupted.
+
+`limits.max_revisions` is the independent package store capacity, normally 256;
+configure it with `--max-program-packages` or `M5_SERVICE_MAX_PROGRAM_PACKAGES`
+(integer 1–4096). It is separate from the source-revision capacity. Lowering a
+configured limit does not delete existing packages: reads and identical saves
+still work, while new saves above the limit return `429 program_package_quota_exceeded`.
+This count setting is not automatic garbage collection or reference reclamation;
+`gc_enabled=false` explicitly retains the current lifecycle gap. It does not
+inherit a larger configured Python-source capacity. No Preview/Run resource,
+latest-wins queue, per-Run cancellation or tenant ownership is established by
+these checkpoint routes. Existing service authorization remains in effect.
+
+### Stable Preview and asynchronous Runs
+
+The Live sessions consumer has separate CoreS3 PIR/Relay Web acceptance under
+UNIT-HOST-34: [exact scope and evidence](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-web-consumer/README.md).
+Enable live programming and the optional persistent-preview checkbox with a
+control Token. It loads complete checkpoints, preserves MPY/resources while
+editing main.py, coordinates Run/cancel/renew/close and uses Run-bound frames.
+Reset remains disabled. Creation retries keep their original idempotency key
+and body, including recovery after reload. An external package update requires
+explicit load/merge; polling never overwrites local drafts. Other targets and
+the AIFlow consumer do not inherit this Web result.
+
+Validation on `2026-10-27`: frozen host regression and independent contract review
+passed. CoreS3 PIR/Relay have bounded same-VM/pending replacement/active-cancel
+evidence in the [acceptance record](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-run-control/README.md).
+A separate CoreS3 PIR sample verifies cancellation after confirmed per-file
+writing progress and before package publication/START, followed by same-VM
+recovery. Other targets, individual byte/chunk boundaries and restart recovery
+do not inherit those results.
+The existing synchronous `/sessions/{id}/program` remains available for unmanaged
+sessions. Preview uses a visible managed UIFlow QEMU session on CoreS3, AtomS3R,
+StickS3 or StopWatch, initialized once. Subsequent Runs reference complete public
+checkpoints and use the same UART REPL/VM rather than reflashing firmware.
+
+Every Preview route requires a configured and verified control Bearer token;
+without configuration it returns `503 preview_auth_unavailable`. Active and
+rotation tokens share the server principal `local-control`. A body cannot
+declare owner; this is a shared local control scope, without tenant isolation.
+`POST /previews` accepts `device_id`, optional `runtime="qemu"`, `units` and
+`ttl_seconds` (30–3600, default 300). It requires one `Idempotency-Key` header
+(1–128 printable ASCII characters without whitespace) and returns 202 plus
+Location. Poll GET until `state=ready`. Assembly and reference SHA are frozen
+before allocation; a managed binding is persisted before session publication.
+
+Save the complete package with `/program-revisions`, then submit:
+
+```json
+{"revision_id":"<64 lowercase hex>","expected_owner_epoch":"<issued epoch>",
+ "expected_generation":0,"client_generation":"editor-1","timeout_seconds":120}
+```
+
+`POST /previews/{preview_id}/runs` requires its own scoped Idempotency-Key and
+returns 202 plus Location. `expected_generation` is the current Preview
+generation; admission increments it atomically with reserved Run/execution IDs,
+desired intent, original receipt and package pin. Same key/request replays the
+original receipt even after cancellation or close; it does not replay UART.
+Different content under the same key returns 409. GET the current Preview/Run
+to learn current state. Host package/bytecode errors precede old-Run cancellation.
+
+One worker owns the UART. A newer intent supersedes untouched queued work;
+started/transmitting work receives monotonic cancellation intent. Transmission
+may already have caused a transient START. A late result cannot regain active
+ownership. Poll Run state; START means script execution began, while
+`application_ready` remains `unknown`. `timeout_seconds` covers package transfer
+and start acknowledgement, not program lifetime.
+
+`POST /previews/{id}/runs/{run_id}/cancel` accepts exactly
+`{"expected_owner_epoch":"<issued epoch>"}` and returns 202. For touched work,
+`cancelling` becomes `cancelled` only after a fresh actual raw prompt is
+confirmed (`interrupt_ack=confirmed`). Queued untouched work uses
+`interrupt_ack=not-required`. Missing prompt remains unconfirmed and blocks
+replacement; explicit cancel retry may attempt synchronization again. Unknown
+execution/allocation after restart is observed, never blindly replayed.
+This is interrupt-only cleanup, without full native/IRQ/timer/thread reset.
+
+`POST /previews/{id}/input` requires expected_owner_epoch, expected_run_id and
+exactly one `input` (existing host payload) or `unit_input` (`id`, `values`).
+Deterministic validation precedes held intent. An in-flight permit remains held
+through backend application; a switch closes admission, drains permits and
+releases momentary controls before new UART work. A switch during application
+can return 409 with `effect_possible=true`; it does not imply no physical effect.
+Preview host input hold/settle durations are capped at five seconds each so
+lease cleanup cannot be held indefinitely by a queued input.
+
+`GET /previews/{id}/runs/{run_id}/frame.png?max_age_ms=0..1000` checks Run,
+execution and revision on both sides of capture. It returns 409 for a switch
+during capture, or 410 when historical work has no matching retained sample.
+X-Preview-ID, X-Run-ID and existing frame identity/hash headers identify the
+sample. ETag includes Preview/Run/revision/PNG hash; 304 still passes the current
+Run fence. Frame and Unit/serial state are separate samples, not atomic state.
+
+`POST /previews/{id}/renew` accepts expected_owner_epoch and ttl_seconds. It
+aligns the managed session lease, including renewal during allocation. Expired
+or closing Preview rejects new Runs, input and renewal. `POST .../close`
+accepts only expected_owner_epoch and returns 202. The worker drains inputs,
+attempts release, records a before-close evidence ZIP receipt, then stops with
+purge=0 and releases mutable Flash. Release/evidence failure remains explicit
+and does not prevent teardown. Poll until closed; logs and last frame remain
+in session history. Direct legacy session mutation routes return
+`409 session_managed_by_preview` for a managed guest.
+
+The SQLite ledger uses short transactions, WAL and FULL synchronization.
+Retained terminal records count toward fixed limits of 128 Previews and 256
+Runs per Preview. Preview/package GC is disabled. Ledger reference/package pins,
+managed history and allocation barriers protect cache/history roots, including
+bulk/manual/TTL/pressure deletion. Unresolved allocation or corrupt retention
+metadata fails closed. This does not implement SSE, background sampling, an
+AIFlow editor target, save-to-boot or hotplug. The Live sessions UI
+uses Preview-aware mutation controls and Run-bound frames within the bounded
+UNIT-HOST-34 acceptance above; other Unit/host combinations need their own evidence.
+Manual artifact deletion also protects recorded legacy session source artifacts
+with 409 instead of deleting an evidence dependency.
+
+The service owns immutable package bytes separately from uploaded artifacts.
+Files go through the actual UART raw REPL into a unique guest staging directory
+under `/flash/.m5-live-packages`. Guest reads verify each file SHA256/size and
+the complete derived directory set before publishing the directory. Reusing an
+existing revision rechecks the mutable guest copy; changed bytes or an added
+empty namespace directory fail integrity validation. Failed staging directories
+remain for diagnosis. The guest admits at most 64 package/staging directories
+and checks free space; neither exhaustion nor failure silently recreates it.
+The space preflight is an estimate and does not reserve directory metadata.
+A later ENOSPC aborts deployment and retains staging without activating it.
+
+Activation switches working directory/import path and clears only modules
+originating in the managed tree, including namespace-package `__path__`, their
+descendants and parent attributes. Missing files do not stay on the old import
+path. System/native modules, IRQ, timers and other threads remain outside this
+cleanup guarantee. The application reads and compiles guest `main.py` before
+its START marker; publishing/activating files alone is not application START
+or readiness. This is an immutable host snapshot, not an immutable guest disk
+or an atomic view against arbitrary concurrent guest callbacks.
+
+`.mpy` dependencies use the real guest importer. A bounded parser checks the
+pinned MicroPython v6 container, instructions and all nested raw-code kinds;
+native emitters are rejected even with a forged bytecode header. Actual guest
+`sys.implementation._mpy` and the admitted ESP32 A/MPZ small-int configuration
+are checked separately. This is not VM stack/type verification or a sandbox.
+`main.mpy` requires the verified loader contract above. Save-as-boot-program
+is not implemented. Package
+execution records include source kind, file totals, deployment phases, guest
+capabilities and hash inventory; evidence ZIPs retain canonical package source,
+metadata and original file bytes. Current validation scope is recorded in the
+[validation ledger](validation-ledger.md); the API alone does not establish
+every package, device or physical-hardware result.
 
 Current scope:
+
+- external Unit protocol inventory and confirmed host-port wiring are available
+  through `/units`; attachment execution is enabled per model/controller, not
+  inferred from a visual model or a documented chip;
 
 - enabled: 12 QEMU-backed ESP32 devices;
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
@@ -54,6 +334,77 @@ The machine-readable contract is
 [`device-service.openapi.yaml`](device-service.openapi.yaml) and is also
 served at `/api/v1/openapi.yaml`.
 
+## External Units
+
+`GET /units?device_id=cores3` returns the fixed Unit protocol inventory, runtime
+implementation status and confirmed host wiring. `implemented` means the C
+controller model is available for validation; it does not imply a guest or Web
+functional PASS. `runtime.hosts` is explicit admission; a host does not inherit
+another host's validation. `runtime.guest_validation` binds a recorded device,
+firmware, runtime and Web report; additional hosts have separate
+`runtime.host_validation` records. Unsupported combinations fail with
+`409 runtime_model_gap`.
+
+Scroll records bounded same-guest program evidence under
+`runtime.program_validation[device_id]`, with the explicit
+`same-guest-scroll-protocol-v1` contract. Only its CoreS3 record links a real
+Web validation; this is distinct from the existing complete host/Web contract.
+`model_completeness=partial` and the declared protocol gaps still apply.
+
+`runtime-profiles.json` owns current runtime status. The compatibility aliases
+`model_status` and `blocker` follow that profile (or its session-frozen copy).
+`research_snapshot` preserves the original protocol-research status and notes;
+it is not current capability or admission evidence.
+
+`POST /sessions` accepts optional `units` with stable `id`, `unit_id`,
+`port_id` and `initial` fields. Pins and QOM paths are selected by the service.
+For a passive HUB, children additionally supply `parent_id` and select one of
+`grove-1`, `grove-2`, `grove-3` as `port_id`. Children inherit the real upstream
+pins; a HUB has no I2C address or switching register. Cycles, occupied slots,
+duplicate I2C addresses and unmodeled parallel GPIO drive contention fail
+closed. Multiple parallel leaves currently require I2C. This is a functional
+bus model; aggregate current, voltage and physical electrical limits are not
+validated.
+
+`GET /sessions/{id}/units` queries the live QOM model and returns `properties`,
+per-property `errors`, `definitions` and `contract_hashes`. The definitions and
+QOM mapping are frozen when the session is created. Editing the catalog cannot
+change the input meaning of an active session or its retained history.
+Stopped sessions return their last snapshot with `source=persisted`.
+`contract_status=frozen` identifies a recorded contract. Legacy history without
+one is `unrecorded`; a malformed contract is `invalid`. Such history retains its
+old values, has no reconstructed definitions or current-catalog hashes, and
+rejects Unit writes with `409 unit_contract_unavailable`.
+
+`POST /sessions/{id}/unit-input` accepts exactly `{id, values}`. Values are
+validated against the session's input schema before QOM writes; unknown fields,
+outputs, invalid array lengths, malformed hex and nonfinite values are rejected.
+Fields marked `creation_only` by either the frozen catalog or runtime mapping
+are accepted in attachment `initial` and rejected on every live write with
+`409 unit_input_creation_only`, before any QMP write or input event. This also
+applies to Preview Unit input. FlashLight's `flash-mode` is such a fixture:
+`true` selects Flash and `false` selects Torch. It is frozen by the controller
+after all creation values, including when initial is omitted; use a new session
+to select another mode. Web creation exposes this selection and the running
+panel displays it as read-only. No exterior S1 detent orientation is inferred.
+Scroll's frozen profile declares `max_live_input_fields=1`: submit `pressed`
+and `source-count` separately. Mixed updates return 400 before any QOM write;
+creation-time `initial` may contain both fields. This is not a general QMP
+transaction or rollback guarantee for other multi-field Unit inputs.
+Successful injection establishes model acceptance; guest serial/bus observations
+are still required to prove firmware consumption. The evidence ZIP includes
+`units/runtime.json`, `units/state.json` and `units/contract.json` alongside
+serial and framebuffer evidence. Request it before stop and retain history with
+`purge=0`.
+A copyable source-to-session workflow, including a Button input and a passive
+HUB with multiple I2C Units, is in [External Agent Unit API](unit-agent-api.md).
+Attachments are configured before the guest starts; changing the topology
+requires a new session. The guest must initialize the corresponding drivers.
+
+Controller-side rejection, such as a full UART FIFO, returns
+`409 unit_input_rejected` while preserving the healthy QMP connection. A broken
+transport remains `503`; a command timeout remains `504`.
+
 ## Start the service
 
 ```bash
@@ -96,6 +447,16 @@ Storage retention defaults can be changed with:
 | `M5_SERVICE_MIN_FREE_BYTES` | 2147483648 | free-space reserve required before writes or new leases |
 | `M5_SERVICE_RETAIN_SESSION_FLASH` | false | retain every stopped session's full mutable Flash |
 | `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
+| `M5_SERVICE_MAX_PROGRAM_REVISIONS` | 256 | immutable source revision count limit; integer `1`–`4096`, also `--max-program-revisions`; `0` is invalid |
+| `M5_SERVICE_MAX_PROGRAM_PACKAGES` | 256 | independent immutable program package count limit; integer `1`–`4096`, also `--max-program-packages`; preserves existing packages when lowered |
+
+Source revisions are retained independently of session history and cache GC.
+They are never automatically reclaimed: a fresh revision returns HTTP `429`
+with `program_revision_quota_exceeded` at the configured count, while existing
+revisions remain readable and duplicate submissions reuse their original record.
+Raising this bounded limit preserves stored source and history; automatic
+revision reclamation remains an open lifecycle gap. The separate program-package
+store keeps its existing limit and retention behavior.
 
 Local worker identity and heartbeat can be controlled with:
 
@@ -807,6 +1168,171 @@ The response includes `firmware_id`, `sha256`, `device_id`, `flash_size`,
 `firmware.sha256` identify the composed, flash-sized image after padding and
 segment composition. They intentionally do not have to be equal.
 
+### UIFlow2 Python source
+
+`POST /api/v1/firmware` also accepts `kind=uiflow`:
+
+```json
+{
+  "kind": "uiflow",
+  "device_id": "cores3",
+  "files": {
+    "main.py": "import M5\nM5.begin()\n",
+    "pkg/__init__.py": "",
+    "pkg/example.py": "VALUE = 1\n"
+  }
+}
+```
+
+The convenience endpoint `POST /api/v1/firmware/uiflow` accepts the same object
+**without `kind`**. Supplying `kind` there, or unknown source-request fields on
+either endpoint, returns `400 invalid_uiflow_request`. Optional
+`expected_base_sha256` pins the base image to a lowercase SHA256;
+a mismatch returns `409 uiflow_base_hash_mismatch`.
+
+Source intake currently admits only `cores3`, `atoms3r`, `sticks3` and
+`stopwatch`. By default it uses each device's known, locally cached UIFlow2 reference.
+An enabled device outside that set returns `409 unsupported_uiflow_device`;
+a missing default cached reference returns `409 reference_firmware_missing`.
+
+To compose against another compatible UIFlow2 build, first upload and import it
+through the normal FirmwareManifest intake, then supply `base_firmware_id` and
+**required** `expected_base_sha256` to either source endpoint. The pin covers
+the flash-sized **normalized stored image**, including erased padding; obtain
+it from the imported firmware record's `sha256`, not the original artifact hash.
+Missing the explicit-base pin returns `400 uiflow_base_binding_required`.
+The service rereads bounded regular storage files without following symlinks,
+binds their actual bytes to the record and manifest/artifact identity, and
+rechecks the target, capability/security requirements, partition layout,
+boot/application images and UIFlow2 compatibility fingerprint. A signed image,
+flagged/encrypted partition or incompatible LittleFS layout is rejected.
+The static UIFlow2 fingerprint is neither authentication nor runtime validation.
+The resulting source metadata includes `base_firmware_id` and `base_provenance`;
+the firmware record retains `base_manifest`, and sessions still enforce its
+PSRAM, capability and security requirements. Default-reference metadata and
+existing source IDs keep their previous behavior.
+If composition would replace the imported base under the same content ID, or
+an existing content ID has a different explicit-base source/manifest context,
+the service returns `409 uiflow_source_context_conflict` and preserves the
+existing record. The same explicit request can be retried; a default-reference,
+merged or other manifest request cannot overwrite that explicit source context
+and erase its constraints. Default-to-default composition keeps its previous
+behavior. Content equality alone does not make different provenance contexts
+interchangeable.
+
+This endpoint composes a starting filesystem once. For AIFlow live programming,
+start that firmware in a UART REPL session, then submit programs repeatedly to
+the same ordinary UART session. Subsequent Run calls do not reflash or recreate
+the virtual device. Preview accepts the same optional base_firmware_id and
+expected_base_sha256 pair; it pins the normalized bytes before allocation.
+Executable `.mpy` entrypoints remain separately capability-gated;
+selecting another base does not itself enable them. This is not a generic
+MicroPython, signed/encrypted image or arbitrary base importer. Existing merged,
+segmented and FirmwareManifest paths keep their own preflight.
+
+`files` is a path-to-source-string object with a root `main.py`. Nested Python
+packages are supported. Paths must be canonical relative UTF-8 POSIX `.py`
+paths: no absolute paths, traversal, empty components, backslashes, control
+characters or case/Unicode-normalization collisions. There are at most 128
+caller files, 256 KiB UTF-8 bytes per file and 1 MiB UTF-8 bytes total; these
+are byte limits, not JSON character limits. Independently, the existing HTTP
+JSON-body limit is 1 MiB (1,048,576 bytes) for both source endpoints. The
+serialized body includes field names, paths, JSON punctuation/whitespace and
+escaping; it can exceed the HTTP limit even when decoded caller-source bytes
+fit the helper's 1 MiB limit. Both limits apply; an HTTP body over the limit
+returns `413 body_too_large` before composition. Source strings cannot contain NUL.
+The current path limits are 512 UTF-8 bytes, 32 components and 255 UTF-8 bytes
+per component. Existing VFS file/directory collisions fail closed.
+
+The service mounts the real reference LittleFS `vfs` partition without
+formatting, overlays submitted paths, then remounts it to verify persisted
+bytes and preserved files. It preserves image bytes outside that partition
+and pads the final image to the device's flash size. It never executes caller
+Python on the host. An omitted `boot.py` produces
+`_uiflow_run_main = True\n` with `origin=generated`; a caller-supplied `boot.py`
+is retained unchanged and must arrange its own entrypoint execution.
+`main.py` source validity, imports and behavior are checked by running the
+resulting firmware in a Device Service session, not by a successful compose.
+
+The response is the normal Firmware object with `kind=uiflow` and:
+
+```json
+{
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "<canonical-caller-files-json-sha256>",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "entrypoint": "main.py",
+      "base_sha256": "<cached-reference-sha256>",
+      "source_sha256": "<canonical-caller-files-json-sha256>",
+      "effective_source_sha256": "<caller-plus-generated-files-json-sha256>",
+      "firmware_sha256": "<derived-full-image-sha256>",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {"path": "main.py", "size": 21, "sha256": "<file-sha256>", "origin": "caller"},
+        {"path": "boot.py", "size": 24, "sha256": "<file-sha256>", "origin": "generated"}
+      ]
+    }
+  }
+}
+```
+
+This abbreviated metadata example illustrates the shape; sizes and hashes must
+be taken from the real response. Canonical source JSON uses UTF-8,
+`ensure_ascii=False`, sorted keys and separators `(',', ':')`. Its artifact
+contains exactly the caller's `files` object, including code; a generated
+`boot.py` appears in the effective hash and file metadata, not in that artifact.
+`GET /artifacts/{artifact_id}` returns artifact metadata only.
+
+The complete composition metadata also records `base_size`, `flash_size`,
+`firmware_family_precondition`, `caller_file_count`, `caller_source_bytes`,
+`generated_files`, the actual partition layout and LittleFS hashes/versions in
+`vfs`, preservation/readback flags in `preservation`, and builder, Python,
+LittleFS versions and filesystem config in `toolchain`. Its status remains
+`COMPOSED_NOT_EXECUTED` even after a separate runtime test; runtime evidence
+belongs to the session and validation report.
+
+When creating a session for `kind=uiflow`, also supply
+`uiflow_source_sha256=source.metadata.source_sha256` from the compose response.
+The image ID alone cannot distinguish different caller-source declarations
+that produce identical image bytes. A missing source pin returns
+`400 uiflow_source_binding_required`; a mismatched pin, or a pin supplied for
+non-UIFlow firmware, returns `409 uiflow_source_binding_mismatch` before launch.
+An overwrite/race can therefore require re-composition and a fresh source pin;
+it must not silently select another source's provenance.
+
+For sessions created from this firmware, `firmware_provenance` contains the
+same `source` object and survives history restoration. The evidence ZIP adds
+`firmware/uiflow-source.json` with that hash-only provenance, not source code.
+`artifact_sha256` and `source_artifacts[0]` identify the caller-source JSON;
+`firmware_id`, `firmware_sha256` and `source.metadata.firmware_sha256` identify
+the derived complete image. Record both identities; do not compare them as if
+they were the same artifact. The mutable session Flash has its own lifecycle
+and hashes.
+
+Common source failures:
+
+| HTTP | Code | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_uiflow_request` | Unknown request fields, or `kind` on the convenience endpoint |
+| 400 | `invalid_uiflow_source` / `invalid_uiflow_source_path` | Missing `main.py`, invalid source values or unsafe paths |
+| 409 | `uiflow_source_path_conflict` | Caller or existing VFS path collision |
+| 409 | `unsupported_uiflow_device` / `reference_firmware_missing` | Target or cached base is unavailable for source intake |
+| 409 | `uiflow_base_hash_mismatch` | Optional expected base hash does not match |
+| 409 | `unsupported_uiflow_vfs` / `uiflow_vfs_unmountable` | Unsupported layout or unmountable existing LittleFS; no format fallback |
+| 413 | `body_too_large` | Entire serialized HTTP JSON body exceeds 1 MiB, including escaping and keys |
+| 413 | `uiflow_source_too_large` / `uiflow_vfs_full` | Source limits or available filesystem capacity exceeded |
+| 503 | `uiflow_source_dependency_unavailable` / `reference_firmware_unreadable` | Required LittleFS dependency or cached base cannot be read |
+
+Composition alone proves filesystem packaging and readback. It does not prove
+that a driver imported, a Unit transaction occurred, an application displayed,
+or physical hardware worked. The workflow's current execution evidence and
+remaining gates are recorded in [the Agent guide](unit-agent-api.md) and the
+project authority pages.
+
 ### Session
 
 A session is one exclusive emulator lease. It has one device profile, one
@@ -1446,11 +1972,27 @@ State machine:
 ```text
 provisioning -> flashing -> booting -> running
                                   \-> failed
-running -> stopping -> stopped
+any active state -> stopping -> stopped / failed
 ```
 
 `POST /api/v1/sessions` is asynchronous and returns `202 Accepted` while the
 session is provisioning. Poll the session or call `wait`.
+
+Stop is also valid during provisioning, flashing or booting. If the current
+resource transaction has not left its slow preparation/launch boundary within
+the stop lock wait, the response is `state: stopping, stop_pending: true`.
+This acknowledgement contains the required session/device/state fields and
+selected identity/worker metadata; optional live fields may be absent. Poll
+`GET /sessions/{id}` until terminal. Pending cancellation continues to occupy
+capacity and its worker lease, and does not purge files or release Flash early.
+The transaction owner completes cleanup automatically; repeated stop is safe.
+
+Purge intent is monotonic. A later explicit `retain_flash=false` can narrow an
+earlier retention request, including during teardown; an internal/default
+retry preserves the first retention choice. Delayed purge runs after cleanup,
+and DELETE does not forget a still-stopping session. Cancellation cannot
+transition back to booting/running. Cleanup or lease-release uncertainty keeps
+the session stopping; the service does not assert successful termination.
 
 `running` means the QEMU process and QMP control channel are alive. It does
 not guarantee that the application reached its first frame or a serial marker.
@@ -1664,6 +2206,16 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
+| GET | `/api/v1/program-revisions/{revision_id}/files` | Read every verified package file as canonical base64 |
+| GET/POST | `/api/v1/previews` | List retained Previews or allocate a stable managed UIFlow guest |
+| GET | `/api/v1/previews/{preview_id}` | Poll Preview/generation/lease |
+| POST | `/api/v1/previews/{preview_id}/runs` | Queue a checkpoint Run with scoped idempotency |
+| GET | `/api/v1/previews/{preview_id}/runs/{run_id}` | Poll execution/cancellation evidence |
+| POST | `/api/v1/previews/{preview_id}/runs/{run_id}/cancel` | Request cancellation while keeping the VM |
+| POST | `/api/v1/previews/{preview_id}/renew` | Renew Preview and managed session |
+| POST | `/api/v1/previews/{preview_id}/close` | Capture ZIP then close/release Flash while retaining history |
+| POST | `/api/v1/previews/{preview_id}/input` | Host/Unit input fenced to the expected Run |
+| GET | `/api/v1/previews/{preview_id}/runs/{run_id}/frame.png` | Run-bound frame with conditional GET |
 | GET | `/api/v1/health` | Service health and capacity |
 | GET | `/api/v1/devices` | Device catalog; add `?include_unsupported=0` to hide disabled rows |
 | GET | `/api/v1/devices/{device_id}` | One device profile |
@@ -1870,7 +2422,44 @@ curl -sS \
 ```
 
 The response headers include `X-Frame-Width`, `X-Frame-Height` and
-`X-Frame-SHA256`. The Live Sessions page polls active framebuffers independently
+`X-Frame-SHA256`. With no `max_age_ms` (or zero), every request retains the
+fresh capture path, even when `If-None-Match` is sent. Evidence, readiness and
+stop also capture directly. QEMU clients may opt into shared preview sampling:
+
+```bash
+curl -sS -D /tmp/m5-frame-headers.txt \
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>/frame.png?max_age_ms=125' \
+  -o /tmp/m5-frame.png
+```
+
+`max_age_ms` accepts an integer from 1 to 1000. The cache is per session,
+demand-driven and single-flight: callers share one successful sample/capture
+inside the requested age; no background frame worker or SSE is implied. TTL
+starts at source capture, so PNG encoding does not extend it. A slow capture
+can already be older than the reuse window when delivered; this parameter is
+not a guest-to-browser latency guarantee. Failures do not return an older
+successful frame. Program replacement, reset, stop and process identity changes
+invalidate prior reuse. Tab5 and network sessions reject shared preview with
+`frame_preview_not_available`; their existing default capture behavior remains.
+
+Opt-in replies add quoted PNG SHA256 `ETag`, `X-Frame-Captured-At`,
+`X-Frame-Capture-Seq` and `X-Frame-Source` (`live` or `persisted`). When recorded,
+they also carry `X-Frame-Execution-ID`, `X-Frame-Revision-ID` and
+`X-Frame-Program-State`. These label the execution current during capture;
+they do not prove application readiness or atomic sampling with Unit/serial
+state. Cache hits retain the original timestamp/context. A stopped session
+returns retained history with its old timestamp; unknown legacy fields stay
+absent. The sequence counts preview samples published by this process,
+including re-read history; it is neither guest draws nor all fresh API captures.
+Internal monotonic TTL clocks are excluded from JSON, persisted metadata and ZIPs.
+
+Send the previous `ETag` as `If-None-Match` on the opt-in URL. Matching pixels
+return 304 with no body and the current sample metadata headers, even when a
+new execution produces identical pixels. Retain the displayed blob on 304 and
+process its metadata separately. Headers are CORS-exposed; conditional access
+keeps existing Bearer authorization and does not enable disk caching.
+
+The Live Sessions page uses 125 ms shared sampling for QEMU and polls active framebuffers independently
 from session metadata, targets about 8 FPS, and skips texture updates when the
 frame hash is unchanged. For a recently stopped session it returns the persisted
 last-known frame.

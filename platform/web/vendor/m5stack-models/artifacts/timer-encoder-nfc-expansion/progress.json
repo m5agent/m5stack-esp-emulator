@@ -1,0 +1,421 @@
+{
+  "savedAt": "2026-10-26T10:40:34.293942+00:00",
+  "stage": "modeled",
+  "scope": "New TimerPWR/ExtEncoder/NFC complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 77,
+    "modeled": 91,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "timerpwr",
+      "status": "pass",
+      "report": "docs/research/timerpwr/smoke.json",
+      "meshes": 144,
+      "triangles": 9932
+    },
+    {
+      "id": "extencoder",
+      "status": "pass",
+      "report": "docs/research/extencoder/smoke.json",
+      "meshes": 131,
+      "triangles": 6992
+    },
+    {
+      "id": "nfc",
+      "status": "pass",
+      "report": "docs/research/nfc/smoke.json",
+      "meshes": 206,
+      "triangles": 11996
+    }
+  ],
+  "pngCount": 8,
+  "rasters": [
+    {
+      "path": "src/units/timerpwr/reference-redraw-back.png",
+      "pixels": [
+        2060,
+        2100
+      ],
+      "sha256": "81e7a861266abc4c2b03fff04c23b9c3bb23ccc470cd17910d890f4c3eeaf700"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-controls.png",
+      "pixels": [
+        1750,
+        630
+      ],
+      "sha256": "3f387193d2f230fe8c456d964ed3be854c7d9db80a9d44c7ce2a87e93e8de9d1"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-ports.png",
+      "pixels": [
+        1800,
+        265
+      ],
+      "sha256": "63b386031413df45eb2d41f25b9d92bb0089b49273cdd9736be0d081883da0b2"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-title.png",
+      "pixels": [
+        1750,
+        280
+      ],
+      "sha256": "21449761e7ea0e92a417a53cf7c2e75ff68b894c9ca9b2578930f4e9316b3c60"
+    },
+    {
+      "path": "src/units/extencoder/reference-redraw-back.png",
+      "pixels": [
+        2400,
+        1860
+      ],
+      "sha256": "fc99abfe3b64bc32e9e8f44bed11dbb9124d40b18fa7e59094d38bbb24bd72e2"
+    },
+    {
+      "path": "src/units/extencoder/reference-redraw-front.png",
+      "pixels": [
+        2055,
+        1395
+      ],
+      "sha256": "c6cf2986da7c2896564ea916f7ddb98d1b455726a3d229177e22fa152e9a77be"
+    },
+    {
+      "path": "src/units/nfc/source-vector-back.png",
+      "pixels": [
+        2000,
+        3509
+      ],
+      "sha256": "c25adfa93762e9acd2f771f16437e0909c16ea39b90b5e93a0c9ba2bda796d1e"
+    },
+    {
+      "path": "src/units/nfc/source-vector-front.png",
+      "pixels": [
+        2200,
+        3443
+      ],
+      "sha256": "0c9feb4d338d1c4109e154216a7fe3e7b447960527b5ca986e2cdf152e931192"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "timerpwr",
+        "panels": 4,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "extencoder",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "nfc",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "TimerPWR-two-native-side-buttons-release-cancel-and-screen-independence",
+      "external-monochrome-framebuffer-and-independent-fixed-red-light",
+      "ExtEncoder-five-screw-plug-attachment-and-no-invented-rotor",
+      "NFC-U216-passive-antenna-anchor",
+      "non-Grove-mating-rejection",
+      "artwork-toggle-keeps-physical-geometry-and-world-poses",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment API only; Node canvas/forms stubs, no browser, timing, power, ABZ, NFC, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "timerpwr",
+        "panels": 4,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "extencoder",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "nfc",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "TimerPWR-two-native-side-buttons-release-cancel-and-screen-independence",
+      "external-monochrome-framebuffer-and-independent-fixed-red-light",
+      "ExtEncoder-five-screw-plug-attachment-and-no-invented-rotor",
+      "NFC-U216-passive-antenna-anchor",
+      "non-Grove-mating-rejection",
+      "artwork-toggle-keeps-physical-geometry-and-world-poses",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment API only; Node canvas/forms stubs, no browser, timing, power, ABZ, NFC, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "timerpwr",
+        "status": "frozen",
+        "checkedFiles": 15
+      },
+      {
+        "id": "extencoder",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "nfc",
+        "status": "frozen",
+        "checkedFiles": 13
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "add6782d348d24c28064a66702c43b023616dd7ed72d58580abb1c02d191cb42",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "59ad11272b34ddd75b9716debc1692b46e229085daae7143b9bc09cd473e0a2a",
+      "logDistributed": false
+    },
+    "livePreview": "91-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 570,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "timerpwr",
+      "record": "docs/research/timerpwr/sources.json",
+      "feedback_id": "a19d4cd1048b4a0ca6e350a587dbfb01",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "timerpwr",
+      "file": "assets/timerpwr-CeDrDnDm.js",
+      "sha256": "adb37053405ba420aab3a0bb150b3f62325085bf2fcd021eb026fdff0ed82731"
+    },
+    {
+      "id": "extencoder",
+      "file": "assets/extencoder-BReFBAyK.js",
+      "sha256": "dbfe7b12dad568a298ef741b21df521cdcd88f37ef97a3ad7b2fc0e046b95203"
+    },
+    {
+      "id": "nfc",
+      "file": "assets/nfc-Bk9PXW1B.js",
+      "sha256": "9c9cb713ddb78db2f0ded912a6555c14379a51e5b8da185915656ef0c84e3268"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/timerpwr/assembly.js",
+      "sha256": "afb4aaf260758212d5c50c323e9ca8d3b82380153914c4e22fc790abdc8b24fd"
+    },
+    {
+      "path": "src/units/timerpwr/cad-map.json",
+      "sha256": "e8f97c0461ca428a0f37198e54640cf27011bb357da9742b2e214834bf577b48"
+    },
+    {
+      "path": "src/units/timerpwr/dimensions.js",
+      "sha256": "73dc71fbb8118acb046b900a5d38bddc2ab149fb86972ff288e22105fd90ba27"
+    },
+    {
+      "path": "src/units/timerpwr/geometry-data.js",
+      "sha256": "ae8196760c3a0b4cba00164dbc69cffa5a85ebd0a41778f2720953a71544c238"
+    },
+    {
+      "path": "src/units/timerpwr/index.js",
+      "sha256": "67cd2c03d37b3265fa3b629d31a1555780ca8be41daf4a583a6d939fd500b55b"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-back.png",
+      "sha256": "81e7a861266abc4c2b03fff04c23b9c3bb23ccc470cd17910d890f4c3eeaf700"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-controls.png",
+      "sha256": "3f387193d2f230fe8c456d964ed3be854c7d9db80a9d44c7ce2a87e93e8de9d1"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-ports.png",
+      "sha256": "63b386031413df45eb2d41f25b9d92bb0089b49273cdd9736be0d081883da0b2"
+    },
+    {
+      "path": "src/units/timerpwr/reference-redraw-title.png",
+      "sha256": "21449761e7ea0e92a417a53cf7c2e75ff68b894c9ca9b2578930f4e9316b3c60"
+    },
+    {
+      "path": "src/units/timerpwr/stickers.js",
+      "sha256": "172d25d781e3626808a6def9e8b2cfb610047af1c77f2b62c2db0828d5cf3ff2"
+    },
+    {
+      "path": "docs/research/timerpwr/artwork.json",
+      "sha256": "6bdac764d92ece9683d48d4ccb699e3e488a39bd68b22458ab63e7606ce72b41"
+    },
+    {
+      "path": "docs/research/timerpwr/artwork.md",
+      "sha256": "7f5537cc62b2833591b4520122dd7b56c8c2472c9bd6813d73865040cd47de32"
+    },
+    {
+      "path": "docs/research/timerpwr/modeling.md",
+      "sha256": "78a9b776bd5ee503b95a5e5f401a783288b128d0d4ead0bb100ae82ba397c224"
+    },
+    {
+      "path": "docs/research/timerpwr/smoke.json",
+      "sha256": "33f6fe9e61bdabb54c753fb87c54425a61a0ffab209c1fd94aa169bbe9aa8d8c"
+    },
+    {
+      "path": "docs/research/timerpwr/sources.json",
+      "sha256": "c8d3ece0d1aca69c65a79f6459af75e71f5beebf32c5e89eb3b027476aef297c"
+    },
+    {
+      "path": "src/units/extencoder/TerminalPlug.js",
+      "sha256": "a3b7239f9a480ec45a6c3d014d7a3f8d3f0638e7e06687b56e41c599648a0709"
+    },
+    {
+      "path": "src/units/extencoder/assembly.js",
+      "sha256": "318d630b3726a0b29baf8c970ee77690d758f2df2022cbcb4a26a1f1af925fca"
+    },
+    {
+      "path": "src/units/extencoder/cad-map.json",
+      "sha256": "9a224a8a36d8e9ebf180ad13db02850d2216c71afcb442e2ed63679905eda29a"
+    },
+    {
+      "path": "src/units/extencoder/dimensions.js",
+      "sha256": "a8a1ec4b5a2288ac7aeec6bb7962fed68daaf0c70a0ef4e27d741a558eb829ae"
+    },
+    {
+      "path": "src/units/extencoder/geometry-data.js",
+      "sha256": "3350bbedcb7a617772f83ed594f1d17d8a0230ef985240022d126b5a0bcd772f"
+    },
+    {
+      "path": "src/units/extencoder/index.js",
+      "sha256": "b1d5899aa8d25bfee124c3d8857496812bc33a4469c08c6709bb0e0b28f8a14e"
+    },
+    {
+      "path": "src/units/extencoder/reference-redraw-back.png",
+      "sha256": "fc99abfe3b64bc32e9e8f44bed11dbb9124d40b18fa7e59094d38bbb24bd72e2"
+    },
+    {
+      "path": "src/units/extencoder/reference-redraw-front.png",
+      "sha256": "c6cf2986da7c2896564ea916f7ddb98d1b455726a3d229177e22fa152e9a77be"
+    },
+    {
+      "path": "src/units/extencoder/stickers.js",
+      "sha256": "6b356e79cf35d34e91ea283e8533c545119acd61098b18adfe6bb6120751822c"
+    },
+    {
+      "path": "docs/research/extencoder/artwork.json",
+      "sha256": "104a491644fa20005a450047a8270b55930503b9525eab6a2a7a926715e57979"
+    },
+    {
+      "path": "docs/research/extencoder/artwork.md",
+      "sha256": "ffff874c06e4832c889f0a779a816411f3c1893db073fa51f97d333db452877b"
+    },
+    {
+      "path": "docs/research/extencoder/modeling.md",
+      "sha256": "cf8794d3281cb74343d6f8ece045a5d8c1280d266b2de383178abaec0e7687bb"
+    },
+    {
+      "path": "docs/research/extencoder/smoke.json",
+      "sha256": "a0a571d15556ca8f66e00b42336450e064884b79713e9e6e494ba3dfcf162111"
+    },
+    {
+      "path": "docs/research/extencoder/sources.json",
+      "sha256": "bee7c0a2eed7b8fb6064b66f972bfcfa8bbf7801aa6e5254fbe8c27cd8ea7c90"
+    },
+    {
+      "path": "src/units/nfc/assembly.js",
+      "sha256": "bdc8aacbcc13e5df687cd5780ee8f5ddfd0c3babb49813f27c9966dade3dc7e0"
+    },
+    {
+      "path": "src/units/nfc/cad-map.json",
+      "sha256": "b4265184805234685ee13d3296d2ab9307d1791040b3b270fd7ee60e6596930f"
+    },
+    {
+      "path": "src/units/nfc/dimensions.js",
+      "sha256": "7035a7090b49801c7c712d8e2a6637eadb1139c3f8baf9e0d33ab76af3673a2b"
+    },
+    {
+      "path": "src/units/nfc/geometry-data.js",
+      "sha256": "e28ee8dc93388b180b8dce74a29cdef46d3c702edd91205aa45cb1c7a2fab862"
+    },
+    {
+      "path": "src/units/nfc/index.js",
+      "sha256": "9c96d18121d4cddcfde7189ca097e02c99ef6b19833b73606aad72a3969038d7"
+    },
+    {
+      "path": "src/units/nfc/source-vector-back.png",
+      "sha256": "c25adfa93762e9acd2f771f16437e0909c16ea39b90b5e93a0c9ba2bda796d1e"
+    },
+    {
+      "path": "src/units/nfc/source-vector-front.png",
+      "sha256": "0c9feb4d338d1c4109e154216a7fe3e7b447960527b5ca986e2cdf152e931192"
+    },
+    {
+      "path": "src/units/nfc/stickers.js",
+      "sha256": "5949bcef51e6515375177fa6504ff2c03fa0f59678d6ee2ddd4dfa3008009501"
+    },
+    {
+      "path": "docs/research/nfc/artwork.json",
+      "sha256": "39793030daf11f011755913cc6f5b9b7b9727f18f1bb8b3d7a311a7a2e1cb96b"
+    },
+    {
+      "path": "docs/research/nfc/artwork.md",
+      "sha256": "3b96c0d82305a7687c497f4e5bd4547a47ee2e3ce532e1f33789486477965fc8"
+    },
+    {
+      "path": "docs/research/nfc/modeling.md",
+      "sha256": "01c0f288bdab66af049c8b1077b1566a83ca787fac6448ff0807df2d638b6db4"
+    },
+    {
+      "path": "docs/research/nfc/smoke.json",
+      "sha256": "a1f5e28fbcd271eac82163aeb03085b6db388b6bf62da07e189d9a91c7f46f65"
+    },
+    {
+      "path": "docs/research/nfc/sources.json",
+      "sha256": "5b3d51a1f29b504abee7b83ace928ec5c4cbfd3c2b6a590e7f5866b70aa425a0"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "TimerPWR owns real side buttons, external framebuffer and independent fixed red light; no timing, power, battery or INA3221 model",
+    "ExtEncoder owns its actual five-pin connector and supplied detachable five-screw plug; no ABZ counts, velocity or encoder movement",
+    "NFC U216 owns its ST25R3916 board, antenna and matching components; no tag, RF field, read, write or scan model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

@@ -642,8 +642,8 @@ class DocsNetworkWorkerContractTests(DocsContractBase):
             ),
             "serve": "platform/tools/serve.py",
         }.items():
-            self.assertEqual(
-                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+            self._assert_recorded_tool_hash(
+                "worker-recorded-unicast-discovery", relative,
                 evidence["tool_hashes"][name],
             )
         runs = evidence["runs"]

@@ -1,0 +1,167 @@
+{
+  "checkedAt": "2026-10-26T10:21:16.335Z",
+  "status": "pass",
+  "scope": "Necessary geometry, native source envelope/faceted bores, physical connector backing, independent screw visual poses and exact reset, chassis geometry invariants, source-vector PNG registration, four-wire Grove attach/pose/detach/disposal. No browser/full historical, electrical, DAC, signal, hardware or production-fit verification.",
+  "meshes": 70,
+  "triangles": 52796,
+  "visualEnvelopeMm": [
+    24,
+    32.00000009536743,
+    10.200000035762788
+  ],
+  "cadEnvelopeMm": [
+    24,
+    32,
+    8
+  ],
+  "boreRays": 10,
+  "boreWalls": 8,
+  "inspectionRays": 4,
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        -24,
+        1.4
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 15,
+      "purpose": "Actual Grove insertion cavity has recessed carrier and rear wall"
+    },
+    {
+      "origin": [
+        -5.94,
+        25,
+        1.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "Output 1 has actual recessed fixed contact"
+    },
+    {
+      "origin": [
+        -1.98,
+        25,
+        1.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "Output 2 has actual recessed fixed contact"
+    },
+    {
+      "origin": [
+        1.98,
+        25,
+        1.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "Output 3 has actual recessed fixed contact"
+    },
+    {
+      "origin": [
+        5.94,
+        25,
+        1.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "Output 4 has actual recessed fixed contact"
+    },
+    {
+      "origin": [
+        0,
+        25,
+        2.6
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 20,
+      "purpose": "Between contacts, terminal mouth ends at a physical rear wall"
+    }
+  ],
+  "closureHits": [
+    {
+      "purpose": "Actual Grove insertion cavity has recessed carrier and rear wall",
+      "hit": "DAC2 Grove recessed contact carrier",
+      "distanceMm": 11.250000047683718
+    },
+    {
+      "purpose": "Output 1 has actual recessed fixed contact",
+      "hit": "DAC2 fixed terminal VOUT0 contact pin",
+      "distanceMm": 9.949999904632568
+    },
+    {
+      "purpose": "Output 2 has actual recessed fixed contact",
+      "hit": "DAC2 fixed terminal GND contact pin",
+      "distanceMm": 9.949999904632568
+    },
+    {
+      "purpose": "Output 3 has actual recessed fixed contact",
+      "hit": "DAC2 fixed terminal VOUT1 contact pin",
+      "distanceMm": 9.949999904632568
+    },
+    {
+      "purpose": "Output 4 has actual recessed fixed contact",
+      "hit": "DAC2 fixed terminal GND contact pin",
+      "distanceMm": 9.949999904632568
+    },
+    {
+      "purpose": "Between contacts, terminal mouth ends at a physical rear wall",
+      "hit": "DAC2 fixed terminal recessed rear wall",
+      "distanceMm": 18.300000005960463
+    }
+  ],
+  "plugWireRays": 4,
+  "plugWireWalls": 4,
+  "publicAPI": {
+    "ports": [
+      "grove",
+      "terminal"
+    ],
+    "anchors": [
+      "sensor"
+    ],
+    "controls": [],
+    "leds": [],
+    "accessoryJoints": [
+      "screw-1",
+      "screw-2",
+      "screw-3",
+      "screw-4"
+    ]
+  },
+  "artwork": {
+    "panels": 2,
+    "kind": "source-vector-raster",
+    "physicalGeometryInvariant": true,
+    "disabledWithFalse": true
+  },
+  "screwAnimation": "pass",
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 168,
+  "disposalEvents": 284
+}

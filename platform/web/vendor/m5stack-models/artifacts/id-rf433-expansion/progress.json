@@ -1,0 +1,383 @@
+{
+  "savedAt": "2026-10-26T13:36:32.089809+00:00",
+  "stage": "modeled",
+  "scope": "New Unit ID/RF433R/RF433T complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 113,
+    "modeled": 127,
+    "verified": 0
+  },
+  "localHead": "32c95e05ded1bb7f1ff6437f5bce0db9bf91eefd",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "unit-id",
+      "status": "pass",
+      "report": "docs/research/unit-id/smoke.json",
+      "meshes": 53,
+      "triangles": 19344
+    },
+    {
+      "id": "rf433r",
+      "status": "pass",
+      "report": "docs/research/rf433r/smoke.json",
+      "meshes": 73,
+      "triangles": 33838
+    },
+    {
+      "id": "rf433t",
+      "status": "pass",
+      "report": "docs/research/rf433t/smoke.json",
+      "meshes": 68,
+      "triangles": 32378
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/unit-id/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        400
+      ],
+      "sha256": "c998a3b56cdede56d080bbe3ca3c11a559fbe749ab5db46c13d3da1ec91c5f4a"
+    },
+    {
+      "path": "src/units/unit-id/reference-redraw-front.png",
+      "pixels": [
+        1780,
+        380
+      ],
+      "sha256": "26470aa83f8bcc14b4712b74973cb04f768a16665544a722bad00d52a41f3168"
+    },
+    {
+      "path": "src/units/rf433r/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        2800
+      ],
+      "sha256": "f83ca4a5d544ea2b230a8dfc9e8af4d6557a649a910ada315826d4d676a9da7d"
+    },
+    {
+      "path": "src/units/rf433r/reference-redraw-front.png",
+      "pixels": [
+        1780,
+        2780
+      ],
+      "sha256": "b92e0ba60edcfb53ab298b665e7b56305108a5c94c4ef6c4efde37d3928abba4"
+    },
+    {
+      "path": "src/units/rf433t/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        2800
+      ],
+      "sha256": "ee26df00ff6bac58e24c4d5790d1086cbdb0ccd0c4d5adbe22b93e83b8142e11"
+    },
+    {
+      "path": "src/units/rf433t/reference-redraw-front.png",
+      "pixels": [
+        1780,
+        2780
+      ],
+      "sha256": "a6a3e70495d773c5d317b9d7380cf1063d9242740c254b92812de38fd6e41a30"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "unit-id",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rf433r",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rf433t",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-secure-element-receiver-transmitter-PCBs-and-fixed-internal-antennas",
+      "grove-only-APIs-reject-key-identity-crypto-and-RF-numeric-functions",
+      "no-invented-sensors-buttons-LEDs-joints-displays-speakers-or-external-antennas",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-cable-and-independent-selective-detach",
+      "host-framebuffer-preserved"
+    ],
+    "scope": "New actual secure-element/RF assemblies and external appearance APIs only;Node canvas stub,no browser,identity,keys,encryption,authentication,RF,ASK,receive,transmit,data,distance,I2C,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "unit-id",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rf433r",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rf433t",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-secure-element-receiver-transmitter-PCBs-and-fixed-internal-antennas",
+      "grove-only-APIs-reject-key-identity-crypto-and-RF-numeric-functions",
+      "no-invented-sensors-buttons-LEDs-joints-displays-speakers-or-external-antennas",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-cable-and-independent-selective-detach",
+      "host-framebuffer-preserved"
+    ],
+    "scope": "New actual secure-element/RF assemblies and external appearance APIs only;Node canvas stub,no browser,identity,keys,encryption,authentication,RF,ASK,receive,transmit,data,distance,I2C,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "unit-id",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "rf433r",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "rf433t",
+        "status": "frozen",
+        "checkedFiles": 12
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "4ecda8e204857d4add5231fac07e6c2ce5bd56ebb6d921de64d73aac868f0ebb",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "b0472f01fcac630cf816bc7ebc6c4889863614cb6429d5795fa2efb911358a6d",
+      "logDistributed": false
+    },
+    "livePreview": "127-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 892,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "rf433r",
+      "record": "docs/research/rf433r/sources.json",
+      "feedback_id": "4b666d887ad44a0f88d5ebb78bfc73df",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "unit-id",
+      "file": "assets/unit-id-CLPIsesy.js",
+      "sha256": "9a65d6e1f16a557b0615507ad42e34698639c0f5933fe2a591401bb12799e14d"
+    },
+    {
+      "id": "rf433r",
+      "file": "assets/rf433r-DVxOu-Wv.js",
+      "sha256": "7b4310ac4b560c94c1e398eaac200bb21c68e62051899b99b000a34c674c6006"
+    },
+    {
+      "id": "rf433t",
+      "file": "assets/rf433t-BdJOyVSV.js",
+      "sha256": "6ccc1fef0d1cceff5733ea5b224e5b4e950f2e617ba960040b5f005cf4aed6f4"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/unit-id/assembly.js",
+      "sha256": "defa1d5afec80946357d6227e88080fe215ff3ddeb975fe634206aa31d76b5b9"
+    },
+    {
+      "path": "src/units/unit-id/cad-map.json",
+      "sha256": "e28eb8a982da396d259735c7709b6430ad6c8f1bf7770e8ab387bfc07593cf34"
+    },
+    {
+      "path": "src/units/unit-id/dimensions.js",
+      "sha256": "fdfe42b14582c233405d0e33fe1fbdd8fed5c2de1ec6ecdd3364d110d1d137be"
+    },
+    {
+      "path": "src/units/unit-id/geometry-data.js",
+      "sha256": "5b373aec2ca1bc02a5ac615321bd1c52d82b8516a2e6347e14e54f2bdbea7d79"
+    },
+    {
+      "path": "src/units/unit-id/index.js",
+      "sha256": "3b248c6b241fd52746d1f8de26ff2a2877ca4e744a82aac701e534b899af51c4"
+    },
+    {
+      "path": "src/units/unit-id/reference-redraw-back.png",
+      "sha256": "c998a3b56cdede56d080bbe3ca3c11a559fbe749ab5db46c13d3da1ec91c5f4a"
+    },
+    {
+      "path": "src/units/unit-id/reference-redraw-front.png",
+      "sha256": "26470aa83f8bcc14b4712b74973cb04f768a16665544a722bad00d52a41f3168"
+    },
+    {
+      "path": "src/units/unit-id/stickers.js",
+      "sha256": "f2cd2383808010c1527497212ec27529caa84b42a1d2c8075f04e677f2c096e0"
+    },
+    {
+      "path": "docs/research/unit-id/artwork.json",
+      "sha256": "a1eba317084856243f3fe96a8d259dbaa91cd8b208a3cf2272dea869896a161f"
+    },
+    {
+      "path": "docs/research/unit-id/modeling.md",
+      "sha256": "27e846e656111a78d82d433675040153e9440f4d70702f21436842825351e094"
+    },
+    {
+      "path": "docs/research/unit-id/smoke.json",
+      "sha256": "774eab396f8fe71d423ebb27b56390304b9af9732fc071932127e98be08388e0"
+    },
+    {
+      "path": "docs/research/unit-id/sources.json",
+      "sha256": "a5fa7a69f39c414eef05e939f8389ae4b978382ca676c5a02baf2c024bd7e992"
+    },
+    {
+      "path": "src/units/rf433r/assembly.js",
+      "sha256": "83d11c9e0cb7fee1a530c87fe0dec077ae36cd937cd864130bef26df8db63585"
+    },
+    {
+      "path": "src/units/rf433r/cad-map.json",
+      "sha256": "8a97546185118ed3f971ce1ba1b1ebc3e5a1f7bdf42ff4efea93259cc911083f"
+    },
+    {
+      "path": "src/units/rf433r/connectors.js",
+      "sha256": "6b4b1c7cc1d3a9d23f93a495b2d2e31885ab6242c0612ddb9de66e5f5d0e5d04"
+    },
+    {
+      "path": "src/units/rf433r/dimensions.js",
+      "sha256": "4b90f87452158201d84eadb49e75b8e1008d56953549a48dbca396596b69e493"
+    },
+    {
+      "path": "src/units/rf433r/geometry-data.js",
+      "sha256": "69b3eb88e3ca3e186580961c14a396963a9881c07540e77be23ab0b9dc7fa252"
+    },
+    {
+      "path": "src/units/rf433r/index.js",
+      "sha256": "4dc4a1c573a09a655a1aec87eb2b8c5a63f31f51cd5c20eed3f46b8b1ca24647"
+    },
+    {
+      "path": "src/units/rf433r/reference-redraw-back.png",
+      "sha256": "f83ca4a5d544ea2b230a8dfc9e8af4d6557a649a910ada315826d4d676a9da7d"
+    },
+    {
+      "path": "src/units/rf433r/reference-redraw-front.png",
+      "sha256": "b92e0ba60edcfb53ab298b665e7b56305108a5c94c4ef6c4efde37d3928abba4"
+    },
+    {
+      "path": "src/units/rf433r/stickers.js",
+      "sha256": "aa75919c2168d49ef20951f8e08df95ec5b60d06b3a8b05e982a2630b282ffe4"
+    },
+    {
+      "path": "docs/research/rf433r/artwork.json",
+      "sha256": "d75e03170bda43d53aba6f1268a6bdbb70e7384b2bf59da82ab087ce6e40abe6"
+    },
+    {
+      "path": "docs/research/rf433r/modeling.md",
+      "sha256": "07b22e8c7c4573e518df6a929ec1d407ebe66ebf6dc539173823aa25466b3e8d"
+    },
+    {
+      "path": "docs/research/rf433r/smoke.json",
+      "sha256": "0b6d00661b82e45021e2d15f8644615c01f09f4c01fb06c07c998760226f74b9"
+    },
+    {
+      "path": "docs/research/rf433r/sources.json",
+      "sha256": "fb3fe2a3bb075c9d99a4f5e589011ee562cba3c51e164a2e48db766580a83479"
+    },
+    {
+      "path": "src/units/rf433t/assembly.js",
+      "sha256": "a304e7fe466bef780afa92923c9f1fa3a6ec11fab7416a63fbc6639446de9ca1"
+    },
+    {
+      "path": "src/units/rf433t/cad-map.json",
+      "sha256": "f435dcb4aa61a961108219ce00c5ce57216f3281dd96080f88497b8207235291"
+    },
+    {
+      "path": "src/units/rf433t/dimensions.js",
+      "sha256": "d9ad51f4555a2bebea60a9b7174a568ad558a1e1afe82f063a5b2d30dcc05ddc"
+    },
+    {
+      "path": "src/units/rf433t/geometry-data.js",
+      "sha256": "76a97c5460fbba9b5e55866844df967185960584a66afc3519366078a85392d3"
+    },
+    {
+      "path": "src/units/rf433t/index.js",
+      "sha256": "a910ff18d046783481e47b571fbc71b0187f184953084acaa80f3f93b908b88e"
+    },
+    {
+      "path": "src/units/rf433t/reference-redraw-back.png",
+      "sha256": "ee26df00ff6bac58e24c4d5790d1086cbdb0ccd0c4d5adbe22b93e83b8142e11"
+    },
+    {
+      "path": "src/units/rf433t/reference-redraw-front.png",
+      "sha256": "a6a3e70495d773c5d317b9d7380cf1063d9242740c254b92812de38fd6e41a30"
+    },
+    {
+      "path": "src/units/rf433t/stickers.js",
+      "sha256": "0473092121336c6f0278adac7ce0177b7f4fa4b7c32d1fdeb130730cf70131d7"
+    },
+    {
+      "path": "docs/research/rf433t/artwork.json",
+      "sha256": "b15ffa9c05d46756edb3852fead5dd9cb2038e5d2547c75155d7e4314fe5577d"
+    },
+    {
+      "path": "docs/research/rf433t/modeling.md",
+      "sha256": "a9a60554139fb9d2a409088739c529da9b7752abda3a5418e848dd39b188d5cc"
+    },
+    {
+      "path": "docs/research/rf433t/smoke.json",
+      "sha256": "b4a01a710f16e16be636cbc070ee2bd82c81f01f401ffb40eaf5f7733ab8d4d1"
+    },
+    {
+      "path": "docs/research/rf433t/sources.json",
+      "sha256": "07d8b84a1223d13339026712c2db9aa63ad09f293e267304994a85b8a637b0b6"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Unit ID owns its actual secure-element IC, regulator, PCB and connector; no encryption, identity, keys, authentication, I2C or electrical behavior",
+    "RF433R owns its actual SYN531R receiving PCB, fixed internal PCB antenna and connector; no RF, reception, ASK, data, range or electrical behavior",
+    "RF433T owns its actual SYN115 transmitting PCB, fixed internal PCB antenna and connector; no RF, transmission, ASK, data, range or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows the user-requested112-model Git sync;current Git state is recorded separately"
+  ]
+}

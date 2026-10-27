@@ -1,0 +1,88 @@
+{
+  "id": "laser-tx",
+  "sku": "U066",
+  "retrievedAt": "2026-10-26",
+  "kind": "reference-redraw",
+  "originalsDistributed": false,
+  "method": "New text and shapes drawn from exact official U066 photographs; no photographic pixels or production original distributed.",
+  "sources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_01.webp",
+      "sha256": "4a680e5b7cc58466faf900b04edc6a53aa6cec50cb4c2182e97e0733f22198a7"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_02.webp",
+      "sha256": "9e0f70c27b2d4f7fca52ec142b4451092bd020c33418a6e5a9329e325db30661"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_05.webp",
+      "sha256": "af522e448d87f8f95b88413820ae07218192c390e3d3712db46a54da3c45d48c"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_06.webp",
+      "sha256": "180f0fb4ae7dc0feb53942ad22d5974f4f37c2384d7ff5055b87e79eef4f7043"
+    }
+  ],
+  "assets": [
+    {
+      "path": "src/units/laser-tx/reference-redraw-front.png",
+      "sha256": "f387fb617a9b73d695f27583ac8cf084aab2ba581a10d7e8b7fd8bf43488454f",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sizeMm": [
+        20,
+        14
+      ],
+      "positionMm": [
+        0,
+        7,
+        3.8
+      ],
+      "face": "front",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Laser TX complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_06.webp",
+        "sha256": "180f0fb4ae7dc0feb53942ad22d5974f4f37c2384d7ff5055b87e79eef4f7043"
+      }
+    },
+    {
+      "path": "src/units/laser-tx/reference-redraw-back.png",
+      "sha256": "f1cba8f1019cc2a818c649c8a42b6675652b6c0d80251c4fc1b7faf233c8fc3e",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sizeMm": [
+        16.2,
+        12.2
+      ],
+      "positionMm": [
+        0,
+        7,
+        -3.8
+      ],
+      "face": "back",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Laser TX complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-tx/laser-tx_02.webp",
+        "sha256": "9e0f70c27b2d4f7fca52ec142b4451092bd020c33418a6e5a9329e325db30661"
+      }
+    }
+  ],
+  "coverage": "Front LASER/BEAM divider, starburst and blue LASER.TX footer; rear LASER.TX, WL:650NM PWR:5mW, PORT.B.I/O and blank/OUT/5V/GND blocks.",
+  "remainingKnownPrintedFaces": [],
+  "limits": [
+    "Typography, colour, label extent and registration are photo/native-recess estimates, not production-print measurements.",
+    "Yellow rear OUT is preserved literally from exact official photo; interface metadata follows documented host control DIN.",
+    "Printed 650nm/5mW is not independently measured optical output or a safety classification.",
+    "Molded M5 remains original shell geometry; no unknown concealed package markings or serials invented.",
+    "No exhaustive browser pixel verification."
+  ],
+  "rights": "M5Stack original printed designs and product marks retain their respective rights."
+}

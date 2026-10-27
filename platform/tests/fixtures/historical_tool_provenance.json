@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "groups": {
+    "secure-boot-recorded-image": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded static secure-boot image evidence; not a current runtime or signature-authenticity claim",
+      "storage": "external",
+      "source_url": "https://github.com/m5agent/m5stack-esp-emulator/tree/eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "recorded_tool_hashes": {
+        "tests/firmware/secure_boot_image/run_test.py": "1dcd9b770ed81777f98e61695cf782994b3e3dd3d1afee781a9bc820b188af28",
+        "platform/tests/test_firmware_analysis.py": "511ea44594194ec0c6c3f82592e4758620509c366defb0620fa4ec1f4995bd43",
+        "platform/tools/firmware_analysis.py": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+        "platform/tools/firmware_manifest.py": "77552302954be4d9b750582b04e338d1dfa4fe0f47645619514e605f7957f9e4",
+        "platform/tools/firmware_manifest.schema.json": "80d6f751a3335dd909e14d97cc53ea78291bae7c7319fe2f39a7fde4dec4692a"
+      }
+    },
+    "core2-recorded-concurrency": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded Core2 concurrency evidence; not a runtime claim for current Unit changes",
+      "storage": "external",
+      "source_url": "https://github.com/m5agent/m5stack-esp-emulator/tree/eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "recorded_tool_hashes": {
+        "tests/uiflow2/core2_native_hci/run_service_5x.py": "a3b6429ce28d657bc773a0e33c93ed51ff44789bcb362919dadc1c7793856640",
+        "platform/tools/device_service.py": "d00e287c8c0d37858322f3cdfbb60c1f9e5e1182661da23834a9f566c77fcb77",
+        "platform/tools/qemu_accel.py": "fda7aeef7943e5579d030931f8bf786eb9fdb80ae81b4b43fac11d422c02bc63",
+        "platform/tools/ble_runtime_limits.py": "38626a437aa578f8268130def448e8bdf7c30ea0019c633abad3498c08aa7c09",
+        "platform/tools/ble_probe.py": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+        "platform/tools/network_policy.py": "f231fafa4888150d4a0d8d008ce4ae75fe444dbaf7db6d3b78abe32a3ef4cf9a",
+        "platform/tools/unified_http_guestfwd.py": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+      }
+    },
+    "worker-recorded-unicast-discovery": {
+      "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "scope": "Source blobs matching the tool hashes in the recorded three-attempt seed/NAT evidence; not a current cross-host validation",
+      "storage": "external",
+      "source_url": "https://github.com/m5agent/m5stack-esp-emulator/tree/eff1561e9f0da700c843ed14d9019c81f1e27e55",
+      "recorded_tool_hashes": {
+        "tests/network/worker_discovery_seed/run_test.py": "032dd306f04e329f79edde3cd4ed5853de4ecd18da0e76361e6c52f3d3eff170",
+        "platform/tools/worker_agent.py": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+        "platform/tools/worker_discovery.py": "396ef5ef26b946a74ab0ec5df11428b459cc5dd3d3600df3bc8a0a0fc221873f",
+        "platform/tools/worker_discovery_seed.py": "f0b4d49f51a78430c02b7d98d695087152869409f9dce7f688afe1cdafaa5403",
+        "platform/tools/serve.py": "e747704d92f205ea2952c8a0954c4272fb0374c429faa7925352e6ad6a8f8c07"
+      }
+    },
+    "secure-boot-recorded-image-20261026-manifest-policy-v2": {
+      "source_snapshot_commit": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "scope": "Source blobs matching the 2026-10-26 secure-boot image manifest-policy-v2 evidence; not a current runtime or signature-authenticity claim",
+      "storage": "external",
+      "source_url": "https://github.com/m5agent/m5stack-esp-emulator/tree/f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "recorded_tool_hashes": {
+        "tests/firmware/secure_boot_image/run_test.py": "8715868fcbbfd8f3ddad2d29c6e56f13697591b30e49bffdf826832086fcd3e8",
+        "platform/tests/test_firmware_analysis.py": "511ea44594194ec0c6c3f82592e4758620509c366defb0620fa4ec1f4995bd43",
+        "platform/tools/firmware_analysis.py": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+        "platform/tools/firmware_manifest.py": "f2c99c54a2e264ad331f807b06a0eff6483a5c253d7c36ff69f77438c8d4e50b",
+        "platform/tools/firmware_manifest.schema.json": "252c734bc97f37b2d29703c09ba25dc6016fff84479d3a0bd97ee107b6d30170"
+      }
+    },
+    "core2-recorded-concurrency-20261026-network-hardening": {
+      "source_snapshot_commit": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "scope": "Source blobs matching the 2026-10-26 Core2 network-hardening concurrent pass-a/pass-b evidence; not a runtime claim for current Unit changes",
+      "storage": "external",
+      "source_url": "https://github.com/m5agent/m5stack-esp-emulator/tree/f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "recorded_tool_hashes": {
+        "tests/uiflow2/core2_native_hci/run_service_5x.py": "a3b6429ce28d657bc773a0e33c93ed51ff44789bcb362919dadc1c7793856640",
+        "platform/tools/device_service.py": "6bab95ad3a565b4666a3bcb93196fdc0aad286485a5915f847da5d2b6dcaa1c8",
+        "platform/tools/qemu_accel.py": "fda7aeef7943e5579d030931f8bf786eb9fdb80ae81b4b43fac11d422c02bc63",
+        "platform/tools/ble_runtime_limits.py": "38626a437aa578f8268130def448e8bdf7c30ea0019c633abad3498c08aa7c09",
+        "platform/tools/ble_probe.py": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+        "platform/tools/network_policy.py": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+        "platform/tools/unified_http_guestfwd.py": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+      }
+    }
+  },
+  "contract_scope": "Digest index checked offline; source bytes are verified only by the explicit historical tool provenance command. This file is not current runtime execution evidence."
+}

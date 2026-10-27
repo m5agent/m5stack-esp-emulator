@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -56,9 +56,41 @@ eFuse 或生产 key。
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 功能 PASS 不等于外观保真 |
+| P1 | Unit 外设集成 | 固定版本主机外壳、官方芯片协议、主机总线接线和 Web 双向状态 | 视觉模型和寄存器实现不能替代同 guest 的数据面证据 |
 | P2 | CardputerZero | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 ## 当前执行顺序
+
+最新用户场景为AIFlow实时编程/实时预览，`UNIT-01`下一块优先补预览执行闭环：
+已满足前置为取消事务、同 guest UART raw REPL、Web 程序面板、限定HUB传感器/
+控制leaf的原驱动执行及显式按需共享QEMU帧样本，范围见[本轮证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-unit-preview/README.md)。
+完整文件包/资源与纯字节码`.mpy`依赖已实现，范围见[文件包证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-package-and-detent/README.md)。
+Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revision引用已有前置；1.42 Preview/Run协调已完成CoreS3 PIR/Relay同VM、pending覆盖、运行中prompt取消再跑与ZIP清理的[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-run-control/README.md)。CoreS3 PIR另完成真实包部署事务中取消及同VM恢复（不声称单chunk中断）；继续补其它Unit/主机、guest重启恢复、二进制入口/保存开机、AIFlow checkpoint事件/虚拟目标、SSE及程序revision引用保留/有界回收。源码与完整包配额均可显式配置，不关闭长期引用保留/有界回收。
+双向动画继续闭合 `UNIT-HOST-29`：默认全灯同色反馈取任意通道排列均相同的准确子集；
+非对称逐灯颜色仍需官方通道到模型位置依据，旋转需独立物理source和计数/方向标定，
+不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
+已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
+共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
+二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，1.46已接有条件公共入口且CoreS3 stock/兼容固件及Web通过，继续更多固件/主机、reset/重连后能力恢复与完整清场；FlashLight部分数字路径/四host和CoreS3 mounted已验，动态S1、PWM/冷route边界仍开放，见[新证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。4Relay/FlashLight新协议冲突与模型边界见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-binary-checkpoint-admission/README.md)。
+FlashLight的OUT_SEL旧资格问题已按[限定路由证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)闭合；0047已有真实GPIO/IOMUX/RTC来源与无边沿连续低的C实现，软I2C显式上拉修复记录在[本轮收尾](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。用户要求当前bug修完即收尾，37仍需新runtime四host原constructor/API/取消再Run与mounted Web，及独立完整矩阵；准备包不算执行。36hard-reset、S1/PWM和电气边界继续开放。
+运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
+[AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
+checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
+Live sessions托管消费者已有CoreS3 PIR/Relay的[限定Web验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-web-consumer/README.md)，不转授其它Unit/主机或AIFlow；四主机HUB控制组和U131双GPIO/蓝灯、UNIT-HOST-35窄屏/长dt构图已完成[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；继续补未验Unit/主机与AIFlow调用侧，共享Bearer仍不等于多租户控制权。后续按既有Unit队列推进，并衔接AIFlow checkpoint/虚拟目标、SSE与revision有界回收。
+初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-program-web-and-hosts/README.md)。
+三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
+
+`UNIT-01` 已具备 CoreS3 27种选定场景与三主机各11种
+场景的源码API→可见session→实时读写控制闭环；新增24组合已完成，范围与入口见
+[源码 API 指南](unit-agent-api.md)。预览API闭环之后的Unit支线包括这三款主机剩余 Unit 的实际
+源码 API 执行，并解决这些主机的 ADC app calibration/ADC2 oracle 与 Thermal
+fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、原 Buzzer、
+完整 PWM 周期语义。初始化 route 已修复，历史d1ba完整轮曾通过；当前3f1617独立完整轮66/67、Core2 IMU仍OPEN，
+范围见当前状态页；不关闭其它原驱动或真机门禁。实现契约见
+[Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，精确批次与证据
+见验证台账；CoreS3 已通过的场景不替代其它主机验收或真机同路径验证。
+
+主线其余 P0 继续按以下顺序推进，已有修复和诊断不扩大为 legacy 应用启动：
 
 1. `RUNTIME-03`：timer、WDT mask、stateful SSI、统一 handoff timeline 和
    WDT liveness 已验证。WDT-off 45/120 秒对照显示 Flash 工作约在 44 秒
@@ -101,6 +133,7 @@ eFuse 或生产 key。
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时
@@ -331,9 +364,9 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 
 ### UI-01
 
-当前缺口：StopWatch 是唯一参考质量外壳，CoreS3/StickS3 有专门 renderer；
-其余设备仍是通用近似外壳。每台设备需要结构尺寸、面板开孔、材质、hitbox
-和截图阈值。
+当前缺口：14 款主机已接入固定版本模型外壳，加载失败时保留原 renderer
+回退；StopWatch 仍是唯一参考质量外壳。模型接入不替代逐设备结构尺寸、
+面板开孔、材质、hitbox 和截图阈值的保真验收。
 
 ## P2：CardputerZero
 

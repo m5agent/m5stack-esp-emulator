@@ -1,0 +1,139 @@
+{
+  "checkedAt": "2026-10-26T09:33:39.952Z",
+  "status": "pass",
+  "scope": "Necessary local finite/source shell/cap/light-guide, native/PCB FrontSide bore walls, real assembled closure, original moving cap+shaft with fixed switch/front/display, 8 independent fixed warm-yellow segments and separate RGB through external API without automatic BCD/glyph/input echo, four-wire Grove nested pose/attach/detach, rear print and artwork:false physical invariance. No browser, historical/full suite, manufacturing fit, sensor/firmware or electrical verification.",
+  "meshes": 101,
+  "triangles": 43064,
+  "nativeTriangles": [
+    2670,
+    2334,
+    1436,
+    256
+  ],
+  "nominalMm": [
+    24,
+    32,
+    16.9
+  ],
+  "cadEnvelopeMm": [
+    24,
+    32,
+    16.899999618530273
+  ],
+  "visualEnvelopeMm": [
+    24,
+    32,
+    16.907999515533447
+  ],
+  "mountingRays": 10,
+  "frontSideWalls": 28,
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        -30,
+        1.4
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 21,
+      "purpose": "Open Grove mouth ends at real rear wall/contact backing"
+    },
+    {
+      "origin": [
+        4,
+        7,
+        20
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "maxDistance": 8,
+      "purpose": "Native rotary opening assembled with actual solid cap and shaft"
+    },
+    {
+      "origin": [
+        -6,
+        7,
+        20
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "maxDistance": 17,
+      "purpose": "Seven-segment region keeps original complete white front membrane"
+    },
+    {
+      "origin": [
+        7.9,
+        -14,
+        20
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "maxDistance": 17,
+      "purpose": "Actual original light guide closes RGB slot"
+    }
+  ],
+  "closureHits": [
+    {
+      "purpose": "Open Grove mouth ends at real rear wall/contact backing",
+      "hit": "Grove rear wall",
+      "distanceMm": 19.950000011920935
+    },
+    {
+      "purpose": "Native rotary opening assembled with actual solid cap and shaft",
+      "hit": "Step16 complete native moving rotary cap",
+      "distanceMm": 7.100000381469727
+    },
+    {
+      "purpose": "Seven-segment region keeps original complete white front membrane",
+      "hit": "Step16 complete native front shell",
+      "distanceMm": 16
+    },
+    {
+      "purpose": "Actual original light guide closes RGB slot",
+      "hit": "Step16 complete native RGB light guide",
+      "distanceMm": 16.05000020265579
+    }
+  ],
+  "ports": [
+    "grove: grove"
+  ],
+  "externalLeds": [
+    "segment-a",
+    "segment-b",
+    "segment-c",
+    "segment-d",
+    "segment-e",
+    "segment-f",
+    "segment-g",
+    "segment-dp",
+    "rgb"
+  ],
+  "controls": [
+    "rotation"
+  ],
+  "buttonCount": 0,
+  "groveAttachPoseNestedDetach": "pass",
+  "artwork": {
+    "panels": 1,
+    "kind": "reference-redraw",
+    "disable": "artwork:false",
+    "physicalGeometryUnchanged": true,
+    "files": [
+      "reference-redraw-back.png: 2292×1704"
+    ],
+    "source": "Exact U198 official Unit_Step16_05.webp; front and original knob are plain white"
+  }
+}

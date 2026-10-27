@@ -1,0 +1,245 @@
+{
+  "id": "midi",
+  "sku": "U187",
+  "officialDocs": "https://docs.m5stack.com/en/unit/Unit-MIDI",
+  "retrievedAt": "2026-10-26",
+  "officialMCP": {
+    "query": "Unit MIDI U187 dimensions shell PCB SAM2695 DIN TRS Grove mode LED; Arduino31250/31520",
+    "rawResponseDistributed": false,
+    "result": "Exact U187 product and own schematic subset; additional official Arduino U187 tutorial confirms31250 while product table31520; other-model Synth material excluded."
+  },
+  "reference": {
+    "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/4.webp",
+    "sha256": "99124b3dd8502887dde2c1016548082baaaa6a32c210659ee4d6fdf909a7f0e3"
+  },
+  "structures": [
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U187_Unit_MIDI/Structures/cad.stl",
+      "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "gitBlob": "3de0e0640783ed57315b7d0cd8d2ceb04811f013",
+      "sha256": "ea51b4afd53ae777a6f718b1bdb0467041e7e554f6974b169f34162144bea956",
+      "license": "MIT; retain licenses/M5_Hardware-MIT.txt"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/4.webp",
+      "sha256": "99124b3dd8502887dde2c1016548082baaaa6a32c210659ee4d6fdf909a7f0e3"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/11.webp",
+      "sha256": "f8950b2830916b5e4830f9bc26224ccb2586fddd6cd9f90465e043b1d113a915"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/12.webp",
+      "sha256": "1d49e774633188cd88d6ce3ce54cc61e618f7c84a34eafd3a8cd3d0f9cf1f9c8"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/5.webp",
+      "sha256": "235968e2a1f0e498a8c0c5cda909debfbebae0c6e58971f6583ab4f67b6ca473"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/6.webp",
+      "sha256": "60cdf0ce41611a5d4c092b96cc7ec68751bac552d1ff7d3d765120c51e7e8c38"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/8.webp",
+      "sha256": "1a9ec80183ea8e16b8cff468dcfb98eab2400d7807c47f68f53306a65ca7401b"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/9.webp",
+      "sha256": "80d631dcb362552b0c49834b431b753133707b7a2d547770e2559e8e01bf0e3b"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/10.webp",
+      "sha256": "3d9a4e3da32ca1365422658015fccb8cdc5b1c7edc7733766e7e0bb787cd37a1"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-MIDI/img-781316ed-8117-4315-bc6f-35cb02fac563.jpg",
+      "sha256": "442efbdcd92a23a32b7c54d0c9a2976b91a4b1568d55b17ce37a19c31a291b53"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/774/SCH_UnitMIDI_B04_sch_2024_07_08_15_41_29_page_01.png",
+      "sha256": "73356ab7e30bd47c3853896f0c348b44360af07b32e4db80151fef9addd31100"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Synth/SAM2695.pdf",
+      "sha256": "d74390c67767383f27b54134bb968304aecbca35679680573264b875d162b80e"
+    }
+  ],
+  "selectedAssembly": {
+    "components": [
+      0,
+      2,
+      4
+    ],
+    "excludedComponents": [
+      1,
+      3,
+      5
+    ],
+    "origin": [
+      71.57657623291016,
+      30.0256450176239,
+      -19.479179620742798
+    ],
+    "axes": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "triangles": 6598,
+    "method": "One common rigid translation, scale1; no shell cuts, hole filling or per-part alignment",
+    "reason": "Original assembled rear/front shell components 0 and 2 and light guide component 4 retained with one common translation. No scaling, cuts, fills or per-part realignment. Components 1, 3 and 5 are displaced individual copies."
+  },
+  "dimensions": {
+    "nominalMm": [
+      40,
+      48,
+      25
+    ],
+    "vendorDimensionOrderMm": [
+      48,
+      40,
+      25
+    ],
+    "cadEnvelopeMm": [
+      39.99468994140625,
+      47.98952865600586,
+      25
+    ],
+    "visualEnvelopeMm": [
+      39.99468994140625,
+      47.98952865600586,
+      25
+    ],
+    "mountingHoleCentersMm": [
+      [
+        -8,
+        -12
+      ],
+      [
+        8,
+        -12
+      ]
+    ],
+    "mountingHoleDiameterMm": 4.85
+  },
+  "artwork": {
+    "kind": "reference-redraw",
+    "sources": "docs/research/midi/artwork.json",
+    "originalsDistributed": false,
+    "files": [
+      {
+        "path": "src/units/midi/reference-redraw-front.png",
+        "sha256": "43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196",
+        "pixels": [
+          4200,
+          2997
+        ],
+        "sizeMm": [
+          35,
+          24.973
+        ],
+        "positionMm": [
+          0,
+          9.75,
+          12.3
+        ],
+        "face": "front",
+        "method": "printedArtwork",
+        "artworkKind": "reference-redraw",
+        "target": "MIDI native assembled front shell",
+        "reference": {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/11.webp",
+          "sha256": "f8950b2830916b5e4830f9bc26224ccb2586fddd6cd9f90465e043b1d113a915"
+        }
+      },
+      {
+        "path": "src/units/midi/reference-redraw-back.png",
+        "sha256": "dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d",
+        "pixels": [
+          4200,
+          3405
+        ],
+        "sizeMm": [
+          35,
+          28.378
+        ],
+        "positionMm": [
+          0,
+          7.7,
+          -12.3
+        ],
+        "face": "back",
+        "method": "printedArtwork",
+        "artworkKind": "reference-redraw",
+        "target": "MIDI native assembled rear shell",
+        "reference": {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/12.webp",
+          "sha256": "1d49e774633188cd88d6ce3ce54cc61e618f7c84a34eafd3a8cd3d0f9cf1f9c8"
+        }
+      }
+    ]
+  },
+  "runtimeFiles": [
+    {
+      "path": "src/units/midi/assembly.js",
+      "sha256": "a399b9df2a0c1201067b99af229a1342d1184f4a2ff32d323f397e61533b0a27"
+    },
+    {
+      "path": "src/units/midi/cad-map.json",
+      "sha256": "902dd995ce41ef356644f64ce95579239bd60202cf597707c71ce7bbb5889b52"
+    },
+    {
+      "path": "src/units/midi/dimensions.js",
+      "sha256": "3e29893e8780ba80c7c67eb583bdbbef06ce93c950e9cbac45a5e84b9a267ae8"
+    },
+    {
+      "path": "src/units/midi/geometry-data.js",
+      "sha256": "0483c56a6d027819d996ed81b06732eaaed709c306523a2f10d7c89b0d624279"
+    },
+    {
+      "path": "src/units/midi/index.js",
+      "sha256": "a81015f7def446cbc4d2d802dc1c527467c3801bc23ed78433adc95659cb7469"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-back.png",
+      "sha256": "dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d"
+    },
+    {
+      "path": "src/units/midi/reference-redraw-front.png",
+      "sha256": "43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196"
+    },
+    {
+      "path": "src/units/midi/stickers.js",
+      "sha256": "4842e884bc019f0ddfb3df63a3220aa98c452ec77bd268d96afae3634b24c8bd"
+    }
+  ],
+  "inferences": [
+    "Complete native rear/front shells and own green light guide retained with one common rigid translation at scale 1; displaced duplicate islands excluded.",
+    "PCB/upper board placement, concealed package envelopes, board interconnects, DIN contact/key/depth and TRS spring/depth construction are inferred physical reconstruction; no production assembly datum or manufacturing-fit claim.",
+    "Mode position 0 left Bypass and 1 right Separate follow the exact front print; 2 mm slide travel is a visual estimate, no automatic MIDI route or contact truth table.",
+    "One fixed-green power-led follows exact U187 visible light guide and own LED1 schematic, externally driven/default off; no automatic connection, power, mode or audio linkage.",
+    "DIN and TRS connector families describe physical shape pairing only; five outer jack roles stay distinct; none accepts Grove.",
+    "No MIDI routing, note/synth commands, serial parser, baud rate, signal/electrical simulation or sound. Sensor is a passive appearance anchor.",
+    "Both labels are new code-drawn high-resolution reference redraws from exact U187 photos; no photo crops. Typography/colour/registration are reconstructed, exhaustive browser review deferred."
+  ],
+  "feedback": {
+    "feedback_id": "483f51e99d0646a98323a77676cfd3e2",
+    "outcome": "success",
+    "subject": "U187 product table UART31520 versus official Arduino31250; two MIDI DIN/two MIDI TRS incorrectly grouped with audio TRS; original schematic duplicate R11."
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "id": "dac2",
+  "sku": "U012-B",
+  "officialDocs": "https://docs.m5stack.com/en/unit/Unit-DAC2",
+  "retrievedAt": "2026-10-26",
+  "officialMCP": {
+    "query": "Unit DAC2 U012-B 外壳尺寸 GP8413 Grove 端子 LED 原理图 结构",
+    "rawResponseDistributed": false,
+    "result": "Exact Unit DAC2 U012-B product and own schematic; Hat DAC2 result excluded. GP8413, own JP1/2/3 straps, Grove I2C, dual output terminal, 32×24×10.2 mm product dimensions. No exposed LEDs or switch confirmed."
+  },
+  "reference": {
+    "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-a240497e-ac81-4480-aaca-a0e537bbd909.webp",
+    "sha256": "9a9f86274f7ccfa263d65f7d53a952927e883b6c3ec4cde47a5955e58096cc47"
+  },
+  "structures": [
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U012-B_Unit_DAC2/Structures/Unit_DAC2.stl",
+      "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "gitBlob": "20b850b0aa5111d17d7c4d6821d344da54e2cfd0",
+      "sha256": "6685e3a9dfe3ee3c4c00b6264ec231b64299f5991400f991f2551712df551324",
+      "license": "MIT; retain licenses/M5_Hardware-MIT.txt"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-d3d02dea-e7ad-4543-ae7c-84957de8329e.webp",
+      "sha256": "6f75729df53ca2213e528d9ccc282b52f8635ed9ebfb5e4ce35384ce7a43ec84"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-fc97ab1d-c25d-43ca-9388-f1e91700defd.webp",
+      "sha256": "2c9147a2024ba39e9e6456050ab4d3b479ccee20775cb54ebd457269c0b40ac1"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/818/U012-B-package.jpg",
+      "sha256": "29d1aca00f95480aa5b3eb9900901961f058afc5fedde128109448339d3cd3fb"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-a240497e-ac81-4480-aaca-a0e537bbd909.webp",
+      "sha256": "9a9f86274f7ccfa263d65f7d53a952927e883b6c3ec4cde47a5955e58096cc47"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-4eb2dc14-e3b6-415a-b139-c3c022d25a0b.webp",
+      "sha256": "6a9fe65e1fde9d845fa291f94f90ac645c236288aa7f9cec81b97f71108e18e6"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-DAC2/img-3b2ba18c-bd96-443a-9acc-10d6b19e811d.webp",
+      "sha256": "4449d70581b2fa4a04e45aee35f0b56ba1c5b7c13771d3d95a02a919ad22ec50"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/575/SCH_UNIT_DAC2_V1.0_sch_01.png",
+      "sha256": "7061644321f8940cb7706611845f5b749781dc00518cbceb748a26e9892e58ea"
+    }
+  ],
+  "selectedAssembly": {
+    "components": [
+      0
+    ],
+    "triangles": 3286,
+    "excludedComponents": [
+      1,
+      2
+    ],
+    "origin": [
+      -529.268798828125,
+      225.22348022460938,
+      4
+    ],
+    "axes": [
+      [
+        -1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        -1
+      ]
+    ],
+    "scale": 1,
+    "notes": "All 3286 triangles of the complete assembled native shell retained with one common rigid half turn about Y and translation, scale 1. Components 1/2 are displaced copies, 1712 + 1574 triangles. No hole fills, cuts, scales or separate shell registration. PCB, fixed terminals, metal contacts, Grove internals and removable plug reconstructed separately from exact U012-B official photographs and schematic; concealed positions are inferred."
+  },
+  "dimensions": {
+    "nominalMm": [
+      24,
+      32,
+      10.2
+    ],
+    "vendorDimensionOrderMm": [
+      32,
+      24,
+      10.2
+    ],
+    "cadEnvelopeMm": [
+      24,
+      32,
+      8
+    ],
+    "mountingHolesMm": [
+      [
+        -8,
+        -4
+      ],
+      [
+        8,
+        -4
+      ]
+    ],
+    "mountingHoleNominalMm": 5,
+    "mountingHoleFacetSpanMm": [
+      4.8753,
+      5
+    ]
+  },
+  "artwork": {
+    "kind": "source-vector-raster",
+    "pngCount": 2,
+    "sourceDetails": "docs/research/dac2/artwork.json",
+    "sourceRetainedPrivately": true,
+    "originalsDistributed": false
+  },
+  "scope": "Appearance, physical connector mating frames, cable pose and external screw-head angle only. No conversion, voltage/current, protection, I2C, sensor values, electronics or firmware.",
+  "inferred": [
+    "PCB outline/Z/thickness/fastening bore and concealed package placement",
+    "Terminal/Grove internal dimensions, metal contact depths and PCB tails",
+    "Removable plug profile, contact springs, clamp cages, insertion clearance and screw recess geometry",
+    "Physical artwork registration"
+  ],
+  "feedback": null,
+  "notes": [
+    "Default address0x59 follows exact own front print/schematic; no address/DAC numeric behavior implemented.",
+    "No exposed LED or external DIP/button/slider inferred from support for multiple I2C addresses."
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "checkedAt": "2026-10-26T08:42:17.420Z",
+  "status": "pass",
+  "scope": "Necessary finite geometry, all three exact source shells, lens/glass/FPC, true optical/acoustic FrontSide bores, RF/card/Grove backing, six female header recesses, fixed-blue passive API, four-wire Grove pose/attach/detach/resource smoke. Original-design PNG artwork and artwork:false checked separately. No browser, physical capture, card, firmware, electrical or production-fit verification.",
+  "meshes": 139,
+  "triangles": 29814,
+  "visualEnvelopeMm": [
+    24.055862426757812,
+    40.05586051940918,
+    11
+  ],
+  "cadEnvelopeMm": [
+    24.055862426757812,
+    40.05586051940918,
+    11
+  ],
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        6.50524,
+        20
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "maxDistance": 16,
+      "purpose": "Native fixed-camera opening has physical optical glass and sensor assembly"
+    },
+    {
+      "origin": [
+        0,
+        3,
+        -20
+      ],
+      "direction": [
+        0,
+        0,
+        1
+      ],
+      "maxDistance": 15,
+      "purpose": "Native rear RF opening is backed by actual metal shield"
+    },
+    {
+      "origin": [
+        0,
+        -14,
+        -20
+      ],
+      "direction": [
+        0,
+        0,
+        1
+      ],
+      "maxDistance": 16,
+      "purpose": "Native rear card opening is backed by actual folded metal roof"
+    },
+    {
+      "origin": [
+        0,
+        -30,
+        0.1
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 20,
+      "purpose": "Native Grove mouth has recessed metal contacts and real socket rear wall"
+    }
+  ],
+  "closureHits": [
+    {
+      "purpose": "Native fixed-camera opening has physical optical glass and sensor assembly",
+      "hit": "PY260 recessed physical front optical glass",
+      "distanceMm": 14.850000000596047
+    },
+    {
+      "purpose": "Native rear RF opening is backed by actual metal shield",
+      "hit": "ESP32-S3-WROOM physical RF shield in native rear window",
+      "distanceMm": 14.77
+    },
+    {
+      "purpose": "Native rear card opening is backed by actual folded metal roof",
+      "hit": "microSD folded metal roof behind native window",
+      "distanceMm": 15.199999998509881
+    },
+    {
+      "purpose": "Native Grove mouth has recessed metal contacts and real socket rear wall",
+      "hit": "Grove rear wall",
+      "distanceMm": 15.95000001192093
+    }
+  ],
+  "headerResults": [
+    {
+      "header": 0,
+      "yMm": -16.34,
+      "depthMm": 1.799999999254942
+    },
+    {
+      "header": 0,
+      "yMm": -13.8,
+      "depthMm": 1.799999999254942
+    },
+    {
+      "header": 0,
+      "yMm": -11.260000000000002,
+      "depthMm": 1.799999999254942
+    },
+    {
+      "header": 1,
+      "yMm": -16.34,
+      "depthMm": 1.799999999254942
+    },
+    {
+      "header": 1,
+      "yMm": -13.8,
+      "depthMm": 1.799999999254942
+    },
+    {
+      "header": 1,
+      "yMm": -11.260000000000002,
+      "depthMm": 1.799999999254942
+    }
+  ],
+  "buttonCount": 0,
+  "jointCount": 0,
+  "leds": [
+    "status-led"
+  ],
+  "sdContacts": 8,
+  "fpcContacts": 24,
+  "grovePins": [
+    "GND",
+    "5V",
+    "G20 TX/D+",
+    "G19 RX/D-"
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "printedPanels": 6,
+  "artworkFalse": "pass",
+  "disposedResources": 236
+}

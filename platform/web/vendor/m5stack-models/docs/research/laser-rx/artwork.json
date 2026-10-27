@@ -1,0 +1,87 @@
+{
+  "id": "laser-rx",
+  "sku": "U065",
+  "retrievedAt": "2026-10-26",
+  "kind": "reference-redraw",
+  "originalsDistributed": false,
+  "method": "New text and shapes drawn from exact official U065 product photographs; no photographic pixels or production original distributed.",
+  "sources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_01.webp",
+      "sha256": "69154bb687de5454c73cb4c7f66f1d67ac1010f8e81c8d28c6f63b4de827cf51"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_02.webp",
+      "sha256": "df1c7dbef2243f986283836fdca172edb5feb8c07394a75653e72d1e50984631"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_05.webp",
+      "sha256": "3f3e961f466de5fdc75d6a2e0a34b4cf0ff728055d66e945f43fe2af306c96ad"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_06.webp",
+      "sha256": "a7a46c3388dc1f89c7862ead6720deabce9c42ac2d77cbe38c0c330ea319d173"
+    }
+  ],
+  "assets": [
+    {
+      "path": "src/units/laser-rx/reference-redraw-front.png",
+      "sha256": "7b133c1bbf31cfe26db9a9bd1fd2af55ac0a70cc4b3dd4bf2445666bd8f0b869",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sizeMm": [
+        20,
+        14
+      ],
+      "positionMm": [
+        0,
+        7,
+        3.8
+      ],
+      "face": "front",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Laser RX complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_06.webp",
+        "sha256": "a7a46c3388dc1f89c7862ead6720deabce9c42ac2d77cbe38c0c330ea319d173"
+      }
+    },
+    {
+      "path": "src/units/laser-rx/reference-redraw-back.png",
+      "sha256": "6e3aa0c144abdb14270a9b73dbd13a8632f28a0a99e0d74f44cb59e5bf45e248",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sizeMm": [
+        16.2,
+        12.2
+      ],
+      "positionMm": [
+        0,
+        7,
+        -3.8
+      ],
+      "face": "back",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Laser RX complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/laser-rx/laser-rx_02.webp",
+        "sha256": "df1c7dbef2243f986283836fdca172edb5feb8c07394a75653e72d1e50984631"
+      }
+    }
+  ],
+  "coverage": "Front Receive diagram, LASER/arrow/BEAM and LASER.RX footer; rear LASER.RX, 140KHz~205KHz, PORT.B.I/O and IN/blank/5V/GND.",
+  "remainingKnownPrintedFaces": [],
+  "limits": [
+    "Typography, color, illustration strokes, size and alignment are same-SKU photo/native-recess estimates, not production-print measurements.",
+    "Molded M5 remains original shell geometry. No concealed package stamps, serial codes or illegible text invented.",
+    "Blank gray rear pin block stays blank as photographed; NC appears in connector metadata. Rear IN is reproduced as printed while official connector metadata uses DOUT.",
+    "No exhaustive browser pixel verification."
+  ],
+  "rights": "M5Stack original printed designs and product marks retain their respective rights."
+}

@@ -1,0 +1,164 @@
+{
+  "checkedAt": "2026-10-26T09:48:50.957Z",
+  "status": "pass",
+  "scope": "Necessary local geometry, actual optical and Grove cavities/backing, native cap press/cancel exact restore, retained mode slide, independent fixed-colour LEDs, artwork physical invariance, attachment/four-wire pose/detach/disposal. No browser/full historical, optics, electrical, scan/recognition, audio, firmware, hardware or manufacturing-fit validation.",
+  "cadEnvelopeMm": [
+    27.600000381469727,
+    65.8207893371582,
+    18.61198329925537
+  ],
+  "visualEnvelopeMm": [
+    27.600000381469727,
+    65.8207893371582,
+    18.61198329925537
+  ],
+  "directCadEnvelopeMm": [
+    24.0000057220459,
+    48.000003814697266,
+    16
+  ],
+  "directVisualEnvelopeMm": [
+    24.0000057220459,
+    48.000003814697266,
+    16
+  ],
+  "nativeTriangles": [
+    4740,
+    1054,
+    280
+  ],
+  "mountingRays": 10,
+  "mountingFrontSideWalls": 8,
+  "opticalFirstHits": [
+    {
+      "origin": [
+        0,
+        40,
+        2.2
+      ],
+      "firstSolid": "QRCode fixed convex dark optical lens glass",
+      "point": [
+        0,
+        23.77749998688698,
+        2.2
+      ]
+    },
+    {
+      "origin": [
+        -7.4,
+        40,
+        2.2
+      ],
+      "firstSolid": "QRCode M14 white illumination LED real lens",
+      "point": [
+        -7.4,
+        23.90000001192093,
+        2.2
+      ]
+    },
+    {
+      "origin": [
+        7.4,
+        40,
+        2.2
+      ],
+      "firstSolid": "QRCode M14 red aiming LED real lens",
+      "point": [
+        7.4,
+        23.90000001192093,
+        2.2
+      ]
+    }
+  ],
+  "groveContacts": 4,
+  "buttons": {
+    "nativeCap": "pass",
+    "cancelExactRestore": true,
+    "modeRetained": true,
+    "externalCommandNoEcho": true
+  },
+  "leds": {
+    "illumination": "fixed-white",
+    "aiming": "fixed-red",
+    "independent": true,
+    "defaultOff": true
+  },
+  "artwork": {
+    "panels": 3,
+    "kind": "official-raster",
+    "physicalGeometryInvariant": true
+  },
+  "externalComponents": [
+    "grove",
+    "button",
+    "mode",
+    "illumination",
+    "aiming",
+    "sensor"
+  ],
+  "refractor": {
+    "defaultFixed": true,
+    "directOption": true,
+    "noJoint": true
+  },
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        30,
+        2.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 8,
+      "purpose": "Direct-view scanner camera aperture has physical convex optical lens backing; use refractor:false"
+    },
+    {
+      "origin": [
+        -7.4,
+        30,
+        2.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 8,
+      "purpose": "Direct-view white illumination aperture has real fixed-white lens backing; use refractor:false"
+    },
+    {
+      "origin": [
+        7.4,
+        30,
+        2.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 8,
+      "purpose": "Direct-view red aiming aperture has real fixed-red lens backing; use refractor:false"
+    },
+    {
+      "origin": [
+        0,
+        -30,
+        -4.4
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 13,
+      "purpose": "Open Grove has actual contact/rear-wall backing"
+    }
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 187
+}

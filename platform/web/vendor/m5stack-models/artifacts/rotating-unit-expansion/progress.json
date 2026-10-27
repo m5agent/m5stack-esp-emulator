@@ -1,0 +1,183 @@
+{
+  "savedAt": "2026-10-26T08:18:09.896250+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 53,
+    "modeled": 67,
+    "verified": 0
+  },
+  "scope": "Three new rotating Unit geometry/API smoke and actual three-branch/moving-output Grove fixture; no browser or hardware/motor-physics acceptance",
+  "products": [
+    {
+      "id": "rollercan",
+      "report": "docs/research/rollercan/smoke.json",
+      "status": "pass",
+      "meshes": 89,
+      "triangles": 38380
+    },
+    {
+      "id": "rollercan-lite",
+      "report": "docs/research/rollercan-lite/smoke.json",
+      "status": "pass",
+      "meshes": 72,
+      "triangles": 40550
+    },
+    {
+      "id": "vibrator",
+      "report": "docs/research/vibrator/smoke.json",
+      "status": "pass",
+      "meshes": 41,
+      "triangles": 12010
+    }
+  ],
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realRotatingGroveFixture": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "67-product catalog and three runtime chunks byte-identical to public dist",
+    "newSourcePrivacy": "code/self-authored research only; no private sticker inputs or raw official binaries",
+    "narrowSync": "new products/catalog entries/exports/guides only",
+    "existingPublicUnitFilesUnchanged": 312,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "officialMcpFeedback": [
+    {
+      "product": "rollercan",
+      "feedbackId": "72ad6db8104f414c939b963dcd2db271",
+      "record": "docs/research/rollercan/sources.json",
+      "issue": "MCP summary mislabeled the original CAN schematic as RS-485; original sources are consistent"
+    },
+    {
+      "product": "rollercan-lite",
+      "feedbackId": "a0e15a96dbc44923aad9659ff1e2c5eb",
+      "record": "docs/research/rollercan-lite/sources.json",
+      "issue": "Official nominal height40 differs from this appearance assembly of native shell and motor drawing, height30; production registration remains inferred"
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "rollercan",
+      "file": "assets/rollercan-ScMOyjrL.js",
+      "sha256": "3daa9a07cd2ced8090392e1e08f1a8c8ca6be554baeff1fa8a7577ceba7c7d47"
+    },
+    {
+      "id": "rollercan",
+      "file": "assets/rollercan-lite-BCuHG_Oz.js",
+      "sha256": "91fa6d3921fc345b5819af93562a456ff851ac26454887c2725b908b9578dd48"
+    },
+    {
+      "id": "rollercan-lite",
+      "file": "assets/rollercan-lite-BCuHG_Oz.js",
+      "sha256": "91fa6d3921fc345b5819af93562a456ff851ac26454887c2725b908b9578dd48"
+    },
+    {
+      "id": "vibrator",
+      "file": "assets/vibrator-DneBuUjF.js",
+      "sha256": "bc13163fbaa5a1d328a928d15621a5ad1e58caf0578f569a83c2b9e8a6efefc3"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/rollercan/dimensions.js",
+      "sha256": "5e34c16b66699b9aff744e8f65fcf0c9a635e951cf5b3dc2a27d8508d745a577"
+    },
+    {
+      "path": "src/units/rollercan/index.js",
+      "sha256": "dbf49638bf4874f7f4b63352e41fff5e109c79b878fa1a9d8121009093925271"
+    },
+    {
+      "path": "src/units/rollercan/cad-map.json",
+      "sha256": "83e30fdcc1ce32e65e4e64e0d9336ef0d61a131db04c08d8212d6e3a1dcad82f"
+    },
+    {
+      "path": "src/units/rollercan/geometry-data.js",
+      "sha256": "db1aae83d466b8ad87770a3676fc8aba8bd7997cf23d68c8b7f25b0dea2dfb5e"
+    },
+    {
+      "path": "docs/research/rollercan/sources.json",
+      "sha256": "fa0dd891a572e200b3b431536a87f2c476394aad9928f27779f53bec4eae5213"
+    },
+    {
+      "path": "docs/research/rollercan/README.md",
+      "sha256": "9cb8ade518f6415ff812648779df909d5b6bf02baa776c352fa4bee2d991b0eb"
+    },
+    {
+      "path": "docs/research/rollercan/smoke.json",
+      "sha256": "249e65be5fa551ac06181b38c9785e2914111c74914d1793da032f714bd16a7a"
+    },
+    {
+      "path": "src/units/rollercan-lite/dimensions.js",
+      "sha256": "7b47742929d701bfe95270ca41719e03f16710b1fd1b7f1241410514553faddb"
+    },
+    {
+      "path": "src/units/rollercan-lite/index.js",
+      "sha256": "a364effc01fe4d5756682c0d1a4f6e6eafe355adba6de9561de1a03954520f06"
+    },
+    {
+      "path": "src/units/rollercan-lite/cad-map.json",
+      "sha256": "b2ed08cfdc0fd41356acb36065276da71cdc929cdf7b63bae61c37e2dd2abf0a"
+    },
+    {
+      "path": "src/units/rollercan-lite/geometry-data.js",
+      "sha256": "09f71c6d9fa4546e95ae19a102decca546364797c585752ef725ce945464af20"
+    },
+    {
+      "path": "docs/research/rollercan-lite/sources.json",
+      "sha256": "df1c28a8ae0cf4aced88e42ce582d0b65adcdb951db0fd2496578d04066c067e"
+    },
+    {
+      "path": "docs/research/rollercan-lite/modeling.md",
+      "sha256": "a52d0df650c5d0cef9618cc15a7dc448cde9abdaf8c215b5441575800fc6df49"
+    },
+    {
+      "path": "docs/research/rollercan-lite/smoke.json",
+      "sha256": "3028aa774ff26ee4a6efb68aef6ef6199ff6c548645aa37d9d84803d93601648"
+    },
+    {
+      "path": "src/units/vibrator/dimensions.js",
+      "sha256": "c0b2e3a716d892e0f5c8cda103a9f69b882015cc20c4feb564bb1bd13a825955"
+    },
+    {
+      "path": "src/units/vibrator/index.js",
+      "sha256": "fc2e24b43cc8809eb95d0d36415adf16a1596c3df3ee4691eccc8a3eea4a2f11"
+    },
+    {
+      "path": "src/units/vibrator/cad-map.json",
+      "sha256": "6c7e5d8f3bf8e119e1b69846a9f117c7873741534acd906e5de6c79df8f23ca0"
+    },
+    {
+      "path": "src/units/vibrator/assembly.js",
+      "sha256": "c906c1e888b40dab6a066e0655fcb8b156d9b3685e9fd2c5d2e2f284e7de9f7e"
+    },
+    {
+      "path": "src/units/vibrator/geometry-data.js",
+      "sha256": "2ec3670a7508c9e475fd922fbc89519d85d4577140990039b106ed1e7939461b"
+    },
+    {
+      "path": "docs/research/vibrator/sources.json",
+      "sha256": "0c5535974077754998990544445de9196dc23a29c3c4e394b7da18e0c4b9f5c3"
+    },
+    {
+      "path": "docs/research/vibrator/README.md",
+      "sha256": "372a65701d58071128c7500b978a6a3dcbdbfbfd522f0c048905077dcd0f5cfb"
+    },
+    {
+      "path": "docs/research/vibrator/smoke.json",
+      "sha256": "d8859c9a2d10bd542ed9b4a4926ff2e3223979fed69b3296c0a727953153258d"
+    }
+  ],
+  "limitations": [
+    "RollerCAN Lite height30 is this model assembly inference; nominal official height40 is preserved separately",
+    "Motor internals, installed positions, PCB and socket interiors include documented appearance estimates",
+    "Native flexure travel and Vibrator eccentric geometry include documented visual estimates",
+    "Vibrator only rotates its real eccentric group; no automatic body vibration or motor physics",
+    "New print artwork and micro markings deferred",
+    "Previous sticker and Scroll checkpoints preserved",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

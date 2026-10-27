@@ -10,6 +10,77 @@ For a working runtime, use the published macOS arm64 release bundle or the
 target-specific tree described below. Do not reconstruct a clean tree by
 applying both historical branches in sequence.
 
+For the reproducible external-Unit Xtensa source, follow
+[`qemu-unit-runtime/README.md`](../qemu-unit-runtime/README.md): its pinned public
+base and two prelude patches are followed by `0033`, `0034`, `0035`,
+`0036-core2-soft-i2c-handoff-compat.patch`, then
+`0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
+then `0043-unit-scroll-controller.patch`, `0044-unit-2relay-gpio.patch`, and
+`0045-unit-flashlight-aw3641.patch`, then
+`0046-unit-flashlight-route-lifecycle.patch`, then
+`0047-unit-flashlight-cold-pad-observation.patch`. The intervening `0039`–`0042` files
+belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
+`0045` adds a partial U152 AW3641E observer on yellow EN GPIO pad edges and
+QEMU virtual time. Its S1 Flash/Torch fixture freezes after all creation inputs
+are applied. Flash pulses qualify only on the supported GPIO route and within
+the documented recommended HI/LO window; out-of-scope waveforms withdraw known
+output. The 500 us stable-high decode and first-rise timeout origin are explicit
+model policies. Torch models static EN only. It does not validate dynamic S1,
+reset observation, PWM modulation, bit-exact timing, current, light or heat.
+`0046` adds same-layout/same-pin GPIO OUT_SEL lifecycle invalidation to the
+partial FlashLight model: route changes cancel all qualification timers and
+old low intervals, and restoration requires a newly observed EN falling edge
+plus long-low reset. Route changes do not fabricate pad edges or PWM waveforms.
+New runtime `3f1617` passed the scoped four-host/eight-lane same-VM API and
+CoreS3 mounted Web route-history checks; see the
+[evidence](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md).
+The independent full matrix remains 66 PASS / 1 Core2 IMU FAIL. Cold-route/no-edge
+behavior, dynamic S1, PWM, full OEN/IOMUX, hard-reset observation and physical
+equivalence stay OPEN.
+`0047` supersedes the extra-falling-edge recovery rule with a controller-owned
+pad observation. A newly known low starts its own >500us reset interval without
+fabricating an edge. MMIO OUT/ENABLE/route/PAD_DRIVER, IO_MUX, external/force,
+direct open-drain, reset and RTC ownership commits synchronously update the
+observer. S3 GPIO256 applies OUT_INV and OEN_INV; OEN_SEL is equivalent for this
+route. R1 is an owned passive bias. Unmodeled RTC/hold/power/USB ownership and
+ambiguous source conflicts withdraw qualification. It does not implement RTC,
+peripheral or PWM waveforms, the sleep FSM, electrical behavior, or a general
+GPIO interrupt receiver model. The new C suite replays the complete stack;
+the 0046 suite remains a fixed historical negative-control regression.
+The soft-I2C bridge now owns explicit weak SDA/SCL pull-ups instead of relying
+on the GPIO compatibility default. This preserves M5GFX's external-pull-up
+board probe when it temporarily enables internal pull-downs. Opposing weak
+sources remain unknown; compatibility reads do not establish electrical
+thresholds. CoreS3 R20/R32 evidence and the failed first candidate are retained
+in the [cold-pad record](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md).
+`0044` adds U131's two independent GPIO pad observers and schematic R3/R6
+digital pull-downs. White is channel 1, yellow channel 2; each transition
+counter is independent. Outputs are read-only. This is nominal-powered
+functional indication, not relay contact/load or electrical validation.
+`0043` adds an independent, explicitly partial Scroll controller; the prelude
+README and [Scroll audit](../../docs/unit-research/scroll-roller485.md) define
+its bounded ticks, snapshot semantics and RGB queue/bootloader/persistence gaps.
+Patch `0036` removes the permanent
+classic ESP32 software-I2C disable introduced with Unit routing; it preserves
+Core2's hardware/software switching while retaining the S3 handoff behavior.
+Patch `0037` adds S3-only DUTY/DUTY_R low-19-bit readback from the existing
+immediate duty model for settled set+update observations. It leaves classic
+layout and PWM writes/output unchanged, and does not gate register reads on
+output enable or timer pause. Pending/current-cycle separation, active-latch,
+fade and physical timing remain explicit gaps; see the fixed official sources
+and validation scope in the prelude README. A source/contract check is not a
+new runtime or firmware PASS.
+Patch `0038` is a candidate for GPIO-route initialization observation: a real
+matrix OUT_SEL change refreshes same-layout LEDC state without replaying MMIO
+writes or LED intensity side effects. It retains zero-duty frequency, the
+existing unroute getter gate and readback semantics, and filters cross-layout
+Unit observers. It does not extend current-cycle/fade or physical timing.
+The initial candidate has passed same-firmware Device Service initialization
+and shared-controller regression gates: `UNIT-HOST-20` is FIXED only for route
+observation. Full-cycle/fade and physical behavior remain OPEN; see the
+[scoped evidence](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-pwm-route-d1ba/README.md).
+Do not apply these on top of an arbitrary historical snapshot.
+
 The peripheral work adds:
 
 - a corrected ESP32-S3 I2C FIFO and repeated-start model;

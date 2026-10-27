@@ -1,0 +1,329 @@
+{
+  "savedAt": "2026-10-26T09:23:00.774141+00:00",
+  "stage": "modeled",
+  "scope": "New Mini IMU/EXT.IO2/ACSSR complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 62,
+    "modeled": 76,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "mini-imu",
+      "status": "pass",
+      "report": "docs/research/mini-imu/smoke.json",
+      "meshes": 91,
+      "triangles": 10309
+    },
+    {
+      "id": "extio2",
+      "status": "pass",
+      "report": "docs/research/extio2/smoke.json",
+      "meshes": 151,
+      "triangles": 15258
+    },
+    {
+      "id": "acssr",
+      "status": "pass",
+      "report": "docs/research/acssr/smoke.json",
+      "meshes": 184,
+      "triangles": 123990
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/mini-imu/reference-redraw-axes.png",
+      "pixels": [
+        720,
+        720
+      ],
+      "sha256": "782b63744f03fc0c4ee586032d63bd24f2c89be970cce4b480a4548fed40b727"
+    },
+    {
+      "path": "src/units/mini-imu/reference-redraw-back.png",
+      "pixels": [
+        1968,
+        540
+      ],
+      "sha256": "20fcb984f0241bdcae2c0ec38a5c071279c1c28c819d8c210fe7d58f19f8a701"
+    },
+    {
+      "path": "src/units/mini-imu/reference-redraw-front.png",
+      "pixels": [
+        2160,
+        480
+      ],
+      "sha256": "0358b4be273734133513c12211374a03f804aebdff56662834f13d1ae291b23a"
+    },
+    {
+      "path": "src/units/extio2/reference-redraw-back.png",
+      "pixels": [
+        3130,
+        2342
+      ],
+      "sha256": "5e8f50a6f6bbd15848e554508240b8fde198e05a66c206e941a7b9c653e93372"
+    },
+    {
+      "path": "src/units/acssr/reference-redraw-controller-back.png",
+      "pixels": [
+        2250,
+        900
+      ],
+      "sha256": "d7aa89f3294b5cc204d48f242689d9da1828adf7958842666ca0b790bc018bff"
+    },
+    {
+      "path": "src/units/acssr/reference-redraw-ssr.png",
+      "pixels": [
+        2150,
+        1450
+      ],
+      "sha256": "33abafdc87b5a15d0e32cfc973db0476e37d49887e9b980b5f2b28a9b32715a7"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "mini-imu",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "extio2",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "acssr",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "passive-IMU-and-IO-visual-anchors",
+      "actual-ten-pin-header-rejects-Grove",
+      "three-independent-external-indicators",
+      "physical-SSR-button-press-cancel-and-return",
+      "two-removable-4P-plugs-and-eight-screw-heads",
+      "artwork-toggle-keeps-physical-buffers-and-poses",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "Only new actual products and recursive Grove ownership; canvas/probe substitutes, no browser, sensor, GPIO, mains, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "76-product catalog, three runtime chunks and referenced sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG only; no private URLs/table/vectors/raw sources/intermediates",
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 446,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "acssr",
+      "record": "docs/research/acssr/sources.json",
+      "receipt": {
+        "feedback_id": "f18f5b11d40847f78e7e950a583a548e",
+        "category": "missing_documentation",
+        "scope": "Full U139 kit/SSR installed production assembly dimensions and actual tongue travel absent; controller-only STL preserved without scaling."
+      }
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "mini-imu",
+      "file": "assets/mini-imu-C9W1Nu6i.js",
+      "sha256": "295ef00a50420db6d41e7dda73541ca9d55c9ec6d32611015eb2d87683b143d4"
+    },
+    {
+      "id": "extio2",
+      "file": "assets/extio2-Bd6M4OIc.js",
+      "sha256": "3f74daf26b9a0cce38ce77e668cda5783b99e115fb3057f4f817b52365118b42"
+    },
+    {
+      "id": "acssr",
+      "file": "assets/acssr-ORdt31QB.js",
+      "sha256": "95c0aeb92af9328c4f29176d1b1cf6c7ae7f31ef9d87086cc470c31b88633a66"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/mini-imu/assembly.js",
+      "sha256": "5bd77c5b3754ccc0d0ee138d37c07eb9cc43b2fe46bc30288f83d39791e93c51"
+    },
+    {
+      "path": "src/units/mini-imu/cad-map.json",
+      "sha256": "51683832f22d652579007e8ae6cd23678806ed6b5f0f5f2025b4b2ab1c12076f"
+    },
+    {
+      "path": "src/units/mini-imu/dimensions.js",
+      "sha256": "d5cb39a0f9cdba519e54711a03c3f505f11af1d032d70a7eccbc5ecf97dc227c"
+    },
+    {
+      "path": "src/units/mini-imu/geometry-data.js",
+      "sha256": "f25d79d7ebe0585360cef8c013b7e909f029b7e2931dd303e620fe47680a866e"
+    },
+    {
+      "path": "src/units/mini-imu/index.js",
+      "sha256": "45ce769bd8ab8688ea912d696377c7397e3e5535a9c3124b620ed0db37ca2fd8"
+    },
+    {
+      "path": "src/units/mini-imu/reference-redraw-axes.png",
+      "sha256": "782b63744f03fc0c4ee586032d63bd24f2c89be970cce4b480a4548fed40b727"
+    },
+    {
+      "path": "src/units/mini-imu/reference-redraw-back.png",
+      "sha256": "20fcb984f0241bdcae2c0ec38a5c071279c1c28c819d8c210fe7d58f19f8a701"
+    },
+    {
+      "path": "src/units/mini-imu/reference-redraw-front.png",
+      "sha256": "0358b4be273734133513c12211374a03f804aebdff56662834f13d1ae291b23a"
+    },
+    {
+      "path": "src/units/mini-imu/stickers.js",
+      "sha256": "04ac8c0e4860abe70324c9a31ca0789cf4e9af25d26443075dfc81cb5f1cc020"
+    },
+    {
+      "path": "docs/research/mini-imu/artwork.json",
+      "sha256": "2c782ec2a9ac20c6cea3237c7d77d4f4c42426316eac6196798a7bca501d590e"
+    },
+    {
+      "path": "docs/research/mini-imu/artwork.md",
+      "sha256": "af3a6e7d48e6f854a89d16c735ed7d5db6edbbb18d49ce8cb74bb4f0b8716970"
+    },
+    {
+      "path": "docs/research/mini-imu/modeling.md",
+      "sha256": "6e8494066395c381f540b008110755dcb80244f66a53f45beaf92a0c3432ae54"
+    },
+    {
+      "path": "docs/research/mini-imu/smoke.json",
+      "sha256": "afec3cfb12e3f517fd09d8f3557c5de71a4d1435c21b701dd0ed9585e2e80a59"
+    },
+    {
+      "path": "docs/research/mini-imu/sources.json",
+      "sha256": "e10a1cbf7ba35fba6c89bfcf749ca35eff68dcba2fad671d78574a681c00b3c5"
+    },
+    {
+      "path": "src/units/extio2/assembly.js",
+      "sha256": "47fe058f5f9ed60102ef170825c84868a0cd180e4c96bd209728c097d8f70fcb"
+    },
+    {
+      "path": "src/units/extio2/cad-map.json",
+      "sha256": "f8f1a7388e35a44da1430b62e2544fab91ce442e1ff778b67248679d6e9e419d"
+    },
+    {
+      "path": "src/units/extio2/dimensions.js",
+      "sha256": "370e673c4e3abe7ec6ee5e0af39ce3a82f459e46bbc982545c7703e23d8e90af"
+    },
+    {
+      "path": "src/units/extio2/geometry-data.js",
+      "sha256": "3d7c152aa9094a16309ddbd5cde771e2f0a65a238391a88bd94225dd9dea8fdb"
+    },
+    {
+      "path": "src/units/extio2/index.js",
+      "sha256": "a27d951b8a054455e12871e7463a987351a83a797875dbba335dac9d10903021"
+    },
+    {
+      "path": "src/units/extio2/reference-redraw-back.png",
+      "sha256": "5e8f50a6f6bbd15848e554508240b8fde198e05a66c206e941a7b9c653e93372"
+    },
+    {
+      "path": "src/units/extio2/stickers.js",
+      "sha256": "fccb70468ed3b56ca756c20a06a83d81256c91b30ca39e5fc6c4f09b953a8067"
+    },
+    {
+      "path": "docs/research/extio2/artwork.md",
+      "sha256": "6facebfbc47299c4f70379d3aa362f8b3724c7fd738557ca3894fb6eb9ac92c4"
+    },
+    {
+      "path": "docs/research/extio2/modeling.md",
+      "sha256": "ce8a46a37066776804fbb813821e86bf141dfc3f6662e7c5b08946932e058481"
+    },
+    {
+      "path": "docs/research/extio2/smoke.json",
+      "sha256": "3c4bdcb7d8900d1498fd51472d17985d93e23d41b71dfe50fc9c552ca29b6005"
+    },
+    {
+      "path": "docs/research/extio2/sources.json",
+      "sha256": "bda61399c19d543359e64bbdc5ed34744069eeb745476bc7220efac9bc0d4f50"
+    },
+    {
+      "path": "src/units/acssr/NativeFlexureButton.js",
+      "sha256": "00950d5819336fa53b7255a81bdaa1a14a084b3a0b6bb54ad2bb64246dec9bd4"
+    },
+    {
+      "path": "src/units/acssr/TerminalPlug.js",
+      "sha256": "6a9ed044e9ddbb9860005e722f12ff9371b70995ba43e5138fa6aa8a0dd4f470"
+    },
+    {
+      "path": "src/units/acssr/assembly.js",
+      "sha256": "44a851cfb5e5767d1ba9ce5b0ec52251811ad6f785e28f7226c8535948b0d844"
+    },
+    {
+      "path": "src/units/acssr/cad-map.json",
+      "sha256": "916a6641d84e7124a7eb17651f659ff6de3f629c4f8d9404045437675c628410"
+    },
+    {
+      "path": "src/units/acssr/dimensions.js",
+      "sha256": "72405380397c99c11ea374f63f16d93e116313e4401a875357ddecd810cc58b6"
+    },
+    {
+      "path": "src/units/acssr/geometry-data.js",
+      "sha256": "a59c305f89cd35974ee8c9fa2b06ded0b900a41832c8d0a22ce8b0dd7d2d71ff"
+    },
+    {
+      "path": "src/units/acssr/index.js",
+      "sha256": "06db1ffcce083c4c5441b15398e6d445ebe4d2ddd8c717ac63914214b3408c69"
+    },
+    {
+      "path": "src/units/acssr/reference-redraw-controller-back.png",
+      "sha256": "d7aa89f3294b5cc204d48f242689d9da1828adf7958842666ca0b790bc018bff"
+    },
+    {
+      "path": "src/units/acssr/reference-redraw-ssr.png",
+      "sha256": "33abafdc87b5a15d0e32cfc973db0476e37d49887e9b980b5f2b28a9b32715a7"
+    },
+    {
+      "path": "src/units/acssr/stickers.js",
+      "sha256": "2182c2fbb41ee03876c3a93f2d1d4b788314b0c728c6bccdbcf4f1b679b19fd7"
+    },
+    {
+      "path": "docs/research/acssr/README.md",
+      "sha256": "c21aab94c05b4547bf797fd49ea538ebd2bdb7c5c5198f88bedf61da40ab472d"
+    },
+    {
+      "path": "docs/research/acssr/smoke.json",
+      "sha256": "84e38d64d95ba1d6bb0d6d335a2be79c434c1857744f88fa04fe643b5a8c1590"
+    },
+    {
+      "path": "docs/research/acssr/sources.json",
+      "sha256": "923a7a3b61ed22bad28b498418e073ce65b90add91cd9a925b917463edc733c2"
+    }
+  ],
+  "limitations": [
+    "PCB, hidden component, connector interior and installed transforms retain explicitly documented appearance estimates",
+    "Mini IMU provides physical MPU6886 and visual anchor only; no inertial values or sensor runtime",
+    "EXT.IO2 output functions are external; its genuine 2x5 header does not imply onboard LED or servo",
+    "ACSSR uses physical cap/tongue, terminal screw-head angles and independent lamp output; no electrical or protocol state or threaded/clamping physics",
+    "Font/colour/registration are exact-model official-photo reconstructions; tiny unsupported markings remain documented rather than invented",
+    "Earlier sticker verification, isolated private Scroll and unresolved StackChan production-fit checkpoints preserved"
+  ]
+}

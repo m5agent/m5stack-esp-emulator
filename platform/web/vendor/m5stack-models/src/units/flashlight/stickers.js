@@ -1,0 +1,4 @@
+import{printedArtwork}from'../../modeling/artwork.js';
+const back=new URL('./reference-redraw-back.png',import.meta.url).href,pcb=new URL('./reference-redraw-pcb.png',import.meta.url).href;
+/** Newly drawn readable exact-model marks; no official photograph pixels. */
+export function addStickers(host){return[...(printedArtwork(host,{target:host.parts['FlashLight complete native assembled front and rear shell'],url:back,size:[16.2,12.2],position:[0,7,-3.8],face:'back',depth:.22,name:'FlashLight rear model and pin label reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:host.flashlightAssembly.pcb.pcb,url:pcb,size:[4,12.2],position:[-7.3,5.6,-.45],face:'front',depth:.12,name:'FlashLight PCB TORCH FLASH readable silk reference redraw',artworkKind:'reference-redraw'})??[])];}

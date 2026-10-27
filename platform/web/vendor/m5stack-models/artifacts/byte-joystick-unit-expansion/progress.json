@@ -1,0 +1,171 @@
+{
+  "savedAt": "2026-10-26T07:47:35.690834+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 44,
+    "modeled": 58,
+    "verified": 0
+  },
+  "scope": "New three-Unit construction/API smoke and actual-product recursive cascade; no browser pixels or hardware acceptance",
+  "products": [
+    {
+      "id": "joystick2",
+      "report": "docs/research/joystick2/smoke.json",
+      "status": "pass",
+      "meshes": 34,
+      "triangles": 12500
+    },
+    {
+      "id": "byteswitch",
+      "report": "docs/research/byteswitch/smoke.json",
+      "status": "pass",
+      "meshes": 164,
+      "triangles": 81224
+    },
+    {
+      "id": "bytebutton",
+      "report": "docs/research/bytebutton/smoke.json",
+      "status": "pass",
+      "meshes": 101,
+      "triangles": 22852
+    }
+  ],
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realThreeLevelCascade": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "58-product catalog and three runtime chunks byte-identical to public dist",
+    "newSourcePrivacy": "code/self-authored research only, no private sticker inputs or raw official binaries",
+    "narrowSync": "new products/catalog entries/exports/guides only",
+    "existingPublicUnitFilesUnchanged": 263,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "previewAssets": [
+    {
+      "id": "joystick2",
+      "file": "assets/joystick2-6MggiprW.js",
+      "sha256": "13ded4224ca67853d1af8b73173365201e5c3e94ae3ae3a526c68982e66b8509"
+    },
+    {
+      "id": "byteswitch",
+      "file": "assets/byteswitch-Dvz-RGOU.js",
+      "sha256": "bba0d83b0202ba085b91388b87bb3222cfb535a81c3af50550f8ee11e89b608c"
+    },
+    {
+      "id": "bytebutton",
+      "file": "assets/bytebutton-BTsy3wuA.js",
+      "sha256": "bcef266f14f342ebc1cacf21052d913d99564060b2e48f342dc613aa1ad265c8"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/joystick2/dimensions.js",
+      "sha256": "c84fbb20fad5421e7a92ef75331312d7d69607ad04faea23372a53f076728bab"
+    },
+    {
+      "path": "src/units/joystick2/index.js",
+      "sha256": "3c9a62f8ebf3bec17ae82bf37c7ed22811bf70b49c0004c50868d8cc0c5853a9"
+    },
+    {
+      "path": "src/units/joystick2/cad-map.json",
+      "sha256": "2c8821aaa6e100516f13a68237fa03005bc21da30060f0cc3951abc1bae1d639"
+    },
+    {
+      "path": "src/units/joystick2/assembly.js",
+      "sha256": "f50a7ac86e68e97bc16a31a17366fe769f342aad2bd887c34913dece0e7be9f3"
+    },
+    {
+      "path": "src/units/joystick2/geometry-data.js",
+      "sha256": "ec29e9ea6ad11bf98a7a1f35bc876bcc9314528d1f92fc674ad2cb59b032c9b3"
+    },
+    {
+      "path": "docs/research/joystick2/sources.json",
+      "sha256": "af3d43e605db669e703db6ac8160c730f3bd737d1ff603a1b408a87a435e09e3"
+    },
+    {
+      "path": "docs/research/joystick2/README.md",
+      "sha256": "370dd34190cb12ffdf02e79325ef987b99b838a9afdb4ff799dfb08e8ce71832"
+    },
+    {
+      "path": "docs/research/joystick2/smoke.json",
+      "sha256": "0631924006ee01f094d599ca46908ac5f1c498b5c4147635da517de6992c9e30"
+    },
+    {
+      "path": "src/units/byteswitch/dimensions.js",
+      "sha256": "f744e1f751cb4ceb3ca49873748358b901070297031480624c6e0f094212d59c"
+    },
+    {
+      "path": "src/units/byteswitch/index.js",
+      "sha256": "6a96fc93422768fbd04b4034a09b2b208a9d5a139d95fa2ae4401426b4bccc11"
+    },
+    {
+      "path": "src/units/byteswitch/cad-map.json",
+      "sha256": "bca73588601e5b5cf0966b31eec2099ea09a5d1b272ac8070e2d272d4500250f"
+    },
+    {
+      "path": "src/units/byteswitch/assembly.js",
+      "sha256": "870d708143a5b405b45914a1005746ebea8e073a36421b5e1e033798cc612872"
+    },
+    {
+      "path": "src/units/byteswitch/geometry-data.js",
+      "sha256": "8769cfb7a3857ce9c510e9e21089682690a24b06ea8b20a1b90cb9feca2357ec"
+    },
+    {
+      "path": "src/units/byteswitch/ToggleButton.js",
+      "sha256": "bb213916d7556a3971b84bc1b5c9f9c544e73f52d96450e18cb763e91cf53191"
+    },
+    {
+      "path": "docs/research/byteswitch/modeling.md",
+      "sha256": "d78aee6801ea86453df36e1bc3e755ad495a6920162b20ab7f022f0a56047b0e"
+    },
+    {
+      "path": "docs/research/byteswitch/smoke.json",
+      "sha256": "982efa001f3e2c24b8db146988f02800d55cd9e20a8e5260821361082e62467c"
+    },
+    {
+      "path": "src/units/bytebutton/dimensions.js",
+      "sha256": "6a3be6c6e3ca0cd8134989d31749fb2801883033e5c29705936726cf6175b96a"
+    },
+    {
+      "path": "src/units/bytebutton/index.js",
+      "sha256": "3b70a4b4b1427a554bc68d4482f45eed6c8b9e24e31d960844a9f0406e97c629"
+    },
+    {
+      "path": "src/units/bytebutton/cad-map.json",
+      "sha256": "a238d8fc792fe1a5fa3a36db6d326cfac7a93b826c5874fb1fc78820321d44c9"
+    },
+    {
+      "path": "src/units/bytebutton/assembly.js",
+      "sha256": "a864ab071b006cb403d17b75cb38abe9b47e780817afc5133f2518aad1088290"
+    },
+    {
+      "path": "src/units/bytebutton/geometry-data.js",
+      "sha256": "d3aa66373c25a3d151bd989060ae4ebfde44f2cca1b1055293ae6ef656e54da4"
+    },
+    {
+      "path": "docs/research/bytebutton/sources.json",
+      "sha256": "4a6256340fe62cc6ba04d64fd974c69ec0880ae0de35df4250672e64ca7b41d0"
+    },
+    {
+      "path": "docs/research/bytebutton/README.md",
+      "sha256": "5c6e9262edf34bd8cedcc4b2c2129a531261e9f0b33121386ff6bc637bb30985"
+    },
+    {
+      "path": "docs/research/bytebutton/smoke.json",
+      "sha256": "10f2aacd4918c0a3cc98d3aa59a3fca9c523c0276e944db72bb62ba14c6fbc83"
+    }
+  ],
+  "limitations": [
+    "Joystick2 pivot/tilt/travel and Byte control swing/travel are documented visual estimates",
+    "New print artwork and micro markings deferred",
+    "ByteButton nominal shell depth 12mm; full cap envelope 14mm",
+    "ByteSwitch stable-detent depth 19.59477mm; estimated midpoint max20.12mm",
+    "Previous sticker and Scroll checkpoints preserved",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

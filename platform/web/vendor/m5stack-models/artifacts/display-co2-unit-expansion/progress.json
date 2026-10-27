@@ -1,0 +1,355 @@
+{
+  "savedAt": "2026-10-26T07:36:49.912324+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 41,
+    "modeled": 55,
+    "verified": 0
+  },
+  "scope": "New OLED/LCD/CO2 construction and API smoke; actual product multi-screen controller fixture; no browser pixels or hardware acceptance",
+  "products": [
+    {
+      "id": "oled",
+      "report": "docs/research/oled/smoke.json",
+      "checkedAt": "2026-10-26T07:34:30.975Z",
+      "status": "pass",
+      "scope": "Necessary finite construction, active-area visibility, mounting bores/normals, framebuffer, connector, attachment/pose/detach/disposal smoke; no browser, hardware, I2C or SH1107 verification",
+      "meshes": 34,
+      "triangles": 10354,
+      "visualEnvelopeMm": [
+        24.007047653198242,
+        56.00704765319824,
+        8.000000095367431
+      ],
+      "cadEnvelopeMm": [
+        24.007047653198242,
+        56.00704765319824,
+        8
+      ],
+      "mountingRays": 10,
+      "activeAreaRays": 25,
+      "framebuffer": {
+        "id": "lcd",
+        "resolution": [
+          64,
+          128
+        ],
+        "factoryResolution": [
+          128,
+          64
+        ],
+        "monochrome": true,
+        "touch": false,
+        "writes": [
+          "fill",
+          "rgb565",
+          "rgba"
+        ],
+        "nestedWrite": "pass"
+      },
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            8.15,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 17,
+          "purpose": "Display window is closed by framebuffer over physical black glass and carrier"
+        },
+        {
+          "origin": [
+            8.05,
+            8.15,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 17.1,
+          "purpose": "Inactive window border is closed by solid glass"
+        },
+        {
+          "origin": [
+            0,
+            -40,
+            0.5
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 22,
+          "purpose": "Grove mouth ends in physical connector rear wall"
+        }
+      ],
+      "closureHits": [
+        {
+          "purpose": "Display window is closed by framebuffer over physical black glass and carrier",
+          "hit": "display-panel",
+          "distanceMm": 16.96
+        },
+        {
+          "purpose": "Inactive window border is closed by solid glass",
+          "hit": "OLED physical black glass and inactive border",
+          "distanceMm": 16.97500001192093
+        },
+        {
+          "purpose": "Grove mouth ends in physical connector rear wall",
+          "hit": "Grove rear wall",
+          "distanceMm": 17.950000011920928
+        }
+      ],
+      "grovePins": [
+        "GND",
+        "5V",
+        "SDA",
+        "SCL"
+      ],
+      "groveAttachPoseNestedDetach": "pass",
+      "disposedResources": 81,
+      "disposeEvents": 107
+    },
+    {
+      "id": "lcd",
+      "report": "docs/research/lcd/smoke.json",
+      "checkedAt": "2026-10-26T07:33:51.190Z",
+      "status": "pass",
+      "scope": "Necessary finite geometry, real aperture backing and mounting bores, framebuffer pixels, nested attachment/pose/detach/disposal; no browser, I2C, firmware or hardware verification",
+      "meshes": 57,
+      "triangles": 35094,
+      "visualEnvelopeMm": [
+        24.027997970581055,
+        48.01752471923828,
+        8.000000095367431
+      ],
+      "cadEnvelopeMm": [
+        24.027997970581055,
+        48.01752471923828,
+        8
+      ],
+      "mountingRays": 10,
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            8.7,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 16.4,
+          "purpose": "Screen aperture ends at external-framebuffer panel with physical LCD behind it"
+        },
+        {
+          "origin": [
+            0,
+            8.7,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "maxDistance": 18,
+          "purpose": "Rear LCD body closed by original rear shell"
+        },
+        {
+          "origin": [
+            0,
+            -40,
+            0.4
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 23,
+          "purpose": "Open Grove mouth ends at real socket rear wall"
+        }
+      ],
+      "closureHits": [
+        {
+          "purpose": "Screen aperture ends at external-framebuffer panel with physical LCD behind it",
+          "hit": "display-panel",
+          "distanceMm": 16.32
+        },
+        {
+          "purpose": "Rear LCD body closed by original rear shell",
+          "hit": "LCD native rear shell",
+          "distanceMm": 16.199999809265137
+        },
+        {
+          "purpose": "Open Grove mouth ends at real socket rear wall",
+          "hit": "Grove rear wall",
+          "distanceMm": 21.950000011920928
+        }
+      ],
+      "framebuffer": {
+        "width": 135,
+        "height": 240,
+        "activeMm": [
+          14.8635,
+          24.912
+        ],
+        "rgb888": "pass",
+        "rgb565": "pass",
+        "nestedWrite": "pass",
+        "backlight": "pass",
+        "touch": false
+      },
+      "grovePins": [
+        "GND",
+        "5V",
+        "SDA",
+        "SCL"
+      ],
+      "groveAttachPoseDetach": "pass",
+      "disposedResources": 116,
+      "textureDisposed": true
+    },
+    {
+      "id": "co2",
+      "report": "docs/research/co2/smoke.json",
+      "checkedAt": "2026-10-26T07:34:28.264Z",
+      "status": "pass",
+      "scope": "Necessary finite construction, ventilation/package, connector, attachment/pose/detach/disposal smoke; no browser, hardware, I2C or gas/temperature/humidity verification",
+      "meshes": 69,
+      "triangles": 18248,
+      "visualEnvelopeMm": [
+        24,
+        48,
+        16
+      ],
+      "cadEnvelopeMm": [
+        24,
+        48,
+        16
+      ],
+      "mountingRays": 10,
+      "closureChecks": [
+        {
+          "origin": [
+            0,
+            8,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 20,
+          "purpose": "Central ventilation aperture has physical SCD40 membrane behind it"
+        },
+        {
+          "origin": [
+            8,
+            8,
+            20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "maxDistance": 26,
+          "purpose": "Off-centre ventilation opening ends at real PCB or shell interior"
+        },
+        {
+          "origin": [
+            0,
+            -40,
+            -2.9
+          ],
+          "direction": [
+            0,
+            1,
+            0
+          ],
+          "maxDistance": 24,
+          "purpose": "Grove mouth ends at connector contact or rear wall"
+        }
+      ],
+      "closureHits": [
+        {
+          "purpose": "Central ventilation aperture has physical SCD40 membrane behind it",
+          "hit": "SCD40 physical white protection membrane",
+          "distanceMm": 17.480000001788138
+        },
+        {
+          "purpose": "Off-centre ventilation opening ends at real PCB or shell interior",
+          "hit": "CO2 native assembled double shell",
+          "distanceMm": 12
+        },
+        {
+          "purpose": "Grove mouth ends at connector contact or rear wall",
+          "hit": "Grove rear wall",
+          "distanceMm": 21.950000011920928
+        }
+      ],
+      "sensorPackage": "physical substrate, rounded metal can, white membrane and perimeter contacts",
+      "grovePins": [
+        "GND",
+        "5V",
+        "SDA",
+        "SCL"
+      ],
+      "visualAnchor": "sensor",
+      "controls": 0,
+      "groveAttachPoseNestedDetach": "pass",
+      "disposedResources": 111,
+      "disposeEvents": 176
+    }
+  ],
+  "checks": {
+    "catalog": "55 valid products",
+    "productLocalSmoke": "all three pass",
+    "multiScreenGroveFixture": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "55-product public dist catalog and 3 product runtime chunks byte-identical",
+    "newSourcePrivacy": "text/code only, no local private paths or private sticker inputs",
+    "sync": "new product directories/metadata and docs only; previous Unit sources/private Scroll unchanged",
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "previewAssets": [
+    {
+      "id": "oled",
+      "file": "assets/oled-Cjzz-rpS.js",
+      "sha256": "52d270498f5b768d3dc589c08641df647e30ce024949dbed993f077ec3ca10e1"
+    },
+    {
+      "id": "lcd",
+      "file": "assets/lcd-bFK3wZDH.js",
+      "sha256": "b006602b8bf59a7b678570816db7cd86188c31e2e018ac4c63bfb18dae9bb1c9"
+    },
+    {
+      "id": "co2",
+      "file": "assets/co2-B_q6xCVT.js",
+      "sha256": "3c57257d72b0c9c62d080fb5942ef3b521a82e39919233d0afa779c97bbbf55e"
+    }
+  ],
+  "limitations": [
+    "Print artwork and micro markings deferred for new products",
+    "Internal component placements/material details include documented photo-derived estimates",
+    "Previous sticker batch remains an unverified checkpoint",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

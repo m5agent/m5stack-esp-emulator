@@ -13,12 +13,28 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Check pull request size and evidence scope
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 platform/tools/check_pr_scope.py --base "$PR_BASE_SHA" --head HEAD
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: platform/tests/package-lock.json
+      - name: Install evidence decoder and firmware composition dependency
+        run: python3 -m pip install Pillow littlefs-python==0.19.0
+      - name: Install locked browser test dependencies
+        run: |
+          npm ci --prefix platform/tests
+          npm exec --prefix platform/tests -- playwright install --with-deps --no-shell chromium
+          node --input-type=module -e "import {chromium} from './platform/tests/node_modules/playwright/index.mjs'; console.log('PLAYWRIGHT_CHROMIUM_EXECUTABLE=' + chromium.executablePath())" >> "$GITHUB_ENV"
       - name: Run platform tests and contract checks
         env:
           PYTHONPATH: platform/tools
@@ -28,13 +44,26 @@ jobs:
           python3 platform/tools/qemu_profiles.py --check
           python3 platform/tools/peripheral_catalog.py --check
           python3 platform/tools/runtime_coverage.py --check
+          python3 platform/tools/project_snapshot.py --check
       - name: Compile Python entry points
         run: |
           python3 -m compileall -q platform tests
-      - name: Run browser upload unit tests
+      - name: Run browser and preview contract tests
+        run: npm run --prefix platform/tests test:contracts
+      - name: Run offline Unit evidence fault controls
+        env:
+          PYTHONPATH: platform/tools:tests/units
         run: |
-          node platform/tests/test_sha256.mjs
-          node platform/tests/test_firmware_upload.mjs
+          python3 -m unittest discover -s tests/units -p 'test_batch_evidence.py'
+          python3 -m unittest discover -s tests/units -p 'test_sensor_evidence.py'
+          python3 -m unittest discover -s tests/units -p 'test_web_ui_bridge.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_control_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_sensor_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_sensor_execution.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_io_preparation.py'
+          python3 -m unittest discover -s tests/units -p 'test_host_io_execution.py'
+          python3 -m unittest discover -s tests/units -p 'test_annotation_cases.py'
+          python3 -m unittest discover -s tests/units -p 'test_buzzer_callback_adapter.py'
       - name: Test worker credential generation migration
         run: |
           python3 tests/network/worker_tls/run_fleet_migration_test.py \
@@ -45,6 +74,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

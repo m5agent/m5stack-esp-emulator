@@ -1,0 +1,178 @@
+{
+  "savedAt": "2026-10-26T08:30:30.464529+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 56,
+    "modeled": 70,
+    "verified": 0
+  },
+  "scope": "New RTC/Fingerprint2/AudioPlayer construction/API smoke and actual three-branch Grove fixture; no browser, recognition/playback or hardware acceptance",
+  "products": [
+    {
+      "id": "rtc",
+      "report": "docs/research/rtc/smoke.json",
+      "status": "pass",
+      "meshes": 88,
+      "triangles": 8406
+    },
+    {
+      "id": "fingerprint2",
+      "report": "docs/research/fingerprint2/smoke.json",
+      "status": "pass",
+      "meshes": 46,
+      "triangles": 13786
+    },
+    {
+      "id": "audioplayer",
+      "report": "docs/research/audioplayer/smoke.json",
+      "status": "pass",
+      "meshes": 89,
+      "triangles": 11322
+    }
+  ],
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "70-product catalog and three runtime chunks byte-identical to public dist",
+    "newSourcePrivacy": "code/self-authored research only; no private sticker inputs or raw official binaries",
+    "narrowSync": "new products/catalog entries/exports/guides only",
+    "existingPublicUnitFilesUnchanged": 325,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "officialDocumentationFeedback": {
+    "product": "rtc",
+    "feedbackId": "6de3c2f2791a41c0a792a7e99457f992",
+    "record": "docs/research/rtc/sources.json",
+    "issue": "Public references confirm internal coin cell but omit battery model/holder/full internal assembly; appearance inference is documented, no removable battery API"
+  },
+  "previewAssets": [
+    {
+      "id": "rtc",
+      "file": "assets/rtc-DBF-sFwY.js",
+      "sha256": "40b12eee2b06d9f42d178eb8aa2f398fc070f0ccfcf77ec6ba53997881d3f757"
+    },
+    {
+      "id": "fingerprint2",
+      "file": "assets/fingerprint2-B4mKK_M6.js",
+      "sha256": "9467368e32fb7a9cacb99d9d33c9eaa8097b7b0b2b5fe8303d65b221e1fba309"
+    },
+    {
+      "id": "audioplayer",
+      "file": "assets/audioplayer-2TgAejft.js",
+      "sha256": "18052fa1b920cf95954c8b0805316b74e4e6e76f22e2856fc40bf37d191fbe17"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/rtc/dimensions.js",
+      "sha256": "c2eb217cbd181f6b905c42577839a5843c83d0540d79c09fc66ce4ad9eb388ce"
+    },
+    {
+      "path": "src/units/rtc/index.js",
+      "sha256": "bebdd8bf22fc86c41994cb89c2ac7bee40144443ff67136a9b8f0576ab4b1009"
+    },
+    {
+      "path": "src/units/rtc/cad-map.json",
+      "sha256": "8c6ccea886e07cef006c0a10cb9863d01c611d34da97fb06cf763b8b4525caae"
+    },
+    {
+      "path": "src/units/rtc/assembly.js",
+      "sha256": "3325466c4033e8357581d0e5043f3a6a38abfad9f2b6661cc678faa746e15c3a"
+    },
+    {
+      "path": "src/units/rtc/geometry-data.js",
+      "sha256": "22e364d016fac4e8137fb42c98adf5d23942df82dc1a8cff1d153c073516047e"
+    },
+    {
+      "path": "docs/research/rtc/sources.json",
+      "sha256": "348f041c1d66e89ac9192b0ef0a69feee97094365bf9fe8aa5eccf30547ddd3b"
+    },
+    {
+      "path": "docs/research/rtc/README.md",
+      "sha256": "4d1313938746d81468ceb00ffe3dad4b79168ada4a3e729aa425f7fdc2bb3020"
+    },
+    {
+      "path": "docs/research/rtc/smoke.json",
+      "sha256": "9d4f504ec273a3eee80d6cd3c018a5be521ee4bd010db116ce528c2b480a751b"
+    },
+    {
+      "path": "src/units/fingerprint2/dimensions.js",
+      "sha256": "5b7a9533d45c1da466b727fabdd4db36d7a0179d1d0c5755b8f25f37161e35d0"
+    },
+    {
+      "path": "src/units/fingerprint2/index.js",
+      "sha256": "ea61c362a101d4e55dc90bef190d781529e9322c57fca6c0f7d3312a5ec70542"
+    },
+    {
+      "path": "src/units/fingerprint2/cad-map.json",
+      "sha256": "f33151c368576d493239734af107bd5ff10110b18bf5c56212f7de215b5aa20a"
+    },
+    {
+      "path": "src/units/fingerprint2/assembly.js",
+      "sha256": "0936c07d33c196240d7ec57bd25cdb84522c112d23b0e5fd2fe87e591749254e"
+    },
+    {
+      "path": "src/units/fingerprint2/geometry-data.js",
+      "sha256": "8b8c74b999b3e7db6432b64b12e2225cf46d939df8b86d3d17566a1328658434"
+    },
+    {
+      "path": "docs/research/fingerprint2/sources.json",
+      "sha256": "3accb72d0dc876aaad35df8573899f2c894d68a78ef2811d7d8b684dcec8df0b"
+    },
+    {
+      "path": "docs/research/fingerprint2/README.md",
+      "sha256": "5f2d32e2ba3613fa416e467701b8439b91bb2c7213ec8b7a50d38efdc495c21c"
+    },
+    {
+      "path": "docs/research/fingerprint2/smoke.json",
+      "sha256": "a6ae0f37b94c3713e861af61db1af2edddb33af7e64999ff41ab7901ab150792"
+    },
+    {
+      "path": "src/units/audioplayer/dimensions.js",
+      "sha256": "385cbf8c5c5f62814cf0d74e50ee59cf66d4fe6b77cb9a9e79eff58594c7ef4b"
+    },
+    {
+      "path": "src/units/audioplayer/index.js",
+      "sha256": "8296cc1f371ead79972d4c72f9c4a4155a0d9ec3dc07bfbda37cc712e4352d51"
+    },
+    {
+      "path": "src/units/audioplayer/cad-map.json",
+      "sha256": "f2b50b32963c5649a636e09a5de0a05dd85e2d2de5ffff47575f4ff089554ec2"
+    },
+    {
+      "path": "src/units/audioplayer/assembly.js",
+      "sha256": "762373da44c40f2dd24d5d54bbb1ca6493b44d54db1233e1d2d4105ea4ff3089"
+    },
+    {
+      "path": "src/units/audioplayer/geometry-data.js",
+      "sha256": "1a03f52b1449e05e18a419f6621e5c27a52dcd3b778cc99eb05f66e937c797cc"
+    },
+    {
+      "path": "docs/research/audioplayer/sources.json",
+      "sha256": "0c4fa05387fd1080ae6ce02004e732090495c72aa9b6c6b0626d034e0838f3e1"
+    },
+    {
+      "path": "docs/research/audioplayer/modeling.md",
+      "sha256": "527d950157839e5c9fa5385a4d24042ebb80233e33f6e38d5df7b31fbedb3fb3"
+    },
+    {
+      "path": "docs/research/audioplayer/smoke.json",
+      "sha256": "fffbb95d1e72816555b9dd97dde04561739b0287eaaf31e6f7750afbb54da6b6"
+    }
+  ],
+  "limitations": [
+    "RTC coin cell dimensions/holder/installed layout are appearance estimates, not a proven removable battery mechanism",
+    "Sensor carrier/PCB, contact details and audio socket protrusion include documented appearance estimates",
+    "AudioPlayer complete card insertion travel and external card are not modeled",
+    "Clock, fingerprint recognition/database, audio playback/filesystem and electrical behavior belong to external runtime",
+    "New print artwork and micro markings deferred",
+    "Previous sticker and Scroll checkpoints preserved",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

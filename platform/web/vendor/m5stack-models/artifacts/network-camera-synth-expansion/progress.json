@@ -1,0 +1,245 @@
+{
+  "savedAt": "2026-10-26T09:02:54.234362+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 59,
+    "modeled": 73,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "checks": {
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "73-product catalog, 30 changed model chunks and their sticker PNGs match public dist byte-for-byte",
+    "newSourcePrivacy": "Final PNG/JS/JSON/Markdown only; private table URLs, vectors, raw official binaries and intermediates excluded",
+    "narrowSync": "Only named new product/sticker files and explicit catalog/exports/guides",
+    "existingPublicUnitFilesProtected": 313,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run",
+    "existingSourceCallsites": "27 pre-existing files differ only by isolated sticker imports/calls and blank lines"
+  },
+  "scope": "New PoESP32/CamS3-5MP/Synth construction, synchronous stickers, actual three-branch Grove/API fixture; no network/capture/synthesis, browser or hardware acceptance",
+  "products": [
+    {
+      "id": "poesp32",
+      "report": "docs/research/poesp32/smoke.json",
+      "status": "pass",
+      "meshes": 153,
+      "triangles": 21396
+    },
+    {
+      "id": "cams3-5mp",
+      "report": "docs/research/cams3-5mp/smoke.json",
+      "status": "pass",
+      "meshes": 139,
+      "triangles": 29814
+    },
+    {
+      "id": "synth",
+      "report": "docs/research/synth/smoke.json",
+      "status": "pass",
+      "meshes": 160,
+      "triangles": 23782
+    }
+  ],
+  "groveFixture": {
+    "status": "pass",
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "network-camera-and-audio-runtime-boundaries",
+      "RJ45-card-and-download-socket-types",
+      "independent-fixed-color-indicators",
+      "no-automatic-network-or-camera-effects",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "Actual product components and recursive Grove ownership; canvas stub and connector probe only, no browser or hardware acceptance"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "poesp32",
+      "feedbackId": "42b7036af5ac41b4b36fb8b6aa1995e4",
+      "record": "docs/research/poesp32/sources.json"
+    },
+    {
+      "product": "cams3-5mp",
+      "feedbackId": "e93f98ee2af2490cb83526f65cb8a56e",
+      "record": "docs/research/cams3-5mp/sources.json"
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "poesp32",
+      "file": "assets/poesp32-ADXuHmpf.js",
+      "sha256": "8e4f0770c1c3b144f648de84ec2c82573831b751f23811ceafa343ac44f4b1ad"
+    },
+    {
+      "id": "cams3-5mp",
+      "file": "assets/cams3-5mp-BHynlLuv.js",
+      "sha256": "57757d7d8eccf8908409e5ed47a886ede808fa6a7d374d96f7604542a352cab9"
+    },
+    {
+      "id": "synth",
+      "file": "assets/synth-BOFrTe5L.js",
+      "sha256": "9c8b883afd71fdb1b01ac2702a784d5a164ef766dc2529da44929725d41a55b4"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/poesp32/assembly.js",
+      "sha256": "58f74674f0309c70542415d6366e4d7f4270270a6042c403e7aeea6d710c4c1f"
+    },
+    {
+      "path": "src/units/poesp32/cad-map.json",
+      "sha256": "d32e3cd02447269fb1486f393efe7a27d98a3cb2b15e279669c5a4397d71ee3a"
+    },
+    {
+      "path": "src/units/poesp32/dimensions.js",
+      "sha256": "2f7f921f700742718315a8e59c2c1f814883ea8d9c2917645d6f01bb2bbb44a0"
+    },
+    {
+      "path": "src/units/poesp32/geometry-data.js",
+      "sha256": "0bb0b4c2384c4b49d63a1cb7e66a3a3f433f8c2da4d6888439cc190612e1f854"
+    },
+    {
+      "path": "src/units/poesp32/index.js",
+      "sha256": "b11f99a0a4237f3455620cecb338fb89ec783f657acaedaed48a83b7c3122ac3"
+    },
+    {
+      "path": "src/units/poesp32/official-back.png",
+      "sha256": "619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d"
+    },
+    {
+      "path": "src/units/poesp32/official-certification.png",
+      "sha256": "d49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda"
+    },
+    {
+      "path": "src/units/poesp32/official-front.png",
+      "sha256": "45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c"
+    },
+    {
+      "path": "src/units/poesp32/stickers.js",
+      "sha256": "a551d2780eb671b2f5adf163cea2e6f7065f65f918a22944cb60c984bf42fe05"
+    },
+    {
+      "path": "docs/research/poesp32/README.md",
+      "sha256": "a936f8bf0e9029db70a161d0054b115dae5bb0028a661497d047eb1aebb767fc"
+    },
+    {
+      "path": "docs/research/poesp32/smoke.json",
+      "sha256": "525ca0c4fa9937876895a0568bc39850a37c45d1e6e315c2cdffa168f5d2b7cf"
+    },
+    {
+      "path": "docs/research/poesp32/sources.json",
+      "sha256": "0216369cfc7fa1210d1c29ab0b145089ccc4219381ab65ee65c832414656e41d"
+    },
+    {
+      "path": "src/units/cams3-5mp/assembly.js",
+      "sha256": "cebaec263f1b97f707d25d8b0dfbbfe4cf4ba757a774a99362ae12d7c7f1b207"
+    },
+    {
+      "path": "src/units/cams3-5mp/cad-map.json",
+      "sha256": "81f96c020346e527774a18122b00a584d86094e595f9245bc70e8ce5e0431154"
+    },
+    {
+      "path": "src/units/cams3-5mp/dimensions.js",
+      "sha256": "3490c3020b9bbab7feb1fdad9672b797344ccfc4d18059c88eff4f7639d55188"
+    },
+    {
+      "path": "src/units/cams3-5mp/geometry-data.js",
+      "sha256": "98f0f43cb7c1085ad807e50f6bc4ae979a1e31173bda0b29f5c4a2e6cf8bde31"
+    },
+    {
+      "path": "src/units/cams3-5mp/index.js",
+      "sha256": "2eeaafd0dc3f19bf2b1355fb7e3b0b42a8c43d0966ef534ac4cb439ee3856fc2"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-back.png",
+      "sha256": "c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-front.png",
+      "sha256": "2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-pinout.png",
+      "sha256": "6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-top.png",
+      "sha256": "0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086"
+    },
+    {
+      "path": "src/units/cams3-5mp/stickers.js",
+      "sha256": "7a4e0045f077cf9f4f098d48e90b8b4cfc5f9a55356ad3dbe11d8843ada4a932"
+    },
+    {
+      "path": "docs/research/cams3-5mp/modeling.md",
+      "sha256": "a870245e21a4b00dd1a40f7282e0029f7a7c4e190e2a5fbebcbbcbaf1bc27d7e"
+    },
+    {
+      "path": "docs/research/cams3-5mp/smoke.json",
+      "sha256": "dfaf995de4fba50ad304ff98c75329a0ca96ec5e4206c73d4727e6afbb6576e8"
+    },
+    {
+      "path": "docs/research/cams3-5mp/sources.json",
+      "sha256": "9db1d767538a990bb14874c812d0657bbe2449f8883ce2eab23d2d41acda3959"
+    },
+    {
+      "path": "src/units/synth/assembly.js",
+      "sha256": "26a08b9e360124e75f0dd65e4cee05662d9cadde5c068d819701e2cb678b6545"
+    },
+    {
+      "path": "src/units/synth/cad-map.json",
+      "sha256": "e2fd9346ef70c79b164a084ce8f350b6e7bd6aed52078ce3626670beb174de27"
+    },
+    {
+      "path": "src/units/synth/dimensions.js",
+      "sha256": "14432742a60eac4784f41baaccfc6d7a809a05c04a5c245e651ef9fe27c8fee9"
+    },
+    {
+      "path": "src/units/synth/geometry-data.js",
+      "sha256": "669c8d32c9f1cbf5ed359880a0ac06bf07a8d9fe628a0be9487b9b7dde560b0a"
+    },
+    {
+      "path": "src/units/synth/index.js",
+      "sha256": "2b946b2e1f786e055dd2c79a310472e3d26963afe626cc88a13708526a4e91e4"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-back.png",
+      "sha256": "25a5320710a04d4637ac5fdba9ec9957a37648be1baa31a6e081ae6d8f8a58f3"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-front.png",
+      "sha256": "365d345d3d991df2612fd4f311dcf2a4e7116db0ebe998168b0a48cc9fef6533"
+    },
+    {
+      "path": "src/units/synth/stickers.js",
+      "sha256": "fe8ea32702e010e91b867384c75098e3513c339ac25f59582ec457a992384467"
+    },
+    {
+      "path": "docs/research/synth/artwork.md",
+      "sha256": "0bec150f104976eb0ef48df2a25b3383bcaafa581b281f64177724a75baee921"
+    },
+    {
+      "path": "docs/research/synth/modeling.md",
+      "sha256": "6cacc2c44366ef4c5e07bc8129b8b79fb8a2fc33f099ce216b7d2e4ca5057a44"
+    },
+    {
+      "path": "docs/research/synth/smoke.json",
+      "sha256": "c568ba0b0f7d6a385aa5f4ed17ce973d3bf1ebc553c765b4557c54f2629e447d"
+    },
+    {
+      "path": "docs/research/synth/sources.json",
+      "sha256": "e06a5badcc1ca1548d45b3a3472cf5c5cfafff297ee4ba1c00a8d555723b3988"
+    }
+  ],
+  "limitations": [
+    "Hidden populated-PCB/connector installed dimensions include documented appearance estimates, not production fit",
+    "PoESP32 certification placement inferred; original front/back and CamS3 labels are approved final rasters",
+    "Synth is a fixed physical built-in speaker with Grove MIDI input appearance, no invented DIN/headphone/USB or audio implementation",
+    "StackChan production fit, earlier sticker verification and isolated private Scroll checkpoints retained"
+  ]
+}

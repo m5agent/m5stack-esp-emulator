@@ -1,6 +1,6 @@
 # M5Stack Firmware Simulation and Review Platform
 
-Last reconciled: `2026-10-26`
+Last reconciled: `2026-10-27`
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
@@ -20,6 +20,10 @@ MicroPython 和其他完整 Flash 固件。
 - Device Service 提供 lease、虚拟烧录、串口、frame/input/QOM、worker job、
   网络故障、pcap 和 evidence；普通 Agent 功能测试统一走 `/api/v1`，并在
   Live sessions 中保留可观察历史。
+- 外部 Agent 可提交 UIFlow2 Python 源码、在创建 session 时选择兼容 Unit，
+  在同一 guest 连续 Run 并通过 Web 双向操作。兼容固件经真实 loader 探针后
+  还可运行完整 main.mpy 包；默认 stock 能力与运行时能力分别查询。调用步骤、源码身份
+  pin、可重放场景及各驱动边界见[源码到 Unit 会话指南](docs/unit-agent-api.md)。
 - 网络路径已有 controlled DNS/CNAME、exact/domain/CNAME answer binding、
   严格 HTTP Host authority、有界 IPv4/IPv6 egress、WPA2 正误密码、
   断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
@@ -207,7 +211,7 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 
 ## 本地开发依赖
 
-设备目录、只读设备清单 API 和 OpenAPI 只需要 Python 3。需要 lease、
+设备目录、只读设备清单 API 和 OpenAPI 需要 Python 3.10+。需要 lease、
 烧录、串口、截图或输入的 `/api/v1/sessions` 路径时，还必须有匹配当前
 commit 与主机架构的 `.work/` 运行时：
 
@@ -271,6 +275,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [QEMU / 固件补丁总索引](patches/README.md)
 - [设备服务架构](docs/simulator-service-architecture.md)
 - [设备服务 API](docs/device-service-api.md)
+- [外部 Agent：UIFlow 源码到 Unit 会话](docs/unit-agent-api.md)
 - [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)
 - [虚拟主机适配矩阵](docs/qemu-device-adaptation-matrix.md)
 - [外设仿真架构](docs/peripheral-simulation-architecture.md)

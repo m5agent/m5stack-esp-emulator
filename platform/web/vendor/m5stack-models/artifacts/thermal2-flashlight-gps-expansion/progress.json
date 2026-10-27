@@ -1,0 +1,411 @@
+{
+  "savedAt": "2026-10-26T11:54:04.184271+00:00",
+  "stage": "modeled",
+  "scope": "New Thermal2/FlashLight/GPS SMA complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 92,
+    "modeled": 106,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "thermal2",
+      "status": "pass",
+      "report": "docs/research/thermal2/smoke.json",
+      "meshes": 145,
+      "triangles": 90332
+    },
+    {
+      "id": "flashlight",
+      "status": "pass",
+      "report": "docs/research/flashlight/smoke.json",
+      "meshes": 68,
+      "triangles": 57236
+    },
+    {
+      "id": "gps-sma",
+      "status": "pass",
+      "report": "docs/research/gps-sma/smoke.json",
+      "meshes": 123,
+      "triangles": 65258
+    }
+  ],
+  "pngCount": 7,
+  "rasters": [
+    {
+      "path": "src/units/thermal2/reference-redraw-back.png",
+      "pixels": [
+        2106,
+        3536
+      ],
+      "sha256": "416519019c82e838d8fef427a093435ae335201391dff285de2878659b09b8b8"
+    },
+    {
+      "path": "src/units/thermal2/reference-redraw-front.png",
+      "pixels": [
+        2366,
+        689
+      ],
+      "sha256": "397991f5c79dda53f8bf5966bf9a6770d31663267ca2ffc49aca352cc3ddd183"
+    },
+    {
+      "path": "src/units/flashlight/reference-redraw-back.png",
+      "pixels": [
+        2592,
+        1952
+      ],
+      "sha256": "bd84d2a8f48cb0244dd55df945f71cb890950242dc677d83ca654a02058199d2"
+    },
+    {
+      "path": "src/units/flashlight/reference-redraw-pcb.png",
+      "pixels": [
+        800,
+        2440
+      ],
+      "sha256": "1f0cc8b1d61ea2e28f4b72cb799c09ec3c1df21b38fcb9e8938c0f1a3b790d9e"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-antenna.png",
+      "pixels": [
+        3100,
+        2900
+      ],
+      "sha256": "719a1170a38c517cc98fc50699c57698c2d891c1763aaad0449a1841e66e48e5"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        3600
+      ],
+      "sha256": "d85895567b329b44889335d67593f8033cea4c269fb03f6780094c29be2ce779"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-front.png",
+      "pixels": [
+        1600,
+        3600
+      ],
+      "sha256": "f278c41bf9bed1adeb5b49c2d0a15728e6ccdacbcc29b8bfc0acc1d305da2c44"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "thermal2",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "flashlight",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "gps-sma",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "two-native-Thermal2-tongues-press-release-cancel-and-exact-return",
+      "independent-RGB-and-fixed-white-emitter",
+      "real-covered-and-uncovered-stable-mode-selector",
+      "detachable-SMA-active-coax-antenna-external-shape-and-puck-roundtrip",
+      "invalid-coax-path-retains-state-and-geometry",
+      "no-invented-GPS-hinge-or-Thermal2-display",
+      "passive-numeric-and-SMA-mating-boundaries",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-cable-pose-and-selective-detach"
+    ],
+    "scope": "Only new actual assemblies/external shape and input APIs; Node canvas stub, no browser, imaging, temperature, sound, reset, flash-mode, electrical, GNSS, RF, navigation, cable physics, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "thermal2",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "flashlight",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "gps-sma",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "two-native-Thermal2-tongues-press-release-cancel-and-exact-return",
+      "independent-RGB-and-fixed-white-emitter",
+      "real-covered-and-uncovered-stable-mode-selector",
+      "detachable-SMA-active-coax-antenna-external-shape-and-puck-roundtrip",
+      "invalid-coax-path-retains-state-and-geometry",
+      "no-invented-GPS-hinge-or-Thermal2-display",
+      "passive-numeric-and-SMA-mating-boundaries",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-cable-pose-and-selective-detach"
+    ],
+    "scope": "Only new actual assemblies/external shape and input APIs; Node canvas stub, no browser, imaging, temperature, sound, reset, flash-mode, electrical, GNSS, RF, navigation, cable physics, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "thermal2",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "flashlight",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "gps-sma",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "7371ac9903895995291cde452ead24cfde7c1847f9cc48d5a5cbd33f6bf61667",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "014cb1c45ac99d25bc9608b8f203f0d0b4bcd93b14d8dabbbcdd6e433d573232",
+      "logDistributed": false
+    },
+    "livePreview": "106-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 706,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "thermal2",
+      "record": "docs/research/thermal2/sources.json",
+      "feedback_id": "2cfdbc5a135e4a09a808058ec8d42954",
+      "accepted": true
+    },
+    {
+      "product": "flashlight",
+      "record": "docs/research/flashlight/sources.json",
+      "feedback_id": "cc88e29d64704663a8a098f42ea5f145",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "thermal2",
+      "file": "assets/thermal2-UmeiqwKs.js",
+      "sha256": "ba27d5349dd02db239a6bd5652abfa6aa8e35b54ea9ac14ea541430064cfe39a"
+    },
+    {
+      "id": "flashlight",
+      "file": "assets/flashlight-DyQas4Pa.js",
+      "sha256": "2832dd38f36bae066531977f667d3e73c5e820d10a5a866ce9772ab3f19ede4a"
+    },
+    {
+      "id": "gps-sma",
+      "file": "assets/gps-sma-DcCHCgML.js",
+      "sha256": "6296742141779db781566791b4779babcfb24085392af6d509f9dbf4722f378e"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/thermal2/assembly.js",
+      "sha256": "3ea221e447934bb4079570e64b07ae620147fd62658684b184d684855b26f2d1"
+    },
+    {
+      "path": "src/units/thermal2/buttons.js",
+      "sha256": "ca0a1b0debc50beacfc77dd51b1b40f41138f4efc62d995d931f4be0c03c57df"
+    },
+    {
+      "path": "src/units/thermal2/cad-map.json",
+      "sha256": "a7b7efbb7d20ef6116c19823ed62f7eaf7c36fcb3fc4bc46ed0f0720ea25c536"
+    },
+    {
+      "path": "src/units/thermal2/dimensions.js",
+      "sha256": "c3e9e8bb2f731768e82c88aabf04ee682372545d68128385e1660b0e81b3cbaf"
+    },
+    {
+      "path": "src/units/thermal2/geometry-data.js",
+      "sha256": "407b4cc41735784929434275c24b41af428ba8a12850ccc0fd6c5a8626d49f08"
+    },
+    {
+      "path": "src/units/thermal2/index.js",
+      "sha256": "9d426cff358d792ff9fbeeb33e58d182b7925c85fa5d313636cefff117178e73"
+    },
+    {
+      "path": "src/units/thermal2/reference-redraw-back.png",
+      "sha256": "416519019c82e838d8fef427a093435ae335201391dff285de2878659b09b8b8"
+    },
+    {
+      "path": "src/units/thermal2/reference-redraw-front.png",
+      "sha256": "397991f5c79dda53f8bf5966bf9a6770d31663267ca2ffc49aca352cc3ddd183"
+    },
+    {
+      "path": "src/units/thermal2/stickers.js",
+      "sha256": "c04a1b58e4226ab5cd601188a5bd6c5ea780b3c039a1f119c8c25cf0f343304c"
+    },
+    {
+      "path": "docs/research/thermal2/artwork.json",
+      "sha256": "1e12e77b96425901fca4e6746e662bac9a6a95fe39d4fd7fbda1900d7e4a1818"
+    },
+    {
+      "path": "docs/research/thermal2/modeling.md",
+      "sha256": "89207219e2003d99b3bd586d89d3e7f760f81007e90df2407b48c0543dea07ef"
+    },
+    {
+      "path": "docs/research/thermal2/smoke.json",
+      "sha256": "116d235105c8495a8026e82042faa8597bcd2391285684a3a9b8027ce27c7dbb"
+    },
+    {
+      "path": "docs/research/thermal2/sources.json",
+      "sha256": "9c932596612e2dd05b7df31d88adf8b6e156b47f48173eaebfeff1864c645215"
+    },
+    {
+      "path": "src/units/flashlight/assembly.js",
+      "sha256": "f5079233849468c0408b9a32309146efb481cb0be60cdf089bccfd44d8a261f8"
+    },
+    {
+      "path": "src/units/flashlight/cad-map.json",
+      "sha256": "55f4463a5843c6873bb1592fe4a43bbb573b8561462768cd363ba916d4be312b"
+    },
+    {
+      "path": "src/units/flashlight/dimensions.js",
+      "sha256": "119c839e5782a537b46cccf9604cc401189b02f38d34951b3e377be1f8ea7137"
+    },
+    {
+      "path": "src/units/flashlight/geometry-data.js",
+      "sha256": "ac1cf77206af3fc1d19f691c3fad1ccba4f09806f4cc955b6c7499092ec2d7a7"
+    },
+    {
+      "path": "src/units/flashlight/index.js",
+      "sha256": "7813023b872b35bb63a5a9846fac2e47965a7a341126d256bf82bf52dd55386d"
+    },
+    {
+      "path": "src/units/flashlight/reference-redraw-back.png",
+      "sha256": "bd84d2a8f48cb0244dd55df945f71cb890950242dc677d83ca654a02058199d2"
+    },
+    {
+      "path": "src/units/flashlight/reference-redraw-pcb.png",
+      "sha256": "1f0cc8b1d61ea2e28f4b72cb799c09ec3c1df21b38fcb9e8938c0f1a3b790d9e"
+    },
+    {
+      "path": "src/units/flashlight/stickers.js",
+      "sha256": "78cf662544b09ed7a0e1755f4d7a1f926fb40efd26beb9ff149045c680732f08"
+    },
+    {
+      "path": "docs/research/flashlight/artwork.json",
+      "sha256": "53c749b68905a211cda336263301ceebbb5fb811aa5f872e6daccb3bb2e52e2a"
+    },
+    {
+      "path": "docs/research/flashlight/modeling.md",
+      "sha256": "76c7fde9dce7355076ab2a173b1603cd08d7cb3b8369c053eb28b820a1ebf757"
+    },
+    {
+      "path": "docs/research/flashlight/smoke.json",
+      "sha256": "7077370d3f11de9b982f6ab87d63fbc11afe6b7167239dd394e9551fb6ea834d"
+    },
+    {
+      "path": "docs/research/flashlight/sources.json",
+      "sha256": "78ad997b95db4d8014e8e2bcc96475ec19be960c2be6a662ccceebc98e8a2ac6"
+    },
+    {
+      "path": "src/units/gps-sma/Antenna.js",
+      "sha256": "f30453ebca6b49cf92aaeba48f680dcd5f3b6a0ba2c6f324a05425d925f446e3"
+    },
+    {
+      "path": "src/units/gps-sma/assembly.js",
+      "sha256": "a0ebe1988ee98499f7c4366f8c97bd9be1bbf0cd24a35d19d491a49026bff5e5"
+    },
+    {
+      "path": "src/units/gps-sma/cad-map.json",
+      "sha256": "f8beb130c4908d1b41593aa390e73d4e811eb0680c1dc123fda1d612e0eb67d9"
+    },
+    {
+      "path": "src/units/gps-sma/dimensions.js",
+      "sha256": "b70069b5cf0c6f4902da5f3a6626d4a7500379ebbeadb7a57a39769f0603b919"
+    },
+    {
+      "path": "src/units/gps-sma/geometry-data.js",
+      "sha256": "4f38f62d0b11ae12d4dedd889a3c9b226447b5b6431817a72f8cf1b3427e3025"
+    },
+    {
+      "path": "src/units/gps-sma/index.js",
+      "sha256": "a8e226f1fdab549d6a96212c226bccdced8fe62e1a653e1c27a8e0f08de4715c"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-antenna.png",
+      "sha256": "719a1170a38c517cc98fc50699c57698c2d891c1763aaad0449a1841e66e48e5"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-back.png",
+      "sha256": "d85895567b329b44889335d67593f8033cea4c269fb03f6780094c29be2ce779"
+    },
+    {
+      "path": "src/units/gps-sma/reference-redraw-front.png",
+      "sha256": "f278c41bf9bed1adeb5b49c2d0a15728e6ccdacbcc29b8bfc0acc1d305da2c44"
+    },
+    {
+      "path": "src/units/gps-sma/stickers.js",
+      "sha256": "249a8af96beff2568d4edefb9291267d5d962a66e904aff66b13676a6663931a"
+    },
+    {
+      "path": "docs/research/gps-sma/artwork.json",
+      "sha256": "fe955010313ca23b503fbc0d0a8f3b12d9d11d528be5e2b191a86d17e3a86740"
+    },
+    {
+      "path": "docs/research/gps-sma/modeling.md",
+      "sha256": "312dda1a2c7e4f97328af70928696f94bc93fa350f8d672f4d3e64ac679ba028"
+    },
+    {
+      "path": "docs/research/gps-sma/smoke.json",
+      "sha256": "a2ab7f5fb140057bc85de6d7e1adc0919a9a53f3f1fd1a983541e0eb3e75a1a0"
+    },
+    {
+      "path": "docs/research/gps-sma/sources.json",
+      "sha256": "6c58c551fcccf5fffddb23fd7490c0cd2f37c0ed2ede44d0cd3f5fbe9acc46e7"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Thermal2 owns the actual MLX90640 optics, native tongues, RGB and buzzer package; no temperature, imaging, alarm, sound or reset simulation",
+    "FlashLight owns its actual white emitter and concealed mode selector; no automatic flash, Torch mode, power, thermal or electrical behavior",
+    "GPS SMA owns its actual module, SMA and detachable wired active antenna; no GNSS, RF, navigation, NMEA or cable physics",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}
