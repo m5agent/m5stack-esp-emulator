@@ -1,0 +1,10 @@
+ESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875730,len:0xd54
+load:0x4086b910,len:0xc58
+load:0x4086e610,len:0x2e10
+entry 0x4086b910
+E (955) i2c.master: this port has not been initialized, please initialize it first

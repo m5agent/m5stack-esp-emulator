@@ -5,9 +5,11 @@ Last reviewed: `2026-10-27`.
 Status: local MVP with unified-device runtime contract `1.46.0` and bounded
 storage retention implemented on `2026-10-24`.
 
-The service creates an on-demand virtual M5Stack device, flashes an exact
-firmware artifact into an isolated virtual-flash copy, and exposes serial,
-frame, input and QOM operations through HTTP.
+The service creates an on-demand virtual M5Stack device, initializes its isolated
+virtual Flash with an exact firmware artifact once at session creation, and
+exposes serial, frame, input and QOM operations through HTTP. Subsequent UIFlow2
+live Run requests execute programs in that running device; they do not repeat
+firmware initialization.
 
 UIFlow2 live programming can use `program_mode="uiflow-live"` at session
 creation on admitted S3 reference devices. It initializes the guest UART REPL

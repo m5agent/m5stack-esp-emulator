@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "post-build hash checks of all 43 regular dependency files identified by original reuse receipt; bytes are fingerprint-only, not copied",
+  "checks": [
+    {
+      "path": "bin/gpg-error",
+      "expected_sha256": "87fa3235bd801df354d5542b7dc1b3e9059a58586c39f9ff3025b62d093a020e",
+      "actual_sha256": "87fa3235bd801df354d5542b7dc1b3e9059a58586c39f9ff3025b62d093a020e",
+      "bytes": 234472,
+      "match": true
+    },
+    {
+      "path": "bin/bomtool",
+      "expected_sha256": "b67118bab88745bb058523d25f5774d944d3ec65a02756b5aef4781fcfb2502a",
+      "actual_sha256": "b67118bab88745bb058523d25f5774d944d3ec65a02756b5aef4781fcfb2502a",
+      "bytes": 130840,
+      "match": true
+    },
+    {
+      "path": "bin/gpgrt-config",
+      "expected_sha256": "44914f9c936f81e17ffc04bbc80d903e2366f18d8a162610cedeeb53e1ab7a83",
+      "actual_sha256": "44914f9c936f81e17ffc04bbc80d903e2366f18d8a162610cedeeb53e1ab7a83",
+      "bytes": 16302,
+      "match": true
+    },
+    {
+      "path": "bin/pkgconf",
+      "expected_sha256": "886437c11a1d8c0f4886aba2d12d012beee555b1f5849a67890d2066da98bcfe",
+      "actual_sha256": "886437c11a1d8c0f4886aba2d12d012beee555b1f5849a67890d2066da98bcfe",
+      "bytes": 134056,
+      "match": true
+    },
+    {
+      "path": "bin/dumpsexp",
+      "expected_sha256": "1807108e38e9152e123f72779bb11bd4f798fac6b914aa881d9186ee3653a5ef",
+      "actual_sha256": "1807108e38e9152e123f72779bb11bd4f798fac6b914aa881d9186ee3653a5ef",
+      "bytes": 35704,
+      "match": true
+    },
+    {
+      "path": "bin/libgcrypt-config",
+      "expected_sha256": "f88dee47673b0a077a9c260c7d8a642449d6d1648f9b48638b64425072c42cd2",
+      "actual_sha256": "f88dee47673b0a077a9c260c7d8a642449d6d1648f9b48638b64425072c42cd2",
+      "bytes": 4805,
+      "match": true
+    },
+    {
+      "path": "bin/mpicalc",
+      "expected_sha256": "bf24f3b3bce87e5c8c5158a860df6b1f2c44a12b7cea78dbd67e509f40dcbb01",
+      "actual_sha256": "bf24f3b3bce87e5c8c5158a860df6b1f2c44a12b7cea78dbd67e509f40dcbb01",
+      "bytes": 1441384,
+      "match": true
+    },
+    {
+      "path": "bin/hmac256",
+      "expected_sha256": "a4294fbb4cdaf0fec7a4a9879fbd608ced8ae3fb19fa1e4bdd8df154ac0397b1",
+      "actual_sha256": "a4294fbb4cdaf0fec7a4a9879fbd608ced8ae3fb19fa1e4bdd8df154ac0397b1",
+      "bytes": 53592,
+      "match": true
+    },
+    {
+      "path": "include/gcrypt.h",
+      "expected_sha256": "caa198bc604c55afc03249584a9eb869e6ffd4150eb436965cb7abafe550c570",
+      "actual_sha256": "caa198bc604c55afc03249584a9eb869e6ffd4150eb436965cb7abafe550c570",
+      "bytes": 83204,
+      "match": true
+    },
+    {
+      "path": "include/gpg-error.h",
+      "expected_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "actual_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "bytes": 76521,
+      "match": true
+    },
+    {
+      "path": "include/gpgrt.h",
+      "expected_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "actual_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "bytes": 76521,
+      "match": true
+    },
+    {
+      "path": "lib/libpkgconf.a",
+      "expected_sha256": "ef26f28175b60eee3cd80c84cde66c0d45d61c2ac2a48bb019cdb0dec06b17dc",
+      "actual_sha256": "ef26f28175b60eee3cd80c84cde66c0d45d61c2ac2a48bb019cdb0dec06b17dc",
+      "bytes": 310272,
+      "match": true
+    },
+    {
+      "path": "lib/libgpg-error.la",
+      "expected_sha256": "7a34182f267ba59cdcd3f05d8b6017445bc869e8367789686c2256340c2eb0dc",
+      "actual_sha256": "7a34182f267ba59cdcd3f05d8b6017445bc869e8367789686c2256340c2eb0dc",
+      "bytes": 1005,
+      "match": true
+    },
+    {
+      "path": "lib/libpkgconf.la",
+      "expected_sha256": "deece5037b65ab4d8f93c580167b8c6ec3b890eab8d3fdea0f27674d44c02113",
+      "actual_sha256": "deece5037b65ab4d8f93c580167b8c6ec3b890eab8d3fdea0f27674d44c02113",
+      "bytes": 982,
+      "match": true
+    },
+    {
+      "path": "lib/libgcrypt.a",
+      "expected_sha256": "a310b6dc04a8e9bc205400ef3480a4cc6dbbaa151b4b97c0947eedd8c6598b8b",
+      "actual_sha256": "a310b6dc04a8e9bc205400ef3480a4cc6dbbaa151b4b97c0947eedd8c6598b8b",
+      "bytes": 6225440,
+      "match": true
+    },
+    {
+      "path": "lib/libgpg-error.a",
+      "expected_sha256": "7a445ca56fe371eed07ef4aea349bd0b0423dc460774aa9a342a0e79ce575bc4",
+      "actual_sha256": "7a445ca56fe371eed07ef4aea349bd0b0423dc460774aa9a342a0e79ce575bc4",
+      "bytes": 770344,
+      "match": true
+    },
+    {
+      "path": "lib/libgcrypt.la",
+      "expected_sha256": "ecc646d9b14e4ed6144cfa5e82d850a2d3ab2628a20669dcfec60d2248c37b83",
+      "actual_sha256": "ecc646d9b14e4ed6144cfa5e82d850a2d3ab2628a20669dcfec60d2248c37b83",
+      "bytes": 1260,
+      "match": true
+    },
+    {
+      "path": "lib/libslirp.a",
+      "expected_sha256": "9c0161da10e1b9e8ddadc238bd621fb30b0d2d6db7c94452f953c08a30bbab01",
+      "actual_sha256": "9c0161da10e1b9e8ddadc238bd621fb30b0d2d6db7c94452f953c08a30bbab01",
+      "bytes": 230040,
+      "match": true
+    },
+    {
+      "path": "include/slirp/libslirp.h",
+      "expected_sha256": "7276b26a265bdaf83e8623ba39d458d294ab09712fc1f3ab47326e0041039a7d",
+      "actual_sha256": "7276b26a265bdaf83e8623ba39d458d294ab09712fc1f3ab47326e0041039a7d",
+      "bytes": 11259,
+      "match": true
+    },
+    {
+      "path": "include/slirp/libslirp-version.h",
+      "expected_sha256": "3f9992a3652e5dfb5edd0deef288ce110df0f406cbb24d73d282d71964b5061b",
+      "actual_sha256": "3f9992a3652e5dfb5edd0deef288ce110df0f406cbb24d73d282d71964b5061b",
+      "bytes": 697,
+      "match": true
+    },
+    {
+      "path": "include/pkgconf/libpkgconf/stdinc.h",
+      "expected_sha256": "789fb1ee54966b853c5087716644367c79a36c964e7c137f6f8cd0cd9520a1d8",
+      "actual_sha256": "789fb1ee54966b853c5087716644367c79a36c964e7c137f6f8cd0cd9520a1d8",
+      "bytes": 1612,
+      "match": true
+    },
+    {
+      "path": "include/pkgconf/libpkgconf/libpkgconf.h",
+      "expected_sha256": "75fdc6d75c51f338b037d93063e34b3a2cdeaf58b726b73e6e408de79ff1a72e",
+      "actual_sha256": "75fdc6d75c51f338b037d93063e34b3a2cdeaf58b726b73e6e408de79ff1a72e",
+      "bytes": 20006,
+      "match": true
+    },
+    {
+      "path": "include/pkgconf/libpkgconf/iter.h",
+      "expected_sha256": "cb503569a9e106f930c40b2b8bafeb016473b6ab65720469afc9d0e0ed8ca636",
+      "actual_sha256": "cb503569a9e106f930c40b2b8bafeb016473b6ab65720469afc9d0e0ed8ca636",
+      "bytes": 2016,
+      "match": true
+    },
+    {
+      "path": "include/pkgconf/libpkgconf/libpkgconf-api.h",
+      "expected_sha256": "26d56d01ab526d65c1839105d3541898cb1eb37665361abee00a208b843f4767",
+      "actual_sha256": "26d56d01ab526d65c1839105d3541898cb1eb37665361abee00a208b843f4767",
+      "bytes": 599,
+      "match": true
+    },
+    {
+      "path": "include/pkgconf/libpkgconf/bsdstubs.h",
+      "expected_sha256": "0db489febea3a733649448b0165295e91789cf9545621d66c3f0a7f20d4e7014",
+      "actual_sha256": "0db489febea3a733649448b0165295e91789cf9545621d66c3f0a7f20d4e7014",
+      "bytes": 1076,
+      "match": true
+    },
+    {
+      "path": "lib/pkgconfig/libgcrypt.pc",
+      "expected_sha256": "1084ff4e5c0ca04241fe89d94ac5eed33194cd178565ebe5ebbe8382b210725a",
+      "actual_sha256": "1084ff4e5c0ca04241fe89d94ac5eed33194cd178565ebe5ebbe8382b210725a",
+      "bytes": 758,
+      "match": true
+    },
+    {
+      "path": "lib/pkgconfig/libpkgconf.pc",
+      "expected_sha256": "3ba55ab1f2c80ddf35ae05e3236fbf5cb93ef3331bce6492385d7c7153a81849",
+      "actual_sha256": "3ba55ab1f2c80ddf35ae05e3236fbf5cb93ef3331bce6492385d7c7153a81849",
+      "bytes": 452,
+      "match": true
+    },
+    {
+      "path": "lib/pkgconfig/slirp.pc",
+      "expected_sha256": "e5ebea571409d0a811c749e021ccfcd38543c4cf0fca603946e937498b636951",
+      "actual_sha256": "e5ebea571409d0a811c749e021ccfcd38543c4cf0fca603946e937498b636951",
+      "bytes": 326,
+      "match": true
+    },
+    {
+      "path": "lib/pkgconfig/gpg-error.pc",
+      "expected_sha256": "b01f76223a5631b81a89d3cafaea2c3c2c1551fcdc8d5c449345d6f70261e8e9",
+      "actual_sha256": "b01f76223a5631b81a89d3cafaea2c3c2c1551fcdc8d5c449345d6f70261e8e9",
+      "bytes": 447,
+      "match": true
+    },
+    {
+      "path": "share/aclocal/pkg.m4",
+      "expected_sha256": "07f90de7dad7478234c170dd8c85bdbab9252e4d9e3fc4d2c54ef274ff370141",
+      "actual_sha256": "07f90de7dad7478234c170dd8c85bdbab9252e4d9e3fc4d2c54ef274ff370141",
+      "bytes": 13147,
+      "match": true
+    },
+    {
+      "path": "share/aclocal/gpg-error.m4",
+      "expected_sha256": "cdfd0cb91db28d7bbb15c6fffe58ed85eb619aa82056074083845c394761c96d",
+      "actual_sha256": "cdfd0cb91db28d7bbb15c6fffe58ed85eb619aa82056074083845c394761c96d",
+      "bytes": 9117,
+      "match": true
+    },
+    {
+      "path": "share/aclocal/libgcrypt.m4",
+      "expected_sha256": "46025f7c993a4d715e23806ce239b94fc54cf9ba1534efd4f9a34d67908b02d6",
+      "actual_sha256": "46025f7c993a4d715e23806ce239b94fc54cf9ba1534efd4f9a34d67908b02d6",
+      "bytes": 9619,
+      "match": true
+    },
+    {
+      "path": "share/aclocal/gpgrt.m4",
+      "expected_sha256": "b1fa68fd4fff5e38ae7e4403973050320cb1480db052f332809b50f87c809ab0",
+      "actual_sha256": "b1fa68fd4fff5e38ae7e4403973050320cb1480db052f332809b50f87c809ab0",
+      "bytes": 4085,
+      "match": true
+    },
+    {
+      "path": "share/man/man5/pc.5",
+      "expected_sha256": "773cfe9409d3756d836fa0e780460f38225f182f54d934f97a80cb316e40aecc",
+      "actual_sha256": "773cfe9409d3756d836fa0e780460f38225f182f54d934f97a80cb316e40aecc",
+      "bytes": 6022,
+      "match": true
+    },
+    {
+      "path": "share/man/man5/pkgconf-personality.5",
+      "expected_sha256": "b772f57e966c98c1a349aa9e768f0e4a1a78e1bef3aa0f1b0e4eadb56efcc962",
+      "actual_sha256": "b772f57e966c98c1a349aa9e768f0e4a1a78e1bef3aa0f1b0e4eadb56efcc962",
+      "bytes": 3417,
+      "match": true
+    },
+    {
+      "path": "share/man/man1/pkgconf.1",
+      "expected_sha256": "a33a7b0ada9c297daedc7ac85b0f48f8bbfbf290ce640d10cc8841d3e660b456",
+      "actual_sha256": "a33a7b0ada9c297daedc7ac85b0f48f8bbfbf290ce640d10cc8841d3e660b456",
+      "bytes": 7702,
+      "match": true
+    },
+    {
+      "path": "share/man/man7/pkg.m4.7",
+      "expected_sha256": "6324cc3adf3c50b7f6ca91c1da81603a35f85442f0df19236977efeabf108e58",
+      "actual_sha256": "6324cc3adf3c50b7f6ca91c1da81603a35f85442f0df19236977efeabf108e58",
+      "bytes": 4005,
+      "match": true
+    },
+    {
+      "path": "share/doc/pkgconf/AUTHORS",
+      "expected_sha256": "1579e0bd23bd6e3e24aab6bc6bf7efa3bca6c25f83bb2a1f56c5bdbdbfb1d40f",
+      "actual_sha256": "1579e0bd23bd6e3e24aab6bc6bf7efa3bca6c25f83bb2a1f56c5bdbdbfb1d40f",
+      "bytes": 1498,
+      "match": true
+    },
+    {
+      "path": "share/doc/pkgconf/README.md",
+      "expected_sha256": "e98093cdf510a1b56b7c8e7b3c497f96d81711bc86edadb75ebe42ff155a8ade",
+      "actual_sha256": "e98093cdf510a1b56b7c8e7b3c497f96d81711bc86edadb75ebe42ff155a8ade",
+      "bytes": 6596,
+      "match": true
+    },
+    {
+      "path": "share/common-lisp/source/gpg-error/gpg-error-package.lisp",
+      "expected_sha256": "00bcf902617d080f444b658c11bbeb14308803939a348d97debea8ec8cd51457",
+      "actual_sha256": "00bcf902617d080f444b658c11bbeb14308803939a348d97debea8ec8cd51457",
+      "bytes": 2206,
+      "match": true
+    },
+    {
+      "path": "share/common-lisp/source/gpg-error/gpg-error-codes.lisp",
+      "expected_sha256": "3d49966c13da35a5e63d43a66ef1fdd0c9c23cd47cece98429e8e0ea909546db",
+      "actual_sha256": "3d49966c13da35a5e63d43a66ef1fdd0c9c23cd47cece98429e8e0ea909546db",
+      "bytes": 22982,
+      "match": true
+    },
+    {
+      "path": "share/common-lisp/source/gpg-error/gpg-error.lisp",
+      "expected_sha256": "60a5e23a1b4d29b1a3236c93356d4412a32cdda45c7cf65f0ff0784d61f17e5c",
+      "actual_sha256": "60a5e23a1b4d29b1a3236c93356d4412a32cdda45c7cf65f0ff0784d61f17e5c",
+      "bytes": 7109,
+      "match": true
+    },
+    {
+      "path": "share/common-lisp/source/gpg-error/gpg-error.asd",
+      "expected_sha256": "c375100540b4fda9f3f60a6097cbf59560bbb061a1bff043c136be02d21f5292",
+      "actual_sha256": "c375100540b4fda9f3f60a6097cbf59560bbb061a1bff043c136be02d21f5292",
+      "bytes": 1306,
+      "match": true
+    }
+  ],
+  "reuse_receipt_sha256": "c24c695d9d54e238c3bf0fef38b7f568d44bc4724e141ff56752e6cca06aa113",
+  "fresh_qemu_source_and_objects": true,
+  "pc_prefix_boundary": "Fresh QEMU source and cold QEMU object build; static build dependencies reused from the prior pinned owned build. Existing .pc prefix references may point to that original dependency prefix."
+}

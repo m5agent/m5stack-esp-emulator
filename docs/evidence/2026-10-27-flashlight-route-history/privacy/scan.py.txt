@@ -1,0 +1,101 @@
+"""Read-only archive scan; credential comparisons remain in memory only."""
+import argparse
+import base64
+from collections import Counter
+import datetime
+import hashlib
+import ipaddress
+import json
+from pathlib import Path
+import re
+
+root = Path.cwd()
+base = root / 'docs/evidence/2026-10-27-flashlight-route-history'
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', type=Path, required=True)
+out = parser.parse_args().output
+assert not out.exists(), 'preserve previous privacy receipts'
+token = (root / '.work/preview-control-token').read_bytes().strip()
+needles = [token, hashlib.sha256(token).hexdigest().encode(),
+           hashlib.sha256(token + b'\n').hexdigest().encode()]
+patterns = {
+    'MAC_literal': re.compile(rb'(?i)(?<![0-9a-f])(?:[0-9a-f]{2}:){5}[0-9a-f]{2}(?![0-9a-f])'),
+    'provider_key': re.compile(rb'\b(?:sk-(?:proj-)?[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{24,}|xox[baprs]-[A-Za-z0-9-]{20,})\b'),
+    'private_key': re.compile(rb'-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----'),
+    'literal_bearer': re.compile(rb'Bearer\s+[A-Za-z0-9._~+/-]{8,}={0,2}'),
+}
+b64 = re.compile(rb'(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{40,}={0,2}(?![A-Za-z0-9+/=])')
+findings, fingerprints = [], {}
+
+
+def issue(path, kind, **extra):
+    findings.append({'path': str(path.relative_to(base)), 'kind': kind, **extra})
+
+
+def json_scan(value, path, pointer=''):
+    if isinstance(value, dict):
+        if value.get('encoding') == 'base64' and isinstance(value.get('data'), str):
+            issue(path, 'unredacted_file_payload', pointer=pointer)
+        for key, child in value.items():
+            if re.fullmatch(r'(?i)(?:api[_-]?key|api[_-]?token|access[_-]?token|refresh[_-]?token|password|secret|token[_-]?(?:sha256|digest))', key):
+                if isinstance(child, str) and child and not any(x in child.lower() for x in ('redact', 'fixture', 'placeholder', 'synthetic')):
+                    issue(path, 'credential_field_for_review', pointer=pointer + '/' + key)
+            json_scan(child, path, pointer + '/' + key)
+    elif isinstance(value, list):
+        for n, child in enumerate(value):
+            json_scan(child, path, pointer + '/' + str(n))
+
+
+for path in sorted(p for p in base.rglob('*') if p.is_file()):
+    raw = path.read_bytes()
+    fingerprints[str(path.relative_to(base))] = {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+    if path.is_symlink():
+        issue(path, 'symlink')
+    if any(needle and needle in raw for needle in needles):
+        issue(path, 'actual_credential_or_digest_match')
+    if path.suffix.lower() in {'.bin', '.rom', '.elf', '.mpy', '.zip', '.uf2', '.img'}:
+        issue(path, 'forbidden_extension')
+    if raw.startswith((b'PK\x03\x04', b'PK\x05\x06', b'\x7fELF', b'\xcf\xfa\xed\xfe', b'\xfe\xed\xfa\xcf')):
+        issue(path, 'forbidden_binary_magic')
+    if raw.startswith(b'\x89PNG\r\n\x1a\n'):
+        continue
+    try:
+        text = raw.decode('utf-8')
+    except UnicodeDecodeError:
+        issue(path, 'unclassified_non_utf8')
+        continue
+    if '\x00' in text:
+        issue(path, 'text_nul')
+    for kind, pattern in patterns.items():
+        for match in pattern.finditer(raw):
+            issue(path, kind, line=raw.count(b'\n', 0, match.start()) + 1)
+    for match in re.finditer(r'(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])', text):
+        try:
+            address = ipaddress.ip_address(match.group())
+        except ValueError:
+            continue
+        if address.is_private and not address.is_loopback and not address.is_unspecified:
+            issue(path, 'private_address_for_review', line=text.count('\n', 0, match.start()) + 1)
+    try:
+        json_scan(json.loads(text), path)
+    except ValueError:
+        pass
+    for match in b64.finditer(raw):
+        try:
+            decoded = base64.b64decode(match.group(), validate=True)
+        except ValueError:
+            continue
+        mpy = len(decoded) >= 4 and decoded[0] == 77 and decoded[1] in range(3, 7) and decoded[2] < 128 and 16 <= decoded[3] <= 63
+        if mpy or decoded.startswith((b'PK\x03\x04', b'\x7fELF')) or (len(decoded) > 4096 and decoded[:1] == b'\xe9'):
+            issue(path, 'encoded_binary_for_review', line=raw.count(b'\n', 0, match.start()) + 1)
+receipt = {
+    'schema_version': 1, 'status': 'PASS' if not findings else 'REVIEW_REQUIRED',
+    'captured_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'files': len(fingerprints), 'bytes': sum(v['bytes'] for v in fingerprints.values()),
+    'findings': findings, 'finding_kinds': dict(Counter(x['kind'] for x in findings)),
+    'fingerprints': fingerprints, 'api_contacted': False, 'guest': 'NOT RUN',
+    'credential_policy': 'Actual local credential and its digests compared only in memory; no value or digest recorded.',
+    'limitations': 'Pattern scan reports possible matches for owner review; no inference about unrecognized secret syntax.',
+}
+out.write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps({k: receipt[k] for k in ('status', 'files', 'bytes', 'finding_kinds')}))

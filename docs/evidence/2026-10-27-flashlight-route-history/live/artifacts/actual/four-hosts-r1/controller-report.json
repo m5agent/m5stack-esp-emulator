@@ -1,0 +1,100 @@
+{
+  "status": "PASS",
+  "category": "sequential-eight-owned-flashlight-route-lanes",
+  "lanes": [
+    {
+      "device": "cores3",
+      "mode": "torch",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-torch/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "cores3",
+      "mode": "flash",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-flash/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "atoms3r",
+      "mode": "torch",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-torch/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "atoms3r",
+      "mode": "flash",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-flash/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "sticks3",
+      "mode": "torch",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-torch/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "sticks3",
+      "mode": "flash",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-flash/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "stopwatch",
+      "mode": "torch",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-torch/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    },
+    {
+      "device": "stopwatch",
+      "mode": "flash",
+      "exit_code": 0,
+      "report": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-flash/report.json",
+      "status": "PASS",
+      "observations": 21,
+      "cleanup": "PASS",
+      "error": null,
+      "source_unchanged": true
+    }
+  ],
+  "source_sha256": "ec010857fdb2dbd4ba7a129dcfe15fc8b8273258dfd2b17d6424521e0ed910f9",
+  "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+  "generation": 47,
+  "expected_service_pid": 22168,
+  "hardware": "NOT RUN",
+  "readiness_receipt": ".work/unit-host38-owned-start-gen47-20261027/start.json"
+}

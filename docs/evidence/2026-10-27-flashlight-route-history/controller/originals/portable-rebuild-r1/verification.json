@@ -1,0 +1,73 @@
+{
+  "result": "PASS",
+  "category": "independent-controller-C-regression",
+  "api_contacted": false,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "comparisons": [
+    {
+      "folder": "old-r3",
+      "tests_sha256": "dd48f8f822ae247cd6ea8fc2f0916f2e1f69d90069e1e464f9915fd722159e1f",
+      "summary": {
+        "event": "SUMMARY",
+        "cases": 26,
+        "checks": 357,
+        "failures": 152,
+        "result": "FAIL",
+        "api_contacted": false,
+        "guest_execution": "NOT RUN",
+        "hardware_execution": "NOT RUN"
+      },
+      "rebuild": {
+        "compile_argv": [
+          "/usr/bin/clang",
+          "-std=c11",
+          "-O0",
+          "-Wall",
+          "-Wextra",
+          "-Wno-unused-parameter",
+          "-Wno-unused-function",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-independent-audit-20261027/old-r3/harness.c",
+          "-o",
+          ".work/unit-host38-independent-audit-20261027/portable-rebuild-r1/old-r3/harness"
+        ],
+        "compile_exit": 0,
+        "run_exit": 1,
+        "stdout_sha256": "58591213bced46a1c9b40328f9c78837e761e2307a7644ee9295869596fee5fb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "folder": "candidate-r2",
+      "tests_sha256": "dd48f8f822ae247cd6ea8fc2f0916f2e1f69d90069e1e464f9915fd722159e1f",
+      "summary": {
+        "event": "SUMMARY",
+        "cases": 26,
+        "checks": 357,
+        "failures": 0,
+        "result": "PASS",
+        "api_contacted": false,
+        "guest_execution": "NOT RUN",
+        "hardware_execution": "NOT RUN"
+      },
+      "rebuild": {
+        "compile_argv": [
+          "/usr/bin/clang",
+          "-std=c11",
+          "-O0",
+          "-Wall",
+          "-Wextra",
+          "-Wno-unused-parameter",
+          "-Wno-unused-function",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-independent-audit-20261027/candidate-r2/harness.c",
+          "-o",
+          ".work/unit-host38-independent-audit-20261027/portable-rebuild-r1/candidate-r2/harness"
+        ],
+        "compile_exit": 0,
+        "run_exit": 0,
+        "stdout_sha256": "eb2e4dc854382008078a975a4e1e1bf4a64461a19da7139488a8ad7bb0c9f66c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "category": "synthetic-offline-verifier-negative-control",
+  "source_verify_sha256": "0f529c9d4b512d373b7f2013e5a46ab9fcf6dc4778a98f642de50714213a595e",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-I",
+    "-B",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-final-review-20261027-r2/empty-child-fixture/verify.py"
+  ],
+  "cwd": "/tmp",
+  "PYTHONPATH_present": false,
+  "PYTHONHOME_present": false,
+  "exit": 0,
+  "observed_result": {
+    "api_contacted": false,
+    "bytes": 3949,
+    "category": "OFFLINE_SCOPED_ARCHIVE_INTEGRITY",
+    "child_verifiers": 0,
+    "files": 2,
+    "hardware": "NOT RUN",
+    "matrix": "66 PASS / 1 FAIL (core2-imu)",
+    "new_guests": 0,
+    "status": "PASS",
+    "unit_goal": "ACTIVE",
+    "unit_host_37": "OPEN"
+  },
+  "expectation": "Incomplete acceptance with no API/Web/build/controller child checks should be rejected, or output explicitly limited to metadata integrity rather than scoped acceptance.",
+  "finding": "VERIFIER_ACCEPTS_EMPTY_CHILD_EVIDENCE",
+  "actual_API": "NOT RUN",
+  "actual_guest": "NOT RUN",
+  "actual_Web": "NOT RUN",
+  "actual_hardware": "NOT RUN",
+  "original_evidence_modified": false,
+  "recorded_at_utc": "2026-10-26T23:58:50.645493+00:00"
+}

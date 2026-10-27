@@ -1,0 +1,25 @@
+typedef struct AW3641State AW3641State;
+
+typedef struct GPIOUnit {
+    M5Unit *unit;
+    AW3641State *flashlight;
+    struct GPIOUnit *next;
+    bool s3, red, blue, motion, digital;
+    double voltage, duty, frequency;
+    unsigned pwm_signal;
+    QEMUTimer *hold_timer;
+    int64_t hold_until;
+    uint32_t rgb[3];
+    unsigned leds;
+    uint64_t frames, incomplete_frames, adc_samples;
+    uint32_t rx_pulses[192], tx_pulses[192];
+    unsigned rx_count, tx_count;
+    uint8_t uart_tx[4096];
+    size_t uart_tx_size;
+    char *last_rx;
+} GPIOUnit;
+static GPIOUnit *gpio_units;
+
+extern int esp32_gpio_matrix_out_signal(int pin, bool s3);
+extern int esp32_gpio_matrix_in_pin(unsigned signal, bool s3);
+

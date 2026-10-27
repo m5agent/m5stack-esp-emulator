@@ -1,0 +1,2156 @@
+{
+  "schema_version": 1,
+  "classification": "after-run host artifact observation",
+  "scope": "heuristic OCR of all 134 archived PNG candidates, not a guarantee of absence of all sensitive visual content; selected Core2/PaperColor frames were also visually inspected",
+  "status": "PASS",
+  "images": [
+    {
+      "image_path": "atoms3r-ir/after.png",
+      "image_sha256": "07e408ce2bff67ca672823f8279c8ee9eb318afd7e6e57e9bad314bb111a1402",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-ir/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "afac653c4cf91b917b644981777921909b866c5bed6ff784e6343003c1f863f2",
+      "stdout_file": "atoms3r-ir__after.png.stdout.txt",
+      "stderr_file": "atoms3r-ir__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "atoms3r-ir/before.png",
+      "image_sha256": "07e408ce2bff67ca672823f8279c8ee9eb318afd7e6e57e9bad314bb111a1402",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-ir/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "afac653c4cf91b917b644981777921909b866c5bed6ff784e6343003c1f863f2",
+      "stdout_file": "atoms3r-ir__before.png.stdout.txt",
+      "stderr_file": "atoms3r-ir__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "atoms3r-lp5562/after.png",
+      "image_sha256": "5fde79cd6cd1db43e6d1608230a9b5988e837b78e7dae3a7ebbc9c2b5234d010",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-lp5562/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "319b00842667788fcaa252029200fa26b27da83fce86cddfe959699883764958",
+      "stdout_file": "atoms3r-lp5562__after.png.stdout.txt",
+      "stderr_file": "atoms3r-lp5562__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "atoms3r-lp5562/before.png",
+      "image_sha256": "5fde79cd6cd1db43e6d1608230a9b5988e837b78e7dae3a7ebbc9c2b5234d010",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-lp5562/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "319b00842667788fcaa252029200fa26b27da83fce86cddfe959699883764958",
+      "stdout_file": "atoms3r-lp5562__before.png.stdout.txt",
+      "stderr_file": "atoms3r-lp5562__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "atoms3r-peripherals/after.png",
+      "image_sha256": "c16a25db0250a05d08e4dda92c2e83527f4f561eaff83e1ec3a1a5d1670dc4b5",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "94373e4cc3d1f51037975d2484b5189d72576aa2bfa55ae5646fb98e411ec96f",
+      "stdout_file": "atoms3r-peripherals__after.png.stdout.txt",
+      "stderr_file": "atoms3r-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "atoms3r-peripherals/before.png",
+      "image_sha256": "1c8498ca805e3be50ba0d97e024e224934e1cdf5668e1001c5672a8a32a317c6",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/atoms3r-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "5c72178aafdb06545497c5929a3c9ecf82f13cdeebfe2aa377de8e73a2f6533c",
+      "stdout_file": "atoms3r-peripherals__before.png.stdout.txt",
+      "stderr_file": "atoms3r-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-audio/after.png",
+      "image_sha256": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "5a700401f33698b8b24c517beab2acaaee9d961f11e6e01b15777921da1fd4b4",
+      "stdout_file": "cardputer-adv-audio__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-audio/before.png",
+      "image_sha256": "c9fa3799f7f5d852754948634b151c7ee230857e861782cf2d6f3f35a043e256",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "5a700401f33698b8b24c517beab2acaaee9d961f11e6e01b15777921da1fd4b4",
+      "stdout_file": "cardputer-adv-audio__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-cc1101/after.png",
+      "image_sha256": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-cc1101/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e1a855d985aa6c7fa4b07a90ffea984497b9dce3c1be8d295e6e0a7319008084",
+      "stdout_file": "cardputer-adv-cc1101__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-cc1101__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-cc1101/before.png",
+      "image_sha256": "a502f92ce8e5be494bbbd62cbb4eb5b9b08617f83fbca22ae373e86c96f8c5ae",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-cc1101/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e1a855d985aa6c7fa4b07a90ffea984497b9dce3c1be8d295e6e0a7319008084",
+      "stdout_file": "cardputer-adv-cc1101__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-cc1101__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-imu/after.png",
+      "image_sha256": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-imu/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "233996e5b48e9ea44892271ec4dfe60d6c8a0a1ca09a3c8bc3a76c4d6fa25539",
+      "stdout_file": "cardputer-adv-imu__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-imu__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-imu/before.png",
+      "image_sha256": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-imu/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "233996e5b48e9ea44892271ec4dfe60d6c8a0a1ca09a3c8bc3a76c4d6fa25539",
+      "stdout_file": "cardputer-adv-imu__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-imu__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-ir/after.png",
+      "image_sha256": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-ir/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "857c27776bf77a01f69a0fd7d73bcf9dbe803bbb5d9e17e3ae81a15273a78996",
+      "stdout_file": "cardputer-adv-ir__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-ir__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-ir/before.png",
+      "image_sha256": "1df99db24063f56fd4869cf23761ad77ad322f343003c142aac55cde49f6eaf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-ir/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "857c27776bf77a01f69a0fd7d73bcf9dbe803bbb5d9e17e3ae81a15273a78996",
+      "stdout_file": "cardputer-adv-ir__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-ir__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-keyboard/after.png",
+      "image_sha256": "b9323721391b39d341570db53baa11bae2ff8bbc477414264459c1869cd7685b",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-keyboard/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "6c72eb324d733c772e114039bc50fd2c12d2b44e44ecd5ae631350f658f84b50",
+      "stdout_file": "cardputer-adv-keyboard__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-keyboard__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-keyboard/before.png",
+      "image_sha256": "1fd94bd998b8916099f5af89d6dbcdebd52bd0d32f7360de838310ebbb526859",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-keyboard/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "196c1c95b871a432f01b6707a5cdf4492a891bd0ecbd746bc77a3f12056d4db3",
+      "stdout_file": "cardputer-adv-keyboard__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-keyboard__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-mic/after.png",
+      "image_sha256": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "bd9ccb12e4f7800264b56a2f6f1f178551d21bba82b0fec060f9b5df0032549e",
+      "stdout_file": "cardputer-adv-mic__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-mic/before.png",
+      "image_sha256": "79cd140b4560f5d0f2e0bd4dcd8b0d126ab0f830200258e358b68b5d8c6f951e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "bd9ccb12e4f7800264b56a2f6f1f178551d21bba82b0fec060f9b5df0032549e",
+      "stdout_file": "cardputer-adv-mic__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-nfc/after.png",
+      "image_sha256": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-nfc/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9913cee0d1fe8b0e70e5aee24460351fc3b05e2b3d25ff86289bf3083213791e",
+      "stdout_file": "cardputer-adv-nfc__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-nfc__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-nfc/before.png",
+      "image_sha256": "449a2e2eccb489db97d2070c4f3b6ceea939e472a244bedb6f62ca041d1f0aa1",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-nfc/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9913cee0d1fe8b0e70e5aee24460351fc3b05e2b3d25ff86289bf3083213791e",
+      "stdout_file": "cardputer-adv-nfc__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-nfc__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-sd/after.png",
+      "image_sha256": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-sd/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "8157bc047110f85918a4d073cb6e5bb86d246fe146f1fa62aa664e28f384669d",
+      "stdout_file": "cardputer-adv-sd__after.png.stdout.txt",
+      "stderr_file": "cardputer-adv-sd__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cardputer-adv-sd/before.png",
+      "image_sha256": "83418599e01826531f036c7f45df8fb7b8f4a1ca1408ce939803b9c4bd13c083",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cardputer-adv-sd/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "8157bc047110f85918a4d073cb6e5bb86d246fe146f1fa62aa664e28f384669d",
+      "stdout_file": "cardputer-adv-sd__before.png.stdout.txt",
+      "stderr_file": "cardputer-adv-sd__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-audio/after.png",
+      "image_sha256": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b27a0dc8dbaa22be542acc608ffe77967c3ad29d2c6522d41fc8ab91236f357e",
+      "stdout_file": "core2-audio__after.png.stdout.txt",
+      "stderr_file": "core2-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-audio/before.png",
+      "image_sha256": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b27a0dc8dbaa22be542acc608ffe77967c3ad29d2c6522d41fc8ab91236f357e",
+      "stdout_file": "core2-audio__before.png.stdout.txt",
+      "stderr_file": "core2-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-axp192/after.png",
+      "image_sha256": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-axp192/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "baf225d2f06e45e8e9e67ba9451ad557a7ae677f0520af6fcdcd46ca832ca039",
+      "stdout_file": "core2-axp192__after.png.stdout.txt",
+      "stderr_file": "core2-axp192__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-axp192/before.png",
+      "image_sha256": "5d6f762ca8e4eff94c954bf3460c4ae6103a9292db55efd3ceaf0cf2ef398e83",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-axp192/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "04ade6c84646119b5a702010d941db947175e9aa501ad3a1b1a85f9f7d111eaf",
+      "stdout_file": "core2-axp192__before.png.stdout.txt",
+      "stderr_file": "core2-axp192__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-imu/after.png",
+      "image_sha256": "7c06494535d0c59bcae3d51f16b68dbc6d6e714bdd4d9be1ac1a48ecc2609424",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-imu/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "de0021331c2fa20497c5801e60db26179c07448dd60120bf4460a28cfd6ebca0",
+      "stdout_file": "core2-imu__after.png.stdout.txt",
+      "stderr_file": "core2-imu__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-imu/before.png",
+      "image_sha256": "16d34f82180cb89601083016608b2268599bccbab550e9c298939d5efbd9cd02",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-imu/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "06f8ac47049ab3e7d31c9cd4f2dd67565eee1ab97d9ff5c570ef29ca8e633072",
+      "stdout_file": "core2-imu__before.png.stdout.txt",
+      "stderr_file": "core2-imu__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-mic/after.png",
+      "image_sha256": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "de6c8cc30b92d2224ec2f37c2ecd473782ca6bbce320dd0ecb78a0c4cd5d8685",
+      "stdout_file": "core2-mic__after.png.stdout.txt",
+      "stderr_file": "core2-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-mic/before.png",
+      "image_sha256": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "de6c8cc30b92d2224ec2f37c2ecd473782ca6bbce320dd0ecb78a0c4cd5d8685",
+      "stdout_file": "core2-mic__before.png.stdout.txt",
+      "stderr_file": "core2-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-peripherals/after.png",
+      "image_sha256": "feb3c871b808ed5100a74291b4f43ece159449865630081c1d2478ab986e620c",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "0cd4f1873563ba1f7fffdf597d41a55d8266107bf252c815b0d8f195a740cb56",
+      "stdout_file": "core2-peripherals__after.png.stdout.txt",
+      "stderr_file": "core2-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-peripherals/before.png",
+      "image_sha256": "03133a43ca7b406d4311d2e6a69936238ea7776080f75df7b4075428038f8be1",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e20c16a8032564bcdfd72cdd3f9ebde91585fb8a2523df57c2492b890732293f",
+      "stdout_file": "core2-peripherals__before.png.stdout.txt",
+      "stderr_file": "core2-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-power-monitor/after.png",
+      "image_sha256": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-power-monitor/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "3c8a6edda9fc1a0cc8edc8f21239b97822b373f5f3ae22b979352f477aadf12e",
+      "stdout_file": "core2-power-monitor__after.png.stdout.txt",
+      "stderr_file": "core2-power-monitor__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "core2-power-monitor/before.png",
+      "image_sha256": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/core2-power-monitor/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "3c8a6edda9fc1a0cc8edc8f21239b97822b373f5f3ae22b979352f477aadf12e",
+      "stdout_file": "core2-power-monitor__before.png.stdout.txt",
+      "stderr_file": "core2-power-monitor__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-audio/after.png",
+      "image_sha256": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e27b2ca4b2d64e92c2318da96ca96b00b453cd454dcd096ef45acc1dc8df8df2",
+      "stdout_file": "cores3-audio__after.png.stdout.txt",
+      "stderr_file": "cores3-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-audio/before.png",
+      "image_sha256": "5737cd2a41f666658b1fefb67566c43c491402b00e7bd95714a1ea55921b097a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e27b2ca4b2d64e92c2318da96ca96b00b453cd454dcd096ef45acc1dc8df8df2",
+      "stdout_file": "cores3-audio__before.png.stdout.txt",
+      "stderr_file": "cores3-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-aw9523-full/after.png",
+      "image_sha256": "48e5a99ad6cc4dbb2e01930a8365883fb73bcd598db5f3d02795f5957b3766f2",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-aw9523-full/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "72b11301c89532f1848a48b8df2a3b749d16de3f71e091b643cd83e281e76819",
+      "stdout_file": "cores3-aw9523-full__after.png.stdout.txt",
+      "stderr_file": "cores3-aw9523-full__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-aw9523-full/before.png",
+      "image_sha256": "e8ec9c57516da7f89415d3206f3a3b72fa103f6b47624f5de8174a0b55b39506",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-aw9523-full/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "07184a48c9a9a5ad2534af66875258ec160b0be9f8d33d10df8606a8f433a980",
+      "stdout_file": "cores3-aw9523-full__before.png.stdout.txt",
+      "stderr_file": "cores3-aw9523-full__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-camera/after.png",
+      "image_sha256": "8d71f273f5eda0427f3fb78e27d92a3631c29ae4267692156e239c6dafbeef25",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-camera/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "cores3-camera__after.png.stdout.txt",
+      "stderr_file": "cores3-camera__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-camera/before.png",
+      "image_sha256": "8d71f273f5eda0427f3fb78e27d92a3631c29ae4267692156e239c6dafbeef25",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-camera/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "cores3-camera__before.png.stdout.txt",
+      "stderr_file": "cores3-camera__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-mic/after.png",
+      "image_sha256": "fba93cd48797c65b4df22f24e2c6571d3c6f4bd6fdc26f281c3da90e16579e42",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7e21cb433e9c9b091eb4b3c369345c8635b17357af06960a7520dc8d7022bca0",
+      "stdout_file": "cores3-mic__after.png.stdout.txt",
+      "stderr_file": "cores3-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-mic/before.png",
+      "image_sha256": "fba93cd48797c65b4df22f24e2c6571d3c6f4bd6fdc26f281c3da90e16579e42",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7e21cb433e9c9b091eb4b3c369345c8635b17357af06960a7520dc8d7022bca0",
+      "stdout_file": "cores3-mic__before.png.stdout.txt",
+      "stderr_file": "cores3-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-peripherals/after.png",
+      "image_sha256": "3786f543726a018eaefc9fe9311ea38f61d49d84dd1a357b98e3d819e052235a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "2a7c7addbe5375e2236371dbd88f1ad8397b07ec36f3ad405c6d8f382ba8f877",
+      "stdout_file": "cores3-peripherals__after.png.stdout.txt",
+      "stderr_file": "cores3-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-peripherals/before.png",
+      "image_sha256": "10b358b4cdacb9f497397f592fcf388660d615246a6a84beb0bfd615b0ea12ed",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "789647939bbb4ca792208975d631db2767ee88380179359795dc06265c901588",
+      "stdout_file": "cores3-peripherals__before.png.stdout.txt",
+      "stderr_file": "cores3-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-power-transitions/after.png",
+      "image_sha256": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-power-transitions/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "be2f4993b65fe51f22b2eae3fefa0b8c3283cb856ca2d1f33dd230c51b5bcf00",
+      "stdout_file": "cores3-power-transitions__after.png.stdout.txt",
+      "stderr_file": "cores3-power-transitions__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-power-transitions/before.png",
+      "image_sha256": "62db0e2f6a43c82c9f09864d7f2124f592c6a44a2b3369188b6c96b36dbcc572",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-power-transitions/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "be2f4993b65fe51f22b2eae3fefa0b8c3283cb856ca2d1f33dd230c51b5bcf00",
+      "stdout_file": "cores3-power-transitions__before.png.stdout.txt",
+      "stderr_file": "cores3-power-transitions__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-usb-hid/after.png",
+      "image_sha256": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-usb-hid/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "856480a236780e9771afa62662a84fc113c2ad67f960ab1cfb97832d6a963ec4",
+      "stdout_file": "cores3-usb-hid__after.png.stdout.txt",
+      "stderr_file": "cores3-usb-hid__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "cores3-usb-hid/before.png",
+      "image_sha256": "69e77b10a1853ae62bba1c9e165b974a2bcb9f77fb51bba5081d4b0352a02ae7",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/cores3-usb-hid/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "856480a236780e9771afa62662a84fc113c2ad67f960ab1cfb97832d6a963ec4",
+      "stdout_file": "cores3-usb-hid__before.png.stdout.txt",
+      "stderr_file": "cores3-usb-hid__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-buzzer/after.png",
+      "image_sha256": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-buzzer/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b5638d4e05bfddf153fc647db41abe8e956fbfd05abc0b8a216c45522ba2b0da",
+      "stdout_file": "nesso-buzzer__after.png.stdout.txt",
+      "stderr_file": "nesso-buzzer__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-buzzer/before.png",
+      "image_sha256": "e2fc83174ffa439806c21472b67d3257ef12097cae3654f9a5f0b3356b8ffa89",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-buzzer/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b5638d4e05bfddf153fc647db41abe8e956fbfd05abc0b8a216c45522ba2b0da",
+      "stdout_file": "nesso-buzzer__before.png.stdout.txt",
+      "stderr_file": "nesso-buzzer__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-imu/after.png",
+      "image_sha256": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-imu/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c6b7d561978857e9a900e8fda96477653ff36edc5e5af08d3b78ee75c3f63cc6",
+      "stdout_file": "nesso-imu__after.png.stdout.txt",
+      "stderr_file": "nesso-imu__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-imu/before.png",
+      "image_sha256": "589311b877c5a491dffdeadf778cb240b03d5bc4af1600d9c68975c840839f0c",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-imu/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c6b7d561978857e9a900e8fda96477653ff36edc5e5af08d3b78ee75c3f63cc6",
+      "stdout_file": "nesso-imu__before.png.stdout.txt",
+      "stderr_file": "nesso-imu__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-ir/after.png",
+      "image_sha256": "d4f2f0c4b90600be8975be6071380b2587c0fcc4a4563e5001c096a63a961518",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-ir/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "81d1e4831953f0e3559a0e61bff2522caa3445d0c3533ee38144073f3c1337c0",
+      "stdout_file": "nesso-ir__after.png.stdout.txt",
+      "stderr_file": "nesso-ir__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-ir/before.png",
+      "image_sha256": "d4f2f0c4b90600be8975be6071380b2587c0fcc4a4563e5001c096a63a961518",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-ir/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "81d1e4831953f0e3559a0e61bff2522caa3445d0c3533ee38144073f3c1337c0",
+      "stdout_file": "nesso-ir__before.png.stdout.txt",
+      "stderr_file": "nesso-ir__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-lora/after.png",
+      "image_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-lora/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "6548586ed427ed1d644085c2d913d0d47755ca01de9b4e5376f2e1b5a7971ed5",
+      "stdout_file": "nesso-lora__after.png.stdout.txt",
+      "stderr_file": "nesso-lora__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-lora/before.png",
+      "image_sha256": "a61e4d66d6268326f2125af2f0e5068c71b05a4aa4b48c8cd6f1163d24221354",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-lora/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "6548586ed427ed1d644085c2d913d0d47755ca01de9b4e5376f2e1b5a7971ed5",
+      "stdout_file": "nesso-lora__before.png.stdout.txt",
+      "stderr_file": "nesso-lora__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-peripherals/after.png",
+      "image_sha256": "ee633d7f76e7431995469ff82e30c6a24a0ae3671f038cfd84dc61b11c51a2e4",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "818c0baa8ede22d7d5d34ae1a684a459dc417604113eb65e9958aae4696dd95d",
+      "stdout_file": "nesso-peripherals__after.png.stdout.txt",
+      "stderr_file": "nesso-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "nesso-peripherals/before.png",
+      "image_sha256": "b9ab4bf6b6a6bc134e683af8a342542b73f705a327d4006ba49159b5e56a665b",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/nesso-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "639c94f3c9dfe5eabe63c5b3e33f8588c1d11a4f6ee1964d723e83832c039fe5",
+      "stdout_file": "nesso-peripherals__before.png.stdout.txt",
+      "stderr_file": "nesso-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-audio/after.png",
+      "image_sha256": "d38c7504e36d7ecb2597ad6f29fc3c6bd070a6b4e37b9d773ea80a45500ba284",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9394d46ce8588ab4082ead687d82c46d671a2eef5a768201b36279055f8ddea7",
+      "stdout_file": "papercolor-audio__after.png.stdout.txt",
+      "stderr_file": "papercolor-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-audio/before.png",
+      "image_sha256": "d38c7504e36d7ecb2597ad6f29fc3c6bd070a6b4e37b9d773ea80a45500ba284",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9394d46ce8588ab4082ead687d82c46d671a2eef5a768201b36279055f8ddea7",
+      "stdout_file": "papercolor-audio__before.png.stdout.txt",
+      "stderr_file": "papercolor-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-ir/after.png",
+      "image_sha256": "bd0edd19728398c1c3d9f25a1b77ec87e7ae2682038474ca6dce77bca274ebf4",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-ir/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "2b373837bf3b756bd42cd75ef22f25795a098f58c8fb6ad1f689d021f687b512",
+      "stdout_file": "papercolor-ir__after.png.stdout.txt",
+      "stderr_file": "papercolor-ir__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-ir/before.png",
+      "image_sha256": "bd0edd19728398c1c3d9f25a1b77ec87e7ae2682038474ca6dce77bca274ebf4",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-ir/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "2b373837bf3b756bd42cd75ef22f25795a098f58c8fb6ad1f689d021f687b512",
+      "stdout_file": "papercolor-ir__before.png.stdout.txt",
+      "stderr_file": "papercolor-ir__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-mic/after.png",
+      "image_sha256": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "73723ee3c69f646c3e7bb613e5d660ec8596d0f981445cf590602e4015103be2",
+      "stdout_file": "papercolor-mic__after.png.stdout.txt",
+      "stderr_file": "papercolor-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-mic/before.png",
+      "image_sha256": "290368cff34062f8da60ed5ce018bf9159f2d28bdf1cefeb27f9c7043412efbe",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "73723ee3c69f646c3e7bb613e5d660ec8596d0f981445cf590602e4015103be2",
+      "stdout_file": "papercolor-mic__before.png.stdout.txt",
+      "stderr_file": "papercolor-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-peripherals/after.png",
+      "image_sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "papercolor-peripherals__after.png.stdout.txt",
+      "stderr_file": "papercolor-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-peripherals/before.png",
+      "image_sha256": "451ebc7ab3e78c0f370360f33ac829d35f3d680745547a706a6cd5b610fafa91",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "papercolor-peripherals__before.png.stdout.txt",
+      "stderr_file": "papercolor-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-rgb/after.png",
+      "image_sha256": "aedb1fe5365257fc303b28864df3f1c737dc6b1d604e97ce74554d664e167c44",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-rgb/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "11f9804f53169172979ca9f99578ee15eea211457598b08350ec7caa505ee8b5",
+      "stdout_file": "papercolor-rgb__after.png.stdout.txt",
+      "stderr_file": "papercolor-rgb__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-rgb/before.png",
+      "image_sha256": "aedb1fe5365257fc303b28864df3f1c737dc6b1d604e97ce74554d664e167c44",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-rgb/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "11f9804f53169172979ca9f99578ee15eea211457598b08350ec7caa505ee8b5",
+      "stdout_file": "papercolor-rgb__before.png.stdout.txt",
+      "stderr_file": "papercolor-rgb__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-sd/after.png",
+      "image_sha256": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-sd/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "86b2c1b9df68b5bdd9d07946af21eb7783b689a5de8fc48ad5d85adfee804f05",
+      "stdout_file": "papercolor-sd__after.png.stdout.txt",
+      "stderr_file": "papercolor-sd__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-sd/before.png",
+      "image_sha256": "5a8df719e70133efa46b05d4e751a27053ebaebb2087470ba31450214647470f",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-sd/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "86b2c1b9df68b5bdd9d07946af21eb7783b689a5de8fc48ad5d85adfee804f05",
+      "stdout_file": "papercolor-sd__before.png.stdout.txt",
+      "stderr_file": "papercolor-sd__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-sht4x/after.png",
+      "image_sha256": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-sht4x/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "3b187358b1054c36ef4b758059db06c9b5cbad2ce311ed6c2a212d7bb164dc6c",
+      "stdout_file": "papercolor-sht4x__after.png.stdout.txt",
+      "stderr_file": "papercolor-sht4x__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papercolor-sht4x/before.png",
+      "image_sha256": "9c5f4f002808c6eb5f102efb35b7fe5b968cdbe7e6796f643e68fe5b6e7bafc2",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papercolor-sht4x/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "3b187358b1054c36ef4b758059db06c9b5cbad2ce311ed6c2a212d7bb164dc6c",
+      "stdout_file": "papercolor-sht4x__before.png.stdout.txt",
+      "stderr_file": "papercolor-sht4x__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-buzzer/after.png",
+      "image_sha256": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-buzzer/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9f9fabb8bb1d879017b538e6600ed67c23cf944423036706e4e1dc2039818438",
+      "stdout_file": "papermono-buzzer__after.png.stdout.txt",
+      "stderr_file": "papermono-buzzer__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-buzzer/before.png",
+      "image_sha256": "cf19b31c21c45a1514e115cc1f30804ac3a0a50a5aaa7888a75eba736e5e239e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-buzzer/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9f9fabb8bb1d879017b538e6600ed67c23cf944423036706e4e1dc2039818438",
+      "stdout_file": "papermono-buzzer__before.png.stdout.txt",
+      "stderr_file": "papermono-buzzer__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-lora/after.png",
+      "image_sha256": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-lora/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7eb25819681ac6f90afb2e6e66f49f5406c5aee3c3b7de49ddaade9215e86b99",
+      "stdout_file": "papermono-lora__after.png.stdout.txt",
+      "stderr_file": "papermono-lora__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-lora/before.png",
+      "image_sha256": "462f33df5646d2471f31b31ef14e49b69eb0b62f1c4d72242f1e26d66b5600da",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-lora/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7eb25819681ac6f90afb2e6e66f49f5406c5aee3c3b7de49ddaade9215e86b99",
+      "stdout_file": "papermono-lora__before.png.stdout.txt",
+      "stderr_file": "papermono-lora__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-nfc/after.png",
+      "image_sha256": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-nfc/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "0166c3c5c852d045e02e251b87e0640b51e565e8d891ec03ff72bb2d525e94cd",
+      "stdout_file": "papermono-nfc__after.png.stdout.txt",
+      "stderr_file": "papermono-nfc__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-nfc/before.png",
+      "image_sha256": "7ef14df00a770323a14462d365373a10583cd4a00e2eaec89520090e031d160d",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-nfc/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "0166c3c5c852d045e02e251b87e0640b51e565e8d891ec03ff72bb2d525e94cd",
+      "stdout_file": "papermono-nfc__before.png.stdout.txt",
+      "stderr_file": "papermono-nfc__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-pdm-mic/after.png",
+      "image_sha256": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-pdm-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c37d66432fe69405bd37805b05a3ea4c92dcbaf9784d029d8e2db75b9114ab89",
+      "stdout_file": "papermono-pdm-mic__after.png.stdout.txt",
+      "stderr_file": "papermono-pdm-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-pdm-mic/before.png",
+      "image_sha256": "dde3b7365091ab8f011601d4d1c1f0b8356eae447d4fb053d29127206e140dac",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-pdm-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c37d66432fe69405bd37805b05a3ea4c92dcbaf9784d029d8e2db75b9114ab89",
+      "stdout_file": "papermono-pdm-mic__before.png.stdout.txt",
+      "stderr_file": "papermono-pdm-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-peripherals/after.png",
+      "image_sha256": "2ce9e5f9ec35d22dcec4b4ac7904a8e7c32e66ef762978400b7dfc2fb5388fc4",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "eefb9c0a8fc8d74c27803165db0ea63e39efb8dec8b3fe58cfccffea393fc3ce",
+      "stdout_file": "papermono-peripherals__after.png.stdout.txt",
+      "stderr_file": "papermono-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-peripherals/before.png",
+      "image_sha256": "3f7b8a790913ab44c70bda55d0f43427134684fb16ec0cde1b7b43eb30f4a4ac",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "9cc386f426fb13ab2931a2b71c246bda6a24150e8e55fba2698752b5f4d8e253",
+      "stdout_file": "papermono-peripherals__before.png.stdout.txt",
+      "stderr_file": "papermono-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-rgb/after.png",
+      "image_sha256": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-rgb/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c56a380438f3a6fffd38b76f617c3b319d1d711bac3649a1acdecb8aa3c18dae",
+      "stdout_file": "papermono-rgb__after.png.stdout.txt",
+      "stderr_file": "papermono-rgb__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "papermono-rgb/before.png",
+      "image_sha256": "df109a1a6b1cc90714fc6b84047bf5fc7e2c9b09f3cdc97fd23967d5413e3c05",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/papermono-rgb/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "c56a380438f3a6fffd38b76f617c3b319d1d711bac3649a1acdecb8aa3c18dae",
+      "stdout_file": "papermono-rgb__before.png.stdout.txt",
+      "stderr_file": "papermono-rgb__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-audio/after.png",
+      "image_sha256": "41f874533f249bac7f39fdd15f18124a4103e51e848f40284daff37cbccaee12",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "20dce653cf988549af98f2c4c123f57afaa13b243fc2082a943a0468c6388f26",
+      "stdout_file": "stackchan-audio__after.png.stdout.txt",
+      "stderr_file": "stackchan-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-audio/before.png",
+      "image_sha256": "41f874533f249bac7f39fdd15f18124a4103e51e848f40284daff37cbccaee12",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "20dce653cf988549af98f2c4c123f57afaa13b243fc2082a943a0468c6388f26",
+      "stdout_file": "stackchan-audio__before.png.stdout.txt",
+      "stderr_file": "stackchan-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-camera/after.png",
+      "image_sha256": "c4cfe9f440de8a9b918384a7ae2ea751c4966936ef7b611942659f3e24dbfac1",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-camera/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "014a2bce1286bbc6e1730262e681a0127536f3c7fab5e894311c1c2673e8263d",
+      "stdout_file": "stackchan-camera__after.png.stdout.txt",
+      "stderr_file": "stackchan-camera__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-camera/before.png",
+      "image_sha256": "c4cfe9f440de8a9b918384a7ae2ea751c4966936ef7b611942659f3e24dbfac1",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-camera/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "014a2bce1286bbc6e1730262e681a0127536f3c7fab5e894311c1c2673e8263d",
+      "stdout_file": "stackchan-camera__before.png.stdout.txt",
+      "stderr_file": "stackchan-camera__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-mic/after.png",
+      "image_sha256": "650aad5e55574485b3f8edceee80674b357330198d39e1190fcf1283e73a7fd3",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "dc8d0f79430df485a70cb25ec157858a953fc55de7b98b52b15afe548db762df",
+      "stdout_file": "stackchan-mic__after.png.stdout.txt",
+      "stderr_file": "stackchan-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-mic/before.png",
+      "image_sha256": "650aad5e55574485b3f8edceee80674b357330198d39e1190fcf1283e73a7fd3",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "dc8d0f79430df485a70cb25ec157858a953fc55de7b98b52b15afe548db762df",
+      "stdout_file": "stackchan-mic__before.png.stdout.txt",
+      "stderr_file": "stackchan-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-nfc/after.png",
+      "image_sha256": "45704eaf36bd1d72d2b145f91f22dbbc1713748748d19bc2554be5270c85fe81",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-nfc/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "a5115a05fe606eecad73ad11c916a95c673fa3486183ecd2585b0fffe6a9071a",
+      "stdout_file": "stackchan-nfc__after.png.stdout.txt",
+      "stderr_file": "stackchan-nfc__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-nfc/before.png",
+      "image_sha256": "45704eaf36bd1d72d2b145f91f22dbbc1713748748d19bc2554be5270c85fe81",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-nfc/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "a5115a05fe606eecad73ad11c916a95c673fa3486183ecd2585b0fffe6a9071a",
+      "stdout_file": "stackchan-nfc__before.png.stdout.txt",
+      "stderr_file": "stackchan-nfc__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-peripherals/after.png",
+      "image_sha256": "9966c597e909f4c90c07a895821a1919197a408c4024fbc82eef4374968921b0",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "904321f24ae1075d97a02cbb7f914a502651c63f62d9e6a62c1537aa5896a44e",
+      "stdout_file": "stackchan-peripherals__after.png.stdout.txt",
+      "stderr_file": "stackchan-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-peripherals/before.png",
+      "image_sha256": "fc847f77d2decb849ea2557940ecb79addec0be78220b74140230ae44edf8be2",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "72664b26c57589d111976691c8bb015aefee0d83c9e34963a664bc35d1269de4",
+      "stdout_file": "stackchan-peripherals__before.png.stdout.txt",
+      "stderr_file": "stackchan-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-rgb/after.png",
+      "image_sha256": "178c4570bd68cc337ed895c77803b4fa563df663de39d59e79cab64e0d3b86ab",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-rgb/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "72458efe6411d9669c92caea2868375b948369d12856489922a1814b5a51c61f",
+      "stdout_file": "stackchan-rgb__after.png.stdout.txt",
+      "stderr_file": "stackchan-rgb__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-rgb/before.png",
+      "image_sha256": "178c4570bd68cc337ed895c77803b4fa563df663de39d59e79cab64e0d3b86ab",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-rgb/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "72458efe6411d9669c92caea2868375b948369d12856489922a1814b5a51c61f",
+      "stdout_file": "stackchan-rgb__before.png.stdout.txt",
+      "stderr_file": "stackchan-rgb__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-servo/after.png",
+      "image_sha256": "49e73a0fe2f249052f32fb5b5b6617b0f0142612089687926ed1afb301b8a518",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-servo/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "24e9cd6a0eff127ae38cc793b3c572e5e4b961d0783e22ab77db416417fa6e4a",
+      "stdout_file": "stackchan-servo__after.png.stdout.txt",
+      "stderr_file": "stackchan-servo__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-servo/before.png",
+      "image_sha256": "49e73a0fe2f249052f32fb5b5b6617b0f0142612089687926ed1afb301b8a518",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-servo/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "24e9cd6a0eff127ae38cc793b3c572e5e4b961d0783e22ab77db416417fa6e4a",
+      "stdout_file": "stackchan-servo__before.png.stdout.txt",
+      "stderr_file": "stackchan-servo__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-touch/after.png",
+      "image_sha256": "7d11a1584caef9788486287caad3eef9d459d44d83cc31c7f5f02ca7b23527bf",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-touch/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "d23fbc36cb37e1b48f92b92a1a95ec6075f5830367346d7a8aaa9fd93ef8fb83",
+      "stdout_file": "stackchan-touch__after.png.stdout.txt",
+      "stderr_file": "stackchan-touch__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stackchan-touch/before.png",
+      "image_sha256": "7d11a1584caef9788486287caad3eef9d459d44d83cc31c7f5f02ca7b23527bf",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stackchan-touch/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "d23fbc36cb37e1b48f92b92a1a95ec6075f5830367346d7a8aaa9fd93ef8fb83",
+      "stdout_file": "stackchan-touch__before.png.stdout.txt",
+      "stderr_file": "stackchan-touch__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-buzzer/after.png",
+      "image_sha256": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-buzzer/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "f36ee689e4fbd3824800466f8f6ec7a778dc566229a4775de274b0787a567172",
+      "stdout_file": "stamplc-buzzer__after.png.stdout.txt",
+      "stderr_file": "stamplc-buzzer__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-buzzer/before.png",
+      "image_sha256": "f3056ea8d2f5f19b7c6d337d04f956969d7a2286f699c1a780c4d3141426a392",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-buzzer/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "f36ee689e4fbd3824800466f8f6ec7a778dc566229a4775de274b0787a567172",
+      "stdout_file": "stamplc-buzzer__before.png.stdout.txt",
+      "stderr_file": "stamplc-buzzer__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-can/after.png",
+      "image_sha256": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-can/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7e3928b602e2626db3248712f49994c7320258260e367e0317a79a888585946e",
+      "stdout_file": "stamplc-can__after.png.stdout.txt",
+      "stderr_file": "stamplc-can__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-can/before.png",
+      "image_sha256": "d9ef2d6ec83a58eb89acc232ec2f81d1ffdb1e6845ef22ae3773c19673a1e493",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-can/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "7e3928b602e2626db3248712f49994c7320258260e367e0317a79a888585946e",
+      "stdout_file": "stamplc-can__before.png.stdout.txt",
+      "stderr_file": "stamplc-can__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-lm75/after.png",
+      "image_sha256": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-lm75/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "fb5c3713065cec7e0d4104a6dcd6fe1c9fd2698054daa5e036b42fdeed7095bc",
+      "stdout_file": "stamplc-lm75__after.png.stdout.txt",
+      "stderr_file": "stamplc-lm75__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-lm75/before.png",
+      "image_sha256": "ad9adcf22459d23ffff6fcac740c36743ac2d0bf05f854cd29f80173afe94e03",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-lm75/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "fb5c3713065cec7e0d4104a6dcd6fe1c9fd2698054daa5e036b42fdeed7095bc",
+      "stdout_file": "stamplc-lm75__before.png.stdout.txt",
+      "stderr_file": "stamplc-lm75__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-onboard-io/after.png",
+      "image_sha256": "0eab761572f86af4cbb5365e5bf3e0a0d47907e48859a2f080a8811157a56d08",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-onboard-io/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e7b575dadb7b71c5f8bbec655954555363a3ec9d91a0f92c09b6834dbaf6c36b",
+      "stdout_file": "stamplc-onboard-io__after.png.stdout.txt",
+      "stderr_file": "stamplc-onboard-io__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-onboard-io/before.png",
+      "image_sha256": "0eab761572f86af4cbb5365e5bf3e0a0d47907e48859a2f080a8811157a56d08",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-onboard-io/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e7b575dadb7b71c5f8bbec655954555363a3ec9d91a0f92c09b6834dbaf6c36b",
+      "stdout_file": "stamplc-onboard-io__before.png.stdout.txt",
+      "stderr_file": "stamplc-onboard-io__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-peripherals/after.png",
+      "image_sha256": "bb1800dc1b2126d78747a583c10737f1b841df6f6e4d0530089bfb802b1dea8f",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "ca6de224668c740d31bbfe870eb395864cf766dbfb18de13d0c5fdab953efb26",
+      "stdout_file": "stamplc-peripherals__after.png.stdout.txt",
+      "stderr_file": "stamplc-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-peripherals/before.png",
+      "image_sha256": "049e0b3a66c69d296e20675686747649acef3ef9a9ed36395e17e23f2ec9b619",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b6e2c17472d14f1dc0cb22d09a0ef5a7c334c38626d4d511f9bd214084de17fc",
+      "stdout_file": "stamplc-peripherals__before.png.stdout.txt",
+      "stderr_file": "stamplc-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-rs485/after.png",
+      "image_sha256": "9cc4141ec21b714e522134b802ce9387874227cf0ea70315f4aea7199cd452bf",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-rs485/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "2ec50044c098e86135554beebcfe7cb71f1608c32f0ef929a87cc5d109f6816e",
+      "stdout_file": "stamplc-rs485__after.png.stdout.txt",
+      "stderr_file": "stamplc-rs485__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stamplc-rs485/before.png",
+      "image_sha256": "9cc4141ec21b714e522134b802ce9387874227cf0ea70315f4aea7199cd452bf",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stamplc-rs485/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "2ec50044c098e86135554beebcfe7cb71f1608c32f0ef929a87cc5d109f6816e",
+      "stdout_file": "stamplc-rs485__before.png.stdout.txt",
+      "stderr_file": "stamplc-rs485__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-audio/after.png",
+      "image_sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e57e467c41606af7354e05c0b4ab72e8d174b544b974bb28a9ffdecb10a06fd0",
+      "stdout_file": "sticks3-audio__after.png.stdout.txt",
+      "stderr_file": "sticks3-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-audio/before.png",
+      "image_sha256": "40155eca20571584d1e4da0d890d635017b97e89176e18ad1212080d523a02d7",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e57e467c41606af7354e05c0b4ab72e8d174b544b974bb28a9ffdecb10a06fd0",
+      "stdout_file": "sticks3-audio__before.png.stdout.txt",
+      "stderr_file": "sticks3-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-ir/after.png",
+      "image_sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-ir/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "ad5929523b567704981586d3b5dd66c2de7a6c3619050b80c572ab1ffac14d27",
+      "stdout_file": "sticks3-ir__after.png.stdout.txt",
+      "stderr_file": "sticks3-ir__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-ir/before.png",
+      "image_sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-ir/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "ad5929523b567704981586d3b5dd66c2de7a6c3619050b80c572ab1ffac14d27",
+      "stdout_file": "sticks3-ir__before.png.stdout.txt",
+      "stderr_file": "sticks3-ir__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-ir-rx/after.png",
+      "image_sha256": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-ir-rx/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "1f508a6bd06aebad17a9f7f6070a117a910a20f163e492f245f7dddefb533379",
+      "stdout_file": "sticks3-ir-rx__after.png.stdout.txt",
+      "stderr_file": "sticks3-ir-rx__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-ir-rx/before.png",
+      "image_sha256": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-ir-rx/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "1f508a6bd06aebad17a9f7f6070a117a910a20f163e492f245f7dddefb533379",
+      "stdout_file": "sticks3-ir-rx__before.png.stdout.txt",
+      "stderr_file": "sticks3-ir-rx__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-mic/after.png",
+      "image_sha256": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e6dabef2c04f2fc18d2db0465456ca22e7139dff062854eb2e1a3017e260f44b",
+      "stdout_file": "sticks3-mic__after.png.stdout.txt",
+      "stderr_file": "sticks3-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-mic/before.png",
+      "image_sha256": "306a06a9334b5b8b9fb548e92f6a77a0271c8ff7232a6c680ff51e32b361bd46",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e6dabef2c04f2fc18d2db0465456ca22e7139dff062854eb2e1a3017e260f44b",
+      "stdout_file": "sticks3-mic__before.png.stdout.txt",
+      "stderr_file": "sticks3-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-peripherals/after.png",
+      "image_sha256": "bb39742859d741de1eae82970048c4d5a37df4e97700dcf580e81d037f9fa89d",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "a8bbb9f63816b0435215f94721a85226e17d8968378279034086468578b0379e",
+      "stdout_file": "sticks3-peripherals__after.png.stdout.txt",
+      "stderr_file": "sticks3-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "sticks3-peripherals/before.png",
+      "image_sha256": "2fd33ee1179802a021d3433b32ffb491aeb8fa91d64aaea30eda82286b77aa7a",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/sticks3-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "5797b877dfdb10e4e202b9810cea934f52488c2212f37adcfac30544c19995bc",
+      "stdout_file": "sticks3-peripherals__before.png.stdout.txt",
+      "stderr_file": "sticks3-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-audio/after.png",
+      "image_sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-audio/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "stopwatch-audio__after.png.stdout.txt",
+      "stderr_file": "stopwatch-audio__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-audio/before.png",
+      "image_sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-audio/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "stopwatch-audio__before.png.stdout.txt",
+      "stderr_file": "stopwatch-audio__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-m5ioe1-full/after.png",
+      "image_sha256": "86e68bd52cddb2854c0eefb04bc44a0428bc75c177d8618fdb085806d4a9515f",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-m5ioe1-full/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "a40c96ff852b16cfd59ca26cd2baa158d312dbe54bcf00dd9b1f77796c840e05",
+      "stdout_file": "stopwatch-m5ioe1-full__after.png.stdout.txt",
+      "stderr_file": "stopwatch-m5ioe1-full__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-m5ioe1-full/before.png",
+      "image_sha256": "5418707dff0a9adfb564022601cbbb494902f975ddff3e0169523f873e466b51",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-m5ioe1-full/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "4c00a0525d9d8bd92805db0f76941d74d70c51b40ff849e13839f85895603d8f",
+      "stdout_file": "stopwatch-m5ioe1-full__before.png.stdout.txt",
+      "stderr_file": "stopwatch-m5ioe1-full__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-m5pm1-full/after.png",
+      "image_sha256": "4726a228d5fe1712b427250615b9f1e1bfc0dd861505171f236859d509ba7cf3",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-m5pm1-full/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "60f5121d1b3430625830de0c82b730f0a4f8d9d22b669fc28a8cc66bf8b941bc",
+      "stdout_file": "stopwatch-m5pm1-full__after.png.stdout.txt",
+      "stderr_file": "stopwatch-m5pm1-full__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-m5pm1-full/before.png",
+      "image_sha256": "9da40d7895a76403af013897b56ee70224dc12ce57543834e226c389cf5fc7af",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-m5pm1-full/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "d42f10c49da15e2f7f5d8ca904016e1c7b0c7fd473392c8c5eac3effe7c9f910",
+      "stdout_file": "stopwatch-m5pm1-full__before.png.stdout.txt",
+      "stderr_file": "stopwatch-m5pm1-full__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-mic/after.png",
+      "image_sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-mic/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "stopwatch-mic__after.png.stdout.txt",
+      "stderr_file": "stopwatch-mic__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-mic/before.png",
+      "image_sha256": "c9c6e9f786bf5ee546987f4cded1f37bc29b81c4264e61a39f4dd9d7bba4abf8",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-mic/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_file": "stopwatch-mic__before.png.stdout.txt",
+      "stderr_file": "stopwatch-mic__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-peripherals/after.png",
+      "image_sha256": "9a38b86d284b2a08f32942c4a3b67d4bea74e3d4a6237c2008dcc2ff3027416f",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-peripherals/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "8959f355512da3f01e15666ad78f0394062e526b34a55ab011d8cb96fc97b3b6",
+      "stdout_file": "stopwatch-peripherals__after.png.stdout.txt",
+      "stderr_file": "stopwatch-peripherals__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-peripherals/before.png",
+      "image_sha256": "634573dd331a332f8daf6516fd351281e9ed333f40d11a5ccd9ff91cf58bddca",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-peripherals/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "b3b6f2912e7c8f9bfd838e49e06e0ace3c5a63b2d5782d2ee346e8bf1c3ccb1b",
+      "stdout_file": "stopwatch-peripherals__before.png.stdout.txt",
+      "stderr_file": "stopwatch-peripherals__before.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-vibration/after.png",
+      "image_sha256": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-vibration/after.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "dfc4452ac1530b0ba19027480bcb1fd10997077eb9a8e18245a9286e157e85ec",
+      "stdout_file": "stopwatch-vibration__after.png.stdout.txt",
+      "stderr_file": "stopwatch-vibration__after.png.stderr.txt",
+      "findings": []
+    },
+    {
+      "image_path": "stopwatch-vibration/before.png",
+      "image_sha256": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e",
+      "argv": [
+        "/opt/homebrew/bin/tesseract",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-shared-matrix-gen47-20261027-r1/stopwatch-vibration/before.png",
+        "stdout",
+        "--psm",
+        "11"
+      ],
+      "exit_code": 0,
+      "ocr_stdout_sha256": "dfc4452ac1530b0ba19027480bcb1fd10997077eb9a8e18245a9286e157e85ec",
+      "stdout_file": "stopwatch-vibration__before.png.stdout.txt",
+      "stderr_file": "stopwatch-vibration__before.png.stderr.txt",
+      "findings": []
+    }
+  ],
+  "visual_inspection": [
+    "core2-imu/after.png",
+    "papercolor-rgb/after.png"
+  ]
+}

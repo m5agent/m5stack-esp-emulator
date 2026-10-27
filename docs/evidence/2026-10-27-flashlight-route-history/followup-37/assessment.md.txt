@@ -1,0 +1,58 @@
+# UNIT-HOST-37 冷 route / 无边沿恢复评估（只读，2026-10-27）
+
+结论：**协议允许在控制器确认当前 EN 为低的时刻 t0，开始新的连续低电平观察区间；不必先人为制造一次 EN 高→低。** 这是新的时间资格，不是回填 t0 以前的低历史，也不是 EN 边沿。经过完整 >500us 后只能先恢复 known-off；之后真实合格脉冲/稳定 Torch 高才恢复 active。当前模型能提供所需的虚拟数字 pad 值，但其通知与来源证明不完整，**不能只把 0046 的恢复分支改为低电平时排 timer，就宣称完整闭合**。应补控制器级可追溯的 observation/baseline 生命周期。
+
+本评估仅阅读固定官方材料与当前源码，没有修改产品、runtime 或既有证据，没有启动 guest/QEMU/矩阵、访问 Device API，也没有新增 docs 队列。
+
+## 1. 官方依据与真实初始化路径
+
+- 固定官方 `AW3641EDNR-datasheet.txt:157–160` 定义 EN 低为 shutdown；`:886–887` 的文字为“shutdown duration TOFF should be longer than 500us”，Figure7 `:899–905` 为 TOFF≥500us。它规定低电平持续时间，没有规定观察者必须亲见下降沿才能认定 shutdown。现有严格 `AW3641_RESET_NS=500001ns` 可继续作为模型边界，不能把该纳秒精度说成硅片测量。
+- 已视觉核对官方 `FlashLight-schematic.png`：J1 pin2→EN→AW3641 pin5，**R1=10KΩ 下拉至 GND**；S1 控制独立 FLASH/TORCH pin4，不在 EN 波形中。它支持名义数字下拉来源，不证明实际电压、RC 建立时间、内部 pull-up 对抗或电气争用。
+- 固定 UIFlow2 2.5.3 包装驱动 `uiflow-flash_light-2.5.3.py:46–53` 真实执行 `Pin(port[1])`→`init(OUT)`→`value(0)`；低 pad 本来就是 0 时，确实可能没有 EN 边沿。`flash():89–94` 才写 2us 低/高脉冲，不能为冷初始化偷加一次驱动没有发出的高→低。
+- 官方 M5UnitUnified `unit_AW3641E.cpp:179–199` 明确先 drive EN low 并等待 >500us，再发送脉冲；协议关心新 low interval，不需要预先拉高。该库的显式等待不能被解释为 UIFlow 包装驱动已自行等待。
+- 当前候选固件构建树的 MicroPython `ports/esp32/machine_pin.c:179–203` 先选 GPIO，若给 value 先写 level，随后 `gpio_set_direction`。IDF `gpio.c:222–228,315–345` 的 output-enable 路径先 `gpio_hal_matrix_out_default`、再 ENABLE、再 IO_MUX。S3 `gpio_ll.h:292–295` 将 OUT_SEL 写 256；`:253–259` 写 ENABLE_W1TS；`:321–334` 的 level 写 OUT_W1TS/W1TC。**route 先恢复、ENABLE 后提交且 pad 始终低**是正常顺序，不能只在 route 事件要求当时已 output-enabled 而忽略后续无边沿 ENABLE commit。
+- 上一条是当前候选构建源码的路径证据，并非 stock 2.5.3 所有 ROM/IDF 版本的符号级实测。构建树 pins：UIFlow `3a86d8f611b3639cca755a933e01a5a829771ef1`、IDF `735507283d5b2f9fb363a1901172dbd9e847945d`、MicroPython `78ff170de9e32c79db6e64d3e33d2bd60002bdcd`；实际文件哈希见 sources.json。
+
+## 2. 当前数据平面能证明什么，具体缺在哪里
+
+以下行号均相对 `.work/unit-runtime-source-route-history-final/qemu/`。
+
+| 入口 | 当前事实与含义 |
+| --- | --- |
+| `hw/gpio/esp32_gpio.c:131–162` | `gpio_line64` 用 OUT、ENABLE、open-drain、external-input 和 force-mask 计算 pad；`get_line:118–128` 读该结果。应读这个有效 pad，不能把 OUT latch=0 或 Pin.value 的 API 返回单独当实际 EN 低。 |
+| `esp32_gpio.c:249–303` | MMIO 在写入后调用 `gpio_notify(before,after)`，OUT/ENABLE/open-drain 造成的真实模型 pad 变化会到 listener。`gpio_notify:200–213` 仅在 pad bit 改变时通知，因此“ENABLE 改变但 pad 仍低”没有生命周期事件。 |
+| `esp32_gpio.c:273–283` | OUT_SEL 寄存器先 commit，再同步调用 LEDC refresh 与 0046 Unit route hook。它能给新的 t0，但当前 mask 为 `0x3ff`，只含 signal 与 OUT_INV，不能当作所有输出使能/复用语义都已覆盖。 |
+| `esp32_gpio.c:392–396` | route getter 只读 signal[8:0] 与 OUT_INV bit9；忽略 OEN_SEL bit10、OEN_INV bit11。官方 S3 `gpio_struct.h:169–172` 和 `gpio_ll.h:516–526` 明确这两个字段控制输出使能源/反相。`gpio_line64` 也未建模其效果。**这是待补数字控制器语义，不是硬件光电问题。** 不能据字段名称断言“GPIO256单改bit10必改变pad”：该特殊signal下两种OE来源可能等价；精确真值表仍需TRM/ROM依据和验证。旧38的bit10无route事件负控不应直接被称为硬件错误。 |
+| `esp32s3.c:939` / `esp32.c:665` | IO_MUX 被注册成 unimplemented device；当前 `gpio_line64` 不证明 pad 确实选中 GPIO matrix，而非其它 IOMUX function。不能用 route=256 独自声称完整芯片路径。 |
+| `esp32_gpio.c:60–76` | `esp32_gpio_set_input` 改 external-input 并触发 IRQ，**不调 gpio_notify**。低期间外部 high→low 的短暂往返可以在期末又读低；只检查 timer 到期 pad 低无法证明中间连续。当前 R1 下拉是 `aw3641_new:445` 对同一全局 external-input bit 写 0，并非独立的有来源、有强度的偏置。 |
+| `esp32_gpio.c:93–115` | 直接 `set_open_drain` 与 `force_line` 也没有 pad/lifecycle 通知；当前被 soft-I2C、无线 IRQ、EPD busy 等板级模型使用。不能在通用观察器中默认这些途径永远不会影响所接引脚。附件冲突路由仍应单独约束。 |
+| `esp32_gpio.c:312–316` | reset 直接清 g_regs/open-drain，不通知 Unit；既有 UNIT-HOST-36 因而仍独立 OPEN。新的低资格不能跨这种无事件 reset 继承。 |
+| `m5_unit_gpio.c:432–451,632–644` | constructor 当前即使 route 不支持也先用 low pad 排 timer；0046 在恢复 route 时完整清除它，故不会偷渡旧 low。37 必须保留该失效，再只用新 t0 重建观察资格。 |
+
+直接 push-pull enabled-low、GPIO256、无 force/unknown source 时，当前虚拟数据能支持一个确定的 nominal 低状态。浮空/下拉、OEN、IOMUX、任意外部驱动的完整证明尚不足。最终目标应是补齐这些数字 pad 来源和事件，而不是把永久要求额外高→低当成“完整模拟”的答案。
+
+## 3. 建议的状态机与事件顺序
+
+1. 在 GPIO 控制器建立可读的 **pad observation snapshot/epoch**：至少包含 pin、layout、时间、epoch/sequence、effective level、level 是否可解析、route/OUT_INV、有效 OE 与来源、open-drain、IOMUX 选择/支持状态、force/bias/source 归属。由真实数据面计算，不允许 host/QOM setter 直接授资格。driver 使用的正常 GPIO 路径要实现；未实现的 path 要明确 unknown，后续补全，而不是继续忽略字段。
+2. 所有能改有效 pad 或其可观察性的提交必须进入同一事件链：OUT/ENABLE/W1TS/W1TC、PAD_DRIVER、route/OEN、IOMUX、external-input、force-line、direct-open-drain、reset。先提交 storage，得到 before/after 及新 source snapshot，再同步通知。避免只在 getter 或 timer 到期发现变化。
+3. eligibility 由 unsupported→supported 或 trusted baseline 初始化时，**先执行 38 的完整失效**（撤 known/active/ready/qualified，取消三 timer、清所有旧 deadline/low_since/first-rise，epoch++）。随后若新 snapshot 是可信 low，就记录 `low_observed_since=t0=当前控制器时刻`、新的 observation epoch，排 `t0+500001ns` reset；此时仍 unknown。若 high、unresolved source、失同步，则不排。不能带入 constructor 或 unsupported 期间的 timestamp。
+4. baseline 是独立事件，不调用 `aw3641_pad_changed(...,0)` 模拟下降沿，不增 edge/rising/decoded/pulse count。可以同步“当前采样 EN”及其 provenance；必须与“上次真实 pad edge/trace”分离，不能让后续真实 edge 因先覆写 `s->en` 而被去重丢失。
+5. 同一次 commit 若同时改变 route/source 和实际 pad，顺序必须防双记/漏记：先撤旧资格，真实 before→after level 变化记一次 edge，再建立新的低 baseline。若用组合事件更容易保持原子性；若保留两个 callback，要明确 edge 与 baseline 的顺序。恢复时 pad 无变化只记 baseline，不造 edge。
+6. 低观察期间任何 unsupported、unknown source、失同步、reset 或 unobserved ownership 切换都取消/清 low、bump epoch；回到 supported-low 后从新 t1 重计。重复相同 register/level 写、无关 pin/layout、纯 getter不应重计或产生 edge。对于两个受证明的低来源连续切换，可保留完整连续低；若来源证明中断则从最终可信 snapshot 重计。
+7. reset callback 仅在本次 fresh-low observation 仍有效、epoch 匹配、源可观察、当前 pad 仍低且完整时间满足时调用现有 finish_reset，授 known-off。若 timer 延迟而真实上升先到，允许用本次有效 fresh baseline + 完整事件序列证明前一段低，再接受真实 rise；必须检查 observation epoch/source，不只检查旧 `low_since>=0` 和当前 route。
+8. 任何 active/decoded 的恢复仍走真实新程序。不要把“低 baseline 成立”当成旧 Torch/Flash 复活。getters 保持纯读。S1、PWM、硬 reset 的其它芯片语义仍各自验证，不由37顺便授全范围 PASS。
+
+## 4. 最小正负控（下一块才实施）
+
+- 冷实例从 unsupported-low，经真实 Pin.init 的 route256→ENABLE（全程无 pad edge）→low；t0+500000ns unknown，完整新500001ns known-off，edge/rising/decoded都0；随后第一次真实 rise 才计1并进入程序。t0必须是最后重新取得可信观察的时刻。
+- 原 UIFlow2 driver 原字节 constructor→显式等待600us，不额外补 high/fall；四个已准入 S3 host 分别证明 known-off及后续官方driver程序，服务可见session、ZIP及清理另验。
+- unsupported 时已低数秒、冷 constructor 已排旧 timer、旧 qualified Torch/Flash 先存在三类输入：恢复 route 的 t0 不得立刻/提前 known；只允许 fresh t0+完整区间 known-off，绝不恢复旧 active/decoded。
+- 低区间499999ns时掉 route/OEN/IOMUX/observation，立即清 timer；回 low 重新计。两个低片段不能相加，旧 callback 手动晚到不能授资格。无 getter、同一 guest 原子 route256/73/256 roundtrip仍按新baseline时间未知。
+- 在低区间插入真实高→低（OUT、ENABLE、external-input、force、open-drain各入口），即使期末又低，也不能使用旧 low timestamp；全部要求真实 controller 事件，无 helper手调。
+- OEN_SEL/OEN_INV、IOMUX非GPIO、force/外部来源不明必须在当前实现前暴露为缺口；实现后分别有正/负读回与 waveform/event 证据。不能让 bits10/11“与旧 test 一样被忽略”冒充正确。
+- 相同低写/相同route写/bit无语义变化/其它pin/其它layout不造edge，不把稳定低不断重置成永远无法满500us。route/source和pad同commit时edge恰一次。
+- low baseline开启后 reset/失同步/旧epoch定时器必须撤权；迟到 timer 与真实第一次 rise 紧邻时，边界500000/500001ns不重复reset、不过早decode。
+
+## 5. 执行边界
+
+以上是实施依据，不是37已实现或验证。当前 source 可做正确 fresh-baseline 设计，但要闭合“连续受观察低”必须补通知完整性与有效pad来源；更完整数字外设模拟还应补 OEN/IOMUX，而非以额外fall规避。下一工作块应先永久C/data-plane负控，再构建新runtime与同路径guest/Web验收，并保持38历史反例原件和旧release证据不变。

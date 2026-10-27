@@ -27,6 +27,8 @@ CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、ro
 资格；`active=false`而`output-known=false`不代表已知熄灭。原驱动部分长闪
 请求编码错误，超出推荐时序的波形保持unknown；详见
 [分层证据与限制](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。
+`0046`已修复OUT_SEL返回GPIO后暴露旧资格的历史问题；当前恢复需新的受支持
+下降沿及完整低复位，冷初始化无边沿仍unknown，见[新路由验收](evidence/2026-10-27-flashlight-route-history/README.md)。
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 

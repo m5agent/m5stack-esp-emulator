@@ -1,0 +1,42 @@
+Machine-readable route-history metadata review, round 4 (2026-10-27)
+
+Result: PASS, no new actionable scope/inheritance defect found.
+Current runtime-profiles.json SHA256:
+1583ab14fb57d9fe872951e16847017475180b7c4bd52e42440cdb02cb587251
+
+Compared against current Git HEAD. Only three semantic paths changed:
+units.flashlight.blocker, model_policies.route_history and the new separate
+route_history_validation. Every other JSON value in the full file is identical.
+The hosts/status/partial completeness/input/state admission did not change.
+
+Literal JSON object byte ranges, including original formatting, were independently
+compared for the historical records, not merely parsed equality:
+- guest_validation: 618 identical bytes, SHA256
+  4be851702038dbc1ad08e5c49f982df46e0bc0a7f7d1552c773b94c1f2813374
+- program_validation: 10064 identical bytes, SHA256
+  730667887a903294ff2e3ecb1f54e4f61b9c14234ccce390b76381344fe81eb6
+
+The new blocker/policy explicitly identifies the old0045/7c898 result as history
+and says the separate new validation does not upgrade those earlier guest and
+program records. Current strict fall/long-low recovery is identified as model
+policy, not a claim the chip protocol requires an extra fall.37/36/OEN/IOMUX/
+PWM and physical behavior remain open. No old firmware execution is reclassified.
+
+The separate new record's runtime and patch SHA256 were checked against actual
+0046 bytes and live/index.json. Generation47, all four named hosts, both modes,
+eight lanes with21 executions each,168 total and CoreS3 thirteen Web phases all
+match the live index declarations. Hardware is NOT RUN and the evidence points
+to the new root, not the historical7c898 report. This comparison reads the live
+index; it is not a rerun of the live archive verifier or new guest proof.
+
+New metadata is explicitly captured after the gen47 execution. Exact firmware/
+program/session identities stay in the linked per-lane evidence; the aggregate
+record must not be treated as arbitrary firmware PASS. Historical records and
+their runtime/firmware/program identities remain unchanged, so no inheritance
+from the new runtime into old evidence is introduced by this diff.
+
+The proposed generation48 metadata-only reload is still future work at this
+review. No gen48 execution or new guest PASS is inferred. Likewise root's test
+session91085 was reported running; it was not polled or assumed complete here.
+Only .work receipt/diff/review files were written. Product/authority/archive files
+were not changed, and no API/guest/test/root-verifier execution was performed.

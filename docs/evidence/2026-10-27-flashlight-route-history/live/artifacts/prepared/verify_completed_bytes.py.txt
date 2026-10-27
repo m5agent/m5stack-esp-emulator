@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Read-only audit of completed actual reports; writes only a new receipt."""
+import argparse
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import zipfile
+
+from PIL import Image
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def audit(folder):
+    r = json.loads((folder / "report.json").read_text())
+    assert r["status"] == "PASS" and r["cleanup"]["status"] == "PASS"
+    assert r["worker"]["generation"] == 47
+    assert r["runtime"]["sha256"] == "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1"
+    mode = r["flash_mode"]
+    assert type(mode) is bool
+    source = json.loads((folder / "source-receipt.json").read_text())
+    assert sha((folder / "runner.executed.py.txt").read_bytes()) == source["sha256"]
+    assert r["cleanup"]["pid_gone"] is True and r["cleanup"]["zip_before_stop"] is True
+    stopped = r["cleanup"]["session"]
+    assert stopped["state"] == "stopped" and stopped["flash_retained"] is False
+    assert stopped["worker"]["lease_active"] is False and stopped["pid"] == r["pid"]
+    windows = []
+    with zipfile.ZipFile(folder / "evidence-before-stop.zip") as z:
+        assert z.testzip() is None
+        names = z.namelist()
+        assert len(names) == len(set(names))
+        manifest = json.loads(z.read("manifest.json"))
+        assert manifest["session"]["state"] == "running"
+        assert manifest["session"]["pid"] == r["pid"] and manifest["session"]["firmware_sha256"] == r["firmware_sha256"]
+        assert set(manifest["files"]) == set(names) - {"manifest.json"}
+        for name, props in manifest["files"].items():
+            b = z.read(name)
+            assert props == {"size": len(b), "sha256": sha(b)}
+        # Preserve UART protocol octets and locate the original ASCII window
+        # directly. Never decode/transcode the surrounding original stream.
+        serial = z.read("serial.log")
+        serial_windows = []
+        for row in r["observations"]:
+            execution, guest, unit = row["execution"], row["guest"], row["unit"]
+            assert execution["pid"] == r["pid"] and execution["firmware_sha256"] == r["firmware_sha256"]
+            assert guest["nonce"] == r["nonce"] and guest["driver_sha256"] == "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            saved = json.loads(z.read("programs/" + execution["execution_id"] + ".json"))
+            assert saved["execution_id"] == execution["execution_id"] and saved["revision_id"] == execution["revision_id"]
+            driver = z.read("programs/" + execution["revision_id"] + "/files/official_flash.py")
+            assert len(driver) == 3639 and sha(driver) == guest["driver_sha256"]
+            marker = ("__M5_EXEC_" + execution["execution_id"] + "__:START").encode("ascii")
+            assert marker in serial
+            tail = serial[serial.rindex(marker) + len(marker):]
+            own = []
+            for line in tail.split(b"\n"):
+                line = line.rstrip(b"\r")
+                if line.startswith(b"__M5_EXEC_"):
+                    break
+                if line.startswith(b"FLASHLIGHT_ROUTE_GUEST "):
+                    own.append(json.loads(line.removeprefix(b"FLASHLIGHT_ROUTE_GUEST ").decode("ascii")))
+                    serial_windows.append({"execution_id": execution["execution_id"], "original_line_bytes": len(line),
+                                           "original_line_sha256": sha(line), "decode_scope": "ASCII JSON line only; original raw serial remains bytes"})
+            assert own == [guest]
+            props = unit["properties"]
+            assert unit["source"] == "guest-qom" and unit["available"] is True and not unit["errors"]
+            for name, raw in row["raw_qom"].items():
+                assert raw["session_id"] == r["session_id"] and raw["path"] == "/machine/units/lamp" and raw["property"] == name
+                assert raw["value"] == props[name]
+            frame = next((p for p in folder.glob("*.png") if sha(p.read_bytes()) == row["frame_sha256"]), None)
+            assert frame is not None
+            data = frame.read_bytes()
+            with Image.open(io.BytesIO(data)) as im:
+                im.load()
+                assert im.format == "PNG" and list(im.convert("RGB").getpixel((im.width // 2, im.height // 2))) == ([255] * 3 if guest["en"] else [0] * 3)
+            assert row["frame_headers"]["x-frame-sha256"] == sha(data)
+            assert row["frame_headers"]["x-frame-execution-id"] == execution["execution_id"]
+            assert row["frame_headers"]["x-frame-revision-id"] == execution["revision_id"]
+            if row["phase"] == "atomic":
+                event = guest["events"][0]
+                assert event["before_raw"] & 1023 == 256 and event["returned_raw"] == event["before_raw"]
+                assert event["away_raw"] & 1023 == {"ledc73": 73, "rmt81": 81, "out-inv": 768}[row["route_name"]]
+                assert 0 <= event["route_window_us"] <= event["arm_to_return_us"] < 100000
+                assert props["output-known"] is False and props["program-state"] == "unqualified"
+                assert props["settle-at-ns"] == props["timeout-at-ns"] == -1
+                assert props["decoded-programs"] == row["before_properties"]["decoded-programs"] + 1
+                windows.append({"route": row["route_name"], "pattern": row["pattern"], **event})
+        final = z.read("frames/current.png")
+        assert final == (folder / "history-last.png").read_bytes()
+        assert sha(final) == r["last_frame_sha256"] == r["cleanup"]["history_frame_sha256"]
+    return {"folder": str(folder), "status": "PASS", "observations": len(r["observations"]), "mode": "flash" if mode else "torch",
+            "actual_atomic_route_windows": windows, "zip_sha256": sha((folder / "evidence-before-stop.zip").read_bytes()),
+            "same_vm": True, "original_raw_serial_ascii_windows": serial_windows,
+            "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written", "hardware": "NOT RUN"}
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("folders", type=Path, nargs="+")
+    p.add_argument("--receipt", type=Path, required=True)
+    args = p.parse_args()
+    assert not args.receipt.exists()
+    original_verifier = Path(__file__).read_bytes()
+    rows = []
+    for folder in args.folders:
+        try:
+            rows.append(audit(folder))
+        except BaseException as e:
+            rows.append({"folder": str(folder), "status": "FAIL", "error": type(e).__name__ + ": " + str(e)})
+    result = {"status": "PASS" if all(r["status"] == "PASS" for r in rows) else "FAIL", "category": "READ_ONLY_ACTUAL_API_EVIDENCE_AUDIT",
+              "api_contacted": False, "guests_started": 0, "originals_modified": False, "rows": rows,
+              "verifier_sha256_before": sha(original_verifier), "verifier_unchanged": Path(__file__).read_bytes() == original_verifier}
+    args.receipt.write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps({"status": result["status"], "runs": len(rows), "errors": [r for r in rows if r["status"] != "PASS"]}))
+    return result["status"] != "PASS"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

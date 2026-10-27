@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Sequential owned four-host gate; no child execution without --execute."""
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+FIRMWARES = {
+    "cores3": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "atoms3r": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+    "sticks3": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+    "stopwatch": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+}
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--execute", action="store_true")
+    p.add_argument("--expected-runtime-sha256")
+    p.add_argument("--expected-generation", type=int)
+    p.add_argument("--expected-service-pid", type=int)
+    p.add_argument("--out-dir", type=Path)
+    args = p.parse_args()
+    if not args.execute:
+        print(json.dumps({"status": "NOT RUN", "api_contacted": False, "combinations": [[d, m] for d in FIRMWARES for m in ("torch", "flash")]}))
+        return 0
+    assert args.out_dir and not args.out_dir.exists()
+    assert args.expected_runtime_sha256 and len(args.expected_runtime_sha256) == 64
+    assert args.expected_generation and args.expected_service_pid
+    args.out_dir.mkdir(parents=True)
+    report = {"status": "RUNNING", "category": "sequential-eight-owned-flashlight-route-lanes", "lanes": [],
+              "source_sha256": hashlib.sha256((HERE / "run_route.py").read_bytes()).hexdigest(),
+              "runtime_sha256": args.expected_runtime_sha256, "generation": args.expected_generation,
+              "expected_service_pid": args.expected_service_pid, "hardware": "NOT RUN",
+              "readiness_receipt": ".work/unit-host38-owned-start-gen47-20261027/start.json"}
+    (args.out_dir / "batch.executed.py.txt").write_bytes(Path(__file__).read_bytes())
+    def save():
+        (args.out_dir / "controller-report.json").write_text(json.dumps(report, indent=2) + "\n")
+    save()
+    for device, firmware in FIRMWARES.items():
+        for mode in ("torch", "flash"):
+            output = args.out_dir / (device + "-" + mode)
+            command = [sys.executable, "-B", str(HERE / "run_route.py"), "--execute", "--device", device, "--mode", mode,
+                       "--expected-runtime-sha256", args.expected_runtime_sha256,
+                       "--expected-firmware-sha256", firmware, "--expected-generation", str(args.expected_generation),
+                       "--expected-service-pid", str(args.expected_service_pid), "--out-dir", str(output)]
+            recipe = {"device": device, "mode": mode, "argv": command, "started_at": datetime.now(timezone.utc).isoformat()}
+            (args.out_dir / (device + "-" + mode + ".recipe.json")).write_text(json.dumps(recipe, indent=2) + "\n")
+            print(json.dumps({"started": [device, mode]}), flush=True)
+            with (args.out_dir / (device + "-" + mode + ".log")).open("w") as stream:
+                child = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+            result = json.loads((output / "report.json").read_text()) if (output / "report.json").exists() else {}
+            row = {"device": device, "mode": mode, "exit_code": child.returncode, "report": str(output / "report.json"),
+                   "status": result.get("status", "NO_REPORT"), "observations": len(result.get("observations", [])),
+                   "cleanup": result.get("cleanup", {}).get("status"), "error": result.get("error"),
+                   "source_unchanged": report["source_sha256"] == hashlib.sha256((HERE / "run_route.py").read_bytes()).hexdigest()}
+            report["lanes"].append(row)
+            print(json.dumps(row), flush=True)
+            if child.returncode or row["status"] != "PASS" or row["cleanup"] != "PASS" or not row["source_unchanged"]:
+                report["status"] = "FAIL_PRESERVED_STOPPED_BEFORE_NEXT_ALLOCATION"
+                save()
+                return 1
+            save()
+    report["status"] = "PASS"
+    save()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

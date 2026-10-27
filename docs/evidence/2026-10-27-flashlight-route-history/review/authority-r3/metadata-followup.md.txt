@@ -1,0 +1,19 @@
+Metadata finding follow-up (2026-10-27, after round-3 report)
+
+Root accepted the runtime-profiles.json current-policy mismatch for correction.
+Status at this note: accepted, repair planned, not yet verified by this reviewer.
+
+Root's stated repair boundary:
+- Change only blocker and model_policies.route_history explanatory text and add
+  separate scoped route_history_validation.
+- Preserve old 7c898/gen42 guest_validation/program_validation records and the
+  original gen47/83-source execution evidence without rewriting fingerprints.
+- Run narrow model/creation contracts, then after main synchronization reload the
+  owned idle service for metadata only (planned generation48), same runtime.
+- Distinguish gen47 actual guest execution from later metadata-only source/load
+  evidence; do not grant new guest PASS or imply changed source bytes ran before
+  they existed.
+
+This addendum records intent/authorization only. It does not mark the repair,
+tests, reload or main synchronization complete. Original r3 observations remain
+unchanged for audit. No product/authority/archive file was changed here.

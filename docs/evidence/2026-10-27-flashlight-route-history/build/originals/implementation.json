@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "scope": "source-only 0046 delta from exact full 0045 stack; no guest/QEMU/matrix or hardware execution by implementation agent",
+  "candidate_source": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu",
+  "candidate_pre_edit_source_receipt": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu/.m5-unit-runtime-source.json",
+  "candidate_pre_edit_source_receipt_scope": "historical 0045 baseline; intentionally not rewritten after delta; current receipt must be extended or replayed by integrator",
+  "reference_runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "qemu_base_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch": "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch",
+  "patch_bytes": 4500,
+  "patch_sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+  "files": [
+    {
+      "path": "hw/gpio/esp32_gpio.c",
+      "baseline_sha256": "a76a241d6a2a66fe55583ec79cd55562ef0efba57230f9897e3bfe42bf63925a",
+      "same_as_7c898_source": true,
+      "candidate_sha256": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4",
+      "baseline_index_blob": "7d59d0c632d8f8ae297604cc1559731ec0686236"
+    },
+    {
+      "path": "hw/m5stopwatch/m5_unit_gpio.c",
+      "baseline_sha256": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+      "same_as_7c898_source": true,
+      "candidate_sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+      "baseline_index_blob": "95cfba13044d1400646b5df85dd7fd056b85fc70"
+    },
+    {
+      "path": "hw/m5stopwatch/m5_unit_runtime.h",
+      "baseline_sha256": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926",
+      "same_as_7c898_source": true,
+      "candidate_sha256": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496",
+      "baseline_index_blob": "0344b61885248c3ee300e9b88a745f0ff9f6e089"
+    }
+  ],
+  "checks": [
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--reverse",
+        "--check",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--cached",
+        "--check",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "hw/gpio/esp32_gpio.c",
+        "hw/m5stopwatch/m5_unit_gpio.c",
+        "hw/m5stopwatch/m5_unit_runtime.h"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "host_c_fragment_receipt": ".work/unit-host38-impl-c-20261027-r1/receipt.json",
+  "full_translation_syntax_receipt": ".work/unit-host38-impl-c-20261027-r1/syntax-receipt.json"
+}

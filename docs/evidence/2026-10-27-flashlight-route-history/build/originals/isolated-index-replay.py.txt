@@ -1,0 +1,41 @@
+from pathlib import Path
+import hashlib,json,os,subprocess,time
+repo=Path.cwd();source=repo/'.work/unit-runtime-source-route-history-final/qemu';out=repo/'.work/unit-host38-stack-replay-20261027-r1';out.mkdir(exist_ok=False)
+receipt=json.loads((source/'.m5-unit-runtime-source.json').read_text());names=list(receipt['files']);patches=list(receipt['patches']);assert len(names)==106 and len(patches)==12
+assert all(hashlib.sha256((source/n).read_bytes()).hexdigest()==receipt['files'][n] for n in names)
+assert all(hashlib.sha256((repo/n).read_bytes()).hexdigest()==receipt['patches'][n] for n in patches)
+actual_git_dir=Path(subprocess.check_output(['git','rev-parse','--absolute-git-dir'],cwd=source,text=True).strip());real_index=actual_git_dir/'index'
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+actual_index_before=digest(real_index);before_files={n:digest(source/n) for n in names}
+binary=source/'build/qemu-system-xtensa';runtime_before=digest(binary)
+index=out/'isolated.index';env=dict(os.environ,GIT_INDEX_FILE=str(index),GIT_OPTIONAL_LOCKS='0')
+steps=[]
+def run(argv,label):
+ p=subprocess.run(argv,cwd=source,env=env,capture_output=True)
+ (out/(label+'.stdout.txt')).write_bytes(p.stdout);(out/(label+'.stderr.txt')).write_bytes(p.stderr)
+ steps.append({'label':label,'argv':argv,'exit_code':p.returncode,'stdout_path':label+'.stdout.txt','stderr_path':label+'.stderr.txt'})
+ if p.returncode:raise RuntimeError(label)
+ return p.stdout.decode().strip()
+base=run(['git','rev-parse','HEAD^{tree}'],'00-base-tree');commit=run(['git','rev-parse','HEAD'],'01-source-commit');assert commit==receipt['qemu']['commit']
+run(['git','read-tree','HEAD'],'02-index-read-tree')
+run(['git','add','--',*names],'03-index-explicit-106-add')
+postimage=run(['git','write-tree'],'04-postimage-tree')
+reverse=[]
+for i,name in enumerate(reversed(patches)):
+ patch=repo/name;label=f'10-reverse-{i:02d}-{patch.stem}'
+ run(['git','apply','--cached','--reverse','--check',str(patch)],label+'-check')
+ run(['git','apply','--cached','--reverse',str(patch)],label)
+ tree=run(['git','write-tree'],label+'-tree');reverse.append({'patch':name,'sha256':receipt['patches'][name],'tree_after':tree})
+reversed_tree=reverse[-1]['tree_after'];assert reversed_tree==base,(reversed_tree,base)
+forward=[]
+for i,name in enumerate(patches):
+ patch=repo/name;label=f'30-forward-{i:02d}-{patch.stem}'
+ run(['git','apply','--cached','--check',str(patch)],label+'-check')
+ run(['git','apply','--cached',str(patch)],label)
+ tree=run(['git','write-tree'],label+'-tree');forward.append({'patch':name,'sha256':receipt['patches'][name],'tree_after':tree})
+restored=forward[-1]['tree_after'];assert restored==postimage,(restored,postimage)
+after_files={n:digest(source/n) for n in names};actual_index_after=digest(real_index);runtime_after=digest(binary)
+record={'schema_version':1,'status':'PASS','scope':'isolated GIT_INDEX_FILE replay only; no worktree writes, no actual index mutation, no guest or runtime execution','source':str(source),'qemu_commit':commit,'base_tree':base,'postimage_tree':postimage,'reversed_tree':reversed_tree,'restored_tree':restored,'reverse_equals_head_tree':reversed_tree==base,'forward_equals_postimage_tree':restored==postimage,'actual_index_sha256_before':actual_index_before,'actual_index_sha256_after':actual_index_after,'actual_index_unchanged':actual_index_before==actual_index_after,'source_files_before':before_files,'source_files_after':after_files,'all_106_source_files_unchanged':before_files==after_files,'runtime_sha256_before':runtime_before,'runtime_sha256_after':runtime_after,'runtime_unchanged':runtime_before==runtime_after,'isolated_index_path':str(index),'isolated_index_sha256':digest(index),'patches':receipt['patches'],'reverse':reverse,'forward':forward,'steps':steps}
+assert record['actual_index_unchanged'] and record['all_106_source_files_unchanged'] and record['runtime_unchanged']
+(out/'receipt.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({k:record[k] for k in ('status','base_tree','postimage_tree','reverse_equals_head_tree','forward_equals_postimage_tree','actual_index_unchanged','all_106_source_files_unchanged','runtime_unchanged')}))

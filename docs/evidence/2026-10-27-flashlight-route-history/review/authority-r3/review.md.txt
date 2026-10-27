@@ -1,0 +1,50 @@
+Final authority / root evidence scope review, round 3 (2026-10-27)
+
+Result: no remaining blocking defect found in the reviewed authority changes.
+The two wording conflicts reported during review were corrected and re-read.
+Review provenance and exact SHA256 values for eleven files are in receipt.json.
+This result does not independently verify the still-being-assembled live archive.
+Per instruction, the root verifier was not run and no API/guest/full suite ran.
+
+Confirmed scope:
+- UNIT-HOST-38 is FIXED only for the documented actual GPIO OUT_SEL lifecycle.
+  The current model still requires a fresh supported fall and complete long-low
+  interval; text explicitly distinguishes this policy from the AW protocol.
+- UNIT-HOST-37 cold-route/no-edge and UNIT-HOST-36 hard-reset remain OPEN. Full
+  OEN/IOMUX/PWM, S1, optical/electrical/thermal and broad firmware/Unit goals are
+  not closed. UNIT-01/AIFlow/SSE remain active work.
+- UNIT-HOST-21 remains OPEN. The independent full matrix is 67 cases with 66
+  PASS plus Core2 IMU FAIL, 274 checks, one attempt per case, no stitched PASS.
+- UNIT-HOST-22 is limited to command-recording: validation_command no longer
+  overwrites profile command, with historical error and old/new control retained.
+- Status stays exactly 450 lines. New plan/evidence entries are registered.
+- Ledger, status, plan and root README retain eight-lane 168 execution vs Web
+  fourteen execution/thirteen phase counts separately; seven optional empty
+  captures stay PARTIAL, original cleanup UNCONFIRMED stays separate from later
+  independent resource finalization. Physical hardware remains NOT RUN.
+
+Resolved during review:
+1. Backlog's vague 'new complete matrix passed' now explicitly refers to the
+   historical d1ba pass and current 3f1617 66/67 with Core2 IMU OPEN.
+2. The prelude README no longer requires an all-green shared matrix before
+   accepting the scoped route fix while simultaneously retaining its failure.
+   It now states the layered limited admission and independent IMU failure.
+3. The root verifier's empty-child gap is fixed statically: controller/build/
+   testing/live verifier names are mandatory, live summary fields bind the
+   eight lanes, fixed 3f16 runtime/gen47, Web phases/optional PARTIAL and separate
+   cleanup accounting; final service receipt is checked directly.
+   Current verifier SHA256 matches acceptance-gate-fixed-r1/receipt.json and the
+   frozen verifier there. The preserved raw stderr states the expected missing
+   required-child rejection, exit1. Old empty-child acceptance remains intact.
+
+Non-blocking metadata synchronization note reported to root:
+platform/units/runtime-profiles.json still contains blocker/model_policies text
+stating route history is unlatched and38OPEN. Its 7c898/gen42 guest/program
+records correctly remain historical proof and must not be overwritten. If these
+general policy strings are retained to preserve the currently loaded metadata
+fingerprint, the final report must not claim machine metadata was synchronized
+to the new scoped38 result. A later metadata update should identify 7c898 history
+and3f16 limited admission separately, without granting other firmware PASS.
+
+Only this fresh .work review round was written. No authority/product/runtime or
+existing evidence file was modified. No UNIT-HOST-37 implementation occurred.

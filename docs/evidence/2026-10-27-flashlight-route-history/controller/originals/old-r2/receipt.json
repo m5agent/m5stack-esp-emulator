@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "scope": "actual extracted GPIO MMIO and AW3641 C with synthetic clock/QOM, no guest/hardware/API claim",
+  "source_root": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu",
+  "api_contacted": false,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "fragments": [
+    {
+      "source_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/hw/gpio/esp32_gpio.c",
+      "source_sha256": "a76a241d6a2a66fe55583ec79cd55562ef0efba57230f9897e3bfe42bf63925a",
+      "scope": "actual-gpio-controller",
+      "start_line": 31,
+      "end_line": 303,
+      "fragment_sha256": "fa4dde454f993f6414dff49fb2ba1dfc7ba0e060188474a7107346bf250f1ba1",
+      "fragment_file": "actual-gpio-controller.source.c.txt"
+    },
+    {
+      "source_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/hw/gpio/esp32_gpio.c",
+      "source_sha256": "a76a241d6a2a66fe55583ec79cd55562ef0efba57230f9897e3bfe42bf63925a",
+      "scope": "actual-gpio-route-query",
+      "start_line": 389,
+      "end_line": 394,
+      "fragment_sha256": "1addfeee6a32053c637c062dd51beff3b09e76fd15e868ac5a96b6e8dc48c43f",
+      "fragment_file": "actual-gpio-route-query.source.c.txt"
+    },
+    {
+      "source_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "source_sha256": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+      "scope": "actual-unit-registry",
+      "start_line": 13,
+      "end_line": 38,
+      "fragment_sha256": "09d24a31acb0f80aa71e21f0119cf5010592ad8fcd13a787025dbdfe5ef005ca",
+      "fragment_file": "actual-unit-registry.source.c.txt"
+    },
+    {
+      "source_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "source_sha256": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+      "scope": "actual-aw3641-model",
+      "start_line": 38,
+      "end_line": 460,
+      "fragment_sha256": "30030e60732907d692e56431eeb838374b47671e4268521ee465d4f5dbe8091f",
+      "fragment_file": "actual-aw3641-model.source.c.txt"
+    },
+    {
+      "source_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "source_sha256": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+      "scope": "actual-unit-initial-complete",
+      "start_line": 790,
+      "end_line": 798,
+      "fragment_sha256": "ebc80ae9c4375b4c387c45f2e541d4b907ea88b130080566873bbe94d179e27d",
+      "fragment_file": "actual-unit-initial-complete.source.c.txt"
+    }
+  ],
+  "shim_source": "formal old route-history harness prefix, with enlarged containers and duplicate property restriction removed for multi-instance tests",
+  "tests_sha256": "42f51c093895defc4ccf195046ed3d94d8c0d59cbbc4a21eff840db984c17819",
+  "generator_sha256": "6a4bcd00ce73e3483a1f4e01c231109dfcd008d0cfc2769bdb24f95fbed47d5e",
+  "harness_sha256": "306bd790bb041c3cf0c0020cce0118c3c001d44752bbf3e64e6fefb551c4fb98",
+  "compile_argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-O0",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Wno-unused-parameter",
+    "-Wno-unused-function",
+    ".work/unit-host38-independent-audit-20261027/old-r2/harness.c",
+    "-o",
+    ".work/unit-host38-independent-audit-20261027/old-r2/harness"
+  ],
+  "compile_exit": 0,
+  "run_argv": [
+    ".work/unit-host38-independent-audit-20261027/old-r2/harness"
+  ],
+  "run_exit": 1,
+  "files": [
+    {
+      "path": "actual-aw3641-model.source.c.txt",
+      "bytes": 17116,
+      "sha256": "30030e60732907d692e56431eeb838374b47671e4268521ee465d4f5dbe8091f"
+    },
+    {
+      "path": "actual-gpio-controller.source.c.txt",
+      "bytes": 8955,
+      "sha256": "fa4dde454f993f6414dff49fb2ba1dfc7ba0e060188474a7107346bf250f1ba1"
+    },
+    {
+      "path": "actual-gpio-route-query.source.c.txt",
+      "bytes": 228,
+      "sha256": "1addfeee6a32053c637c062dd51beff3b09e76fd15e868ac5a96b6e8dc48c43f"
+    },
+    {
+      "path": "actual-unit-initial-complete.source.c.txt",
+      "bytes": 236,
+      "sha256": "ebc80ae9c4375b4c387c45f2e541d4b907ea88b130080566873bbe94d179e27d"
+    },
+    {
+      "path": "actual-unit-registry.source.c.txt",
+      "bytes": 702,
+      "sha256": "09d24a31acb0f80aa71e21f0119cf5010592ad8fcd13a787025dbdfe5ef005ca"
+    },
+    {
+      "path": "compile.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "compile.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "compiler.txt",
+      "bytes": 201,
+      "sha256": "d23e1e266991777af51323c8a611147c28082ac12f936caa38bc345779f78483"
+    },
+    {
+      "path": "harness",
+      "bytes": 76216,
+      "sha256": "ae289c1a5f97d70d2139ac9e880b29cd5b4d0629a7465556616eab96d091a33c"
+    },
+    {
+      "path": "harness.c",
+      "bytes": 42610,
+      "sha256": "306bd790bb041c3cf0c0020cce0118c3c001d44752bbf3e64e6fefb551c4fb98"
+    },
+    {
+      "path": "stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.txt",
+      "bytes": 50277,
+      "sha256": "d40fa8f12007124e287bb5e7d2e59ff7fd80b58950c972461c90eeca11b68f43"
+    }
+  ]
+}

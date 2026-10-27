@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "classification": "root-provided actual launch attestation captured after execution",
+  "capture_basis": "root-agent message identifies originating functions.exec session 38441 and authoritative exit 0; no pre-execution saved independent ps/exec trace is claimed",
+  "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "scripts/bootstrap-unit-runtime.py",
+    "--source-dir",
+    ".work/unit-runtime-source-route-history-final/qemu",
+    "--work-dir",
+    ".work/unit-runtime-build-route-history-final",
+    "--jobs",
+    "8"
+  ],
+  "shell_redirection": "> .work/unit-flashlight-route-build-r1-20261027.log 2>&1",
+  "explicit_env_overrides": {},
+  "bootstrap_captured_after_execution": true,
+  "bootstrap_sha256": "0f0acdcda7aec86f0d2be9777ddd9125fddb629e21ea9f9c13b701bbaf2e2f7a",
+  "qemu_objects_copied": false,
+  "fresh_venv_created_by_bootstrap": true,
+  "cache_precopied": [
+    "deps/",
+    "downloads/"
+  ],
+  "build_log_contains_internal_launch_commands": true
+}

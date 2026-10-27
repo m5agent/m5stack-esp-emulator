@@ -1,0 +1,1687 @@
+{
+  "schema_version": 1,
+  "category": "ACTUAL_GEN47_GUEST_ROUTE_LIFECYCLE_AND_MOUNTED_WEB_ARCHIVE",
+  "summary": {
+    "eight_lane_status": "PASS",
+    "lanes": 8,
+    "executions": 168,
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "generation": 47,
+    "web_mandatory_status": "PASS",
+    "web_mandatory_phases": 13,
+    "web_owner_executions": 14,
+    "web_optional_capture_status": "PARTIAL",
+    "web_optional_empty_200": 7,
+    "browser_responses": 1062,
+    "browser_200": 386,
+    "browser_304": 676,
+    "cleanup": {
+      "owned_sessions": 13,
+      "original_pass": 12,
+      "original_unconfirmed": 1,
+      "separate_finalization_confirmed": 1,
+      "confirmed_resource_finalizations": 13
+    }
+  },
+  "eight_lanes": [
+    {
+      "device": "cores3",
+      "mode": "torch",
+      "report": "artifacts/actual/four-hosts-r1/cores3-torch/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "cores3",
+      "mode": "flash",
+      "report": "artifacts/actual/four-hosts-r1/cores3-flash/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "atoms3r",
+      "mode": "torch",
+      "report": "artifacts/actual/four-hosts-r1/atoms3r-torch/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "atoms3r",
+      "mode": "flash",
+      "report": "artifacts/actual/four-hosts-r1/atoms3r-flash/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "sticks3",
+      "mode": "torch",
+      "report": "artifacts/actual/four-hosts-r1/sticks3-torch/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "sticks3",
+      "mode": "flash",
+      "report": "artifacts/actual/four-hosts-r1/sticks3-flash/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "stopwatch",
+      "mode": "torch",
+      "report": "artifacts/actual/four-hosts-r1/stopwatch-torch/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    },
+    {
+      "device": "stopwatch",
+      "mode": "flash",
+      "report": "artifacts/actual/four-hosts-r1/stopwatch-flash/report.json",
+      "executions": 21,
+      "zip_members": 117,
+      "status": "PASS",
+      "cleanup": "PASS"
+    }
+  ],
+  "web": {
+    "report": "artifacts/actual/web-r1/report.json",
+    "owner_report": "artifacts/actual/web-owner-r1/report.json"
+  },
+  "preserved_failed_runs": [
+    {
+      "report": "artifacts/actual/narrow-cores3-torch-r1/report.json",
+      "observations": 0,
+      "reason": "Frozen sys attribute harness error before any route case; original cleanup UNCONFIRMED retained."
+    },
+    {
+      "report": "artifacts/actual/narrow-cores3-torch-r2/report.json",
+      "observations": 2,
+      "reason": "600us busy-wait did not establish a decoded active precondition; FAIL retained; precise event-loop cause untraced."
+    }
+  ],
+  "separate_first_failure_finalization": "artifacts/actual/narrow-cores3-torch-r1/failure-finalization-assessment.json",
+  "raw_byte_evidence_audit": "artifacts/actual/evidence-audit-r3-raw-bytes.json",
+  "redactions": [
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0034.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1f546bfa3ae2a2019e387263546b0a5f40e2eb0d159da05a23acc444349a9e79",
+      "archive_sha256": "f06bc9fa59925a1dbfe8559ae687f943d4030df6f98138ccb8b9d0f0c81f05e8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0065.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "41bf4ed91d88630b4c0150964730f5ef64dc55e7353759dc71e5cc8b5d58c395",
+      "archive_sha256": "6dc27248de5726513ecf7fc0ff93354488329598fa8ad998f2612a98e23d2400"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0097.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "d050cea305565b2e1c77043330497f33dc63024cd1c3ae62879a0b13948d9df3",
+      "archive_sha256": "252dbe92111c083445c7b4d75deccbb6979f2867475ca7e27725566e42e8c8cc"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0132.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "ce7667fc5fea6ae37223f07e37a40fc72bb627d07644b7a71329e903afddecd0",
+      "archive_sha256": "e4c3e437dd2a5d4676d30274c4fec5fbb6a43b1c563b2e5d900daee65be1829b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0168.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8dc42655ae089d207a7bee22ebe902fb67eb060be69298fefe2a4864b8cb2e31",
+      "archive_sha256": "a499e7748de2cf264fbeb7b9b75bece7196963e9e19704c926cfdf077071020f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0203.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "613293878e75865318e15bbdd0aa5d37d722b42618c4016c74fd6143553eda1e",
+      "archive_sha256": "0152077233f508c1dbaa42d9e4edb414b8d6517ac9d2abff0a0af3a568bdea8a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0236.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "11e2d40965c8f29d0958b2581f1fc0eb82038190c56a99e1380d7b9cf17d5a74",
+      "archive_sha256": "e95a3df5cb064c8e3d6dca00c0bb463295e514cac63f0065fb4ec69b20b989e4"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0271.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "57f4e8fa4796b3850f615ed455bc9973aca44e3bfd46a77e7a97b8cbc152260e",
+      "archive_sha256": "57b96d636d01515eadf6c9cc95cbfacf8c4f369f5b630e7ce40f25f3d9146701"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0305.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "fdac3e2b88c67f66316592b1a6bef1b9bf6e8df10befc72bdfe2ae30037d601a",
+      "archive_sha256": "b2908052e596d59fcab3692764893da9e24e9be488a95b70acdd1aea841dbcb9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0342.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "eb25d4c6e2406cdf4fb566bd260bb2bf2ccc55d8f356e045dd455e894be029f6",
+      "archive_sha256": "746c53bb69104c40411a70405d33c99a917876aebc0bc0b14e741c68828a5498"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0376.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f1ad9bdd7f6da352b9f34c9f1f6ffab918672bb85bd3c47c82318a39e602ef07",
+      "archive_sha256": "e0392e641405c68e8545f23765b5499ca4f2dbf65ccdf23ee78e42d1032214f3"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0414.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "bb6d0a2ff96e816fe414242c4cb7cb13795bf23746f063702ee8494f0fb6f65c",
+      "archive_sha256": "8aaaaccf040c07cb36eb1e1130c021556de39077776a2c8fb116dc29abe0176b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0449.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e1f3a92b22ee24919b99f2fbf0d5f145deb1245f3d84de5e9d05193b6f9500ac",
+      "archive_sha256": "e39379d1f8ffbd1bf04f60c4a5a07201ca7417c5a6d36f190d1e0e0173bc805a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0486.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "b4d4af3ffae4bdc1ba2153d6d87067cd6ae6cc96a7059ec968cb1f10fe73c194",
+      "archive_sha256": "06fa59dc60cda06c89b1825a36dd468094fa40e8f4e09c0f3b357d104daf9b11"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0522.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6d57419ff9d5b598e8055a904b725b0de310e7f20f745093f1ef7ec28f3fdc71",
+      "archive_sha256": "c1ec446d513ecf29bf6b62c064d66cccc59345bd333ef2c782e91c5b83e966d1"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0560.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "208ead9323a1f96f5cb128840887d1d823e2a5158bce47b333a00ce403fd104d",
+      "archive_sha256": "a437f7ed9a9b03e265b78189289cde87c25f878c7be2d9b698edcbd5e9a23802"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0596.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "072ea6f8243f9e3801213f6a78e44abfc1aca306b81c11631802eac99bf38983",
+      "archive_sha256": "c40dc0da7673083d6b78739f2685b96fec6274356801fda027f2b46fc8a3573a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0634.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "cb803239741065e4e5273377a4fcea6f9da820fa10da1f97b21cbba575989013",
+      "archive_sha256": "9d41a44075566f3897a1d1e156e64f7cd83e80b006803c28b57229905903ccd8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0671.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "76c07c21938980939caf6cb8cf6dabcfc4dc187c638fddb6ecf1d066eb29979e",
+      "archive_sha256": "8adb05320442a9c8ab80e03e916f17a1c5a94798616e907dfb4a9c3952f0b8e0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0706.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7fc812e09b580e75d3b4723af451d39439a0248fc787efee36292f15efd004a9",
+      "archive_sha256": "8fd4915091a2fff7cb745288a9a512592eb00cfe4e9cb0a8945d15dce50ffebc"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-flash/http-0739.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1b37a1a4178d3cbe01b9551edcdd2d79238f7fd1760dc630ab1436e0371a0323",
+      "archive_sha256": "90127de864cd14152dc7b018f6edc3483213054d32e619aa9381d4b88653e03c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0034.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "825a8d49201a18d6f7e99b7491f80513270c2ef3e9f2b83e33c8ed622106233c",
+      "archive_sha256": "85e514eb159700c448411164d26b984f2a16b36f9bc623ff7d575b1a38bf5731"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0066.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "90e9489bd5925fc43d56d24fb340c4be127ee792435c416f4c8daebf2ca06172",
+      "archive_sha256": "45fa9076cdf92f519c47fb53a318940be02058025229046a0447118d166da4fe"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0098.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "771be8f9e53ae5a54b22ed40d809e23638c7434a24d12e7622779bec8f0af516",
+      "archive_sha256": "6ff7e330a8cccda75d53f3b5e1028510c1869792d033e5643711aae26d54fea3"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0132.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "141270bbf3f6eff32fa84b660b2491f84a0285c25e231cfda173d0b5135363c2",
+      "archive_sha256": "1ad9051c6d5893b05771189d696bd38ff48d06e220739559e5f96c8fcb189f46"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0164.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1ed2e4e87617088d02f99695b632b5748842a7fc1701409a06deb659e470fbc2",
+      "archive_sha256": "dd6349fe7ed0cf0f1011283badeee83e999369c67a64fe4f503ed2b76e529a92"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0199.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "991893468bf8fb0f012a130df4779c54706e9434b7ebcaa2fb68c8bb7ada5a97",
+      "archive_sha256": "f25684222280bcea9e35a6add079b7e9962e927a900ac1df6f4901723e86e74c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0232.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6073b2ddd243f3e2425209d24fb83100fcc53bbc7c12a785c2c9e420137f416e",
+      "archive_sha256": "21262a51517bd1e30944bb81b4888ec99e3099ecbba929e46c0997dba9d5f235"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0267.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2f0cfe25286902ca5cc2a8262b9f9e715083d51773db76d8ce179a81cdeba2f9",
+      "archive_sha256": "33934be2721e04fdbebd933dce7be3b2647bd77bf8e6435ea15bb95a1f307454"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0300.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "50a01905a2c3c376457f710f5e918622a70c6f2f366eae2f6d7a995264c01370",
+      "archive_sha256": "3fec42513b7177069ed6a9876c3e672eb49560b061c5cfca541763923e8b3b20"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0336.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "84df513f8c1aa1a02cc5f1d7726b2974e3e7ea676a17dc16b8671efa1245e2d8",
+      "archive_sha256": "86b98ec0f322f1338e495156a0f276a8dac18146160305cd8223eef27f9682e6"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0370.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "bc0c11b631e5ca255871fa83bb5e9e66509731cd97c1308e72850af01e56b801",
+      "archive_sha256": "1deb755f97ec950df57c47b22faef427694809970d88e0b57df8ddef98e04d3a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0407.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "10efde238be5f817472c6e2b2e854b9c9766b246daa3148e6a7f20fc2a3a3bf4",
+      "archive_sha256": "b340cc073a34efb56952bcb5627df4d4a05e3e2e3b53185d280c4adb5ef93c2f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0442.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "20e1b804cc96cd573cfb0947a14b4bcf31b0916f84625ac6c36f81c876c35829",
+      "archive_sha256": "e8bd71604c1b0aab8eac71e0207c901ea57a994219a8eb49eac1e544919bb82f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0479.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "dd3215a0e080682bfefcf84509ce22520b318e55f9c2b9e92f43a0f5cd46cf76",
+      "archive_sha256": "4ba778f19aa4e2faf4d23f41608741dc05010061810c23336fc75f0562277e19"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0514.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2fac00b20fda3be735b011f239e0fbd7121ec60e4688dbba25fbe2d07dcc2b5c",
+      "archive_sha256": "71c647e6511ce006076857264c5fc0fe860da361aa4eb3d53c08a6c4c7c9e08b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0551.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1d8801a88799590b0cf60d3eb291ce696d6ce080e924d9d2a7e1230fa54825c9",
+      "archive_sha256": "b69159a0efb4f99dec0a24274143925ffd2717e20717753f32b0050c8d2b0ac9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0587.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4abab2644812c796b6cb21565f081f9b396a85617e3f0cd3cf6938b5d3f86ac8",
+      "archive_sha256": "b93f7054aef9338136ef525680e9f2602cea8a4b318f6ea0090b3eb4874d9335"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0625.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "cb29dbc249e3844484677472cf588861d754114a67120d7377b92fb99bc47935",
+      "archive_sha256": "5507a6ec373bc5a051c39ae125ffd42020d511e658d98ede4895e5cb8131e413"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0661.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4ae5066a64decbc49e36b04388eba3e90cd79a8ee14c177ffbfccd75dd75470b",
+      "archive_sha256": "21b2af02f9009bd78b49b50ad6cd4f4c594f66f467ecc1bf871a5000d38f42b9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0696.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "40d00713341a115915f82db210f2fdea4680625ae75881ab415bb716fc2dfd86",
+      "archive_sha256": "6ce95b8188c7be24d7cb00dd47f93c7749b21398c4b064aa783b4b4b8932a1e9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/atoms3r-torch/http-0729.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "11a6fd7d0f68d04250a6166c2d3861c5bf91412ee4ac60b0f6bf6f173efb3d65",
+      "archive_sha256": "1e58025438d7a42808af3fcd85d15d4b9b1b50df9d0578d8f28143c75a4c7ad4"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0036.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "cbc3f4dc95c3b97e820f881e0b66dce852483f834d244449cd5ddd738b27cc93",
+      "archive_sha256": "af4194014ae228f74f21d73cf88efa17b7396d1d8fc73d18069c7e7034726c69"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0067.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a39181c0888f0fbc00e8103bb28fd0a1a1e0850f027196b0c5737b70a05a831e",
+      "archive_sha256": "a00cbe58c99ca1fd8d1a64e993fc3c29a226766a81a3e4d25b73bda25dffc58c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0098.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a9178af35a4f2713291890cf0ba06793ac402286326834a6901b81499b7257c3",
+      "archive_sha256": "54171c6b521812a455977fef0f981d18f8b0d8c59a0ce3b5e6274be427951018"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0132.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "534d1c0eca05283b367b2cff8fc97249cac5ec0416d62d88fbe203a62fb071fe",
+      "archive_sha256": "b44a4df1d1a9ab7ae809df7c39a42fb8f7d0ea11279c1188375dd3738706e012"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0164.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7d6a10430c4705998b3af496d338bcccf98506c920791e74aee35b308bb9c94c",
+      "archive_sha256": "84ca2b223219b3b61d726d2e556691ca7861d81db8062fdb9ad48ac9f8183c21"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0199.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3d00a872d19634585720ccad56f300b4e56946f51ab2457fdaa9a7e13827b660",
+      "archive_sha256": "f387960b30ae7cdfdeabd769c177e1e4c44997c234ccc9a2a1e6d5915343f88b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0232.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4a034cb110c05efc51d67ae2f6f629c7b4bdac024cbae0108df564888d29d1b4",
+      "archive_sha256": "d4e8f256371c18ba8da56f08023fd91e5bd7760ae63cc66d9ef92dabf3e7ceed"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0267.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "62f58780c6af7b1349433ea2bee6af79e67b9f37f34b670f30c95b80a40606e0",
+      "archive_sha256": "14f6b095747bc6d8005d7a4a6190f0028bb631b880bd8d61c9cd5d17aff29427"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0300.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f4e9cbac31ad50813f652e1ada1ad341b837a6ca89239e198bd7e4d3e08b699f",
+      "archive_sha256": "6d8794a45c98e2b5f8e3ab56dfad5404eff446a9ab29d8ae33c91f0e73c61c10"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0336.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "68f323dffc110ab021eeb985a2a782f11ae1bd7b34ff71f98b7b0d7d838d55a1",
+      "archive_sha256": "a1f7cd4ab5f6ac478e25e5bd6c15d4133f0bb6bb1ddac63bc30a3e8f11031428"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0370.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "56ebc1fca2da6c8d7b0a3667538aca440cb3b2dddf121ba765195225527e9804",
+      "archive_sha256": "883463238bb91aa81a20d9f48b1d8a42fb49941e59365e4472291b98d370ea9a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0406.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6c088b42d58bdf1fbe25bb0d465fc651943d2852fa9d9c21c655931616302cd4",
+      "archive_sha256": "527a4bfba588f0c4cbb07d435a7dc378f446b0dd993bec25efcd35dc7ccf44d8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0440.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8274ab4ed981be1755ce989a2a0b2df5502c0e39fde555482edf7d28c945b229",
+      "archive_sha256": "23ca32185153c5efeeaceb0a4617dbbdab1b32c161fef86dc23cfd9162885858"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0477.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "89db02d6edc1d9a00202814b732396d9ac18a14ae617f19f4988bbda57ad6226",
+      "archive_sha256": "67c18f63f23fa29e7b78e749e006520062a65404a433e3a30ae159dfa5b610c7"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0512.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c8956cfe5ce97a2c17c09171f536c84259d5eef41f9510fd83218f82058eeb4f",
+      "archive_sha256": "3b0da229beb2abb6ae86ad0ace6774df59baf7fe7f6b3d700aef144de144d75f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0550.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "45427ef25445ee790936d899fe3949cbe6e8cb4e748e263af0bc671c272709c6",
+      "archive_sha256": "929298f438d5478c37886634f1b90fd23e3880bd87258863fa3a8dd9499139ec"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0586.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0e99db0bcd1c2db9ae4515bafa103afce247ff85560c0631fe5c8ab00d710131",
+      "archive_sha256": "1c51428c1b9123fe1b07b82f2df9d270985417f4fd1e055d7cfbbb671cabc50b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0624.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5fcc570c72d2611ef86ac0b2fdda372b94723bee7cdb83c5093aa76742c658b5",
+      "archive_sha256": "7481f093e70c5c7a14686170ef042f2dc93597de143df27ad64e068e5a6e81bf"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0661.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "41d3614f594745a7c90244379899080883cc7fe4da5a657528ac05203ae96c32",
+      "archive_sha256": "dfe4884ec252600ca4a10e72d1f575eae44f9bfd2cce4d457845e73397559030"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0695.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a1fbf3f5ee7c4bd2067f5de8287ff81fcb2ae975d6cccf6ba76afc193232e231",
+      "archive_sha256": "09884ad00a36437acf39baf68e4280595d77a2f394060b0ce56a1c2e869f3e6c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-flash/http-0727.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "35c231f31e627814ad3211b372bcebbb14f610dfdb90d0eec8eb4eadfd19237c",
+      "archive_sha256": "c1d1b0131ca9dc2aaec1a24a0f032f1bd8f106cd9fe9bc1c669b8d7a08838ba0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0037.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c0857164b67021a95900ebcf763215795cd057514a737bffd5a01e9819315821",
+      "archive_sha256": "6bafc984c2bca9012be2b5a5c81c318c582f5c286ac94fe98897280c476b638f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0068.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7bd40ae82f6ffd375ff20fea1152693a9198944721f817edc7c4e05a08727efb",
+      "archive_sha256": "4f9f83955699d31fa718b80cb426cabfbd29d59e2dd03881929e6b82e9603821"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0099.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "288f8f302a00a8693362694a2f705e270a851727dfbf5b6e26915d0cf7395471",
+      "archive_sha256": "33b95acfaaea26ad7be105b929c00cca063ec2fbc5733f9733d6ba7860cf24f9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0133.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "fb3584c7cdd9693b6189b1a9f79d7f7220dba64db9e535472fec821d473fd317",
+      "archive_sha256": "37313246bb390dc719e47f5ad0656778c945824938b17a5018b06c55123552dd"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0165.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6e715214836f05578ab8f9b2286eb3035882828c97f9e9b55ceb7c8029939df6",
+      "archive_sha256": "260e448fff4b081d36ae7638b6d1632c892cca7c5e839aec069f16abf539d20c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0199.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2b2f35d7c6ba7658f6f7077e2bee0ba6067d3120b21d21b5252309d08646e454",
+      "archive_sha256": "c7f2f4c8b5ef7360871c26fda67bf4fe0ef0929e462c661eb5108358f656cf42"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0232.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "d6cf949458734379633151c8903be07ac525488688fac867662eeaa26b209e9c",
+      "archive_sha256": "96ba1441cf1a1d4782fca52673e750688f59007a8043df2411028a3c2cdc3fac"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0268.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3a3f034df7642abfe7b01b95f1f2ccc5dbc5d92aff3d7afd18196a9c9003e926",
+      "archive_sha256": "1b7b743fb1df0da19207c207e1ab46ce55354ba09407e9d89ce39d33698bd462"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0302.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f918207bb68f30afe65c63cd41ef36d27e56952ff40acca1b9a509384d3d500e",
+      "archive_sha256": "765dbd25ef3dc016705190a86e36838fc95b2870b37805915360d6b08bb282a8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0338.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7b24d17528bb3df86bfaf64f4eec349829e10733a90f535a097e613473204bb7",
+      "archive_sha256": "d611a11837b25f2a6b34703d8786e89633b3bc4466205cbd28bcdcdc38601869"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0372.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "b046cfd514233e2a912987a8e9ddb709fb92c7dd55c1be5b4b5394975db34f14",
+      "archive_sha256": "992c18dd506357bdd0dea337b72b1424046fc0a0da7819e0021e631cb450b0a0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0408.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2a676cb00ea380de43b36874c79756e0cbcaf260faebe87f14f5033e67b5c02c",
+      "archive_sha256": "8c0c21240e54fac34729b795c4ee57899e01b5075c1a10d2ae6c0c466a1658fe"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0443.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "08d269c333b1fe3f5f1c9409eb8a1493ed713009e2d2c57f49aa93af2583e3a7",
+      "archive_sha256": "98ecd7230e6101fc4e59f8de008bb6af5a4efc98576f58b81af9f7d10be62ebc"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0480.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a05ae647c053accb8bc229c4f6439cad036032c0a533e34353538bc9575abcf9",
+      "archive_sha256": "0c96a55b303294478d9ae50678abfa5bf506737452c59c84cc7e2065dfcda798"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0515.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "29657b84d825ab8840c105220d3d814ac31ad27944bc3b2cf955b2aba2e6926d",
+      "archive_sha256": "45ff50f7f04215d4badf143e6f56c7965910d29488d593b95906fde3f6dfb579"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0553.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "878c233df99753a35b16500c9c5293de2b292113d8630da4c3bffa89ea55d011",
+      "archive_sha256": "c1ee7706077c2ad551282d5af5ebcf7d4e29bfd89d12e423a2db828ad956e059"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0588.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "9ca87afc2feaf252d1b7912e6fa2bedf8d735a80d5f0894041e09104f0f69547",
+      "archive_sha256": "21af950492ca44553258ddc7e10c532a7eb7ca7178c3451fc4beecae6bb106cb"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0628.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "fb21b61ac6319cd60641e236e3a216e510fef03dfadf44433b366c303b509da3",
+      "archive_sha256": "0f4e6d2288860bb54786b3a953137bf41c9ff1feb487d52685d3ac0a0f730835"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0664.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5f85b66c37d59826bfe39ff09043224e71ecdfc629957e946aba051b3f02fe4a",
+      "archive_sha256": "c84f47066500d82b5a98cdcba5f0ab10d76d24b6b4e686c3b6b6ea745beed794"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0698.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a4f468e377341144f74b971b8cc0b37d13d62bec096e26400929360174c07451",
+      "archive_sha256": "63b4d405f9d47e5e12ece48a7646fcbdb6c874de67bbf0954ad44dee796b24af"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/cores3-torch/http-0730.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4eec5b23df55d72732d527f8ef52b8ca501e13f00415144310d53440c8eee15c",
+      "archive_sha256": "74adc803f33b949d4156d547bb799cea1caa739449e36a48f0ea4647879a0ceb"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0031.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0848ae4c8583d2b85a448010c0784b7e03cc17b0cac11951d062a21287e4dab3",
+      "archive_sha256": "857878aa2e0855780dd5de6b4c53dca91507342ee39640f2d047e0e247f69401"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0062.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "bd90600b3bfe1daf3022dc599adfdf625e3a9192589cd4c722e6e54878eb39c0",
+      "archive_sha256": "0eec7e7a8f9c5027f5fb63d54a141dd419ce2432095a9f4eee6dbb6487130280"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0094.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "9cab3b2c0ca9ce6feb15441545cb1e57c830e5fa0b3f0075a64aebdaaee350d1",
+      "archive_sha256": "bb757a3b8388ad4a256f5a1b79289d4977d0071db1d44c745dec210c46483a73"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0128.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "aacb5e9dc6a344db468813ace512e15239d25b08e818fab18d0dc530ce736c7f",
+      "archive_sha256": "f6cfb89bcb617e8dbe7685dd77502b7ee221dcad55f8379767a51905f329e054"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0160.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6d4a165ab3186fdba8c65f4260306a7fdc6d962bf668c8562103a317e0353293",
+      "archive_sha256": "6f1ab5f03c53737cde10b0368475557d8ca43f3f7caa4387a535675596219e68"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0195.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f25a91516a342ec7d42f8903ac17b2454ebb09489490d1c456c29c2b1018b569",
+      "archive_sha256": "73c123c85addd18b7980be413e508ff3b779f52dd2ea2ab0239186493b0f3904"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0228.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "eda1bf6d197b6eb85602dde09d24796bdd0d537c3d4aa25913e337fb8925820d",
+      "archive_sha256": "27098035e57250783a560e48f089ef3c2468ac0af24f9c46192bb0b8b5946fda"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0263.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "35da8ef621f7082ece77319b596708789d24c10eb698c5af74560ae76122fb7e",
+      "archive_sha256": "9b47384ab758bc1d617fc56a6230a543e1788fa8b794a6101d0f8510a421c8cd"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0296.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "b8eacd895f4b69bd5058de34960b97dbd4ba0efe67f67af37b338cce7411791e",
+      "archive_sha256": "46c3f88ad864f116c310dbf650b872a49c8211056c65b60c8d06bb6865d1f20b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0332.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "19b5f549a176a40ac913ff0fe961e6fa3be24a2cd2b87011ad4d6617024ea6ab",
+      "archive_sha256": "478abe86121123d8ccab0f4705c9d3ba8b4c611d95ffa938e3710ae524c71150"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0366.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3135ed919d9db1d66b98db75ee522758ade435d98c13827312fc2582b3d566f5",
+      "archive_sha256": "17b15682bc03dee48f451e6603247680613767a80dc83901b93b19b6ae54dfc0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0402.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7e48234705540c34367e772653a1ac7cf43e1cd1c1a7915faf16a5f9f82e7afd",
+      "archive_sha256": "06d30cd0514ef7ce2825df8938e64a6305f391dbd9e49d84553d4fe2e4bb9085"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0436.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "9194f928954d149c14506f52920d41603de8751fbb67b2946dd77a1722e3f5ea",
+      "archive_sha256": "e1b18e9e1d98af4392f2d5dbf4c32d8047950e773b62de3883d0a4d29b60fa1a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0473.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "ee27a124bab44100444da611fa74e48e22c56407bf51be7b339b699190902afb",
+      "archive_sha256": "350bba4132f89613484120910c23d81b77d934d3014c7cbb1dc3a150de243acb"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0508.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4f402711a9ee4a8edb6058d48da96b1dee7475dcd62b30168641bbe3900719ec",
+      "archive_sha256": "9dd7e7984487ec902b091b44dcd998e4f4fe0d6c1d5589b15987290e1c737fbe"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0546.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "71ee416c3e8065d86a540401a64361a535908411bc03448808a970c6954c8be1",
+      "archive_sha256": "b37291c5026901e74e1fe6539cba5e20b634255aeccb2e029317af4bab1970b5"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0582.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "dea3768009d2c9979e3ebc99b2ab93657572c8a1f4d9f233a67d6873c5bc538a",
+      "archive_sha256": "71434a4b899a9c3c28ebd35fc7f6bf8ed4a7c7507f042af08f4cd0c47ecebb41"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0620.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "81c723898703c55615a187403a3d796120893854c022fbb1c79ff57629dfb9dd",
+      "archive_sha256": "9772e803cc02bc6576c9d6fffec549da88f148781e29cfdfc2584ea221dcfc31"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0656.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c12e79c5adf4f2cd13dfc191bd89cd5600b2d72fd59872240fcb07bf1cbbcb4e",
+      "archive_sha256": "0440571cf90467d464b981d893e8f5f3c2bb52c116817a12cb6a9fd64863daab"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0691.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "42972fe51becede3038b3b4f8a65432bbd881aa385fbad894a8a0f8ae56eb88d",
+      "archive_sha256": "a6ad691ca6376e7b51cd39339625f6ab2fc078b31ad545f0903c182b5409495c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-flash/http-0724.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0526cf321751df65b69677f2e506361a3e3474b6c5aeb27804f3034c6d9aee4c",
+      "archive_sha256": "e2de878dd6de1c7ed9e92f6a0fb8505c9edb0855b02ea566d8b8a80ee88bab1b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0031.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "54c136f9f6106e03c9c31a36c618f83a36149b603a6f85d4d088dde07fa5994a",
+      "archive_sha256": "0c968a26e99c9a01dd3179fd6e1f6454e1f31e5367476d2471533a8742f38f1e"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0062.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "31267d2763564beca4cd75cec2cf63b38d3a06aee5ac7a823d8fe00e8fc9c2f0",
+      "archive_sha256": "cd7cfead5a516a2f09b4a12b2e57610fa6404dfcc556562cebb329c56c63df9e"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0094.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "665bf42f112480485113a2bb687b4c9351aa8db7a82112e0d86293e9eb44a46c",
+      "archive_sha256": "6d6c3855b8b3a3d15adef88e0d8d9655d4ae9aae380eae8c8765cebb545d4f9c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0128.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e45727c422eb192d3c1c76f5a997ad19d6247d9392307fcd4b3d1a5309acc11a",
+      "archive_sha256": "46a3b5fe7188489a1f156ceaaee15cda482a40e204cc7b50d4f5e2ec23aad4ed"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0160.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "05255d51fc9f038535a16747471894ea6ace5993f20fd2e16bded51215b7eac8",
+      "archive_sha256": "b8f0efffce3e553dbf5eefb3b2ad501c8c15294602f9303f7ecc73688688d5cf"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0195.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "18b54f6f764d55ace00d4b26303fec8a87744b5916e465ca0291f63d5fc0d5ca",
+      "archive_sha256": "3dbf8fb9e51b0756b3ef37d43b7a616afdbac0f572135e6a50287cf95db7deb9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0228.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0a0cfc046d905431701d72c3f7aa64082ccc13404fe19c6acbc90bc793d6d409",
+      "archive_sha256": "7fb6a169ea908f22feef8a6e6810ff856c32a7372002dde77036cdc7aac66b36"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0263.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "effdc98335e4143c3f329a60673ea0c822e6b8a3a72bf5c96735b3cced384ece",
+      "archive_sha256": "a92ffb92bee2b3a32b91acbc7b2eb397b6c907518755b8473cb31a3e9e3908a2"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0296.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "770ee2ca3f1b861860b129b9d6e10a6fe6f901891f8ba8c966ed76e8e3ef78b9",
+      "archive_sha256": "8c4406672e02e2555cc1a5c271e298e23be1b330769f732ee48c57c2f655785c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0332.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a23f1ec1c7e4c5933e94e0ef6e144bdbf2578ca4f29cc3d789507055fc659952",
+      "archive_sha256": "4fbac1fa432e92d9c98f808e3cfa90586b39a568b5eddc394e191430bf86dac5"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0366.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4ad3ea7ef480382fb305ae408a7181849240625784e5437f20273113a3fdde38",
+      "archive_sha256": "a2d3e762f4b8b060276ab3b00c7df9e3c5cedb29d350c2583113dd7399c85bb9"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0402.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "bcaf1bfbdf6d321b9ce06facb40b1e66cc8407cf5e501865466f7a7c9a64b347",
+      "archive_sha256": "09da9808b50aa800cfa2fcfd5aa155c44c489dfbbaa3d7e0c9339f0ca2e6fd02"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0437.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f939ce23887fd3cba3f1f0804a24b3809ac9dd0bbb065d9e7a06cb1b2469ea5f",
+      "archive_sha256": "8cf2e0bf1dac3b32501e50431545567511a74c908c3bba83d80999097391c025"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0474.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2321f7a5fe8288ee38ba339757af5c2f8b28db3314ba4a806523b5e2dcb22828",
+      "archive_sha256": "8810dc613ff8e7ab28192feef0536ddb1e16dac357d72c5e20c1e0b4dada76f3"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0509.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3f7b6af9612b71084837a3d9f61f502927ee7d230df373f7ecce3ead56449376",
+      "archive_sha256": "dcaee1a935c96a6d1da36856728ea2f4adb86542f89751893165c8479abee356"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0547.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "fe9b736d1aa5e1d5dee90aca52439c12f358b44eb450bf2bea602781a85aebde",
+      "archive_sha256": "4792ff6e46e640fa8b3328ef9774de2c653be552734ac3cb1a47ab0af385ee45"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0583.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "66ff002a35a271deb33c1fde3fd2889633803a75e39556c10327948692e4c7e6",
+      "archive_sha256": "b5efc12ff12a1cbadc8f6b389996760cea8e2197ab81b79fb6251bb73bc42284"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0621.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "07b49ef58a903aa29a33347c4d658137bdeca5992b4cdf9eefa32cba82757d94",
+      "archive_sha256": "829379286de14e61de908e265d4af76a1b3e2753fabd96855cae46b22deca3ce"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0657.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "054d168bd1923a45c0e8f93526808f71c4a88160727936c98bc59db67e9c21ea",
+      "archive_sha256": "79405f12b6f6954ce6861293039b04da385a4dccdf1f79d59e2e3116f9649d4f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0692.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3a310aa9a0edd3aa3428d22655ede1b8f585bf55407ac797f4d0d1e87e59cc9e",
+      "archive_sha256": "e4e16373b9cb7d89f6e352c649c4f98de351d2c5d0b5e2da262cb412232b1e13"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/sticks3-torch/http-0725.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0ded2e2724a8bc0ff8d0b51d125b0bde713c65cc9f66d0a41b64303d73d614e2",
+      "archive_sha256": "6d4109a4ba0fd54b3d9961f9e3a70d9b154369864a5a4c54a6404889932580af"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0031.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "35669c3d56634d2da3b88c04f02ff4758dab971b33f2216de23b0656e867da1e",
+      "archive_sha256": "4a5f8ba0bb90aca45a9cdf0c922c82d38703995cc553769cf1b3a54b1b1db2a4"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0062.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "eb5be9566ccbbbead3f075cbd1358f89fc8c75f27d974c3031cd1da6db5cd469",
+      "archive_sha256": "7b1f1fd6dbb34194c09b9d40c0345df01d222ebbc1e9ba2dc8a42fbd7a0a2491"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0094.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "bb5b8a6256ba5ceee4b6856f136974b6291abdb09e3bd66a2a68c330e2938ce7",
+      "archive_sha256": "b4690bc6c0bd927b9494e69bff3b7074bc94d9854a81eedc0d2a2ead8e35d11f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0128.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "307943acf9314e1780e44605d8cf817bddb0281d4546e7b097933818ba127b6e",
+      "archive_sha256": "1ae5214f8a510e5a6967c8cdd416bff01fac2b80d6d4ac6b35a0f14f15dd7387"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0160.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c00ce08c6e2472f5f977f88e9fe70565b1727e8af6049e42d3bd450a437d082e",
+      "archive_sha256": "0223d08cbc5dd75d9ec201afa081fcab44fbdb1c68a3d0bea1db8b155b6f98e0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0195.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c6a28a08f4bef74ea37b3836303021995c5d468cf97a6432795e35ffbcb14739",
+      "archive_sha256": "fed7e3abc70f2598cc3a291ba8b04591864618f26cfcf848428ae4dbfb4079a5"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0228.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5f27788ef05ea1d91d0aa5d6e5e98b78f8cf956911488a377ee50195b45b270c",
+      "archive_sha256": "2ac2b9abf2c76126a7493d29c18529471b751fb8ac67aa593bc07cd714ddabf8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0264.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a03f94bf6108c64174a04356300d594a66aa4c5d320e93a49622aa29752e4442",
+      "archive_sha256": "ea602575cc3c18cb93e84e290969644cf9c4263c230eee813504e82a36e688de"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0297.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1db1e2d80dbe9f9bcb5659ffaa5810d09f5ab644a0a1f95fdebeb6d0948d936d",
+      "archive_sha256": "d700c63505f88e5e78d82728864bf267008af592898901c8249638c04f53bdd6"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0333.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "cb0135e6dde9deea679fd8022dc212e05953a1a44ca1a8f8c6cce4b489134438",
+      "archive_sha256": "718f5c52864a31439c8fae52349a3dc07cbbf69331402e85a2934811b5ebed2b"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0367.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "7576ad65f09a18710e45e8f164a41a9399d8cd6a0cf1f579dd047b7984fe7ca3",
+      "archive_sha256": "25e3029f4e696d49a003a5a6eaf54db6e5a4b3813b186f892ce6722f549e6394"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0403.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2d507a8c879a33d14515c689855405fe23ac189602fb54c8143d1eb90784050b",
+      "archive_sha256": "c78b98efff4e06e67a54caaa0f9c016332be997326e36c2301ae556c2804772a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0439.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1e517d0e43831dede88179c37cbcb506787d8ceaac107f8e040d003c59b0de3d",
+      "archive_sha256": "437577dc9efb3443266081aceaa0f8d65607582c4dcad58ded01cb7559faf0d3"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0476.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "131ae0df5a6e8586adfa0288bef0633cce0ea1cb3d5ae126013ea9a8351ac5bd",
+      "archive_sha256": "d510c8d294d4a6d041a8eaa6ca4bd350c0be9406ca215209e0aa92b0763cd83f"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0512.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "967fba4795d70f307220cad88996d0110c1e780c82df2124cc7bb9d011ece9b9",
+      "archive_sha256": "c1c654bcf10eec64c29e0d5f635c1857346e15bce91dc050e67c133dd4aec1ca"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0550.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1e2a1c86e6294ea773e1045398414f2ffec3d804cc12a330f5614f4e0e35aa07",
+      "archive_sha256": "7b2db135982e58c62a3dff32dba648a38d821216cc54daee0510cdc6d7706ba4"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0586.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "36118e7048e9b556c9e37d1480f32c9991f8d595842e7eb994127690a3e4b487",
+      "archive_sha256": "9d3bed558963c21bff24ae38d4165699cc4972ea5ba2f805f53a6ee81d33d0e7"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0625.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4ac0fd188833e431bc71f6cf29ba1952566aad0b50a2f0474d8a6ea88445ca2a",
+      "archive_sha256": "28825bfdb4c22e5431a31527f2f6bd34ce4f8a9a3675168f198860233517e9d8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0661.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f9830d9b10417b8e4adf407b8c481ef9aecd22ba251d8b85162ff7cfc583d466",
+      "archive_sha256": "5762225ce4bcc9d8d534a32c5d930e1ff33f51c5fa449d47507f8b4c98e97eb5"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0696.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "877bee524bb95b0b320b618ca416230a1a9ee63fd142b5fc16a0f8472423a471",
+      "archive_sha256": "bb2a51a68c4c924bb48ba59886a9676f6ec2cfbe07cfcb09ec1ed45d9cbbe594"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-flash/http-0729.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4d68f520df1e25f60329de4e90e14e87a7125bb521622037241c1c780e4efd28",
+      "archive_sha256": "cd465b5ec33539966e890b2f18d51d9e63d530ba8afc463c634c03f6d47315c8"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0031.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "77ddf2813f505762e37a26d9e0fcf3f002e53d555a4bff529b9b90fa7359f594",
+      "archive_sha256": "9dfd96d67b1b81506db0f1be17fb217a5c21227949d32763633965c5f8c516b7"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0062.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a4db51a5a319c938e78ba9ede99eb81dfcffb95c86ecc8939956d102d89d1006",
+      "archive_sha256": "1e9638cdfcc817e6a58adb32984602e64c9d7b0dcb6bc74f856d6a791745c066"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0094.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "97cf8621c3a0628a8bd1872d73c1555e8ec9493db0262dfb28389cc811260a67",
+      "archive_sha256": "65817035fdd2a0d890ad776a5b23b414caa1738f5f46603a14de4984716ecffe"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0128.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f173d071298cf9e9703a23721e5f94a3a7d87f2c6460a39ce9ea2d4ead6b29cd",
+      "archive_sha256": "f4e070f03e7f277730237722907c91e3c01178d88ccd8ba248e1bbe24a68ea4a"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0160.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3a904ad8e9a19f4c54feb761f936c213e9337fab65ac3c84bde56da183ac2b3f",
+      "archive_sha256": "f11eca33fb24da4c71b2f5d7dcc07a757404aedaee9fd72d463519b30cf18379"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0195.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "86445d17e6363c69ae2128548e5962eb904e45e355a3700ab24b49d6d5090bc9",
+      "archive_sha256": "b7a8c92341bd051d22baee279f8fb708f63f0eeaf7ab39fafbb987c0b0e382a6"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0228.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e4a4a9b4d7b0fa0c218199ecd0402df902151593ace9ee66a7282de1b84cb743",
+      "archive_sha256": "66ac8c5a52f473fc2b60f0b41860c76be6b5e1c37cd6290ff05f69d5690a3a23"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0263.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "91d732f7668d2859583addc23833c51d2a7c217d7421a1b1b1447f8a6299476e",
+      "archive_sha256": "3e06ae7f4bc31259b39b5842915a2d640518bcec18eaf6ea3919d2cfe17d8b5d"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0297.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8b9e243dd699da9b29483f94f1c1091bdeaa496c10bf993be70afe39345aea86",
+      "archive_sha256": "d24ed918b912e1db4fdba8507e7a4934b5ecd2fe9d43e230cbdc73ecdddf419c"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0333.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "109ad925753f1ddb4c3a391a88310c0a2d3e0b0900dc514ae2d85f999424afd6",
+      "archive_sha256": "3e4e61bf2e230637fd53d91ea17eb3e06a3d0edcd024636be40d7b02444565c5"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0367.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "d70d7738715f5df97d04f8d97dc039c70a04d75a093846836d23970a5ed59d64",
+      "archive_sha256": "9ca851d4c5691c8a391c2ce2ba0f9c10aba9203dd9e74de8e80dd517fa23b4f2"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0403.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5b5fdbd06d3204e486d56f546f25abd415ab70087824d02c47167deee58deb42",
+      "archive_sha256": "7079ddead6b3db3d9638a99b1b354a024d101efa9515221fe7e2f673e2b258ac"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0437.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8e818f5df880b9015be88340034f2b10968a3d2830e39359085eb2ba1eb0be88",
+      "archive_sha256": "32c77345f29ce39c503ca14323f93deffd3e5de192cb30d2dca3a638469b662e"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0474.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4f73282c7f4f9a49b88e6027f07a84d67314d58c0f04b6beb811261960b3316b",
+      "archive_sha256": "fb3a697ec153cd4f8c9fd819b463a34b82bff64096fd29b7194688a83cb87eee"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0509.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "a648b78992e7bee56775e64eb26fcebb78388023c1507939c5d5068bbbd54f98",
+      "archive_sha256": "460720d6bd6cedc5b39a63a81005d0ef600dfdafb355246421e107c9e13d03a6"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0547.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2386104189af69eb3db785bdeb55f718f309af3bda1c19aa6d559f3111ec5b19",
+      "archive_sha256": "a6767a8731c466bbfb01dfca8b52da3fedc55de4f47b99440934d44d1fc2e1f1"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0583.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "3a720ea18dd6aea8f3cbd56ecfa4db3f56e94497c9a4b146e50f0c91f534b338",
+      "archive_sha256": "70f7868a9273117a131fb5691cf3356c82323272dc87e8f7380550a8097ad6c0"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0621.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8dab01083db3a523b6b7e7e1cb1487bf7ac2238f73d2601c026c28124007bdb3",
+      "archive_sha256": "0493d1d7e2d6a9cdcff4129477f431d23ffe174995ce0a867b8a9c03e7c59cff"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0657.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e17d54432e3f1ee60800d46d0e043482b4abf1dd47fc1d6782634de218563c22",
+      "archive_sha256": "7b95c38c6c01cf81dd8d59b4cf5ab2b57a5efaf40e1175eeff4d01d7aabd5950"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0692.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "abe4eaf642a2892e91dd30b7e30abf7c66f90148d7d9610bf112797ac79e37ee",
+      "archive_sha256": "3534bf6f173b72f4bcba5acd1cd2ce66d32ca3443cf86e7fb41d034e3cfe191d"
+    },
+    {
+      "archive": "artifacts/actual/four-hosts-r1/stopwatch-torch/http-0726.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "70b825beeacfd5cf64c0f6b0650685ad6d62cd21c7b805b07beb08dc163f464e",
+      "archive_sha256": "2800304f7349ff9d40ad631126ec0471c6116280b0073f555b9f80022acf65d5"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-flash-r1/http-0037.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "ab7d634ed214e8171c4e3e264025a898dce276599e9c28f9738d8d4d4105705c",
+      "archive_sha256": "99f889f354331acaa6a3f0f3af4daabf99fc298a8d6304c4c7409a085d7ff203"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-flash-r1/http-0068.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1a9bc68d60d1d7755fe8a4c1dd05c4cda9701d1672b1dca99bcc2383c538afa7",
+      "archive_sha256": "a6cc7d24a05a9d290e83d2ff67320bf5945c5e785dd9402fbba5230169a61a6c"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-flash-r1/http-0100.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "c78123ca8583a83ff62b7d563363ca827a300205f5bcd050d2031f2e819b672d",
+      "archive_sha256": "e274c56cac64125c61cbc8cb42f03d80e1def6ab9ea6df771efe4012add2c118"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-flash-r1/http-0134.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "2dd43891dfc27dcf2676b70bb8ac9cb4d5797df814517a097ce82d00af8fb635",
+      "archive_sha256": "f0eb2c679ee9b6fb8ff9ab49bcb7c150defc2a0398d8919ba56d6e326b5834af"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-flash-r1/http-0166.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5254f3a926311de4b87a2b4f8d960938afd67b12eb41982be5d49e1da9740080",
+      "archive_sha256": "b643335a552aaaa435daea01118afefcff90ef6ebca85d9fefe8577f4023b2d7"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r1/http-0034.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8ca50e1b8d3664493d3d2ccffddb474e1a42fc2f22f9c3e9da3a912ce3ac9076",
+      "archive_sha256": "25e05f4004dd1dfdcbd8c950bbaeeebd792f5a71fe69ae8d7583654e29f982d8"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r2/http-0035.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e273fbabff85d59ba328e013628e876e4b084df4830542321355942ae75b73b0",
+      "archive_sha256": "b2ebf0840dc67b33580198d0bd586187d2948195920f64012c98e8c46576ea59"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r2/http-0066.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "5231292a7c8caf9f34319fe608e925f9e4a445ad228ffaa337f2cc99a2e9b585",
+      "archive_sha256": "874219c4512c3d9cc35f4950c3c7de06b11a66ad019d60b80a7952411f930a71"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r3/http-0036.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8bc08f649b09fafb8193ff110d574bc89998df3b947a94069ddb9b82e6f555ae",
+      "archive_sha256": "bc3567d451b9ecb881359cd5999ac4190167c7dc1095f3e625c917d3edbec700"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r3/http-0067.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "d3b833f8d890230765e9412ef667ce49664f72824a4970ce544db1bb2feecf22",
+      "archive_sha256": "a0748cfd8c8a8797019db087ee8fdf7f54a26c9ab978829cd23dd0b40ec76c55"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r3/http-0098.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "ba39f490bf1f823bea066f3d85ae99265f833a3648ca82ab10fb6fb2dd41fb72",
+      "archive_sha256": "404bc3332b4dee33b37c607966d0597deb1df339ffa1c180b443c27a418bbae4"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r3/http-0132.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0457b8d00884204430dc36e6f7531230f8538b0467507e5979e828268d956e5b",
+      "archive_sha256": "2ddc86063da9a3c3b2983dad2b2bf803271248fa4c8720ceef08a779e004530f"
+    },
+    {
+      "archive": "artifacts/actual/narrow-cores3-torch-r3/http-0164.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4bd5a1fcc7adb16fe966ab80a2ea0f8057f16dca677489e061378ac39fdc07ce",
+      "archive_sha256": "2ef645a9284132d176acf4f415a91d01486414ba70a487f1b8ec334635036f6d"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0034.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "6b9157829164d049615f7610f0db024b80a6905d15401cbb78d33f85ac28a0d7",
+      "archive_sha256": "2ff9b7a11a0a459e9a3cc8b7b69fb56c76729da6e2a6a602085b445b62aef8b2"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0065.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "acff44d87ea3cf420f082b5437a9c9648d2c10a0100c414e6eb995cbe5d517fb",
+      "archive_sha256": "c79d276fd15064bd3d8628898f7cdb9971c168609532f54dcf2781ed86a8928e"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0098.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1bf66804f65866719977563f2c5104929563e7db74fd00bac718b44876a8da81",
+      "archive_sha256": "c2e5d668ec3375018caa4da5d11269cde0f4b64c955fb02e9314bca10341cb8b"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0130.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "1db8fe463437c8dbad0f7eeb4d035d33aec1f06e4a3c605f6c115776ad95ccb5",
+      "archive_sha256": "29312f0299c03de994c83f25758f578e022ef27532518e2ac496f6f1abcbe6c4"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0163.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "0fecc093b68f234eabf0c2e80c1f1f90ed72fae3f54d1124e16d08a1d4d1d4f0",
+      "archive_sha256": "eee0a920bc0ca16f506856e7e472bc3f8dc71f6f2c73051d1ff42417a9817f46"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0196.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "acff44d87ea3cf420f082b5437a9c9648d2c10a0100c414e6eb995cbe5d517fb",
+      "archive_sha256": "c79d276fd15064bd3d8628898f7cdb9971c168609532f54dcf2781ed86a8928e"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0232.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "59e309476102ee61698b1d2da1945c5d0d1ab8e531c3bc4923d80d9c431fbc62",
+      "archive_sha256": "f10601506cc431442e351d151777660416730f0612f134b3a9694a7b6d5967de"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0265.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "4faa6bb901a26a284237cfda01caef97b6ce3460de8a6f376624cba7907196e8",
+      "archive_sha256": "7418ce3787353f8bf92b2efb8caa9f6d0065605e86a4c1aae3c11648431fd4c1"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0298.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "9e3b767b84769c6a3fbda9df77e1b3b02004622159532b500c5f811403da0867",
+      "archive_sha256": "6d2c163d96b0be5884961d38b6a5c16cb370e0ac5281675f6dafc089314ed068"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0332.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "8029bed515757fd0ff0bb72490bf81a4a79b6bd8ab9b4776f89912ddd608a388",
+      "archive_sha256": "f6539a93397a705101f108edf85bd60b3fe92030606edbdbd178069943e8c1de"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0368.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "e09a0bc620d1448379b4b8a17409194fbb9fad79c903672318c584ff1c9e2561",
+      "archive_sha256": "b48faa81a6d50ad7e0918ab64b33f6eabd5cffb197f92e96b1d1d4755c0bb428"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0404.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "ee85e9e17d9f08573d8b1001b79e7696c10a52e71ef06770bb94c5a1b0edff50",
+      "archive_sha256": "d3a50f5bbb5d86920a15ce1e83fec323da6b903efbdb867f68d7e249efe35cc8"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0439.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "f6b9e0a7780a9cd9b39c4f52eafd60a4f6a674f2335ec3e1381f7ea898931575",
+      "archive_sha256": "4a999294eb0fc18cb8b4929edc74ad1375b1f4be5011906a399d4e80a31aa6c0"
+    },
+    {
+      "archive": "artifacts/actual/web-owner-r1/http-0474.request.json",
+      "json_pointers": [
+        "/files/official_flash.py/data"
+      ],
+      "original_sha256": "03c3e64b076aaf0f1925f2c8820aeb816433bfbcdd7e43d7f97ed9ad2756be38",
+      "archive_sha256": "6a7d02a91e3a39d46eae2f2415e4601a5c30ca48d69c5c81fcbfdfebcba691ad"
+    }
+  ],
+  "scope": [
+    "Virtual device only; hardware NOT RUN; no photometry/electrical/thermal/real PWM or dynamic S1 equivalence.",
+    "Web owner selected_cases records prepared inventory; only its 14 actual observations executed under --web-only. No extra guest experiments after 13 Web phases.",
+    "reset-at-ns is not public QOM; internal reset-timer cancellation is separately proven by controller C evidence, not fabricated here.",
+    "Raw ZIP/serial are fingerprinted; exact ASCII windows preserve original byte slices. Portable mode proves archive integrity/crosschecks; --check-originals additionally proves original-window membership.",
+    "The original source/ABI/default/failure receipts remain original bytes unless an explicit file-payload redaction is indexed; no old result becomes a new PASS."
+  ]
+}

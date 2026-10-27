@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "category": "HOST_ONLY_PLATFORM_REGRESSION_AND_SOURCE_STATE",
+  "captured_at": "2026-10-26T23:34:52.989873+00:00",
+  "sources_capture_timing": "after platform execution; exact source before/after receipts of permanent test and product service startup are separate",
+  "sources_sha256": {
+    "scripts/bootstrap-unit-runtime.py": "0f0acdcda7aec86f0d2be9777ddd9125fddb629e21ea9f9c13b701bbaf2e2f7a",
+    "tests/uiflow2/run_peripheral_matrix.py": "f2c4d784218f482bca380a2781b6b10c349bc3d81b8d7dcd190cd131f8a11f60",
+    "platform/tests/test_unit_flashlight_route_patch.py": "03b08c852ce797794de48e0a6e97487c94759bf91351ac2be160108b7bfd8900",
+    "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184"
+  },
+  "tests": {
+    "full": {
+      "status": "PASS",
+      "tests": 1220,
+      "log": ".work/unit-host38-platform-full-20261027-r1.log",
+      "sha256": "9018679ebd5cb1ec78d214a48c10d9e1264aa559bd9d21c06784154d47944240"
+    },
+    "narrow": {
+      "status": "PASS",
+      "tests": 24,
+      "log": ".work/unit-host38-platform-narrow-20261027-r1.log",
+      "sha256": "e8dae91d69a278ef76ebc044b2f3932a94a12a108c2f279fb4501ffc86788b28"
+    }
+  }
+}

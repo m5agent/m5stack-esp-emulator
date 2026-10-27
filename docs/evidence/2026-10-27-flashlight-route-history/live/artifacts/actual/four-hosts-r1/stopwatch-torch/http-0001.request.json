@@ -1,0 +1,17 @@
+{
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "program_mode": "uiflow-live",
+  "ttl_seconds": 1800,
+  "ready_timeout_seconds": 40,
+  "units": [
+    {
+      "id": "lamp",
+      "unit_id": "flashlight",
+      "port_id": "port-a",
+      "initial": {
+        "flash-mode": false
+      }
+    }
+  ]
+}

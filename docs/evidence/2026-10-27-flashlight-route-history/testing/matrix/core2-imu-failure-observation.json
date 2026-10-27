@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "classification": "after-run derived byte-window observation",
+  "original_case_status": "FAIL",
+  "guest_exit_code": 0,
+  "frame_oracle_output": "Core2 IMU success marker missing: rgb=(0,0,0)\n",
+  "serial_source": "matrix/originals/core2-imu/serial.log",
+  "serial_source_sha256": "69b4721b2ef77d81cfed2684a92b2786a14251dc54f25590a9ce5f549d197b5d",
+  "exact_ascii_byte_windows": [
+    {
+      "byte_offset": 554,
+      "byte_length": 47,
+      "ascii": "CORE2_IMU_VALUES a=0.00,0.00,1.00 g=0.0,0.0,0.0",
+      "sha256": "e9f5357d0894d8577be359c72ca062cc6c389fbe7058141f190bad0ed1d81166"
+    },
+    {
+      "byte_offset": 603,
+      "byte_length": 48,
+      "ascii": "CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=0.0,0.0,0.0",
+      "sha256": "0361af561eeab8ade00bc9803ab291cb9565737cd6a750049fe62af32f96da47"
+    },
+    {
+      "byte_offset": 653,
+      "byte_length": 52,
+      "ascii": "CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=10.0,-20.0,30.0",
+      "sha256": "8a79caa625f5f0bce4cbf2111f94dac4f23846f5908204291d328cfa106072c0"
+    }
+  ],
+  "interpretation": "UART reaches requested injected accel/gyro values, while the separately evaluated required frame marker failed. The case and full round remain FAIL; no rerun is substituted."
+}

@@ -148,6 +148,10 @@ blocker instead of spending more time on host-side workarounds.
 - Calls made through the review control plane must still use Device Service
   sessions, so the same execution is visible in Live sessions and retained
   after the review worker finishes.
+- UIFlow probes that retain nonce-bound state across same-VM Runs should use
+  a dedicated `sys.modules` key. Do not add attributes to built-in `sys` or
+  `os` modules without proof on that exact firmware; their dictionaries may
+  be fixed even though `sys.modules` is mutable.
 
 ## Device onboarding
 

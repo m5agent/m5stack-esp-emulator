@@ -1,0 +1,47 @@
+{
+  "status": "NOT RUN",
+  "api_contacted": false,
+  "guests_started": 0,
+  "hardware": "NOT RUN",
+  "devices": [
+    "cores3",
+    "atoms3r",
+    "sticks3",
+    "stopwatch"
+  ],
+  "mode": "torch",
+  "cases": [
+    [
+      "ledc73",
+      "roundtrip"
+    ],
+    [
+      "rmt81",
+      "roundtrip"
+    ],
+    [
+      "out-inv",
+      "roundtrip"
+    ],
+    [
+      "ledc73",
+      "unsupported-low-hold"
+    ],
+    [
+      "ledc73",
+      "unsupported-low-rise"
+    ]
+  ],
+  "source_entrypoint": "main.py",
+  "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+  "runtime_sha256": "REQUIRED FROM NEW RUNTIME READY HANDOFF",
+  "lifecycle": [
+    "bootstrap",
+    "atomic",
+    "stable-unknown",
+    "recover-reset",
+    "recover-driver"
+  ],
+  "companion_status": "Pin/PWM generators prepared; not part of lifecycle PASS and not executed",
+  "web_status": "separate mounted observation plan; no browser claim"
+}

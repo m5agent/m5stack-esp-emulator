@@ -1,0 +1,97 @@
+from pathlib import Path
+from collections import Counter
+from datetime import datetime,timezone
+import hashlib,json,re,struct,sys,zlib
+repo=Path.cwd();matrix=repo/'.work/unit-host38-shared-matrix-gen47-20261027-r1';out=repo/'docs/evidence/2026-10-27-flashlight-route-history/testing';out.mkdir(parents=True,exist_ok=True)
+records=[];fingerprints=[]
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def source_name(p):return str(p.relative_to(repo)) if p.is_relative_to(repo) else str(p)
+def patterns(raw):
+ checks={'mac-literal':rb'(?i)(?<![a-f0-9])(?:[a-f0-9]{2}:){5}[a-f0-9]{2}(?![a-f0-9])','private-key':rb'-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----','long-bearer':rb'(?i)Bearer [a-z0-9._~+/-]{24,}','url-userinfo':rb'https?://[^\s/"\x27]+:[^\s/"\x27]+@'}
+ return [name for name,pat in checks.items() if re.search(pat,raw)]
+def png_info(raw):
+ assert raw.startswith(b'\x89PNG\r\n\x1a\n');offset=8;chunks=[];size=None
+ while offset<len(raw):
+  n=struct.unpack('>I',raw[offset:offset+4])[0];typ=raw[offset+4:offset+8];data=raw[offset+8:offset+8+n];crc=struct.unpack('>I',raw[offset+8+n:offset+12+n])[0];assert zlib.crc32(typ+data)&0xffffffff==crc
+  assert typ not in (b'tEXt',b'iTXt',b'zTXt'),typ
+  if typ==b'IHDR':size=list(struct.unpack('>II',data[:8]))
+  chunks.append(typ.decode('ascii'));offset+=12+n
+ assert offset==len(raw) and chunks[-1]=='IEND';return {'size':size,'chunks':chunks,'crc':'PASS','text_chunks':False}
+def add(path,rel,category):
+ raw=path.read_bytes();record={'source_path':source_name(path),'source_bytes':len(raw),'source_sha256':sha(raw),'category':category}
+ if path.suffix=='.png':
+  record['png']=png_info(raw);kind='original-png'
+ else:
+  try:raw.decode('utf-8')
+  except UnicodeDecodeError:kind=None;record['reason']='non-UTF8 bytes excluded'
+  else:
+   found=patterns(raw)
+   if found:kind=None;record['reason']='private-pattern text excluded';record['privacy_findings']=found
+   elif path.suffix in ('.bin','.rom','.mpy','.zip','.ppm','.pcm','.rmt','.img','.a','.o'):kind=None;record['reason']='binary/resource extension excluded'
+   elif b'\0' in raw:kind=None;record['reason']='NUL-containing bytes excluded'
+   else:kind='original-utf8'
+ if kind:
+  dest=out/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);record.update(classification='original-bytes',format=kind,archive_path=rel,archive_bytes=len(raw),archive_sha256=sha(raw));records.append(record)
+ else:record['classification']='fingerprint-only';fingerprints.append(record)
+ return record
+
+def generated(rel,x):
+ raw=(json.dumps(x,indent=2,ensure_ascii=False)+'\n').encode();p=out/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);records.append({'classification':'generated-after-run','archive_path':rel,'archive_bytes':len(raw),'archive_sha256':sha(raw)})
+# Retain the one actual complete matrix round exactly; do not import later reruns.
+for p in sorted(matrix.rglob('*')):
+ if p.is_file():add(p,'matrix/originals/'+str(p.relative_to(matrix)),'actual-matrix-round')
+for name,rel in [('.work/unit-host38-shared-matrix-gen47-20261027-r1.log','matrix/outer.log'),('.work/unit-host38-platform-verification-20261027-r1.json','platform/root-verification.json'),('.work/unit-host38-platform-full-20261027-r1.log','platform/full.log'),('.work/unit-host38-platform-narrow-20261027-r1.log','platform/narrow.log')]:add(repo/name,rel,'host-platform-or-matrix-log')
+unit22=repo/'.work/unit-host22-command-summary-20261027-r1'
+for p in sorted(unit22.rglob('*')):
+ if p.is_file():add(p,'unit-host-22/'+str(p.relative_to(unit22)),'host-mock-before-or-after')
+for name,rel in [('.work/archive-unit-host38-testing-20261027-attempt-r1.py','archive-diagnostics/attempt-r1.py.txt'),('.work/unit-host38-testing-archive-r1-failure.json','archive-diagnostics/attempt-r1-failure.json'),('.work/archive-unit-host38-testing-20261027-attempt-r2.py','archive-diagnostics/attempt-r2.py.txt'),('.work/unit-host38-testing-archive-r2-failure.json','archive-diagnostics/attempt-r2-failure.json')]:add(repo/name,rel,'archive-diagnostic-original-failure-retained')
+# Product/test snapshots are post-execution observations, not pre-run captures.
+sourcepaths={'tests/uiflow2/run_peripheral_matrix.py','tests/uiflow2/run_profile_ui_test.py','platform/tests/test_unit_flashlight_route_patch.py','tests/uiflow2/check_rmt_ws2812.py','tests/uiflow2/check_frame_marker.py','tests/uiflow2/check_pcm.py','tests/uiflow2/check_rmt_nec.py','tests/uiflow2/check_disk_sector.py'}
+summary=json.loads((matrix/'summary.json').read_text());results=summary['results'];assert Counter(r['status'] for r in results.values())=={'PASS':66,'FAIL':1}
+for result in results.values():
+ cmd=result['command'];filesdir=Path(cmd[cmd.index('--files-dir')+1])
+ for p in filesdir.rglob('*'):
+  if p.is_file():sourcepaths.add(source_name(p))
+for name in sorted(sourcepaths):add(repo/name,'source-snapshots/'+name+'.txt','after-run-source-observation')
+case_checks=[];runtimes={};base_records={}
+for case_id,result in results.items():
+ cmd=result['command'];stdout=(matrix/(case_id+'.stdout')).read_bytes();match=re.search(rb'^sha256: ([0-9a-f]{64})$',stdout,re.M);assert match,case_id
+ composed=matrix/case_id/'uiflow2-ui-test.bin';composed_sha=sha(composed.read_bytes());launch_composed_sha=match.group(1).decode()
+ runtime=Path(cmd[cmd.index('--qemu')+1]);runtime_sha=sha(runtime.read_bytes());kind='riscv32-independent-runtime' if runtime.name=='qemu-system-riscv32' else 'xtensa-route-history-runtime';runtimes.setdefault(str(runtime),{'path':source_name(runtime),'sha256':runtime_sha,'category':kind,'cases':[]})['cases'].append(case_id)
+ base=Path(cmd[cmd.index('--base')+1]);base_sha=sha(base.read_bytes());declared=result['reference_layout']['base_firmware_sha256'];assert base_sha==declared,case_id;base_records[str(base)]={'path':source_name(base),'bytes':base.stat().st_size,'sha256':base_sha}
+ expected=list(map(int,cmd[cmd.index('--expected-size')+1].split('x')))
+ for frame in ('before.png','after.png'):assert png_info((matrix/case_id/frame).read_bytes())['size']==expected,(case_id,frame)
+ case_checks.append({'case':case_id,'original_status':result['status'],'guest_exit_code':result['exit_code'],'attempts':result['attempts'],'retry_used':result['retry_used'],'launch_composed_sha256':launch_composed_sha,'postrun_mutable_flash_sha256':composed_sha,'launch_and_postrun_flash_sha_equal':launch_composed_sha==composed_sha,'base_firmware_sha256':base_sha,'current_base_hash_matches_declared_after_run':True,'runtime_sha256':runtime_sha,'runtime_group':kind,'png_dimensions_match_command':True})
+for record in [*runtimes.values(),*base_records.values()]:fingerprints.append({'classification':'fingerprint-only','category':record.get('category','reference-base-firmware'),'source_path':record['path'],'source_bytes':(repo/record['path']).stat().st_size if not Path(record['path']).is_absolute() else Path(record['path']).stat().st_size,'source_sha256':record['sha256']})
+assert len(runtimes)==2
+xtensa=next(v for v in runtimes.values() if v['category']=='xtensa-route-history-runtime');c6=next(v for v in runtimes.values() if v['category']=='riscv32-independent-runtime');assert len(xtensa['cases'])==62 and len(c6['cases'])==5
+assert xtensa['sha256']=='3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1'
+raw=(matrix/'core2-imu/serial.log').read_bytes();windows=[];pos=0
+while True:
+ start=raw.find(b'CORE2_IMU_VALUES ',pos)
+ if start<0:break
+ end=raw.find(bytes([13,10]),start)
+ if end<0:end=raw.find(b'\n',start)
+ if end<0:end=len(raw)
+ window=raw[start:end];assert not patterns(window);windows.append({'byte_offset':start,'byte_length':len(window),'ascii':window.decode('ascii'),'sha256':sha(window)});pos=end+1
+assert len(windows)==3 and windows[-1]['ascii']=='CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=10.0,-20.0,30.0'
+generated('matrix/core2-imu-failure-observation.json',{'schema_version':1,'classification':'after-run derived byte-window observation','original_case_status':'FAIL','guest_exit_code':results['core2-imu']['exit_code'],'frame_oracle_output':results['core2-imu']['validation'],'serial_source':'matrix/originals/core2-imu/serial.log','serial_source_sha256':sha(raw),'exact_ascii_byte_windows':windows,'interpretation':'UART reaches requested injected accel/gyro values, while the separately evaluated required frame marker failed. The case and full round remain FAIL; no rerun is substituted.'})
+# Inspect stored PNG pixels offline; this does not rerun a checker/guest.
+from PIL import Image
+pixels=[]
+for cid in ('core2-imu','papercolor-rgb'):
+ p=matrix/cid/'after.png'
+ with Image.open(p) as image:pixel=list(image.convert('RGB').getpixel((4,4)))
+ pixels.append({'path':str(p.relative_to(matrix)),'sha256':sha(p.read_bytes()),'at':[4,4],'rgb':pixel})
+generated('matrix/frame-pixel-observation.json',{'schema_version':1,'classification':'after-run image artifact observation','scope':'Pillow read of two archived final-frame pixels; not a guest rerun or new functional PASS','pixels':pixels})
+paper=results['papercolor-rgb'];command=paper['command'];current_runner=repo/'tests/uiflow2/run_peripheral_matrix.py';assert 'run_profile_ui_test.py'==Path(command[1]).name and not any('check_rmt_ws2812.py' in s for s in command)
+generated('matrix/papercolor-command-observation.json',{'schema_version':1,'classification':'after-run derived summary observation','original_case_status':paper['status'],'command_field_is_profile_runner':True,'command_field_is_ws2812_checker':False,'command':command,'original_validation':paper['validation'],'runner_sha256_after_run':sha(current_runner.read_bytes()),'scope':'Actual complete matrix summary is retained. The host mock separately proves command-field equality to the argv passed into subprocess.run; no independent pre-run ps/exec trace is claimed here.'})
+generated('matrix/run-attestation.json',{'schema_version':1,'classification':'root-provided actual launch attestation captured after execution','cwd':str(repo),'argv':['/opt/miniconda3/bin/python3.12','-B','tests/uiflow2/run_peripheral_matrix.py','--out-dir','.work/unit-host38-shared-matrix-gen47-20261027-r1'],'explicit_environment':{'M5_QEMU_XTENSA':str(repo/'.work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa'),'M5_QEMU_XTENSA_ROM_DIR':str(repo/'.work/unit-runtime-source-route-history-final/qemu/pc-bios'),'M5_PYTHON_DEPS':str(repo/'.work/py312'),'PYTHONPATH':'platform/tools:platform/tests:tests/units:.work/py312'},'shell_redirection':'> .work/unit-host38-shared-matrix-gen47-20261027-r1.log 2>&1','session_id':41841,'authoritative_terminal_exit_code':1,'basis':'Root reports write_stdin confirmed terminal exit_code=1; not timeout. Capture is after execution, not an independent pre-saved exec trace.','filters':[],'allow_retries':False})
+generated('matrix/after-run-integrity.json',{'schema_version':1,'classification':'after-run artifact consistency checks','status':'PASS_ARTIFACT_INTEGRITY_ONLY','actual_round_status':'FAIL','case_count':67,'original_counts':dict(Counter(r['status'] for r in results.values())),'runtimes':list(runtimes.values()),'base_firmware_fingerprints':list(base_records.values()),'case_checks':case_checks,'mutable_flash_boundary':'The printed launch composition hash and post-run writable Flash hash are separate observations; differing hashes are retained without assigning a fault cause.','mutable_flash_hash_differences':[r['case'] for r in case_checks if not r['launch_and_postrun_flash_sha_equal']],'scope':'Checks correlate this unchanged round only. No rerun, patched summary, substituted frame or blended success is included.'})
+platform=json.loads((repo/'.work/unit-host38-platform-verification-20261027-r1.json').read_text())
+for key,filename,count in [('full','platform/full.log',1220),('narrow','platform/narrow.log',24)]:
+ raw=(out/filename).read_bytes();assert sha(raw)==platform['tests'][key]['sha256'];assert re.search(rb'Ran '+str(count).encode()+rb' tests in [0-9.]+s\s+OK\s*$',raw),key
+old=json.loads((unit22/'before/receipt.json').read_text());new=json.loads((unit22/'after/receipt.json').read_text());assert old['status']=='FAIL' and new['status']=='PASS'
+generated('summary.json',{'schema_version':1,'classification':'after-run layered evidence summary','artifact_integrity':'PASS','host_platform':{'full_tests':1220,'narrow_tests':24,'status':'PASS'},'unit_host_22':{'old_mock_contract':'FAIL','new_mock_contract':'PASS','actual_papercolor_summary':'PASS_PROFILE_COMMAND_RECORDED','runner_sha256':sha(current_runner.read_bytes())},'full_matrix':{'status':'FAIL','cases':67,'pass':66,'fail':1,'failed_cases':['core2-imu'],'xtensa_cases':62,'xtensa_pass':61,'xtensa_fail':1,'independent_c6_cases':5,'independent_c6_pass':5,'retry_used':False},'virtual_device_evidence':'repository QEMU regression, not Device Service product-path acceptance','hardware_evidence':'NOT RUN','exclusions':'Firmware/ROM/executables/Flash/eFuse/PPM/PCM/RMT/SD/non-UTF8 UART bytes are fingerprint-only. PNG framebuffers are original bytes.','capture_timing':'All snapshots, correlations, OCR and explanatory receipts were captured after execution; original logs and summary retain their original bytes.'})
+index={'schema_version':1,'created_at_utc':datetime.now(timezone.utc).isoformat(),'category':'layered-host-and-complete-matrix-evidence','index_excludes_itself':True,'records':records,'fingerprints':fingerprints,'matrix_original_files':835,'matrix_original_counts':{'PASS':66,'FAIL':1},'result':'FAIL_FULL_MATRIX_RETAINED','archive_classification_rules':{'original-bytes':'Exact text or PNG copies with equal source/archive SHA; original CR/trailing whitespace retained.','generated-after-run':'Explicit post-execution observation, never presented as pre-run trace.','fingerprint-only':'Raw binary/private/non-UTF8 bytes not copied; path/bytes/SHA retained.'}}
+(out/'index.json').write_text(json.dumps(index,indent=2,ensure_ascii=False)+'\n');print(json.dumps({'records':len(records),'fingerprint_only':len(fingerprints),'archive_bytes':sum(p.stat().st_size for p in out.rglob('*') if p.is_file()),'counts':index['matrix_original_counts'],'c6_runtime_sha256':c6['sha256']}))

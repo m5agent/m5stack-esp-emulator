@@ -1,0 +1,14 @@
+{
+  "status": "FAILED_PRECONDITION_PRESERVED",
+  "source_and_controller_route_roundtrip_observed": true,
+  "original_report_status": "FAIL",
+  "original_report_sha256": "7b4871cf2e41303c8195ed159d851237789f401969099b51fbbcb98ac99e05fa",
+  "runner_source_unchanged_before_repair": true,
+  "actual_decoded_before": 0,
+  "actual_decoded_after": 0,
+  "arm_to_return_us": 847,
+  "controller_unknown_internal_phase": "unqualified",
+  "actual_cleanup": "PASS",
+  "diagnosis": "No decoded active precondition was established before the atomic route window. Guest sleep_us busy waits; source comments allow delayed timer delivery. Proposed 20ms sleep_ms scheduling window remains below old 220ms deadline and retains mandatory decode increment assertion.",
+  "root_cause_confidence": "Timer scheduling hypothesis; actual source confirms busy-wait vs task-yield distinction, but no independent event-loop trace captured. Not a route revival PASS."
+}

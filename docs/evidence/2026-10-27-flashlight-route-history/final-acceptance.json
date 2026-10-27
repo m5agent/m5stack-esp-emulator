@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "status": "PASS_FOR_UNIT_HOST38_SCOPE",
+  "hardware": "NOT RUN",
+  "unit_host_37": "OPEN",
+  "unit_goal": "ACTIVE",
+  "unit_host_38": "FIXED_FOR_RECORDED_OUT_SEL_PATH",
+  "unit_host_22": "FIXED_PROFILE_COMMAND_RECORDING",
+  "platform": {
+    "status": "PASS",
+    "tests": 1220,
+    "seconds": 121.024,
+    "narrow_tests": 24,
+    "receipt": "testing/platform/root-verification.json"
+  },
+  "shared_controller_matrix": {
+    "status": "FAIL",
+    "cases": 67,
+    "pass": 66,
+    "failed_cases": [
+      "core2-imu"
+    ],
+    "checks": 274,
+    "attempts_per_case": 1,
+    "retried": false,
+    "xtensa_cases": 62,
+    "c6_cases": 5,
+    "receipt": "testing/matrix/originals/summary.json"
+  },
+  "service": {
+    "generation": 47,
+    "pid": 22168,
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "source_files_match": 83,
+    "active_sessions": 0,
+    "active_leases": 0
+  },
+  "metadata_followup": {
+    "status": "PASS",
+    "category": "POST_EXECUTION_METADATA_ONLY_IDLE_RELOAD_NOT_NEW_GUEST",
+    "generation": 48,
+    "source_files_match": 83,
+    "changed_service_sources_since_gen47": [
+      "platform/units/runtime-profiles.json"
+    ],
+    "old_guest_and_program_validation_unchanged": true,
+    "active_sessions": 0,
+    "active_leases": 0,
+    "new_guests": 0
+  },
+  "live": {
+    "eight_lane_status": "PASS",
+    "lanes": 8,
+    "executions": 168,
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "generation": 47,
+    "web_mandatory_status": "PASS",
+    "web_mandatory_phases": 13,
+    "web_owner_executions": 14,
+    "web_optional_capture_status": "PARTIAL",
+    "web_optional_empty_200": 7,
+    "browser_responses": 1062,
+    "browser_200": 386,
+    "browser_304": 676,
+    "cleanup": {
+      "owned_sessions": 13,
+      "original_pass": 12,
+      "original_unconfirmed": 1,
+      "separate_finalization_confirmed": 1,
+      "confirmed_resource_finalizations": 13
+    }
+  },
+  "final_docs": {
+    "status": "PASS",
+    "tests": 48
+  },
+  "metadata_tests": {
+    "status": "PASS",
+    "tests": 17
+  },
+  "generated_validators": {
+    "status": "PASS",
+    "count": 5
+  },
+  "portable_verifiers": [
+    "controller/verify.py",
+    "build/verify.py",
+    "testing/verify.py",
+    "live/verify.py"
+  ],
+  "limits": [
+    "original cleanup 12 PASS + 1 UNCONFIRMED; separate first-failure resource finalization confirmed",
+    "seven optional browser HTTP200 empty frame bodies PARTIAL",
+    "cold-route, hard-reset, OEN/IOMUX, PWM, S1 and physical equivalence remain separate",
+    "gen48 is metadata-only idle reload, not new guest execution"
+  ]
+}

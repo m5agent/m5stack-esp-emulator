@@ -1,0 +1,27 @@
+{
+  "status": "PASS_FOR_UNIT_HOST38_SCOPE",
+  "hardware": "NOT RUN",
+  "unit_host_37": "OPEN",
+  "unit_goal": "ACTIVE",
+  "platform": {
+    "status": "PASS",
+    "tests": 1220
+  },
+  "shared_controller_matrix": {
+    "status": "FAIL",
+    "cases": 67,
+    "pass": 66,
+    "failed_cases": [
+      "core2-imu"
+    ],
+    "checks": 274,
+    "attempts_per_case": 1
+  },
+  "service": {
+    "source_files_match": 83,
+    "active_sessions": 0,
+    "active_leases": 0
+  },
+  "portable_verifiers": [],
+  "synthetic_test_only": "Intentionally has no guest/API/Web/build/controller evidence or child verifiers. This fixture probes whether the verifier rejects incomplete scoped-acceptance input."
+}

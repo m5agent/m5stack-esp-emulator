@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "source-build-and-isolated-index-replay",
+  "api_contacted": false,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+  "prior_runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "patch_count": 12,
+  "source_file_count": 106,
+  "dependency_cache_regular_file_count": 43,
+  "candidate_three_files_match": true,
+  "source_replay": {
+    "base_tree": "ddde372fbcc1b22e99f24372e14dee425be3193b",
+    "postimage_tree": "ce1b71562a4f87bcdd0344cc8dd8304b661fff6f",
+    "reversed_tree": "ddde372fbcc1b22e99f24372e14dee425be3193b",
+    "restored_tree": "ce1b71562a4f87bcdd0344cc8dd8304b661fff6f",
+    "reverse_equals_head_tree": true,
+    "forward_equals_postimage_tree": true,
+    "actual_index_unchanged": true,
+    "all_106_source_files_unchanged": true,
+    "runtime_unchanged": true
+  },
+  "limitations": [
+    "Build is fresh QEMU source/object compilation with pinned static dependency-cache reuse, not a fresh dependency build.",
+    "Tool observations and bootstrap source copy were captured after execution; outer launch argv is root-provided actual-launch attestation, not an independent exec trace.",
+    "All 106 QEMU source files and the 12 historical patches are fingerprint-only; optional source replay requires matching external QEMU source and repository patches.",
+    "Original 152-check historical model failure and corrected independent C results remain in the sibling controller archive; this build archive does not relabel them as guest or hardware PASS.",
+    "No firmware, ROM, runtime binary, object, static dependency archive or credential bytes are archived."
+  ]
+}

@@ -1,0 +1,6 @@
+int esp32_gpio_matrix_out_signal(int pin, bool s3)
+{
+    if (pin < 0 || pin >= (s3 ? 49 : 40)) { return -1; }
+    uint32_t value = g_regs[((s3 ? 0x554 : 0x530) + pin * 4) / 4];
+    return (value & BIT(9)) ? -1 : value & 0x1ff;
+}

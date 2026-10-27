@@ -1,0 +1,67 @@
+UNIT-HOST-38 independent final code review (2026-10-27)
+
+Findings: no new actionable defect found within the declared route-history
+lifecycle scope. This is not approval to widen FlashLight admission or to close
+UNIT-HOST-37/36. API eight-lane and mounted Web evidence remains a separate gate
+owned by root; final authority prose will be reviewed after it is available.
+
+Reviewed 0046, the permanent regression, full current GPIO/AW/registry/header,
+bootstrap ordering and current Unit admission metadata. The reconstructed Unit
+source from 0033 -> 0038 -> 0045 -> 0046 is byte-identical to the final source;
+the compiled real route-commit hunk is exact text from final GPIO source. Final
+runtime file readback SHA is:
+3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1.
+
+Why the fix closes the specific implementation gap:
+- The real GPIO OUT_SEL register is committed before the Unit notification;
+  LEDC refresh remains present. The hook matches layout, yellow pin and an
+  existing FlashLight instance, and therefore does not revoke another pin,
+  another layout or non-FlashLight state.
+- Route mutations in both directions discard old low timestamps, qualification,
+  pulses, all three deadlines/timers and increment epoch. Restoring GPIO256
+  cannot expose prior Torch/Flash active state or a constructor reset timer.
+- Unsupported/mismatched actual pad callbacks still record the actual edge but
+  immediately perform complete observation loss and return; they cannot create
+  a new low interval while observation is unsupported. Timer-side loss uses the
+  same complete invalidation.
+- A fresh supported low interval can restore known-off and a new actual program
+  can restore active. No route mutation increments edge/rising/decode counts.
+  last-program and edge history remain diagnostic history, not active output.
+
+Regression quality and bounds:
+- Re-ran the two permanent tests successfully. Their current postimage compiles
+  26 cases / 357 checks with zero failures; the old postimage is an intentional
+  152-failure control using the same cases. The test reconstructs current model
+  code by Git apply; it does not copy a replacement state machine or call the
+  new route helper directly.
+- The test exercises active Torch and pre-deadline Flash, GPIO/LEDC/RMT/OUT_INV
+  roundtrips, reset/settle/timeout cancellation, stale callbacks, constructor and
+  unsupported falling-low histories, counters, instance isolation and recovery.
+- The permanent test's surrounding pad storage/QOM/clock is synthetic. Separate
+  controller archive has full actual GPIO function fragments. Neither layer is
+  guest, Web or physical evidence. The replay list also fails if another active
+  bootstrap patch starts touching Unit GPIO without being included.
+
+Scope that must remain explicit in final documents:
+- Cold restored-low without a fresh edge remains unknown by design (37 OPEN).
+  This conservative rule is not a claim that physical AW3641 requires an extra
+  falling edge; official TOFF semantics allow a future fresh trusted baseline.
+- Reset callbacks, complete external/force/open-drain observation, OEN/IOMUX,
+  arbitrary PWM/RMT waveforms, dynamic S1 and electrical/optical/thermal behavior
+  are outside this fix. Current ignored bit10 is only a current model/control
+  boundary; a field name alone does not prove that special GPIO256 OE routing
+  would change physically when bit10 changes.
+- The root-reported full matrix is 67 cases: 66 PASS plus Core2 IMU FAIL, not a
+  full matrix PASS. The shared-controller regression failure must remain visible
+  and cannot be replaced with the passing Unit/C suite or an isolated rerun.
+- Four-host Flash/Torch lane and CoreS3 mounted validation must bind final 3f16
+  runtime plus exact firmware/program/session, then ZIP-before-stop and retained
+  history/Flash/lease/PID cleanup. No inference across hosts or firmware SHAs.
+
+The prior 37 assessment was copied byte-for-byte into followup-37 as two text
+files plus an original/archive SHA index; no implementation source or binary
+was copied. Privacy checks passed. Details are in followup-37-copy.json.
+
+Only .work and the explicitly requested followup-37 evidence subdirectory were
+written during this review. Product, runtime and existing controller archive
+were not changed. No API, QEMU, guest, matrix or browser run was started.

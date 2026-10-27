@@ -1,0 +1,25 @@
+{
+  "device": "cores3",
+  "mode": "flash",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-route-live-preparation-20261027-r1/run_route.py",
+    "--execute",
+    "--device",
+    "cores3",
+    "--mode",
+    "flash",
+    "--expected-runtime-sha256",
+    "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "--expected-firmware-sha256",
+    "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "--expected-generation",
+    "47",
+    "--expected-service-pid",
+    "22168",
+    "--out-dir",
+    ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-flash"
+  ],
+  "started_at": "2026-10-26T23:42:22.854749+00:00"
+}

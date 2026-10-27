@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-27T07:34:18.960170+08:00",
+  "out_dir": ".work/unit-host22-command-summary-20261027-r1/before/run",
+  "results": {
+    "papercolor-rgb": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/check_rmt_ws2812.py",
+        ".work/unit-host22-command-summary-20261027-r1/before/run/papercolor-rgb/rgb.rmt",
+        "--led",
+        "0,255,0",
+        "--led",
+        "255,0,0"
+      ],
+      "output": ".work/unit-host22-command-summary-20261027-r1/before/run/papercolor-rgb",
+      "before": ".work/unit-host22-command-summary-20261027-r1/before/run/papercolor-rgb/before.png",
+      "after": ".work/unit-host22-command-summary-20261027-r1/before/run/papercolor-rgb/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "rmt_led_init",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ws2812_wire_decode",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-ws2812",
+        "frame-marker"
+      ],
+      "validation": "PASS host mocked ws2812-checker\nPASS host mocked frame-checker\n",
+      "reason": "PaperColor M5.Led drives two GRB LEDs through ESP32-S3 RMT; captured RMT symbols decode to the expected red and green WS2812 wire bytes."
+    }
+  }
+}

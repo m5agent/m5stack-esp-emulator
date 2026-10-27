@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "classification": "after-failure diagnostic reconstruction from authoritative tool result, not independently saved original stderr",
+  "status": "FAIL",
+  "script_sha256": "e8980ff762abaa0b843e750319737d1f4d4b5a6342363a20a8477f89e605c416",
+  "terminal_exit_code": 1,
+  "exception": "AssertionError while comparing three exact UART byte windows",
+  "cause": "The archive-only window parser searched for literal escaped CRLF and then LF, leaving real CR in the ASCII slice.",
+  "correction": "Find the original real CRLF bytes and retain exact byte offset/length/SHA, without modifying serial bytes."
+}

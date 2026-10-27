@@ -1,0 +1,19 @@
+{
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "files": {
+    "main.py": {
+      "encoding": "utf8",
+      "data": "import sys, os, json, utime, hashlib, binascii\nimport M5\nfrom machine import Pin, mem32\nimport official_flash\nwith open(official_flash.__file__, 'rb') as _source_file:\n _driver_bytes = _source_file.read()\nassert len(_driver_bytes) == 3639 and binascii.hexlify(hashlib.sha256(_driver_bytes).digest()).decode() == '10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f'\nkey = '_m5_flash_route_3462d2eff6064b15acde56fc4ff604a9'\nphase = 'recover-driver'\nroute_name = 'out-inv'\npattern = 'roundtrip'\nevents = []\nassert key in sys.modules, 'same-VM nonce disappeared'\nst = sys.modules[key]\nassert st['nonce'] == '3462d2eff6064b15acde56fc4ff604a9'\nen, reg, base = st['en'], st['reg'], st['base']\nassert mem32[reg] & 0x3ff == 256\nst['flash'].flash(st['flash'].BRIGHTNESS_100, st['flash'].TIME_220MS, False)\nutime.sleep_ms(240)\nroute_raw = mem32[reg]\nlevel = int(en.value())\nM5.Display.fillRect(M5.Display.width()//2-4, M5.Display.height()//2-4, 8, 8, 0xFFFFFF if level else 0)\nprint('FLASHLIGHT_ROUTE_GUEST ' + json.dumps({'nonce': '3462d2eff6064b15acde56fc4ff604a9', 'phase': phase, 'route_name': route_name,\n 'pattern': pattern, 'en': level, 'route_raw': route_raw, 'route_effective': -1 if route_raw & 512 else route_raw & 511,\n 'events': events, 'driver_sha256': '10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f'}))\n"
+    },
+    "official_flash.py": {
+      "encoding": "base64",
+      "data": {
+        "redacted": true,
+        "original_decoded_bytes": 3639,
+        "original_decoded_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+        "reason": "Original file-payload bytes excluded; exact original file is fingerprinted separately."
+      }
+    }
+  }
+}

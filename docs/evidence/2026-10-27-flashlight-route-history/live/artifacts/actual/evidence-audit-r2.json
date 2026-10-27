@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "category": "READ_ONLY_ACTUAL_API_EVIDENCE_AUDIT",
+  "api_contacted": false,
+  "guests_started": 0,
+  "originals_modified": false,
+  "rows": [
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-torch-r3",
+      "status": "PASS",
+      "observations": 5,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 107,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21777
+        }
+      ],
+      "zip_sha256": "eaab322c7192d315dd96d991b6212eab09a6bffb8aa0d48bb096949a5d624069",
+      "same_vm": true,
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-flash-r1",
+      "status": "PASS",
+      "observations": 5,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 105,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21658
+        }
+      ],
+      "zip_sha256": "996280aac99c00453a04d5ac5e157d566603727222aa7c1aacf9b7f27a6edf52",
+      "same_vm": true,
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-torch",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 106,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20625
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 40,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20190
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 41,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20653
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 843,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20947
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 856,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20961
+        }
+      ],
+      "zip_sha256": "60dc7e7e8d82de6ef37be039fd806ebda36243c699b9318a47dab40116fb182e",
+      "same_vm": true,
+      "hardware": "NOT RUN"
+    }
+  ]
+}

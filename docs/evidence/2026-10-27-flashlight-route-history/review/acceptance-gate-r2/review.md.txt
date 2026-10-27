@@ -1,0 +1,39 @@
+Root evidence README / preparatory verifier review, round 2 (2026-10-27)
+
+[P2, accepted by root for repair] The preparatory root verifier currently accepts
+a synthetic scoped-acceptance document with portable_verifiers=[] and no API,
+Web, build or controller evidence. It checks platform/matrix/service metadata
+but does not require the eight live lanes and mounted Web result or the required
+child verifier set. This can hide an accidentally omitted child list during
+archive assembly. It is a pre-finalization gate gap, not evidence that the actual
+API/Web run failed or that UNIT-HOST-38 has already been incorrectly closed.
+
+Exact offline negative-control receipt:
+  .work/unit-host38-final-review-20261027-r2/empty-child-receipt.json
+Frozen verifier SHA256:
+  0f529c9d4b512d373b7f2013e5a46ab9fcf6dc4778a98f642de50714213a595e
+Observed: exit0, status PASS, child_verifiers 0. All fixture data is explicitly
+synthetic. No original acceptance/evidence was modified, no guest/API/Web ran.
+
+Recommended final gate: require the controller/build/testing/live child verifier
+set and directly validate the final live schema's eight lanes, same runtime,
+mandatory Web stages and cleanup. Missing or incomplete fields must reject
+scoped completion. Root accepted the finding and will implement after the live
+schema is finalized, then rerun this negative control with the new verifier.
+
+README model/scope review: no actionable wording defect found.
+- The extra falling edge is explicitly the current model's conservative recovery
+  policy, not a physical AW3641 protocol requirement. Fresh observed low baseline
+  remains a future UNIT-HOST-37 task; one low sample is not continuous evidence.
+- OEN/IOMUX, hard-reset observations, dynamic S1, complete PWM, optical/electrical/
+  thermal equivalence and broader firmware/Unit goals remain outside this block.
+- The independent full matrix remains 66 PASS plus Core2 IMU FAIL, never a full
+  matrix PASS. C6 provenance is separated from the new Xtensa runtime.
+- API results are stated as completed while Web/archive remain in progress;
+  the header does not claim UNIT-HOST-38 final closure. The implementation-level
+  phrase '0046 fixes' is consistent with the separately qualified pending gate.
+- Source capture timing, dependency reuse, separate composed/mutable Flash hashes,
+  previous failure originals and non-atomic serial/QOM/frame samples are explicit.
+
+Reviewed files and their exact snapshots are listed in reviewed-files.json.
+This round changed only .work and did not implement UNIT-HOST-37.

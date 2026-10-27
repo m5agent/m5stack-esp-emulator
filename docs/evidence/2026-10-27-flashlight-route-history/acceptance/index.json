@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "captured_at": "2026-10-27T00:08:07.545584+00:00",
+  "category": "FINAL_DOCS_METADATA_AND_GENERATED_VALIDATORS_NO_NEW_GUEST",
+  "checks": [
+    {
+      "name": "docs",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "platform/tests",
+        "-p",
+        "test_docs_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 24.059,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e5bdc330f95974527cb9012489d04531c39d9dca927ae4ce6ea5c62500c4666d",
+      "tests": 48,
+      "test_seconds": 23.984
+    },
+    {
+      "name": "metadata",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_unit_runtime",
+        "test_unit_creation_inputs"
+      ],
+      "exit_code": 0,
+      "seconds": 33.082,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "4c2ce6bfad340a5477caa85b8d1a619de5e6ec2470c769361a580382c4629a74",
+      "tests": 17,
+      "test_seconds": 32.938
+    },
+    {
+      "name": "coverage",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.04,
+      "stdout_sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "peripherals",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03,
+      "stdout_sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "profiles",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.027,
+      "stdout_sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "units",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/unit_runtime.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.035,
+      "stdout_sha256": "1efb2a3be1293eb9bcdd1f5a0ac3529c03fdb0afd3d87655a81cbfa79bddfe4d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "snapshot",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 3.849,
+      "stdout_sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "metadata_sha256": "1583ab14fb57d9fe872951e16847017475180b7c4bd52e42440cdb02cb587251",
+  "api_contacted": false,
+  "guest": "NOT RUN"
+}

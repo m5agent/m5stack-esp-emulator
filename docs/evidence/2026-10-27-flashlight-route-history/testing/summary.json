@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "classification": "after-run layered evidence summary",
+  "artifact_integrity": "PASS",
+  "host_platform": {
+    "full_tests": 1220,
+    "narrow_tests": 24,
+    "status": "PASS"
+  },
+  "unit_host_22": {
+    "old_mock_contract": "FAIL",
+    "new_mock_contract": "PASS",
+    "actual_papercolor_summary": "PASS_PROFILE_COMMAND_RECORDED",
+    "runner_sha256": "f2c4d784218f482bca380a2781b6b10c349bc3d81b8d7dcd190cd131f8a11f60"
+  },
+  "full_matrix": {
+    "status": "FAIL",
+    "cases": 67,
+    "pass": 66,
+    "fail": 1,
+    "failed_cases": [
+      "core2-imu"
+    ],
+    "xtensa_cases": 62,
+    "xtensa_pass": 61,
+    "xtensa_fail": 1,
+    "independent_c6_cases": 5,
+    "independent_c6_pass": 5,
+    "retry_used": false
+  },
+  "virtual_device_evidence": "repository QEMU regression, not Device Service product-path acceptance",
+  "hardware_evidence": "NOT RUN",
+  "exclusions": "Firmware/ROM/executables/Flash/eFuse/PPM/PCM/RMT/SD/non-UTF8 UART bytes are fingerprint-only. PNG framebuffers are original bytes.",
+  "capture_timing": "All snapshots, correlations, OCR and explanatory receipts were captured after execution; original logs and summary retain their original bytes."
+}

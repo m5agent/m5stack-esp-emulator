@@ -1,0 +1,105 @@
+{
+  "category": "NARROW_ORIGINAL_AND_SOURCE_PROVENANCE",
+  "scope": "Preserves each original FAIL/PASS and does not combine source versions into one result. r1 resource finalization is separately assessed.",
+  "rows": [
+    {
+      "run": "narrow-cores3-torch-r1",
+      "functional_status": "FAIL",
+      "observations": 0,
+      "cleanup_status_original": "UNCONFIRMED",
+      "runner_before_hash_matches_executed_copy": true,
+      "dependency_source_hashes_match_current": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_matches_executed_copy": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "run": "narrow-cores3-torch-r2",
+      "functional_status": "FAIL",
+      "observations": 2,
+      "cleanup_status_original": "PASS",
+      "runner_before_hash_matches_executed_copy": true,
+      "dependency_source_hashes_match_current": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_matches_executed_copy": false,
+      "hardware": "NOT RUN",
+      "runtime_matches_ready": true,
+      "same_pid": true,
+      "actual_route_windows": [
+        {
+          "route_window_us": 92,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 847
+        }
+      ]
+    },
+    {
+      "run": "narrow-cores3-torch-r3",
+      "functional_status": "PASS",
+      "observations": 5,
+      "cleanup_status_original": "PASS",
+      "runner_before_hash_matches_executed_copy": true,
+      "dependency_source_hashes_match_current": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_matches_executed_copy": true,
+      "hardware": "NOT RUN",
+      "runtime_matches_ready": true,
+      "same_pid": true,
+      "actual_route_windows": [
+        {
+          "route_window_us": 107,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21777
+        }
+      ]
+    },
+    {
+      "run": "narrow-cores3-flash-r1",
+      "functional_status": "PASS",
+      "observations": 5,
+      "cleanup_status_original": "PASS",
+      "runner_before_hash_matches_executed_copy": true,
+      "dependency_source_hashes_match_current": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_matches_executed_copy": true,
+      "hardware": "NOT RUN",
+      "runtime_matches_ready": true,
+      "same_pid": true,
+      "actual_route_windows": [
+        {
+          "route_window_us": 105,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21658
+        }
+      ]
+    }
+  ],
+  "gen47_readiness_receipt": ".work/unit-host38-owned-start-gen47-20261027/start.json",
+  "hardware": "NOT RUN"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "category": "READ_ONLY_OWNER_CREDENTIAL_AND_BINARY_PATTERN_SCAN",
+  "records": [
+    {
+      "source_path": ".work/unit-host38-privacy-final-20261027-r1.json",
+      "archive_path": "scan-r1.json",
+      "classification": "original-bytes",
+      "bytes": 2107587,
+      "sha256": "ca3ecf24825b4f0fdb62c64e4e06bdce8214b8b3e411df27e45ef1348994fa87"
+    },
+    {
+      "source_path": ".work/unit-host38-privacy-scan-20261027.py",
+      "archive_path": "scan.py.txt",
+      "classification": "original-bytes",
+      "bytes": 5088,
+      "sha256": "4cefe9d62bc078a5218851717c10ee604b7885cb6a9d32479c7adf267e563c91"
+    }
+  ],
+  "credentials_and_digests_recorded": false,
+  "scope": "r1 snapshot before its own receipt/source were added and before correcting a receipt path; final owner scan will check complete staged scope"
+}

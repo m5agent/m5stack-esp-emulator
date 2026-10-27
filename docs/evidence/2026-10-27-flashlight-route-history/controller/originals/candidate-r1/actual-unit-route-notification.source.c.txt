@@ -1,0 +1,13 @@
+void m5_unit_gpio_route_changed(bool s3, unsigned pin)
+{
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if (g->s3 == s3 && g->unit->yellow == (int)pin && g->flashlight) {
+            /* Restoring GPIO also discards any unsupported/cold low interval;
+             * route changes never supply a new pad edge or reset baseline.
+             */
+            aw3641_observation_lost(g->flashlight,
+                aw3641_gpio_route(g->flashlight) ?
+                "awaiting-long-low-after-route-change" : "gpio-route-not-observed");
+        }
+    }
+}

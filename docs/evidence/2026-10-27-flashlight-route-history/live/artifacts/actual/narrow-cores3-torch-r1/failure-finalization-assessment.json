@@ -1,0 +1,21 @@
+{
+  "status": "RESOURCE_FINALIZATION_CONFIRMED_SEPARATE_FROM_FUNCTIONAL_FAIL",
+  "original_report_status": "FAIL",
+  "original_cleanup_status": "UNCONFIRMED",
+  "original_report_unchanged_sha256": "7258241164f75989d2597fb4d61031877e94e2b32c677be2255b1fb11c7cdba5",
+  "functional_observations": 0,
+  "diagnosis": "Harness used setattr on frozen MicroPython sys module; bootstrap raises AttributeError before any route case.",
+  "source_snapshot_matches_current_before_repair": true,
+  "zip_before_stop": true,
+  "zip_crc": "PASS",
+  "stopped_session_response": "http-0042.response",
+  "original_pid_gone": true,
+  "flash_retained": false,
+  "owned_lease_active": false,
+  "frame_reference_kind": "Failure-finalization frame from actual before-stop evidence ZIP; no accepted functional/stable observation exists.",
+  "zip_frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+  "history_frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+  "history_equals_zip_frame": true,
+  "hardware": "NOT RUN",
+  "input_archive_mutated": false
+}

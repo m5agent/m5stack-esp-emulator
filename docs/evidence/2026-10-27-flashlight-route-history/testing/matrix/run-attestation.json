@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "classification": "root-provided actual launch attestation captured after execution",
+  "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--out-dir",
+    ".work/unit-host38-shared-matrix-gen47-20261027-r1"
+  ],
+  "explicit_environment": {
+    "M5_QEMU_XTENSA": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa",
+    "M5_QEMU_XTENSA_ROM_DIR": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-route-history-final/qemu/pc-bios",
+    "M5_PYTHON_DEPS": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "shell_redirection": "> .work/unit-host38-shared-matrix-gen47-20261027-r1.log 2>&1",
+  "session_id": 41841,
+  "authoritative_terminal_exit_code": 1,
+  "basis": "Root reports write_stdin confirmed terminal exit_code=1; not timeout. Capture is after execution, not an independent pre-saved exec trace.",
+  "filters": [],
+  "allow_retries": false
+}

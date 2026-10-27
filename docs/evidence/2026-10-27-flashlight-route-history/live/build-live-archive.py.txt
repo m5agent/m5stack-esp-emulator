@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""Archive frozen owned evidence. No HTTP, guest, service or Git operation."""
+import base64
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import re
+import zipfile
+
+ROOT = Path.cwd()
+ACTUAL = ROOT / ".work/flashlight-route-live-gen47-20261027"
+PREPARED = ROOT / ".work/flashlight-route-live-preparation-20261027-r1"
+DEST = ROOT / "docs/evidence/2026-10-27-flashlight-route-history/live"
+OUT = ROOT / ".work/unit-host38-live-archive-20261027-r2"
+FILES, WINDOWS, REDACTIONS = [], [], []
+PNG = b"\x89PNG\r\n\x1a\n"
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def save(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
+
+
+def redacted(value, pointer=""):
+    changed = []
+    if isinstance(value, dict):
+        value = dict(value)
+        if value.get("encoding") == "base64" and isinstance(value.get("data"), str):
+            b = base64.b64decode(value["data"], validate=True)
+            value["data"] = {"redacted": True, "original_decoded_bytes": len(b), "original_decoded_sha256": sha(b),
+                             "reason": "Original file-payload bytes excluded; exact original file is fingerprinted separately."}
+            changed.append(pointer + "/data")
+        for key, child in value.items():
+            value[key], more = redacted(child, pointer + "/" + str(key))
+            changed += more
+    elif isinstance(value, list):
+        result = []
+        for i, child in enumerate(value):
+            child, more = redacted(child, pointer + "/" + str(i))
+            result.append(child)
+            changed += more
+        value = result
+    return value, changed
+
+
+def write(relative, raw, mode, source=None, original=None):
+    path = DEST / relative
+    assert not path.exists(), relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
+    row = {"archive": relative, "mode": mode, "archive_bytes": len(raw), "archive_sha256": sha(raw)}
+    if source is not None:
+        row.update(source=str(source.relative_to(ROOT)), original_bytes=len(original), original_sha256=sha(original))
+    FILES.append(row)
+
+
+def zip_metadata(path, relative, raw):
+    members = []
+    with zipfile.ZipFile(path) as z:
+        assert z.testzip() is None
+        assert len(z.namelist()) == len(set(z.namelist()))
+        for info in z.infolist():
+            b = z.read(info.filename)
+            members.append({"name": info.filename, "bytes": len(b), "sha256": sha(b), "published": False})
+        serial = z.read("serial.log")
+        pattern = re.compile(rb"__M5_EXEC_([0-9a-f]{32})__:START")
+        for start in pattern.finditer(serial):
+            execution = start.group(1)
+            terminal = re.search(rb"__M5_EXEC_" + execution + rb"__:(?:DONE|ERROR)", serial[start.end():])
+            assert terminal is not None
+            end = start.end() + terminal.end()
+            if serial[end:end + 2] == b"\r\n":
+                end += 2
+            block = serial[start.start():end]
+            block.decode("ascii")
+            window_path = relative.removesuffix(".zip") + ".serial-windows/" + execution.decode("ascii") + ".txt"
+            write(window_path, block, "extracted-original-byte-window")
+            WINDOWS.append({"archive": window_path, "source_zip": str(path.relative_to(ROOT)), "source_member": "serial.log",
+                            "source_member_bytes": len(serial), "source_member_sha256": sha(serial), "start": start.start(),
+                            "end": end, "window_sha256": sha(block), "execution_id": execution.decode("ascii"),
+                            "scope": "Exact ASCII subsequence of original member bytes, not a transcoded full serial log."})
+    meta = {"category": "HASH_ONLY_ORIGINAL_ZIP_AND_MEMBERS", "source": str(path.relative_to(ROOT)), "bytes": len(raw),
+            "sha256": sha(raw), "original_binary_published": False, "members": members,
+            "serial_policy": "Raw UART protocol bytes remain excluded. Exact original ASCII execution windows are separately indexed."}
+    write(relative + ".metadata.json", (json.dumps(meta, indent=2) + "\n").encode(), "hash-only", path, raw)
+
+
+def archive_file(path, group, base):
+    assert not path.is_symlink()
+    raw = path.read_bytes()
+    relative = "artifacts/" + group + "/" + path.relative_to(base).as_posix()
+    if path.suffix == ".zip":
+        zip_metadata(path, relative, raw)
+        return
+    if raw.startswith((b"PK\x03\x04", b"PK\x05\x06", b"\x7fELF")):
+        # HTTP evidence responses retain .response names. Their actual bytes
+        # still make them excluded containers; never publish them as text.
+        meta = {"original_binary_published": False, "bytes": len(raw), "sha256": sha(raw),
+                "reason": "Container identified by original body magic; fingerprint only, regardless of filename suffix."}
+        write(relative + ".metadata.json", (json.dumps(meta, indent=2) + "\n").encode(), "hash-only", path, raw)
+        return
+    if path.suffix in (".bin", ".rom", ".mpy", ".elf", ".uf2", ".img", ".pyc"):
+        write(relative + ".metadata.json", (json.dumps({"original_binary_published": False, "bytes": len(raw), "sha256": sha(raw)}) + "\n").encode(), "hash-only", path, raw)
+        return
+    if path.suffix in (".py", ".mjs", ".md"):
+        relative += ".txt"
+    if not raw.startswith(PNG):
+        try:
+            raw.decode("utf8")
+        except UnicodeDecodeError:
+            meta = {"original_binary_published": False, "bytes": len(raw), "sha256": sha(raw),
+                    "reason": "Non-UTF8, non-PNG body excluded; original bytes fingerprinted without transcoding."}
+            write(relative + ".metadata.json", (json.dumps(meta, indent=2) + "\n").encode(), "hash-only", path, raw)
+            return
+    try:
+        value = json.loads(raw)
+    except (ValueError, UnicodeDecodeError):
+        value = None
+    if value is not None:
+        value, changed = redacted(value)
+        if changed:
+            output = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf8")
+            write(relative, output, "redacted-json", path, raw)
+            REDACTIONS.append({"archive": relative, "json_pointers": changed, "original_sha256": sha(raw), "archive_sha256": sha(output)})
+            return
+    write(relative, raw, "original", path, raw)
+
+
+def main():
+    assert not DEST.exists(), "A fresh live archive is required; never overwrite prior results"
+    assert not OUT.exists()
+    OUT.mkdir(parents=True)
+    summary = json.loads((ACTUAL / "completed-summary.json").read_text())
+    assert summary["web_status"] == "PASS" and summary["web_phases"] == 13 and summary["observed_sessions"] == 13
+    batch = json.loads((ACTUAL / "four-hosts-r1/controller-report.json").read_text())
+    assert batch["status"] == "PASS" and len(batch["lanes"]) == 8
+    sources = [(p, group, base) for group, base in (("actual", ACTUAL), ("prepared", PREPARED))
+               for p in sorted(base.rglob("*")) if p.is_file() and "__pycache__" not in p.parts]
+    before = {str(p.relative_to(ROOT)): {"bytes": p.stat().st_size, "sha256": sha(p.read_bytes())} for p, _, _ in sources}
+    DEST.mkdir(parents=True)
+    for path, group, base in sources:
+        archive_file(path, group, base)
+    helper = PREPARED / "portable_verify.py"
+    write("verify.py", helper.read_bytes(), "generated")
+    write("build-live-archive.py.txt", Path(__file__).read_bytes(), "generated")
+    eight = [{"device": r["device"], "mode": r["mode"], "report": "artifacts/actual/four-hosts-r1/" + r["device"] + "-" + r["mode"] + "/report.json",
+              "executions": r["observations"], "zip_members": 117, "status": r["status"], "cleanup": r["cleanup"]} for r in batch["lanes"]]
+    index = {"schema_version": 1, "category": "ACTUAL_GEN47_GUEST_ROUTE_LIFECYCLE_AND_MOUNTED_WEB_ARCHIVE",
+             "summary": {"eight_lane_status": "PASS", "lanes": 8, "executions": 168,
+                         "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1", "generation": 47,
+                         "web_mandatory_status": "PASS", "web_mandatory_phases": 13, "web_owner_executions": 14,
+                         "web_optional_capture_status": "PARTIAL", "web_optional_empty_200": 7,
+                         "browser_responses": 1062, "browser_200": 386, "browser_304": 676,
+                         "cleanup": {"owned_sessions": 13, "original_pass": 12, "original_unconfirmed": 1,
+                                     "separate_finalization_confirmed": 1, "confirmed_resource_finalizations": 13}},
+             "eight_lanes": eight,
+             "web": {"report": "artifacts/actual/web-r1/report.json", "owner_report": "artifacts/actual/web-owner-r1/report.json"},
+             "preserved_failed_runs": [{"report": "artifacts/actual/narrow-cores3-torch-r1/report.json", "observations": 0,
+                                         "reason": "Frozen sys attribute harness error before any route case; original cleanup UNCONFIRMED retained."},
+                                        {"report": "artifacts/actual/narrow-cores3-torch-r2/report.json", "observations": 2,
+                                         "reason": "600us busy-wait did not establish a decoded active precondition; FAIL retained; precise event-loop cause untraced."}],
+             "separate_first_failure_finalization": "artifacts/actual/narrow-cores3-torch-r1/failure-finalization-assessment.json",
+             "raw_byte_evidence_audit": "artifacts/actual/evidence-audit-r3-raw-bytes.json",
+             "redactions": REDACTIONS,
+             "scope": ["Virtual device only; hardware NOT RUN; no photometry/electrical/thermal/real PWM or dynamic S1 equivalence.",
+                       "Web owner selected_cases records prepared inventory; only its 14 actual observations executed under --web-only. No extra guest experiments after 13 Web phases.",
+                       "reset-at-ns is not public QOM; internal reset-timer cancellation is separately proven by controller C evidence, not fabricated here.",
+                       "Raw ZIP/serial are fingerprinted; exact ASCII windows preserve original byte slices. Portable mode proves archive integrity/crosschecks; --check-originals additionally proves original-window membership.",
+                       "The original source/ABI/default/failure receipts remain original bytes unless an explicit file-payload redaction is indexed; no old result becomes a new PASS."]}
+    write("index.json", (json.dumps(index, ensure_ascii=False, indent=2) + "\n").encode(), "generated")
+    readme = """# gen47 actual FlashLight route lifecycle evidence
+
+Eight API lanes: PASS, 168 actual same-guest executions. CoreS3 mounted Web:
+13 mandatory stages PASS, 14 owner executions. Hardware NOT RUN. Optional
+browser body capture is PARTIAL: 7 empty HTTP200 frame observations; 676 HTTP304
+observations correctly have no entity. Mandatory actual PNG/mounted evidence
+does not use an empty optional capture.
+
+Run `python3 -B verify.py` here. It uses the standard library and performs no
+HTTP, browser, guest or Git actions. It explicitly requires all 8 API lanes,
+their same-VM/cleanup evidence, all 13 mounted Web stages and failure separation;
+an empty list of children cannot pass. Use `--check-originals --origin-root
+<original-worktree>` only on the originating machine to check source bytes and
+exact ASCII window membership in original ZIP UART bytes. Default portable
+checks never follow token_file references or read a control token.
+
+manifest.json distinguishes original, redacted-json, hash-only,
+extracted-original-byte-window and generated records. Each payload redaction
+records original/archive SHA and exact JSON pointers; it is never called
+original. Raw ZIP/UART binary bytes, firmware/ROM/MPY and credentials are not
+published. PNG bytes are allowed. The ASCII execution windows are exact
+subsequences with byte offsets, not Latin1-to-UTF8 serial conversions.
+
+Original narrow Torch r1/r2 FAIL reports stay unchanged. r1 had no accepted
+functional frame; its independently matched ZIP/history failure frame proves
+resource finalization only. The independent first verifier's strict-UTF8 error
+is preserved; its later Latin1 check was in-memory only, no serial asset was
+converted. The final raw-byte-window verifier uses original bytes directly.
+
+The API case verifies internal unqualified phase and public settle/timeout
+deadlines, then new supported EN fall and >500us recovery. It does not invent
+reset-at-ns, controller waveform coverage or hardware facts. The Web owner
+uses --web-only: selected_cases is a prepared inventory, not executed cases.
+Source/program/frame/QOM/render samples are separate stable-stage samples,
+not one atomic snapshot or exact browser texture-transfer proof.
+"""
+    write("README.md.txt", readme.encode(), "generated")
+    after = {str(p.relative_to(ROOT)): {"bytes": p.stat().st_size, "sha256": sha(p.read_bytes())} for p, _, _ in sources}
+    assert before == after, "Archive inputs changed while copying; retain failed build and use a fresh version"
+    manifest = {"schema_version": 1, "category": "FROZEN_LIVE_EVIDENCE_MANIFEST", "files": FILES, "serial_windows": WINDOWS,
+                "input_files": before, "input_stable_during_archive": True, "mode_counts": dict(Counter(r["mode"] for r in FILES)),
+                "recursive_manifest_hash_excluded": True, "original_raw_binary_serial_transcoded": False}
+    save(DEST / "manifest.json", manifest)
+    receipt = {"status": "BUILT_NOT_YET_VERIFIED", "archive_root": str(DEST.relative_to(ROOT)), "files_including_manifest": len(FILES) + 1,
+               "serial_windows": len(WINDOWS), "redacted_files": len(REDACTIONS), "mode_counts": manifest["mode_counts"],
+               "inputs_unchanged": True, "index_sha256": sha((DEST / "index.json").read_bytes()), "api_contacted": False, "guest": "NOT RUN"}
+    save(OUT / "build-receipt.json", receipt)
+    print(json.dumps(receipt, indent=2))
+
+
+if __name__ == "__main__":
+    main()

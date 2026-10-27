@@ -1,0 +1,86 @@
+{
+  "recorded_at_utc": "2026-10-27T00:05:09.144730+00:00",
+  "category": "read-only-final-authority-scope-review",
+  "result": "PASS_FOR_REVIEWED_AUTHORITY_SCOPE_WITH_METADATA_NOTE",
+  "new_blocking_authority_findings": [],
+  "reviewed_files": [
+    {
+      "path": "docs/README.md",
+      "bytes": 48310,
+      "sha256": "6bbf7401244214b2c09ae8f4bae3509d2b7e9b543a60544b8b073d07875aa645"
+    },
+    {
+      "path": "docs/project-backlog.md",
+      "bytes": 25742,
+      "sha256": "196fc1ec61e7ff1859b86430f21cf9f90540479beee7fdefd44681cf240267f6"
+    },
+    {
+      "path": "docs/project-status.md",
+      "bytes": 42553,
+      "sha256": "eb4b6361fd8176a97e85addfac7a7c20427560f4e3e050884baa40317ccb860f"
+    },
+    {
+      "path": "docs/validation-ledger.md",
+      "bytes": 193902,
+      "sha256": "2f21e4a1dc622db0ab3fbb128aa5dc43f8f941634bb172b2e50d59dadfb0c8b9"
+    },
+    {
+      "path": "docs/unit-agent-api.md",
+      "bytes": 49458,
+      "sha256": "1ce59ed8f1d2885f65bcab57721fc39052ec43137f545414a2f810e07838d99a"
+    },
+    {
+      "path": "docs/unit-integration-host-issues.md",
+      "bytes": 24534,
+      "sha256": "9bb4aeb750a282529b2195be8102146fac91f6f03a3def70c8d01fc68d4b0b38"
+    },
+    {
+      "path": "docs/plans/2026-10-27-flashlight-route-history.md",
+      "bytes": 3999,
+      "sha256": "882abc697cc183bc28c340e161826a29766e3ea122d7ce93211670c2ebc73f22"
+    },
+    {
+      "path": "patches/qemu-unit-runtime/README.md",
+      "bytes": 16553,
+      "sha256": "42c463c93c161c2d9aa7f4970ad7e17d57171c07463ee8e61de4fe9a038d4663"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/README.md",
+      "bytes": 31660,
+      "sha256": "cf671ecae0b9f438d612144748df402fd83cecd70646e723e90824fa3a6d8454"
+    },
+    {
+      "path": "docs/evidence/2026-10-27-flashlight-route-history/README.md",
+      "bytes": 5788,
+      "sha256": "b27f16ba4bc8328a726de48502a11cc50cc290a9960921b55ccafe3221ba97e4"
+    },
+    {
+      "path": "docs/evidence/2026-10-27-flashlight-route-history/verify.py",
+      "bytes": 4805,
+      "sha256": "2c96a4fd4e9873990bb97913817d40bc98eec6c7e2c2535b835f497a3a5a0704"
+    }
+  ],
+  "project_status_lines": 450,
+  "issue38": "FIXED for documented OUT_SEL lifecycle only",
+  "issue21": "OPEN;67 cases=66PASS+core2-imu FAIL",
+  "issue22": "FIXED command-recording only",
+  "issue36": "OPEN",
+  "issue37": "OPEN",
+  "unit_goal": "ACTIVE",
+  "required_child_verifiers_static": [
+    "controller/verify.py",
+    "build/verify.py",
+    "testing/verify.py",
+    "live/verify.py"
+  ],
+  "fixed_negative_control_receipt_status": "PASS_EXPECTED_REJECTION",
+  "fixed_negative_control_receipt_matches_current_verifier": true,
+  "root_verifier_executed": false,
+  "live_archive_execution": "NOT RUN by this review",
+  "API_contacted": false,
+  "new_guest_runs": 0,
+  "full_test_runs": 0,
+  "product_modified": false,
+  "authority_modified": false,
+  "scope_note": "runtime-profiles.json old7c898/gen42 guest records remain valid history, but current blocker/model_policies.route_history strings still say38OPEN/unlatched; reported to root as machine-metadata synchronization note."
+}

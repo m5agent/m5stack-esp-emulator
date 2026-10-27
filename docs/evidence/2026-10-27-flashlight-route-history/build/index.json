@@ -1,0 +1,2973 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-26T23:42:00.833540+00:00",
+  "category": "source-build-and-isolated-index-replay",
+  "index_excludes_itself": true,
+  "records": [
+    {
+      "source_path": ".work/unit-host38-build-verification-20261027-r1.json",
+      "source_bytes": 12931,
+      "source_sha256": "def4b519078446e6243fdb5f2d615128ef0a617c0323a3b182ba7ad659cf7940",
+      "classification": "original-bytes",
+      "archive_path": "originals/root-build-verification.json",
+      "archive_bytes": 12931,
+      "archive_sha256": "def4b519078446e6243fdb5f2d615128ef0a617c0323a3b182ba7ad659cf7940"
+    },
+    {
+      "source_path": ".work/unit-host38-source-check-20261027-r1.json",
+      "source_bytes": 1842,
+      "source_sha256": "39637d419df6427db8b659a6de6fd6957ddbf993123fdbee2cf92f67a044e3f4",
+      "classification": "original-bytes",
+      "archive_path": "originals/root-source-check.json",
+      "archive_bytes": 1842,
+      "archive_sha256": "39637d419df6427db8b659a6de6fd6957ddbf993123fdbee2cf92f67a044e3f4"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/.m5-unit-runtime-source.json",
+      "source_bytes": 12706,
+      "source_sha256": "a3083ae9af0b653c5a3dffad64e29932e52ab3d268cc60e78c73098e0d83be0e",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-receipt.json",
+      "archive_bytes": 12706,
+      "archive_sha256": "a3083ae9af0b653c5a3dffad64e29932e52ab3d268cc60e78c73098e0d83be0e"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/build-manifest.json",
+      "source_bytes": 13056,
+      "source_sha256": "0455eef42c4d96f186a81009072aca06a3a3cf28ce0e54a3728fd7b895dd834a",
+      "classification": "original-bytes",
+      "archive_path": "originals/build-manifest.json",
+      "archive_bytes": 13056,
+      "archive_sha256": "0455eef42c4d96f186a81009072aca06a3a3cf28ce0e54a3728fd7b895dd834a"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/dependency-reuse.json",
+      "source_bytes": 4810,
+      "source_sha256": "c24c695d9d54e238c3bf0fef38b7f568d44bc4724e141ff56752e6cca06aa113",
+      "classification": "original-bytes",
+      "archive_path": "originals/dependency-reuse.json",
+      "archive_bytes": 4810,
+      "archive_sha256": "c24c695d9d54e238c3bf0fef38b7f568d44bc4724e141ff56752e6cca06aa113"
+    },
+    {
+      "source_path": ".work/unit-flashlight-route-build-r1-20261027.log",
+      "source_bytes": 171564,
+      "source_sha256": "abe69c1a082cc31c4e0f0cdc2f1e9bad02aa17e3f03fb57bf569cedcc14230da",
+      "classification": "original-bytes",
+      "archive_path": "originals/build.log",
+      "archive_bytes": 171564,
+      "archive_sha256": "abe69c1a082cc31c4e0f0cdc2f1e9bad02aa17e3f03fb57bf569cedcc14230da"
+    },
+    {
+      "source_path": "scripts/bootstrap-unit-runtime.py",
+      "source_bytes": 12504,
+      "source_sha256": "0f0acdcda7aec86f0d2be9777ddd9125fddb629e21ea9f9c13b701bbaf2e2f7a",
+      "classification": "original-bytes",
+      "archive_path": "originals/bootstrap-unit-runtime.py.txt",
+      "archive_bytes": 12504,
+      "archive_sha256": "0f0acdcda7aec86f0d2be9777ddd9125fddb629e21ea9f9c13b701bbaf2e2f7a"
+    },
+    {
+      "source_path": ".work/unit-host38-implementation-20261027-r1.json",
+      "source_bytes": 3294,
+      "source_sha256": "e37330db08be2fb225575ef821228815847151977ee628bf9e302b1ca800d6ab",
+      "classification": "original-bytes",
+      "archive_path": "originals/implementation.json",
+      "archive_bytes": 3294,
+      "archive_sha256": "e37330db08be2fb225575ef821228815847151977ee628bf9e302b1ca800d6ab"
+    },
+    {
+      "source_path": ".work/unit-host38-source-baseline-20261027.json",
+      "source_bytes": 1107,
+      "source_sha256": "97082ff587008346556f8780aa064bfd70f26d3e1c6d6503c775e1d056518b91",
+      "classification": "original-bytes",
+      "archive_path": "originals/candidate-baseline.json",
+      "archive_bytes": 1107,
+      "archive_sha256": "97082ff587008346556f8780aa064bfd70f26d3e1c6d6503c775e1d056518b91"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1.py",
+      "source_bytes": 4203,
+      "source_sha256": "2d65c5c0ff344736f3b4f7fa9543fe60cfa9e210bc00e91df15ca9a0531e1f47",
+      "classification": "original-bytes",
+      "archive_path": "originals/isolated-index-replay.py.txt",
+      "archive_bytes": 4203,
+      "archive_sha256": "2d65c5c0ff344736f3b4f7fa9543fe60cfa9e210bc00e91df15ca9a0531e1f47"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/00-base-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/00-base-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/00-base-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/00-base-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/01-source-commit.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/01-source-commit.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/01-source-commit.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "651a399f46a837a1f4d0207ec7b5b6fe686776b718a3c5195604418ec59b0adb",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/01-source-commit.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "651a399f46a837a1f4d0207ec7b5b6fe686776b718a3c5195604418ec59b0adb"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/02-index-read-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/02-index-read-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/02-index-read-tree.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/02-index-read-tree.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/03-index-explicit-106-add.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/03-index-explicit-106-add.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/03-index-explicit-106-add.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/03-index-explicit-106-add.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/04-postimage-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/04-postimage-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/04-postimage-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "e137a29f557047df5526bd1b7c3128a043dfc80e93c368a996fd46b730c976d2",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/04-postimage-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "e137a29f557047df5526bd1b7c3128a043dfc80e93c368a996fd46b730c976d2"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "bcededa6678b73c38fe2b4fac8a9f178a432eccbd21ff618ef9fe970607a5225",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "bcededa6678b73c38fe2b4fac8a9f178a432eccbd21ff618ef9fe970607a5225"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-00-0046-unit-flashlight-route-lifecycle.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-00-0046-unit-flashlight-route-lifecycle.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "3bf3e89f5ebdf31a4a3d64fc76c1176c16c2f296a955f817fcd598593e3c80b9",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "3bf3e89f5ebdf31a4a3d64fc76c1176c16c2f296a955f817fcd598593e3c80b9"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-01-0045-unit-flashlight-aw3641.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-01-0045-unit-flashlight-aw3641.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "9b3b6fa40add793cc3b1b2dbc2c22ed620ee15fb70f6ca8f0899c10ca49abe11",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "9b3b6fa40add793cc3b1b2dbc2c22ed620ee15fb70f6ca8f0899c10ca49abe11"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-02-0044-unit-2relay-gpio.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-02-0044-unit-2relay-gpio.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "2cc78202ab1cf5a379476527c6cf837def8f5c40d03f672820240cd5e561aa72",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "2cc78202ab1cf5a379476527c6cf837def8f5c40d03f672820240cd5e561aa72"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-03-0043-unit-scroll-controller.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-03-0043-unit-scroll-controller.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "ec6f40bd9436129e90a83cf5651d81d86658401ca78a04541486b47002dae585",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "ec6f40bd9436129e90a83cf5651d81d86658401ca78a04541486b47002dae585"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-04-0038-unit-pwm-route-refresh.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-04-0038-unit-pwm-route-refresh.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "6ae7a4ec279707954a7757ed207f729e32329b1b6a5ba62243ce8f717cfff216",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "6ae7a4ec279707954a7757ed207f729e32329b1b6a5ba62243ce8f717cfff216"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-05-0037-s3-ledc-duty-readback.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-05-0037-s3-ledc-duty-readback.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "ab23a8b80969102d0305030279179df03d10a8fe2e613e2272f47e782361add7",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "ab23a8b80969102d0305030279179df03d10a8fe2e613e2272f47e782361add7"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-06-0036-core2-soft-i2c-handoff-compat.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-06-0036-core2-soft-i2c-handoff-compat.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "f0b4092b7d69e631ca6c8721dd40b347eab238c7590cc208e52df5999164ed64",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "f0b4092b7d69e631ca6c8721dd40b347eab238c7590cc208e52df5999164ed64"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-07-0035-unit-i2c-controls.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-07-0035-unit-i2c-controls.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "28b327eb0a19a5566d0be7eb83eef0a6760e0c4795afa6ba89fdceb07d6adfe4",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "28b327eb0a19a5566d0be7eb83eef0a6760e0c4795afa6ba89fdceb07d6adfe4"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-08-0034-unit-i2c-sensors.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-08-0034-unit-i2c-sensors.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "1a48758c98e0faf075da6e4df087d25812a3e4bb275de21407b2f3029d7a9ab0",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "1a48758c98e0faf075da6e4df087d25812a3e4bb275de21407b2f3029d7a9ab0"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-09-0033-unit-runtime-core-and-routing.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-09-0033-unit-runtime-core-and-routing.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "2f8741ef659babc5475faea977572149baecb148b2db03a5e2089053ba816983",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "2f8741ef659babc5475faea977572149baecb148b2db03a5e2089053ba816983"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-10-0002-wifi-radio-lifecycle-compat.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-10-0002-wifi-radio-lifecycle-compat.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "3bac1c248a92c85ba330176c28e507c494fb261cab6a792fac318fbeb393ea92"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/10-reverse-11-0001-reconstructed-xtensa-source.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/10-reverse-11-0001-reconstructed-xtensa-source.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "2f8741ef659babc5475faea977572149baecb148b2db03a5e2089053ba816983",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "2f8741ef659babc5475faea977572149baecb148b2db03a5e2089053ba816983"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source.stderr.txt",
+      "source_bytes": 946,
+      "source_sha256": "e87c28ebf111ca924d07f62cc537d6a523f984bfc5b4684cf675b2ff7540a0b6",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source.stderr.txt",
+      "archive_bytes": 946,
+      "archive_sha256": "e87c28ebf111ca924d07f62cc537d6a523f984bfc5b4684cf675b2ff7540a0b6"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-00-0001-reconstructed-xtensa-source.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-00-0001-reconstructed-xtensa-source.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "1a48758c98e0faf075da6e4df087d25812a3e4bb275de21407b2f3029d7a9ab0",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "1a48758c98e0faf075da6e4df087d25812a3e4bb275de21407b2f3029d7a9ab0"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-01-0002-wifi-radio-lifecycle-compat.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-01-0002-wifi-radio-lifecycle-compat.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "28b327eb0a19a5566d0be7eb83eef0a6760e0c4795afa6ba89fdceb07d6adfe4",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "28b327eb0a19a5566d0be7eb83eef0a6760e0c4795afa6ba89fdceb07d6adfe4"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-02-0033-unit-runtime-core-and-routing.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-02-0033-unit-runtime-core-and-routing.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "f0b4092b7d69e631ca6c8721dd40b347eab238c7590cc208e52df5999164ed64",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "f0b4092b7d69e631ca6c8721dd40b347eab238c7590cc208e52df5999164ed64"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-03-0034-unit-i2c-sensors.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-03-0034-unit-i2c-sensors.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "ab23a8b80969102d0305030279179df03d10a8fe2e613e2272f47e782361add7",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "ab23a8b80969102d0305030279179df03d10a8fe2e613e2272f47e782361add7"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-04-0035-unit-i2c-controls.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-04-0035-unit-i2c-controls.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "6ae7a4ec279707954a7757ed207f729e32329b1b6a5ba62243ce8f717cfff216",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "6ae7a4ec279707954a7757ed207f729e32329b1b6a5ba62243ce8f717cfff216"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-05-0036-core2-soft-i2c-handoff-compat.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-05-0036-core2-soft-i2c-handoff-compat.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "ec6f40bd9436129e90a83cf5651d81d86658401ca78a04541486b47002dae585",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "ec6f40bd9436129e90a83cf5651d81d86658401ca78a04541486b47002dae585"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-06-0037-s3-ledc-duty-readback.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-06-0037-s3-ledc-duty-readback.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "2cc78202ab1cf5a379476527c6cf837def8f5c40d03f672820240cd5e561aa72",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "2cc78202ab1cf5a379476527c6cf837def8f5c40d03f672820240cd5e561aa72"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-07-0038-unit-pwm-route-refresh.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-07-0038-unit-pwm-route-refresh.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "9b3b6fa40add793cc3b1b2dbc2c22ed620ee15fb70f6ca8f0899c10ca49abe11",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "9b3b6fa40add793cc3b1b2dbc2c22ed620ee15fb70f6ca8f0899c10ca49abe11"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-08-0043-unit-scroll-controller.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-08-0043-unit-scroll-controller.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "3bf3e89f5ebdf31a4a3d64fc76c1176c16c2f296a955f817fcd598593e3c80b9",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "3bf3e89f5ebdf31a4a3d64fc76c1176c16c2f296a955f817fcd598593e3c80b9"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-09-0044-unit-2relay-gpio.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-09-0044-unit-2relay-gpio.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "bcededa6678b73c38fe2b4fac8a9f178a432eccbd21ff618ef9fe970607a5225",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "bcededa6678b73c38fe2b4fac8a9f178a432eccbd21ff618ef9fe970607a5225"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-10-0045-unit-flashlight-aw3641.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-10-0045-unit-flashlight-aw3641.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle-check.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle-check.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle-check.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle-check.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle-tree.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle-tree.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle-tree.stdout.txt",
+      "source_bytes": 41,
+      "source_sha256": "e137a29f557047df5526bd1b7c3128a043dfc80e93c368a996fd46b730c976d2",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle-tree.stdout.txt",
+      "archive_bytes": 41,
+      "archive_sha256": "e137a29f557047df5526bd1b7c3128a043dfc80e93c368a996fd46b730c976d2"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle.stderr.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle.stderr.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/30-forward-11-0046-unit-flashlight-route-lifecycle.stdout.txt",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/30-forward-11-0046-unit-flashlight-route-lifecycle.stdout.txt",
+      "archive_bytes": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-stack-replay-20261027-r1/receipt.json",
+      "source_bytes": 68345,
+      "source_sha256": "53fc525d7d94aeec3d30f85cd904bf79904c2857afbc0e366b03c6c489187f28",
+      "classification": "original-bytes",
+      "archive_path": "originals/source-replay/receipt.json",
+      "archive_bytes": 68345,
+      "archive_sha256": "53fc525d7d94aeec3d30f85cd904bf79904c2857afbc0e366b03c6c489187f28"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "tool-versions.json",
+      "archive_bytes": 3913,
+      "archive_sha256": "06d415d430916fa4309fa6fcf853a0f34cf71bd80f23698788bd075868e9fdfb"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "build-invocation.json",
+      "archive_bytes": 1096,
+      "archive_sha256": "a130f64b272f329433f2cf4bdd3ff4a06ca8ec554c11b1fcda6f22c055920dc0"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "dependency-cache-verification.json",
+      "archive_bytes": 12666,
+      "archive_sha256": "e9e1c77c0bdaec18374e66bc9c202f6f28cbe08697b17bd61b0d3e5ec5ad1a16"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "summary.json",
+      "archive_bytes": 1785,
+      "archive_sha256": "0490f80c0730bf9e670738e063d330144bbfc3864dd346cf9d9021b3d7d26f95"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "verify.py",
+      "archive_bytes": 9799,
+      "archive_sha256": "c0505808e1991ea4ed5b6745fe36ce8f0e4c1f923cc91c9a6b8abd7498ad7f8d"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "README.md.txt",
+      "archive_bytes": 2800,
+      "archive_sha256": "5d4bc2aedabb2590e3e3ed20b64cb87200e31afda91c86868a6db589448bdb12"
+    },
+    {
+      "classification": "generated",
+      "archive_path": "privacy-scan.json",
+      "archive_bytes": 571,
+      "archive_sha256": "096c56c332ec3de5f5b4a5481d3a18662688ae87743f91aa25749f8392f98fc0"
+    }
+  ],
+  "fingerprints": [
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/arm/bcm2835_peripherals.c",
+      "source_bytes": 21755,
+      "source_sha256": "051ced19fb94f844aab09c5b3a2f96a293e091acfecc5c2c5ccea717157efbdc",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/arm/bcm2835_peripherals.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/block/m25p80.c",
+      "source_bytes": 59436,
+      "source_sha256": "431d369057fec8e140a9ab2449d6e4a14451ac9c94ad4cb5d852a0f62dce25df",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/block/m25p80.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/char/esp32_uart.c",
+      "source_bytes": 13980,
+      "source_sha256": "0e080b48d4233669c82d7b4ce3cb0c9886269b91941f9d99b78e41fc1e641e52",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/char/esp32_uart.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/dma/esp32s3_gdma.c",
+      "source_bytes": 7305,
+      "source_sha256": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/dma/esp32s3_gdma.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/dma/esp_gdma.c",
+      "source_bytes": 47791,
+      "source_sha256": "26804c29c4d1cbe2e0b3ff000a016fb4f4c79d495b4537b6ad7e58a6f9896a02",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/dma/esp_gdma.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/gpio/esp32_gpio.c",
+      "source_bytes": 13271,
+      "source_sha256": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/gpio/esp32_gpio.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/i2c/esp32_i2c.c",
+      "source_bytes": 9705,
+      "source_sha256": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/i2c/esp32_i2c.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/co5300.c",
+      "source_bytes": 11720,
+      "source_sha256": "c97309ceb1a2f96f6667c1161f82bdaa6003d8417c2c103cb38396ff780155cd",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/co5300.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_fe.c",
+      "source_bytes": 1949,
+      "source_sha256": "04f028928fdec561fa2ee6f62f810678549e094b53f9284be70a283efae5d153",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_fe.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_gpspi.c",
+      "source_bytes": 21854,
+      "source_sha256": "f7bec7ae6aef9047bc7f103d8589ae79ac210d39c40606b7ccbc51053421e190",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_gpspi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_i2c.c",
+      "source_bytes": 11746,
+      "source_sha256": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_i2c.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_phy.c",
+      "source_bytes": 3148,
+      "source_sha256": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_phy.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_regi2c.c",
+      "source_bytes": 3071,
+      "source_sha256": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_regi2c.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_sens.c",
+      "source_bytes": 4062,
+      "source_sha256": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_sens.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/esp32s3_soft_i2c.c",
+      "source_bytes": 9436,
+      "source_sha256": "245d6e1be47f22caf145961357b4b2ef90ef2b15e67f868b1ae31f377410e2d2",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/esp32s3_soft_i2c.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_bcm_spi_panel.c",
+      "source_bytes": 6077,
+      "source_sha256": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_bcm_spi_panel.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_board.c",
+      "source_bytes": 157,
+      "source_sha256": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_board.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_can_peer.c",
+      "source_bytes": 1488,
+      "source_sha256": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_can_peer.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_cc1101_spi.c",
+      "source_bytes": 6319,
+      "source_sha256": "d43d4cb0d6a84da3229d204c37674db15d47fed07348dbd6209fb4d7b82040fe",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_cc1101_spi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_epd_panel.c",
+      "source_bytes": 9747,
+      "source_sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_epd_panel.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_i2s.c",
+      "source_bytes": 12378,
+      "source_sha256": "bc3a77ebb3b3241a8c64565cd08a30ce5993904262644b0123d08fe39aa30a1c",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_i2s.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_i2s_esp32.c",
+      "source_bytes": 15960,
+      "source_sha256": "3255e5db1e700f19466c107cc58b663a53ed628c91c7c883e26f787a36a5da65",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_i2s_esp32.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_lcd_cam.c",
+      "source_bytes": 9680,
+      "source_sha256": "10df36505be2bf2c03615e7d952f968c0cdd040f8472d7549e038492f967ca9a",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_lcd_cam.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_max3421e.c",
+      "source_bytes": 15216,
+      "source_sha256": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_max3421e.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_rmt.c",
+      "source_bytes": 15010,
+      "source_sha256": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_rmt.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_scs_servo.c",
+      "source_bytes": 5827,
+      "source_sha256": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_scs_servo.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_spi_panel.c",
+      "source_bytes": 21481,
+      "source_sha256": "f35ed66ff10660304a29090b28548f04d156f714a9bb50499489daffc2bd9d92",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_spi_panel.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_spi_sd.c",
+      "source_bytes": 10324,
+      "source_sha256": "4daa85f2282a3868aede8ee033a6e66b543fd1acfddf273148bef763a05a685a",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_spi_sd.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_st25r3916_spi.c",
+      "source_bytes": 7149,
+      "source_sha256": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_st25r3916_spi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_sx1262.c",
+      "source_bytes": 7440,
+      "source_sha256": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_sx1262.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_uart_peer.c",
+      "source_bytes": 752,
+      "source_sha256": "9370859a8d6d16e7493af844a5f4bea6d3d8394f99815a7293288b34003f1d00",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_uart_peer.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "source_bytes": 34424,
+      "source_sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_gpio.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_i2c_controls.c",
+      "source_bytes": 41737,
+      "source_sha256": "a0fa59a8b90a0478a2afe1b6ba689c242a76a3470f875a0c9a796e4a8c01f045",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_i2c_controls.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_i2c_sensors.c",
+      "source_bytes": 23424,
+      "source_sha256": "b3f5cff668ad1e2a31c43f9cd2c04fc2ded2b86c48189bb7376ea28671764c03",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_i2c_sensors.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_runtime.c",
+      "source_bytes": 18374,
+      "source_sha256": "2c9e32285770643de338bded45d03cafb83295269f757b95db53ee2b420e6243",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_runtime.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_runtime.h",
+      "source_bytes": 1861,
+      "source_sha256": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_runtime.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5atoms3r.c",
+      "source_bytes": 3677,
+      "source_sha256": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5atoms3r.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5cardputeradv.c",
+      "source_bytes": 3959,
+      "source_sha256": "311a1b9fa9aaa4b4f51bbf6bd230026dc694faa420afa88e3592a13263f5f218",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5cardputeradv.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5core2.c",
+      "source_bytes": 3587,
+      "source_sha256": "5108435a308a0bc6d1faf9cb6a208a6184926598579598d8c138930e9904199c",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5core2.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5cores3.c",
+      "source_bytes": 4779,
+      "source_sha256": "ba26f35a14b5132452bda60d4af5d9ca32e3f43e56bb2f40fddb1e91c5d048bf",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5cores3.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5papercolor.c",
+      "source_bytes": 3684,
+      "source_sha256": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5papercolor.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5papermono.c",
+      "source_bytes": 3983,
+      "source_sha256": "4c36e40124f00b100d8051630ac72ebb9f7f3bf32633e2498e258c70ed9395b5",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5papermono.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5stackchan.c",
+      "source_bytes": 4266,
+      "source_sha256": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5stackchan.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5stamplc.c",
+      "source_bytes": 3760,
+      "source_sha256": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5stamplc.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5sticks3.c",
+      "source_bytes": 4641,
+      "source_sha256": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5sticks3.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5stopwatch.h",
+      "source_bytes": 7287,
+      "source_sha256": "b2fbd36e0a246da3348b48bd7859a9e7958e11debce959130983b225e5d50a1e",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5stopwatch.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5sw_i2c_devs.c",
+      "source_bytes": 70295,
+      "source_sha256": "5cf77cb6bb788644c2330f8326337daa03b75a5712e00feb9c49c06552de73be",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/m5stopwatch/m5sw_i2c_devs.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/bcm2835_unicam.c",
+      "source_bytes": 12229,
+      "source_sha256": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/bcm2835_unicam.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_ana.c",
+      "source_bytes": 1951,
+      "source_sha256": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_ana.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_dport.c",
+      "source_bytes": 22961,
+      "source_sha256": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_dport.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_fe.c",
+      "source_bytes": 1352,
+      "source_sha256": "c86372d9bc337cb3290e17609b55fd60e8b5633721cb7745f96c00d3023eb2ff",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_fe.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_ledc.c",
+      "source_bytes": 7900,
+      "source_sha256": "a82e8cde98b13d5972fea594a0dec304d796955d3baa7d3136ff9b9aeb5f50b8",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_ledc.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_phya.c",
+      "source_bytes": 1394,
+      "source_sha256": "cb1eaa1eb43ba3e38b97a412bf2c76aa676e8c3bbe77c851d5213409fb26bc89",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_phya.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_unknown.c",
+      "source_bytes": 2155,
+      "source_sha256": "d8775ce143c0cf7f614b8865de48cfb5c4c2e7e27a56b4c8d3e4eefdf04c7b77",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_unknown.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_wifi.c",
+      "source_bytes": 5651,
+      "source_sha256": "4b24e689222d0439a508ea7966a11aefa757d04a1cd87b6078e3e302f9f42361",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_wifi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_wifi_ap.c",
+      "source_bytes": 50198,
+      "source_sha256": "1234310925b1310b0b71aff59110b0a5dfc240656a9877bd78c524e6e02951ee",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_wifi_ap.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_wlan.h",
+      "source_bytes": 9164,
+      "source_sha256": "a0bb3330d548b516be619f408fa51f288cd2fd597b978bb54edb005531bac1c3",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_wlan.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_wlan_packet.c",
+      "source_bytes": 11308,
+      "source_sha256": "d7598cc1c5cec36a8caa30635fa03e907d627e9058cd7c98a3991de48c465f46",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_wlan_packet.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32_wlan_packet.h",
+      "source_bytes": 3167,
+      "source_sha256": "7738a7cff2e82aaffbc17f8cf1d48bc1adc187e4119c98f1dd203f2103ee9b1b",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32_wlan_packet.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32s3_cache.c",
+      "source_bytes": 17107,
+      "source_sha256": "f9951a01874df1cebc31b588896152d0e510a3461926117b7d3c6aed0abdc3b6",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32s3_cache.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32s3_rtc_cntl.c",
+      "source_bytes": 8917,
+      "source_sha256": "40ac860cee7c16b06a8b7eecf86942bcd3062d4b9bd40d8b3bcdc7e3bc99d19d",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32s3_rtc_cntl.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/esp32s3_wifi.c",
+      "source_bytes": 13058,
+      "source_sha256": "16a013da1b2d13206c74e206a2325f2f8cbec8a1b9e3d9751e396b73a8419855",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/esp32s3_wifi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/meson.build",
+      "source_bytes": 8536,
+      "source_sha256": "695e02205c8ade53660bc718fd4e7d547d32e6d3bd4e9c97f7e0b0062bfe328a",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/meson.build"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/ssi_psram.c",
+      "source_bytes": 15850,
+      "source_sha256": "92af5690d4259f7d0fe24686c3415d4ffbf21c42234d4599f757d61fbf6e5d7b",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/ssi_psram.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/misc/unimp-default.c",
+      "source_bytes": 3252,
+      "source_sha256": "be5b1839d90da027d0eb7ab3c11d49423df0d824a8ac9129852ed30459f29e77",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/misc/unimp-default.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/nvram/esp_efuse.c",
+      "source_bytes": 22915,
+      "source_sha256": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/nvram/esp_efuse.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/ssi/bcm2835_spi.c",
+      "source_bytes": 10722,
+      "source_sha256": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/ssi/bcm2835_spi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/ssi/esp32_spi.c",
+      "source_bytes": 14137,
+      "source_sha256": "c3ac6578afe2ae14cfa38389639e84671965debaa1715d9f513adb62d17ae832",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/ssi/esp32_spi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/ssi/esp32s3_spi.c",
+      "source_bytes": 16586,
+      "source_sha256": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/ssi/esp32s3_spi.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/timer/esp32_timg.c",
+      "source_bytes": 24174,
+      "source_sha256": "7fd28a5224f926b6884d61744d95891e897f296d76213592165fe112eba4eaec",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/timer/esp32_timg.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/esp32.c",
+      "source_bytes": 46881,
+      "source_sha256": "ae7f5d6a149923e3cef85c339b6ade084e99b8c056952c7fefbfcf849c64d9b3",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/esp32.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/esp32_native_hci.c",
+      "source_bytes": 89178,
+      "source_sha256": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/esp32_native_hci.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/esp32s3.c",
+      "source_bytes": 50102,
+      "source_sha256": "855296725ce5feb522c453bde62ede3d243ab238e769d9d41efb8bad7a4037c8",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/esp32s3.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/esp32s3_clk.c",
+      "source_bytes": 9791,
+      "source_sha256": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/esp32s3_clk.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/esp32s3_intc.c",
+      "source_bytes": 7364,
+      "source_sha256": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/esp32s3_intc.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/hw/xtensa/meson.build",
+      "source_bytes": 1849,
+      "source_sha256": "4e0ac9ab2965e3a7afc02daa8cc6400c8e5ee9c0f36ef17319c052a7cfbef223",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "hw/xtensa/meson.build"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/arm/bcm2835_peripherals.h",
+      "source_bytes": 3279,
+      "source_sha256": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/arm/bcm2835_peripherals.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/char/esp32_uart.h",
+      "source_bytes": 4425,
+      "source_sha256": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/char/esp32_uart.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/dma/esp_gdma.h",
+      "source_bytes": 9461,
+      "source_sha256": "8252b5c636b96afbf5dfda8cbe6dc4194427804f3485b4a0ac2ee8fe17b47798",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/dma/esp_gdma.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/gpio/esp32_gpio.h",
+      "source_bytes": 937,
+      "source_sha256": "18e9347b978f7355364ab755df16822f21c8c47c9289f6405e5c1b9149f9e8d0",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/gpio/esp32_gpio.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/i2c/esp32_i2c.h",
+      "source_bytes": 2878,
+      "source_sha256": "5f2c81c2dcb67ee326d88ec2d37c4b10fca960ce2a9de9a1f4d20a6530654f02",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/i2c/esp32_i2c.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/bcm2835_unicam.h",
+      "source_bytes": 968,
+      "source_sha256": "a43c240fc392e4174f6927a881e83ea7f7983b1c3b569c2dc6ede220bb7295c6",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/bcm2835_unicam.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_ana.h",
+      "source_bytes": 361,
+      "source_sha256": "a6c3d6406b1f4a92bffa9c771a4c4bb144db2b2c171816f07cb02f891251f993",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_ana.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_dport.h",
+      "source_bytes": 6754,
+      "source_sha256": "e16aa8f754409350085b60163e117b22ec7dec85ee17f4c1187346868dc1bbb6",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_dport.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_fe.h",
+      "source_bytes": 324,
+      "source_sha256": "a652cb411f7df0035f0e8d06f527631cf95e3676d27680118c46ac14b6668e26",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_fe.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_ledc.h",
+      "source_bytes": 2369,
+      "source_sha256": "dd755a02910227828a4846c281b8165a233f962689dec8121fc9db6f33505aae",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_ledc.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_phya.h",
+      "source_bytes": 338,
+      "source_sha256": "35b12d18785b1f34d611a5797319a9cb6f03e610491d7f8a6d43df1145a7bab8",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_phya.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_reg.h",
+      "source_bytes": 10908,
+      "source_sha256": "cac0b3177fd8ec18e5bbe94d815d57686816c0b5bc9832446af1e721ff9cede1",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_reg.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_unknown.h",
+      "source_bytes": 364,
+      "source_sha256": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_unknown.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32_wifi.h",
+      "source_bytes": 2515,
+      "source_sha256": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32_wifi.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/esp32s3_wifi.h",
+      "source_bytes": 680,
+      "source_sha256": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/esp32s3_wifi.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/m5_bcm_spi_panel.h",
+      "source_bytes": 328,
+      "source_sha256": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/m5_bcm_spi_panel.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/misc/unimp-default.h",
+      "source_bytes": 1901,
+      "source_sha256": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/misc/unimp-default.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/ssi/esp32_spi.h",
+      "source_bytes": 2512,
+      "source_sha256": "3080252d9ae3f053e2f22962546fe4437ba85a0ba81a16cb7ac808e1c999ac12",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/ssi/esp32_spi.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/xtensa/esp32.h",
+      "source_bytes": 2005,
+      "source_sha256": "13a2099f62549a3923249217c45c4af2849effa1de906e15a569a7a8c53831ff",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/xtensa/esp32.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/xtensa/esp32_native_hci.h",
+      "source_bytes": 7595,
+      "source_sha256": "58640a4c564635fafc8c8c1655f0f904e8f68370996118ce8dd0b48f70b2281b",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/xtensa/esp32_native_hci.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/xtensa/esp32s3_clk.h",
+      "source_bytes": 1948,
+      "source_sha256": "d553c46477aed59ee1fb25aecd381b77cfa2395fa0d9a454ee7d6705753a84b0",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/xtensa/esp32s3_clk.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/include/hw/xtensa/esp32s3_intc.h",
+      "source_bytes": 9746,
+      "source_sha256": "241a6e038697fba129c084fc5e92f8b00d6759652b409e256005a09f536c08a2",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "include/hw/xtensa/esp32s3_intc.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/meson.build",
+      "source_bytes": 178480,
+      "source_sha256": "90f03cdfb6914dd26135df07aa6ebb45d27e80e57d30ed3cf53bdb750d23ac6f",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "meson.build"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/cpu.c",
+      "source_bytes": 8896,
+      "source_sha256": "ae471beedd879dd7b918ebda9446fe70047aa38f302704cbb37c88f83d4d21bc",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/cpu.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/cpu.h",
+      "source_bytes": 24297,
+      "source_sha256": "9cf6b7158ee35b3cc0eee11557590fe5ffab450623e3be004630e83474a6172f",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/cpu.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/exc_helper.c",
+      "source_bytes": 9148,
+      "source_sha256": "4b8960564bc16b0620039e140bf45ad0a45207feccd80e6ce938cd5b1c02261c",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/exc_helper.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/helper.h",
+      "source_bytes": 7953,
+      "source_sha256": "f5dd775ddb30a4f47d8dfc0be324e654bd4fd1b53f44c535988be15dd9fb73d7",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/helper.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/op_helper.c",
+      "source_bytes": 8154,
+      "source_sha256": "838a360798aba72c5bf869fa7a4506a93ea0ac3925836bac8c070f4dc68e3ec2",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/op_helper.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/target/xtensa/translate.c",
+      "source_bytes": 235049,
+      "source_sha256": "1c27fa04889eff41128a0d5b90ee51255e1f51dc1fc33acfc15033ea0bbc5aae",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "target/xtensa/translate.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/ui/ui-qmp-cmds.c",
+      "source_bytes": 11143,
+      "source_sha256": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
+      "classification": "fingerprint-only",
+      "category": "qemu-source-postimage",
+      "qemu_relative_path": "ui/ui-qmp-cmds.c"
+    },
+    {
+      "source_path": "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
+      "source_bytes": 695829,
+      "source_sha256": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 0
+    },
+    {
+      "source_path": "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch",
+      "source_bytes": 5446,
+      "source_sha256": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 1
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch",
+      "source_bytes": 70036,
+      "source_sha256": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 2
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch",
+      "source_bytes": 24247,
+      "source_sha256": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 3
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch",
+      "source_bytes": 32669,
+      "source_sha256": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 4
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch",
+      "source_bytes": 452,
+      "source_sha256": "bfb18690400f3385ccf4224e34f0021f1c5179e47f62e9b321aff6c4a06bdae8",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 5
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch",
+      "source_bytes": 818,
+      "source_sha256": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 6
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch",
+      "source_bytes": 4142,
+      "source_sha256": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 7
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch",
+      "source_bytes": 15022,
+      "source_sha256": "03f34ee350be9d7fade560c3fe94ed8e6914209350348dd44c8ac4ef4d1c16ea",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 8
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch",
+      "source_bytes": 4585,
+      "source_sha256": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 9
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch",
+      "source_bytes": 20951,
+      "source_sha256": "52e384a59fad2ba0739bfbaa7b515f49bbee97d59a11583c1a53e9a060f58626",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 10
+    },
+    {
+      "source_path": "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch",
+      "source_bytes": 4500,
+      "source_sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+      "classification": "fingerprint-only",
+      "category": "source-patch",
+      "patch_order": 11
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/gpg-error",
+      "source_bytes": 234472,
+      "source_sha256": "87fa3235bd801df354d5542b7dc1b3e9059a58586c39f9ff3025b62d093a020e",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/gpg-error"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/bomtool",
+      "source_bytes": 130840,
+      "source_sha256": "b67118bab88745bb058523d25f5774d944d3ec65a02756b5aef4781fcfb2502a",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/bomtool"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/gpgrt-config",
+      "source_bytes": 16302,
+      "source_sha256": "44914f9c936f81e17ffc04bbc80d903e2366f18d8a162610cedeeb53e1ab7a83",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/gpgrt-config"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/pkgconf",
+      "source_bytes": 134056,
+      "source_sha256": "886437c11a1d8c0f4886aba2d12d012beee555b1f5849a67890d2066da98bcfe",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/pkgconf"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/dumpsexp",
+      "source_bytes": 35704,
+      "source_sha256": "1807108e38e9152e123f72779bb11bd4f798fac6b914aa881d9186ee3653a5ef",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/dumpsexp"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/libgcrypt-config",
+      "source_bytes": 4805,
+      "source_sha256": "f88dee47673b0a077a9c260c7d8a642449d6d1648f9b48638b64425072c42cd2",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/libgcrypt-config"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/mpicalc",
+      "source_bytes": 1441384,
+      "source_sha256": "bf24f3b3bce87e5c8c5158a860df6b1f2c44a12b7cea78dbd67e509f40dcbb01",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/mpicalc"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/bin/hmac256",
+      "source_bytes": 53592,
+      "source_sha256": "a4294fbb4cdaf0fec7a4a9879fbd608ced8ae3fb19fa1e4bdd8df154ac0397b1",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "bin/hmac256"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/gcrypt.h",
+      "source_bytes": 83204,
+      "source_sha256": "caa198bc604c55afc03249584a9eb869e6ffd4150eb436965cb7abafe550c570",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/gcrypt.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/gpg-error.h",
+      "source_bytes": 76521,
+      "source_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/gpg-error.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/gpgrt.h",
+      "source_bytes": 76521,
+      "source_sha256": "7846bc56614ecfa6160154bcc05862bf674cb711f71391eb7114f6870880643f",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/gpgrt.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libpkgconf.a",
+      "source_bytes": 310272,
+      "source_sha256": "ef26f28175b60eee3cd80c84cde66c0d45d61c2ac2a48bb019cdb0dec06b17dc",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libpkgconf.a"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libgpg-error.la",
+      "source_bytes": 1005,
+      "source_sha256": "7a34182f267ba59cdcd3f05d8b6017445bc869e8367789686c2256340c2eb0dc",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libgpg-error.la"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libpkgconf.la",
+      "source_bytes": 982,
+      "source_sha256": "deece5037b65ab4d8f93c580167b8c6ec3b890eab8d3fdea0f27674d44c02113",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libpkgconf.la"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libgcrypt.a",
+      "source_bytes": 6225440,
+      "source_sha256": "a310b6dc04a8e9bc205400ef3480a4cc6dbbaa151b4b97c0947eedd8c6598b8b",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libgcrypt.a"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libgpg-error.a",
+      "source_bytes": 770344,
+      "source_sha256": "7a445ca56fe371eed07ef4aea349bd0b0423dc460774aa9a342a0e79ce575bc4",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libgpg-error.a"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libgcrypt.la",
+      "source_bytes": 1260,
+      "source_sha256": "ecc646d9b14e4ed6144cfa5e82d850a2d3ab2628a20669dcfec60d2248c37b83",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libgcrypt.la"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/libslirp.a",
+      "source_bytes": 230040,
+      "source_sha256": "9c0161da10e1b9e8ddadc238bd621fb30b0d2d6db7c94452f953c08a30bbab01",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/libslirp.a"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/slirp/libslirp.h",
+      "source_bytes": 11259,
+      "source_sha256": "7276b26a265bdaf83e8623ba39d458d294ab09712fc1f3ab47326e0041039a7d",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/slirp/libslirp.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/slirp/libslirp-version.h",
+      "source_bytes": 697,
+      "source_sha256": "3f9992a3652e5dfb5edd0deef288ce110df0f406cbb24d73d282d71964b5061b",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/slirp/libslirp-version.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/pkgconf/libpkgconf/stdinc.h",
+      "source_bytes": 1612,
+      "source_sha256": "789fb1ee54966b853c5087716644367c79a36c964e7c137f6f8cd0cd9520a1d8",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/pkgconf/libpkgconf/stdinc.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/pkgconf/libpkgconf/libpkgconf.h",
+      "source_bytes": 20006,
+      "source_sha256": "75fdc6d75c51f338b037d93063e34b3a2cdeaf58b726b73e6e408de79ff1a72e",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/pkgconf/libpkgconf/libpkgconf.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/pkgconf/libpkgconf/iter.h",
+      "source_bytes": 2016,
+      "source_sha256": "cb503569a9e106f930c40b2b8bafeb016473b6ab65720469afc9d0e0ed8ca636",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/pkgconf/libpkgconf/iter.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/pkgconf/libpkgconf/libpkgconf-api.h",
+      "source_bytes": 599,
+      "source_sha256": "26d56d01ab526d65c1839105d3541898cb1eb37665361abee00a208b843f4767",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/pkgconf/libpkgconf/libpkgconf-api.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/include/pkgconf/libpkgconf/bsdstubs.h",
+      "source_bytes": 1076,
+      "source_sha256": "0db489febea3a733649448b0165295e91789cf9545621d66c3f0a7f20d4e7014",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "include/pkgconf/libpkgconf/bsdstubs.h"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/pkgconfig/libgcrypt.pc",
+      "source_bytes": 758,
+      "source_sha256": "1084ff4e5c0ca04241fe89d94ac5eed33194cd178565ebe5ebbe8382b210725a",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/pkgconfig/libgcrypt.pc"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/pkgconfig/libpkgconf.pc",
+      "source_bytes": 452,
+      "source_sha256": "3ba55ab1f2c80ddf35ae05e3236fbf5cb93ef3331bce6492385d7c7153a81849",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/pkgconfig/libpkgconf.pc"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/pkgconfig/slirp.pc",
+      "source_bytes": 326,
+      "source_sha256": "e5ebea571409d0a811c749e021ccfcd38543c4cf0fca603946e937498b636951",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/pkgconfig/slirp.pc"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/lib/pkgconfig/gpg-error.pc",
+      "source_bytes": 447,
+      "source_sha256": "b01f76223a5631b81a89d3cafaea2c3c2c1551fcdc8d5c449345d6f70261e8e9",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "lib/pkgconfig/gpg-error.pc"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/aclocal/pkg.m4",
+      "source_bytes": 13147,
+      "source_sha256": "07f90de7dad7478234c170dd8c85bdbab9252e4d9e3fc4d2c54ef274ff370141",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/aclocal/pkg.m4"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/aclocal/gpg-error.m4",
+      "source_bytes": 9117,
+      "source_sha256": "cdfd0cb91db28d7bbb15c6fffe58ed85eb619aa82056074083845c394761c96d",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/aclocal/gpg-error.m4"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/aclocal/libgcrypt.m4",
+      "source_bytes": 9619,
+      "source_sha256": "46025f7c993a4d715e23806ce239b94fc54cf9ba1534efd4f9a34d67908b02d6",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/aclocal/libgcrypt.m4"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/aclocal/gpgrt.m4",
+      "source_bytes": 4085,
+      "source_sha256": "b1fa68fd4fff5e38ae7e4403973050320cb1480db052f332809b50f87c809ab0",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/aclocal/gpgrt.m4"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/man/man5/pc.5",
+      "source_bytes": 6022,
+      "source_sha256": "773cfe9409d3756d836fa0e780460f38225f182f54d934f97a80cb316e40aecc",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/man/man5/pc.5"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/man/man5/pkgconf-personality.5",
+      "source_bytes": 3417,
+      "source_sha256": "b772f57e966c98c1a349aa9e768f0e4a1a78e1bef3aa0f1b0e4eadb56efcc962",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/man/man5/pkgconf-personality.5"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/man/man1/pkgconf.1",
+      "source_bytes": 7702,
+      "source_sha256": "a33a7b0ada9c297daedc7ac85b0f48f8bbfbf290ce640d10cc8841d3e660b456",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/man/man1/pkgconf.1"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/man/man7/pkg.m4.7",
+      "source_bytes": 4005,
+      "source_sha256": "6324cc3adf3c50b7f6ca91c1da81603a35f85442f0df19236977efeabf108e58",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/man/man7/pkg.m4.7"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/doc/pkgconf/AUTHORS",
+      "source_bytes": 1498,
+      "source_sha256": "1579e0bd23bd6e3e24aab6bc6bf7efa3bca6c25f83bb2a1f56c5bdbdbfb1d40f",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/doc/pkgconf/AUTHORS"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/doc/pkgconf/README.md",
+      "source_bytes": 6596,
+      "source_sha256": "e98093cdf510a1b56b7c8e7b3c497f96d81711bc86edadb75ebe42ff155a8ade",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/doc/pkgconf/README.md"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/common-lisp/source/gpg-error/gpg-error-package.lisp",
+      "source_bytes": 2206,
+      "source_sha256": "00bcf902617d080f444b658c11bbeb14308803939a348d97debea8ec8cd51457",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/common-lisp/source/gpg-error/gpg-error-package.lisp"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/common-lisp/source/gpg-error/gpg-error-codes.lisp",
+      "source_bytes": 22982,
+      "source_sha256": "3d49966c13da35a5e63d43a66ef1fdd0c9c23cd47cece98429e8e0ea909546db",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/common-lisp/source/gpg-error/gpg-error-codes.lisp"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/common-lisp/source/gpg-error/gpg-error.lisp",
+      "source_bytes": 7109,
+      "source_sha256": "60a5e23a1b4d29b1a3236c93356d4412a32cdda45c7cf65f0ff0784d61f17e5c",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/common-lisp/source/gpg-error/gpg-error.lisp"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/deps/share/common-lisp/source/gpg-error/gpg-error.asd",
+      "source_bytes": 1306,
+      "source_sha256": "c375100540b4fda9f3f60a6097cbf59560bbb061a1bff043c136be02d21f5292",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-file",
+      "dependency_relative_path": "share/common-lisp/source/gpg-error/gpg-error.asd"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/downloads/libgcrypt-1.11.0.tar.bz2",
+      "source_bytes": 4180345,
+      "source_sha256": "09120c9867ce7f2081d6aaa1775386b98c2f2f246135761aae47d81f58685b9c",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-download"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/downloads/libgpg-error-1.51.tar.bz2",
+      "source_bytes": 1085510,
+      "source_sha256": "be0f1b2db6b93eed55369cdf79f19f72750c8c7c39fc20b577e724545427e6b2",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-download"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/downloads/pkgconf-2.4.3.tar.xz",
+      "source_bytes": 321352,
+      "source_sha256": "51203d99ed573fa7344bf07ca626f10c7cc094e0846ac4aa0023bd0c83c25a41",
+      "classification": "fingerprint-only",
+      "category": "reused-dependency-download"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa",
+      "source_bytes": 21988888,
+      "source_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+      "classification": "fingerprint-only",
+      "category": "new-runtime"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa",
+      "source_bytes": 21982056,
+      "source_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+      "classification": "fingerprint-only",
+      "category": "prior-runtime-unchanged"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu/hw/gpio/esp32_gpio.c",
+      "source_bytes": 13271,
+      "source_sha256": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4",
+      "classification": "fingerprint-only",
+      "category": "implementation-candidate",
+      "qemu_relative_path": "hw/gpio/esp32_gpio.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "source_bytes": 34424,
+      "source_sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+      "classification": "fingerprint-only",
+      "category": "implementation-candidate",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_gpio.c"
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu/hw/m5stopwatch/m5_unit_runtime.h",
+      "source_bytes": 1861,
+      "source_sha256": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496",
+      "classification": "fingerprint-only",
+      "category": "implementation-candidate",
+      "qemu_relative_path": "hw/m5stopwatch/m5_unit_runtime.h"
+    },
+    {
+      "source_path": "/usr/bin/git",
+      "source_bytes": 118640,
+      "source_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/usr/bin/git"
+    },
+    {
+      "source_path": "/opt/miniconda3/bin/python3.12",
+      "source_bytes": 6933840,
+      "source_sha256": "607206129b8c94a0c981d66eb1a6ee4ad78e7aca8e1800d97c2ebf20b1f94fd8",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/opt/miniconda3/bin/python3.12"
+    },
+    {
+      "source_path": "/usr/bin/clang",
+      "source_bytes": 118640,
+      "source_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/usr/bin/clang"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/venv/bin/ninja",
+      "source_bytes": 647352,
+      "source_sha256": "78db38d68dde4904f4a7a9cae2dfd0ef47f5f00e2ec88462b0f24d85ac610586",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/ninja"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/venv/bin/meson",
+      "source_bytes": 339,
+      "source_sha256": "98d4a21726592cdf5066799954410b07cc57f2cd95989e49a4c6c2e47abed4e0",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/meson"
+    },
+    {
+      "source_path": ".work/unit-runtime-build-route-history-final/venv/bin/python",
+      "source_bytes": 6933840,
+      "source_sha256": "607206129b8c94a0c981d66eb1a6ee4ad78e7aca8e1800d97c2ebf20b1f94fd8",
+      "classification": "fingerprint-only",
+      "category": "post-build-tool-executable",
+      "resolved_path": "/opt/miniconda3/bin/python3.12"
+    }
+  ],
+  "result": {
+    "schema_version": 1,
+    "status": "PASS",
+    "category": "source-build-and-isolated-index-replay",
+    "api_contacted": false,
+    "guest_execution": "NOT RUN",
+    "hardware_execution": "NOT RUN",
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "prior_runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+    "patch_count": 12,
+    "source_file_count": 106,
+    "dependency_cache_regular_file_count": 43,
+    "candidate_three_files_match": true,
+    "source_replay": {
+      "base_tree": "ddde372fbcc1b22e99f24372e14dee425be3193b",
+      "postimage_tree": "ce1b71562a4f87bcdd0344cc8dd8304b661fff6f",
+      "reversed_tree": "ddde372fbcc1b22e99f24372e14dee425be3193b",
+      "restored_tree": "ce1b71562a4f87bcdd0344cc8dd8304b661fff6f",
+      "reverse_equals_head_tree": true,
+      "forward_equals_postimage_tree": true,
+      "actual_index_unchanged": true,
+      "all_106_source_files_unchanged": true,
+      "runtime_unchanged": true
+    },
+    "limitations": [
+      "Build is fresh QEMU source/object compilation with pinned static dependency-cache reuse, not a fresh dependency build.",
+      "Tool observations and bootstrap source copy were captured after execution; outer launch argv is root-provided actual-launch attestation, not an independent exec trace.",
+      "All 106 QEMU source files and the 12 historical patches are fingerprint-only; optional source replay requires matching external QEMU source and repository patches.",
+      "Original 152-check historical model failure and corrected independent C results remain in the sibling controller archive; this build archive does not relabel them as guest or hardware PASS.",
+      "No firmware, ROM, runtime binary, object, static dependency archive or credential bytes are archived."
+    ]
+  },
+  "archive_rules": {
+    "original_bytes": "exact byte copies with source/archive SHA256 equality",
+    "generated": "explicitly generated explanatory or verification records, never represented as original process output",
+    "fingerprint_only": "source/dependency/binary bytes deliberately excluded; only path/size/SHA metadata retained",
+    "runtime_asset_mutation": "none; running matrix assets untouched"
+  },
+  "original_byte_files": 165,
+  "generated_files": 7,
+  "fingerprint_only_inputs": 175
+}

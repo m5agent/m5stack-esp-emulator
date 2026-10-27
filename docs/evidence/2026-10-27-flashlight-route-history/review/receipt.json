@@ -1,0 +1,79 @@
+{
+  "recorded_at_utc": "2026-10-26T23:53:32.458057+00:00",
+  "scope": "read-only static review and narrow host C regression; no API/guest/Web test",
+  "result": "PASS",
+  "new_actionable_findings": [],
+  "source_replay": {
+    "result": "PASS",
+    "unit_replay_exact_to_final_source": true,
+    "actual_gpio_route_commit_hunk_exact_in_final_source": true,
+    "unit_sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf",
+    "gpio_commit_fragment_sha256": "b9d7e9ef8ff9b0181ec6e1789e692e1c448449f67c67d48324660046fef020f9"
+  },
+  "runtime_file_readback": {
+    "path": ".work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa",
+    "sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1"
+  },
+  "files": [
+    {
+      "path": "patches/qemu-m5stack-peripherals/0046-unit-flashlight-route-lifecycle.patch",
+      "bytes": 4500,
+      "sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184"
+    },
+    {
+      "path": "platform/tests/test_unit_flashlight_route_patch.py",
+      "bytes": 21051,
+      "sha256": "03b08c852ce797794de48e0a6e97487c94759bf91351ac2be160108b7bfd8900"
+    },
+    {
+      "path": "scripts/bootstrap-unit-runtime.py",
+      "bytes": 12504,
+      "sha256": "0f0acdcda7aec86f0d2be9777ddd9125fddb629e21ea9f9c13b701bbaf2e2f7a"
+    },
+    {
+      "path": "platform/units/catalog.json",
+      "bytes": 178700,
+      "sha256": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb"
+    },
+    {
+      "path": "platform/units/runtime-profiles.json",
+      "bytes": 209397,
+      "sha256": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe"
+    },
+    {
+      "path": ".work/unit-runtime-source-route-history-final/qemu/hw/gpio/esp32_gpio.c",
+      "bytes": 13271,
+      "sha256": "b2e6601b77cc6956875162c87e5e9aa18bb51cfced73b19de7458b706b6ca7c4"
+    },
+    {
+      "path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_gpio.c",
+      "bytes": 34424,
+      "sha256": "dd84adabec28a4e2aff54e70713c185debf997d93e06a2b90b3bedd0f24c4adf"
+    },
+    {
+      "path": ".work/unit-runtime-source-route-history-final/qemu/hw/m5stopwatch/m5_unit_runtime.h",
+      "bytes": 1861,
+      "sha256": "e4f20582a8478710ffded08ee20195d474a1bc3e54ff14518b20ec8c8f339496"
+    }
+  ],
+  "narrow_test_argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_unit_flashlight_route_patch.py",
+    "-v"
+  ],
+  "narrow_test_exit": 0,
+  "narrow_test_stderr_sha256": "767b784f4a62ded59245c35ee64fd4d92e497b4c5fd121838e4a75cecb08b7f0",
+  "narrow_test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "API_contacted": false,
+  "guest_execution": "NOT RUN",
+  "QEMU_execution": "NOT RUN",
+  "Web_execution": "NOT RUN",
+  "remaining_external_gate": "Root must finish and review exact-runtime four-host eight-lane API and mounted Web evidence before closing only UNIT-HOST-38. Full matrix is not green: reported67 cases=66PASS+Core2IMU FAIL; independent per-device equivalence is not inherited."
+}

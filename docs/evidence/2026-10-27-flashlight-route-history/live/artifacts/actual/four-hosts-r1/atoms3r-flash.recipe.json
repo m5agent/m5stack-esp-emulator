@@ -1,0 +1,25 @@
+{
+  "device": "atoms3r",
+  "mode": "flash",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-route-live-preparation-20261027-r1/run_route.py",
+    "--execute",
+    "--device",
+    "atoms3r",
+    "--mode",
+    "flash",
+    "--expected-runtime-sha256",
+    "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "--expected-firmware-sha256",
+    "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+    "--expected-generation",
+    "47",
+    "--expected-service-pid",
+    "22168",
+    "--out-dir",
+    ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-flash"
+  ],
+  "started_at": "2026-10-26T23:45:25.965533+00:00"
+}

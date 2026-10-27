@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "scope": "post-build read-only tool/version observations, not an execution trace from build time",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "git version 2.54.0 (Apple Git-157)\n",
+      "stderr": "",
+      "executable_path": "/usr/bin/git",
+      "resolved_executable_path": "/usr/bin/git",
+      "executable_bytes": 118640,
+      "executable_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Python 3.12.8\n",
+      "stderr": "",
+      "executable_path": "/opt/miniconda3/bin/python3.12",
+      "resolved_executable_path": "/opt/miniconda3/bin/python3.12",
+      "executable_bytes": 6933840,
+      "executable_sha256": "607206129b8c94a0c981d66eb1a6ee4ad78e7aca8e1800d97c2ebf20b1f94fd8"
+    },
+    {
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "stderr": "",
+      "executable_path": "/usr/bin/clang",
+      "resolved_executable_path": "/usr/bin/clang",
+      "executable_bytes": 118640,
+      "executable_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/ninja",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "1.13.2.git.kitware.jobserver-pipe-1\n",
+      "stderr": "",
+      "executable_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/ninja",
+      "resolved_executable_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/ninja",
+      "executable_bytes": 647352,
+      "executable_sha256": "78db38d68dde4904f4a7a9cae2dfd0ef47f5f00e2ec88462b0f24d85ac610586"
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/meson",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "1.12.1\n",
+      "stderr": "",
+      "executable_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/meson",
+      "resolved_executable_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/meson",
+      "executable_bytes": 339,
+      "executable_sha256": "98d4a21726592cdf5066799954410b07cc57f2cd95989e49a4c6c2e47abed4e0"
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/python",
+        "-m",
+        "pip",
+        "list",
+        "--format=json"
+      ],
+      "exit_code": 0,
+      "stdout": "[{\"name\": \"meson\", \"version\": \"1.12.1\"}, {\"name\": \"ninja\", \"version\": \"1.13.2\"}, {\"name\": \"pip\", \"version\": \"24.3.1\"}, {\"name\": \"pycotap\", \"version\": \"1.3.1\"}]\n",
+      "stderr": "",
+      "executable_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-route-history-final/venv/bin/python",
+      "resolved_executable_path": "/opt/miniconda3/bin/python3.12",
+      "executable_bytes": 6933840,
+      "executable_sha256": "607206129b8c94a0c981d66eb1a6ee4ad78e7aca8e1800d97c2ebf20b1f94fd8"
+    }
+  ]
+}

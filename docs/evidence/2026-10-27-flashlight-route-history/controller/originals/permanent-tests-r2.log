@@ -1,0 +1,25 @@
+test_current_patch_routes_lifecycle_and_old_postimage_is_negative_control (test_unit_flashlight_route_patch.UnitFlashlightRoutePatchTests.test_current_patch_routes_lifecycle_and_old_postimage_is_negative_control) ... ok
+test_patch_scope_and_bootstrap_order (test_unit_flashlight_route_patch.UnitFlashlightRoutePatchTests.test_patch_scope_and_bootstrap_order) ... ERROR
+
+======================================================================
+ERROR: test_patch_scope_and_bootstrap_order (test_unit_flashlight_route_patch.UnitFlashlightRoutePatchTests.test_patch_scope_and_bootstrap_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_flashlight_route_patch.py", line 347, in test_patch_scope_and_bootstrap_order
+    if UNIT in parts(Path(name).name)]
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_flashlight_route_patch.py", line 32, in parts
+    for part in (PATCH_ROOT / name).read_text().split("diff --git ")[1:]}
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0001-reconstructed-xtensa-source.patch'
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.041s
+
+FAILED (errors=1)

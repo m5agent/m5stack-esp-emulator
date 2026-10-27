@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "classification": "after-failure diagnostic reconstruction from authoritative tool result, not independently saved original stderr",
+  "status": "FAIL",
+  "cause": "Archive consistency script incorrectly required initial composition SHA to equal the same writable Flash file after guest execution.",
+  "script_sha256": "d95bf9d92c95abbec92d0dba286c1bb11c38798db09a8b251a9fe5776b9d7401",
+  "terminal_exit_code": 1,
+  "exception": "AssertionError at launch-composition/postrun-flash equality assertion",
+  "source_observation": "run_profile_ui_test.py prints image SHA before guest launch and uses writable -drive file={image},if=mtd,format=raw",
+  "correction": "Keep initial composition SHA and post-run mutable Flash SHA as separate observations; retain all six observed differences, do not relabel matrix results."
+}

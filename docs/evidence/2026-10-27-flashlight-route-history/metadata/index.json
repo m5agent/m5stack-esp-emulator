@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "category": "POST_EXECUTION_METADATA_ONLY_IDLE_RELOAD_NOT_NEW_GUEST",
+  "status": "PASS",
+  "records": [
+    {
+      "source_path": ".work/unit-host38-owned-start-gen48-metadata-20261027/start.json",
+      "archive_path": "start-gen48.json",
+      "classification": "original-bytes",
+      "bytes": 145000,
+      "sha256": "76ece33146280e99a5ce06196567a19f1732e5339b853033684f65e76906e26d"
+    },
+    {
+      "source_path": ".work/unit-host38-metadata-readback-gen48-20261027-r1/health.response",
+      "archive_path": "health.response",
+      "classification": "original-bytes",
+      "bytes": 902,
+      "sha256": "85152bde7de2e30e3331bb32f5c5f307203d07f47ebd4ea5424670241f430c23"
+    },
+    {
+      "source_path": ".work/unit-host38-metadata-readback-gen48-20261027-r1/receipt.json",
+      "archive_path": "receipt.json",
+      "classification": "original-bytes",
+      "bytes": 1701,
+      "sha256": "f25967293e3b042292c6a1c17ab733e1833c9ef9f5539f671340e3794b6a9391"
+    }
+  ],
+  "units_response": {
+    "classification": "fingerprint-only; validated FlashLight runtime projection in receipt",
+    "source_path": ".work/unit-host38-metadata-readback-gen48-20261027-r1/units.response",
+    "bytes": 302158,
+    "sha256": "071a41caf18f4e80e8b20fa56cdc731567390a126eb11c6da0ccfc101bcafeeb"
+  },
+  "new_guests": 0
+}

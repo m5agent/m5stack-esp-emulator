@@ -1,6 +1,6 @@
 # Reproducible Xtensa source prelude for external Units
 
-Date: `2026-10-26`.
+Date: `2026-10-27`.
 
 The Unit patches are built from public source, rather than by modifying the
 published executable. This directory supplies the missing source prelude; the
@@ -9,7 +9,7 @@ followed by the narrow classic-I2C compatibility fix in `0036` and the scoped
 S3 LEDC duty-register readback fix in `0037` and the GPIO-route observation
 candidate in `0038`, then the independent bounded Scroll controller in `0043`
 and dual GPIO 2Relay in `0044`, then the partial AW3641E GPIO-edge/timer
-FlashLight model in `0045`.
+FlashLight model in `0045`, then scoped route-lifecycle invalidation in `0046`.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -28,7 +28,8 @@ No firmware, ROM, executable or credential is added by these patches.
    `0038-unit-pwm-route-refresh.patch`, then
    `0043-unit-scroll-controller.patch`, then
    `0044-unit-2relay-gpio.patch`, then
-   `0045-unit-flashlight-aw3641.patch`.
+   `0045-unit-flashlight-aw3641.patch`, then
+   `0046-unit-flashlight-route-lifecycle.patch`.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
@@ -114,6 +115,16 @@ code after timeout, and exposes a bounded chronological edge trace. Torch
 supports static EN only. Reset observation, dynamic S1, PWM modulation,
 bit-exact timing, current, optical, thermal and electrical equivalence remain
 outside this source implementation; source checks do not establish guest PASS.
+
+`0046` observes actual GPIO matrix OUT_SEL lifecycle changes for the same SoC
+layout and EN pin. Leaving or restoring a route withdraws old FlashLight
+qualification, all pending reset/settle/timeout timers and low-interval origins.
+Unsupported pad callbacks cannot establish a reset baseline. Route writes do
+not add pad edges or decoded programs; recovery requires a new observed GPIO
+falling edge and a complete long-low reset. New-runtime Device Service checks
+establish only the scoped route-history admission below; the independent full
+matrix retains its Core2 IMU failure (UNIT-HOST-21), not an all-green release.
+Cold-route/no-edge recovery, dynamic S1, PWM and physical behavior remain OPEN.
 
 ## Why a prelude is necessary
 
@@ -244,8 +255,13 @@ records implementation scope, not the per-Unit functional acceptance result.
   the same result. Current acceptance belongs in the status/backlog/ledger.
 
 
-The FlashLight admission covers continuous qualified GPIO. Route mismatch
-suppresses the current known output, but route history is not latched: restoring
-GPIO can expose an old qualification without a new EN reset. This host C
-reproduction remains `UNIT-HOST-38`; unsupported-route/PWM transitions are not
-admitted by the continuous GPIO guest or Web evidence.
+The historical `0045`-only FlashLight admission covers continuous qualified
+GPIO. Its route mismatch only suppresses the getter and can expose an old
+qualification after restoration. That original host C reproduction is retained
+as `UNIT-HOST-38`; `0046` targets it with an internal lifecycle invalidation.
+New source checks alone do not grant guest/Web/hardware PASS. Runtime `3f1617`
+has since passed four-host/eight-lane actual same-VM API and CoreS3 mounted Web
+route-history checks. The independent full matrix is 66 PASS / 1 Core2 IMU FAIL;
+UNIT-HOST-38 closes only for the documented OUT_SEL path. Cold-route/no-edge,
+hard-reset, full OEN/IOMUX, dynamic S1, PWM and hardware equivalence remain
+separate. See the [scoped evidence](../../docs/evidence/2026-10-27-flashlight-route-history/README.md).

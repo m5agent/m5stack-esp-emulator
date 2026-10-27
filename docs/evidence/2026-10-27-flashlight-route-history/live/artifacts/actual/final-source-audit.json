@@ -1,0 +1,177 @@
+{
+  "category": "READ_ONLY_AFTER_EXECUTION_SOURCE_AUDIT",
+  "rows": [
+    {
+      "run": "four-hosts-r1/atoms3r-flash",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/atoms3r-torch",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/cores3-flash",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/cores3-torch",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/sticks3-flash",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/sticks3-torch",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/stopwatch-flash",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "four-hosts-r1/stopwatch-torch",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "narrow-cores3-flash-r1",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "narrow-cores3-torch-r1",
+      "original_status": "FAIL",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": false
+    },
+    {
+      "run": "narrow-cores3-torch-r2",
+      "original_status": "FAIL",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": false
+    },
+    {
+      "run": "narrow-cores3-torch-r3",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    },
+    {
+      "run": "web-owner-r1",
+      "original_status": "PASS",
+      "executed_source_matches_before_receipt": true,
+      "dependency_current_matches": {
+        "tests/units/run_binary_checkpoint_admission.py": true,
+        "platform/tools/device_service.py": true,
+        "platform/tools/unit_runtime.py": true,
+        "platform/units/catalog.json": true,
+        "platform/units/runtime-profiles.json": true
+      },
+      "current_runner_same": true
+    }
+  ],
+  "observer_before_after_equal": true,
+  "guest_and_runtime_experiments_after_web": 0,
+  "hardware": "NOT RUN"
+}

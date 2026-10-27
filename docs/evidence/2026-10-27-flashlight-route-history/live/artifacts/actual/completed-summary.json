@@ -1,0 +1,135 @@
+{
+  "web_status": "PASS",
+  "web_phases": 13,
+  "web_owner_executions": 14,
+  "web_capture": {
+    "rows": 1062,
+    "bytes": 4473851,
+    "pending": 0,
+    "errors": 0,
+    "partial": 7,
+    "sealed": true,
+    "limits": {
+      "each_bytes": 2097152,
+      "aggregate_browser_bytes": 33554432,
+      "browser_rows": 3000,
+      "body_timeout_ms": 5000
+    }
+  },
+  "browser_response_status_counts": {
+    "200": 386,
+    "304": 676
+  },
+  "body_absent_304": 676,
+  "empty_200": 7,
+  "observed_sessions": 13,
+  "original_cleanup_pass": 12,
+  "original_cleanup_unconfirmed": 1,
+  "r1_separate_resource_finalization": "CONFIRMED (original FAIL unchanged)",
+  "rows": [
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-flash/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-torch/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-flash/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-torch/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-flash/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-torch/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-flash/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-torch/report.json",
+      "status": "PASS",
+      "runs": 21,
+      "observations": 21,
+      "zip_members": 117,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-flash-r1/report.json",
+      "status": "PASS",
+      "runs": 5,
+      "observations": 5,
+      "zip_members": 37,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-torch-r1/report.json",
+      "status": "FAIL",
+      "runs": 1,
+      "observations": 0,
+      "zip_members": 17,
+      "cleanup": "UNCONFIRMED"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-torch-r2/report.json",
+      "status": "FAIL",
+      "runs": 2,
+      "observations": 2,
+      "zip_members": 22,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-torch-r3/report.json",
+      "status": "PASS",
+      "runs": 5,
+      "observations": 5,
+      "zip_members": 37,
+      "cleanup": "PASS"
+    },
+    {
+      "path": ".work/flashlight-route-live-gen47-20261027/web-owner-r1/report.json",
+      "status": "PASS",
+      "runs": 14,
+      "observations": 14,
+      "zip_members": 78,
+      "cleanup": "PASS"
+    }
+  ]
+}

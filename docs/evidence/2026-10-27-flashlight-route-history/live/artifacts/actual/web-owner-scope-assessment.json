@@ -1,0 +1,20 @@
+{
+  "category": "ORIGINAL_WEB_OWNER_SCOPE_CLARIFICATION",
+  "original_report_unchanged": true,
+  "original_report_sha256": "fd56bfd0e3257a6a56553b149937f47713cbc7c7c83dc69ce069fc78a4a65e1d",
+  "actual_flag": "--web-only",
+  "executed_runs": 14,
+  "executed_observations": 14,
+  "executed_phase_counts": {
+    "bootstrap": 1,
+    "recover-driver": 4,
+    "recover-reset": 3,
+    "web-away": 3,
+    "web-return": 3
+  },
+  "selected_cases_field": "Prepared API case inventory only. The --web-only loop skips every atomic case; this field does not claim those cases executed in this Web guest.",
+  "actual_mounted_stages": 13,
+  "visual_inspection": {
+    "initial_and_return_unknown_webgl": "Host and unit fully visible; screen high marker remains white in both, lamp emissive appearance is withdrawn on return-unknown. Qualitative display/model observation only."
+  }
+}

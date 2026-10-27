@@ -1,0 +1,65 @@
+{
+  "recorded_at_utc": "2026-10-27T00:09:19.487795+00:00",
+  "category": "read-only-machine-metadata-scope-review",
+  "result": "PASS",
+  "metadata_path": "platform/units/runtime-profiles.json",
+  "old_HEAD_file_sha256": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe",
+  "new_file_sha256": "1583ab14fb57d9fe872951e16847017475180b7c4bd52e42440cdb02cb587251",
+  "changed_semantic_paths_only": [
+    "units.flashlight.blocker",
+    "units.flashlight.model_policies.route_history",
+    "units.flashlight.route_history_validation"
+  ],
+  "all_other_JSON_semantics_identical": true,
+  "historical_record_bytes": {
+    "guest_validation": {
+      "literal_json_bytes_identical": true,
+      "bytes": 618,
+      "sha256": "4be851702038dbc1ad08e5c49f982df46e0bc0a7f7d1552c773b94c1f2813374"
+    },
+    "program_validation": {
+      "literal_json_bytes_identical": true,
+      "bytes": 10064,
+      "sha256": "730667887a903294ff2e3ecb1f54e4f61b9c14234ccce390b76381344fe81eb6"
+    }
+  },
+  "current_admission_unchanged": {
+    "hosts": true,
+    "status": true,
+    "model_completeness_partial": true,
+    "inputs": true,
+    "state": true
+  },
+  "new_validation": {
+    "status": "PASS",
+    "scope": "OUT_SEL route-history invalidation and fresh-reset recovery only",
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "patch_sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+    "service_generation": 47,
+    "devices": [
+      "cores3",
+      "atoms3r",
+      "sticks3",
+      "stopwatch"
+    ],
+    "api_lanes": 8,
+    "api_executions": 168,
+    "web_device": "cores3",
+    "web_phases": 13,
+    "evidence": "docs/evidence/2026-10-27-flashlight-route-history/README.md",
+    "metadata_capture": "after gen47 execution; earlier guest_validation and program_validation remain historical",
+    "hardware": "NOT RUN"
+  },
+  "validation_matches_live_index_summary_and_lane_declarations": true,
+  "live_index_sha256_at_review": "7c28735eb31cc32fd102ac7676b9eb9238617c40dbdf0c71c14f82a55a948023",
+  "patch_sha256_checked": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+  "firmware_inheritance_boundary": "Old guest/program_validation records remain literal bytes, including their 7c898 runtime and firmware/program identities. New route-history aggregate must be read only for its separately linked actual gen47 lanes; it does not imply arbitrary firmware or hardware PASS.",
+  "new_generation48_reload": "PLANNED; NOT VERIFIED BY THIS REVIEW",
+  "root_platform_tests_session": "91085 reported running by root; not polled or assumed complete here",
+  "root_verifier_executed": false,
+  "API_contacted": false,
+  "new_guest_runs": 0,
+  "new_test_runs": 0,
+  "product_modified": false,
+  "authority_modified": false
+}

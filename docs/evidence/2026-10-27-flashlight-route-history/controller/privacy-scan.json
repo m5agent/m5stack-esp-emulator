@@ -1,0 +1,1176 @@
+{
+  "result": "PASS",
+  "scope": "all archived text before index/scan receipt generation",
+  "files_scanned": 89,
+  "current_control_token_compared_in_memory": true,
+  "token_value_and_digest_written": false,
+  "checks": [
+    "UTF8",
+    "NUL",
+    "MAC literal",
+    "private key",
+    "long bearer literal",
+    "quoted credential literal",
+    "current control token and digest",
+    "firmware/ROM/MPY/ZIP extensions"
+  ],
+  "files": [
+    {
+      "path": "README.md.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/README.md.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/artifact-index.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/audit-summary.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-aw3641-model.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-gpio-controller.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-gpio-route-query.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-unit-initial-complete.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-unit-registry.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/actual-unit-route-notification.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/compiler.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/harness.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/harness.dSYM/Contents/Info.plist",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/harness.dSYM/Contents/Resources/Relocations/aarch64/harness.yml",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/receipt.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r1/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-aw3641-model.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-gpio-controller.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-gpio-route-query.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-unit-initial-complete.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-unit-registry.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/actual-unit-route-notification.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/compiler.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/harness.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/harness.dSYM/Contents/Info.plist",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/harness.dSYM/Contents/Resources/Relocations/aarch64/harness.yml",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/receipt.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/candidate-r2/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/cases.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/actual-aw3641-model.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/actual-gpio-controller.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/actual-gpio-route-query.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/actual-unit-initial-complete.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/actual-unit-registry.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/compiler.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/harness.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r1/receipt.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/actual-aw3641-model.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/actual-gpio-controller.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/actual-gpio-route-query.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/actual-unit-initial-complete.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/actual-unit-registry.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/compiler.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/harness.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/harness.dSYM/Contents/Info.plist",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/harness.dSYM/Contents/Resources/Relocations/aarch64/harness.yml",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/receipt.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r2/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/actual-aw3641-model.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/actual-gpio-controller.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/actual-gpio-route-query.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/actual-unit-initial-complete.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/actual-unit-registry.source.c.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/compiler.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/harness.c",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/harness.dSYM/Contents/Info.plist",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/harness.dSYM/Contents/Resources/Relocations/aarch64/harness.yml",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/receipt.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/old-r3/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/permanent-test.source.py.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/permanent-tests-r1.log",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/permanent-tests-r2.log",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/permanent-tests-r3.log",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/candidate-r2/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/candidate-r2/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/candidate-r2/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/candidate-r2/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/old-r3/compile.stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/old-r3/compile.stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/old-r3/stderr.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/old-r3/stdout.txt",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/portable-rebuild-r1/verification.json",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/run.py",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "originals/verify.py",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    },
+    {
+      "path": "verify.py",
+      "checks": {
+        "utf8": true,
+        "no_nul": true,
+        "no_mac": true,
+        "no_private_key": true,
+        "no_bearer_literal": true,
+        "no_credential_literal": true,
+        "no_current_control_token_or_digest": true,
+        "no_forbidden_binary_extension": true
+      }
+    }
+  ]
+}

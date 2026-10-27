@@ -1,0 +1,25 @@
+.work/unit-host38-independent-audit-20261027/old-r1/harness.c:114:29: error: call to undeclared function 'esp32_gpio_get_line'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  114 |                 pin, level, esp32_gpio_get_line(pin));
+      |                             ^
+.work/unit-host38-independent-audit-20261027/old-r1/harness.c:114:29: note: did you mean 'esp32_gpio_set_input'?
+.work/unit-host38-independent-audit-20261027/old-r1/harness.c:99:6: note: 'esp32_gpio_set_input' declared here
+   99 | void esp32_gpio_set_input(int pin, int level)
+      |      ^
+  100 | {
+  101 |     if (pin < 0 || pin >= GPIO_NPINS) {
+  102 |         return;
+  103 |     }
+  104 |     uint64_t before = gpio_line64();
+  105 |     if (level) {
+  106 |         g_ext_in |= 1ULL << pin;
+  107 |     } else {
+  108 |         g_ext_in &= ~(1ULL << pin);
+  109 |     }
+  110 |     gpio_transition_irq(before, gpio_line64());
+  111 |     if (getenv("M5SW_GPIO_TRACE") &&
+  112 |         (pin == 11 || pin == 12 || pin == gpio_trace_pin())) {
+  113 |         fprintf(stderr, "[gpio] ext input pin=%d level=%d line=%d\n",
+  114 |                 pin, level, esp32_gpio_get_line(pin));
+      |                             ~~~~~~~~~~~~~~~~~~~
+      |                             esp32_gpio_set_input
+1 error generated.

@@ -16,7 +16,8 @@ base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0036-core2-soft-i2c-handoff-compat.patch`, then
 `0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
 then `0043-unit-scroll-controller.patch`, `0044-unit-2relay-gpio.patch`, and
-`0045-unit-flashlight-aw3641.patch`. The intervening `0039`–`0042` files
+`0045-unit-flashlight-aw3641.patch`, then
+`0046-unit-flashlight-route-lifecycle.patch`. The intervening `0039`–`0042` files
 belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
 `0045` adds a partial U152 AW3641E observer on yellow EN GPIO pad edges and
 QEMU virtual time. Its S1 Flash/Torch fixture freezes after all creation inputs
@@ -25,6 +26,16 @@ the documented recommended HI/LO window; out-of-scope waveforms withdraw known
 output. The 500 us stable-high decode and first-rise timeout origin are explicit
 model policies. Torch models static EN only. It does not validate dynamic S1,
 reset observation, PWM modulation, bit-exact timing, current, light or heat.
+`0046` adds same-layout/same-pin GPIO OUT_SEL lifecycle invalidation to the
+partial FlashLight model: route changes cancel all qualification timers and
+old low intervals, and restoration requires a newly observed EN falling edge
+plus long-low reset. Route changes do not fabricate pad edges or PWM waveforms.
+New runtime `3f1617` passed the scoped four-host/eight-lane same-VM API and
+CoreS3 mounted Web route-history checks; see the
+[evidence](../../docs/evidence/2026-10-27-flashlight-route-history/README.md).
+The independent full matrix remains 66 PASS / 1 Core2 IMU FAIL. Cold-route/no-edge
+behavior, dynamic S1, PWM, full OEN/IOMUX, hard-reset observation and physical
+equivalence stay OPEN.
 `0044` adds U131's two independent GPIO pad observers and schematic R3/R6
 digital pull-downs. White is channel 1, yellow channel 2; each transition
 counter is independent. Outputs are read-only. This is nominal-powered

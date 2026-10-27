@@ -2769,15 +2769,15 @@ def main() -> None:
             validation_ok = validation_ok and validation.returncode == 0
         rmt_ws2812 = case.get("rmt_ws2812")
         if rmt_ws2812 and process.returncode == 0:
-            command = [
+            validation_command = [
                 sys.executable,
                 str(ROOT / "tests/uiflow2/check_rmt_ws2812.py"),
                 str(rmt_ws2812["capture"]).format(out_dir=case_out),
             ]
             for led in rmt_ws2812["leds"]:
-                command.extend(["--led", led])
+                validation_command.extend(["--led", led])
             validation = subprocess.run(
-                command,
+                validation_command,
                 cwd=ROOT,
                 env=case_env,
                 text=True,

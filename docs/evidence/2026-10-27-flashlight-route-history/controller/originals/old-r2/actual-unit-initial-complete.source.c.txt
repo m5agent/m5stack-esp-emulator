@@ -1,0 +1,9 @@
+void m5_unit_gpio_initial_complete(M5Unit *unit)
+{
+    for (GPIOUnit *g = gpio_units; g; g = g->next) {
+        if (g->unit == unit && g->flashlight) {
+            g->flashlight->mode_frozen = true;
+            return;
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "scope": "fresh 0045 stack before 0046 edits; source-only, no guest or hardware execution",
+  "candidate_source": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-route-lifecycle-20261027/qemu",
+  "reference_source": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu",
+  "source_receipt_sha256": "2cac76dcb02f65374ed2b77c46f6b1eac774eba65b8470e5905ef2a979ca1682",
+  "files": [
+    {
+      "path": "hw/gpio/esp32_gpio.c",
+      "baseline_sha256": "a76a241d6a2a66fe55583ec79cd55562ef0efba57230f9897e3bfe42bf63925a",
+      "same_as_7c898_source": true
+    },
+    {
+      "path": "hw/m5stopwatch/m5_unit_gpio.c",
+      "baseline_sha256": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+      "same_as_7c898_source": true
+    },
+    {
+      "path": "hw/m5stopwatch/m5_unit_runtime.h",
+      "baseline_sha256": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926",
+      "same_as_7c898_source": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+diff --git a/platform/units/runtime-profiles.json b/platform/units/runtime-profiles.json
+index 485ab164..05529faa 100644
+--- a/platform/units/runtime-profiles.json
++++ b/platform/units/runtime-profiles.json
+@@ -3900,7 +3900,7 @@
+         "sticks3",
+         "stopwatch"
+       ],
+-      "blocker": "Only the exact recorded nominal digital subsets are admitted; full 16-code guest/PWM/dynamic-S1/physical equivalence remain open. Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests. Route-history qualification is not latched: restoring a previously unsupported route can re-expose old known state without a fresh EN reset (UNIT-HOST-38); such transitions are outside admission.",
++      "blocker": "Only the exact recorded nominal digital subsets are admitted; full 16-code guest/PWM/dynamic-S1/physical equivalence remain open. Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests. Historical 0045-only runtime 7c898 had unlatched route history (UNIT-HOST-38). The separate route_history_validation records scoped 0046/3f1617 API and Web acceptance; it does not upgrade the earlier guest/program_validation records. Cold-route/no-edge recovery, full OEN/IOMUX and hard-reset observation remain open.",
+       "inputs": {
+         "flash-mode": {
+           "property": "flash-mode",
+@@ -4031,7 +4031,22 @@
+         "torch": "steady EN high, no Flash deadline; EN PWM unqualified",
+         "mode_selection": "creation-only synthetic fixture; default Flash; frozen after all initial values",
+         "cold_start": "A route-only transition without a pad edge can remain unknown; selected tests explicitly drive EN high-to-low then low >500us. No constructor-only known-off claim.",
+-        "route_history": "Current route/pad mismatch suppresses output. An observed unsupported-route interval is not latched; return to GPIO can restore prior qualification without reset. Continuous qualified GPIO only; UNIT-HOST-38 remains open."
++        "route_history": "Historical 0045-only/7c898 getter suppression did not latch route loss. In scoped 0046/3f1617 acceptance, actual OUT_SEL changes withdraw internal qualification, all three timers and prior low intervals; returning to GPIO does not restore old output. Recovery currently requires a fresh observed supported GPIO falling edge and complete long-low reset, then a new program. Route events do not add pad edges/decoded counts. This conservative recovery policy does not claim the chip requires an extra falling edge. UNIT-HOST-38 is fixed for the recorded OUT_SEL path; UNIT-HOST-37/36 and full OEN/IOMUX/PWM remain open."
++      },
++      "route_history_validation": {
++        "status": "PASS",
++        "scope": "OUT_SEL route-history invalidation and fresh-reset recovery only",
++        "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
++        "patch_sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
++        "service_generation": 47,
++        "devices": ["cores3", "atoms3r", "sticks3", "stopwatch"],
++        "api_lanes": 8,
++        "api_executions": 168,
++        "web_device": "cores3",
++        "web_phases": 13,
++        "evidence": "docs/evidence/2026-10-27-flashlight-route-history/README.md",
++        "metadata_capture": "after gen47 execution; earlier guest_validation and program_validation remain historical",
++        "hardware": "NOT RUN"
+       },
+       "program_validation": {
+         "cores3": {

@@ -1,0 +1,687 @@
+{
+  "phase": "recover-reset",
+  "route_name": "ledc73",
+  "pattern": "unsupported-low-rise",
+  "before_properties": {
+    "flash-mode": false,
+    "mode-frozen": true,
+    "en-level": true,
+    "pad-synchronized": true,
+    "gpio-route-supported": true,
+    "output-known": false,
+    "active": false,
+    "waveform-qualified": false,
+    "pulse-count-capped": false,
+    "bit-exact-supported": false,
+    "live-mode-change-supported": false,
+    "reset-observation-supported": false,
+    "pulse-count": 1,
+    "last-program-count": 0,
+    "flash-level-pct": 0,
+    "timeout-ms": 0,
+    "edge-count": 25,
+    "rising-edges": 13,
+    "decoded-programs": 9,
+    "unqualified-programs": 7,
+    "reset-events": 10,
+    "timeout-events": 0,
+    "trace-overflows": 0,
+    "last-edge-ns": 77405684000,
+    "first-rise-ns": -1,
+    "settle-at-ns": -1,
+    "timeout-at-ns": -1,
+    "program-state": "unqualified",
+    "unknown-reason": "awaiting-long-low-after-route-change",
+    "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+    "edge-trace-ns": [
+      [
+        6143230000,
+        1
+      ],
+      [
+        6143262000,
+        0
+      ],
+      [
+        9601682000,
+        1
+      ],
+      [
+        9601695000,
+        0
+      ],
+      [
+        9602455000,
+        1
+      ],
+      [
+        16387408000,
+        0
+      ],
+      [
+        19786076000,
+        1
+      ],
+      [
+        23836499000,
+        0
+      ],
+      [
+        23837167000,
+        1
+      ],
+      [
+        31519827000,
+        0
+      ],
+      [
+        35431797000,
+        1
+      ],
+      [
+        39941619000,
+        0
+      ],
+      [
+        39942285000,
+        1
+      ],
+      [
+        48379949000,
+        0
+      ],
+      [
+        52628204000,
+        1
+      ],
+      [
+        57584779000,
+        0
+      ],
+      [
+        57585437000,
+        1
+      ],
+      [
+        57605516000,
+        0
+      ],
+      [
+        66940655000,
+        1
+      ],
+      [
+        66940665000,
+        0
+      ],
+      [
+        71840314000,
+        1
+      ],
+      [
+        77384117000,
+        0
+      ],
+      [
+        77384792000,
+        1
+      ],
+      [
+        77404858000,
+        0
+      ],
+      [
+        77405684000,
+        1
+      ]
+    ],
+    "input-events": 1,
+    "output-transitions": 18
+  },
+  "execution": {
+    "execution_id": "f9fee57ac58946b5ba8a310cc14791d9",
+    "revision_id": "b479c1caeb757fa6d7d67d645934dc8406d207d92171a1bcea09e5f5f34ba484",
+    "source_sha256": "ed9d05fbd8c4f07122186ffef1f65eb26dc0ded81368503081ca303768be7014",
+    "source_bytes": 1314,
+    "state": "completed",
+    "submitted_at": "2026-10-26T23:42:14.685595+00:00",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "pid": 26471,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 34694,
+    "source_kind": "uiflow2-package",
+    "entrypoint": "main.py",
+    "total_file_bytes": 4953,
+    "file_count": 2,
+    "deployment": {
+      "phase": "activated",
+      "staging_path": "/flash/.m5-live-packages/.stage-36e3621e31714153b256a7cb8410e7cb",
+      "package_path": "/flash/.m5-live-packages/b479c1caeb757fa6d7d67d645934dc8406d207d92171a1bcea09e5f5f34ba484",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-36e3621e31714153b256a7cb8410e7cb",
+          "package_path": "/flash/.m5-live-packages/b479c1caeb757fa6d7d67d645934dc8406d207d92171a1bcea09e5f5f34ba484",
+          "observed_at": "2026-10-26T23:42:14.788397+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": false,
+            "directory_count": 19,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 4333568
+          },
+          "observed_at": "2026-10-26T23:42:15.410981+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "main.py",
+          "written_bytes": 1314,
+          "observed_at": "2026-10-26T23:42:16.039756+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "official_flash.py",
+          "written_bytes": 4953,
+          "observed_at": "2026-10-26T23:42:17.108906+00:00"
+        },
+        {
+          "phase": "verified",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1314,
+              "sha256": "1f5ffef2fa41dfa7f5419a8c5d4e3410307a7ec8d123aa7a993091c222d75251"
+            }
+          },
+          "observed_at": "2026-10-26T23:42:17.227898+00:00"
+        },
+        {
+          "phase": "published",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1314,
+              "sha256": "1f5ffef2fa41dfa7f5419a8c5d4e3410307a7ec8d123aa7a993091c222d75251"
+            }
+          },
+          "reused": false,
+          "observed_at": "2026-10-26T23:42:17.335799+00:00"
+        },
+        {
+          "phase": "activated",
+          "package_path": "/flash/.m5-live-packages/b479c1caeb757fa6d7d67d645934dc8406d207d92171a1bcea09e5f5f34ba484",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1314,
+              "sha256": "1f5ffef2fa41dfa7f5419a8c5d4e3410307a7ec8d123aa7a993091c222d75251"
+            }
+          },
+          "reused": false,
+          "capabilities": {
+            "existing": false,
+            "directory_count": 19,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 4333568
+          },
+          "removed_modules": [
+            "official_flash"
+          ],
+          "staging_path": "/flash/.m5-live-packages/.stage-36e3621e31714153b256a7cb8410e7cb",
+          "observed_at": "2026-10-26T23:42:17.629250+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": false,
+        "directory_count": 19,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 4333568
+      },
+      "path": "official_flash.py",
+      "written_bytes": 4953,
+      "inventory": {
+        "official_flash.py": {
+          "size": 3639,
+          "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+        },
+        "main.py": {
+          "size": 1314,
+          "sha256": "1f5ffef2fa41dfa7f5419a8c5d4e3410307a7ec8d123aa7a993091c222d75251"
+        }
+      },
+      "reused": false,
+      "removed_modules": [
+        "official_flash"
+      ]
+    },
+    "next_offset": 34753,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T23:42:18.271364+00:00"
+  },
+  "guest": {
+    "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+    "route_raw": 256,
+    "events": [],
+    "route_effective": 256,
+    "phase": "recover-reset",
+    "route_name": "ledc73",
+    "pattern": "unsupported-low-rise",
+    "en": 0,
+    "nonce": "3462d2eff6064b15acde56fc4ff604a9"
+  },
+  "unit": {
+    "id": "lamp",
+    "unit_id": "flashlight",
+    "port_id": "port-a",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "visual_port": "grove",
+    "initial": {
+      "flash-mode": false
+    },
+    "source": "guest-qom",
+    "available": true,
+    "properties": {
+      "flash-mode": false,
+      "mode-frozen": true,
+      "en-level": false,
+      "pad-synchronized": true,
+      "gpio-route-supported": true,
+      "output-known": true,
+      "active": false,
+      "waveform-qualified": true,
+      "pulse-count-capped": false,
+      "bit-exact-supported": false,
+      "live-mode-change-supported": false,
+      "reset-observation-supported": false,
+      "pulse-count": 0,
+      "last-program-count": 0,
+      "flash-level-pct": 0,
+      "timeout-ms": 0,
+      "edge-count": 26,
+      "rising-edges": 13,
+      "decoded-programs": 9,
+      "unqualified-programs": 7,
+      "reset-events": 11,
+      "timeout-events": 0,
+      "trace-overflows": 0,
+      "last-edge-ns": 86197350000,
+      "first-rise-ns": -1,
+      "settle-at-ns": -1,
+      "timeout-at-ns": -1,
+      "program-state": "ready-low",
+      "unknown-reason": "none",
+      "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+      "edge-trace-ns": [
+        [
+          6143230000,
+          1
+        ],
+        [
+          6143262000,
+          0
+        ],
+        [
+          9601682000,
+          1
+        ],
+        [
+          9601695000,
+          0
+        ],
+        [
+          9602455000,
+          1
+        ],
+        [
+          16387408000,
+          0
+        ],
+        [
+          19786076000,
+          1
+        ],
+        [
+          23836499000,
+          0
+        ],
+        [
+          23837167000,
+          1
+        ],
+        [
+          31519827000,
+          0
+        ],
+        [
+          35431797000,
+          1
+        ],
+        [
+          39941619000,
+          0
+        ],
+        [
+          39942285000,
+          1
+        ],
+        [
+          48379949000,
+          0
+        ],
+        [
+          52628204000,
+          1
+        ],
+        [
+          57584779000,
+          0
+        ],
+        [
+          57585437000,
+          1
+        ],
+        [
+          57605516000,
+          0
+        ],
+        [
+          66940655000,
+          1
+        ],
+        [
+          66940665000,
+          0
+        ],
+        [
+          71840314000,
+          1
+        ],
+        [
+          77384117000,
+          0
+        ],
+        [
+          77384792000,
+          1
+        ],
+        [
+          77404858000,
+          0
+        ],
+        [
+          77405684000,
+          1
+        ],
+        [
+          86197350000,
+          0
+        ]
+      ],
+      "input-events": 1,
+      "output-transitions": 18
+    },
+    "errors": {}
+  },
+  "raw_qom": {
+    "output-known": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "output-known",
+      "value": true
+    },
+    "active": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "active",
+      "value": false
+    },
+    "waveform-qualified": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "waveform-qualified",
+      "value": true
+    },
+    "program-state": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "program-state",
+      "value": "ready-low"
+    },
+    "unknown-reason": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "unknown-reason",
+      "value": "none"
+    },
+    "pad-synchronized": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "pad-synchronized",
+      "value": true
+    },
+    "gpio-route-supported": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "gpio-route-supported",
+      "value": true
+    },
+    "en-level": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "en-level",
+      "value": false
+    },
+    "flash-mode": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "flash-mode",
+      "value": false
+    },
+    "mode-frozen": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "mode-frozen",
+      "value": true
+    },
+    "edge-count": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "edge-count",
+      "value": 26
+    },
+    "rising-edges": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "rising-edges",
+      "value": 13
+    },
+    "decoded-programs": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "decoded-programs",
+      "value": 9
+    },
+    "reset-events": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "reset-events",
+      "value": 11
+    },
+    "timeout-events": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "timeout-events",
+      "value": 0
+    },
+    "unqualified-programs": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "unqualified-programs",
+      "value": 7
+    },
+    "settle-at-ns": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "settle-at-ns",
+      "value": -1
+    },
+    "timeout-at-ns": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "timeout-at-ns",
+      "value": -1
+    },
+    "edge-trace-ns": {
+      "session_id": "cfff6942dce44dfcb5512732aacbb645",
+      "path": "/machine/units/lamp",
+      "property": "edge-trace-ns",
+      "value": [
+        [
+          6143230000,
+          1
+        ],
+        [
+          6143262000,
+          0
+        ],
+        [
+          9601682000,
+          1
+        ],
+        [
+          9601695000,
+          0
+        ],
+        [
+          9602455000,
+          1
+        ],
+        [
+          16387408000,
+          0
+        ],
+        [
+          19786076000,
+          1
+        ],
+        [
+          23836499000,
+          0
+        ],
+        [
+          23837167000,
+          1
+        ],
+        [
+          31519827000,
+          0
+        ],
+        [
+          35431797000,
+          1
+        ],
+        [
+          39941619000,
+          0
+        ],
+        [
+          39942285000,
+          1
+        ],
+        [
+          48379949000,
+          0
+        ],
+        [
+          52628204000,
+          1
+        ],
+        [
+          57584779000,
+          0
+        ],
+        [
+          57585437000,
+          1
+        ],
+        [
+          57605516000,
+          0
+        ],
+        [
+          66940655000,
+          1
+        ],
+        [
+          66940665000,
+          0
+        ],
+        [
+          71840314000,
+          1
+        ],
+        [
+          77384117000,
+          0
+        ],
+        [
+          77384792000,
+          1
+        ],
+        [
+          77404858000,
+          0
+        ],
+        [
+          77405684000,
+          1
+        ],
+        [
+          86197350000,
+          0
+        ]
+      ]
+    }
+  },
+  "frame_headers": {
+    "content-type": "image/png",
+    "content-length": "302",
+    "x-request-id": "7ae43945eaed4f3e9f3d150331983ab8",
+    "x-frame-width": "320",
+    "x-frame-height": "240",
+    "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+    "x-frame-capture-seq": "20",
+    "x-frame-source": "live",
+    "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+    "x-frame-captured-at": "2026-10-26T23:42:18.380471+00:00",
+    "x-frame-execution-id": "f9fee57ac58946b5ba8a310cc14791d9",
+    "x-frame-revision-id": "b479c1caeb757fa6d7d67d645934dc8406d207d92171a1bcea09e5f5f34ba484",
+    "x-frame-program-state": "completed"
+  },
+  "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+  "selected_pad_pixel": [
+    0,
+    0,
+    0
+  ],
+  "snapshot_semantics": "separate stable-stage samples, never atomic across fields/frame"
+}

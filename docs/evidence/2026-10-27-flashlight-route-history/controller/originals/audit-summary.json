@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-26T23:32:35.100995+00:00",
+  "result": "PASS",
+  "category": "independent-controller-C-regression",
+  "api_contacted": false,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "old": {
+    "folder": "old-r3",
+    "compile_exit": 0,
+    "run_exit": 1,
+    "cases": 26,
+    "checks": 357,
+    "failures": 152,
+    "expected": "negative control"
+  },
+  "candidate": {
+    "folder": "candidate-r2",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "cases": 26,
+    "checks": 357,
+    "failures": 0,
+    "expected": "route lifecycle contract"
+  },
+  "same_cases_sha256": "dd48f8f822ae247cd6ea8fc2f0916f2e1f69d90069e1e464f9915fd722159e1f",
+  "evidence_path": "actual extracted GPIO controller storage+W1TS/W1TC+OUT_SEL MMIO commit+actual route query+actual AW model and Unit registry/helper",
+  "stubs": [
+    "QEMU virtual clock/timer dispatcher",
+    "QOM/Visitor property containers",
+    "LEDC route notification callback counts, without LEDC waveform modeling",
+    "synthetic Esp32GpioState type and IRQ output"
+  ],
+  "coverage": [
+    "Flash and Torch route256/LEDC73/RMT81/signal0/signal511/OUT_INV/256 before Flash deadline without getter/pad edge",
+    "cancel reset, settle and timeout timers and reject stale callbacks",
+    "initial reset, ready low, programming, Flash active and reset-pending phases",
+    "other pin and other layout registry isolation",
+    "no synthetic edge/rising/decoded counters on route mutation",
+    "repeat writes and irrelevant bit10 preserve prior supported state",
+    "old pre-loss low interval cannot cross unsupported route",
+    "unsupported falling edge cannot form a recovery interval across restoration",
+    "unsupported constructor baseline cannot cross restoration",
+    "500000ns short low remains unknown, 500001ns fresh supported low restores known off and real program restores active"
+  ],
+  "permanent_regression": {
+    "path": "platform/tests/test_unit_flashlight_route_patch.py",
+    "sha256": "03b08c852ce797794de48e0a6e97487c94759bf91351ac2be160108b7bfd8900",
+    "tests": 2,
+    "result": "PASS",
+    "log": "permanent-tests-r3.log",
+    "scope": "Git replays current Unit C patch stack and GPIO MMIO postimage hunk into temp tree; surrounding pad storage is a shim, not full GPIO reconstruction; old postimage same suite is expected negative control"
+  },
+  "originals_preserved": {
+    "old-r1": "compile failure: missing forward prototype in independent shim; original bytes retained",
+    "old-r2": "26/357 old152FAIL, raw lines include unescaped C-expression quotes; original bytes retained",
+    "candidate-r1": "26/357/0FAIL before JSON formatting repair; original bytes retained",
+    "permanent-tests-r1.log": "unittest invoked via wrong stdlib platform module path; import failure retained",
+    "permanent-tests-r2.log": "compiled C suite passed; scope helper path incorrectly assumed patch directory; test error retained"
+  },
+  "rebuild_receipt": "portable-rebuild-r1/verification.json",
+  "limitations": [
+    "C model/controller evidence only; not VM execution, Device Service session, Web animation or physical hardware proof",
+    "Does not close cold-route initialization semantics, missing hard-reset observation, live S1 mode, PWM/RMT waveform or electrical/optical/thermal fidelity",
+    "No running emulator processes, API sessions or external network calls were started by this audit"
+  ]
+}

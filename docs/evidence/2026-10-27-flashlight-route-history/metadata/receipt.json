@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "category": "POST_EXECUTION_METADATA_ONLY_IDLE_RELOAD_NOT_NEW_GUEST",
+  "captured_at": "2026-10-27T00:09:47.404174+00:00",
+  "generation": 48,
+  "pid": 35117,
+  "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+  "runtime_unchanged_from_gen47": true,
+  "source_files_match": 83,
+  "changed_service_sources_since_gen47": [
+    "platform/units/runtime-profiles.json"
+  ],
+  "gen47_execution_records_preserved": true,
+  "old_guest_and_program_validation_unchanged": true,
+  "units_response_sha256": "071a41caf18f4e80e8b20fa56cdc731567390a126eb11c6da0ccfc101bcafeeb",
+  "units_response_bytes": 302158,
+  "metadata_sha256": "1583ab14fb57d9fe872951e16847017475180b7c4bd52e42440cdb02cb587251",
+  "returned_route_history_validation": {
+    "status": "PASS",
+    "scope": "OUT_SEL route-history invalidation and fresh-reset recovery only",
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "patch_sha256": "4a254cfeceaed36dfc4acbc74b57987199f62014f99eff2d80de2acfb89b9184",
+    "service_generation": 47,
+    "devices": [
+      "cores3",
+      "atoms3r",
+      "sticks3",
+      "stopwatch"
+    ],
+    "api_lanes": 8,
+    "api_executions": 168,
+    "web_device": "cores3",
+    "web_phases": 13,
+    "evidence": "docs/evidence/2026-10-27-flashlight-route-history/README.md",
+    "metadata_capture": "after gen47 execution; earlier guest_validation and program_validation remain historical",
+    "hardware": "NOT RUN"
+  },
+  "active_sessions": 0,
+  "active_leases": 0,
+  "new_guests": 0,
+  "hardware": "NOT RUN",
+  "stored_files_preserved_during_reload": {
+    "packages": 516,
+    "source_records": 408
+  }
+}

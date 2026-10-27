@@ -1,0 +1,193 @@
+# UNIT-HOST-38 actual API and mounted Web acceptance preparation
+
+Prepared 2026-10-27. Preparation is distinct from execution reports. Only a
+fresh directory created by explicit `--execute` records an actual run. The
+gen47 handoff authorizes the first current execution; none of the older
+gen42/gen45/gen46 results transfers to the new runtime.
+
+## Fixed authoritative API and implementation references
+
+- Read the `uiflow2-coder` skill and its bundled `docs/unit/flash_light.md`,
+  `docs/hardware/pin.md`, `docs/hardware/display.md`, `docs/base/pwm.md`, and
+  `references/complex-examples.md`. The PWM base is an external Unit and is
+  **not** documentation for `machine.PWM`; the source-tree docs below supply
+  that API. No matching complex visual example was needed for the small EN
+  framebuffer marker.
+- Fixed original UIFlow2 FlashLight driver: repository evidence
+  `docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/uiflow-flash_light-2.5.3.py`,
+  3639 bytes, SHA256
+  `10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f`.
+  Constructor lines 51-53 writes EN low; flash lines 89-100 sends actual
+  GPIO low/high with 2 us delays. Tests use its original bytes and its
+  documented single-pulse `BRIGHTNESS_100/TIME_220MS` path; they do not fix or
+  reinterpret the known long-flash brightness encoding conflict.
+- Local official UIFlow2 checkout is
+  `.work/uiflow-main-loader-build-20261027/uiflow`, HEAD
+  `3a86d8f611b3639cca755a933e01a5a829771ef1`. Its `micropython/docs/library/`
+  contains `machine.rst` (`mem32` read/write), `machine.Pin.rst`, and
+  `machine.PWM.rst`; `micropython/ports/esp32/machine_pin.c:182-203` configures
+  the pad/value/direction, `machine_pwm.c:151-179` stops PWM without promising
+  GPIO256 restoration, and `:221-227` connects an actual LEDC signal.
+  This source/API reference alone does not prove every saved stock firmware
+  was built from this checkout; actual firmware/guest evidence must establish
+  the invoked methods and route readbacks per target.
+- Local official IDF checkout is
+  `.work/uiflow-main-loader-build-20261027/idf`, HEAD
+  `735507283d5b2f9fb363a1901172dbd9e847945d`.
+  `components/soc/esp32s3/register/soc/reg_base.h:9` sets GPIO base
+  `0x60004000`; `gpio_reg.h:7789-7815` fixes OUT_SEL0 offset `0x554`,
+  signal mask `0x1ff`, OUT_INV bit9, output-enable selectors above bit9.
+  `components/soc/esp32s3/include/soc/gpio_sig_map.h:149,158,449` fixes
+  LEDC0=73, RMT0=81, GPIO=256. Every read/modify/write preserves higher bits.
+- `machine.mem32` directly dereferences aligned volatile MMIO in
+  `micropython/extmod/machine_mem.c`. It is a real guest controller write,
+  not a host/QOM route assignment. The GPIO controller commits the register
+  and must notify the lifecycle without synthetic pad/rising edges.
+
+OpenViking Experience tools are not registered in this runtime; no HTTP/CLI
+substitute was used. The local memory registry had no matching emulator/
+FlashLight/route entry. Current files and evidence determine this plan.
+
+## Why the old runner is insufficient
+
+`.work/flashlight-live-probe-20261027/probe.py` and the archived selected runner
+call `Pin(..., OUT, value=0)` and wait 600 us at the beginning of every phase.
+That would erase the very interval this regression needs to retain. The new
+runner initializes M5 and the original driver once and retains its Pin/driver
+instance in a nonce-scoped entry of the actual mutable `sys.modules` dictionary.
+The first actual narrow-r1 failed before route execution because the initial
+prototype used `setattr(sys,...)`; stock MicroPython has fixed `sys` globals
+(`py/objmodule.c:86-100`, `py/modsys.c:358,388`). This failure and original cleanup
+assessment are preserved separately. Pure route phases have no EN
+setter, constructor or M5.begin. Package activation can evict managed modules;
+it does not replace this nonce or retained driver instance.
+
+## API lane and exact discrimination
+
+Each requested device/mode gets a fresh visible `/api/v1/sessions` guest in
+`program_mode=uiflow-live`. Source packages use public `program-revisions` and
+`sessions/{id}/program`, original driver bytes, fresh execution START markers,
+and the existing same-VM/runtime identity and cleanup helpers. No direct QEMU
+launch, matrix runner, control-plane review or QOM setter is used here.
+
+Default five cases per lane are:
+
+1. 256 -> LEDC73 -> 256, no EN write within the route window.
+2. 256 -> RMT81 -> 256, same condition.
+3. 256 -> GPIO256 plus OUT_INV -> 256, same condition.
+4. LEDC73 interval with a real guest EN fall and 800 us low; return GPIO while
+   still low; it must remain unknown through an additional 240 ms of low.
+5. Same unsupported 800 us low, followed by return GPIO and immediate rise in
+   the same guest segment; no host/API/serial/wait occurs between return and
+   rise. The old unsupported low must not grant a new program qualification.
+
+Every atomic case first creates a fresh supported high->low reset interval
+of 600 us, executes the unmodified driver single pulse, provides a 20 ms
+`sleep_ms` scheduling window for its model latch, and switches away/back in one
+guest segment. The initial 600 us busy-wait version is preserved as actual
+narrow-r2 FAIL: no decode increment was observed before the route window.
+`mphalport.c:195-223` distinguishes task-yielding `sleep_ms` from busy-waiting
+`sleep_us`; the corrected narrow-r3 actually observed the mandatory increment.
+No event-loop trace was captured to prove the exact scheduling cause.
+`ticks_us` verifies
+arm-to-return is below 100 ms, ahead of the model's old 220 ms Flash deadline.
+This is guest-clock evidence; controller C tests separately inspect virtual
+timer ordering. The test requires an actual decode increment before route
+invalidation and exact rising/edge increments from only explicit Pin writes.
+
+After returning to GPIO, the test requires `output-known=false`,
+`active=false`, `waveform-qualified=false`, internal `program-state=unqualified`,
+and cleared settle/timeout deadlines. A 240 ms later observation must preserve
+unknown and all edge/decode/reset/timeout counters. No getter call occurs
+inside the atomic away/back window. Internal phase/timer observations prevent
+a current-route getter mask from being mistaken for lifecycle invalidation.
+The public interface has no reset-at-ns: pending reset cancellation is also
+checked by stable known/reset counters after the negative low interval.
+
+Recovery requires a newly observed **supported** EN high->low edge and 600 us
+low, independently observed known-off/ready-low and reset increment; only then
+does the original driver run again. Flash recovery is sampled after 240 ms to
+avoid racing nominal expiry across independent QOM fields; it proves the
+original single-pulse decode/known expiry, not a guaranteed live Flash-on
+screenshot. Torch recovery remains active and is the strong no-deadline
+mounted-Web demonstration.
+
+The Pin/PWM companion source generators are prepared separately. Actual
+`PWM(...).deinit()` and `Pin(...OUT,value=0)` record their real route readbacks;
+they cannot be substituted for the route-pure acceptance sequence or claimed
+to supply PWM waveforms. They are not in the default lifecycle execution.
+
+## Four saved targets and scope
+
+| Device | Port | EN yellow / white | Effective saved firmware SHA256 |
+| --- | --- | --- | --- |
+| CoreS3 | port-a | 2 / 1 | 0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8 |
+| AtomS3R | custom | 2 / 1 | 0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323 |
+| StickS3 | custom | 9 / 10 | 7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1 |
+| StopWatch | port-a | 10 / 11 | 2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f |
+
+These bindings come from the existing selected gen42 report files, verified
+again from current local evidence; they are required expectations, not new
+runtime results. The new session checks the actual effective SHA and actual
+returned pin mapping. Flash/Torch S1 is a creation-only fixture; no dynamic
+switch, cold-route initialization (37), reset-callback (36), waveform,
+photometric, electrical, thermal, RF or hardware equivalence is granted.
+
+## CoreS3 mounted Web sequence and six evidence categories
+
+Use a separate CoreS3 Torch `--web-only --hold-file <fresh.json>` execution.
+The copied observer has been adapted as a new source, not presented as the old
+gen42 observer. Initial original-driver Torch active then, for each of LEDC73,
+RMT81 and OUT_INV: route-away / GPIO-return-still-unknown / new-supported-reset
+known-off / original-driver active. This is 13 separately captured stages.
+
+Each stable stage independently collects all six categories:
+
+1. Session/program/worker/runtime identity: same PID, firmware SHA, worker
+   generation, nonce, execution and immutable revision references.
+2. Fresh complete UART record after that execution's START, including actual
+   MMIO route readback and EN reading.
+3. Nonempty actual `/units` response plus independent raw QOM getters,
+   including internal phase/deadlines and counters, never response stubs.
+4. Valid nonempty current PNG with independently decoded EN center pixel and
+   hash/execution/revision headers. The white pad marker stays white during
+   unsupported high-route unknown and does not pretend to show lamp output.
+5. Actual mounted default UnitPanel / vendor `FixedWhiteLed` instance, runtime
+   known flag, physical assembly attachment, fixed white emissive material,
+   brightness 0 for unknown, no glow, no active S1 input and no synthetic
+   binding. The browser only GETs; commands go to the owner runner.
+6. Actual mounted display center pixels and metadata plus framed host-and-Unit
+   WebGL, Unit panel, viewport and stage PNGs. Physical events remain zero,
+   real default 3D admission is not overridden, and only documented read-only
+   state instrumentation is appended to a hash-verified sessions.js response.
+
+HTTP 304 is body-absent by protocol and is never read as an entity. Empty
+optional HTTP200 frame captures are separately marked partial and cannot
+stand in for mandatory valid frame or mounted-display evidence. Render,
+controller, serial and individual getter samples are stable-stage samples,
+not one atomic snapshot or proof of an exact browser texture transfer.
+
+## Execution recipe, identity and cleanup
+
+The default commands `python3 -B run_route.py` and `node observe.mjs --plan`
+never open the token or contact HTTP. Actual execution requires explicit
+`--execute`, new runtime SHA, actual service PID/generation, expected effective
+firmware SHA and a fresh output directory. An explicit base requires its
+normalized base SHA pair. Use `--case ledc73:roundtrip` first for a narrow
+CoreS3 Torch then Flash gate; preserve any failure before changing a harness.
+
+The owner supplied gen47 readiness via
+`.work/unit-host38-owned-start-gen47-20261027/start.json`, service PID 22168,
+runtime `.work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa`,
+SHA256 `3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1`.
+Capture original runner/observer/dependency source receipts before actual API,
+and compare source hashes after. Do not change service, QEMU environment,
+shared build or other agents' sessions while the shared regression runs.
+
+Always capture and validate the evidence ZIP while running, then stop only
+the owned session with `purge=0` and default Flash release. Exact final stable
+PNG SHA must survive history; owned QEMU PID must be gone, Flash unretained,
+and owned worker lease inactive. Failures still release proven ownership;
+unknown non-idempotent creation is not blindly retried. Never erase failed
+trial output, replay a trial into its old directory, or combine different
+runtime generations into one PASS.

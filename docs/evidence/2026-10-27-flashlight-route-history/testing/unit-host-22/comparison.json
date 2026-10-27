@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "host mock regression only; no guest, QEMU, profile runner or checker process executed",
+  "checks": {
+    "old_failure_preserved": true,
+    "new_summary_matches_actual_launch": true,
+    "exactly_three_local_identifier_renames_only": true,
+    "call_argv_order_and_options_unchanged": true
+  },
+  "before_runner_sha256": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be",
+  "after_runner_sha256": "f2c4d784218f482bca380a2781b6b10c349bc3d81b8d7dcd190cd131f8a11f60",
+  "files": [
+    {
+      "path": "after/main.stdout.txt",
+      "bytes": 12,
+      "sha256": "16ed3e1cc38a2579e05b0f46bc818c089a07e6e2cccfb0870b5e33b6c12f459b"
+    },
+    {
+      "path": "after/receipt.json",
+      "bytes": 6512,
+      "sha256": "f269f9d225abb45e60446064b3e604824a9c16ede16cfc37585fb7229de60f81"
+    },
+    {
+      "path": "after/run/papercolor-rgb.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "after/run/papercolor-rgb.stdout",
+      "bytes": 34,
+      "sha256": "50fa2f7241ffb433aa47789e86417f4629d5b4d46d3c2f7c6a797a2c78ec304c"
+    },
+    {
+      "path": "after/run/summary.json",
+      "bytes": 3188,
+      "sha256": "6c132888ad5d0bfc70511ee7d97e99d4ad2e481eef84ea9252d23a6b9b7c2fa9"
+    },
+    {
+      "path": "after/runner.py.txt",
+      "bytes": 109777,
+      "sha256": "f2c4d784218f482bca380a2781b6b10c349bc3d81b8d7dcd190cd131f8a11f60"
+    },
+    {
+      "path": "before/main.stdout.txt",
+      "bytes": 12,
+      "sha256": "16ed3e1cc38a2579e05b0f46bc818c089a07e6e2cccfb0870b5e33b6c12f459b"
+    },
+    {
+      "path": "before/receipt.json",
+      "bytes": 5607,
+      "sha256": "feacf3261e914b8e2073862098adae646182416e2ed80536f62801584c8c23c4"
+    },
+    {
+      "path": "before/run/papercolor-rgb.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "before/run/papercolor-rgb.stdout",
+      "bytes": 34,
+      "sha256": "50fa2f7241ffb433aa47789e86417f4629d5b4d46d3c2f7c6a797a2c78ec304c"
+    },
+    {
+      "path": "before/run/summary.json",
+      "bytes": 2178,
+      "sha256": "ecb4895b4e4de0a476bc4d5fd0d6baa869d85de4b1d4ca7d984421fdbdcb7074"
+    },
+    {
+      "path": "before/runner.py.txt",
+      "bytes": 109744,
+      "sha256": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be"
+    },
+    {
+      "path": "probe.py",
+      "bytes": 3916,
+      "sha256": "84871d9675ab1363e0d74f2ad471541f94f245ecf4961d5e3d913c0ee239b5d1"
+    }
+  ]
+}

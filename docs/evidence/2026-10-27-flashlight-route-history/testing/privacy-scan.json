@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "classification": "after-run archive privacy observation",
+  "status": "PASS",
+  "png_originals": 134,
+  "png_crc_and_no_text_metadata": "PASS",
+  "png_ocr_scope": "Heuristic OCR all 134 frames, no MAC/long bearer findings; not universal sensitive-content detection.",
+  "selected_visual_inspection": [
+    "core2-imu/after.png",
+    "papercolor-rgb/after.png"
+  ],
+  "text_mac_private_key_long_bearer_userinfo_findings": 0,
+  "known_local_secret_or_digest_findings": 0,
+  "secret_handling": "Only compared in memory; no credential or digest values saved.",
+  "binary_assets": "firmware/ROM/executable/Flash/eFuse/PPM/PCM/RMT/SD/non-UTF8 UART are fingerprint-only; original PNG framebuffers retained"
+}

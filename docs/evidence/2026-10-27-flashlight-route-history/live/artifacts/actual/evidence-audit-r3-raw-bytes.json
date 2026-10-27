@@ -1,0 +1,1694 @@
+{
+  "status": "PASS",
+  "category": "READ_ONLY_ACTUAL_API_EVIDENCE_AUDIT",
+  "api_contacted": false,
+  "guests_started": 0,
+  "originals_modified": false,
+  "rows": [
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-torch-r3",
+      "status": "PASS",
+      "observations": 5,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 107,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21777
+        }
+      ],
+      "zip_sha256": "eaab322c7192d315dd96d991b6212eab09a6bffb8aa0d48bb096949a5d624069",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "6a9530bff6e3456f8ca1c8eb6c2b08f9",
+          "original_line_bytes": 288,
+          "original_line_sha256": "59725f2408c5b38e77e530d6180c038ac6486bbb62c22fb5c0b7485cfb9eaa43",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "c3954aff3ca140a1a0e491fc2e5e64bd",
+          "original_line_bytes": 392,
+          "original_line_sha256": "25cbcc8e6064975603103cbabe7345ba32b593c27da9556755cd403d54f9a3ee",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "765d37e6e45645839c590fb01da7019d",
+          "original_line_bytes": 293,
+          "original_line_sha256": "3d1ff1d7b100ecaeec2c22c6045fdf208f79938b63a0c035ebdf2b082258827a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0674a0e563ca411c97f1a09b0d6243b6",
+          "original_line_bytes": 292,
+          "original_line_sha256": "961166a1149d656a14af12151605c7dc2b69f6b4f2fc553f7fbbf98911a8a4a6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4309aeb6d3a04bc2b06e93d8d563f3ff",
+          "original_line_bytes": 293,
+          "original_line_sha256": "b58cc14a5663610b25bc19b37f0430118fd5f10417ad715c96650bf7bf9525ea",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/narrow-cores3-flash-r1",
+      "status": "PASS",
+      "observations": 5,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 105,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21658
+        }
+      ],
+      "zip_sha256": "996280aac99c00453a04d5ac5e157d566603727222aa7c1aacf9b7f27a6edf52",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "ae64f2ed5b96420184e21f88938edd02",
+          "original_line_bytes": 288,
+          "original_line_sha256": "64fc0cdf94ece8e8e80b6c0e9c364e150f18696516d35c64865a712beaeaa282",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fd21192be7f04b8d968907c753d3f25c",
+          "original_line_bytes": 392,
+          "original_line_sha256": "0e5fd7be2e1a37f0ae47b7b8574d4321ed700b01d90fd1e384f9066817a99675",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "d8c936fef3a349bf982bdd8d4167596b",
+          "original_line_bytes": 293,
+          "original_line_sha256": "eef90f561cce5547ec5e7082410e25ae9fa17a466aad1614c4cf1bade34e0048",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "621ba2deb6a84bd7b3173b7f9c63eeaf",
+          "original_line_bytes": 292,
+          "original_line_sha256": "e85edb7ab8f7a2c3877b21afb95b7a9c5bdc46eaeb3745f5ba59054fe786701f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "5340ae5c806a4d97a24fda280d39e946",
+          "original_line_bytes": 293,
+          "original_line_sha256": "443be40a72b71a476f47079a4b3badff4ee1bafd23dce2942371791099de6b90",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-torch",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 106,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20625
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 40,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20190
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 41,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20653
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 843,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20947
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 856,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20961
+        }
+      ],
+      "zip_sha256": "60dc7e7e8d82de6ef37be039fd806ebda36243c699b9318a47dab40116fb182e",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "f6eb0455b4fb4be4927f72183fa3726b",
+          "original_line_bytes": 288,
+          "original_line_sha256": "fc77bcfa46eca5a7ff18156d18e31ee516e8fc61a78db936c7991f805743d766",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "642b697fab90472288062809a8170166",
+          "original_line_bytes": 392,
+          "original_line_sha256": "f61fa7d464be1d00ad3c5a27d7c5e913a1a266ee68da13f2ab7506717b81f121",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "f18b7cd24bb24e93a4088bc03bb38924",
+          "original_line_bytes": 293,
+          "original_line_sha256": "9d35daebbbefa503da82f062dd6001ebbe8d49cc4442ef9589783893e98f0821",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7dddf5807800415c90864fd33815bd43",
+          "original_line_bytes": 292,
+          "original_line_sha256": "bdbfd5316e0a697f4547cae83bf75acf9a1a0307dd04fb504442a962d3cca6ec",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "6a57af5ee1724d1e967ecdace7e2533b",
+          "original_line_bytes": 293,
+          "original_line_sha256": "737a6aca64a24bc4e7fe6d8279a7cd0967d9249e0a8ff6e804ae2b38935661c7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8d0376c4753546f59e58bab4c66a00a0",
+          "original_line_bytes": 390,
+          "original_line_sha256": "d6c899325fc155ae59db8e9d82e423684271cfbbe0b45557a7e71fe31804d509",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "544133f1bf2941c5b2830e87dff40c66",
+          "original_line_bytes": 292,
+          "original_line_sha256": "9e4696fd942e2d57960b350b8336f24da3442981b7292e743df8569fa04b43c4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4a2cc4a3fabe40d2bb9fd0ff17a9ef25",
+          "original_line_bytes": 291,
+          "original_line_sha256": "5c42ae8b3a2d46ffd7309cfa0c24c5f3af24ac9a08744e59bacafff95332a71f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "997b069899ca42b895d44fecce4d90b2",
+          "original_line_bytes": 292,
+          "original_line_sha256": "bef90a351e086e22418826c26c4d0ef74d23f7dbba6a4ac7a768a001a77e185a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1f8ae37a698243a8aa98d79004becc1e",
+          "original_line_bytes": 393,
+          "original_line_sha256": "3a2ae2e80a14ea09c426f38cd71329e000684572b3264f9b9c142f771a168f28",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9ebd4a97b8f947eeb9198380f4657200",
+          "original_line_bytes": 294,
+          "original_line_sha256": "16d4b71e267de0640094473ddd519cbab47800677d449eb01712061fddabd0ce",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "d5c99cf589f848cfaa8f6d9f44219129",
+          "original_line_bytes": 293,
+          "original_line_sha256": "a43d3c7089b658caf62b88fa1072f7bb3ac62ce3bd1c69fd14bf03b0f9b540f4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bafcc859535f4eba8f99cefe9ab4b2f1",
+          "original_line_bytes": 294,
+          "original_line_sha256": "b308438a11d5739984df85f1edc1ea12de1dc250bc9b65c4084bbd248ea284ca",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "554e9da136254a38817a890f598fb4af",
+          "original_line_bytes": 403,
+          "original_line_sha256": "38c953c82315ea497e3ccaea09aeacda6619359a274aba708f32925d430577b0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "cac94da72bc44a97a696a8fe9baae062",
+          "original_line_bytes": 304,
+          "original_line_sha256": "4184e05e4c5168c155d4d58992731ed49004103d1169e41cfb237cd65480c69c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "dcccd9fdac114095a4c29f10b9ff3983",
+          "original_line_bytes": 303,
+          "original_line_sha256": "f5562857e4ae988c8584f5978438599aa291262bf65cf68ef8e9d3b0424b9875",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "91c6f2f629cc429fa3b6ee25d8776d63",
+          "original_line_bytes": 304,
+          "original_line_sha256": "57708fec3e2f52e0c867cd93483d9cf80722ebd25cb32db12baca55f9f8d076c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "157b2f95b74a42cea236e6a049365be9",
+          "original_line_bytes": 403,
+          "original_line_sha256": "e631072c94c92c8c4040ec20a565edc4f9e1462cf465817706786adf3b3d0cc4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b44787456e844ecaa27ea008ba4ac3c2",
+          "original_line_bytes": 304,
+          "original_line_sha256": "bc718b18030b7ef3fe9512a46cd2095de7b405001e881a0229db4a2b6e7d6e4b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "f9fee57ac58946b5ba8a310cc14791d9",
+          "original_line_bytes": 303,
+          "original_line_sha256": "45fc3660489e477f258513caa2cec5b795f166b09b28a9a000a18c71689a7722",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "48502ebc9c184ed7ac85855a2dbdc31d",
+          "original_line_bytes": 304,
+          "original_line_sha256": "724f864e348e65830491aafaff69369d9dbb309f442a81c298da246771977b7f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/cores3-flash",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 106,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20380
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 38,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21886
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 36,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20152
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 839,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21784
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 848,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20947
+        }
+      ],
+      "zip_sha256": "00fa68c3b14a64f51000249671998eb9f993a058658fd48a7c89d72ffc960acd",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "a5897bc740c64cf0a10c92160fa62370",
+          "original_line_bytes": 288,
+          "original_line_sha256": "535faff10c69ffe5783a099b69bad78bfcd4bdfc84b4db48d85cd20e266c75a8",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4af4602fa2ce4221b3f5c8bca230352d",
+          "original_line_bytes": 392,
+          "original_line_sha256": "8cc5b48c9bd32346694d5b740f520da1b7a38dc889ca9f6426fbe93dfd004e1e",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2a72b251356a42b988b6a80edde81fdf",
+          "original_line_bytes": 293,
+          "original_line_sha256": "7d66cbc2803d29b870c5f03552404a7ffb94c2c1b29fb0c281f9b37ca782e368",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b90120283b9842f3abda9464d064eb94",
+          "original_line_bytes": 292,
+          "original_line_sha256": "0cfad46d9f1f2dd584edf0c6758c7dc504a9c09750df9adbc6a41bd0fba8d693",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bcf7e7b9bc034a5abeccec5447370216",
+          "original_line_bytes": 293,
+          "original_line_sha256": "7bc2fbe7cf6773cfaece2d9e88fd3cce5a5cb7a192294ba4591db6da1673189e",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a95d87b9940a467691fd92ad10d281c9",
+          "original_line_bytes": 390,
+          "original_line_sha256": "f7e8be833b9f1c5e10bee2668b7a206ac77f10e98d7e24f0c382fc5e415513d9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bc88a37ca7b44dceaf88f823d83d0d88",
+          "original_line_bytes": 292,
+          "original_line_sha256": "9599efe8c590cf88d1a51aca5fd609afd744663c5fe787f100185b84124bd8db",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fdbc7a9dced44c3db43282214cbb194e",
+          "original_line_bytes": 291,
+          "original_line_sha256": "508a21c366c58e21835d735cbf781aba78199ef99542e7591ad2e120a7c3098c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4adaf2f6673943a3b8de4d8ef4492e32",
+          "original_line_bytes": 292,
+          "original_line_sha256": "ad730daabd46ef4d530e1f7acc1c6059dc95f881ec79501c1c9490e1df810a11",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "3fc29e681f1441b2ba503b2df8995ab2",
+          "original_line_bytes": 393,
+          "original_line_sha256": "a225ef932860aa92cda1fc0679a64b6ec4a8e88bcdfab1b7a4481f47ee04d69c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7a89966bf7514499b7698876f2b7969b",
+          "original_line_bytes": 294,
+          "original_line_sha256": "bff9619d69356658e55be41ff20e6135568a96865b5c05539077cfbf918dcce8",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9a9be7e4790941fa806afbe3324b81ba",
+          "original_line_bytes": 293,
+          "original_line_sha256": "bcb647dd71449b0bf9a07df417d6f0db44922c9cbbf94276db73d6f8b9e154f4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "c874c7dd5eb242c893dc226df27fa8ec",
+          "original_line_bytes": 294,
+          "original_line_sha256": "d8dc0c07167f00a6db707b84113728566d7136dfa61dd9f6d177c50ad6174aa6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4edc07ffdfde44f18a2169b7d271bc0b",
+          "original_line_bytes": 403,
+          "original_line_sha256": "9bc025211000e1d0d40304cbae5d7e7ec7829741d102f73bf8908175d6f47ca6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "52cb109df9e34eaea7d16a7d7f6da63c",
+          "original_line_bytes": 304,
+          "original_line_sha256": "2f7212dcc31c8858f4d6d3fe9114e8ee22dda72fe1f639fc7526dd8ea444ce2f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fc719e86604440bf96f5f022061909dd",
+          "original_line_bytes": 303,
+          "original_line_sha256": "d93fc03ad95156b43d2b7346251e1026699c5baa75357ed31b9323c6c525c001",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1c6a27fba60e4c3bb2356dea60680d85",
+          "original_line_bytes": 304,
+          "original_line_sha256": "84bbd594fe33cd24e4f2957f36eda9f3a4a43b3137dc7bd09c827d50bcc9818a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8cf565b90d8c49ea90601dde06c8a0e6",
+          "original_line_bytes": 403,
+          "original_line_sha256": "7a6db8578f7b0cdda2fc56692d477559a81df15e8e751b08958109c08869bb21",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "33add7aa993c4052b0316b27568947b9",
+          "original_line_bytes": 304,
+          "original_line_sha256": "ba08efd23c8f727bd02ed61852ef7b1b97d41c5f7e38950450ccae44d8eb58b4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "349237a45c1344d2840d20dd729688ab",
+          "original_line_bytes": 303,
+          "original_line_sha256": "fc7b4cb78c0505bf129ac64b7e3d943cf180af5e5a9d8bb859decd82d4fc96d7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0cdf5fdf614f4522b33add595d46977b",
+          "original_line_bytes": 304,
+          "original_line_sha256": "05156158072729e5cf6cd99335d6395b3869e6c129fced282024013764599c1d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-torch",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 80,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20361
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 42,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21066
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 43,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20729
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 851,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 22980
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 865,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20988
+        }
+      ],
+      "zip_sha256": "4ac225fd702f7f209a45117e70a304a1a421b0fa40e07dfce7cc3aaa9a8048b6",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "d0d7fbc7dafa4a2f80f9c8b02a67d894",
+          "original_line_bytes": 288,
+          "original_line_sha256": "df0e7fe1fb61a8ac754ab1ea1412400e1af5b91fe841b707f322c10ead795508",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fb618ae71861440fba6c826746ebde05",
+          "original_line_bytes": 391,
+          "original_line_sha256": "f26fd23faf61ed81887ef0a8ea257db3ec5bc90ad5309becb12345d6176cd124",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "34dbb004790f486287c50c473a35b182",
+          "original_line_bytes": 293,
+          "original_line_sha256": "069bd0d576be65eaad44a5cf62578e21c8d7c074806cc7a801ebfab267005b1d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "f00e98f071724243a1b5d59d3675b02c",
+          "original_line_bytes": 292,
+          "original_line_sha256": "724820bc013c64e912bf687c82d806bca5d7dd1fd0ac8be2cdc8f0ce98124900",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "c3132231e44e49f9baec677865d6ae4e",
+          "original_line_bytes": 293,
+          "original_line_sha256": "cc88a43df53e8d7e5b49fe7577b204ea8d7045abee35df293e1ef6fa1546ee3d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b8e11c68814a4294b2d0f2b6697e60f4",
+          "original_line_bytes": 390,
+          "original_line_sha256": "02129e35947f4b80ae330f751e91135579b8de114ac3b95b9b3c86c8933a8211",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "37d8650bac484490a23a665c55bbb22a",
+          "original_line_bytes": 292,
+          "original_line_sha256": "33bfabd44aaf77bb0435791ae6bf73940043463c0ed7794c7548acd5f331b0f0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "148ab0ec9300400dba2d10affcef3543",
+          "original_line_bytes": 291,
+          "original_line_sha256": "3fa66b60d29f03c7bf9b1176e2443524df2f090b3ac46fcd0eb7a06a363f91e9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "c0c3d3af54964ccc80a514feacd8b8a0",
+          "original_line_bytes": 292,
+          "original_line_sha256": "89b477b7de7fc78084b9aca66f480e232e3d1bf3a95f16bf0823a307ebe6672d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b0fa7a602920465187b13cf7a533b9e0",
+          "original_line_bytes": 393,
+          "original_line_sha256": "5306f82b83e7efe2d50515fee65b2828c3626faa729855b96706f53ac173db83",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b9f663a1eace4debb6564fc948d4d5e0",
+          "original_line_bytes": 294,
+          "original_line_sha256": "79e2c352701084e1c38d8439a42f38d10bd720208188d823ea0c1784d0543376",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "38cdae6c51f14640af16ab88ae7a12ae",
+          "original_line_bytes": 293,
+          "original_line_sha256": "1a6359f01df20df383bd3bc530ff4a82e44f0084dec9bef709ea90fe9927f2a5",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8b0d0757f9bc4a5db871cebb68c99214",
+          "original_line_bytes": 294,
+          "original_line_sha256": "59c4dc23f6b8894b6ae79bab8f5c88f4f4450f8409c0d84aaa925c3befc519ab",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "65d1807867324416a310882599dec691",
+          "original_line_bytes": 403,
+          "original_line_sha256": "1b2fdb431f7ddb74c4e76240435661a864a3fa4b1f3ea76c5cbcfb426226c371",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bb2228dfc2c6406eacfc6fdba0bdf103",
+          "original_line_bytes": 304,
+          "original_line_sha256": "3c2a06d2e903acdadaaa1c2e3636451485908bd9e0c31dbd001a9046a5fd5e3b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8c15156aee8347a28ecc36928283817f",
+          "original_line_bytes": 303,
+          "original_line_sha256": "fe8971d298d6cfc0079fa7017476c7a21cdb19628a9734c15a39182ccecdbfa1",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4858c825256749b0bc14dcd8efa5512e",
+          "original_line_bytes": 304,
+          "original_line_sha256": "2b42ca2ea7b0eb08d91a5d42e8c11070ec12b43deb09b6b5d579f2d1ed29405d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2f3e660dfa96455989fd5d485892b2de",
+          "original_line_bytes": 403,
+          "original_line_sha256": "264be8a7ea95f0d9b2e99cd8b425a281f7a6f2da09a6de828c8e1de4c4a190b6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "ee6d5a34f48e48b4a522f7d72a4b3b07",
+          "original_line_bytes": 304,
+          "original_line_sha256": "77561015133a4295d081453788c14f0a19a602a229039eb0ae0334c49b7b83a2",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "149ac10f0a0646f0a3acb450b9600e90",
+          "original_line_bytes": 303,
+          "original_line_sha256": "57ab696a001dbd9cd8aa3ada41a907a76f9f2406bda84cd7ce65cd87ba347975",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "dba8cfacd2e44f28a2f98c36a7ba8be1",
+          "original_line_bytes": 304,
+          "original_line_sha256": "8f7a4ffdf91859bc0edb830db0c19f14912c89e6684a1090b4a9137704ac94d0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/atoms3r-flash",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 86,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20814
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 39,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20223
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 40,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21686
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 851,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20985
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 855,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20967
+        }
+      ],
+      "zip_sha256": "852f59a8e6c00d8491eb5ff5ba0f6879a0053e2846b5565b90f79d5159295f18",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "181cff95533f4e23b8286919d2e6bbc8",
+          "original_line_bytes": 288,
+          "original_line_sha256": "1a35b2394dcc9b55318a89f6e20e2bb495d1d66e06ac8eab7900a7fa0ebefd09",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "f9d4fe5e17084a4a9d055d58b5dc2de3",
+          "original_line_bytes": 391,
+          "original_line_sha256": "a681d3ac603b7bd9c548f7c46433d50491792fb64040c68d71e98b67482bfb69",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "6dc4c6389ad84709bac36735361cee13",
+          "original_line_bytes": 293,
+          "original_line_sha256": "841e7d4f149780a6d5b4d89f50b17949ad147b23b99dca35f4aa077b65fb09c9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a4829022375647938a1e6fa550280b44",
+          "original_line_bytes": 292,
+          "original_line_sha256": "76243c3e23202446ec668779a98c0b48f2cddde1ffe3d6fb0f64dc4afd53c76d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8e7bcf6358dc4a789ab4159ce1cbacf4",
+          "original_line_bytes": 293,
+          "original_line_sha256": "39af511c080c3f1a50eda0faa8720c93f8b638f1ffb121e5adacae775f77ffd0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a1747af3c7fd46119b1399f852ed7d71",
+          "original_line_bytes": 390,
+          "original_line_sha256": "4f377437a8456042cce8ea10de5b370ecfe186cda1d2df097e3d140656cf228b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9dbf1d46c2e541a4a2679b406d7d5098",
+          "original_line_bytes": 292,
+          "original_line_sha256": "b015e87df7f87e97c668773241ac17d0fc4d62e61e44a230d175156bbe72ec25",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9e117aebd03049bcab321447805dfbb6",
+          "original_line_bytes": 291,
+          "original_line_sha256": "1ba45b9ec35c62ed83f908206e9b880692adb582f1e0ece4ff16ba754b2281af",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2fa9b77d9b9f4206a73da73a6aad2a0f",
+          "original_line_bytes": 292,
+          "original_line_sha256": "0783cb22b1cd1782beb2035cd763f1e46a748b37761003a823c45104a5d3973c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bccc4c0d542b4aeaa72b0fe2c4f3241e",
+          "original_line_bytes": 393,
+          "original_line_sha256": "ebd90a76b847a020f140bef95972f1d9ba7f43bd147afa5f7d5c9bd09e9ae485",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7f6e0c2cb0ad4d96819095e648c4b63a",
+          "original_line_bytes": 294,
+          "original_line_sha256": "bce70acb96b74ec5c604ffd75f05baa972b36335e7b62265dbbc163540181ff9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1863e74b55934590bc1f9c85c248d123",
+          "original_line_bytes": 293,
+          "original_line_sha256": "9d4faa895470086dcba75e421dd6dca9115640c205a56d116831f66f8a60578f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "896af792cbff48ab8332cfa98af9d7f2",
+          "original_line_bytes": 294,
+          "original_line_sha256": "341cba2aebda0235df88c0042fdd2380959bbbeab633de7f218fe1b1b9d401a7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7fde42b5eb234843ba7c9e4863cc7395",
+          "original_line_bytes": 403,
+          "original_line_sha256": "ac2562e8701d04901a23da1151da7a8b02abf0c91f9f868c85ea943bedbc56a8",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "791cbe44c6114f9c85e8ff091dcd6977",
+          "original_line_bytes": 304,
+          "original_line_sha256": "cc668b6fd152d105a25dcc439bd46c8baabc3bfdcd83405e61c9bdf5fface899",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "3c0ccc67879e4ac598b783cbf62f3566",
+          "original_line_bytes": 303,
+          "original_line_sha256": "faeb1e4095ee1902cf7a37338d2485cf33aefcbdb2f4cd3cff5fc96842eece7a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a4a13139e9504efabd39bc29b8000172",
+          "original_line_bytes": 304,
+          "original_line_sha256": "7c5222eae5b2b6b57a5e6fbffa77d50e904ac96b2b97b10ec8462ebd0fbc8c76",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "157eeee0a5204174b70aaba25833fc92",
+          "original_line_bytes": 403,
+          "original_line_sha256": "1336f8e1f94fd6a3e76aede032fcd7633ce2085e2f01114d26955ff12fbbf963",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "22063b4e1f5745619be02876aac14c1e",
+          "original_line_bytes": 304,
+          "original_line_sha256": "0cc918833e01f49278b48a07d607abd8ecd7d75343fdc41f54ac4c6e1b220499",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b6be5d10dbcc486e9f93890c5d599aa5",
+          "original_line_bytes": 303,
+          "original_line_sha256": "ae8248d03e476cc054247da6b756d45db82b59f3aaf8e905521abd660c956d0c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8281187f971e4e3c81892f9debbd16da",
+          "original_line_bytes": 304,
+          "original_line_sha256": "d69e004399c428a0a671a65c1cd258dcc63e6d0a4f807c1aef96443fae229ddb",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-torch",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 74,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21677
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 35,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20128
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 35,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20984
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 840,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20993
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 846,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20948
+        }
+      ],
+      "zip_sha256": "26376ed04a499f605201b54059b4e21cb8200711dc91904574f36220ed27d765",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "bddaac94494743f7a57df98e457cc9ae",
+          "original_line_bytes": 288,
+          "original_line_sha256": "5e75f954a3c2ff01dcbf484f36fbd16ca2987c582e79590833d37673290806c4",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "414f9d2008aa4cc8b42a6168497723b2",
+          "original_line_bytes": 391,
+          "original_line_sha256": "96a3d5463fd0f190c25716250d6976d14837a3c4a88a9659a6ec2ef48eb788eb",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2d94f155cfc94e97baf8f7d535126918",
+          "original_line_bytes": 293,
+          "original_line_sha256": "b10f8eca9aa66e1f31b4ff04570d4615ac316c39834b20801f44a0123cbd0afc",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "c33dd61e463d4906bea2515300d77546",
+          "original_line_bytes": 292,
+          "original_line_sha256": "82edb5ae2a9d81d28302c87e41f702106f81ed2e02979b26e3175d3ded09bd79",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "96c79cd7277c44e0935741778a1fd1ee",
+          "original_line_bytes": 293,
+          "original_line_sha256": "c95ad50a94a19eb30446285f36dd57e6e0ae5bc6954e9a23aff5ee5f09bcae8e",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a76a7208f41d45d8b191f183a907cb9b",
+          "original_line_bytes": 390,
+          "original_line_sha256": "94045c608683ecbf7099f993a3f26fa6f2340e2b0a2312c9bae572cfb6c5737d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7f2361a7a14949d8856247a3c503c12e",
+          "original_line_bytes": 292,
+          "original_line_sha256": "5216530e16ed586ed44f716f921ebd8557099ef67f438206071e46810bab822a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "106cd981616b411181029e1e443381c2",
+          "original_line_bytes": 291,
+          "original_line_sha256": "40477601920caa9d36e17c5ccb27d058542a56d0de31b76874bb1e63c5672b1c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bac24acc93c744908509a909c151d2bc",
+          "original_line_bytes": 292,
+          "original_line_sha256": "a9b346af197cbcdda179810d26c792422f889c1e3cc42d7b986a694864b715b8",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "e18625777a104119824d5c56d9196cc8",
+          "original_line_bytes": 393,
+          "original_line_sha256": "77ae8f6c61a7196be30ae44f30561a012800c31dd6a506207a577e0006aa7caf",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4ee871ec7c9d489dafa30720d46a6866",
+          "original_line_bytes": 294,
+          "original_line_sha256": "5af3b93628d412f7e0ad8202135171d2caa8470fb4f7aae039776e5fd00f9fd1",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "ffcef90e222b40f58fb4b74e370c938a",
+          "original_line_bytes": 293,
+          "original_line_sha256": "54a514ff43faa142269be6d8719789c6a6ed7391a4632e4a682e10abdc2098d3",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "3db2bd21a6494d1a8075d8101b75f86d",
+          "original_line_bytes": 294,
+          "original_line_sha256": "0c1b18f29a39c5d1e102f5a1c4478325bc93dcb5733a3dab417cec94f75422ff",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "78579210f8834416b54cdab02928157f",
+          "original_line_bytes": 403,
+          "original_line_sha256": "1a145d0e8a1f2667606202c253d548a60411716ebd6a226e58fdcac9d352ad16",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "cefad1a67e514cbe862b20356249a0c3",
+          "original_line_bytes": 304,
+          "original_line_sha256": "af8772ba26fd891906d29afaf9bc4c63f187835908a521f6c64ad76c89536bc1",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "78da125064e4413cbc274420e7ecee04",
+          "original_line_bytes": 303,
+          "original_line_sha256": "0fbfd864feac27d5bbada1b0dea90c1854918fea050869a1d2e09d453ef58148",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "d849ccc71bf34ad192146f073b8653b4",
+          "original_line_bytes": 304,
+          "original_line_sha256": "27319d55e5e63f3636a4b5e7606ec2f8c798d7c09ae4f0032fdeb96738b94ec5",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0f31174db42e48ccab387044e16467a9",
+          "original_line_bytes": 403,
+          "original_line_sha256": "6e202a4f2c2ba3c805cbf24f7fc9b211ad4249c3094e236a53b176949b2ef774",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "40461648442b40d298fe51a9ec23720c",
+          "original_line_bytes": 304,
+          "original_line_sha256": "f3c045519148cbe531507ebabed8cfca3d54fd31cad27a3a8f40ca231ee8751a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7b572c3e0fe247678d6878eece2f6d71",
+          "original_line_bytes": 303,
+          "original_line_sha256": "efe114e2d556dd5371d0796367ff9d36696f82a593dfd1698fb073c02e83fea1",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7f1e568d49e64033b72eba4e1ea70e5d",
+          "original_line_bytes": 304,
+          "original_line_sha256": "c863a8131dd1599bb7385eb9f4fd236d798d868faee91c2c691a785997f1f482",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/sticks3-flash",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 68,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20288
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 35,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20210
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 35,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20125
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 841,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21081
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 850,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20939
+        }
+      ],
+      "zip_sha256": "1aa4bec8270726fe5672dc754503999c2724478b307919c6f6b63c5f09b8688d",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "be2766831aa64e35bde47afdd66739f1",
+          "original_line_bytes": 288,
+          "original_line_sha256": "b7d7dd585977dfb41119b9b1f16235df966a472c347532c1b1921bc5ae91a28f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "45b9d27c21a8415aa8d71c8d24d8cee6",
+          "original_line_bytes": 391,
+          "original_line_sha256": "1b9f19d02585322e23303e24122b51f48d1188b9f07779d252f12b846f8b36a0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "10d2e65bce7446e18f303ce48d3ff5ba",
+          "original_line_bytes": 293,
+          "original_line_sha256": "27cd84d8516302d19dd9f3c89c394b2280dfa2247a598d308ea42e6087fefd7a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fb3cf66d6cf04a8ead9f2639405a265b",
+          "original_line_bytes": 292,
+          "original_line_sha256": "c3e588349c06b734ac3cba17cfc3796e78069a196e0f3482a626d2c6db71d98c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9ca15035d95b4c72929ba86d71cbfbc1",
+          "original_line_bytes": 293,
+          "original_line_sha256": "250d3fb9dc796f3493cbc55db0983bbb03703356909171d51a34a7cebc53f2b7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0a0837d466b64684b8d16b6a47fc2d68",
+          "original_line_bytes": 390,
+          "original_line_sha256": "f1d47dedce7f5c34154367c4abc4d49c00c1471686f8736e65a81ced49b22077",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bd42d973a7d9491daadd4b05dcd5b9ec",
+          "original_line_bytes": 292,
+          "original_line_sha256": "df18eb58e068c1fccebee3c61373ada77e1a3c756c983e4931f4a1a881e4572a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "28530357cc3b42548248a12faec0f541",
+          "original_line_bytes": 291,
+          "original_line_sha256": "1c689ebc0e2959f3e24a13e3c8a5e5144affc77007e8c85dc931bf8902a6aae6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b4b70d38ffc248beb6d2a8863157e845",
+          "original_line_bytes": 292,
+          "original_line_sha256": "cba613fee93b272d209c4e786da791ce453c249ca3145eeb6d2454b0b07dc3c7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "8af61717824245809dc4c7c5067f203c",
+          "original_line_bytes": 393,
+          "original_line_sha256": "24ae7733c3d8718456f6e1b8acccef4a7151bf2eae46a2d387eb13a4bbf359e7",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "16e2cdceece7490ebea7e50305c1f3e2",
+          "original_line_bytes": 294,
+          "original_line_sha256": "386a748dfa6765dc8d4596a65af22c84cd11bfd08d42032331ef2083ea214e4c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "067296dbae204607b683c9828f24a3f0",
+          "original_line_bytes": 293,
+          "original_line_sha256": "91fcc3bff33df704cd647f7c62da29c4522abe14c25bab737407e42544c72b7c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b6802c02b7fa4a4397795365a932f991",
+          "original_line_bytes": 294,
+          "original_line_sha256": "4e8cd8fc1af7785f2401af6f1972b4fc7b635e9b46eda5316e57e7b7e34facc3",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a466c280d8d14396aee72bf1c56d8c5b",
+          "original_line_bytes": 403,
+          "original_line_sha256": "03f829837554ac5c3a752f47a2ff960f9f024ff9f8054d556b40e72af5f5e4a0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "70b1e40387ce403ba1f989ff649df229",
+          "original_line_bytes": 304,
+          "original_line_sha256": "7feb51e5687f277d504f489942a12b22f14f3fae5f4c4dd2b782d5f3ecf6f6cf",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "89105c07d9bc4c988656f52fb48ed037",
+          "original_line_bytes": 303,
+          "original_line_sha256": "2e80ad32be2818edbff06a5fa32a4ca6288480bf71cdf3bc9a37f8dec362b520",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "82781676c4164e028d93639e229327a6",
+          "original_line_bytes": 304,
+          "original_line_sha256": "2ceb4a41993b24a07e9273638fb61f766575302901b63d48c2953f77805539fc",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "e35bb04c0fc6454e95ca1c40fc835c9c",
+          "original_line_bytes": 403,
+          "original_line_sha256": "8b43663e3d8b73a098570b5b35c3cbb0f2b65740fd0058f14992a03659a04da0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "55ffaa16593c41e4876809dae068f15d",
+          "original_line_bytes": 304,
+          "original_line_sha256": "9752e944a7f3da36d69b8e5a15d26dc4f6d00110366830ff3b572f017d043809",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a704c3b77df7456e991e04f634662d46",
+          "original_line_bytes": 303,
+          "original_line_sha256": "dfe7a022be7e02aef8d813c68dc1d24f33b93b709428e55ecdcc6ecd29a7e812",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "47611b8e5f064b86a0416d687548b005",
+          "original_line_bytes": 304,
+          "original_line_sha256": "91a0194afd5bf3e7812e1c2e1064d27c8d154ba9fc43b22dfd8ca61df91c1333",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-torch",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "torch",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 78,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20605
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 37,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20161
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 41,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20200
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 844,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21085
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 847,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21011
+        }
+      ],
+      "zip_sha256": "f25b0d054946e8e9682105eb335b5594b4c1c58c06dc25404c1f45b1a21e34d1",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "5792c3977f334bb696af72f941414047",
+          "original_line_bytes": 288,
+          "original_line_sha256": "ce275c2c4d336a13e9b0ad085e6ca4d2346d303d4855108996ad312672a4d42b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4eadd5de5b724987b203df2b7a91eace",
+          "original_line_bytes": 391,
+          "original_line_sha256": "25360839ac4e2cc8a31ef1b8804afffb49b3d1a3fe4dd49303b2f93f306b5d04",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2f3af1b632e644f09ae4bf1ca15ae4e0",
+          "original_line_bytes": 293,
+          "original_line_sha256": "50741f82ebf321d61f031a6c04195d86db4cd181ea39102f92405898006a018b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "483283a967244015a75207d4c74fda1f",
+          "original_line_bytes": 292,
+          "original_line_sha256": "96f93e4ad7da8e4e3f65e91c64ab745d306f72d983a6cbd1b5f477646476492f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "cc5ca19b6d9346e9b36561b79a86b183",
+          "original_line_bytes": 293,
+          "original_line_sha256": "6a26c5bf21115c43ccfb6535599d62518fb44dd78b740261356092df30f9e58d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "6fe734ada5944f65965f95df4e01537e",
+          "original_line_bytes": 390,
+          "original_line_sha256": "400b7396f2e1ab89e04573d6206bf78ef93063c5e20b79dff1a000c7e02f42f9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "abba124030bc476080478723223a06ae",
+          "original_line_bytes": 292,
+          "original_line_sha256": "f40bfe442e7049a5102edeff70fdcac9541a821b0da998d4598fe8a4d2141833",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "416de48baf394b2282fbbd6a144eece4",
+          "original_line_bytes": 291,
+          "original_line_sha256": "3b9f17c426bab641220b24b36847f71839008c883c2d91d2cf52c82da366794d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "5edb5ecd56494ccbbcca2f556f3e8c9a",
+          "original_line_bytes": 292,
+          "original_line_sha256": "4f41b334d077e8c0e666487e5e2dab05f40f71709e082fc39584882cd73a1462",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "229b9b81bcee4527a2b2f702e53961ef",
+          "original_line_bytes": 393,
+          "original_line_sha256": "9fe93f3703d03c18f769f859019ac44d59850bb7d165e246e5bb4081efcc6e17",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "d850d2df0cde47c3a100061775875ceb",
+          "original_line_bytes": 294,
+          "original_line_sha256": "45e36db337f980cea5faa3753957dfe03cb870bf37c033a0410ef58849644327",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1e72882593f3445eb236f8020b41e7a8",
+          "original_line_bytes": 293,
+          "original_line_sha256": "3bf5a20ee3a67b0d8aa533612a053da58147f0350ae0faa90e53dd213cf456b3",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "dbbc017310bb4aa289dada589f131b6e",
+          "original_line_bytes": 294,
+          "original_line_sha256": "b90f2cf209a5b5244f38a86ab90f195713cf9c8a5187a00c389b4683897d7393",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "323b9108b813457a9509e5db6c32f9af",
+          "original_line_bytes": 403,
+          "original_line_sha256": "e454e97890fae86bb0574b941822c2ca1aa7b4595c01d5b09ef03741c7caebea",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4315b18003f84835b29859496a2adb56",
+          "original_line_bytes": 304,
+          "original_line_sha256": "a308cc715020f9232e3c95035909fe237b59f4168accc8de7ee12f738ca4ef6d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "ed27cd9388bf4f398e94f0f071fafde7",
+          "original_line_bytes": 303,
+          "original_line_sha256": "8c8ede6eb0b33d9df544dd35f27ff523e05a00bebdb4945e75304b511356342c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "25860aa2b7524293b5327c303d611522",
+          "original_line_bytes": 304,
+          "original_line_sha256": "9286cfee36c10477939add7ded475cd381f84022abfd76c84a71ad88304df0ee",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "4523b7e75e364eeb84cf5fd8d24c0595",
+          "original_line_bytes": 403,
+          "original_line_sha256": "e432a0f313512d3e4bab3cf457b727f5109d5613f76674cbad527475e7e10b4f",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "d3af707a9f584ed882a9b829dcfc8577",
+          "original_line_bytes": 304,
+          "original_line_sha256": "616a175ad506d6476f5d2a737006097d6d5a5eaf1d76bf98c728cafa7cd0c639",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0611974292b3448fbd0e4f5f3284dd6a",
+          "original_line_bytes": 303,
+          "original_line_sha256": "bc2d0be89cfb549fa91bb450f34b9970e7ad5eb8bd46a3b1df2453f5d8998dd0",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "ca931086ad7d4d55963c86d627092a5f",
+          "original_line_bytes": 304,
+          "original_line_sha256": "6c7d348141eb0fa96224a83e77cd1d4f31948c4f35a711f1aabc272eae082ba6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/four-hosts-r1/stopwatch-flash",
+      "status": "PASS",
+      "observations": 21,
+      "mode": "flash",
+      "actual_atomic_route_windows": [
+        {
+          "route": "ledc73",
+          "pattern": "roundtrip",
+          "route_window_us": 84,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20360
+        },
+        {
+          "route": "rmt81",
+          "pattern": "roundtrip",
+          "route_window_us": 41,
+          "away_raw": 81,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20181
+        },
+        {
+          "route": "out-inv",
+          "pattern": "roundtrip",
+          "route_window_us": 40,
+          "away_raw": 768,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20171
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-hold",
+          "route_window_us": 855,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 20965
+        },
+        {
+          "route": "ledc73",
+          "pattern": "unsupported-low-rise",
+          "route_window_us": 873,
+          "away_raw": 73,
+          "returned_raw": 256,
+          "before_raw": 256,
+          "arm_to_return_us": 21009
+        }
+      ],
+      "zip_sha256": "d940bf7ba2d7685a22f2aac02745cf1b5ea5e8809e03ca8f9990e34c937dcda7",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "d2dc876d54744133a6974ce1cdbe501d",
+          "original_line_bytes": 288,
+          "original_line_sha256": "8c91151c49d1c76115bcc7ed1b82d546908ae878f149bba2b6cd4cb710b1d449",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "a048230fcb9e42768b5e3d39dcb874b2",
+          "original_line_bytes": 391,
+          "original_line_sha256": "38ed19bec36b4724eeab7cc669999e7d2201c8234996c2c17f7b7b3270990c67",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bc1d96ec46504fa5acc6452dd328c287",
+          "original_line_bytes": 293,
+          "original_line_sha256": "808c389b57e2298d3d6927539e2169110b7b623ea34b6b88f8d97ec94b543d81",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "3f7044772a1d42789c2af6461108169d",
+          "original_line_bytes": 292,
+          "original_line_sha256": "c333c994388d0dcf1c57e0989659d5a27ed4edcc28fb2f413310be5a7fc8f067",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "e12ed719e1f4420bb8acaee1ff655e58",
+          "original_line_bytes": 293,
+          "original_line_sha256": "d1ed2f5877e346ba8832c35f2efb67dca5759a52b163e42f02202164848dd80b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1338e42ea16341a08c5684baab53057d",
+          "original_line_bytes": 390,
+          "original_line_sha256": "d4954c40aefe4e46a91e0ee34675155f5fd96aa2e6d446d37d93d6bcbbff97a9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b94e86ff5f914905be99b744a55198a4",
+          "original_line_bytes": 292,
+          "original_line_sha256": "4282686fb16954294bc412b29b33bba1d540b358c2aec9f23a6ec8e992f4eb1d",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "92fb1fbf0c9f44fc9c8c825b3f478230",
+          "original_line_bytes": 291,
+          "original_line_sha256": "967e7a3c6d52de41fc39a711adac055a96ab5a888bf5268e2a51b1be5629a126",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "125eec7fa3b24d4f894695e26a27ebd6",
+          "original_line_bytes": 292,
+          "original_line_sha256": "e5b67ef3e63cfd7bc83bea53c593f82aac2995c3ac8b3a383bf5288c8ea52120",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "6be6c00c26ad4463986d2ccb20ba39e4",
+          "original_line_bytes": 393,
+          "original_line_sha256": "3e2ac1a6515ecc47bd097962523d01f719a25cdfa55ee2aad7f150d30a11d9ac",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "f01a34624b3c4490b3687466aa69ad50",
+          "original_line_bytes": 294,
+          "original_line_sha256": "3968cbec24fc4c1f3af6c0006f8ce3f940376d0955f84679f6add96f463be312",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "3b09d40b3828404ebec919ba2b3417ee",
+          "original_line_bytes": 293,
+          "original_line_sha256": "0a9e1ed22ec9961feb526b00654d84568cb2464660350043bed6df8f1f5e75a6",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "b19d5cf815194afbb9347dde4a40343a",
+          "original_line_bytes": 294,
+          "original_line_sha256": "e64bab5f2691a7d68786513fa31ba4f74386269ddc4dedd18ce013a4b8a716d3",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "e62448fe96ab4c1fa81cfb13c4bdd75a",
+          "original_line_bytes": 403,
+          "original_line_sha256": "d21312fa30ab8c062c6875b6edc0214be93ce7eee51f89c70d94838b1c42e435",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "bda63db9176442c4a1fb4f16aeed2a37",
+          "original_line_bytes": 304,
+          "original_line_sha256": "325f81e4f669f20b2d75251c78aa686bb4b8b7b555538fbe0cd1c0dc02884fff",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "0aaf939ca5f34398b1acce44d53277fa",
+          "original_line_bytes": 303,
+          "original_line_sha256": "b78242596c8a0fbbbcf9493f63625ccfbe76b6d6698356d41c8ce7275a62b94c",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "6994f11e4e26476ea19bad7e326bc2b2",
+          "original_line_bytes": 304,
+          "original_line_sha256": "38e7511f33bb6b75beca145490f9fa9952564efa618069664fa5dbe0b00eb4dc",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "393ecf4029cd4afba43f38464962a72b",
+          "original_line_bytes": 403,
+          "original_line_sha256": "a12d16baad49c77ceff1cf208316767465e73f1daa795210e7957685fb204c44",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "9b348a7a34984119992d4c18b0420519",
+          "original_line_bytes": 304,
+          "original_line_sha256": "5c49135e18dc71d00baef007c467fbcb7b995737c4d357da9370b4028c1944bc",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "2ea6beab1b8243008ffd8e1b06f29d70",
+          "original_line_bytes": 303,
+          "original_line_sha256": "85597df75b6f0282e498d7c6b366be1879e60f5f8c676c282d14174347b1e7be",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fd6d3a8b8c834e8a8d772b2b3cdf81d1",
+          "original_line_bytes": 304,
+          "original_line_sha256": "9d783576084a59f9b0b5b6609909776eb57b10bed5ebd9535e1783611d7e1a4e",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    },
+    {
+      "folder": ".work/flashlight-route-live-gen47-20261027/web-owner-r1",
+      "status": "PASS",
+      "observations": 14,
+      "mode": "torch",
+      "actual_atomic_route_windows": [],
+      "zip_sha256": "32e07b28827536fa030c6989b602225facce23c01edcfb6c004f4496b3815506",
+      "same_vm": true,
+      "original_raw_serial_ascii_windows": [
+        {
+          "execution_id": "d20a59c02c724b3a8b6154723491cb6c",
+          "original_line_bytes": 288,
+          "original_line_sha256": "bb281213273e93b38e4fa1b7a67160e3e2d7eba11f63810d37130a0522073c22",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "440a5a7623f94b94aa78ce0165884d7e",
+          "original_line_bytes": 293,
+          "original_line_sha256": "c125dd5508a6a6b0aa7ece6c175476dbb10d393ab912bba096f73f3622844644",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "5bfaef53d54f468c90a1dfbc74f64d75",
+          "original_line_bytes": 285,
+          "original_line_sha256": "a6696df127714498bac9933a5689d99d79a1ed3f5bf7757d56c8ab2ab34e70c5",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "1d877e7874b34a83acaa28e371750bc6",
+          "original_line_bytes": 289,
+          "original_line_sha256": "222b77e4e19878468226561dcedbb6b04986b9f2a3538aae2517a892cb44584e",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "718e1e136f1d4a32b413fa3a9a661dc1",
+          "original_line_bytes": 292,
+          "original_line_sha256": "54f9d2fa5ae19c0cba9aeb802e4b78a9c1f10196226bc334cad5f14e4a4367bf",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "7dcdcf19e65d4880aba61c827c6756d3",
+          "original_line_bytes": 293,
+          "original_line_sha256": "c125dd5508a6a6b0aa7ece6c175476dbb10d393ab912bba096f73f3622844644",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "80889c79860a49d3b95518f2f62ede4f",
+          "original_line_bytes": 284,
+          "original_line_sha256": "269bd3fccf3a13507077ca915a0afc6b32876719b25d19eba4e71a802bc9a35b",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "55064eebfa934f91a9a3c9135d9c8215",
+          "original_line_bytes": 288,
+          "original_line_sha256": "b8273e6c65c9df172340dcbc0a7a577be0d0d04035a6fa9cbe3be3372135e0f9",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "100b5ec94c4f4dcab3f40cdda3374d96",
+          "original_line_bytes": 291,
+          "original_line_sha256": "b03589775665cee163018a88c204bc711e9511be9b2c9e127b934f4de0123496",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "50157e0e35614ae4ac931cd813a620ae",
+          "original_line_bytes": 292,
+          "original_line_sha256": "2cdef1b6f4ecdde614c38f27d8e607e384a3f374309c9358d102876eee02c93a",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "fae85f89134a42d38e37833f3429d48c",
+          "original_line_bytes": 287,
+          "original_line_sha256": "1cc755d4468397afb68ae2cd12576855cda51e58494dbf7f4f6fa633159d77ee",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "32a339499ed645c38feb5c3b60f25951",
+          "original_line_bytes": 290,
+          "original_line_sha256": "22217cc255f9e6fdf8313ac2effe546df7ec4e18532b0d92ff45ae1844cf41b2",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "e5b77ac7276749d1bfd2a4223cdbfe5f",
+          "original_line_bytes": 293,
+          "original_line_sha256": "2f312da2100fed0af1dea7bace6577b2d058437caaa43dc6bf338879f0641e14",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        },
+        {
+          "execution_id": "063acb0641f44fc79ed053b411a9f2db",
+          "original_line_bytes": 294,
+          "original_line_sha256": "f3e7373683f9807b4f93ef34779f63a1c612035367ab680aa8546061cbb43a99",
+          "decode_scope": "ASCII JSON line only; original raw serial remains bytes"
+        }
+      ],
+      "serial_storage": "Original ZIP member bytes hashed without transcoding; no converted serial asset written",
+      "hardware": "NOT RUN"
+    }
+  ],
+  "verifier_sha256_before": "16f2c70fd9360475bc3d6d239ebca0b282eaa5b43908001fed32d5747dc32516",
+  "verifier_unchanged": true
+}

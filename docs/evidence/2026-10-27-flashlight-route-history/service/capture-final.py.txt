@@ -1,0 +1,44 @@
+"""Read-only final source/runtime/storage/idle check, after owned guest cleanup."""
+import datetime
+import hashlib
+import json
+from pathlib import Path
+import urllib.request
+
+root = Path.cwd()
+start_path = root / '.work/unit-host38-owned-start-gen47-20261027/start.json'
+start = json.loads(start_path.read_bytes())
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+assert all(sha(root / p) == h for p, h in start['source_sha256'].items()), 'service sources changed'
+runtime = root / '.work/unit-runtime-source-route-history-final/qemu/build/qemu-system-xtensa'
+assert sha(runtime) == start['runtime_sha256'], 'runtime changed'
+package_root = root / '.work/unit-device-service/program-packages'
+revision_root = root / '.work/unit-device-service/program-revisions'
+assert all((package_root / p).is_file() and sha(package_root / p) == h
+           for p, h in start['preserved_package_file_hashes'].items()), 'old package changed or removed'
+assert all((revision_root / p).is_file() and sha(revision_root / p) == h
+           for p, h in start['preserved_source_record_hashes'].items()), 'old revision changed or removed'
+with urllib.request.urlopen('http://127.0.0.1:8787/api/v1/health', timeout=5) as response:
+    raw_health = response.read()
+health = json.loads(raw_health)
+worker = health['capacity']['worker']
+assert worker['pid'] == start['pid'] and worker['generation'] == 47, 'service owner changed'
+assert health['capacity']['active_sessions'] == worker['active_lease_count'] == 0, 'service still in use'
+assert worker['state'] == 'ready' and worker['accepting_leases'], 'service not ready'
+out = root / '.work/unit-host38-final-service-20261027-r1'
+out.mkdir(exist_ok=False)
+(out / 'health.response').write_bytes(raw_health)
+receipt = {
+    'status': 'PASS', 'category': 'READ_ONLY_AFTER_GUEST_CLEANUP',
+    'captured_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'startup_sha256': sha(start_path), 'pid': start['pid'], 'generation': 47,
+    'runtime_sha256': start['runtime_sha256'], 'source_files_match': len(start['source_sha256']),
+    'source_sha256': start['source_sha256'],
+    'preserved_original_package_files': len(start['preserved_package_file_hashes']),
+    'preserved_original_source_records': len(start['preserved_source_record_hashes']),
+    'active_sessions': 0, 'active_leases': 0,
+    'health_sha256': hashlib.sha256(raw_health).hexdigest(),
+    'new_guests': 0, 'service_reloaded': False, 'hardware': 'NOT RUN',
+}
+(out / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps({k: v for k, v in receipt.items() if k != 'source_sha256'}))
