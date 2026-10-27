@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-26`
+日期：`2026-10-27`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在
 [项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
@@ -11,6 +11,23 @@
 [代码与验证入口地图](code-map.md)。
 
 ## 一页结论
+
+UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始化后不重复刷固件；AIFlow/Agent使用Preview/checkpoint/Run协调，普通非托管会话保留`/program`。四款准入主机的
+PIR/Relay 已验证同 PID/固件/VM、原驱动、应用帧、循环替换与 SyntaxError 恢复。
+真实 CoreS3 Web 编辑器另验证双向输入/输出和实际帧像素送达屏幕，见[既有程序证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-program-web-and-hosts/README.md)。
+CoreS3/AtomS3R/StickS3/StopWatch 的 HUB 下 ENV III/NCIR/TVOC 与
+Encoder/8Encoder/Joystick v1.1 已验证同 guest 原驱动、独立leaf输入、I2C/QOM和guest LED写回，见[本轮证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-unit-preview/README.md)。
+QEMU 新增显式 `max_age_ms=1..1000` 的按需共享帧样本和 ETag/304；默认 GET、
+evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，Tab5/network不继承。
+时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
+独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回。RGB/Encoder/8Encoder默认全灯同色反馈按排列不变性实现，非对称/不可用时撤色并标unknown；逐灯与旋转binding仍为UNIT-HOST-29 OPEN，范围见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
+`/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；公共完整checkpoint保存/查询及同步revision引用已实现，串口按offset只读有界窗口。program_features明确main.py/fresh-globals/interrupt-only；普通导入不运行if-main，1.44可保存/读取main.mpy checkpoint，四主机双lane拒绝不打断旧程序已验；1.45显式manifest base沿传安全/能力/PSRAM并拒绝CAS来源冲突，CoreS3候选loader同VM重跑/异常/Ctrl-C/PIR诊断已验，1.46受控bootstrap真实bytecode canary后有条件开放main.mpy，gen45 CoreS3 stock保护/兼容固件ordinary与真实Preview Web共14执行（8MPY）已验；gen46最终恢复门禁另验2会话9执行（5MPY），最终平台1218项通过；默认stock仍false，更多固件/主机及完整清场按UNIT-HOST-33继续，见[公共入口验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-public-main-mpy/README.md)、[入口研究](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)、[文件包证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-package-and-detent/README.md)和[当前块](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。
+FlashLight U152为partial GPIO/虚拟时钟模型：0046/3f1617的四host路由历史与CoreS3 Web限定验收保留，旧完整矩阵66/67、Core2 IMU仍OPEN。0047补真实pad连续观察与无假边沿冷复位，C组合已验；首候选的CoreS3显示/电源回归已定位为软I2C缺显式上拉，修复及必要验证见[本轮收尾](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。本轮未跑新FlashLight四host API/Web或新完整矩阵，37/36及动态S1/PWM/光度/真机不关闭。Scroll原驱动/Web按键/RGB/屏幕保留[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-scroll-controller/README.md)，RGB队列、轴角、回绕、bootloader/持久化仍开放；其它Unit、更多主机/固件main.mpy、保存开机、Preview恢复/GC、SSE与AIFlow目标继续按[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)维护待办。本轮按用户要求收尾停止扩展。
+1.42稳定Preview/异步Run、持久化幂等/latest-wins、真实prompt独立取消、输入drain/帧门禁与保留保护已有[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-run-control/README.md)，含PIR包writing中取消后同VM恢复；1.43接通Live sessions托管消费者和完整文件读取，CoreS3 PIR/Relay外部完整包→Web保留MPY/资源编辑→同VM Run/输入输出/选定帧像素、取消恢复/续租关闭/ZIP与清理已验，见[Web验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-web-consumer/README.md)。重启恢复/并发仅有宿主负控。新增四主机HUB控制组与U131 2Relay的托管Preview限定验收，原驱动、按键/触摸、双GPIO/蓝灯、取消恢复和清理已通过；2Relay另核精确历史帧SHA。窄屏/长dt构图UNIT-HOST-35限定修复，见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；不继承其它guest/AIFlow/硬件PASS。
+interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
+启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-session-cancellation-f309/README.md)。
+Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-preview-client-fencing/README.md)；
+本客户端隔离不建立多客户端server快照全序，其它后端现场执行不继承宿主回归。
 
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 
@@ -171,6 +188,155 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 机械、电气或真机安全状态。
 
 ## 当前工作与下一门禁
+
+`UNIT-01` 外壳固定更新至公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：
+14主机/113视觉Unit及287张许可PNG通过独立完整浏览器检查，默认配置不外推83项变体；
+84款仅视觉；内部协议登记29种，新增U131双GPIO/蓝灯，Scroll及2Relay均保留partial边界；不得继承MCU完整行为、机械或电气等价结论。
+见[外壳与checkpoint证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。新10-patch独立冷构建850426下CoreS3定向7PASS、完整矩阵66/67；Core2 IMU相同marker黑、UART正确，独立单例PASS不回写完整轮，UNIT-HOST-21仍OPEN。29款协议登记可从固定源码栈重建，精确范围见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；视觉和协议保留独立来源。
+
+CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
+浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、
+串口、帧、冻结 Unit contract、停止前 ZIP 和保留历史。显式选择来自 gen7 的
+16 个成功记录与 gen8 的 11 个补测记录；原轮失败、中断和未执行项保留，不能
+称为单次 27 项全绿运行。见[严格选择与范围](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-final-selection-a8fe/README.md)。
+该历史选择中 26 款使用原 Unit 驱动路径，IR 只在明确 opt-in 的 custom callback-root
+补丁下闭环；原发布包装驱动的 GC 回调和 uint8/native16 TX 边界仍单列。
+后续更严格的 Buzzer 定时检查发现旧断言会接受稍后的手动关闭；原版 once
+自动停止现为 FAIL，显式 custom wrapper 结果另列，不能继承该历史汇总。
+
+共享控制器已在冻结 Xtensa `a8fe15db…` / RISC-V `ff6c2ef7…` 的独立完整轮次
+通过；初轮失败与 VFS 定向复跑保留为历史。这不关闭 Core2 legacy WDT/黑帧。
+服务启动的 QMP 建连竞态和握手异常 socket 清理已修复；真实冷写入会话自然从
+flashing 到 running，并在不刷新页面的情况下恢复 Unit 控件和读回。
+
+Button/Relay/ENV III 在 AtomS3R、StickS3、StopWatch 的九个独立 gen9 session
+已通过设备本地 guest/controller 与真实 Web 严格功能验证，停止前 ZIP 和历史
+均保留。九张 native frame 完整；三张 ENV 浏览器截图的标题上缘被 sticky
+header 遮挡，构图单列 `PARTIAL`，不称完整视觉验收。
+见[九组合证据与边界](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/README.md)。
+Joystick v1.1、Encoder、8Encoder、CardKB、RFID2 在这三款 S3 主机的显示
+修正固件已完成三个独立 gen9 批次、十五个可见 session 的功能验证；原驱动
+断言、真实 Web、直接 PID、ZIP 和实际停止历史均绑定。十五张实际最终原生
+帧清楚分行，StopWatch 文本在圆内；可读性只覆盖这些捕获帧，未外推到所有
+中间态或极值组合。见[新固件三批证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/README.md)。
+精确主机/固件结果已加入 `host_validation`。原批 AtomS3R 的功能 PASS / 原生
+多行可读性 `PARTIAL` 保留为[历史证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-atom-controls-r1-a8fe/README.md)，未回写旧记录。
+上述八款的主机本地结果保留。整体 runtime 状态保持 `implemented`，具体
+固件/主机/浏览器结果单列，不从子批次升级整个工作流。
+三主机五款控制类的准备与执行入口已收拢到 `tests/units/`：按真实参考镜像
+分区打包，默认离线核对当前源码、工具链、完整准备文件树和 VFS；源码漂移
+必须重新准备。显式执行复用原 CONTROL 断言与真实 Web，并直接保存停止后的
+历史响应；入口迁移不扩大既有主机准入或已归档功能结论。
+三主机六传感器的 `prepare_host_sensors.py` / `run_host_sensor_cases.py`
+也已迁入，18 份完整 VFS 镜像与离线候选逐字节相同。原驱动与初始化/负控/
+采样链保持；初始 BLOCKED / NOT EXECUTED 与开发准入 NOT RUN 记录保留。
+后续完整的 18 组合已通过 gen9/a8fe 可见会话：36 个新鲜串口输入向量、84 次
+真实产品 POST、93 条初始化负控和 294 项原控制器断言分别核对。外部精确
+scan、内部 BMI before/after/loop、实际字体与布局、直接 PID/固件/worker、
+停止前 ZIP 和停止后的历史均绑定。主机结果只登记对应固件，其他组合不继承。
+见[传感器三主机实际证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md)。
+18 张最终历史原生帧及 Heart 两张不同的早期 controller 帧已逐张看图；可读性
+只覆盖这 20 张实际图像。Heart 原驱动在有效样本间出现零值，StickS3/StopWatch
+的分次帧也不同，三路采集分别绑定，不声称跨请求原子一致或 BPM/SpO2。
+通用 QOM 树截断在 Unit 前，路径证据来自冻结 contract/查询实现与实际 guest-QOM
+和 chip 计数。准备工具本身不授予 PASS；其余未准入组合仍在 API 操作前拒绝。
+视觉绑定仍分为已映射、待绑定、定性活动和面板展示；未确认的 LED 位置、
+轴向/角度和机械响应不能称为已完成动画。物理硬件验证仍为 `NOT RUN`。
+
+异步模型加载现在隔离 DOM 归属；本客户端松开请求失败后保留意图并做一次
+有界补偿。23 项确定性故障回归和一个真实 CoreS3 Button 会话均通过；晚到模型
+不清空 2D 帧，实际丢失 release 后 controller/guest 自动释放，普通手势不增 POST。
+见[前端恢复专项](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-web-recovery-a8fe/README.md)。
+该补偿不是服务端多客户端同键仲裁，也不关闭其余视觉与跨主机覆盖范围。
+
+12 款静态 Unit 现通过画布外读数 rail 显示当前控制器标量；来源必须是
+running session 的冻结定义与 live guest-QOM，停止、不可用或越界时不显示
+未确认数值。模拟输入、固件输出、Thermal fixture readiness 与控制寄存器
+状态分别标注。离线语义、反例和四项浏览器回归均通过；真实 CoreS3 ENV III
+两向量及 Relay 双输出态的[首批实时读数证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-readout-live-a8fe/README.md)
+保持不变。后续显式选择九款成功记录与 Light/Thermal 的新双例批次，11 款
+原驱动路径均完成新的 guest/HTTP/QOM/DOM、直接 PID、停止前 ZIP 和历史
+检查，见[扩展读数证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-readout-expanded-a8fe/README.md)。
+Light 实际五次 POST，首次 false 由首 POST 前的真实 GET 证明；Thermal 两个
+raw fixture 均经过 guest 768 像素及 9 样本计算，rail 仍只表示 6401 控制字和
+fixture-ready=true。旧 Light 计数失败不回写；大尺寸整页截图只核完整解码，
+不等于构图验收，独立帧/轮询也不证明原子快照。
+
+Buzzer 原固件的 once 自动停止失败：natural 镜像到期后真实控制器仍约 50%，
+独立 trace 镜像抓到 frozen SoftTimer 调用 Haptic callback 的 TypeError 和
+后台线程退出。显式 opt-in 的 custom Buzzer wrapper 适配 timer 参数后，
+六个 rail 阶段及手动输出前的自动归零通过；相同新断言下原版仍 FAIL。
+默认原版镜像 SHA 不变，QEMU/frozen 模块不改，见
+[Buzzer 专项](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-buzzer-once-a8fe/README.md)。
+S3 getter 缺支已有 `0037` 受限修复：同固件 SHA 的实际 getter/MMIO A/B
+验证稳定 set+update 路径，pending/current-cycle、fade 与其它时钟仍是缺口。
+Buzzer 浏览器试听由实际 guest-QOM 驱动、用户启用，停止时关闭音频上下文；
+自定义诊断固件的显式零 setter 与静音准备窗均单独标记。原发布驱动的 once
+问题与物理声学边界继续开放。该 `29d8f6ec…` 轮尚未修复初始化 QOM 刷新，
+完整矩阵为 66/67；Core2 IMU 串口正确但帧标记缺失，单例复测通过，不能
+拼成全量 PASS。完整范围与失败保留见[本轮证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-ledc-audio-29d8/README.md)。
+
+三主机十二 IO 的正式入口已完成离线准备与开发准入，原协议/负控/采样/断言和
+官方驱动保留；ADC 的 app calibration 与 ADC2 oracle 条件在 API 前阻塞。
+这些新准备包不授予功能 PASS，源码合并变化后必须重新准备。用户已将近期
+交付聚焦于外部 Agent 的 HTTP 链路：创建虚拟设备、选择 Unit、提交 UIFlow
+源码、运行和实时状态/双向控制。已合入最新主线 `f206175`（merge `c53950a`），
+新增 `POST /api/v1/firmware/uiflow`：在已知 reference 的真实 LittleFS 中写入
+源码、读回并保留其它资源，创建 session 时强制 caller-source SHA pin，
+provenance 随历史和 evidence ZIP 保存。当前仅准入 CoreS3/AtomS3R/StickS3/
+StopWatch 四主机 reference；源码 HTTP 与解码后累计源码分别限 1 MiB。
+
+CoreS3 的 Button/Relay/ENV III/RGB/Encoder 五例已通过该源码入口实际运行，
+包括 Web→guest 输入、guest→Web 输出和 RGB 短帧负控。指南逐字 Button 与
+HUB+ENV III+NCIR 另两个 session 也通过，验证自动 boot、两个 leaf 独立
+I2C 读写和同 guest 的屏幕反馈。合计覆盖七种 Unit 的源码 API 路径；HUB
+是被动接线，不凭其零事务值判失败或虚构控制器。所有八个会话（含单独 Button
+预检）停止前取 ZIP、保留历史、PID 退出并释放 Flash。截至该首批，其余三主机
+只有源码打包离线检查，不能继承 CoreS3 的此次运行 PASS。调用方式见
+[外部 Agent 指南](unit-agent-api.md)，精确 SHA/输入/原始证据见
+[本轮归档](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-source-api-29d8/README.md)。
+
+CoreS3 选定源码场景覆盖27种Unit：25种原驱动及IR/Buzzer两种显式custom，
+来自多批独立会话，不是单次原版27项全绿。扩展批22个功能PASS与Thermal
+missing-fixture负控分列；raw fixture功能例不混计。四控制例保留原驱动/断言，
+只作可逆display-only调整。Fan动画限100% duty观测，Heart不证明BPM/SpO2。
+原IR为协议观察通过、GC长期风险OPEN；原Buzzer自然timer-zero仍FAIL，手动OFF
+不能补PASS。旧harness误要求output-only输入POST的browser_error不算产品故障。
+相关固定上游wrapper/native源码保留callback/保活模式，但不外推所有port/发行
+固件。caller、fixture、source pin及原驱动/custom精确边界见
+[扩展证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)及
+[27种源码指南](unit-agent-api.md#已验证的-27-种源码场景)。
+
+AtomS3R、StickS3、StopWatch各有11种选定源码场景：先前Button/Relay/ENV III
+九组合，后续PIR、DualButton、LIMIT、Key、RGB、Fan、RS485、HUB共24组合，
+HUB含ENV III/NCIR/TVOC三个leaf。后批Fan3在cba4e3c、rest21在0a6a9a2同步主线后
+执行；两批481项源码依赖字节相同，runtime均d1ba/gen12，每份19个caller保留。
+同guest的host字体/canvas/BMI内部总线及GPIO/RMT/LEDC/UART/I2C断言、新鲜串口
+上下界、真实Web、source pin、PID、停止前ZIP与历史/Flash清理有独审。
+指南共60份请求；三HUB原生数字token拆行仍PARTIAL，完整精确数值由UART/QOM
+单列验证。非空帧/尺寸不等于所有UI状态可读，也不继承其它组合、ADC/Thermal、
+原IR/Buzzer、hotplug或硬件。见[九组合](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-source-hosts-29d8/README.md)、
+[后续24组合](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-source-host-io-d1ba/README.md)与
+[源码请求](unit-agent-api.md)。
+
+0038关闭初始化GPIO路由观察缺口：route改变时只读重算现有LEDC状态，不重放
+MMIO或由Python填值。d1ba来自独立冷构建/八patch重放；同固件/caller/CAS、
+无初始化后setter，旧29d8八窗0Hz/0%，新d1ba八窗2000Hz/0%。每组仅约4秒guest
+采样，非60秒soak、上电首瞬间连续证明或物理脉冲。独立单次完整回归全量通过，
+无重试；精确计数见验证台账，旧失败轮不改写，Core2偶发marker
+根因仍OPEN。完整ROM/C6仅mid/end freeze、PaperColor RGB命令静态重构、六IR
+mutable Flash hash变化但最终源码相同等限制均保留。完整PWM周期/latch/fade、
+原Buzzer定时回调、其它固件和硬件仍OPEN，精确来源见
+[PWM修复与回归](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。
+
+CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
+线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共
+13 组通过；合入后的 model/panel/bridge/mount/HUB 五项浏览器回归也通过。
+可选布局异常不会销毁成功附件或改写兄弟输入归属。其他排列、主机、深层 HUB
+和 custom pose 不继承几何通过；手机总览按钮触控舒适度仍为 `PARTIAL`。
+见[限定布局与证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-hub-layout/README.md)。
+长卡片证据截图改为不二次滚动的完整 document clip，真实标题命中与旧实现
+负控通过；历史 ENV 截图的 framing `PARTIAL` 不改写。
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |

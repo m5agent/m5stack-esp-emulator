@@ -1,0 +1,401 @@
+{
+  "savedAt": "2026-10-26T11:42:17.198715+00:00",
+  "stage": "modeled",
+  "scope": "New DCSSR/NCIR2/Reflective IR complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 89,
+    "modeled": 103,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "dcssr",
+      "status": "pass",
+      "report": "docs/research/dcssr/smoke.json",
+      "meshes": 184,
+      "triangles": 123990
+    },
+    {
+      "id": "ncir2",
+      "status": "pass",
+      "report": "docs/research/ncir2/smoke.json",
+      "meshes": 113,
+      "triangles": 82308
+    },
+    {
+      "id": "reflective-ir",
+      "status": "pass",
+      "report": "docs/research/reflective-ir/smoke.json",
+      "meshes": 85,
+      "triangles": 22032
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/dcssr/reference-redraw-controller-back.png",
+      "pixels": [
+        2250,
+        900
+      ],
+      "sha256": "a29480edd372d7aafa9f04429d7b0f6f0ff1bfb6e2bde6958a5b3dd8e6bb87fc"
+    },
+    {
+      "path": "src/units/dcssr/reference-redraw-ssr.png",
+      "pixels": [
+        2150,
+        1450
+      ],
+      "sha256": "fa0d16b028df121517767b41d2adac4001c7d499148a5f61b236bf8450421432"
+    },
+    {
+      "path": "src/units/ncir2/reference-redraw-back.png",
+      "pixels": [
+        2106,
+        3536
+      ],
+      "sha256": "2054e5e354d917d3908788602dca60e4413386ea8869c678eda99abf228039fe"
+    },
+    {
+      "path": "src/units/ncir2/reference-redraw-front.png",
+      "pixels": [
+        2366,
+        689
+      ],
+      "sha256": "e417403e9a726b901a63ddaf8efbbae047adf62e965f74fbc61beaf66f6c9137"
+    },
+    {
+      "path": "src/units/reflective-ir/reference-redraw-back.png",
+      "pixels": [
+        2560,
+        1920
+      ],
+      "sha256": "96dd782986249ec4ffc86d17c026bcd315653a6a7a8838fee7dc44d0900179eb"
+    },
+    {
+      "path": "src/units/reflective-ir/reference-redraw-front.png",
+      "pixels": [
+        1600,
+        1600
+      ],
+      "sha256": "587be15c51e9ead3eddef5b15d8c866dadbed5a2006268626fb8ecbaf583aece"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "dcssr",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ncir2",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "reflective-ir",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-button-press-release-cancel-and-exact-return",
+      "independent-RGB-and-fixed-red-indicators",
+      "four-DCSSR-terminal-heads-and-two-four-screw-plugs",
+      "independent-plug-detach-and-reassembly",
+      "finite-reflective-IR-trimmer-angle-no-RPM",
+      "passive-sensor-anchors-reject-numeric-behavior",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-cable-pose-and-selective-branch-detach"
+    ],
+    "scope": "New actual assemblies and external shape/input interfaces only; Node canvas stub, no browser, relay, electrical, temperature, sound, reset, distance, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "dcssr",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ncir2",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "reflective-ir",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-button-press-release-cancel-and-exact-return",
+      "independent-RGB-and-fixed-red-indicators",
+      "four-DCSSR-terminal-heads-and-two-four-screw-plugs",
+      "independent-plug-detach-and-reassembly",
+      "finite-reflective-IR-trimmer-angle-no-RPM",
+      "passive-sensor-anchors-reject-numeric-behavior",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-cable-pose-and-selective-branch-detach"
+    ],
+    "scope": "New actual assemblies and external shape/input interfaces only; Node canvas stub, no browser, relay, electrical, temperature, sound, reset, distance, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "dcssr",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "ncir2",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "reflective-ir",
+        "status": "frozen",
+        "checkedFiles": 12
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "f7bd8d332e393e1f2c42ed3b1da6b2f43b58f393ec7eff5b71c091f41b5fa572",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "3554cf9f3f0e1cbb84ccecd1b78b32c2e84cb3956a5b5f4019e009fcfabf03fc",
+      "logDistributed": false
+    },
+    "livePreview": "103-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 679,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "dcssr",
+      "record": "docs/research/dcssr/sources.json",
+      "feedback_id": "a1da7ba30adb4fd5ba6dfc708e8aed1f",
+      "accepted": true
+    },
+    {
+      "product": "reflective-ir",
+      "record": "docs/research/reflective-ir/sources.json",
+      "feedback_id": "284ffb97bc824e248cc5aaf576c7e665",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "dcssr",
+      "file": "assets/dcssr-DXe085pl.js",
+      "sha256": "2d13668427339bc0fd19b760a3cd75fb30035b0952f7646607a6d42b943e4f60"
+    },
+    {
+      "id": "ncir2",
+      "file": "assets/ncir2-CKB40Q3K.js",
+      "sha256": "6a5531628a92dbcdfe73eab8c8df17c431f2c3554ba096c2f56ea97f2895efb6"
+    },
+    {
+      "id": "reflective-ir",
+      "file": "assets/reflective-ir-Cc_7JAgY.js",
+      "sha256": "f19e3a2ad314e2ff66db243839259e4bdd233c16724903cd60a50a364a767d70"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/dcssr/NativeFlexureButton.js",
+      "sha256": "34613061bbcef47144a5485630e2e4f16969500a0f257c88b84378b5eb6c0ede"
+    },
+    {
+      "path": "src/units/dcssr/TerminalPlug.js",
+      "sha256": "dc4035dc539423e87eebf6cd470985190e2afa9797449769a460f97917035863"
+    },
+    {
+      "path": "src/units/dcssr/assembly.js",
+      "sha256": "478d8256929a75339c1df517b95dc4e9adca18a778cfb6689c56139498db05b3"
+    },
+    {
+      "path": "src/units/dcssr/cad-map.json",
+      "sha256": "64c03d36baee50887b7d2c8416392dec252eb6fd79f99ddee7cde4a3cb15956d"
+    },
+    {
+      "path": "src/units/dcssr/dimensions.js",
+      "sha256": "b0bb5329aa7fe73a2b4d44f3b4a29a090fdb05a7c80a0561987145427e206608"
+    },
+    {
+      "path": "src/units/dcssr/geometry-data.js",
+      "sha256": "60aa9e103ff4bd3848d0f2ab4dd135eff8c63a74c7f2e47e31f642519804b83b"
+    },
+    {
+      "path": "src/units/dcssr/index.js",
+      "sha256": "bfcd7d68f73a632ab77dc942dd5c3312fe63654c081818654b896175f0d651f5"
+    },
+    {
+      "path": "src/units/dcssr/reference-redraw-controller-back.png",
+      "sha256": "a29480edd372d7aafa9f04429d7b0f6f0ff1bfb6e2bde6958a5b3dd8e6bb87fc"
+    },
+    {
+      "path": "src/units/dcssr/reference-redraw-ssr.png",
+      "sha256": "fa0d16b028df121517767b41d2adac4001c7d499148a5f61b236bf8450421432"
+    },
+    {
+      "path": "src/units/dcssr/stickers.js",
+      "sha256": "dc88b56a88f7a5cda30faf74afc64c53bb8d0a66d2f3cbd583a93728018748d6"
+    },
+    {
+      "path": "docs/research/dcssr/artwork.json",
+      "sha256": "6fd512ebdf86fb6780b2ca97816501fc063dce935899c15decbdd5ece3baaed7"
+    },
+    {
+      "path": "docs/research/dcssr/modeling.md",
+      "sha256": "dfc03d62a9f915119b50275b330a218c01d5d03945c011efb27e8fdc65fa8618"
+    },
+    {
+      "path": "docs/research/dcssr/smoke.json",
+      "sha256": "6a1001e0a11a92cdc9459be77ad27b8891a32910132c4afd36ba18618b74e539"
+    },
+    {
+      "path": "docs/research/dcssr/sources.json",
+      "sha256": "7230a7da4fde7b33d2de917d23cf1636b11e9f6c0eda596a5b20de2afd4fb1c3"
+    },
+    {
+      "path": "src/units/ncir2/assembly.js",
+      "sha256": "55a9893448d05d1c91a5cf18965da3eeb97855fc1e381a0557d83ae24d94df8e"
+    },
+    {
+      "path": "src/units/ncir2/buttons.js",
+      "sha256": "8d0db5190b9729e540a530830ca4865c0eb17c5d5fe9c670a84eadccef1f9acb"
+    },
+    {
+      "path": "src/units/ncir2/cad-map.json",
+      "sha256": "43ea21325f971876a3455f8671309dce6e72cb78fe28249107a1e0ad6b440f18"
+    },
+    {
+      "path": "src/units/ncir2/dimensions.js",
+      "sha256": "213b787dcba0a0f6cc54aa8e91f35ac1ac31c1b33af26d5066290776a5ec71fc"
+    },
+    {
+      "path": "src/units/ncir2/geometry-data.js",
+      "sha256": "351457fd17316fe4eaf5360c440abbc2261a9fc1d7bdf039d071103624fbe0df"
+    },
+    {
+      "path": "src/units/ncir2/index.js",
+      "sha256": "6f3d866fc07580c86a33b2d8b4d7cd7e9d71601e160cef77c2bae5f4434cc6ac"
+    },
+    {
+      "path": "src/units/ncir2/reference-redraw-back.png",
+      "sha256": "2054e5e354d917d3908788602dca60e4413386ea8869c678eda99abf228039fe"
+    },
+    {
+      "path": "src/units/ncir2/reference-redraw-front.png",
+      "sha256": "e417403e9a726b901a63ddaf8efbbae047adf62e965f74fbc61beaf66f6c9137"
+    },
+    {
+      "path": "src/units/ncir2/stickers.js",
+      "sha256": "2b3a23a17c2776a92a0a8ea53af4fd96087616684d8ccc95467fe27c5375dc76"
+    },
+    {
+      "path": "docs/research/ncir2/artwork.json",
+      "sha256": "7d9ce6efffb4ebb16b4a6a9357bda1d9f4cbbb4ddff7f116443b4fab4950330c"
+    },
+    {
+      "path": "docs/research/ncir2/modeling.md",
+      "sha256": "d6bdaf4ed6eeff5c716aaea10f4e319073972f0fc5d31f2e08ee603ae964283b"
+    },
+    {
+      "path": "docs/research/ncir2/smoke.json",
+      "sha256": "2de214ce2136c18a5e332bea2e5c91faec44db64de80da94c85c854851b58f63"
+    },
+    {
+      "path": "docs/research/ncir2/sources.json",
+      "sha256": "38bb32736627e96bf3979feb5edd086767baaf570f1b2eaaac7efd06a1ea6001"
+    },
+    {
+      "path": "src/units/reflective-ir/assembly.js",
+      "sha256": "889c3071fd69c29fb1c6e4506542f4a0743684891f95f56aac081f95460f375f"
+    },
+    {
+      "path": "src/units/reflective-ir/cad-map.json",
+      "sha256": "472b943fcd8b6af192fbb8b92cedd0a9daa88ed38727f5b338decabe9c1b4df2"
+    },
+    {
+      "path": "src/units/reflective-ir/dimensions.js",
+      "sha256": "a0a3e35dbbe0767115b94df7b2c521a20ffbcef41c650eea13cf80160e3bf248"
+    },
+    {
+      "path": "src/units/reflective-ir/geometry-data.js",
+      "sha256": "d694fe6fa4221667fb038d11202d0212ff6b704ad79d65ad0583b71899ce4fbf"
+    },
+    {
+      "path": "src/units/reflective-ir/index.js",
+      "sha256": "6b06fc8079d1e70f91a84516ed57a323f8b88fa6b64eb90b619e63d98ba26be3"
+    },
+    {
+      "path": "src/units/reflective-ir/reference-redraw-back.png",
+      "sha256": "96dd782986249ec4ffc86d17c026bcd315653a6a7a8838fee7dc44d0900179eb"
+    },
+    {
+      "path": "src/units/reflective-ir/reference-redraw-front.png",
+      "sha256": "587be15c51e9ead3eddef5b15d8c866dadbed5a2006268626fb8ecbaf583aece"
+    },
+    {
+      "path": "src/units/reflective-ir/stickers.js",
+      "sha256": "53bf2f3df57b3ca7e786c217c3a73f020ca0ba3acb4224456fa0e6ac5e731536"
+    },
+    {
+      "path": "docs/research/reflective-ir/artwork.json",
+      "sha256": "d7fcd44d4c74946390f5c06bd4e64d811f1a656a9a8ca915b7587942b847e13d"
+    },
+    {
+      "path": "docs/research/reflective-ir/modeling.md",
+      "sha256": "2b17125706026d452aefded06518f425f8353eb7b85d6dda7b8d85f6021665b6"
+    },
+    {
+      "path": "docs/research/reflective-ir/smoke.json",
+      "sha256": "94ba30598a9cba671ef059537d15b3529e05d177f68893416e11caf97fe3144d"
+    },
+    {
+      "path": "docs/research/reflective-ir/sources.json",
+      "sha256": "b5eb40603f96a102b7c483c01afef480f35a1e7914d95664271bb125498e3a5b"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "DCSSR owns the complete DC relay kit and actual controls/terminals; no relay, mode, Modbus or electrical simulation",
+    "NCIR2 owns the TO39 sensor, actual buttons, RGB and buzzer shape; no temperature, alarm, sound or reset behavior",
+    "Reflective IR owns its real optical packages, trimmer and fixed red indicator; no distance, comparator, visible IR beam or electrical model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

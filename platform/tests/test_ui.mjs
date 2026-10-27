@@ -1,12 +1,17 @@
 import { chromium } from 'playwright';
 
 const base = process.env.M5_SIM_BASE || 'http://127.0.0.1:8787';
+const inventoryResponse = await fetch(`${base}/api/v1/devices`);
+if (!inventoryResponse.ok) throw new Error(`device inventory failed: ${inventoryResponse.status}`);
+const inventory = await inventoryResponse.json();
+const creatableDeviceIds = inventory.devices.filter(device => device.creatable).map(device => device.device_id).sort();
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
 const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 
+try {
 await page.goto(`${base}/platform/web/`, { waitUntil: 'networkidle' });
 await page.waitForFunction(() => document.querySelectorAll('.device-card').length > 0);
 const cards = await page.$$eval('.device-card', items => items.map(item => item.innerText));
@@ -19,14 +24,14 @@ const peripheralBadges = await page.$$eval('.peripheral-badge', items => items.l
 if (peripheralBadges !== 14) throw new Error(`expected 14 peripheral badges, got ${peripheralBadges}`);
 
 await page.goto(`${base}/platform/web/firmware.html`, { waitUntil: 'networkidle' });
-await page.waitForFunction(() => window.m5Firmware?.getState && document.querySelectorAll('#deviceSelect option').length >= 13);
+await page.waitForFunction(count => window.m5Firmware?.getState && document.querySelectorAll('#deviceSelect option').length === count, creatableDeviceIds.length);
 const firmwareUi = await page.evaluate(() => ({
-  devices: document.querySelectorAll('#deviceSelect option').length,
+  devices: [...document.querySelectorAll('#deviceSelect option')].map(option => option.value).sort(),
   fileInput: Boolean(document.querySelector('#firmwareFile')),
   start: Boolean(document.querySelector('#startBtn')),
   state: window.m5Firmware.getState(),
 }));
-if (!firmwareUi.fileInput || !firmwareUi.start || firmwareUi.devices < 13) {
+if (!firmwareUi.fileInput || !firmwareUi.start || JSON.stringify(firmwareUi.devices) !== JSON.stringify(creatableDeviceIds)) {
   throw new Error(`WebBurner UI failed: ${JSON.stringify(firmwareUi)}`);
 }
 
@@ -146,16 +151,16 @@ if (tab5.count !== 17 || tab5.blockers !== 15) {
 }
 
 await page.goto(`${base}/platform/web/sessions.html`, { waitUntil: 'domcontentloaded' });
-await page.waitForFunction(() => document.querySelectorAll('#deviceSelect option').length >= 13);
+await page.waitForFunction(count => document.querySelectorAll('#deviceSelect option').length === count, creatableDeviceIds.length);
 await page.waitForFunction(() =>
   document.querySelector('#serviceSummary')?.textContent?.includes('API online')
 );
 const sessionsUi = await page.evaluate(() => ({
   service: document.querySelector('#serviceSummary')?.textContent,
-  devices: document.querySelectorAll('#deviceSelect option').length,
+  devices: [...document.querySelectorAll('#deviceSelect option')].map(option => option.value).sort(),
   hasSessionList: Boolean(document.querySelector('#sessionList')),
 }));
-if (!sessionsUi.service?.includes('API online') || !sessionsUi.hasSessionList) {
+if (!sessionsUi.service?.includes('API online') || !sessionsUi.hasSessionList || JSON.stringify(sessionsUi.devices) !== JSON.stringify(creatableDeviceIds)) {
   throw new Error(`sessions dashboard failed: ${JSON.stringify(sessionsUi)}`);
 }
 const firstCard = page.locator('.session-card').first();
@@ -195,4 +200,6 @@ if (fixtureUrl) {
 if (errors.length) throw new Error(`page errors: ${errors.join('; ')}`);
 
 console.log(JSON.stringify({ cards: cards.length, stick, stopwatch }, null, 2));
-await browser.close();
+} finally {
+  await browser.close();
+}

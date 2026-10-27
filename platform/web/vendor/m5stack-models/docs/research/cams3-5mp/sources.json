@@ -1,0 +1,186 @@
+{
+  "id": "cams3-5mp",
+  "sku": "U174-B",
+  "officialDocs": "https://docs.m5stack.com/en/unit/Unit-CAMS3%205MP",
+  "retrievedAt": "2026-10-26",
+  "reference": {
+    "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/3.webp",
+    "sha256": "0d7b49d96902cb8939373ca0f1a26407cbce07300bd87f71c8d0d0b92a9b8b68"
+  },
+  "structures": [
+    {
+      "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "gitBlob": "11ffd3a5df3f8985fda35d9cf58a6c61abb74e40",
+      "sha256": "285473050f18b2abbf74f378b46695bb5b4de7a91514495bc45186fde5aa738e",
+      "license": "MIT; retain licenses/M5_Hardware-MIT.txt",
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U174%E2%80%91B_Unit_CamS3%E2%80%915MP/Structures/Unit_CamS3-5MP.stl"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/4.webp",
+      "sha256": "01d57d415e743b2f02a24923f63bad5a2d864a3f5de58ea14b86ffcc9af56ba8"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/3.webp",
+      "sha256": "0d7b49d96902cb8939373ca0f1a26407cbce07300bd87f71c8d0d0b92a9b8b68"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/5.webp",
+      "sha256": "20c4eedf35dde22d75425e4c5a5345548bb7a4ec925e59e3c84bb0ff4c351339"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/6.webp",
+      "sha256": "060d7a5061ca71c49947bc64a65ceb9deca1e9645e8bf7d13e423648a95b8d69"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-CAMS3%205MP/img-92a0b5bb-a0c6-4604-8e2b-ca7856313280.jpg",
+      "sha256": "0348f0a36ee6758d338f4e2b60d0116131db848288219b795478988f9fe7572e"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1050/SCH_UNIT_CAMS3_V1.0_page_01.png",
+      "sha256": "6d038a57421555617a6e921e34227f68dbaae10a8a25f5e04b8335089d89a9ef"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/7.webp",
+      "sha256": "f48729c9e8dfb8b081ddc7a702b43be2ff62b627f171abf5f4c07681d4acf2da"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/8.webp",
+      "sha256": "7675e0ffbbc482d644590cb757c31971f24e45f182ad42b084ee50495a3eeadc"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/9.webp",
+      "sha256": "a86e0d8d513e52d1e70dae47f47e11f6997fffc74b963d91aff3d2bf2af6286b"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-CAMS3%205MP/11.webp",
+      "sha256": "acdbe4a43c36432545ad65b5701e60ba69ca449aebf390706120c3311094531a"
+    }
+  ],
+  "selectedAssembly": {
+    "components": [
+      0,
+      2,
+      4
+    ],
+    "excludedComponents": [
+      1,
+      3,
+      5
+    ],
+    "origin": [
+      12.42528,
+      20.059738,
+      -6.822605
+    ],
+    "axes": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "method": "Single common rigid translation; no shell cuts, hole filling, per-part alignment or scaling",
+    "reason": "Three assembled native plastic parts retained under one common translation. Excludes laterally exploded duplicate copies only. Native lens, RF-module, header, microSD, Grove and clip apertures retained; no per-part repositioning, scale, cuts or hole filling."
+  },
+  "runtimeFiles": [
+    {
+      "path": "src/units/cams3-5mp/assembly.js",
+      "sha256": "cebaec263f1b97f707d25d8b0dfbbfe4cf4ba757a774a99362ae12d7c7f1b207"
+    },
+    {
+      "path": "src/units/cams3-5mp/cad-map.json",
+      "sha256": "81f96c020346e527774a18122b00a584d86094e595f9245bc70e8ce5e0431154"
+    },
+    {
+      "path": "src/units/cams3-5mp/dimensions.js",
+      "sha256": "3490c3020b9bbab7feb1fdad9672b797344ccfc4d18059c88eff4f7639d55188"
+    },
+    {
+      "path": "src/units/cams3-5mp/geometry-data.js",
+      "sha256": "98f0f43cb7c1085ad807e50f6bc4ae979a1e31173bda0b29f5c4a2e6cf8bde31"
+    },
+    {
+      "path": "src/units/cams3-5mp/index.js",
+      "sha256": "2eeaafd0dc3f19bf2b1355fb7e3b0b42a8c43d0966ef534ac4cb439ee3856fc2"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-back.png",
+      "sha256": "c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-front.png",
+      "sha256": "2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-pinout.png",
+      "sha256": "6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-top.png",
+      "sha256": "0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086"
+    },
+    {
+      "path": "src/units/cams3-5mp/stickers.js",
+      "sha256": "7a4e0045f077cf9f4f098d48e90b8b4cfc5f9a55356ad3dbe11d8843ada4a932"
+    }
+  ],
+  "artwork": {
+    "sourceKind": "user-supplied-original-design-rasterization",
+    "redistribution": "Final PNG rasters authorized by user; source vectors, table, mappings and conversion intermediates excluded. Artwork remains its owner copyright.",
+    "rasters": [
+      {
+        "path": "src/units/cams3-5mp/official-back.png",
+        "sha256": "c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3",
+        "sizePx": [
+          1024,
+          608
+        ]
+      },
+      {
+        "path": "src/units/cams3-5mp/official-front.png",
+        "sha256": "2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8",
+        "sizePx": [
+          1024,
+          320
+        ]
+      },
+      {
+        "path": "src/units/cams3-5mp/official-pinout.png",
+        "sha256": "6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028",
+        "sizePx": [
+          1024,
+          864
+        ]
+      },
+      {
+        "path": "src/units/cams3-5mp/official-top.png",
+        "sha256": "0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086",
+        "sizePx": [
+          1024,
+          480
+        ]
+      }
+    ]
+  },
+  "feedback": {
+    "id": "e93f98ee2af2490cb83526f65cb8a56e",
+    "topic": "U174-B exact three-contact headers versus generic Header4 schematic summary"
+  },
+  "inferences": [
+    "PCB outline/Z/thickness, ESP32-S3 module shield/antenna, PY260 optical barrel/glass/sensor/FPC, microSD package/contact envelopes, microphone and LED coupling are inferred from exact-product photos and native apertures; no PCB/production fit claim.",
+    "Exact U174-B photos and dimension drawing show two 1×3 headers and rear G44/G43/5V plus EN/G0/GND labels. Shared schematic/MCP summary says Header4/GPIO3/GPIO8; discrepancy submitted to official feedback. Geometry follows exact-product photos/drawing.",
+    "Fixed PY260 optics have no focus, pan, tilt or shutter joint. The single blue status LED accepts external on/brightness only. No camera capture, image pipeline, audio, networking, card/filesystem, firmware, USB/UART or electrical behavior."
+  ]
+}

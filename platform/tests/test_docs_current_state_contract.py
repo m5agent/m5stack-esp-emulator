@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import ast
 import json
 import re
 import unittest
+from unittest import mock
 
 import project_snapshot
 
@@ -11,6 +13,63 @@ from _docs_contract_support import DocsContractBase, ROOT, DOCS
 
 
 class DocsCurrentStateContractTests(DocsContractBase):
+    def _assert_openapi_31_response_shapes(self, document: str) -> None:
+        self.assertNotRegex(document, r"(?m)^\s*nullable:", "OpenAPI 3.1 uses JSON Schema null types")
+        session = document.split("    Session:\n", 1)[1].split("    ReadyConditions:\n", 1)[0]
+        nullable = {"pid": "integer", "network": "object", "nvs": "object", "artifact_sha256": "string",
+                    "flash": "object", "error": "string", "completed_at": "string",
+                    "last_frame_captured_at": "string", "last_device_state_at": "string"}
+        for field, kind in nullable.items():
+            block = re.split(r"\n        (?=\S)", session.split(f"        {field}:\n", 1)[1], maxsplit=1)[0]
+            self.assertIn(f'type: [{kind}, "null"]', block, field)
+            if field in {"completed_at", "last_frame_captured_at", "last_device_state_at"}:
+                self.assertIn("format: date-time", block, field)
+        runtime = session.split("        runtime_memory:\n", 1)[1].split("        network:\n", 1)[0]
+        self.assertIn("anyOf:", runtime)
+        self.assertIn('$ref: "#/components/schemas/RuntimeMemory"', runtime)
+        self.assertIn('type: "null"', runtime)
+        capacity = document.split("    Capacity:\n", 1)[1].split("    WorkerSummary:\n", 1)[0]
+        self.assertIn('$ref: "#/components/schemas/WorkerSummary"', capacity)
+        summary = document.split("    WorkerSummary:\n", 1)[1].split("    Worker:\n", 1)[0]
+        self.assertIn("additionalProperties: false", summary)
+        required = re.search(r"(?m)^      required: \[([^\]]+)\]$", summary)
+        self.assertIsNotNone(required)
+        fields = [field.strip() for field in required.group(1).split(",")]
+        source = ast.parse((ROOT / "platform/tools/device_service.py").read_text())
+        projection = next(node for node in ast.walk(source) if isinstance(node, ast.FunctionDef) and node.name == "_worker_summary")
+        keys = next(node for node in ast.walk(projection) if isinstance(node, ast.Tuple)
+                    and all(isinstance(item, ast.Constant) and isinstance(item.value, str) for item in node.elts))
+        self.assertEqual(fields, [item.value for item in keys.elts])
+        for field in fields:
+            self.assertIn(f'$ref: "#/components/schemas/Worker/properties/{field}"', summary)
+        worker = document.split("    Worker:\n", 1)[1].split("    RemoteWorkerIdentity:\n", 1)[0]
+        self.assertIn("required: [schema_version, worker_id, generation, state, accepting_leases]", worker)
+        self.assertIn('type: [number, "null"]', worker)
+        self.assertIn('type: [string, "null"]', worker)
+
+    def test_new_visual_shells_remain_separate_from_runtime_admission(self) -> None:
+        snapshot = project_snapshot.collect()
+        units = snapshot["external_units"]
+        visual_only = set(units["visual_source"]["visual_only_units"])
+        self.assertTrue({"roller485", "puzzle", "fader", "midi"} <= visual_only)
+        catalog = project_snapshot.load_json(project_snapshot.UNIT_CATALOG)
+        registered = {unit["id"] for unit in catalog["units"]}
+        self.assertIn("scroll", registered)
+        self.assertFalse(registered & visual_only)
+        self.assertEqual(len(registered) + len(visual_only), units["visual_source"]["units"])
+        self.assertEqual(sum(units["runtime_status"].values()), len(registered))
+        load_json = project_snapshot.load_json
+
+        def missing_visual(path):
+            value = load_json(path)
+            if path == project_snapshot.VISUAL_VENDOR:
+                return {**value, "units": [unit for unit in value["units"] if unit != "pir"]}
+            return value
+
+        with mock.patch.object(project_snapshot, "load_json", side_effect=missing_visual):
+            with self.assertRaisesRegex(ValueError, "missing visual model: pir"):
+                project_snapshot.collect()
+
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()
         for heading in (
@@ -271,6 +330,7 @@ class DocsCurrentStateContractTests(DocsContractBase):
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()
         openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        self._assert_openapi_31_response_shapes(openapi)
         markdown_version = re.search(
             r"runtime contract `([0-9]+\.[0-9]+\.[0-9]+)`",
             markdown,

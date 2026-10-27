@@ -1,0 +1,4 @@
+import {printedArtwork} from '../../modeling/artwork.js';
+const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href;
+/** Newly drawn from readable exact U149 photographs; no photograph pixels. */
+export function addStickers(host){return [...(printedArtwork(host,{target:host.parts['Thermal2 complete native front shell and integral flexure tongue'],url:front,size:[18.2,5.3],position:[0,-4.4,3.8],face:'front',depth:.18,name:'Thermal2 front model label reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:host.parts['Thermal2 complete native rear cover'],url:back,size:[16.2,27.2],position:[0,6.4,-3.8],face:'back',depth:.2,name:'Thermal2 rear diagram and pin labels reference redraw',artworkKind:'reference-redraw'})??[])];}

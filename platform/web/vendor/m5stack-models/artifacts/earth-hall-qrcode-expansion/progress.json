@@ -1,0 +1,401 @@
+{
+  "savedAt": "2026-10-26T09:52:12.944687+00:00",
+  "stage": "modeled",
+  "scope": "New Earth/Hall/QRCode complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 68,
+    "modeled": 82,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "earth",
+      "status": "pass",
+      "report": "docs/research/earth/smoke.json",
+      "meshes": 114,
+      "triangles": 74554
+    },
+    {
+      "id": "hall",
+      "status": "pass",
+      "report": "docs/research/hall/smoke.json",
+      "meshes": 96,
+      "triangles": 9396
+    },
+    {
+      "id": "qrcode",
+      "status": "pass",
+      "report": "docs/research/qrcode/smoke.json",
+      "meshes": null,
+      "triangles": null
+    }
+  ],
+  "pngCount": 7,
+  "rasters": [
+    {
+      "path": "src/units/earth/education-cn-back.png",
+      "pixels": [
+        2400,
+        1800
+      ],
+      "sha256": "8233710041a4e755b23f6b94aba2c8da3cbb20c565c9982de6a6b87a948ad02e"
+    },
+    {
+      "path": "src/units/earth/source-vector-back.png",
+      "pixels": [
+        2400,
+        1800
+      ],
+      "sha256": "9d0173efc4a515981e521f7537612352a0f6e310e5475b0e4cb657b477d5b725"
+    },
+    {
+      "path": "src/units/hall/reference-redraw-back.png",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sha256": "5b07c4bff51023731ac9fdae64e0db5ba46b06858f1261e34c6275ee3f856c7d"
+    },
+    {
+      "path": "src/units/hall/reference-redraw-front.png",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sha256": "65afd822b525f79ef83fd7ef20a61e88829fdce3c3480f8e9d5f05e3d27458a4"
+    },
+    {
+      "path": "src/units/qrcode/official-back.png",
+      "pixels": [
+        2228,
+        2949
+      ],
+      "sha256": "9a75f91bf05cf79e571c851a75c368b340711aed5fa8c89ab940e9fa97f11b8c"
+    },
+    {
+      "path": "src/units/qrcode/official-front.png",
+      "pixels": [
+        2400,
+        1704
+      ],
+      "sha256": "d1518e96ff3c414aab23a772fc6cefcaf48cb876937537f2dbd050ecd3e98eba"
+    },
+    {
+      "path": "src/units/qrcode/official-mode.png",
+      "pixels": [
+        1327,
+        850
+      ],
+      "sha256": "df86d9c44149d52dd6960f54c50972227ee00110fa7092e2d9c2bdc2b288dfd8"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "earth",
+        "panels": 1,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      },
+      {
+        "id": "hall",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "qrcode",
+        "panels": 3,
+        "kinds": [
+          "official-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "passive-sensor-boundaries",
+      "independent-fixed-colour-indicators",
+      "real-mechanical-inputs-without-device-logic",
+      "artwork-toggle-keeps-physical-buffers-and-poses",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; canvas stub, no browser, sensing, magnetic physics, decoding, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "earth",
+        "panels": 1,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "hall",
+        "panels": 2,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "qrcode",
+        "panels": 3,
+        "kinds": [
+          "official-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "passive-sensor-boundaries",
+      "independent-fixed-colour-indicators",
+      "real-mechanical-inputs-without-device-logic",
+      "artwork-toggle-keeps-physical-buffers-and-poses",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; canvas stub, no browser, sensing, magnetic physics, decoding, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "earth",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "hall",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "qrcode",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "7b0affcb541cf5efb59f6706853e52358ba59070ba0f55a3cae8a098e9ed27e4",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "3d30064fcc9c7634660cab03a132c32c64612fd2c076eeb9a323911625e4b28a",
+      "logDistributed": false
+    },
+    "livePreview": "82-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 495,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "qrcode",
+      "record": "docs/research/qrcode/sources.json",
+      "feedback_id": "7b38fe984a6c44da8681786c3336e7b5",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "earth",
+      "file": "assets/earth-DcntcIW4.js",
+      "sha256": "2ee8a435b2c841d3092d9db63c6bb7e57df9860581600d9628d75b495b6c6d0f"
+    },
+    {
+      "id": "hall",
+      "file": "assets/hall-DhotT9wC.js",
+      "sha256": "84c8e11539a67130dbf3b75b8630903c1958dcd5ace842cf648b724f50f76e77"
+    },
+    {
+      "id": "qrcode",
+      "file": "assets/qrcode-BjQCZmmw.js",
+      "sha256": "66d9bc06026f38e481a8300516045c47034194dd1a97291bea46753a404fc225"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/earth/assembly.js",
+      "sha256": "0ade06107fef59f5599741edc719f20e44011047f1ddc365b66d0b87a71f35a0"
+    },
+    {
+      "path": "src/units/earth/cad-map.json",
+      "sha256": "6a8d9a0c07a1beb049238b13262d271f022d7a039fdb1a8e6faba973a6383ed8"
+    },
+    {
+      "path": "src/units/earth/dimensions.js",
+      "sha256": "5ef0af69d80827155325ea348997ae79cd4d1e3df04fda1579abaf9733b182c4"
+    },
+    {
+      "path": "src/units/earth/education-cn-back.png",
+      "sha256": "8233710041a4e755b23f6b94aba2c8da3cbb20c565c9982de6a6b87a948ad02e"
+    },
+    {
+      "path": "src/units/earth/geometry-data.js",
+      "sha256": "aa68c9b74ecb860bdd4806cdffdafefe5176fb5892eaf1b73fc3654f6c591354"
+    },
+    {
+      "path": "src/units/earth/index.js",
+      "sha256": "cea3b5bb32b49c93992d5c8786db7f0c04b6fe683daf3b04ef1505d7e192bddc"
+    },
+    {
+      "path": "src/units/earth/source-vector-back.png",
+      "sha256": "9d0173efc4a515981e521f7537612352a0f6e310e5475b0e4cb657b477d5b725"
+    },
+    {
+      "path": "src/units/earth/stickers.js",
+      "sha256": "38c45b4585c8b067efcf68f17d320cfe1589a2f9f08886117d71a2b314b48dd8"
+    },
+    {
+      "path": "docs/research/earth/artwork.json",
+      "sha256": "2ca19546dd5131acf5c6962d3c6b949957acc98f4a0ba461852e3161e92fbf03"
+    },
+    {
+      "path": "docs/research/earth/artwork.md",
+      "sha256": "94e904780d889f99c3702d971aea0847c9b3e42d2d4ebfcd6c238bf8025fa6a3"
+    },
+    {
+      "path": "docs/research/earth/modeling.md",
+      "sha256": "0528dfea5f6cb35cf760c6fa29202f7fbe042ca0d5a4d63434285d78040dfc09"
+    },
+    {
+      "path": "docs/research/earth/smoke.json",
+      "sha256": "8f7624ce8118d9653cc48d3b2af107dca91edc7c97d80e24d2f7296ad58cda8b"
+    },
+    {
+      "path": "docs/research/earth/sources.json",
+      "sha256": "eab2c8eb28d1f8c8e9d4b3d6d6f41169e2554f04f10359ebd5b5e83e5ab2f4e0"
+    },
+    {
+      "path": "src/units/hall/assembly.js",
+      "sha256": "3e92e62369da6ae649718448dbc37186f05549b23c511381ac82751c258ed1f1"
+    },
+    {
+      "path": "src/units/hall/cad-map.json",
+      "sha256": "f4d869377e864d4e5c25034306d94bac3ea5a8b0f5daa1cf0a88ec36fae994de"
+    },
+    {
+      "path": "src/units/hall/dimensions.js",
+      "sha256": "efe9408298dfa0eea871a972d33eb1db1bf4b4e9178b06ececba9309a90de757"
+    },
+    {
+      "path": "src/units/hall/geometry-data.js",
+      "sha256": "da51cd682fa49d65776a2d5b6a0bf01feb5edf5d1dad9f801d86e2adeb25aef7"
+    },
+    {
+      "path": "src/units/hall/index.js",
+      "sha256": "3bfbdd1cfb6dc524968e2243093b9fe0517def84c91efda21d2edba3a55ef796"
+    },
+    {
+      "path": "src/units/hall/reference-redraw-back.png",
+      "sha256": "5b07c4bff51023731ac9fdae64e0db5ba46b06858f1261e34c6275ee3f856c7d"
+    },
+    {
+      "path": "src/units/hall/reference-redraw-front.png",
+      "sha256": "65afd822b525f79ef83fd7ef20a61e88829fdce3c3480f8e9d5f05e3d27458a4"
+    },
+    {
+      "path": "src/units/hall/stickers.js",
+      "sha256": "c385b8559edc9617248392c4784448aeb23bc9651738b6979101e76ac028847a"
+    },
+    {
+      "path": "docs/research/hall/artwork.json",
+      "sha256": "c4670bd46d0d63f0848a07df2cf3963db19af4c2dc263661c3d6bf86b278428b"
+    },
+    {
+      "path": "docs/research/hall/artwork.md",
+      "sha256": "a3b66b278d8989429b82d220460a90c71b93188643fa44e677b20f3a1c999ee6"
+    },
+    {
+      "path": "docs/research/hall/modeling.md",
+      "sha256": "8a9cf211336bb529526e4380f2e4578fba946fe623f7669998fb1b7b60b66f93"
+    },
+    {
+      "path": "docs/research/hall/smoke.json",
+      "sha256": "2403a9cc8d8df943c19834f0604d3f0144fe887f3b1b0330f93c28f50b19a8a5"
+    },
+    {
+      "path": "docs/research/hall/sources.json",
+      "sha256": "acf65c513fdaa4e19782976b404119358966d020e1ad2e67fba3cf0ec3e10aee"
+    },
+    {
+      "path": "src/units/qrcode/assembly.js",
+      "sha256": "c1e11a6553e626cab1c90f955d7ef7018c75b2951f7ceb0e1ab8e112ee8cfe4b"
+    },
+    {
+      "path": "src/units/qrcode/cad-map.json",
+      "sha256": "caa72f2e8fc60f30ab0de6acf7982d7cf321d7138ad124ce9b6fb044159784ec"
+    },
+    {
+      "path": "src/units/qrcode/dimensions.js",
+      "sha256": "58938e5c21cb8f1f84cca4ebea987cac6266bb566d2546f550aefd8fdc795ab3"
+    },
+    {
+      "path": "src/units/qrcode/geometry-data.js",
+      "sha256": "43048a440ce0a638d7ed1ffae90a9e42092b2536808c2901f1d5872f5e8f3f0e"
+    },
+    {
+      "path": "src/units/qrcode/index.js",
+      "sha256": "25217139e6a7e0bc7f9f289a43c9ca680a22c0422a4e0613204f286c1f28d021"
+    },
+    {
+      "path": "src/units/qrcode/official-back.png",
+      "sha256": "9a75f91bf05cf79e571c851a75c368b340711aed5fa8c89ab940e9fa97f11b8c"
+    },
+    {
+      "path": "src/units/qrcode/official-front.png",
+      "sha256": "d1518e96ff3c414aab23a772fc6cefcaf48cb876937537f2dbd050ecd3e98eba"
+    },
+    {
+      "path": "src/units/qrcode/official-mode.png",
+      "sha256": "df86d9c44149d52dd6960f54c50972227ee00110fa7092e2d9c2bdc2b288dfd8"
+    },
+    {
+      "path": "src/units/qrcode/stickers.js",
+      "sha256": "3ecba3ef92bd76f303821f96652293cf2fb92f8f843854caad34ae84986ec03c"
+    },
+    {
+      "path": "docs/research/qrcode/artwork.json",
+      "sha256": "902f2e66ac01c2ef5e125af4c4b93cd94fbd9944a7f6b2f868fb03ad91865b7a"
+    },
+    {
+      "path": "docs/research/qrcode/artwork.md",
+      "sha256": "9165835b91671dfe264c26ace7be9bd1c5446341a96607b9de5a28e087089279"
+    },
+    {
+      "path": "docs/research/qrcode/modeling.md",
+      "sha256": "546ea5c7172aa0c08028c4a03d767e4964c96d82f149a1c3f606ca6492a2e0b6"
+    },
+    {
+      "path": "docs/research/qrcode/smoke.json",
+      "sha256": "610db0499042e6c0ad20e1e288d75346cfaef7d370d5408e8b2d9cb95a3d05e0"
+    },
+    {
+      "path": "docs/research/qrcode/sources.json",
+      "sha256": "03a89b24003ba2455017c2478b0bfce00e3e66ccbc0a530996ecc0381279d015"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, package, connector interior, installation transforms and optical paths retain documented appearance estimates",
+    "Earth probe electrodes and externally driven trim head describe appearance; no soil moisture, ADC, comparator or corrosion model",
+    "Hall contains fixed magnetic-sensor assembly only; no magnetic field, sensing or invented controls/light aperture",
+    "QRCode has actual trigger/mode geometry, independently driven white illumination/red aiming outputs and optional fixed refractor; no decoding, capture, audio, protocol or invented articulation",
+    "Synchronous final sticker PNGs use exact-model originals or reference redraws; CSV, private URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, isolated private Scroll and unresolved StackChan production-fit checkpoint preserved"
+  ]
+}

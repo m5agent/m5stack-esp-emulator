@@ -14,10 +14,13 @@ import hmac
 import io
 import ipaddress
 import json
+import math
 import os
+import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import threading
@@ -25,6 +28,7 @@ import time
 import uuid
 import zipfile
 from dataclasses import dataclass
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -46,10 +50,28 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
+from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
+from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
+from program_packages import (  # noqa: E402
+    MAX_FILE_BYTES as MAX_PROGRAM_FILE_BYTES,
+    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES, MAX_PACKAGES,
+    ProgramPackageStore, ProgramPackageError, _snapshot as program_package_snapshot,
+)
+from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
+from uiflow_package_runtime import deploy_package, validate_mpy  # noqa: E402
+from uiflow_main_loader import main_loader_verified, probe_main_loader  # noqa: E402
+from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
+from uiflow_runtime import (  # noqa: E402
+    ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
+    UIFlowRuntimeError, live_bootstrap_files, run_mpy, run_source, synchronize_raw_repl,
+)
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
+    detect_secure_boot_v2_signature,
     expected_chip_id,
+    find_app_descriptor,
     parse_partition_table,
 )
 from firmware_manifest import (  # noqa: E402
@@ -87,6 +109,7 @@ from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from run_profile_ui_test import (  # noqa: E402
     QMP,
+    QMPCommandError,
     read_ppm,
     send_input,
     wait_qmp,
@@ -110,6 +133,8 @@ from run_tab5_ui_test import (
     write_png as write_tab5_png,
 )
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from unit_runtime import UnitError, UnitRegistry  # noqa: E402
+from unit_adc_fixture import apply_s3_adc_calibration, load_fixture as load_adc_fixture, verify_firmware as verify_adc_firmware  # noqa: E402
 from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_directory import (  # noqa: E402
     WorkerDirectory,
@@ -137,6 +162,24 @@ TAB5_I2C_DEVICES = (
 )
 QMP_COMMAND_TIMEOUT = 2
 QMP_START_TIMEOUT = 60
+SESSION_STOP_WAIT_SECONDS = 1.0
+# QAPI QKeyCode from the pinned Espressif QEMU base, qapi/ui.json:
+# https://github.com/espressif/qemu/blob/40edccac415693c5130f91c01d84176ae6008566/qapi/ui.json
+# send_key_event otherwise leaves unknown qcodes to a late QMP rejection.
+QEMU_INPUT_QCODES = frozenset("""
+unmapped shift shift_r alt alt_r ctrl ctrl_r menu esc 1 2 3 4 5 6 7 8 9 0
+minus equal backspace tab q w e r t y u i o p bracket_left bracket_right ret
+a s d f g h j k l semicolon apostrophe grave_accent backslash z x c v b n m
+comma dot slash asterisk spc caps_lock f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 num_lock
+scroll_lock kp_divide kp_multiply kp_subtract kp_add kp_enter kp_decimal sysrq
+kp_0 kp_1 kp_2 kp_3 kp_4 kp_5 kp_6 kp_7 kp_8 kp_9 less f11 f12 print home pgup
+pgdn end left up down right insert delete stop again props undo front copy open
+paste find cut lf help meta_l meta_r compose pause ro hiragana henkan yen
+muhenkan katakanahiragana kp_comma kp_equals power sleep wake audionext
+audioprev audiostop audioplay audiomute volumeup volumedown mediaselect mail
+calculator computer ac_home ac_back ac_forward ac_refresh ac_bookmarks lang1
+lang2 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
+""".split())
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -146,6 +189,7 @@ MAX_SERIAL_READ = 256 * 1024
 SESSION_IDEMPOTENCY_SCHEMA_VERSION = 1
 MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
+OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_I2S_DMA_IRQ",
@@ -1690,6 +1734,59 @@ class ServiceError(Exception):
         return {"error": {"code": self.code, "message": self.message, **self.extra}}
 
 
+def _normalize_management_binding(value: dict) -> dict:
+    if not isinstance(value, dict) or set(value) != {"preview_id", "owner_epoch", "expected_reference_sha256"}:
+        raise ServiceError("invalid_preview_binding", "a complete internal Preview binding is required", 400)
+    if any(not isinstance(value[key], str) or not 1 <= len(value[key]) <= 128
+           or any(ord(char) < 32 for char in value[key]) for key in ("preview_id", "owner_epoch")):
+        raise ServiceError("invalid_preview_binding", "invalid internal Preview identity", 400)
+    if not isinstance(value["expected_reference_sha256"], str) or re.fullmatch(r"[0-9a-f]{64}", value["expected_reference_sha256"]) is None:
+        raise ServiceError("invalid_preview_binding", "a lowercase reference SHA256 pin is required", 400)
+    return dict(value)
+
+
+def _require_live_package_entrypoint(revision: dict, loader_capabilities: dict | None = None) -> None:
+    # Check before allocating an execution or interrupting its predecessor.
+    # Immutable storage admission does not imply a loader in the guest firmware.
+    entrypoint = revision.get("entrypoint", "main.py")
+    if entrypoint != "main.py" and not (entrypoint == "main.mpy" and main_loader_verified(loader_capabilities)):
+        raise ServiceError(
+            "program_mpy_entrypoint_unsupported",
+            "main.mpy requires this session's verified bytecode run-as-main loader; wait for its bootstrap probe or use a compatible base",
+            409,
+        )
+
+
+def _validate_checkpoint_bytecode(files: dict[str, bytes]) -> None:
+    """Reject known-invalid/native containers without touching the guest.
+
+    This is host format admission only. Deployment still compares bytecode
+    version and small-int requirements with the actual guest capabilities.
+    """
+    for path, data in files.items():
+        if not path.lower().endswith(".mpy"):
+            continue
+        if len(data) < 4 or data[0] != ord("M"):
+            raise ServiceError("program_mpy_invalid", "invalid .mpy header", 409)
+        if data[2] != 0:
+            raise ServiceError(
+                "program_mpy_native_unsupported", "only bytecode-only .mpy dependencies are admitted", 409,
+            )
+        try:
+            validate_bytecode(data)
+        except MPYBytecodeError as error:
+            raise ServiceError(
+                "program_mpy_invalid", "invalid or unsupported bytecode-only .mpy container", 409,
+            ) from error
+
+
+class SessionCancelled(ServiceError):
+    """A lifecycle transaction was superseded by an explicit stop request."""
+
+    def __init__(self):
+        super().__init__("session_stopping", "session stop was requested", 409)
+
+
 @dataclass(frozen=True)
 class DeviceSpec:
     id: str
@@ -2434,6 +2531,132 @@ class FirmwareStore:
     def _data(self, firmware_id: str) -> Path:
         return self.root / f"{firmware_id}.bin"
 
+    @staticmethod
+    def _read_uiflow_base_file(path: Path, limit: int) -> bytes:
+        """Read one bounded regular-file snapshot without following symlinks."""
+        try:
+            descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+            try:
+                info = os.fstat(descriptor)
+                if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= limit:
+                    raise ServiceError("uiflow_base_integrity_error", "base storage must contain a bounded regular file", 409)
+                with os.fdopen(descriptor, "rb") as stream:
+                    descriptor = None
+                    data = stream.read(limit + 1)
+                if len(data) != info.st_size:
+                    raise ServiceError("uiflow_base_integrity_error", "base storage changed while being read", 409)
+                return data
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+        except OSError as error:
+            raise ServiceError("uiflow_base_unreadable", "base storage is unavailable or is not a regular file", 409) from error
+
+    def _explicit_uiflow_base(self, spec: DeviceSpec, payload: dict) -> tuple[bytes, dict, dict]:
+        """Re-admit an immutable manifest image for this source composition.
+
+        The pin covers flash-sized stored bytes, which can differ from the
+        original upload after normalization/padding. Neither caller family
+        labels nor a mountable LittleFS alone establish UIFlow compatibility.
+        """
+        base_id = payload["base_firmware_id"]
+        if not isinstance(base_id, str) or not _is_sha256(base_id):
+            raise ServiceError("invalid_uiflow_request", "base_firmware_id must be a stored firmware ID", 400)
+        expected = payload.get("expected_base_sha256")
+        if expected is None:
+            raise ServiceError("uiflow_base_binding_required", "an explicit base requires expected_base_sha256 of the normalized stored image", 400)
+        if not isinstance(expected, str) or not _is_sha256(expected):
+            raise ServiceError("invalid_uiflow_base", "expected_base_sha256 must be a lowercase SHA256", 400)
+        with self._lock:
+            if not self._meta(base_id).exists() and not self._meta(base_id).is_symlink():
+                raise ServiceError("unknown_firmware", "base firmware is not stored", 404)
+            try:
+                record = json.loads(self._read_uiflow_base_file(self._meta(base_id), 8 * 1024 * 1024))
+            except (ValueError, UnicodeError) as error:
+                raise ServiceError("uiflow_base_integrity_error", "base metadata is invalid", 409) from error
+            base = self._read_uiflow_base_file(self._data(base_id), spec.flash_size)
+        actual_sha = hashlib.sha256(base).hexdigest()
+        if actual_sha != expected:
+            raise ServiceError("uiflow_base_hash_mismatch", "expected_base_sha256 must match the normalized stored image bytes", 409)
+        if not isinstance(record, dict) or any(record.get(key) != base_id for key in ("firmware_id", "sha256")) or actual_sha != base_id:
+            raise ServiceError("uiflow_base_integrity_error", "stored base identity differs from its bytes", 409)
+        if record.get("device_id") != spec.id:
+            raise ServiceError("firmware_device_mismatch", "base firmware belongs to another device", 409)
+        if record.get("flash_size") != spec.flash_size or record.get("size") != len(base) or len(base) != spec.flash_size:
+            raise ServiceError("flash_size_mismatch", "base firmware must match the target normalized flash size", 409)
+        source = record.get("source")
+        if record.get("kind") == "manifest" and isinstance(source, dict) and source.get("kind") == "manifest":
+            manifest = record.get("manifest")
+            recorded_manifest_ids = (record.get("manifest_id"), source.get("manifest_id"))
+            recorded_artifact_id = source.get("artifact_id")
+        else:
+            raise ServiceError("uiflow_base_not_admitted", "explicit bases require the existing firmware-manifest intake", 409)
+        try:
+            structure_errors = validate_manifest_structure(manifest)
+        except (TypeError, ValueError) as error:
+            raise ServiceError("invalid_firmware_manifest", "stored base manifest is invalid", 409) from error
+        if structure_errors:
+            raise ServiceError("invalid_firmware_manifest", "stored base manifest is invalid", 409)
+        manifest_id = canonical_json_sha256(manifest_identity_payload(manifest))
+        if manifest.get("manifest_id") != manifest_id or any(value != manifest_id for value in recorded_manifest_ids):
+            raise ServiceError("firmware_manifest_id_mismatch", "stored base manifest identity differs", 409)
+        target, artifact = manifest["target"], manifest["artifact"]
+        if target.get("psram_size") is not None and (type(target["psram_size"]) is not int or target["psram_size"] < 0):
+            raise ServiceError("invalid_firmware_manifest", "base PSRAM requirement must be an integer or null", 409)
+        artifact_id = artifact.get("artifact_id", artifact.get("sha256"))
+        artifact_size = artifact["size"]
+        if (
+            artifact.get("kind") != "merged-flash" or recorded_artifact_id != artifact_id
+            or artifact_id != artifact.get("sha256") or not 0 < artifact_size <= len(base)
+            or hashlib.sha256(base[:artifact_size]).hexdigest() != artifact["sha256"]
+            or any(byte != 0xff for byte in base[artifact_size:])
+        ):
+            raise ServiceError("uiflow_base_integrity_error", "base manifest artifact differs from normalized stored bytes", 409)
+        if manifest.get("device_id") not in (None, spec.id) or target["flash_size"] != spec.flash_size or target.get("chip_id") != expected_chip_id(spec.soc):
+            raise ServiceError("uiflow_base_not_admitted", "base manifest target differs from the device", 409)
+        profile = load_device_profile(spec.id)
+        compatibility = validate_capabilities(manifest, profile) if profile is not None else None
+        if compatibility is None or compatibility["status"] != "PASS" or manifest.get("validation", {}).get("status") != "PASS" or manifest.get("validation", {}).get("errors"):
+            raise ServiceError("unsupported_firmware_capability", "base manifest requirements are not admitted by the target profile", 409,
+                               issues=(compatibility or {}).get("errors", []) + manifest.get("validation", {}).get("errors", []))
+        table = parse_partition_table(base, image_size=spec.flash_size)
+        if not table["valid"] or table["warnings"] or any(part["flags"] != 0 for part in table["partitions"]):
+            raise ServiceError("uiflow_base_not_admitted", "base requires an unflagged valid partition table", 409)
+        declared_table = target.get("partition_table") or {}
+        if not isinstance(declared_table, dict) or declared_table.get("offset") != table["offset"] or declared_table.get("partitions") != table["partitions"]:
+            raise ServiceError("uiflow_base_integrity_error", "base manifest partition layout differs from actual bytes", 409)
+        images = [(analyze_esp_image(base, 0), 0x8000)]
+        families = []
+        for part in table["partitions"]:
+            if part["type"] != 0 or not any(byte != 0xff for byte in base[part["offset"]:part["offset"] + 32]):
+                continue
+            end = part["offset"] + part["size"]
+            image = analyze_esp_image(base, part["offset"])
+            images.append((image, end))
+            descriptor = find_app_descriptor(base, part["offset"], min(image.get("image_end", end), end))
+            app_bytes = base[part["offset"]:min(image.get("image_end", end), end)]
+            if not descriptor or descriptor.get("project_name") != "micropython" or not re.match(r"[Vv]2\.", descriptor.get("version", "")) or b"_uiflow_run_main" not in app_bytes or b"UIFLOW2" not in app_bytes:
+                raise ServiceError("uiflow_base_not_admitted", "base application lacks the supported UIFlow2 compatibility fingerprint", 409)
+            if target.get("application") != descriptor:
+                raise ServiceError("uiflow_base_integrity_error", "base application descriptor differs from the manifest", 409)
+            families.append({"offset": part["offset"], "project_name": descriptor["project_name"], "version": descriptor["version"]})
+        if not families or any(not image["valid"] or image.get("chip_id") != expected_chip_id(spec.soc) or image.get("image_end", end + 1) > end for image, end in images):
+            raise ServiceError("uiflow_base_not_admitted", "base boot/application image is invalid or targets another chip", 409)
+        signatures = [detect_secure_boot_v2_signature(base, image, region_end=end) for image, end in images]
+        if any(item["status"] != "not-found" or item.get("candidate_count") for item in signatures):
+            raise ServiceError("uiflow_base_not_admitted", "signed or invalid secure-boot images cannot be used for UIFlow source composition", 409)
+        provenance = {
+            "kind": "stored-manifest", "manifest_id": manifest_id,
+            "stored_sha256": actual_sha, "stored_size": len(base),
+            "pin_scope": "normalized-stored-flash-image",
+            "artifact_id": artifact_id, "artifact_sha256": artifact["sha256"], "artifact_size": artifact_size,
+            "artifact_source_sha256": artifact.get("source_sha256"),
+            "compatibility": compatibility,
+            "family": {"classification": "STATIC_COMPATIBILITY_FINGERPRINT_NOT_AUTHENTICATION", "applications": families,
+                       "markers": ["_uiflow_run_main", "UIFLOW2"], "runtime": "NOT RUN"},
+        }
+        return base, manifest, provenance
+
     def create(self, payload: dict) -> dict:
         device_id = payload.get("device_id")
         if not isinstance(device_id, str) or device_id not in self.specs:
@@ -2449,7 +2672,47 @@ class FirmwareStore:
         image = bytearray(b"\xff" * spec.flash_size)
         intervals: list[tuple[int, int]] = []
 
-        if kind == "merged":
+        if kind == "uiflow":
+            allowed = {"kind", "device_id", "files", "expected_base_sha256", "base_firmware_id"}
+            if set(payload) - allowed:
+                raise ServiceError("invalid_uiflow_request", "unknown UIFlow source fields", 400)
+            if device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}:
+                raise ServiceError(
+                    "unsupported_uiflow_device",
+                    "UIFlow source intake currently supports CoreS3, AtomS3R, StickS3 and StopWatch",
+                    409,
+                )
+            base_manifest = base_provenance = None
+            explicit_base = "base_firmware_id" in payload
+            if explicit_base:
+                base, base_manifest, base_provenance = self._explicit_uiflow_base(spec, payload)
+            elif not spec.reference_path or not spec.reference_path.is_file():
+                raise ServiceError("reference_firmware_missing", "cached UIFlow2 reference is required", 409)
+            try:
+                if not explicit_base:
+                    base = spec.reference_path.read_bytes()
+                composed, source_metadata = build_uiflow_source_image(
+                    base, spec.flash_size, payload.get("files"),
+                    expected_base_sha256=payload.get("expected_base_sha256"),
+                )
+            except UIFlowSourceError as error:
+                raise ServiceError(error.code, error.message, error.status) from error
+            except OSError as error:
+                raise ServiceError("reference_firmware_unreadable", "cannot read cached UIFlow2 reference", 503) from error
+            source_bytes = json.dumps(
+                payload["files"], ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+            ).encode("utf-8")
+            if hashlib.sha256(source_bytes).hexdigest() != source_metadata["source_sha256"]:
+                raise ServiceError("uiflow_source_integrity_error", "source binding differs", 500)
+            image[:] = composed
+            intervals.append((0, len(composed)))
+            if explicit_base:
+                source_metadata = {**source_metadata, "base_firmware_id": payload["base_firmware_id"],
+                                   "base_provenance": base_provenance}
+            # Delay artifact publication until the firmware's CAS provenance
+            # is checked under the store lock. Rejected aliases publish nothing.
+            source = {"kind": "uiflow", "artifact_id": source_metadata["source_sha256"], "metadata": source_metadata}
+        elif kind == "merged":
             artifact_id = payload.get("artifact_id")
             data = self.artifacts.read(artifact_id)
             if len(data) > spec.flash_size:
@@ -2607,7 +2870,7 @@ class FirmwareStore:
         else:
             raise ServiceError(
                 "unsupported_firmware_kind",
-                "kind must be 'merged', 'segmented' or 'manifest'",
+                "kind must be 'merged', 'segmented', 'manifest' or 'uiflow'",
                 400,
             )
 
@@ -2615,6 +2878,8 @@ class FirmwareStore:
             raise ServiceError("empty_firmware", "firmware has no data", 400)
         image_bytes = bytes(image)
         firmware_id = hashlib.sha256(image_bytes).hexdigest()
+        if kind == "uiflow" and base_manifest is not None and firmware_id == payload["base_firmware_id"]:
+            raise ServiceError("uiflow_source_context_conflict", "source composition must not replace its base manifest context", 409)
         record = {
             "firmware_id": firmware_id,
             "sha256": firmware_id,
@@ -2623,6 +2888,7 @@ class FirmwareStore:
             "size": len(image_bytes),
             "kind": kind,
             "source": source,
+            **({"base_manifest": base_manifest} if kind == "uiflow" and base_manifest is not None else {}),
             **(
                 {
                     "manifest": manifest,
@@ -2635,12 +2901,36 @@ class FirmwareStore:
             "created_at": iso_now(),
         }
         with self._lock:
+            meta_path = self._meta(firmware_id)
+            if meta_path.exists() or meta_path.is_symlink():
+                try:
+                    existing = json.loads(self._read_uiflow_base_file(meta_path, 8 * 1024 * 1024))
+                except (ServiceError, ValueError, UnicodeError) as error:
+                    raise ServiceError("uiflow_source_context_conflict", "existing firmware provenance cannot be safely compared", 409) from error
+                if not isinstance(existing, dict):
+                    raise ServiceError("uiflow_source_context_conflict", "existing firmware provenance cannot be safely compared", 409)
+                if "base_manifest" in existing or "base_manifest" in record:
+                    context_keys = ("kind", "device_id", "source", "base_manifest")
+                    old_context = {key: existing[key] for key in context_keys if key in existing}
+                    new_context = {key: record[key] for key in context_keys if key in record}
+                    # Public re-import regenerates only this non-semantic
+                    # timestamp. Keep every other manifest/source field exact.
+                    for context in (old_context, new_context):
+                        if isinstance(context.get("base_manifest"), dict):
+                            context["base_manifest"] = context["base_manifest"].copy()
+                            context["base_manifest"].pop("created_at", None)
+                    if old_context != new_context:
+                        raise ServiceError("uiflow_source_context_conflict", "firmware bytes already have a different source or base-manifest context", 409)
+            if kind == "uiflow":
+                self.artifacts.create(
+                    source_bytes, name=f"{device_id}-uiflow-source.json", content_type="application/json",
+                )
             data_path = self._data(firmware_id)
             if not data_path.exists():
                 temp = self.root / f".{firmware_id}.{uuid.uuid4().hex}.tmp"
                 temp.write_bytes(image_bytes)
                 temp.replace(data_path)
-            self._meta(firmware_id).write_text(
+            meta_path.write_text(
                 json.dumps(record, ensure_ascii=False, indent=2) + "\n"
             )
         return record
@@ -2863,6 +3153,8 @@ class DeviceSession:
         ready_timeout: float,
         ready_conditions: dict | None,
         runtime_env: dict[str, str] | None = None,
+        units: list[dict] | None = None,
+        unit_contract: dict | None = None,
         runtime: str = "qemu",
         network_config: dict | None = None,
         storage_config: dict | None = None,
@@ -2886,6 +3178,10 @@ class DeviceSession:
         reattached_process: bool = False,
         companions: dict | None = None,
         persist: bool = True,
+        firmware_provenance: dict | None = None,
+        program_transport: str | None = None,
+        program_bootstrap: bool = False,
+        management_binding: dict | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2895,8 +3191,28 @@ class DeviceSession:
         self.firmware_sha = firmware_sha
         self.firmware_source = firmware_source
         self.source_artifacts = source_artifacts
+        self.firmware_provenance = (
+            json.loads(json.dumps(firmware_provenance)) if firmware_provenance else None
+        )
         self.runtime_env = dict(runtime_env or {})
+        self.units = json.loads(json.dumps(units or []))
+        self.unit_contract = (
+            json.loads(json.dumps(unit_contract)) if unit_contract is not None
+            else UnitRegistry().freeze([unit["unit_id"] for unit in self.units])
+            if self.units and not restored else None
+        )
         self.runtime = runtime
+        self.program_transport = program_transport
+        # Only service-owned bootstraps are safe to probe before the first Run.
+        # Never interrupt an arbitrary manually prepared application's startup.
+        self.program_bootstrap = program_bootstrap is True and program_transport == "uart-repl"
+        self._program_capabilities = {"status": "unknown", "mpy_entrypoint": False,
+                                      "reason": "bootstrap-probe-pending" if self.program_bootstrap and not restored else "not-probed"}
+        self.management_binding = _normalize_management_binding(management_binding) if management_binding is not None else None
+        self._management_handle = object() if self.management_binding is not None else None
+        self._console = None
+        self._program_lock = threading.Lock()
+        self._program = None
         self.network_config = dict(network_config or {})
         self.storage_config = dict(storage_config or {})
         self.storage_info = (
@@ -2930,9 +3246,34 @@ class DeviceSession:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.serial0 = self.dir / "serial.log"
         self.serial1 = self.dir / "serial1.log"
+        self.console_path = Path("/tmp") / f"m5-console-{session_id}.sock"
+        self.program_path = self.dir / "program.json"
+        self._program_restore_error = None
+        if restored and program_transport and self.program_path.is_file():
+            try:
+                program = json.loads(self.program_path.read_text())
+                if not isinstance(program, dict) or any(
+                    not isinstance(program.get(field), str)
+                    or len(program[field]) != size
+                    or any(char not in "0123456789abcdef" for char in program[field])
+                    for field, size in (("execution_id", 32), ("revision_id", 64))
+                ) or program.get("state") not in (
+                    "submitting", "running", "completed", "failed", "unknown",
+                    "interrupt-requested", "interrupted", "cancelled",
+                ) or type(program.get("serial_offset")) is not int or program["serial_offset"] < 0:
+                    raise ValueError("invalid program identity")
+                if program["state"] in {"running", "submitting", "unknown", "interrupt-requested"}:
+                    program.update(state="unknown", output_gap_possible=True,
+                                   error={"code": "program_output_gap"})
+                self._program = program
+            except (OSError, UnicodeError, ValueError):
+                self._program_restore_error = "program history could not be verified"
         self.last_frame_path = self.dir / "last-frame.png"
         self.last_frame_meta_path = self.dir / "last-frame.json"
         self.device_state_path = self.dir / "device-state.json"
+        self.unit_state_path = self.dir / "unit-state.json"
+        self.unit_config_path = self.dir / "units-runtime.json"
+        self.unit_adc_calibration_path = self.dir / "unit-adc-calibration.json"
         self.session_record_path = self.dir / "session.json"
         self.events_path = self.dir / "events.json"
         self.stdout_path = self.dir / "qemu.stdout"
@@ -2967,8 +3308,21 @@ class DeviceSession:
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
+        # Never wait for this lock while holding _lock or the service lock.
+        # It owns resource creation, publication and teardown, including waits.
+        self._lifecycle_lock = threading.RLock()
+        self._lifecycle_depth = 0
+        self._stop_request_lock = threading.Lock()
         self._stop_event = threading.Event()
+        self._stop_complete = threading.Event()
+        self._stop_purge = False
+        self._stop_retain_flash: bool | None = None
+        self._stop_intent_version = 0
+        self._purged_snapshot: dict | None = None
+        self._provision_error: str | None = None
         self._last_frame_persisted_at = 0.0
+        self._preview_frames = FrameCache()
+        self._frame_epoch = 0
         self.unified_frame_changed: bool | None = None
         self.events: list[dict] = [dict(event) for event in (events or [])]
         self.restored = restored
@@ -3051,7 +3405,14 @@ class DeviceSession:
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
+            **({"program_transport": self.program_transport} if self.program_transport else {}),
+            **({"program_bootstrap": self.program_bootstrap,
+                "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
+            **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
+            **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": dict(self.runtime_env),
+            "units": self.units,
+            "unit_contract": self.unit_contract,
             "runtime": self.runtime,
             "network": redacted_network_config(self.network_config),
             "network_result": self.network_result,
@@ -3384,6 +3745,14 @@ class DeviceSession:
         return self._companion_snapshot()
 
     def reattach(self) -> dict:
+        with self._lifecycle_operation():
+            try:
+                return self._reattach_runtime()
+            except Exception as error:
+                self._request_failure(error)
+                raise
+
+    def _reattach_runtime(self) -> dict:
         if self.runtime not in QEMU_QMP_RUNTIMES:
             raise ServiceError(
                 "reattach_unsupported",
@@ -3416,6 +3785,17 @@ class DeviceSession:
                     409,
                 )
             qemu_running = True
+            if self.program_transport == "uart-repl":
+                from guest_console import GuestConsole
+
+                self._console = GuestConsole(self.console_path, self.serial0)
+                self._console.connect(timeout=5, cancelled=self._stop_event.is_set)
+                with self._lock:
+                    if self._program and self._program["state"] in {"running", "submitting", "unknown"}:
+                        self._program.update(state="unknown", output_gap_possible=True,
+                                             error={"code": "program_output_gap"})
+                        self._persist_program()
+                self._record_event("program_console_reattached", output_gap_possible=True)
             companion_recovery = self._recover_companions()
             if self._worker_lease_active:
                 self.service.worker.reserve_lease(
@@ -3494,6 +3874,8 @@ class DeviceSession:
         self._persist_session()
 
     def snapshot(self) -> dict:
+        if self._stop_event.is_set() and not self._stop_complete.is_set():
+            return self._pending_stop_snapshot()
         with self._lock:
             if (
                 self._proc is not None
@@ -3542,6 +3924,11 @@ class DeviceSession:
                     self.source_artifacts[0] if self.source_artifacts else None
                 ),
                 "source_artifacts": list(self.source_artifacts),
+                **({"program_transport": self.program_transport,
+                    "program": self._program,
+                    "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
+                **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
+                **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": dict(self.runtime_env),
                 "runtime": self.runtime,
                 "runtime_memory": (
@@ -3574,6 +3961,7 @@ class DeviceSession:
                     else None
                 ),
                 "storage": self.storage_info,
+                "units": self.units,
                 "nvs": self.nvs_info,
                 "flash": self.flash_info,
                 "flash_retained": bool(
@@ -3619,26 +4007,37 @@ class DeviceSession:
         *,
         reason: str | None = None,
     ) -> None:
-        self.state = "failed"
-        self.error = (
-            self.error
-            or reason
-            or f"process exited with code {returncode}"
-        )
-        self.completed_at = self.completed_at or iso_now()
-        self._record_event("process_exited", returncode=returncode)
-        self._reattached_process = False
-        self._close_http_fixture()
-        self._terminate_hci_probe()
-        if self.runtime in QEMU_RADIO_RUNTIMES:
-            self._finalize_network_capture()
-        if not self.service.storage_policy.retain_session_flash:
-            self._release_virtual_flash()
-        self._release_worker_lease(
-            state="failed",
-            error=self.error,
-        )
-        self._persist_session()
+        # The transaction owner handles startup/reset failures. A snapshot or
+        # janitor must not remove resources while that owner can still publish.
+        with self._lock:
+            if self._lifecycle_depth or self._stop_event.is_set():
+                return
+            self._terminate_runtime()
+            self.state = "failed"
+            self.error = (
+                self.error
+                or reason
+                or f"process exited with code {returncode}"
+            )
+            self.completed_at = self.completed_at or iso_now()
+            self._record_event("process_exited", returncode=returncode)
+            self._reattached_process = False
+            self._close_http_fixture()
+            self._terminate_hci_probe()
+            if self.runtime in QEMU_RADIO_RUNTIMES:
+                self._finalize_network_capture()
+            if not self.service.storage_policy.retain_session_flash:
+                self._release_virtual_flash()
+            release_error = self._release_worker_lease(
+                state="failed",
+                error=self.error,
+            )
+            if release_error:
+                self._provision_error = self.error
+                self.state = "stopping"
+                self.completed_at = None
+                self._stop_event.set()
+            self._persist_session()
 
     def start(self) -> None:
         thread = threading.Thread(
@@ -3648,10 +4047,69 @@ class DeviceSession:
         )
         thread.start()
 
+    def _check_cancelled(self) -> None:
+        if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+            raise SessionCancelled()
+
+    def _request_failure(self, error: Exception) -> None:
+        with self._stop_request_lock:
+            if not self._stop_event.is_set():
+                self._provision_error = str(error)
+                self.error = str(error)
+                self._stop_event.set()
+
+    @contextmanager
+    def _lifecycle_operation(self):
+        try:
+            with self._lifecycle_lock:
+                with self._lock:
+                    self._check_cancelled()
+                    self._lifecycle_depth += 1
+                try:
+                    yield
+                finally:
+                    self._lifecycle_depth -= 1
+        finally:
+            # This is outside the lifecycle lock. It covers reset and reattach
+            # as well as provisioning; no caller has to retry a pending stop.
+            if not self._lifecycle_depth and self._stop_event.is_set() and not self._stop_complete.is_set():
+                try:
+                    self.stop()
+                except Exception:
+                    # stop persisted the cleanup failure; the janitor retries
+                    # without freeing capacity or claiming a terminal result.
+                    pass
+
+    def _pending_stop_snapshot(self) -> dict:
+        # QMP startup may hold _lock for its entire handshake. Cancellation
+        # acknowledgement must not wait for it or pretend teardown finished.
+        return {
+            "session_id": self.id,
+            "device_id": self.spec.id,
+            "state": "stopping",
+            "stop_pending": True,
+            "runtime": self.runtime,
+            "firmware_id": self.firmware_id,
+            "firmware_sha256": self.firmware_sha,
+            "error": self.error,
+            "units": self.units,
+            "display": self.spec.display,
+            "created_at": self.created_at,
+            "completed_at": None,
+            "expires_at": datetime.fromtimestamp(self.expires_at, timezone.utc).isoformat(),
+            "worker": {
+                "worker_id": self.worker_id,
+                "generation": self.worker_generation,
+                "lease_active": self._worker_lease_active,
+            },
+        }
+
     def _set_state(self, state: str) -> None:
         with self._lock:
-            previous = self.state
-            self.state = state
+            with self._stop_request_lock:
+                self._check_cancelled()
+                previous = self.state
+                self.state = state
             self._record_event("state", **{"from": previous, "to": state})
             self._persist_session()
 
@@ -4009,7 +4467,7 @@ class DeviceSession:
                     probe_log.encode()
                 ).hexdigest(),
                 "frame": {
-                    key: value for key, value in frame.items() if key != "png"
+                    key: value for key, value in frame.items() if key not in {"png", "captured_monotonic"}
                 },
                 "rmt": {
                     "bytes": len(rmt_bytes),
@@ -4459,90 +4917,99 @@ class DeviceSession:
 
     def _provision(self) -> None:
         try:
-            self._set_state("flashing")
-            prepared = self.service.prepare_flash(
-                self.spec,
-                self.firmware_path,
-                self.firmware_sha,
-                runtime=self.runtime,
-            )
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(prepared["path"], self.virtual_flash)
-            self.flash_info = {
-                **prepared["info"],
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            if self.storage_config:
-                artifact_id = self.storage_config["sd_image_artifact_id"]
-                source = self.service.artifacts.path(artifact_id)
-                shutil.copyfile(source, self.sd_card_image)
-                storage_sha = hashlib.sha256(
-                    self.sd_card_image.read_bytes()
-                ).hexdigest()
-                if storage_sha != artifact_id:
-                    raise RuntimeError(
-                        "session-isolated SD image checksum changed"
-                    )
-                self.storage_info = {
-                    "interface": "sdmmc",
-                    "format": "raw",
-                    "artifact_id": artifact_id,
-                    "sha256": storage_sha,
-                    "bytes": self.sd_card_image.stat().st_size,
-                    "session_isolated_copy": True,
-                    "writable": True,
-                }
-                atomic_write_json(
-                    self.storage_summary_path,
-                    self.storage_info,
+            with self._lifecycle_operation():
+                try:
+                    self._provision_runtime()
+                except SessionCancelled:
+                    pass
+                except Exception as error:
+                    self._request_failure(error)
+        except SessionCancelled:
+            # Stop before this thread starts is cancellation, not a failure.
+            pass
+
+    def _terminate_runtime(self) -> None:
+        self._terminate_process()
+
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        prepared = self.service.prepare_flash(
+            self.spec,
+            self.firmware_path,
+            self.firmware_sha,
+            runtime=self.runtime,
+        )
+        self._check_cancelled()
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(prepared["path"], self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            **prepared["info"],
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        if self.storage_config:
+            artifact_id = self.storage_config["sd_image_artifact_id"]
+            source = self.service.artifacts.path(artifact_id)
+            shutil.copyfile(source, self.sd_card_image)
+            self._check_cancelled()
+            storage_sha = hashlib.sha256(
+                self.sd_card_image.read_bytes()
+            ).hexdigest()
+            if storage_sha != artifact_id:
+                raise RuntimeError(
+                    "session-isolated SD image checksum changed"
                 )
-                self._record_event("storage_prepared", **self.storage_info)
-            if (
-                self.nvs_config
-                and self.runtime not in QEMU_RADIO_RUNTIMES
-            ):
-                self._apply_nvs_fixture()
-            self._persist_session()
-            self._set_state("booting")
-            if self.runtime in QEMU_RADIO_RUNTIMES:
-                self._provision_qemu_radio(prepared["path"])
-            else:
-                self._launch()
-                if self.ready_conditions:
-                    self.wait_ready(
-                        {
-                            "timeout_seconds": self.ready_timeout,
-                            **self.ready_conditions,
-                        }
-                    )
-                elif self.ready_marker:
-                    self.wait_for_marker(self.ready_marker, self.ready_timeout)
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_process()
-            if self.runtime in QEMU_RADIO_RUNTIMES:
-                self._finalize_network_capture()
-            self._release_worker_lease(
-                state="failed",
-                error=str(error),
+            self.storage_info = {
+                "interface": "sdmmc",
+                "format": "raw",
+                "artifact_id": artifact_id,
+                "sha256": storage_sha,
+                "bytes": self.sd_card_image.stat().st_size,
+                "session_isolated_copy": True,
+                "writable": True,
+            }
+            atomic_write_json(
+                self.storage_summary_path,
+                self.storage_info,
             )
+            self._record_event("storage_prepared", **self.storage_info)
+        if (
+            self.nvs_config
+            and self.runtime not in QEMU_RADIO_RUNTIMES
+        ):
+            self._apply_nvs_fixture()
+        self._persist_session()
+        self._set_state("booting")
+        if self.runtime in QEMU_RADIO_RUNTIMES:
+            self._provision_qemu_radio(prepared["path"])
+        else:
+            self._launch()
+            if self.ready_conditions:
+                self.wait_ready(
+                    {
+                        "timeout_seconds": self.ready_timeout,
+                        **self.ready_conditions,
+                    }
+                )
+            elif self.ready_marker:
+                self.wait_for_marker(self.ready_marker, self.ready_timeout)
+        if self.program_bootstrap:
+            self._probe_program_loader()
+        self._set_state("running")
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
         last_error: ServiceError | None = None
         for attempt in range(1, attempts + 1):
+            self._check_cancelled()
             if attempt > 1:
                 if self.virtual_flash is None:
                     self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
+                self._check_cancelled()
             self._apply_nvs_fixture()
+            self._check_cancelled()
             try:
                 self._launch()
                 if self.ready_conditions:
@@ -4574,7 +5041,10 @@ class DeviceSession:
                     status="PASS",
                 )
                 return
+            except SessionCancelled:
+                raise
             except ServiceError as error:
+                self._check_cancelled()
                 last_error = error
                 self._record_event(
                     "qemu_radio_attempt",
@@ -4615,6 +5085,7 @@ class DeviceSession:
         # single-cycle budget. The session's ready timeout bounds the wait.
         deadline = time.time() + max(1.0, timeout)
         while time.time() < deadline:
+            self._check_cancelled()
             text = (
                 self.hci_probe_log.read_text(errors="replace")
                 if self.hci_probe_log.is_file()
@@ -4635,7 +5106,7 @@ class DeviceSession:
                     "external BLE peer exited before GATT completion",
                     409,
                 )
-            time.sleep(0.1)
+            self._stop_event.wait(0.1)
         raise ServiceError(
             "ble_peer_failed",
             "timed out waiting for external BLE peer completion",
@@ -4739,9 +5210,11 @@ class DeviceSession:
         return command, env
 
     def _launch_hci_probe(self) -> None:
+        self._check_cancelled()
         command, env = self._hci_probe_command()
         output = self.hci_probe_log.open("wb")
         try:
+            self._check_cancelled()
             self._hci_probe = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -4750,10 +5223,12 @@ class DeviceSession:
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             output.close()
         deadline = time.time() + 10
         while time.time() < deadline:
+            self._check_cancelled()
             if (
                 self.hci_probe_log.is_file()
                 and "BLE_PROBE_READY"
@@ -4808,7 +5283,7 @@ class DeviceSession:
                     "external BLE peer exited during startup",
                     503,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         raise ServiceError(
             "ble_peer_failed",
             "external BLE peer did not become ready",
@@ -4816,6 +5291,7 @@ class DeviceSession:
         )
 
     def _launch_native_vhci_gdb(self) -> None:
+        self._check_cancelled()
         if self.hci_port is None or self.gdb_port is None:
             raise RuntimeError("native VHCI ports are not allocated")
         elf_artifact_id = self.network_config.get("elf_artifact_id")
@@ -4862,6 +5338,7 @@ class DeviceSession:
         )
         output = self.native_vhci_log.open("wb")
         try:
+            self._check_cancelled()
             self._native_vhci_gdb = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -4870,10 +5347,12 @@ class DeviceSession:
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             output.close()
         deadline = time.time() + 10
         while time.time() < deadline:
+            self._check_cancelled()
             if (
                 self.native_vhci_log.is_file()
                 and "NATIVE_VHCI_BRIDGE_READY"
@@ -4890,7 +5369,7 @@ class DeviceSession:
                     "native VHCI GDB bridge exited during startup",
                     503,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         raise ServiceError(
             "native_bt_backend_unavailable",
             "native VHCI GDB bridge did not become ready",
@@ -4898,6 +5377,7 @@ class DeviceSession:
         )
 
     def _launch_http_fixture(self, *, recover: bool = False) -> None:
+        self._check_cancelled()
         profile = self.network_config.get("profile")
         body = UNIFIED_HTTP_BODIES.get(profile)
         port = UNIFIED_HTTP_PORTS.get(profile)
@@ -4926,6 +5406,7 @@ class DeviceSession:
             seed_requests = []
             generation = 1
         try:
+            self._check_cancelled()
             self._http_fixture = UnifiedHttpFixture(
                 self.http_fixture_log,
                 body=body,
@@ -4933,6 +5414,7 @@ class DeviceSession:
                 seed_requests=seed_requests,
                 generation=generation,
             )
+            self._check_cancelled()
         except OSError as error:
             raise ServiceError(
                 "http_fixture_failed",
@@ -5073,6 +5555,7 @@ class DeviceSession:
     ) -> None:
         deadline = time.time() + 20
         while time.time() < deadline:
+            self._check_cancelled()
             serial = (
                 self.serial0.read_text(errors="replace")
                 if self.serial0.is_file()
@@ -5086,7 +5569,7 @@ class DeviceSession:
                     f"device exited before marker {marker!r}",
                     409,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         else:
             raise ServiceError(
                 "qom_timeout",
@@ -5214,6 +5697,7 @@ class DeviceSession:
         )
 
     def _launch(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
         efuse_data = bytearray(4096)
@@ -5230,6 +5714,30 @@ class DeviceSession:
         )
         if wifi_mac:
             set_s3_efuse_mac(efuse_data, wifi_mac)
+        if self.spec.backend == "qemu-esp32s3" and any(
+            unit["unit_id"] in {"angle", "light"} for unit in self.units
+        ):
+            frozen = (self.unit_contract or {}).get("fixtures", {}).get("esp32s3-adc")
+            if frozen:
+                raw = frozen["raw_utf8"].encode("utf-8")
+                if hashlib.sha256(raw).hexdigest() != frozen["sha256"]:
+                    raise ServiceError("runtime_model_gap", "frozen ADC fixture hash mismatch", 409)
+                fixture = load_adc_fixture(raw=raw)
+                firmware = self.firmware_path.read_bytes()
+                try:
+                    verify_adc_firmware(firmware, fixture)
+                except ValueError:
+                    receipt = {
+                        "schema_version": 1, "status": "not-applied",
+                        "fixture_sha256": frozen["sha256"],
+                        "reason": "application bytes do not match the synthetic calibration profile; raw ADC remains available",
+                        "hardware_validation": False,
+                    }
+                else:
+                    receipt = {**apply_s3_adc_calibration(
+                        efuse_data, backend=self.spec.backend, firmware=firmware, fixture_raw=raw,
+                    ), "status": "applied"}
+                atomic_write_json(self.unit_adc_calibration_path, receipt)
         efuse.write_bytes(efuse_data)
         try:
             self.qmp_path.unlink()
@@ -5360,7 +5868,16 @@ class DeviceSession:
                 ]
             )
         else:
-            command.extend(["-serial", f"file:{self.serial0}"])
+            if self.program_transport == "uart-repl":
+                # Start paused: the unique reader must own the socket before
+                # any guest UART output, including the initial REPL banner.
+                command.extend([
+                    "-S", "-chardev",
+                    f"socket,id=program-console,path={self.console_path},server=on,wait=off",
+                    "-serial", "chardev:program-console",
+                ])
+            else:
+                command.extend(["-serial", f"file:{self.serial0}"])
             if hci_gatt and not native_bt:
                 assert self.hci_port is not None
                 if profile == STACKCHAN_UNIFIED_PROFILE:
@@ -5446,6 +5963,13 @@ class DeviceSession:
         env = os.environ.copy()
         env.update(self.spec.env)
         env.update(self.runtime_env)
+        # Never inherit another session's external wiring from the host shell.
+        env.pop("M5_UNIT_CONFIG", None)
+        if self.units:
+            atomic_write_json(self.unit_config_path, {
+                "schema_version": 1, "attachments": self.units,
+            })
+            env["M5_UNIT_CONFIG"] = str(self.unit_config_path)
         if nic == "misc.esp32s3.wifi":
             env["M5SW_WIFI_SSID"] = str(
                 self.network_config.get("wifi_ssid", "myssid")
@@ -5590,6 +6114,7 @@ class DeviceSession:
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 launch_command,
                 cwd=ROOT,
@@ -5597,6 +6122,7 @@ class DeviceSession:
                 stdout=stdout,
                 stderr=stderr,
             )
+            self._check_cancelled()
         finally:
             stdout.close()
             stderr.close()
@@ -5611,15 +6137,28 @@ class DeviceSession:
         self._persist_session()
         if native_vhci:
             self._launch_native_vhci_gdb()
-        try:
-            self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
-        except RuntimeError as error:
-            raise ServiceError(
-                "qmp_timeout",
-                f"QEMU QMP socket did not become ready: {error}",
-                504,
-            ) from error
-        self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        with self._lock:
+            try:
+                # Booting frame/state requests may already own the connection.
+                if self._qmp is None:
+                    self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
+                self._check_cancelled()
+            except RuntimeError as error:
+                raise ServiceError(
+                    "qmp_timeout",
+                    f"QEMU QMP socket did not become ready: {error}",
+                    504,
+                ) from error
+            self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        if self.program_transport == "uart-repl":
+            from guest_console import GuestConsole
+
+            self._console = GuestConsole(self.console_path, self.serial0)
+            self._console.connect(timeout=5, cancelled=self._stop_event.is_set)
+            self._check_cancelled()
+            self._qmp_call("cont")
+            self._record_event("program_console_connected", transport="uart-repl")
+        self._verify_units_runtime()
         if profile == NANOC6_HCI_BLE_PROFILE:
             self._exercise_nanoc6_button()
         elif profile == NESSO_UNIFIED_PROFILE:
@@ -5659,6 +6198,10 @@ class DeviceSession:
                 self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
                 return self._qmp.cmd(name, **arguments)
             except (OSError, RuntimeError) as error:
+                if isinstance(error, QMPCommandError) and name == "qom-set" and str(arguments.get("path", "")).startswith("/machine/units/"):
+                    # A real controller rejection (for example a full UART RX
+                    # FIFO) is an input conflict. The QMP transport is healthy.
+                    raise ServiceError("unit_input_rejected", str(error), 409) from error
                 try:
                     self._qmp.close()
                 except OSError:
@@ -5718,9 +6261,11 @@ class DeviceSession:
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
         deadline = time.time() + max(0.1, timeout)
         while time.time() < deadline:
+            self._check_cancelled()
             if self.serial0.exists() and marker in self.serial0.read_text(
                 errors="replace"
             ):
+                self._check_cancelled()
                 self._record_event("serial_marker", marker=marker)
                 return self.snapshot()
             if self._proc and self._proc.poll() is not None:
@@ -5729,7 +6274,7 @@ class DeviceSession:
                     f"device exited before marker {marker!r}",
                     409,
                 )
-            time.sleep(0.1)
+            self._stop_event.wait(0.1)
         raise ServiceError(
             "ready_timeout",
             f"timed out waiting for serial marker {marker!r}",
@@ -5771,6 +6316,7 @@ class DeviceSession:
         first_frame_at: str | None = None
         last_frame: dict | None = None
         while time.time() < deadline:
+            self._check_cancelled()
             if serial_markers:
                 serial_text = (
                     self.serial0.read_text(errors="replace")
@@ -5824,6 +6370,7 @@ class DeviceSession:
                 else bool(criteria)
             )
             if ready:
+                self._check_cancelled()
                 self._record_event("application_ready", criteria=criteria)
                 return {
                     **self.snapshot(),
@@ -5836,7 +6383,7 @@ class DeviceSession:
                         {
                             key: value
                             for key, value in last_frame.items()
-                            if key != "png"
+                            if key not in {"png", "captured_monotonic"}
                         }
                         if last_frame
                         else None
@@ -5848,7 +6395,7 @@ class DeviceSession:
                     "device exited before application readiness",
                     409,
                 )
-            time.sleep(0.75)
+            self._stop_event.wait(0.75)
         raise ServiceError(
             "ready_timeout",
             "application did not satisfy the requested readiness conditions",
@@ -5859,7 +6406,13 @@ class DeviceSession:
     def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
         limit = min(max(int(limit), 1), MAX_SERIAL_READ)
         with self._lock:
-            if not self.serial0.exists():
+            try:
+                with self.serial0.open("rb") as stream:
+                    size = stream.seek(0, os.SEEK_END)
+                    offset = min(max(int(offset), 0), size)
+                    stream.seek(offset)
+                    chunk = stream.read(min(limit, size - offset))
+            except FileNotFoundError:
                 return {
                     "session_id": self.id,
                     "offset": offset,
@@ -5867,9 +6420,6 @@ class DeviceSession:
                     "data": "",
                     "bytes": 0,
                 }
-            data = self.serial0.read_bytes()
-        offset = min(max(int(offset), 0), len(data))
-        chunk = data[offset:offset + limit]
         return {
             "session_id": self.id,
             "offset": offset,
@@ -5877,6 +6427,472 @@ class DeviceSession:
             "data": chunk.decode("utf-8", errors="replace"),
             "bytes": len(chunk),
         }
+
+    def _program_identity(self) -> dict:
+        return {"session_id": self.id, "device_id": self.spec.id,
+                "firmware_sha256": self.firmware_sha, "runtime": self.runtime,
+                "pid": self.pid, "process_start_token": self.process_start_token,
+                "worker_generation": self.worker_generation}
+
+    def program_capabilities(self) -> dict:
+        """Resolve this live guest's evidence, never caller or historical claims."""
+        identity = self._program_identity()
+        record = getattr(self, "_program_capabilities", {})
+        process = getattr(self, "_proc", None)
+        if (self.state == "running" and self.program_transport == "uart-repl"
+                and (process is None or process.poll() is None)
+                and type(identity["pid"]) is int and identity["pid"] > 0
+                and isinstance(identity["process_start_token"], str) and identity["process_start_token"]
+                and record.get("identity") == identity):
+            if main_loader_verified(record):
+                return json.loads(json.dumps(record))
+            if record.get("status") == "unsupported" and record.get("mpy_entrypoint") is False:
+                return json.loads(json.dumps(record))
+        return {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False, "identity": identity,
+                "reason": record.get("reason", "live-loader-evidence-unavailable")}
+
+    def _invalidate_program_loader(self, reason: str) -> None:
+        was_verified = main_loader_verified(getattr(self, "_program_capabilities", None))
+        self._program_capabilities = {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False, "reason": reason}
+        if was_verified:
+            self._record_event("program_loader_invalidated", reason=reason)
+            self._persist_session()
+
+    @contextmanager
+    def program_admission(self):
+        """Keep a known loader revocation from racing a Preview intent write."""
+        with self._lock:
+            yield self.program_capabilities()
+
+    def _check_program_loader_restoration(self, program: dict | None, console, *, prompt_confirmed: bool = False) -> bool:
+        if not program or program.get("entrypoint") != "main.mpy":
+            return True
+        scanner = getattr(self, "_program_scanner", None)
+        if scanner is None or scanner.execution_id != program["execution_id"]:
+            scanner = ExecutionStateScanner(program["execution_id"], program.get("serial_offset", 0))
+        end = console.offset()
+        while scanner.cursor < end:
+            scanner.scan(console)
+        # LOAD is only an import request. Once a fresh raw prompt confirms the
+        # binary has stopped, only DONE/ERROR positively prove wrapper cleanup.
+        # An actively running import has no terminal marker yet and keeps its
+        # proof; cancellation before LOAD never changed the importer owner.
+        missing_terminal = prompt_confirmed and scanner.load_requested and scanner.state not in {"completed", "failed"}
+        if not scanner.restore_failed and not missing_terminal:
+            return True
+        with self._lock:
+            self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
+            program.update(loader_restore_failed=True, owner_restored=False,
+                           execution_phase="owner-unconfirmed", state="unknown",
+                           error={"code": "program_main_loader_restore_failed", "message": "Binary execution did not confirm its original REPL owner"})
+            atomic_write_json(self.dir / "programs" / f"{program['execution_id']}.json", program)
+            if self._program is program:
+                self._persist_program()
+        return False
+
+    def _probe_program_loader(self) -> None:
+        """Probe only our inert bootstrap, before public Run becomes available."""
+        self._check_cancelled()
+        if self._console is None or not self._program_lock.acquire(blocking=False):
+            raise UIFlowRuntimeError("program_loader_probe_unavailable", "bootstrap console ownership is unavailable")
+        try:
+            record = probe_main_loader(self._console, timeout=min(20.0, self.ready_timeout),
+                                       cancelled=self._stop_event.is_set)
+            self._check_cancelled()
+            if (not isinstance(record, dict) or record.get("status") not in {"verified", "unsupported"}
+                    or record.get("probe", {}).get("owner_restored") is not True
+                    or record.get("status") == "verified" and not main_loader_verified(record)):
+                raise UIFlowRuntimeError("program_loader_probe_unconfirmed", "guest loader proof or owner restoration is incomplete")
+            self._program_capabilities = {**record, "identity": self._program_identity(), "observed_at": iso_now()}
+            atomic_write_json(self.dir / "program-capabilities.json", self._program_capabilities)
+            self._record_event("program_loader_observed", capabilities=self._program_capabilities)
+        finally:
+            self._program_lock.release()
+
+    def _persist_program(self) -> None:
+        if self._stop_purge:
+            return
+        atomic_write_json(self.program_path, self._program)
+        atomic_write_json(self.dir / "programs" / f"{self._program['execution_id']}.json", self._program)
+
+    def program_status(self) -> dict:
+        from guest_console import GuestConsoleError
+
+        with self._lock:
+            program = getattr(self, "_program", None)
+            if program is not None and not program.get("cancel_requested") and program["state"] in {"running", "submitting", "unknown"}:
+                console = getattr(self, "_console", None)
+                if self.state != "running" or console is None:
+                    program.update(state="unknown", error={"code": "program_runtime_unverified"})
+                    self._persist_program()
+                else:
+                    scanner = getattr(self, "_program_scanner", None)
+                    if scanner is None or scanner.execution_id != program["execution_id"]:
+                        scanner = ExecutionStateScanner(program["execution_id"], program.get("serial_offset", 0))
+                        self._program_scanner = scanner
+                    try:
+                        state = scanner.scan(console)
+                        if scanner.restore_failed:
+                            self._check_program_loader_restoration(program, console)
+                            state = None
+                        elif program.get("entrypoint") == "main.mpy" and state in {"completed", "failed"}:
+                            program.update(owner_restored=True, execution_phase="import-returned" if state == "completed" else "load-or-execute-failed")
+                        if state == "running" and program.get("output_gap_possible"):
+                            state = "unknown"
+                        if state not in {"completed", "failed"}:
+                            console.check_alive()
+                    except GuestConsoleError as error:
+                        state = None
+                        program.update(state="unknown", observed_at=iso_now(),
+                                       error={"code": error.code, "message": error.message})
+                        self._persist_program()
+                    if state and state != program["state"]:
+                        program.update(state=state, observed_at=iso_now())
+                        program.pop("error", None)
+                        self._persist_program()
+            return {"session_id": self.id, "program_transport": self.program_transport,
+                    "program_capabilities": self.program_capabilities(),
+                    "program": json.loads(json.dumps(program)),
+                    "history_error": self._program_restore_error}
+
+    def run_program(self, payload: dict) -> dict:
+        """Run one source checkpoint in the existing MicroPython VM over UART."""
+        self.require_management_handle()
+        return self._run_program(payload)
+
+    def require_management_handle(self, handle=None) -> None:
+        """Trusted internal capability; HTTP must never deserialize a handle."""
+        if getattr(self, "management_binding", None) is not None and handle is not self._management_handle:
+            raise ServiceError("session_managed_by_preview", "session mutations are managed by its Preview", 409)
+
+    def run_revision(self, revision_id: str, *, execution_id: str, expected_execution_id: str | None,
+                     timeout_seconds: float = 120, cancelled=None, on_synchronized=None,
+                     management_handle=None) -> dict:
+        """Run an existing immutable package using a caller-reserved execution ID."""
+        self.require_management_handle(management_handle)
+        if not isinstance(execution_id, str) or re.fullmatch(r"[0-9a-f]{32}", execution_id) is None:
+            raise ServiceError("invalid_program", "execution_id must be a reserved lowercase UUID hex", 400)
+        return self._run_program({"revision_id": revision_id, "expected_execution_id": expected_execution_id,
+                                  "timeout_seconds": timeout_seconds}, reserved_execution_id=execution_id,
+                                 cancelled=cancelled, on_synchronized=on_synchronized)
+
+    def _run_program(self, payload: dict, *, reserved_execution_id=None, cancelled=None, on_synchronized=None) -> dict:
+        from guest_console import GuestConsoleError
+
+        cancellation_seen = False
+
+        def run_cancelled():
+            nonlocal cancellation_seen
+            if cancelled is not None and cancelled():
+                cancellation_seen = True
+            return cancellation_seen
+
+        def transport_cancelled():
+            return self._stop_event.is_set() or run_cancelled()
+
+        if not isinstance(payload, dict) or sum(key in payload for key in ("source", "files", "revision_id")) != 1:
+            raise ServiceError("invalid_program", "exactly one of source, files or revision_id is required", 400)
+        reference = "revision_id" in payload
+        package = reference or "files" in payload
+        allowed = ({"revision_id", "expected_execution_id", "timeout_seconds"} if reference else
+                   {"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"} if package else
+                   {"source", "expected_execution_id", "timeout_seconds"})
+        if set(payload) - allowed or "expected_execution_id" not in payload:
+            raise ServiceError("invalid_program", "invalid program fields or missing expected_execution_id", 400)
+        if reference and (not isinstance(payload["revision_id"], str)
+                          or re.fullmatch(r"[0-9a-f]{64}", payload["revision_id"]) is None):
+            raise ServiceError("invalid_program", "revision_id must be a lowercase SHA256 package ID", 400)
+        if not package and not isinstance(payload["source"], str):
+            raise ServiceError("invalid_program", "source must be a UTF-8 string", 400)
+        source = "" if package else payload["source"]
+        try:
+            source_size = len(source.encode("utf-8"))
+        except UnicodeEncodeError as error:
+            raise ServiceError("invalid_program", "source must be valid UTF-8", 400) from error
+        if source_size > 65536:
+            raise ServiceError("program_too_large", "live source execution is limited to 64 KiB", 413)
+        timeout = payload.get("timeout_seconds", 120 if package else 10)
+        maximum_timeout = 120 if package else 30
+        if type(timeout) not in {int, float} or not 1 <= timeout <= maximum_timeout:
+            raise ServiceError("invalid_program", f"timeout_seconds must be between 1 and {maximum_timeout}", 400)
+        if package and not reference and payload.get("entrypoint", "main.py") == "main.mpy":
+            # Known rejection precedes package publication or interruption.
+            _require_live_package_entrypoint(payload, self.program_capabilities())
+            try:
+                _, _, inline_files = program_package_snapshot({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
+                _validate_checkpoint_bytecode(inline_files)
+                if payload.get("entrypoint") == "main.mpy":
+                    validate_mpy(inline_files, self.program_capabilities())
+            except (ProgramPackageError, UIFlowRuntimeError) as error:
+                raise ServiceError(error.code, error.message, getattr(error, "status", 409)) from error
+        if not self._program_lock.acquire(blocking=False):
+            raise ServiceError("program_busy", "a program transfer already owns this console", 409)
+        try:
+            if transport_cancelled():
+                raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+            if self.state != "running" or self.program_transport != "uart-repl" or self._console is None:
+                raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+            if self._program_restore_error:
+                raise ServiceError("program_history_unavailable", self._program_restore_error, 409)
+            current_id = self._program["execution_id"] if self._program else None
+            if payload["expected_execution_id"] != current_id:
+                raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+            if reserved_execution_id is not None and (self.dir / "programs" / f"{reserved_execution_id}.json").exists():
+                raise ServiceError("program_execution_conflict", "reserved execution_id already exists; observe it instead of resubmitting", 409,
+                                   execution_id=reserved_execution_id)
+            try:
+                if reference:
+                    revision = self.service.program_packages.get(payload["revision_id"])
+                    _require_live_package_entrypoint(revision, self.program_capabilities())
+                    package_files = self.service.program_packages.read_files(payload["revision_id"])
+                    _validate_checkpoint_bytecode(package_files)
+                    if revision["entrypoint"] == "main.mpy":
+                        validate_mpy(package_files, self.program_capabilities())
+                elif package:
+                    revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
+                    package_files = self.service.program_packages.read_files(revision["revision_id"])
+                else:
+                    revision = self.service.program_revisions.create({"files": {"main.py": source}})
+            except (RevisionError, ProgramPackageError, UIFlowRuntimeError) as error:
+                raise ServiceError(error.code, error.message, getattr(error, "status", 409)) from error
+            if len(list((self.dir / "programs").glob("*.json"))) >= 256:
+                raise ServiceError("program_quota_exceeded", "this session retains at most 256 executions", 429)
+            execution_id = reserved_execution_id or uuid.uuid4().hex
+            with self._lock:
+                # Revision storage may block while stop closes the transport.
+                # Re-admit after that work and retain the exact console owner.
+                if transport_cancelled():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+                console = self._console
+                if self.state != "running" or console is None:
+                    raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+                if package and revision["entrypoint"] == "main.mpy":
+                    _require_live_package_entrypoint(revision, self.program_capabilities())
+                previous = self._program
+                if self._program and self._program["state"] in {"running", "unknown"}:
+                    self._program.update(state="interrupt-requested", interruption_confirmed=False)
+                    self._persist_program()
+                self._program = {
+                    "execution_id": execution_id, "revision_id": revision["revision_id"],
+                    "source_sha256": revision["source_sha256"], "source_bytes": len(source.encode("utf-8")),
+                    "state": "submitting", "submitted_at": iso_now(),
+                    "firmware_sha256": self.firmware_sha, "pid": self.pid,
+                    "execution_mode": "same-guest-uart-repl", "cleanup_mode": "interrupt-only",
+                    "serial_offset": console.offset(),
+                }
+                if package:
+                    self._program.update(source_kind="uiflow2-package", entrypoint=revision["entrypoint"],
+                                         source_bytes=len(package_files[revision["entrypoint"]]),
+                                         total_file_bytes=revision["total_file_bytes"], file_count=len(package_files))
+                    if revision["entrypoint"] == "main.mpy":
+                        self._program.update(loader_capabilities=self.program_capabilities(),
+                                             execution_phase="preparing", application_started=None, application_ready=None)
+                if reserved_execution_id is not None and previous is not None:
+                    self._program["replaces_execution_id"] = previous["execution_id"]
+                self._preview_frames.invalidate()
+                self._persist_program()
+                self._record_event("program_submitted", **self._program)
+
+            synchronization_notified = False
+
+            def synchronized():
+                nonlocal synchronization_notified
+                if transport_cancelled():
+                    raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+                if previous and not self._check_program_loader_restoration(previous, console, prompt_confirmed=True):
+                    self._record_event("program_previous_owner_unconfirmed", execution_id=previous["execution_id"])
+                if previous and previous["state"] == "interrupt-requested":
+                    with self._lock:
+                        if transport_cancelled():
+                            raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+                        previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
+                        atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
+                if not synchronization_notified and on_synchronized is not None:
+                    synchronization_notified = True
+                    on_synchronized()
+
+            def package_progress(values):
+                with self._lock:
+                    if self._stop_purge:
+                        raise UIFlowRuntimeError("program_cancelled", "session was purged")
+                    deployment = self._program.setdefault("deployment", {})
+                    deployment.update(values)
+                    deployment.setdefault("events", []).append({**values, "observed_at": iso_now()})
+                    self._persist_program()
+                    if transport_cancelled():
+                        raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+
+            try:
+                execution_timeout = float(timeout)
+                if package:
+                    package_started = time.monotonic()
+                    deployment = deploy_package(console, package_files, revision, timeout=execution_timeout,
+                                                cancelled=transport_cancelled, on_synchronized=synchronized,
+                                                on_progress=package_progress,
+                                                **({"loader_capabilities": self.program_capabilities()} if revision["entrypoint"] == "main.mpy" else {}))
+                    execution_timeout -= time.monotonic() - package_started
+                    if execution_timeout <= 0:
+                        raise UIFlowRuntimeError("program_timeout", "package deployment used its execution acknowledgement budget")
+                if package and revision["entrypoint"] == "main.mpy":
+                    result = run_mpy(console, execution_id, package_path=deployment["package_path"],
+                                     entrypoint_sha256=hashlib.sha256(package_files["main.mpy"]).hexdigest(),
+                                     loader_capabilities=self.program_capabilities(), timeout=execution_timeout,
+                                     cancelled=transport_cancelled, on_synchronized=synchronized)
+                else:
+                    result = run_source(console, source, execution_id,
+                                        timeout=execution_timeout, cancelled=transport_cancelled,
+                                        on_synchronized=synchronized,
+                                        **({"source_path": "main.py"} if package else {}))
+            except (GuestConsoleError, UIFlowRuntimeError) as error:
+                with self._lock:
+                    if error.code == "program_main_loader_restore_failed":
+                        self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
+                    if self._stop_purge:
+                        raise ServiceError("program_cancelled", "session was purged", 409,
+                                           execution_id=execution_id) from error
+                    if previous and previous["state"] == "interrupt-requested":
+                        previous.update(state="unknown", interruption_confirmed=False)
+                        atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
+                    known_package_failure = package and error.code in {
+                        "program_mpy_invalid", "program_mpy_incompatible", "program_mpy_native_unsupported",
+                        "program_mpy_capability_unknown", "program_package_integrity", "program_package_guest_quota",
+                        "program_package_no_space", "program_package_short_write", "program_rpc_failed",
+                    }
+                    token_cancelled = run_cancelled()
+                    self._program.update(state="cancelled" if self._stop_event.is_set() else "interrupt-requested" if token_cancelled else "failed" if known_package_failure else "unknown",
+                                         error={"code": error.code, "message": error.message})
+                    if token_cancelled:
+                        self._program.update(cancel_requested=True, interruption_confirmed=False)
+                    self._persist_program()
+                    self._record_event("program_unconfirmed", execution_id=execution_id, code=error.code)
+                raise ServiceError("program_cancelled" if token_cancelled else error.code, error.message,
+                                   409 if self._stop_event.is_set() or token_cancelled or known_package_failure else 504,
+                                   execution_id=execution_id) from error
+            with self._lock:
+                if self._stop_purge:
+                    raise ServiceError("program_cancelled", "session was purged", 409,
+                                       execution_id=execution_id)
+                if self._stop_event.is_set():
+                    result["state"] = "cancelled"
+                elif run_cancelled():
+                    self._program.update(state="interrupt-requested", cancel_requested=True, interruption_confirmed=False,
+                                         error={"code": "program_cancelled", "message": "Run cancellation requested; guest interruption is unconfirmed"})
+                    self._persist_program()
+                    self._record_event("program_unconfirmed", execution_id=execution_id, code="program_cancelled")
+                    raise ServiceError("program_cancelled", "Run cancellation requested; guest interruption is unconfirmed", 409,
+                                       execution_id=execution_id)
+                self._program.update(result, observed_at=iso_now())
+                self._persist_program()
+                self._record_event("program_observed", execution_id=execution_id, program_state=result["state"])
+            return self.program_status()
+        finally:
+            self._program_lock.release()
+
+    def interrupt_program(self, *, expected_execution_id: str | None, timeout_seconds: float = 10,
+                          management_handle=None) -> dict:
+        """Independently confirm raw REPL after a cancelled/unknown transaction."""
+        from guest_console import GuestConsoleError
+
+        self.require_management_handle(management_handle)
+        if type(timeout_seconds) not in {int, float} or not 1 <= timeout_seconds <= 120:
+            raise ServiceError("invalid_program", "timeout_seconds must be between 1 and 120", 400)
+        if not self._program_lock.acquire(blocking=False):
+            raise ServiceError("program_busy", "a program transfer already owns this console", 409)
+        try:
+            with self._lock:
+                if self._stop_event.is_set():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+                current_id = self._program["execution_id"] if self._program else None
+                if current_id != expected_execution_id:
+                    raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+                console = self._console
+                if self.state != "running" or self.program_transport != "uart-repl" or console is None:
+                    raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+                self._preview_frames.invalidate()
+                if self._program:
+                    self._program.update(state="interrupt-requested", cancel_requested=True, interruption_confirmed=False)
+                    self._persist_program()
+            try:
+                receipt = synchronize_raw_repl(console, timeout=float(timeout_seconds), cancelled=self._stop_event.is_set)
+                if not self._check_program_loader_restoration(self._program, console, prompt_confirmed=True):
+                    receipt["owner_restored"] = False
+            except (GuestConsoleError, UIFlowRuntimeError) as error:
+                with self._lock:
+                    if not self._stop_purge and self._program:
+                        self._program.update(state="cancelled" if self._stop_event.is_set() else "unknown", interruption_confirmed=False,
+                                             error={"code": error.code, "message": error.message})
+                        self._persist_program()
+                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() else 504,
+                                   execution_id=expected_execution_id) from error
+            with self._lock:
+                if self._stop_purge or self._stop_event.is_set():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409, execution_id=expected_execution_id)
+                if self._program:
+                    self._program.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now(), interrupt_ack=receipt)
+                    if receipt.get("owner_restored") is not False:
+                        self._program.pop("error", None)
+                    self._persist_program()
+                previous_id = self._program.get("replaces_execution_id") if self._program else None
+                if previous_id:
+                    try:
+                        if not isinstance(previous_id, str) or re.fullmatch(r"[0-9a-f]{32}", previous_id) is None:
+                            raise ValueError("invalid prior execution identity")
+                        previous_path = self.dir / "programs" / f"{previous_id}.json"
+                        previous = json.loads(previous_path.read_text())
+                        if not isinstance(previous, dict) or previous.get("execution_id") != previous_id:
+                            raise ValueError("invalid prior execution record")
+                    except (OSError, UnicodeError, ValueError):
+                        self._record_event("program_previous_history_unavailable", execution_id=expected_execution_id)
+                    else:
+                        if previous.get("state") in {"running", "submitting", "unknown", "interrupt-requested"}:
+                            previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
+                            atomic_write_json(previous_path, previous)
+                self._record_event("program_interrupted", execution_id=expected_execution_id)
+            return {**self.program_status(), "interrupt_ack": receipt}
+        finally:
+            self._program_lock.release()
+
+    def _frame_generation(self) -> tuple:
+        with self._lock:
+            return (self.state, self._stop_event.is_set(), self.pid,
+                    self.process_start_token, self._frame_epoch,
+                    self._proc.poll() if self._proc is not None else None,
+                    self._program.get("execution_id") if self._program else None)
+
+    def preview_frame(self, max_age_ms: int) -> dict:
+        """Opt-in shared sample. Ordinary frame/evidence captures remain fresh."""
+        if self.runtime == "tab5" or self.runtime == "network":
+            raise ServiceError("frame_preview_not_available", "shared preview capture is currently admitted for QEMU runtimes only; omit max_age_ms for the existing backend capture", 409)
+        generation = self._frame_generation()
+        if generation[1] and generation[0] not in {"stopped", "failed"}:
+            raise ServiceError("session_stopping", "session is stopping; wait for retained history", 409)
+
+        def capture():
+            metrics = self.frame_metrics(analyze=False)
+            return CaptureResult(
+                png=metrics["png"], width=metrics["width"], height=metrics["height"],
+                source=metrics.get("source", "live"), captured_at=metrics.get("captured_at"),
+                captured_monotonic=metrics.get("captured_monotonic"),
+                execution_id=metrics.get("execution_id"), revision_id=metrics.get("revision_id"),
+                program_state=metrics.get("program_state"),
+            )
+
+        try:
+            sample = self._preview_frames.get(
+                capture, generation=generation, max_age_ms=max_age_ms,
+                is_current=lambda value: self._frame_generation() == value,
+            )
+        except FrameGenerationChanged as error:
+            raise ServiceError("frame_generation_changed", "session changed during frame capture; request its current frame", 409) from error
+        return sample.as_dict()
+
+    def _frame_program_context(self) -> dict:
+        # This labels the execution current during capture, not application
+        # readiness or an atomic snapshot with separately sampled Unit state.
+        program = self._program or {}
+        return {"execution_id": program.get("execution_id"),
+                "revision_id": program.get("revision_id"),
+                "program_state": program.get("state")}
 
     def frame_metrics(
         self, *, analyze: bool = True, force_persist: bool = False
@@ -5887,18 +6903,21 @@ class DeviceSession:
                 "this device has no framebuffer display",
                 409,
             )
-        if self.state not in {"running", "booting"}:
-            persisted = self.persisted_frame_metrics()
-            if persisted:
-                return persisted
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
         with self._lock:
+            if self.state not in {"running", "booting"}:
+                persisted = self.persisted_frame_metrics()
+                if persisted:
+                    return persisted
+                raise ServiceError(
+                    "session_not_running", f"session state is {self.state}", 409
+                )
             ppm = self.dir / f"frame-{uuid.uuid4().hex}.ppm"
             png = ppm.with_suffix(".png")
             try:
                 self._qmp_call("screendump", filename=str(ppm))
+                captured_at = iso_now()
+                captured_monotonic = time.monotonic()
+                program_context = self._frame_program_context()
                 width, height, pixels = read_ppm(ppm)
                 write_rgb_png(png, width, height, pixels)
                 png_bytes = png.read_bytes()
@@ -5908,6 +6927,9 @@ class DeviceSession:
                     "height": height,
                     "png_bytes": len(png_bytes),
                     "source": "live",
+                    "captured_at": captured_at,
+                    "captured_monotonic": captured_monotonic,
+                    **program_context,
                 }
                 if analyze:
                     nonblack, unique_colors = rgb_metrics(pixels)
@@ -5921,42 +6943,170 @@ class DeviceSession:
                 png.unlink(missing_ok=True)
 
     def _persist_frame(self, metrics: dict) -> None:
-        self.last_frame_path.write_bytes(metrics["png"])
-        self.last_frame_meta_path.write_text(
-            json.dumps(
-                {
-                    key: value
-                    for key, value in metrics.items()
-                    if key != "png"
-                }
-                | {"captured_at": iso_now()},
-                ensure_ascii=False,
-                indent=2,
+        with self._lock:
+            self.last_frame_path.write_bytes(metrics["png"])
+            self.last_frame_meta_path.write_text(
+                json.dumps(
+                    {
+                        key: value
+                        for key, value in metrics.items()
+                        if key not in {"png", "captured_monotonic"}
+                    }
+                    | {"captured_at": metrics.get("captured_at") or iso_now()},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n"
             )
-            + "\n"
-        )
-        self._last_frame_persisted_at = time.monotonic()
+            self._last_frame_persisted_at = time.monotonic()
 
     def persisted_frame_metrics(self) -> dict | None:
-        if not self.last_frame_path.is_file():
-            return None
-        meta = {}
-        if self.last_frame_meta_path.is_file():
-            try:
-                meta = json.loads(self.last_frame_meta_path.read_text())
-            except json.JSONDecodeError:
-                meta = {}
-        png = self.last_frame_path.read_bytes()
-        return {
-            **meta,
-            "png": png,
-            "png_bytes": len(png),
-            "source": "persisted",
-        }
+        with self._lock:
+            if not self.last_frame_path.is_file():
+                return None
+            meta = {}
+            if self.last_frame_meta_path.is_file():
+                try:
+                    meta = json.loads(self.last_frame_meta_path.read_text())
+                except json.JSONDecodeError:
+                    meta = {}
+            png = self.last_frame_path.read_bytes()
+            return {
+                **meta,
+                "png": png,
+                "png_bytes": len(png),
+                "source": "persisted",
+            }
 
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics(analyze=False)
         return metrics["png"], metrics["width"], metrics["height"]
+
+    def _verify_units_runtime(self) -> None:
+        if not self.units:
+            return
+        if self._unit_registry()[0] is None:
+            raise ServiceError("unit_contract_unavailable", "Unit session contract is unrecorded or invalid", 409)
+        schema = self._qmp_call(
+            "qom-get", path="/machine/units", property="schema-version"
+        ).get("return")
+        if schema != 1:
+            raise ServiceError(
+                "runtime_model_gap", "QEMU has no compatible Unit controller manager", 409,
+            )
+        snapshot = self.unit_state()
+        if any(not unit["available"] for unit in snapshot["units"]):
+            raise ServiceError(
+                "runtime_model_gap", "QEMU Unit model/state contract is incomplete", 409,
+            )
+
+    def _unit_registry(self) -> tuple[UnitRegistry | None, str]:
+        if not self.units:
+            return UnitRegistry(contract={
+                "schema_version": 1, "units": {}, "profiles": {}, "source_hashes": {},
+            }), "none"
+        if self.unit_contract is None:
+            return None, "unrecorded"
+        try:
+            registry = UnitRegistry(contract=self.unit_contract)
+            if any(unit["unit_id"] not in registry.units for unit in self.units):
+                return None, "invalid"
+            return registry, "frozen"
+        except (UnitError, KeyError, TypeError):
+            return None, "invalid"
+
+    def unit_state(self) -> dict:
+        registry, contract_status = self._unit_registry()
+        if registry is None:
+            saved = json.loads(self.unit_state_path.read_text()) if self.unit_state_path.is_file() else {"units": []}
+            prior = {unit["id"]: unit for unit in saved.get("units", []) if isinstance(unit, dict) and "id" in unit}
+            reason = "Unit session schema was not recorded or is invalid; writes are disabled"
+            return {
+                **saved, "session_id": self.id, "state": self.state,
+                "source": "persisted" if self.unit_state_path.is_file() else "unavailable",
+                "definitions": [], "contract_hashes": {}, "contract_status": contract_status,
+                "units": [{
+                    **unit, **prior.get(unit["id"], {}), "available": False,
+                    "errors": {"contract": reason},
+                } for unit in self.units],
+                "errors": {"contract": reason},
+            }
+        if self.state not in {"booting", "running"}:
+            if self.unit_state_path.is_file():
+                saved = json.loads(self.unit_state_path.read_text())
+                return {
+                    **saved, "state": self.state, "source": "persisted",
+                    "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                        attachment["unit_id"] for attachment in self.units
+                    )],
+                    "contract_hashes": registry.source_hashes, "contract_status": contract_status,
+                }
+            return {
+                "session_id": self.id, "state": self.state,
+                "source": "unavailable", "units": [],
+                "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                    attachment["unit_id"] for attachment in self.units
+                )],
+                "contract_hashes": registry.source_hashes, "contract_status": contract_status,
+            }
+        def read(path, prop):
+            with self._lock:
+                return self._qmp_call("qom-get", path=path, property=prop).get("return")
+        result = {
+            "session_id": self.id, "state": self.state,
+            "source": "live", "captured_at": iso_now(),
+            "units": registry.state(self.units, read),
+            "definitions": [registry.unit(unit_id) for unit_id in dict.fromkeys(
+                attachment["unit_id"] for attachment in self.units
+            )],
+            "contract_hashes": registry.source_hashes,
+            "contract_status": contract_status,
+        }
+        if self.units:
+            atomic_write_json(self.unit_state_path, result)
+        return result
+
+    def validate_unit_input(self, payload: dict) -> dict:
+        """Validate all frozen Unit intent before any QMP write or held receipt."""
+        if not isinstance(payload, dict) or set(payload) != {"id", "values"}:
+            raise ServiceError("invalid_unit_input", "id and values are required", 400)
+        attachment = next((unit for unit in self.units if unit["id"] == payload["id"]), None)
+        if attachment is None:
+            raise ServiceError("unknown_unit_instance", "Unit is not attached to this session", 404)
+        registry, contract_status = self._unit_registry()
+        if registry is None:
+            raise ServiceError("unit_contract_unavailable", f"Unit session contract is {contract_status}; writes are disabled", 409)
+        try:
+            values = registry.input_values(attachment["unit_id"], payload["values"], live=True)
+        except UnitError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        profile = registry.profiles[attachment["unit_id"]]
+        for field in values:
+            descriptor = profile["inputs"][field]
+            if (not isinstance(descriptor, dict)
+                    or not isinstance(descriptor.get("property"), str) or not descriptor["property"]
+                    or not isinstance(descriptor.get("path", ""), str)):
+                raise ServiceError("unit_contract_unavailable", "Unit input descriptor is invalid; writes are disabled", 409)
+        return {"id": attachment["id"], "values": values}
+
+    def unit_input(self, payload: dict) -> dict:
+        self._check_cancelled()
+        if self.state != "running":
+            raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+        command = self.validate_unit_input(payload)
+        attachment = next(unit for unit in self.units if unit["id"] == command["id"])
+        registry, _ = self._unit_registry()
+        profile = registry.profiles[attachment["unit_id"]]
+        values = command["values"]
+        with self._lock:
+            # Validate the complete payload before changing any physical input.
+            for field, value in values.items():
+                descriptor = profile["inputs"][field]
+                path = f"/machine/units/{attachment['id']}{descriptor.get('path', '')}"
+                self._qmp_call("qom-set", path=path, property=descriptor["property"], value=value)
+            self._record_event("unit_input", unit_id=attachment["id"], values=values)
+        # Read back guest state; accepting an input does not prove the firmware consumed it.
+        return self.unit_state()
 
     def device_state(self) -> dict:
         if not self.spec.state_probes:
@@ -6040,48 +7190,85 @@ class DeviceSession:
             )
         return response
 
-    def inject(self, payload: dict) -> dict:
-        if self.state != "running":
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
-        settle = float(payload.get("settle_seconds", 0.3))
+    def validate_input(self, payload: dict) -> dict:
+        """Normalize a board command without QMP, sleeps, events or file writes."""
+        if not isinstance(payload, dict):
+            raise ServiceError("invalid_input", "input must be an object", 400)
+        def duration(field, default):
+            value = payload.get(field, default)
+            try:
+                if isinstance(value, bool):
+                    raise ValueError("boolean duration")
+                value = float(value)
+                if not math.isfinite(value) or not 0 <= value < threading.TIMEOUT_MAX:
+                    raise ValueError("duration outside supported range")
+            except (ValueError, TypeError, OverflowError) as error:
+                raise ServiceError("invalid_input", f"{field} must be finite, nonnegative and supported by the host clock", 400) from error
+            return value
+        def coordinate(field):
+            value = payload.get(field, 0)
+            try:
+                if isinstance(value, bool) or not math.isfinite(float(value)):
+                    raise ValueError("invalid coordinate")
+                value = int(value)
+                # Coordinates are expressed in the frame passed to send_input.
+                axis = 0 if field.startswith("x") else 1
+                size = (self.spec.expected_size or (1, 1))[axis]
+                if not 0 <= value < size:
+                    raise ValueError("coordinate outside frame")
+            except (ValueError, TypeError, OverflowError) as error:
+                raise ServiceError("invalid_input", f"{field} must be a finite coordinate within the frame", 400) from error
+            return value
         kind = payload.get("kind")
         action = str(payload.get("action", "tap")).lower()
+        command = {"kind": kind, "action": action}
+        settle_default = 0.3
         if kind == "key":
             key = str(payload.get("key", ""))
             if not key:
                 raise ServiceError("invalid_input", "key is required", 400)
-            if action == "tap":
-                spec = f"key:{key}"
-            elif action in {"down", "up"}:
-                spec = f"key{action}:{key}"
-                if "settle_seconds" not in payload:
-                    settle = 0.02
-            else:
+            if self.spec.id != "nanoc6" and key not in QEMU_INPUT_QCODES:
+                raise ServiceError("invalid_input", "key must be a supported QEMU qcode", 400)
+            if action not in {"tap", "down", "up"}:
                 raise ServiceError(
                     "invalid_input",
                     "key action must be tap, down or up",
                     400,
                 )
+            command["key"] = key
+            if action in {"down", "up"}:
+                settle_default = 0.02
         elif kind == "touch":
-            spec = f"touch:{int(payload.get('x', 0))},{int(payload.get('y', 0))}"
+            command.update(x=coordinate("x"), y=coordinate("y"))
         elif kind == "longpress":
-            spec = (
-                f"longpress:{int(payload.get('x', 0))},"
-                f"{int(payload.get('y', 0))},{float(payload.get('hold_seconds', 0.5))}"
-            )
+            command.update(x=coordinate("x"), y=coordinate("y"), hold_seconds=duration("hold_seconds", 0.5))
         elif kind == "drag":
-            spec = (
-                f"drag:{int(payload.get('x1', 0))},{int(payload.get('y1', 0))},"
-                f"{int(payload.get('x2', 0))},{int(payload.get('y2', 0))}"
-            )
+            command.update({field: coordinate(field) for field in ("x1", "y1", "x2", "y2")})
         else:
             raise ServiceError(
                 "invalid_input",
                 "kind must be key, touch, longpress or drag",
                 400,
             )
+        command["settle_seconds"] = duration("settle_seconds", settle_default)
+        return command
+
+    def inject(self, payload: dict) -> dict:
+        self._check_cancelled()
+        if self.state != "running":
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        command = self.validate_input(payload)
+        kind, action, settle = command["kind"], command["action"], command["settle_seconds"]
+        if kind == "key":
+            spec = f"{'key' if action == 'tap' else 'key' + action}:{command['key']}"
+        elif kind == "touch":
+            spec = f"touch:{command['x']},{command['y']}"
+        elif kind == "longpress":
+            spec = f"longpress:{command['x']},{command['y']},{command['hold_seconds']}"
+        else:
+            spec = f"drag:{command['x1']},{command['y1']},{command['x2']},{command['y2']}"
         frame_size = self.spec.expected_size or (1, 1)
         with self._lock:
             if self.spec.id == "nanoc6" and kind == "key":
@@ -6114,6 +7301,7 @@ class DeviceSession:
         }
 
     def qom_set(self, payload: dict) -> dict:
+        self._check_cancelled()
         path = payload.get("path")
         prop = payload.get("property")
         if not isinstance(path, str) or not isinstance(prop, str):
@@ -6129,6 +7317,7 @@ class DeviceSession:
         return {"session_id": self.id, "qom_set": result}
 
     def network_fault(self, payload: dict) -> dict:
+        self._check_cancelled()
         action = payload.get("action")
         if action not in {"down", "up"}:
             raise ServiceError(
@@ -6463,6 +7652,46 @@ class DeviceSession:
             "included": sorted(include),
             "files": {},
         }
+        if self.firmware_provenance:
+            files["firmware/uiflow-source.json"] = json.dumps(
+                self.firmware_provenance, ensure_ascii=False, indent=2,
+            ).encode("utf-8")
+        if self.program_transport:
+            capability_path = self.dir / "program-capabilities.json"
+            if capability_path.is_file():
+                files["program-capabilities.json"] = capability_path.read_bytes()
+            for record_path in sorted((self.dir / "programs").glob("*.json")):
+                raw = record_path.read_bytes()
+                files[f"programs/{record_path.name}"] = raw
+                record = json.loads(raw)
+                revision_id = record["revision_id"]
+                try:
+                    if record.get("source_kind") == "uiflow2-package":
+                        source = self.service.program_packages.source(revision_id)
+                        metadata = self.service.program_packages.get(revision_id)
+                        for path, content in self.service.program_packages.read_files(revision_id).items():
+                            files[f"programs/{revision_id}/files/{path}"] = content
+                    else:
+                        source = self.service.program_revisions.source(revision_id)
+                        metadata = self.service.program_revisions.get(revision_id)
+                except (RevisionError, ProgramPackageError) as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
+                files[f"programs/{revision_id}/source.json"] = json.dumps(
+                    source, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+                ).encode("utf-8")
+                files[f"programs/{revision_id}/revision.json"] = json.dumps(metadata).encode("utf-8")
+        if self.units:
+            manifest["units"] = self.unit_state()
+            if manifest["units"].get("contract_status") == "frozen":
+                files["units/contract.json"] = json.dumps(
+                    self.unit_contract, ensure_ascii=False, indent=2,
+                ).encode("utf-8")
+            if self.unit_config_path.is_file():
+                files["units/runtime.json"] = self.unit_config_path.read_bytes()
+            if self.unit_state_path.is_file():
+                files["units/state.json"] = self.unit_state_path.read_bytes()
+            if self.unit_adc_calibration_path.is_file():
+                files["units/adc-calibration.json"] = self.unit_adc_calibration_path.read_bytes()
         if "serial" in include:
             for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
                 if path.is_file():
@@ -6498,7 +7727,7 @@ class DeviceSession:
                 frame = self.frame_metrics()
                 files["frames/current.png"] = frame["png"]
                 manifest["frame"] = {
-                    key: value for key, value in frame.items() if key != "png"
+                    key: value for key, value in frame.items() if key not in {"png", "captured_monotonic"}
                 }
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
@@ -6600,6 +7829,7 @@ class DeviceSession:
         if isinstance(network_dir, Path) and network_dir.is_dir():
             for name, path in (
                 ("network/evidence.json", network_dir / "evidence.json"),
+                ("network/lifecycle.json", network_dir / "lifecycle.json"),
                 ("network/serial.log", network_dir / "serial.log"),
                 ("network/ble-probe.log", network_dir / "ble-probe.log"),
             ):
@@ -6662,9 +7892,26 @@ class DeviceSession:
         return output.getvalue()
 
     def reset(self) -> dict:
-        with self._lock:
-            self._qmp_call("system_reset")
-            self._record_event("reset")
+        self._check_cancelled()
+        owns_program = False
+        if self.program_transport:
+            owns_program = self._program_lock.acquire(blocking=False)
+            if not owns_program:
+                raise ServiceError("program_busy", "a program transfer owns the console", 409)
+        try:
+            with self._lock:
+                self._frame_epoch += 1
+                self._preview_frames.invalidate()
+                self._qmp_call("system_reset")
+                if self.program_transport:
+                    self._invalidate_program_loader("reset-requires-new-loader-proof")
+                if self.program_transport and self._program:
+                    self._program.update(state="interrupted", interrupted_at=iso_now())
+                    self._persist_program()
+                self._record_event("reset")
+        finally:
+            if owns_program:
+                self._program_lock.release()
         return {"session_id": self.id, "state": self.state, "reset": True}
 
     def renew(self, ttl_seconds: int) -> dict:
@@ -6734,6 +7981,8 @@ class DeviceSession:
                 deadline = time.time() + 5
                 while time.time() < deadline and owned():
                     time.sleep(0.05)
+            if owned():
+                raise ServiceError("session_cleanup_pending", "owned BLE peer did not terminate", 503)
         self._external_hci_probe_pid = None
         self._external_hci_probe_start_token = None
         self._external_hci_probe_command_sha256 = None
@@ -6808,10 +8057,20 @@ class DeviceSession:
                     deadline = time.time() + 5
                     while time.time() < deadline and owns_external_process():
                         time.sleep(0.05)
+                if owns_external_process():
+                    raise ServiceError("session_cleanup_pending", "owned QEMU process did not terminate", 503)
             self._reattached_process = False
             self.pid = None
         self._close_http_fixture()
         self._terminate_hci_probe()
+        console = getattr(self, "_console", None)
+        if console is not None:
+            console.close()
+            self._console = None
+            with self._lock:
+                if self._program and self._program["state"] in {"running", "submitting", "unknown"}:
+                    self._program.update(state="interrupted", interrupted_at=iso_now())
+                    self._persist_program()
         if self._qmp is not None:
             try:
                 self._qmp.close()
@@ -6819,6 +8078,8 @@ class DeviceSession:
                 pass
             self._qmp = None
         if not self._process_identity_matches():
+            if getattr(self, "program_transport", None):
+                self.console_path.unlink(missing_ok=True)
             try:
                 self.qmp_path.unlink()
             except FileNotFoundError:
@@ -6838,6 +8099,59 @@ class DeviceSession:
     def stop(
         self, purge: bool = False, *, retain_flash: bool | None = None
     ) -> dict:
+        with self._stop_request_lock:
+            self._stop_event.set()
+            self._preview_frames.invalidate()
+            previous = (self._stop_purge, self._stop_retain_flash)
+            self._stop_purge = self._stop_purge or purge
+            retain = (
+                self.service.storage_policy.retain_session_flash
+                if retain_flash is None else bool(retain_flash)
+            )
+            if self._stop_retain_flash is None:
+                self._stop_retain_flash = retain
+            elif retain_flash is not None:
+                self._stop_retain_flash = self._stop_retain_flash and retain
+            if previous != (self._stop_purge, self._stop_retain_flash):
+                self._stop_intent_version += 1
+                self._stop_complete.clear()
+        if not self._lifecycle_lock.acquire(timeout=SESSION_STOP_WAIT_SECONDS):
+            return self._pending_stop_snapshot()
+        try:
+            if self._purged_snapshot is not None:
+                with self._stop_request_lock:
+                    self._stop_complete.set()
+                return dict(self._purged_snapshot)
+            while True:
+                with self._stop_request_lock:
+                    purge = self._stop_purge
+                    retain = self._stop_retain_flash
+                    version = self._stop_intent_version
+                result = self._finish_stop(purge=purge, retain_flash=retain)
+                with self._stop_request_lock:
+                    if purge:
+                        self._purged_snapshot = dict(result)
+                    if version == self._stop_intent_version or purge:
+                        self._stop_complete.set()
+                        return result
+                    # A second request tightened cleanup while teardown was
+                    # busy. Consume it before completing this transaction.
+                    self._stop_complete.clear()
+        except Exception as error:
+            with self._lock:
+                self._stop_complete.clear()
+                self.state = "stopping"
+                self.completed_at = None
+                self.error = self._provision_error or str(error)
+                self._record_event("stop_cleanup_pending", error=str(error))
+                self._persist_session()
+            raise
+        finally:
+            self._lifecycle_lock.release()
+
+    def _finish_stop(
+        self, purge: bool = False, *, retain_flash: bool | None = None
+    ) -> dict:
         retain_flash = (
             self.service.storage_policy.retain_session_flash
             if retain_flash is None
@@ -6845,18 +8159,25 @@ class DeviceSession:
         )
         with self._lock:
             if self.state in {"stopped", "failed"}:
-                self._terminate_process()
+                if self.state == "failed" and self._provision_error is None:
+                    self._provision_error = self.error or "session failed"
+                self._terminate_runtime()
                 if self.runtime in QEMU_RADIO_RUNTIMES:
                     self._finalize_network_capture()
-                self._release_worker_lease(
+                release_error = self._release_worker_lease(
                     state=self.state,
                     error=self.error,
                 )
+                if release_error:
+                    raise ServiceError("worker_lease_release_pending", release_error, 503)
                 if not purge and not retain_flash:
                     self._release_virtual_flash()
+                self._persist_session()
+                self._stop_complete.set()
                 result = self.snapshot()
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
+                    result["flash_retained"] = False
                 return result
             if self.state == "running" and self.spec.has_display:
                 try:
@@ -6867,6 +8188,11 @@ class DeviceSession:
                 try:
                     self.device_state()
                 except ServiceError:
+                    pass
+            if self.units and self.state in {"running", "booting"}:
+                try:
+                    self.unit_state()
+                except (ServiceError, UnitError, OSError):
                     pass
             if self.runtime in QEMU_RADIO_RUNTIMES:
                 try:
@@ -6879,7 +8205,7 @@ class DeviceSession:
                     self._qmp.cmd("quit")
                 except (OSError, RuntimeError):
                     pass
-            self._terminate_process()
+            self._terminate_runtime()
             if self.runtime in QEMU_RADIO_RUNTIMES:
                 self._finalize_network_capture()
                 self.network_result = self.network_evidence()
@@ -6890,7 +8216,11 @@ class DeviceSession:
             network_status = str(
                 (self.network_result or {}).get("status", "RUNNING")
             )
-            if self.runtime == "network" and network_status not in {
+            if self._provision_error is not None:
+                self.state = "failed"
+                self.error = self._provision_error
+                self._record_event("failed", error=self.error)
+            elif self.runtime == "network" and network_status not in {
                 "PASS",
                 "PARTIAL",
                 "RUNNING",
@@ -6903,16 +8233,20 @@ class DeviceSession:
                 self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
-            self._release_worker_lease(
+            release_error = self._release_worker_lease(
                 state=self.state,
                 error=self.error,
             )
+            if release_error:
+                raise ServiceError("worker_lease_release_pending", release_error, 503)
             if not purge and not retain_flash:
                 self._release_virtual_flash()
+            self._stop_complete.set()
             result = self.snapshot()
             self._persist_session()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
+            result["flash_retained"] = False
         return result
 
 
@@ -6927,35 +8261,29 @@ class NetworkDeviceSession(DeviceSession):
         self.serial1 = self.network_dir / "serial1.log"
         self.stdout_path = self.dir / "network-runner.stdout"
         self.stderr_path = self.dir / "network-runner.stderr"
+        self._network_runner_command_sha256: str | None = None
         self._persist_session()
 
-    def _provision(self) -> None:
-        try:
-            self._set_state("flashing")
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(self.firmware_path, self.virtual_flash)
-            self.flash_info = {
-                "transport": "network-direct-image",
-                "verified": self.virtual_flash.stat().st_size == self.spec.flash_size,
-                "flash_size": self.spec.flash_size,
-                "firmware_sha256": self.firmware_sha,
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            self._persist_session()
-            self._set_state("booting")
-            self._launch()
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_process()
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(self.firmware_path, self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            "transport": "network-direct-image",
+            "verified": self.virtual_flash.stat().st_size == self.spec.flash_size,
+            "flash_size": self.spec.flash_size,
+            "firmware_sha256": self.firmware_sha,
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        self._persist_session()
+        self._set_state("booting")
+        self._launch()
+        self._set_state("running")
 
     def _launch(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         chip = self.network_config.get("chip")
         if not chip:
@@ -7038,6 +8366,7 @@ class NetworkDeviceSession(DeviceSession):
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -7046,10 +8375,18 @@ class NetworkDeviceSession(DeviceSession):
                 stderr=stderr,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             stdout.close()
             stderr.close()
         self.pid = self._proc.pid
+        identity = inspect_process(self.pid)
+        self.process_start_token = identity.get("start_token")
+        command_text = identity.get("command")
+        self._network_runner_command_sha256 = (
+            hashlib.sha256(command_text.encode()).hexdigest()
+            if command_text else None
+        )
         self._persist_session()
         self._record_event(
             "network_started",
@@ -7095,6 +8432,16 @@ class NetworkDeviceSession(DeviceSession):
 
     def _handle_process_exit(self, returncode: int | None) -> None:
         with self._lock:
+            if self._lifecycle_depth or self._stop_event.is_set():
+                return
+            try:
+                self._verify_network_cleanup()
+            except ServiceError as error:
+                self._request_failure(error)
+                self.state = "stopping"
+                self._record_event("stop_cleanup_pending", error=str(error))
+                self._persist_session()
+                return
             if self.state not in ACTIVE_STATES:
                 return
             evidence_path = self._network_evidence_path()
@@ -7126,6 +8473,11 @@ class NetworkDeviceSession(DeviceSession):
             )
             if not self.service.storage_policy.retain_session_flash:
                 self._release_virtual_flash()
+            release_error = self._release_worker_lease(state=self.state, error=self.error)
+            if release_error:
+                self.state = "stopping"
+                self.completed_at = None
+                self._stop_event.set()
             self._persist_session()
 
     def _terminate_process(self) -> None:
@@ -7139,7 +8491,9 @@ class NetworkDeviceSession(DeviceSession):
             except (OSError, ProcessLookupError):
                 proc.terminate()
             try:
-                proc.wait(timeout=8)
+                # Runner cleanup can terminate two independent process groups,
+                # each with TERM/KILL grace. Do not kill it mid-finally at 8s.
+                proc.wait(timeout=30)
             except subprocess.TimeoutExpired:
                 try:
                     if os.name == "posix":
@@ -7149,6 +8503,50 @@ class NetworkDeviceSession(DeviceSession):
                 except (OSError, ProcessLookupError):
                     proc.kill()
                 proc.wait(timeout=5)
+        self._verify_network_cleanup()
+
+    def _verify_network_cleanup(self) -> None:
+        proc = self._proc
+        if proc is None:
+            return
+        path = self.network_dir / "lifecycle.json"
+        if not path.is_file() and proc.poll() in {-signal.SIGTERM, -signal.SIGINT}:
+            # The runner atomically journals before its first child creation.
+            # A default-signal exit without a receipt is the pre-child path.
+            return
+        try:
+            receipt = json.loads(path.read_text())
+        except (OSError, ValueError):
+            receipt = {}
+        if not isinstance(receipt, dict):
+            receipt = {}
+        runner = receipt.get("runner") or {}
+        if not isinstance(runner, dict):
+            runner = {}
+        children = receipt.get("children")
+        complete = (
+            receipt.get("schema_version") == 1
+            and proc.poll() is not None
+            and receipt.get("kind") == "m5stack-network-lane-lifecycle"
+            and receipt.get("state") == "cleanup-complete"
+            and receipt.get("cleanup_complete") is True
+            and runner.get("pid") == proc.pid
+            and (not self.process_start_token or runner.get("start_token") == self.process_start_token)
+            and (not self._network_runner_command_sha256 or runner.get("command_sha256") == self._network_runner_command_sha256)
+            and isinstance(children, dict)
+            and set(children) == {"ble", "emulator"}
+            and all(child is None or (
+                isinstance(child, dict)
+                and child.get("state") == "exited"
+                and type(child.get("returncode")) is int
+            ) for child in children.values())
+        )
+        if not complete:
+            raise ServiceError(
+                "session_cleanup_pending",
+                "network runner child cleanup is unconfirmed; lease and ownership retained",
+                503,
+            )
 
     def _unavailable(self, feature: str):
         raise ServiceError(
@@ -7167,9 +8565,11 @@ class NetworkDeviceSession(DeviceSession):
         self._unavailable("board device state")
 
     def inject(self, payload: dict):
+        self._check_cancelled()
         self._unavailable("input injection")
 
     def qom_set(self, payload: dict):
+        self._check_cancelled()
         self._unavailable("QOM")
 
     def qom_get(self, path: str, prop: str):
@@ -7187,6 +8587,7 @@ class NetworkDeviceSession(DeviceSession):
         self._unavailable("QOM")
 
     def reset(self):
+        self._check_cancelled()
         self._unavailable("network session reset")
 
 
@@ -7199,42 +8600,36 @@ class Tab5DeviceSession(DeviceSession):
         self._gdb_port: int | None = None
         self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
 
-    def _provision(self) -> None:
-        try:
-            self._set_state("flashing")
-            prepared = self.service.prepare_flash(
-                self.spec, self.firmware_path, self.firmware_sha
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        prepared = self.service.prepare_flash(
+            self.spec, self.firmware_path, self.firmware_sha
+        )
+        self._check_cancelled()
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(prepared["path"], self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            **prepared["info"],
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        self._persist_session()
+        self._set_state("booting")
+        self._launch_tab5()
+        if self.ready_conditions:
+            self.wait_ready(
+                {
+                    "timeout_seconds": self.ready_timeout,
+                    **self.ready_conditions,
+                }
             )
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(prepared["path"], self.virtual_flash)
-            self.flash_info = {
-                **prepared["info"],
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            self._persist_session()
-            self._set_state("booting")
-            self._launch_tab5()
-            if self.ready_conditions:
-                self.wait_ready(
-                    {
-                        "timeout_seconds": self.ready_timeout,
-                        **self.ready_conditions,
-                    }
-                )
-            elif self.ready_marker:
-                self.wait_for_marker(self.ready_marker, self.ready_timeout)
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_tab5()
+        elif self.ready_marker:
+            self.wait_for_marker(self.ready_marker, self.ready_timeout)
+        self._set_state("running")
 
     def _launch_tab5(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         assert self.spec.emulator is not None
         assert self.spec.elf is not None
@@ -7248,23 +8643,23 @@ class Tab5DeviceSession(DeviceSession):
         launch_env = os.environ.copy()
         launch_env.update(self.spec.env)
         launch_env.update(self.runtime_env)
-        c6_stdout = (self.dir / "c6.log").open("wb")
-        self._c6_proc = subprocess.Popen(
-            [
-                str(self.spec.emulator),
-                "--chip", "esp32c6",
-                "--firmware", str(self.spec.c6_firmware),
-                "--hosted", f"bridge:slave:{self._hosted_socket}",
-            ],
-            cwd=ROOT,
-            env=launch_env,
-            stdout=c6_stdout,
-            stderr=subprocess.STDOUT,
-        )
-        try:
+        with (self.dir / "c6.log").open("wb") as c6_stdout:
+            self._check_cancelled()
+            self._c6_proc = subprocess.Popen(
+                [
+                    str(self.spec.emulator),
+                    "--chip", "esp32c6",
+                    "--firmware", str(self.spec.c6_firmware),
+                    "--hosted", f"bridge:slave:{self._hosted_socket}",
+                ],
+                cwd=ROOT,
+                env=launch_env,
+                stdout=c6_stdout,
+                stderr=subprocess.STDOUT,
+            )
+            self._check_cancelled()
             wait_for_fs_path(self._hosted_socket, self._c6_proc, 25)
-        finally:
-            c6_stdout.close()
+            self._check_cancelled()
         self._gdb_port = free_tcp_port()
         p4_stdout = self.serial0.open("wb")
         p4_stderr = self.stderr_path.open("wb")
@@ -7286,6 +8681,7 @@ class Tab5DeviceSession(DeviceSession):
         for i2c_device in TAB5_I2C_DEVICES:
             command.extend(["--i2c-dev", i2c_device])
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -7293,12 +8689,14 @@ class Tab5DeviceSession(DeviceSession):
                 stdout=p4_stdout,
                 stderr=p4_stderr,
             )
+            self._check_cancelled()
         finally:
             p4_stdout.close()
             p4_stderr.close()
         self.pid = self._proc.pid
         self._persist_session()
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
+        self._check_cancelled()
 
     def _terminate_tab5(self) -> None:
         for proc in (self._proc, self._c6_proc):
@@ -7375,6 +8773,7 @@ class Tab5DeviceSession(DeviceSession):
         return metrics["png"], metrics["width"], metrics["height"]
 
     def inject(self, payload: dict) -> dict:
+        self._check_cancelled()
         if self.state != "running" or self._gdb_port is None:
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
@@ -7429,6 +8828,7 @@ class Tab5DeviceSession(DeviceSession):
         }
 
     def qom_set(self, payload: dict) -> dict:
+        self._check_cancelled()
         raise ServiceError(
             "qom_not_supported",
             "Tab5 esp-emu sessions do not expose QMP QOM",
@@ -7443,51 +8843,26 @@ class Tab5DeviceSession(DeviceSession):
         )
 
     def reset(self) -> dict:
-        if self.state != "running":
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
-        self._set_state("booting")
-        self.serial0.write_bytes(b"")
-        self._terminate_tab5()
-        self._launch_tab5()
-        self._set_state("running")
-        self._record_event("reset")
-        return {"session_id": self.id, "state": self.state, "reset": True}
+        self._check_cancelled()
+        with self._lifecycle_operation():
+            if self.state != "running":
+                raise ServiceError(
+                    "session_not_running", f"session state is {self.state}", 409
+                )
+            try:
+                self._set_state("booting")
+                self.serial0.write_bytes(b"")
+                self._terminate_tab5()
+                self._launch_tab5()
+                self._set_state("running")
+                self._record_event("reset")
+                return {"session_id": self.id, "state": self.state, "reset": True}
+            except Exception as error:
+                self._request_failure(error)
+                raise
 
-    def stop(
-        self, purge: bool = False, *, retain_flash: bool | None = None
-    ) -> dict:
-        retain_flash = (
-            self.service.storage_policy.retain_session_flash
-            if retain_flash is None
-            else bool(retain_flash)
-        )
-        with self._lock:
-            if self.state in {"stopped", "failed"}:
-                if not purge and not retain_flash:
-                    self._release_virtual_flash()
-                result = self.snapshot()
-                if purge:
-                    shutil.rmtree(self.dir, ignore_errors=True)
-                return result
-            if self.state == "running" and self.spec.has_display:
-                try:
-                    self.frame_metrics(force_persist=True)
-                except ServiceError:
-                    pass
-            self.state = "stopping"
-            self._terminate_tab5()
-            self.state = "stopped"
-            self.completed_at = iso_now()
-            self._record_event("stopped", purge=purge)
-            if not purge and not retain_flash:
-                self._release_virtual_flash()
-            result = self.snapshot()
-            self._persist_session()
-        if purge:
-            shutil.rmtree(self.dir, ignore_errors=True)
-        return result
+    def _terminate_runtime(self) -> None:
+        self._terminate_tab5()
 
 
 class DeviceService:
@@ -7497,6 +8872,8 @@ class DeviceService:
         state_dir: Path = DEFAULT_STATE_DIR,
         max_sessions: int = DEFAULT_MAX_SESSIONS,
         max_per_device: int = DEFAULT_MAX_PER_DEVICE,
+        max_program_revisions: int = MAX_REVISIONS,
+        max_program_packages: int = MAX_PACKAGES,
         default_ttl: int = 1800,
         api_token: str | None = None,
         previous_api_token: str | None = None,
@@ -7515,6 +8892,12 @@ class DeviceService:
         self.artifacts = ArtifactStore(self.state_dir / "artifacts")
         self.firmware = FirmwareStore(
             self.state_dir / "firmware", self.artifacts, self.specs
+        )
+        self.program_revisions = ProgramRevisionStore(
+            self.state_dir / "program-revisions", max_count=max_program_revisions,
+        )
+        self.program_packages = ProgramPackageStore(
+            self.state_dir / "program-packages", max_count=max_program_packages,
         )
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
@@ -7535,6 +8918,9 @@ class DeviceService:
         self.flash_preparer = flash_preparer or default_flash_preparer
         self._sessions: dict[str, DeviceSession] = {}
         self._lock = threading.RLock()
+        self._preview_retention = PreviewRetention(self.state_dir, live_roots=self._preview_live_roots)
+        self._preview_control_lock = threading.Lock()
+        self._preview_control = None
         self._session_idempotency_path = (
             self.state_dir / "session-idempotency.json"
         )
@@ -7606,6 +8992,9 @@ class DeviceService:
             self.worker.close()
             raise
         self._stop = threading.Event()
+        self._shutdown_lock = threading.Lock()
+        self._shutdown_thread: threading.Thread | None = None
+        self._worker_closed = False
         self._janitor = threading.Thread(
             target=self._janitor_loop,
             name="m5-session-janitor",
@@ -7907,11 +9296,18 @@ class DeviceService:
                 firmware_path=record_path.parent / "firmware.bin",
                 firmware_sha=str(record.get("firmware_sha256") or ""),
                 firmware_source=str(record.get("firmware_source") or "unknown"),
+                program_transport=record.get("program_transport"),
+                program_bootstrap=record.get("program_bootstrap") is True,
+                management_binding=record.get("management_binding"),
                 source_artifacts=[
                     artifact
                     for artifact in source_artifacts
                     if isinstance(artifact, str)
                 ],
+                firmware_provenance=(
+                    record.get("firmware_provenance")
+                    if isinstance(record.get("firmware_provenance"), dict) else None
+                ),
                 ttl_seconds=ttl_seconds,
                 ready_marker=(
                     record.get("ready_marker")
@@ -7936,6 +9332,8 @@ class DeviceService:
                 runtime=runtime,
                 network_config=network_config,
                 network_result=network_result,
+                units=(record.get("units") if isinstance(record.get("units"), list) else []),
+                unit_contract=record.get("unit_contract"),
                 storage_config=storage_config,
                 storage_info=storage_info,
                 nvs_config=nvs_config,
@@ -8031,6 +9429,14 @@ class DeviceService:
             "peripheral_status": spec.peripheral_status,
             "warnings": spec.warnings,
             "firmware_families": ["uiflow2", "generic-flash"],
+            "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
+            "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
+            "program_features": {
+                "runtimes": ["qemu"], "entrypoints": ["main.py"],
+                "mpy_dependencies": "bytecode-only", "mpy_entrypoint": False,
+                "native_mpy": False, "main_namespace": "fresh-exec-globals",
+                "cleanup_mode": "interrupt-only",
+            } if spec.id in LIVE_PROGRAM_DEVICES else {},
             "coverage": {
                 "peripheral_status": spec.peripheral_status,
                 "complete": spec.peripheral_status == "simulated",
@@ -8267,6 +9673,23 @@ class DeviceService:
             self._ensure_storage_capacity(spec.flash_size)
         return self.firmware.create(payload)
 
+    def create_uiflow_firmware(self, payload: dict) -> dict:
+        if "kind" in payload:
+            raise ServiceError("invalid_uiflow_request", "kind is not accepted on the UIFlow source endpoint", 400)
+        return self.create_firmware({**payload, "kind": "uiflow"})
+
+    def program_base_info(self, spec: DeviceSpec, *, base_firmware_id=None, expected_base_sha256=None) -> dict:
+        """Re-admit an optional live-program base without publishing anything."""
+        if base_firmware_id is None and expected_base_sha256 is None:
+            return {**self.reference_info(spec), "kind": "cached-reference"}
+        if base_firmware_id is None or expected_base_sha256 is None:
+            raise ServiceError("invalid_program_base", "base_firmware_id and expected_base_sha256 must be supplied together", 400)
+        _, _, provenance = self.firmware._explicit_uiflow_base(spec, {
+            "base_firmware_id": base_firmware_id, "expected_base_sha256": expected_base_sha256,
+        })
+        return {"kind": "stored-manifest", "firmware_id": base_firmware_id,
+                "sha256": provenance["stored_sha256"], "size": provenance["stored_size"]}
+
     def reference_info(self, spec: DeviceSpec) -> dict:
         with self._lock:
             if spec.id in self._reference_cache:
@@ -8391,7 +9814,104 @@ class DeviceService:
             finally:
                 shutil.rmtree(work_dir, ignore_errors=True)
 
-    def create_session(self, payload: dict) -> dict:
+    def _program_revision_response(self, revision: dict) -> dict:
+        return {
+            "revision": revision,
+            "limits": {
+                "max_revisions": self.program_packages.max_count,
+                "max_files": MAX_PACKAGE_FILES,
+                "max_file_bytes": MAX_PROGRAM_FILE_BYTES,
+                "max_total_file_bytes": MAX_PACKAGE_BYTES,
+                "max_http_body_bytes": 2 * 1024 * 1024,
+                "gc_enabled": False,
+            },
+        }
+
+    def create_program_revision(self, payload: dict) -> dict:
+        """Save a complete immutable checkpoint; never interrupt or execute it."""
+        if not isinstance(payload, dict) or set(payload) != {"source_kind", "entrypoint", "files"}:
+            raise ServiceError(
+                "invalid_program_revision", "source_kind, entrypoint and files are required and are the only accepted fields", 400,
+            )
+        try:
+            _, _, files = program_package_snapshot(payload)
+            _validate_checkpoint_bytecode(files)
+            revision = self.program_packages.create(payload)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return self._program_revision_response(revision)
+
+    def get_program_revision(self, revision_id: str) -> dict:
+        """Read metadata only; source bytes remain in the immutable store."""
+        try:
+            revision = self.program_packages.get(revision_id)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return self._program_revision_response(revision)
+
+    def get_program_revision_files(self, revision_id: str) -> dict:
+        """Read the verified complete immutable package, without guest work."""
+        try:
+            revision = self.program_packages.get(revision_id)
+            source = self.program_packages.source(revision_id)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return {**self._program_revision_response(revision), "files": source["files"]}
+
+    def preview_control(self):
+        """Initialize the optional Preview coordinator without importing it early."""
+        with self._preview_control_lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
+            if self._preview_control is None:
+                from preview_service import PreviewService
+                self._preview_control = PreviewService(self)
+            return self._preview_control
+
+    def create_managed_session(self, payload: dict, *, preview_id: str, owner_epoch: str,
+                               expected_reference_sha256: str) -> tuple[dict, object]:
+        binding = _normalize_management_binding({"preview_id": preview_id, "owner_epoch": owner_epoch,
+                                                 "expected_reference_sha256": expected_reference_sha256})
+        if payload.get("program_mode") != "uiflow-live":
+            raise ServiceError("unsupported_program_mode", "managed sessions require uiflow-live", 409)
+        snapshot = self.create_session(payload, _management_binding=binding)
+        handle = self.recover_management_handle(snapshot["session_id"], **binding)
+        return snapshot, handle
+
+    def recover_management_handle(self, session_id: str, *, preview_id: str, owner_epoch: str,
+                                  expected_reference_sha256: str):
+        binding = _normalize_management_binding({"preview_id": preview_id, "owner_epoch": owner_epoch,
+                                                 "expected_reference_sha256": expected_reference_sha256})
+        session = self.get_session(session_id)
+        if session.management_binding != binding:
+            raise ServiceError("session_managed_by_preview", "session does not match this Preview binding", 409)
+        return session._management_handle
+
+    @staticmethod
+    def _require_session_binding(session, binding):
+        if getattr(session, "management_binding", None) != binding:
+            raise ServiceError("session_managed_by_preview", "idempotent session binding differs", 409)
+
+    def create_session(self, payload: dict, *, _management_binding: dict | None = None) -> dict:
+        if any(key in payload for key in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256", "program_capabilities", "runtime_capabilities", "loader_capabilities", "main_mpy", "mpy_entrypoint", "program_bootstrap")):
+            raise ServiceError("invalid_request", "Preview management fields are internal and cannot be supplied in a session body", 400)
+        if _management_binding is not None:
+            _management_binding = _normalize_management_binding(_management_binding)
+        if self._stop.is_set():
+            raise ServiceError("service_stopping", "device service is shutting down", 503)
+        program_transport = payload.get("program_transport")
+        if program_transport not in (None, "uart-repl"):
+            raise ServiceError("unsupported_program_transport", "program_transport must be uart-repl", 400)
+        program_mode = payload.get("program_mode")
+        if program_mode not in (None, "uiflow-live"):
+            raise ServiceError("unsupported_program_mode", "program_mode must be uiflow-live", 400)
+        explicit_program_base = "base_firmware_id" in payload or "expected_base_sha256" in payload
+        if explicit_program_base and (program_mode != "uiflow-live" or
+                not all(isinstance(payload.get(key), str) and _is_sha256(payload[key])
+                        for key in ("base_firmware_id", "expected_base_sha256"))):
+            raise ServiceError("invalid_program_base", "uiflow-live with a base_firmware_id and normalized expected_base_sha256 pair is required", 400)
+        if explicit_program_base and _management_binding is not None and payload["expected_base_sha256"] != _management_binding["expected_reference_sha256"]:
+            raise ServiceError("program_base_binding_mismatch", "Preview base pin differs from its frozen request", 409)
         device_id = payload.get("device_id")
         if not isinstance(device_id, str):
             raise ServiceError("invalid_request", "device_id is required", 400)
@@ -8402,6 +9922,13 @@ class DeviceService:
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
+        if program_mode:
+            if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
+                raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted S3 QEMU reference device", 409)
+            if "firmware_id" in payload or "uiflow_source_sha256" in payload:
+                raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares its UIFlow2 base; omit firmware_id and source pin", 409)
+            if payload.get("ready_marker", LIVE_READY_MARKER) != LIVE_READY_MARKER or payload.get("ready"):
+                raise ServiceError("program_mode_ready_conflict", "uiflow-live waits for its UART REPL bootstrap; application readiness belongs to each program", 400)
         if not spec.backend_ready:
             missing = [
                 Path(os.path.relpath(path, ROOT)).as_posix()
@@ -8426,11 +9953,14 @@ class DeviceService:
             self._session_idempotency_fields(payload)
         )
         with self._lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
             )
             if replayed is not None:
+                self._require_session_binding(replayed, _management_binding)
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
@@ -8446,6 +9976,18 @@ class DeviceService:
                 503,
                 worker=worker_snapshot,
             )
+        if program_mode:
+            # Keep idempotency bound to the original caller request above.
+            # Initialization uses the established immutable source/Flash path
+            # once; subsequent /program requests only use the live guest UART.
+            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files(),
+                **({"base_firmware_id": payload["base_firmware_id"], "expected_base_sha256": payload["expected_base_sha256"]}
+                   if explicit_program_base else
+                   {"expected_base_sha256": _management_binding["expected_reference_sha256"]} if _management_binding is not None else {})})
+            payload = {**payload, "firmware_id": bootstrap["firmware_id"],
+                       "uiflow_source_sha256": bootstrap["source"]["metadata"]["source_sha256"],
+                       "ready_marker": LIVE_READY_MARKER}
+            program_transport = "uart-repl"
         firmware_id = payload.get("firmware_id")
         manifest_psram = None
         if firmware_id:
@@ -8466,9 +10008,31 @@ class DeviceService:
                     .get("target", {})
                     .get("psram_size")
                 )
+            elif firmware.get("kind") == "uiflow" and "base_manifest" in firmware:
+                # Source composition changes only VFS. The explicit base's
+                # security/capability and PSRAM requirements still apply to
+                # the resulting runtime; changing kind must not erase them.
+                base_manifest = firmware["base_manifest"]
+                try:
+                    structure_errors = validate_manifest_structure(base_manifest)
+                except (TypeError, ValueError) as error:
+                    raise ServiceError("invalid_firmware_manifest", "composed firmware base manifest is invalid", 409) from error
+                if structure_errors or base_manifest["target"].get("psram_size") is not None and (type(base_manifest["target"]["psram_size"]) is not int or base_manifest["target"]["psram_size"] < 0):
+                    raise ServiceError("invalid_firmware_manifest", "composed firmware base manifest is invalid", 409)
+                base_id = canonical_json_sha256(manifest_identity_payload(base_manifest))
+                metadata = firmware_source.get("metadata")
+                provenance = metadata.get("base_provenance") if isinstance(metadata, dict) else None
+                if not isinstance(provenance, dict) or base_manifest.get("manifest_id") != base_id or provenance.get("manifest_id") != base_id:
+                    raise ServiceError("firmware_manifest_id_mismatch", "composed firmware base manifest identity differs", 409)
+                profile = load_device_profile(device_id)
+                compatibility = validate_capabilities(base_manifest, profile) if profile is not None else None
+                if compatibility is None or compatibility["status"] != "PASS" or base_manifest.get("validation", {}).get("status") != "PASS":
+                    raise ServiceError("unsupported_firmware_capability", "composed firmware retains unsupported base requirements", 409,
+                                       issues=(compatibility or {}).get("errors", []))
+                manifest_psram = base_manifest["target"].get("psram_size")
             source_artifacts = (
                 [firmware_source["artifact_id"]]
-                if firmware_source.get("kind") in {"merged", "manifest"}
+                if firmware_source.get("kind") in {"merged", "manifest", "uiflow"}
                 and firmware_source.get("artifact_id")
                 else [
                     segment["artifact_id"]
@@ -8484,7 +10048,36 @@ class DeviceService:
             source = "reference"
             source_artifacts = []
 
+        source_pin = payload.get("uiflow_source_sha256")
+        is_uiflow_source = source == "uploaded" and firmware_source.get("kind") == "uiflow"
+        if is_uiflow_source and source_pin is None:
+            raise ServiceError(
+                "uiflow_source_binding_required",
+                "UIFlow sessions require the composed uiflow_source_sha256",
+                400,
+            )
+        if source_pin is not None:
+            if not isinstance(source_pin, str) or len(source_pin) != 64 or any(
+                char not in "0123456789abcdef" for char in source_pin
+            ):
+                raise ServiceError("invalid_uiflow_source_binding", "uiflow_source_sha256 must be a lowercase SHA256", 400)
+            if (
+                not is_uiflow_source
+                or source_pin != firmware_source.get("artifact_id")
+                or source_pin != firmware_source.get("metadata", {}).get("source_sha256")
+            ):
+                raise ServiceError(
+                    "uiflow_source_binding_mismatch",
+                    "firmware source changed or does not match the requested UIFlow source",
+                    409,
+                )
+
         runtime = payload.get("runtime", "qemu")
+        if program_transport and (
+            runtime != "qemu" or device_id not in LIVE_PROGRAM_DEVICES
+            or source == "uploaded" and not is_uiflow_source
+        ):
+            raise ServiceError("unsupported_program_transport", "UART REPL requires an admitted UIFlow2 QEMU source/reference session", 409)
         if runtime not in QEMU_SESSION_RUNTIMES:
             raise ServiceError(
                 "unsupported_runtime",
@@ -8492,6 +10085,15 @@ class DeviceService:
                 "or qemu-unified",
                 400,
             )
+        try:
+            unit_registry = UnitRegistry() if "units" in payload else None
+            units = (
+                unit_registry.attachments(device_id, runtime, payload.get("units"))
+                if unit_registry is not None else []
+            )
+            unit_contract = unit_registry.freeze([unit["unit_id"] for unit in units]) if units else None
+        except UnitError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
         network_config = None
         if runtime == "network":
             network_config = parse_network_execution(
@@ -8627,18 +10229,21 @@ class DeviceService:
 
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
             )
             if replayed is not None:
+                self._require_session_binding(replayed, _management_binding)
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
             active = [
                 session
                 for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
             if len(active) >= self.max_sessions:
                 raise ServiceError(
@@ -8741,12 +10346,19 @@ class DeviceService:
                     firmware_path=firmware_path,
                     firmware_sha=firmware_sha,
                     firmware_source=source,
+                    program_transport=program_transport,
+                    program_bootstrap=program_mode == "uiflow-live",
+                    management_binding=_management_binding,
                     source_artifacts=source_artifacts,
+                    firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)
+                    if source == "uploaded" else None,
                     ttl_seconds=ttl,
                     ready_marker=ready_marker,
                     ready_timeout=ready_timeout,
                     ready_conditions=ready_conditions,
                     runtime_env=runtime_env,
+                    units=units,
+                    unit_contract=unit_contract,
                     runtime=runtime,
                     network_config=network_config,
                     storage_config=storage_config,
@@ -8809,7 +10421,7 @@ class DeviceService:
             sessions = [
                 session
                 for session in self._sessions.values()
-                if include_stopped or session.state in ACTIVE_STATES
+                if include_stopped or session.state in OCCUPIED_STATES
             ]
         return {"sessions": [session.snapshot() for session in sessions]}
 
@@ -8821,8 +10433,17 @@ class DeviceService:
         retain_flash: bool | None = None,
     ) -> dict:
         session = self.get_session(session_id)
-        result = session.stop(purge=purge, retain_flash=retain_flash)
         if purge:
+            with self._retention().session_deletion(
+                session.id, managed=getattr(session, "management_binding", None) is not None,
+            ) as decision:
+                if decision.protected:
+                    raise ServiceError(
+                        "retained_preview_history", "retained Preview history cannot be purged", 409,
+                        retention_reason=decision.reason,
+                    )
+        result = session.stop(purge=purge, retain_flash=retain_flash)
+        if purge and result["state"] in {"stopped", "failed"}:
             with self._lock:
                 self._sessions.pop(session_id, None)
         return result
@@ -8840,7 +10461,18 @@ class DeviceService:
                 if session.state in {"stopped", "failed"}
             ]
             known_ids = set(self._sessions)
+        protected_sessions = []
+        skipped_sessions = []
+        cleared_sessions = []
         for session in sessions:
+            if purge:
+                with self._retention().session_deletion(
+                    session.id, managed=getattr(session, "management_binding", None) is not None,
+                ) as decision:
+                    if decision.protected:
+                        target = protected_sessions if decision.reason == "retained_managed_history" else skipped_sessions
+                        target.append(session.id)
+                        continue
             session.stop(
                 purge=purge,
                 retain_flash=(
@@ -8852,22 +10484,82 @@ class DeviceService:
             if purge:
                 with self._lock:
                     self._sessions.pop(session.id, None)
+            cleared_sessions.append(session.id)
         orphaned = []
+        orphaned_protected = []
+        orphaned_skipped = []
         if purge:
             sessions_root = self.state_dir / "sessions"
-            if sessions_root.is_dir():
-                orphaned = [
-                    path
-                    for path in sessions_root.iterdir()
-                    if path.is_dir() and path.name not in known_ids
-                ]
-                for path in orphaned:
-                    shutil.rmtree(path, ignore_errors=True)
+            try:
+                candidates = list(sessions_root.iterdir()) if sessions_root.is_dir() else []
+            except OSError:
+                candidates = []
+                orphaned_skipped.append("sessions_scan_unavailable")
+            for path in candidates:
+                if path.name in known_ids or not path.is_dir():
+                    continue
+                with self._lock:
+                    if path.name in self._sessions:
+                        continue
+                with self._retention().session_deletion(path.name, orphan=True) as decision:
+                    if decision.protected or path.is_symlink():
+                        target = orphaned_protected if decision.reason == "retained_managed_history" else orphaned_skipped
+                        target.append(path.name)
+                        continue
+                    try:
+                        shutil.rmtree(path)
+                    except OSError:
+                        orphaned_skipped.append(path.name)
+                    else:
+                        orphaned.append(path.name)
         return {
-            "cleared": len(sessions),
+            "cleared": len(cleared_sessions),
             "orphaned_cleared": len(orphaned),
             "purged": purge,
+            "protected_sessions": protected_sessions,
+            "skipped_sessions": skipped_sessions,
+            "orphaned_protected": orphaned_protected,
+            "orphaned_skipped": orphaned_skipped,
         }
+
+    def _preview_live_roots(self) -> RetentionRoots:
+        with self._lock:
+            sessions = tuple(self._sessions.values())
+        roots = RetentionRoots()
+        for session in sessions:
+            managed = getattr(session, "management_binding", None)
+            add_session_roots(roots, {
+                **({"session_id": session.id} if managed is not None else {}),
+                "firmware_id": getattr(session, "firmware_id", None),
+                "firmware_sha256": getattr(session, "firmware_sha", None),
+                "source_artifacts": list(getattr(session, "source_artifacts", [])),
+                "management_binding": managed,
+                "firmware_provenance": getattr(session, "firmware_provenance", None),
+            })
+        return roots
+
+    def _retention(self) -> PreviewRetention:
+        # Some internal adapters construct a lightweight service without __init__.
+        # Initialization does not perform disk/DB I/O or initialize Preview workers.
+        with self._lock:
+            retention = getattr(self, "_preview_retention", None)
+            if retention is None:
+                retention = self._preview_retention = PreviewRetention(
+                    self.state_dir, live_roots=self._preview_live_roots,
+                )
+        return retention
+
+    def preview_allocation_guard(self):
+        return self._retention().allocation()
+
+    def delete_artifact(self, artifact_id: str) -> dict:
+        with self._retention().cache_deletion("artifact", artifact_id) as decision:
+            if decision.protected:
+                raise ServiceError(
+                    "retained_preview_artifact", "artifact is protected by retained Preview state", 409,
+                    retention_reason=decision.reason,
+                )
+            return self.artifacts.delete(artifact_id)
 
     def _ensure_storage_capacity(self, additional_bytes: int = 0) -> None:
         reserve = max(0, self.storage_policy.min_free_bytes)
@@ -8890,7 +10582,7 @@ class DeviceService:
         with self._lock:
             sessions = list(self._sessions.values())
             active = [
-                session for session in sessions if session.state in ACTIVE_STATES
+                session for session in sessions if session.state in OCCUPIED_STATES
             ]
             history = [
                 session
@@ -8973,7 +10665,18 @@ class DeviceService:
                 if session.state in {"stopped", "failed"}
             ]
         rows = []
+        protected_sessions = []
+        skipped_sessions = []
+        protected_bytes = 0
         for session in history:
+            with self._retention().session_deletion(
+                session.id, managed=getattr(session, "management_binding", None) is not None,
+            ) as decision:
+                if decision.protected:
+                    target = protected_sessions if decision.reason == "retained_managed_history" else skipped_sessions
+                    target.append(session.id)
+                    protected_bytes += directory_size_bytes(session.dir)
+                    continue
             rows.append(
                 {
                     "session": session,
@@ -9005,12 +10708,13 @@ class DeviceService:
         remaining = [row for row in rows if row["session"].id not in selected_ids]
         if (
             policy.max_history_sessions > 0
-            and len(remaining) > policy.max_history_sessions
+            and len(remaining) + len(protected_sessions) + len(skipped_sessions) > policy.max_history_sessions
         ):
-            for row in remaining[: len(remaining) - policy.max_history_sessions]:
+            excess = len(remaining) + len(protected_sessions) + len(skipped_sessions) - policy.max_history_sessions
+            for row in remaining[:excess]:
                 select(row)
         remaining = [row for row in rows if row["session"].id not in selected_ids]
-        retained_bytes = sum(row["bytes"] for row in remaining)
+        retained_bytes = protected_bytes + sum(row["bytes"] for row in remaining)
         if policy.max_history_bytes > 0:
             for row in remaining:
                 if retained_bytes <= policy.max_history_bytes:
@@ -9025,7 +10729,14 @@ class DeviceService:
             if session.state not in {"stopped", "failed"}:
                 continue
             bytes_before = directory_size_bytes(session.dir)
-            self.delete_session(session.id, purge=True)
+            try:
+                self.delete_session(session.id, purge=True)
+            except ServiceError as error:
+                if error.code != "retained_preview_history":
+                    raise
+                target = protected_sessions if error.extra.get("retention_reason") == "retained_managed_history" else skipped_sessions
+                target.append(session.id)
+                continue
             removed_sessions.append(session.id)
             freed_session_bytes += bytes_before
 
@@ -9042,6 +10753,8 @@ class DeviceService:
         result = {
             "pruned_sessions": len(removed_sessions),
             "session_ids": removed_sessions,
+            "protected_sessions": protected_sessions,
+            "skipped_sessions": skipped_sessions,
             "freed_session_bytes": freed_session_bytes,
             "cache": cache_result,
             "freed_bytes": freed_session_bytes + cache_result["freed_bytes"],
@@ -9054,6 +10767,20 @@ class DeviceService:
     def _prune_firmware_caches(self, *, now: float) -> dict:
         policy = self.storage_policy
         grace = max(0, policy.cache_grace_seconds)
+        retention = self._retention()
+        retention_protected = {"firmware": set(), "artifact": set(), "flash": set(), "upload": set()}
+        retention_barrier = False
+
+        def delete_cache(kind, identity, delete):
+            nonlocal retention_barrier
+            with retention.cache_deletion(kind, identity) as decision:
+                if decision.protected:
+                    retention_protected[kind].add(identity)
+                    retention_barrier |= decision.reason == "retention_barrier"
+                    return False
+                delete()
+                return True
+
         with self._lock:
             sessions = list(self._sessions.values())
         session_firmware_ids = {
@@ -9075,10 +10802,10 @@ class DeviceService:
         cache_bytes_before = sum(
             directory_size_bytes(root) for root in cache_roots
         )
-        upload_prune = self.artifacts.prune_uploads(
-            now=now,
-            grace_seconds=grace,
-        )
+        upload_prune = {"files_removed": 0, "bytes_removed": 0}
+        def prune_uploads():
+            upload_prune.update(self.artifacts.prune_uploads(now=now, grace_seconds=grace))
+        delete_cache("upload", "staging", prune_uploads)
 
         firmware_records = self.firmware.list()
         kept_firmware = []
@@ -9092,8 +10819,10 @@ class DeviceService:
                 and age is not None
                 and age >= grace
             ):
-                self.firmware.delete(firmware_id)
-                removed_firmware_ids.append(firmware_id)
+                if delete_cache("firmware", firmware_id, lambda: self.firmware.delete(firmware_id)):
+                    removed_firmware_ids.append(firmware_id)
+                else:
+                    kept_firmware.append(record)
             else:
                 kept_firmware.append(record)
 
@@ -9127,8 +10856,8 @@ class DeviceService:
                 and age is not None
                 and age >= grace
             ):
-                self.artifacts.delete(artifact_id)
-                removed_artifacts.append(artifact_id)
+                if delete_cache("artifact", artifact_id, lambda: self.artifacts.delete(artifact_id)):
+                    removed_artifacts.append(artifact_id)
 
         flash_cache_root = self.state_dir / "flash-cache"
         protected_hashes = session_firmware_shas | kept_firmware_ids
@@ -9139,15 +10868,15 @@ class DeviceService:
                     continue
                 age = max(0.0, now - path.stat().st_mtime)
                 if age >= grace:
-                    path.unlink(missing_ok=True)
-                    removed_flash_cache.append(path)
+                    if delete_cache("flash", path.stem, lambda: path.unlink(missing_ok=True)):
+                        removed_flash_cache.append(path)
             for directory in sorted(
                 [path for path in flash_cache_root.rglob("*") if path.is_dir()],
                 key=lambda path: len(path.parts),
                 reverse=True,
             ):
                 try:
-                    directory.rmdir()
+                    delete_cache("upload", "empty-directory", directory.rmdir)
                 except OSError:
                     pass
 
@@ -9170,11 +10899,12 @@ class DeviceService:
                     or (age is not None and age < eviction_grace)
                 ):
                     continue
-                self.firmware.delete(firmware_id)
+                if not delete_cache("firmware", firmware_id, lambda: self.firmware.delete(firmware_id)):
+                    continue
                 removed_firmware_ids.append(firmware_id)
                 for cached in flash_cache_root.rglob(f"{firmware_id}.bin"):
-                    cached.unlink(missing_ok=True)
-                    removed_flash_cache.append(cached)
+                    if delete_cache("flash", cached.stem, lambda: cached.unlink(missing_ok=True)):
+                        removed_flash_cache.append(cached)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
                 )
@@ -9206,7 +10936,8 @@ class DeviceService:
                     or (age is not None and age < eviction_grace)
                 ):
                     continue
-                self.artifacts.delete(artifact_id)
+                if not delete_cache("artifact", artifact_id, lambda: self.artifacts.delete(artifact_id)):
+                    continue
                 removed_artifacts.append(artifact_id)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
@@ -9227,7 +10958,8 @@ class DeviceService:
                 age = max(0.0, now - path.stat().st_mtime)
                 if age < eviction_grace:
                     continue
-                path.unlink(missing_ok=True)
+                if not delete_cache("flash", path.stem, lambda: path.unlink(missing_ok=True)):
+                    continue
                 removed_flash_cache.append(path)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
@@ -9242,6 +10974,8 @@ class DeviceService:
             "flash_cache_removed": len(removed_flash_cache),
             "uploads_removed": upload_prune["files_removed"],
             "freed_bytes": max(0, cache_bytes_before - cache_bytes_after),
+            "retention_barrier": retention_barrier,
+            "protected": {kind: sorted(values) for kind, values in retention_protected.items()},
         }
 
     def session_events(self, session_id: str) -> dict:
@@ -9255,7 +10989,7 @@ class DeviceService:
         with self._lock:
             active = [
                 session for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
             by_device: dict[str, int] = {}
             for session in active:
@@ -9406,7 +11140,7 @@ class DeviceService:
                     ).isoformat(),
                 }
                 for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
         return {"worker": worker, "active_sessions": active}
 
@@ -9649,14 +11383,18 @@ class DeviceService:
         last_storage_prune = 0.0
         while not self._stop.wait(2):
             now = time.time()
-            expired = []
             with self._lock:
-                for session in self._sessions.values():
-                    if (
-                        session.state in ACTIVE_STATES
-                        and session._proc is not None
-                        and session._proc.poll() is not None
-                    ):
+                sessions = list(self._sessions.values())
+            # No service-wide lock while process/companion teardown or a
+            # bounded pending-stop retry may wait on a session transaction.
+            for session in sessions:
+                if session._purged_snapshot is not None:
+                    with self._lock:
+                        if self._sessions.get(session.id) is session:
+                            self._sessions.pop(session.id, None)
+                    continue
+                try:
+                    if session.state in ACTIVE_STATES and session._proc is not None and session._proc.poll() is not None:
                         session._handle_process_exit(session._proc.returncode)
                     elif (
                         session.state in ACTIVE_STATES
@@ -9670,11 +11408,10 @@ class DeviceService:
                                 "or changed identity"
                             ),
                         )
-                    if session.state in ACTIVE_STATES and session.expires_at <= now:
-                        expired.append(session)
-            for session in expired:
-                try:
-                    session.stop(retain_flash=False)
+                    if session._stop_event.is_set() and not session._stop_complete.is_set():
+                        session.stop()
+                    elif session.state in ACTIVE_STATES and session.expires_at <= now:
+                        session.stop(retain_flash=False)
                 except Exception:
                     pass
             try:
@@ -9693,22 +11430,72 @@ class DeviceService:
                 except Exception:
                     pass
 
-    def close_all(self) -> None:
+    def _finish_shutdown(self, sessions: list[DeviceSession]) -> None:
+        # Cache pruning can already be in flight when _stop is set. Keep the
+        # registry ownership until the old janitor can no longer mutate state.
+        self._janitor.join()
+        pending = list(sessions)
+        while pending or self.worker.snapshot().get("active_lease_count", 0):
+            remaining = []
+            for session in pending:
+                try:
+                    result = session.stop()
+                    if result.get("stop_pending") or session._worker_lease_active:
+                        remaining.append(session)
+                except Exception:
+                    remaining.append(session)
+            pending = remaining
+            if pending or self.worker.snapshot().get("active_lease_count", 0):
+                time.sleep(0.05)
+        with self._shutdown_lock:
+            if not self._worker_closed:
+                self.worker.close()
+                self._worker_closed = True
+
+    def close_all(self) -> dict:
         self._stop.set()
+        control_lock = getattr(self, "_preview_control_lock", None)
+        if control_lock is not None:
+            with control_lock:
+                control = self._preview_control
+            if control is not None:
+                control.shutdown()
+        if not self.worker.started:
+            # A crash/restart handoff may already have released this registry
+            # lock. Do not mutate resources or records adopted by its successor.
+            return {"state": "ownership_released", "pending_sessions": []}
+        if self._janitor is not threading.current_thread():
+            self._janitor.join(timeout=SESSION_STOP_WAIT_SECONDS)
         with self._lock:
             sessions = list(self._sessions.values())
+        pending = []
         for session in sessions:
-            if session.state in {"stopped", "failed"}:
-                try:
-                    session._terminate_process()
-                except Exception:
-                    pass
-                continue
             try:
-                session.stop()
+                result = session.stop(
+                    retain_flash=True if session.state in {"stopped", "failed"} else None,
+                )
+                if result.get("stop_pending") or session._worker_lease_active:
+                    pending.append(session)
             except Exception:
-                pass
-        self.worker.close()
+                pending.append(session)
+        with self._shutdown_lock:
+            if not pending and not self._janitor.is_alive() and not self.worker.snapshot().get("active_lease_count", 0):
+                if not self._worker_closed:
+                    self.worker.close()
+                    self._worker_closed = True
+                return {"state": "stopped", "pending_sessions": []}
+            if self._shutdown_thread is None:
+                # Interpreter shutdown must wait for the transaction owner.
+                # Keep the worker registry lock/heartbeat until cleanup is real.
+                self.worker.drain()
+                self._shutdown_thread = threading.Thread(
+                    target=self._finish_shutdown,
+                    args=(pending,),
+                    name="m5-service-shutdown",
+                    daemon=False,
+                )
+                self._shutdown_thread.start()
+        return {"state": "draining", "pending_sessions": [s.id for s in pending]}
 
 
 def _padded(data: bytes, size: int) -> bytes:

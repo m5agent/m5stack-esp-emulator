@@ -14,8 +14,14 @@ QEMU 构建树、ESP-IDF、Python 依赖、ROM/eFuse、参考固件和其他生�
 
 | 模式 | 可用能力 | 必需资产 | 启动方式 |
 | --- | --- | --- | --- |
-| 目录/只读 API | 设备目录、`GET /api/v1/devices`、OpenAPI、静态文档 | 仓库源码、Python 3 | `./start.sh` |
-| QEMU 设备会话 | lease、烧录、串口、画面、输入、QOM、外设测试 | 源码、Python 3、完整 `.work/`、参考固件 | 准备运行时后运行 `./start.sh` |
+| 目录/只读 API | 设备目录、`GET /api/v1/devices`、OpenAPI、静态文档 | 仓库源码、Python 3.10+ | `./start.sh` |
+| QEMU 设备会话 | lease、烧录、串口、画面、输入、QOM、外设测试 | 源码、Python 3.10+、完整 `.work/`、参考固件 | 准备运行时后运行 `./start.sh` |
+
+`start.sh` 优先使用可用的兼容 `python3`，再尝试版本化解释器。可显式设置
+`M5_PYTHON=/path/to/python3.12`；低于 3.10 会在打开浏览器前明确拒绝。
+`M5_OPEN_BROWSER=0` 用于终端/验证模式，附加参数原样传给 `serve.py`。
+运行时 Python 扩展仍必须匹配解释器 ABI；`M5_PYTHON_DEPS` 可选择独立依赖
+目录，不能把打包的 CPython 3.13 扩展混用于 3.12。
 
 只 clone 仓库属于第一种模式。设备目录仍会返回登记设备（当前数量见
 [自动项目快照](project-snapshot.md)），但缺少运行时的 QEMU 设备

@@ -1,0 +1,4 @@
+import{printedArtwork}from'../../modeling/artwork.js';
+const back=new URL('./reference-redraw-back.png',import.meta.url).href,pcb=new URL('./reference-redraw-pcb.png',import.meta.url).href;
+/** Exact-model legible marks newly drawn as final ordinary PNGs;no photo pixels. */
+export function addStickers(host){return[...(printedArtwork(host,{target:host.parts['RCA complete native assembled front and rear shell'],url:back,size:[16.2,12.2],position:[0,7,-3.8],face:'back',depth:.22,name:'RCA rear model switch schematic and pin label reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:host.rcaAssembly.pcb.pcb,url:pcb,size:[7.8,2.2],position:[0,-.8,-.35],face:'front',depth:.12,name:'RCA PCB I1 I2 readable silk reference redraw',artworkKind:'reference-redraw'})??[])];}

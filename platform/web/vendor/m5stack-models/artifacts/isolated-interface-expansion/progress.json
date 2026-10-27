@@ -1,0 +1,417 @@
+{
+  "savedAt": "2026-10-26T12:26:07.146819+00:00",
+  "stage": "modeled",
+  "scope": "New RS485-ISO/AIN4-20mA/AC Measure complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 98,
+    "modeled": 112,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "rs485-iso",
+      "status": "pass",
+      "report": "docs/research/rs485-iso/smoke.json",
+      "meshes": 150,
+      "triangles": 61132
+    },
+    {
+      "id": "ain4-20ma",
+      "status": "pass",
+      "report": "docs/research/ain4-20ma/smoke.json",
+      "meshes": 164,
+      "triangles": 26762
+    },
+    {
+      "id": "ac-measure",
+      "status": "pass",
+      "report": "docs/research/ac-measure/smoke.json",
+      "meshes": 152,
+      "triangles": 26510
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/rs485-iso/reference-redraw-back.png",
+      "pixels": [
+        2400,
+        5400
+      ],
+      "sha256": "4f5636ec582d8b08bc96fa47579d282f394df47272239fb0b1f080e5daa7e2c6"
+    },
+    {
+      "path": "src/units/rs485-iso/reference-redraw-front.png",
+      "pixels": [
+        2370,
+        4005
+      ],
+      "sha256": "0852e4efa68ec93cc4151b675b385b8345023652c6de6f7183de046bb5ffea95"
+    },
+    {
+      "path": "src/units/ain4-20ma/reference-redraw-back.png",
+      "pixels": [
+        2592,
+        5888
+      ],
+      "sha256": "8dd983edba1f1231a0e5f3e0f1b81bc94a8b500560e9d38981f4a5e41fcdcf03"
+    },
+    {
+      "path": "src/units/ain4-20ma/reference-redraw-front.png",
+      "pixels": [
+        2592,
+        3760
+      ],
+      "sha256": "9c657cd045321972157c9a7b210c535ec14ff48e78a4c14a314c22746fc4ce8e"
+    },
+    {
+      "path": "src/units/ac-measure/source-vector-back.png",
+      "pixels": [
+        1600,
+        3600
+      ],
+      "sha256": "e81f1ccc7c0aca041d337863e50e80fd127e555787e18cffec0ae1ba41e03815"
+    },
+    {
+      "path": "src/units/ac-measure/source-vector-front.png",
+      "pixels": [
+        1600,
+        2650
+      ],
+      "sha256": "ec26295b907359185df0dfb65775b99796275469f7ff3c8bf199097fb1fcd765"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "rs485-iso",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ain4-20ma",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ac-measure",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "three-actual-four-screw-plugs-with-independent-detach-and-head-roundtrip",
+      "actual-RS485-terminator-shape-and-independent-fixed-color-lamp",
+      "five-real-shunt-mating-positions-and-physical-pin-occupancy",
+      "three-horizontal-two-vertical-and-bare-header-configurations",
+      "all-configuration-artwork-toggle-preserves-physical-attributes-indices-and-world-matrices",
+      "no-invented-buttons-sensors-or-numeric-electrical-behavior",
+      "non-Grove-type-rejection",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New actual interfaces, accessories and external appearance only; Node canvas stub, no browser, UART, RS485, supply switching, ADC, isolation, voltage, current, power, mains, electrical, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "rs485-iso",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ain4-20ma",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ac-measure",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "three-actual-four-screw-plugs-with-independent-detach-and-head-roundtrip",
+      "actual-RS485-terminator-shape-and-independent-fixed-color-lamp",
+      "five-real-shunt-mating-positions-and-physical-pin-occupancy",
+      "three-horizontal-two-vertical-and-bare-header-configurations",
+      "all-configuration-artwork-toggle-preserves-physical-attributes-indices-and-world-matrices",
+      "no-invented-buttons-sensors-or-numeric-electrical-behavior",
+      "non-Grove-type-rejection",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New actual interfaces, accessories and external appearance only; Node canvas stub, no browser, UART, RS485, supply switching, ADC, isolation, voltage, current, power, mains, electrical, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "rs485-iso",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "ain4-20ma",
+        "status": "frozen",
+        "checkedFiles": 15
+      },
+      {
+        "id": "ac-measure",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "eaa8a9b51d5194d6b36666d05b51a5a593cd1a8d21453af911e0f06c7fbcfc0f",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "11a0b854e0eecfaa8d0782abb99cf657cdc4f518e51b5a5f0b37cd2a0ff699af",
+      "logDistributed": false
+    },
+    "livePreview": "112-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 762,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "rs485-iso",
+      "record": "docs/research/rs485-iso/sources.json",
+      "feedback_id": "fc852dfeccab40d882873afc3066dfee",
+      "accepted": true
+    },
+    {
+      "product": "ac-measure",
+      "record": "docs/research/ac-measure/sources.json",
+      "feedback_id": "f9234766e62f43dc944211d02a674d38",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "rs485-iso",
+      "file": "assets/rs485-iso-CaasAow2.js",
+      "sha256": "f48093c33b0384d8096bd0c8aa6ef85e0ed2c9f7d9da4e9d2dc29d48909b2ba6"
+    },
+    {
+      "id": "ain4-20ma",
+      "file": "assets/ain4-20ma-CIjwl1WD.js",
+      "sha256": "5c8307556d09a6fcde30637dcb87bc20c6981a11ff93f88cee7b7aa571f2683a"
+    },
+    {
+      "id": "ac-measure",
+      "file": "assets/ac-measure-Be5Dt49t.js",
+      "sha256": "dfee09f2f2157547fa630923c6a66eeffe7f86eb6b65ef3f976cdada4a16e920"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/rs485-iso/TerminalPlug.js",
+      "sha256": "6cd5a8805506e3891bb1f9e8c208ffc6fd820da20c5a85f1b21656bd5a535c4c"
+    },
+    {
+      "path": "src/units/rs485-iso/assembly.js",
+      "sha256": "17ee310a5917290fce20aed761e798d33643ebec229d9c03a898cf7420785ce0"
+    },
+    {
+      "path": "src/units/rs485-iso/cad-map.json",
+      "sha256": "b3dcc5ed3a94a9a5e50abeae074fbaff8f167a416e6b472221a8991cf6b04e5b"
+    },
+    {
+      "path": "src/units/rs485-iso/connectors.js",
+      "sha256": "d4c4f702334a067a5ffd2bedd16f6fc30ad884fc1a57a9c734a94435f2ce2dc2"
+    },
+    {
+      "path": "src/units/rs485-iso/dimensions.js",
+      "sha256": "0a41454024de86ca814d517176923ebf4068481deed4c44b658e5a820fbb3496"
+    },
+    {
+      "path": "src/units/rs485-iso/geometry-data.js",
+      "sha256": "11f0c0f81ba6518ba2a332423bc15d60aff4faa215ce5372edd98bc29a415992"
+    },
+    {
+      "path": "src/units/rs485-iso/index.js",
+      "sha256": "a0d3df04c7478c181e1387318cab49e621fc0c915a8114f7d4da0c75adfe6ada"
+    },
+    {
+      "path": "src/units/rs485-iso/reference-redraw-back.png",
+      "sha256": "4f5636ec582d8b08bc96fa47579d282f394df47272239fb0b1f080e5daa7e2c6"
+    },
+    {
+      "path": "src/units/rs485-iso/reference-redraw-front.png",
+      "sha256": "0852e4efa68ec93cc4151b675b385b8345023652c6de6f7183de046bb5ffea95"
+    },
+    {
+      "path": "src/units/rs485-iso/stickers.js",
+      "sha256": "071896fd24b03753a6beb5772274c3e7beb9f002550f38885c2abd7fcda97886"
+    },
+    {
+      "path": "docs/research/rs485-iso/artwork.json",
+      "sha256": "cf99f34b10e473bfba21054e62fb77d40cc47204331e6b5ae3bef7f97e9f0bf3"
+    },
+    {
+      "path": "docs/research/rs485-iso/modeling.md",
+      "sha256": "e95f610070ce793b7d7f573e15e0a6bc775bbc0f635899a49ba8be1d92ad04e5"
+    },
+    {
+      "path": "docs/research/rs485-iso/smoke.json",
+      "sha256": "6dc9924f2199f3150af19b31262a0de56fe86db6af3378ced7328908f8143764"
+    },
+    {
+      "path": "docs/research/rs485-iso/sources.json",
+      "sha256": "86096300b02387b2a42b282d946c00d03f3760adde2ea2aad1b1e401687f144d"
+    },
+    {
+      "path": "src/units/ain4-20ma/Shunt.js",
+      "sha256": "47a941b6bc4a4b7a664634530a73fdaf01e83a7aa913d616d1954e714f6ce4fe"
+    },
+    {
+      "path": "src/units/ain4-20ma/TerminalPlug.js",
+      "sha256": "cc03075a1fe8a566b2ccbdb853fbf30ddf29779b48e0bd61d42978870113439a"
+    },
+    {
+      "path": "src/units/ain4-20ma/assembly.js",
+      "sha256": "1799607dff5c23151430058e8a9ed2b2db42a341f2d92f884bb5998d957aa50f"
+    },
+    {
+      "path": "src/units/ain4-20ma/cad-map.json",
+      "sha256": "6c34fa1093690b5fa1f9469b54b0fcda0709f893d3e30dfdb6da663da201931d"
+    },
+    {
+      "path": "src/units/ain4-20ma/connectors.js",
+      "sha256": "572f3dc8ac06ce762ce309290b672e2f7ae44ac7617bb6f536914f412a8d0667"
+    },
+    {
+      "path": "src/units/ain4-20ma/dimensions.js",
+      "sha256": "ecad2c44df61502522bed5ae87c140dface6f6a1ab807a0ed466349116140f85"
+    },
+    {
+      "path": "src/units/ain4-20ma/geometry-data.js",
+      "sha256": "1670be36d2894d7b4f85aa524a9acca61f0cd95fc6180c20de22707e153aa775"
+    },
+    {
+      "path": "src/units/ain4-20ma/index.js",
+      "sha256": "3eacd83b76d4b7225f2f33c16418c90478544c1dd481b073a82fe049f70a2398"
+    },
+    {
+      "path": "src/units/ain4-20ma/reference-redraw-back.png",
+      "sha256": "8dd983edba1f1231a0e5f3e0f1b81bc94a8b500560e9d38981f4a5e41fcdcf03"
+    },
+    {
+      "path": "src/units/ain4-20ma/reference-redraw-front.png",
+      "sha256": "9c657cd045321972157c9a7b210c535ec14ff48e78a4c14a314c22746fc4ce8e"
+    },
+    {
+      "path": "src/units/ain4-20ma/stickers.js",
+      "sha256": "7ca03236b73291b9dfe053b005b860ec218f27d9f214044ddb08b09d811adce1"
+    },
+    {
+      "path": "docs/research/ain4-20ma/artwork.json",
+      "sha256": "be85d40cbcdab1adada1912176fb3b767a533dcd92c425ab36aac48c86524a06"
+    },
+    {
+      "path": "docs/research/ain4-20ma/modeling.md",
+      "sha256": "14978abc5bb93de78fdd46560e33758f4d9948e4bd67efce28b7393468428be0"
+    },
+    {
+      "path": "docs/research/ain4-20ma/smoke.json",
+      "sha256": "3a20219a9bd1e3a884d920952155eac75f85193d6b63417f0cc172d995c29383"
+    },
+    {
+      "path": "docs/research/ain4-20ma/sources.json",
+      "sha256": "99237f5ec473fe1ad0cc92169aa10e4ded3404e9f9f6383305250536dd1b6fb1"
+    },
+    {
+      "path": "src/units/ac-measure/TerminalPlug.js",
+      "sha256": "abee537ba4accea61e302baf294e5e841edfb79cc592a0544483f0e29215dc30"
+    },
+    {
+      "path": "src/units/ac-measure/assembly.js",
+      "sha256": "89cbed6b520971c5ac3ee15adf280b6895be5aca359086757b1f4119b1336d09"
+    },
+    {
+      "path": "src/units/ac-measure/cad-map.json",
+      "sha256": "766f571835520ac046573a31f965e733bc2ddd97e3cc03da78a3f0b75b09d146"
+    },
+    {
+      "path": "src/units/ac-measure/connectors.js",
+      "sha256": "e9d33e019e8bd6d1348f613f57e111686d2dd76e0eef940039d1f4673164ae14"
+    },
+    {
+      "path": "src/units/ac-measure/dimensions.js",
+      "sha256": "fcdeebd57202f42e9ef669c643d665bff90e3cbf8cbc92223be966ee9674007b"
+    },
+    {
+      "path": "src/units/ac-measure/geometry-data.js",
+      "sha256": "90dfa32b2dc92e1ac9d01da8c0dc51844df7afd703259e0f39e51ff1feee9a9c"
+    },
+    {
+      "path": "src/units/ac-measure/index.js",
+      "sha256": "028ef8deb2fda588f75aaacc466fc4526ee355d240003c8855da183f99050ee4"
+    },
+    {
+      "path": "src/units/ac-measure/source-vector-back.png",
+      "sha256": "e81f1ccc7c0aca041d337863e50e80fd127e555787e18cffec0ae1ba41e03815"
+    },
+    {
+      "path": "src/units/ac-measure/source-vector-front.png",
+      "sha256": "ec26295b907359185df0dfb65775b99796275469f7ff3c8bf199097fb1fcd765"
+    },
+    {
+      "path": "src/units/ac-measure/stickers.js",
+      "sha256": "2e71f5d5f6ebe8b558281faf024f6838f1138930d5421c6294d1cce7fa2c8e90"
+    },
+    {
+      "path": "docs/research/ac-measure/artwork.json",
+      "sha256": "7d658740612688684f4c0eb27f8bec3882d40ac4678b580d40d61914d87836d3"
+    },
+    {
+      "path": "docs/research/ac-measure/modeling.md",
+      "sha256": "83b6b6fd4368df7c51c3ade0c25d52677843170db5188d79f81848e165a35b73"
+    },
+    {
+      "path": "docs/research/ac-measure/smoke.json",
+      "sha256": "29ba86cee2711e1ec1a2e62353f84b832deccd5fa7100628bcf0f44e1cdf19a0"
+    },
+    {
+      "path": "docs/research/ac-measure/sources.json",
+      "sha256": "e0e72f2e1a832c6e1fd475b8fe7404517ac1082c457aa65bfd8fbd66d84bc878"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "RS485-ISO owns the actual isolated transceiver/terminal and optional terminator shape; no UART, bus termination, power or electrical behavior",
+    "AIN4-20mA owns its actual single-channel input, terminal and removable shunts; no supply switching, current, ADC, isolation or electrical behavior",
+    "AC Measure owns its actual measurement PCB/terminal/isolating packages; no mains, voltage, current, power or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

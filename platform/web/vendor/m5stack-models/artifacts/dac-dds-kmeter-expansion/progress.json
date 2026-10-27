@@ -1,0 +1,413 @@
+{
+  "savedAt": "2026-10-26T10:27:22.671239+00:00",
+  "stage": "modeled",
+  "scope": "New DAC2/DDS/KMeter ISO v1.1 complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 74,
+    "modeled": 88,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "dac2",
+      "status": "pass",
+      "report": "docs/research/dac2/smoke.json",
+      "meshes": 70,
+      "triangles": 52796
+    },
+    {
+      "id": "dds",
+      "status": "pass",
+      "report": "docs/research/dds/smoke.json",
+      "meshes": 148,
+      "triangles": 41588
+    },
+    {
+      "id": "kmeter-iso-v11",
+      "status": "pass",
+      "report": "docs/research/kmeter-iso-v11/smoke.json",
+      "meshes": 178,
+      "triangles": 15326
+    }
+  ],
+  "pngCount": 7,
+  "rasters": [
+    {
+      "path": "src/units/dac2/source-vector-back.png",
+      "pixels": [
+        2400,
+        1800
+      ],
+      "sha256": "1f4511a6281c3e5fc79a1367d494de39980730fe57b0483aa0dc9a44bca769b3"
+    },
+    {
+      "path": "src/units/dac2/source-vector-front.png",
+      "pixels": [
+        2400,
+        2085
+      ],
+      "sha256": "1d4160a0fe69f2552246366deb29e71ecfc004e40d029ae6128b8da18774b4e0"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-back.png",
+      "pixels": [
+        1944,
+        4344
+      ],
+      "sha256": "ac6f48679f58bae7c27aa25e8961fa65ab0def16a7f02df705901b4a5e71e33e"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-front.png",
+      "pixels": [
+        1920,
+        4356
+      ],
+      "sha256": "2c2b04c1effff55e30e53bad0de2a092bc5af16226c0d42b32c84e48ccc0dabc"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/official-back.png",
+      "pixels": [
+        1920,
+        4200
+      ],
+      "sha256": "c08456abed1f7206a1a0f9c3b92336cc2f5bceac6e44429ad50436e06479e426"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/official-front.png",
+      "pixels": [
+        2496,
+        2820
+      ],
+      "sha256": "f85a9e5f7952af2b59d84872ab2cf571f914df83b7997fae4e638877da5d7dfa"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/reference-redraw-connector.png",
+      "pixels": [
+        1620,
+        990
+      ],
+      "sha256": "6595fc4064534856d9228c0b314d90b59404e38caf253a41e2ef6d7e4482c0da"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "dac2",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      },
+      {
+        "id": "dds",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "kmeter-iso-v11",
+        "panels": 3,
+        "kinds": [
+          "official-vector-raster",
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "passive-anchors-reject-conversion-waveform-temperature",
+      "real-DAC-terminal-accessory-and-four-screw-heads",
+      "fixed-SMA-and-K-flat-receptacles-reject-Grove",
+      "artwork-toggle-keeps-physical-geometry-and-world-poses",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment API only; Node canvas stub, no browser, electrical, signal/temperature, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "dac2",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      },
+      {
+        "id": "dds",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "kmeter-iso-v11",
+        "panels": 3,
+        "kinds": [
+          "official-vector-raster",
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "passive-anchors-reject-conversion-waveform-temperature",
+      "real-DAC-terminal-accessory-and-four-screw-heads",
+      "fixed-SMA-and-K-flat-receptacles-reject-Grove",
+      "artwork-toggle-keeps-physical-geometry-and-world-poses",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment API only; Node canvas stub, no browser, electrical, signal/temperature, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "dac2",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "dds",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "kmeter-iso-v11",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "549b9265023bd1f2daca0ec9bac1ba3aa30d006490ec952de77358b33c3962a6",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "83921a3bdc44864c20b219b98d2372f5e3c83ed9ef35b92f416f523ac098bf6e",
+      "logDistributed": false
+    },
+    "livePreview": "88-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 544,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "dds",
+      "record": "docs/research/dds/sources.json",
+      "feedback_id": "618a44e752d24afd8575022fb72781c9",
+      "accepted": true
+    },
+    {
+      "product": "kmeter-iso-v11",
+      "record": "docs/research/kmeter-iso-v11/sources.json",
+      "feedback_id": "8db82bebd10244b0ad7e3c875f0fa3ad",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "dac2",
+      "file": "assets/dac2-YEYyDG0Y.js",
+      "sha256": "61f0b5f530071e2e4514e80ad8f7f6886017bb7c486333988b319ab7bc0304b4"
+    },
+    {
+      "id": "dds",
+      "file": "assets/dds-CLd2IrQ6.js",
+      "sha256": "9fd7c9de7b2f0f1ad9ea9ef8132c0d7e604f06b59033fca64b5e0aad993fbe2f"
+    },
+    {
+      "id": "kmeter-iso-v11",
+      "file": "assets/kmeter-iso-v11-BI6Sxn9P.js",
+      "sha256": "d745fa4b8128a4b0b367e5934776cc710337cbbb11fbe8665b3248eb436e3252"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/dac2/TerminalPlug.js",
+      "sha256": "35c54b0fa855e4fee48afbbe41e3d3c6ad9e5f7913a28e0dfb7c0c99bbda05e1"
+    },
+    {
+      "path": "src/units/dac2/assembly.js",
+      "sha256": "7edaa8d1e0fb9ffe056a1b41a7671b66a6fb6081fb670a7135022646e0b035e3"
+    },
+    {
+      "path": "src/units/dac2/cad-map.json",
+      "sha256": "13c0ca428c67dabbf6074dcfa04a10721520c390bf7b0dbcfcde28b4b2be6cde"
+    },
+    {
+      "path": "src/units/dac2/dimensions.js",
+      "sha256": "3852e35b35d4ee0802cf2782759a38f260e0bb0e590dec13982c5f52dbe9eeee"
+    },
+    {
+      "path": "src/units/dac2/geometry-data.js",
+      "sha256": "641aaed2793865afa185b3d999852bf45852e1f576165da79aa04230111d2bcd"
+    },
+    {
+      "path": "src/units/dac2/index.js",
+      "sha256": "303b136a8489818a1b98054e62e34efaa3154e15d6c515556dc67634314d1d93"
+    },
+    {
+      "path": "src/units/dac2/source-vector-back.png",
+      "sha256": "1f4511a6281c3e5fc79a1367d494de39980730fe57b0483aa0dc9a44bca769b3"
+    },
+    {
+      "path": "src/units/dac2/source-vector-front.png",
+      "sha256": "1d4160a0fe69f2552246366deb29e71ecfc004e40d029ae6128b8da18774b4e0"
+    },
+    {
+      "path": "src/units/dac2/stickers.js",
+      "sha256": "ff82e7461d051cff1deb9e2c1e6ca06b485ca0c24fec95c4de5f8c9524bc71ce"
+    },
+    {
+      "path": "docs/research/dac2/artwork.json",
+      "sha256": "820a5db5c84eb44c998b4157a5d2ba5af39b0539f1495b12729e1a82e6c10acc"
+    },
+    {
+      "path": "docs/research/dac2/artwork.md",
+      "sha256": "c16cab3e2cec5871329b588a92ecfce3f0b41a21fd6a57438842fd8c778aa956"
+    },
+    {
+      "path": "docs/research/dac2/modeling.md",
+      "sha256": "b74159933ad88150d4ac88ba595bdd25411f34be40403c2168ea91be873eb6e4"
+    },
+    {
+      "path": "docs/research/dac2/smoke.json",
+      "sha256": "2e81963da7c4b40d8f94298da2d59b3ca7a8fcf02819e1ff3b40d2594c185f1b"
+    },
+    {
+      "path": "docs/research/dac2/sources.json",
+      "sha256": "0c00f661fb3e1afd787a4f322c1c8e93a327ff72fad6509c82b673094740c763"
+    },
+    {
+      "path": "src/units/dds/assembly.js",
+      "sha256": "bdc1869519b15919e06eb665d2103ff10c90b06ff4e8e3ac3ec9f9a688fd8e48"
+    },
+    {
+      "path": "src/units/dds/cad-map.json",
+      "sha256": "dcf219e5250a903aa6c93ed45be7a960ca94385162abc2f4e904bded68e8d1b1"
+    },
+    {
+      "path": "src/units/dds/dimensions.js",
+      "sha256": "b7fac5704ea8475842bb8892dbf5af380ceef85a82ee06f4017dd9e0f1767863"
+    },
+    {
+      "path": "src/units/dds/geometry-data.js",
+      "sha256": "ffcb90fea78fc4d8a336bbf272a2542df856a56674c24e2fa43d4d42b34d38b9"
+    },
+    {
+      "path": "src/units/dds/index.js",
+      "sha256": "2eb12d8a655f987a938cc23410cee91ffbb53f5fd14eaa652a8d713cc6e663be"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-back.png",
+      "sha256": "ac6f48679f58bae7c27aa25e8961fa65ab0def16a7f02df705901b4a5e71e33e"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-front.png",
+      "sha256": "2c2b04c1effff55e30e53bad0de2a092bc5af16226c0d42b32c84e48ccc0dabc"
+    },
+    {
+      "path": "src/units/dds/stickers.js",
+      "sha256": "932f7c577a7340c7b42b804dcb2b1302fb02a021d214aa497a961c2555f7f1b0"
+    },
+    {
+      "path": "docs/research/dds/artwork.json",
+      "sha256": "861dd8ef8123e27ff41537d595664c14c60ca616cc60c7512c3a8375412c04fc"
+    },
+    {
+      "path": "docs/research/dds/artwork.md",
+      "sha256": "64f6a3f704721e6f63b8dbc64bd2667ac3feb5ba18fcd8798ef420d9adb73fb8"
+    },
+    {
+      "path": "docs/research/dds/modeling.md",
+      "sha256": "1e12646f823d9d223b064f05bfdad59497238cfa2ebdcffbcb6dd0d4b710914c"
+    },
+    {
+      "path": "docs/research/dds/smoke.json",
+      "sha256": "4496ac4b8b3244ec0528b11a2fc370fd70c89b1be2cc3ec68b675b0b2a7502b7"
+    },
+    {
+      "path": "docs/research/dds/sources.json",
+      "sha256": "cb8ba17fa3fc15cfb40691371a8d1bd5be1a1c3a4eb519814f3e41e90bca4c1b"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/assembly.js",
+      "sha256": "e7f9b396457416f56f1aa67b34b83d98fc4ea71a8829006a846947895a0ce29b"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/cad-map.json",
+      "sha256": "dcaf0dbb31e2dc8061bd7411b18c885501f1fbe0028ae837a5bcb3fa4847ef95"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/dimensions.js",
+      "sha256": "8bf16b5eccec6256a743ba8991f07a1d60a9ac3dea1d2aa8c8bdbb2d73106a3b"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/geometry-data.js",
+      "sha256": "43a76926295242b72c89499d80d17018da4f18e5e20fee70b7d88afdf8ed6585"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/index.js",
+      "sha256": "de10d76e9a53c110374e6a965e13e0b8905f4bd3f9a8f58d6c976206fd87daab"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/official-back.png",
+      "sha256": "c08456abed1f7206a1a0f9c3b92336cc2f5bceac6e44429ad50436e06479e426"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/official-front.png",
+      "sha256": "f85a9e5f7952af2b59d84872ab2cf571f914df83b7997fae4e638877da5d7dfa"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/reference-redraw-connector.png",
+      "sha256": "6595fc4064534856d9228c0b314d90b59404e38caf253a41e2ef6d7e4482c0da"
+    },
+    {
+      "path": "src/units/kmeter-iso-v11/stickers.js",
+      "sha256": "67a78ceb9afeeef09e3fd9d659a55692a4304f926011cdaac070abbe7716f74f"
+    },
+    {
+      "path": "docs/research/kmeter-iso-v11/artwork.json",
+      "sha256": "3c67ecc83bcb2299b68e16a9643fec38182a2478af14dbde4e8cc39249d0a365"
+    },
+    {
+      "path": "docs/research/kmeter-iso-v11/artwork.md",
+      "sha256": "6e1977601a571cfc2e9cbdaefe6a04606ee478db63c22a99e2e539e1bef4cb74"
+    },
+    {
+      "path": "docs/research/kmeter-iso-v11/modeling.md",
+      "sha256": "65dd513884e0c37198e47cbffa767011d188b8b3cb979c7fee5f2450bc95d37d"
+    },
+    {
+      "path": "docs/research/kmeter-iso-v11/smoke.json",
+      "sha256": "23f0e0ffd53673edd0ccd925df21730a9b02309520bfecdc153d11ac9e7d46c6"
+    },
+    {
+      "path": "docs/research/kmeter-iso-v11/sources.json",
+      "sha256": "b31ce2be5782d97b8c943c8089dde35880928647a918adef5ae18f93ecef80a5"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "DAC2 owns real output socket, supplied detachable terminal plug and external screw-head angles; no voltage, current, address, conversion or protection model",
+    "DDS owns real SMA connector and internal assembly; no signal waveform, frequency, phase, clock or register behavior",
+    "KMeter-ISO v1.1 owns its real K flat receptacle and visual assembly; no thermocouple temperature, compensation, sampling or isolation model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

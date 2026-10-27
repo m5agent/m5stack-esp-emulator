@@ -14,7 +14,9 @@ import subprocess
 import sys
 import threading
 import time
+import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Iterable
@@ -44,6 +46,156 @@ SUPPORTED_CHIPS = {
 
 class LaneError(RuntimeError):
     pass
+
+
+class LaneCancelled(LaneError):
+    pass
+
+
+def process_identity(pid: int) -> dict[str, Any]:
+    """Use the same ps identity fields as Device Service, without importing it."""
+    fields: dict[str, str | None] = {}
+    for field in ("lstart", "command"):
+        try:
+            result = subprocess.run(
+                ["ps", "-ww", "-p", str(pid), "-o", f"{field}="],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                timeout=2,
+                check=False,
+            )
+            value = result.stdout.strip()
+            fields[field] = value if result.returncode == 0 and value else None
+        except (OSError, subprocess.TimeoutExpired):
+            fields[field] = None
+    command = fields["command"]
+    return {
+        "pid": pid,
+        "start_token": fields["lstart"],
+        "command_sha256": hashlib.sha256(command.encode()).hexdigest() if command else None,
+        "identity_verified": bool(fields["lstart"] and command),
+    }
+
+
+class LaneLifecycle:
+    """Atomic runner/child receipt consumed by the Device Service.
+
+    lifecycle.json schema v1 has kind=m5stack-network-lane-lifecycle,
+    state=starting|children-known|cleanup-complete, cleanup_complete, runner
+    identity, children={emulator,ble} (null until created), and updated_at.
+    Identities contain pid/start_token/command_sha256/identity_verified; child
+    rows also contain state/returncode. No command text or credentials are saved.
+    The starting receipt must exist before either child can be created. Only
+    successful cleanup of every owned Popen and fixture can publish complete.
+    A reaped child may have unknown ps identity if it exited before inspection.
+    """
+
+    def __init__(self, out_dir: Path, stop_requested: threading.Event):
+        self.path = out_dir / "lifecycle.json"
+        self.stop_requested = stop_requested
+        self.processes: dict[str, subprocess.Popen] = {}
+        self.fixtures: list[Any] = []
+        self.collectors: list[threading.Thread] = []
+        self.cleanup_started = False
+        self.record: dict[str, Any] = {
+            "schema_version": 1,
+            "kind": "m5stack-network-lane-lifecycle",
+            "state": "starting",
+            "cleanup_complete": False,
+            "runner": process_identity(os.getpid()),
+            "children": {"emulator": None, "ble": None},
+        }
+        self._persist()
+
+    def _persist(self) -> None:
+        self.record["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = self.path.with_name(f".{self.path.name}.{uuid.uuid4().hex}.tmp")
+        try:
+            with temporary.open("x", encoding="utf-8") as output:
+                temporary.chmod(0o600)
+                json.dump(self.record, output, ensure_ascii=False, indent=2)
+                output.write("\n")
+                output.flush()
+                os.fsync(output.fileno())
+            os.replace(temporary, self.path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def check_cancelled(self) -> None:
+        if self.stop_requested.is_set():
+            raise LaneCancelled("network lane stop requested")
+
+    def spawn(self, role: str, command: list[str], **kwargs) -> subprocess.Popen:
+        self.check_cancelled()
+        proc = subprocess.Popen(command, **kwargs)
+        # Own the handle before inspection, receipt I/O, or the post-Popen fence
+        # can fail. execute's finally always cleans every handle in this map.
+        self.processes[role] = proc
+        self.record["children"][role] = {
+            **process_identity(proc.pid),
+            "state": "running" if proc.poll() is None else "exited",
+            "returncode": proc.returncode,
+        }
+        self.record["state"] = "children-known"
+        self._persist()
+        self.check_cancelled()
+        return proc
+
+    def cleanup(self) -> None:
+        self.cleanup_started = True
+        errors: list[str] = []
+        for role, proc in self.processes.items():
+            try:
+                terminate_process(proc)
+            except Exception as error:
+                errors.append(f"{role}:{type(error).__name__}")
+            row = self.record["children"][role]
+            if row is None:
+                row = {"pid": proc.pid, "start_token": None,
+                       "command_sha256": None, "identity_verified": False}
+                self.record["children"][role] = row
+            try:
+                returncode = proc.poll()
+            except Exception as error:
+                returncode = None
+                errors.append(f"{role}:poll-{type(error).__name__}")
+            exited = isinstance(returncode, int) and not isinstance(returncode, bool)
+            row.update(state="exited" if exited else "cleanup-pending", returncode=returncode)
+            if not exited:
+                errors.append(f"{role}:still-running")
+        for collector in self.collectors:
+            collector.join(timeout=1)
+            if collector.is_alive():
+                errors.append("ble-log:still-running")
+        for fixture in self.fixtures:
+            try:
+                fixture.close()
+            except Exception as error:
+                errors.append(f"fixture:{type(error).__name__}")
+        complete = not errors
+        self.record["cleanup_complete"] = complete
+        self.record["state"] = "cleanup-complete" if complete else "children-known"
+        self.record["cleanup_errors"] = errors
+        self._persist()
+        if errors:
+            raise LaneError("network lane cleanup incomplete: " + ", ".join(errors))
+
+
+def wait_for_ble_ready(
+    ready: threading.Event, proc: subprocess.Popen, lifecycle: LaneLifecycle,
+    timeout: float = 10,
+) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        lifecycle.check_cancelled()
+        if ready.wait(min(0.05, max(0, deadline - time.monotonic()))):
+            lifecycle.check_cancelled()
+            return
+        if proc.poll() is not None:
+            raise LaneError("Bumble BLE probe exited before becoming ready")
+    lifecycle.check_cancelled()
+    raise LaneError("Bumble BLE probe did not become ready")
 
 
 def normalize_i2c_device(value: str) -> str:
@@ -496,7 +648,9 @@ def terminate_process(proc: subprocess.Popen | None, timeout: float = 5) -> None
         proc.wait(timeout=5)
 
 
-def start_ble_probe(config: LaneConfig, log_path: Path) -> tuple[subprocess.Popen, threading.Event]:
+def start_ble_probe(
+    config: LaneConfig, log_path: Path, *, lifecycle: LaneLifecycle,
+) -> tuple[subprocess.Popen, threading.Event]:
     ready = threading.Event()
     environment = os.environ.copy()
     python_path = str(ROOT / ".work/py")
@@ -533,31 +687,41 @@ def start_ble_probe(config: LaneConfig, log_path: Path) -> tuple[subprocess.Pope
             ]
         )
     log = log_path.open("w")
-    proc = subprocess.Popen(
-        command,
-        cwd=ROOT,
-        env=environment,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
-        start_new_session=True,
-    )
-    assert proc.stdout is not None
+    try:
+        proc = lifecycle.spawn(
+            "ble", command,
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            start_new_session=True,
+        )
+        assert proc.stdout is not None
 
-    def collect() -> None:
-        for line in proc.stdout:
-            log.write(line)
-            log.flush()
-            if "BLE_PROBE_READY" in line:
-                ready.set()
+        def collect() -> None:
+            try:
+                for line in proc.stdout:
+                    log.write(line)
+                    log.flush()
+                    if "BLE_PROBE_READY" in line:
+                        ready.set()
+            finally:
+                log.close()
+                proc.stdout.close()
+
+        lifecycle.check_cancelled()
+        collector = threading.Thread(
+            target=collect,
+            name="m5-network-lane-ble-log",
+            daemon=True,
+        )
+        collector.start()
+        lifecycle.collectors.append(collector)
+    except BaseException:
         log.close()
-
-    threading.Thread(
-        target=collect,
-        name="m5-network-lane-ble-log",
-        daemon=True,
-    ).start()
+        raise
     return proc, ready
 
 
@@ -825,13 +989,39 @@ def execute(config: LaneConfig) -> dict:
             f"chip {config.chip!r} is not supported by esp-emu; "
             "Core2 ESP32 LX6 needs a separate network/PHY path"
         )
+    config.out_dir.mkdir(parents=True, exist_ok=True)
+    stop_requested = threading.Event()
+    lifecycle: LaneLifecycle | None = None
+
+    def request_stop(_signum: int, _frame: object) -> None:
+        stop_requested.set()
+
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+    signal.signal(signal.SIGTERM, request_stop)
+    try:
+        # Install cancellation before starting is persisted. A signal during
+        # construction must still complete the receipt with no child created.
+        # A missing receipt in a fresh directory can only precede spawn.
+        lifecycle = LaneLifecycle(config.out_dir, stop_requested)
+        return _execute(config, lifecycle)
+    finally:
+        try:
+            # Also cover setup failures before the runtime's inner finally.
+            if lifecycle is not None and not lifecycle.cleanup_started:
+                lifecycle.cleanup()
+        finally:
+            signal.signal(signal.SIGTERM, previous_sigterm)
+
+
+def _execute(config: LaneConfig, lifecycle: LaneLifecycle) -> dict:
+    lifecycle.check_cancelled()
     firmware = file_artifact("firmware", config.firmware)
     emulator = file_artifact("emulator", config.emulator)
     elf = file_artifact("elf", config.elf) if config.elf else None
-    config.out_dir.mkdir(parents=True, exist_ok=True)
 
     firmware_copy = config.out_dir / "firmware-under-test.bin"
     firmware_copy.write_bytes(config.firmware.read_bytes())
+    lifecycle.check_cancelled()
     firmware_copy_artifact = file_artifact("firmware-runtime-copy", firmware_copy)
 
     initial_requests: list[str] = []
@@ -839,13 +1029,19 @@ def execute(config: LaneConfig) -> dict:
     udp_server: UdpLabServer | None = None
     tcp_port = free_port()
     if config.tcp:
+        lifecycle.check_cancelled()
         lab_server = start_lab_server(
             HTTP_PROBE_PORT if config.profile == "esp-idf-http" else 0
         )
+        lifecycle.fixtures.append(lab_server)
+        lifecycle.check_cancelled()
         initial_requests = lab_server.requests
         tcp_port = lab_server.port
     if config.profile == "idf-dns-udp":
+        lifecycle.check_cancelled()
         udp_server = start_udp_lab_server()
+        lifecycle.fixtures.append(udp_server)
+        lifecycle.check_cancelled()
 
     serial_path = config.out_dir / "serial.log"
     ble_log_path = config.out_dir / "ble-probe.log"
@@ -865,13 +1061,7 @@ def execute(config: LaneConfig) -> dict:
 
     ble_proc: subprocess.Popen | None = None
     emu_proc: subprocess.Popen | None = None
-    stop_requested = threading.Event()
-
-    def request_stop(_signum: int, _frame: object) -> None:
-        stop_requested.set()
-
-    previous_sigterm = signal.getsignal(signal.SIGTERM)
-    signal.signal(signal.SIGTERM, request_stop)
+    stop_requested = lifecycle.stop_requested
     use_bumble = (
         config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
         or config.profile == "generic-observe"
@@ -880,13 +1070,12 @@ def execute(config: LaneConfig) -> dict:
     started = time.monotonic()
     try:
         if use_bumble:
-            ble_proc, ble_ready = start_ble_probe(config, ble_log_path)
-            if not ble_ready.wait(timeout=10):
-                raise LaneError("Bumble BLE probe did not become ready")
+            ble_proc, ble_ready = start_ble_probe(config, ble_log_path, lifecycle=lifecycle)
+            wait_for_ble_ready(ble_ready, ble_proc, lifecycle)
 
         with serial_path.open("wb") as serial_log:
-            emu_proc = subprocess.Popen(
-                command,
+            emu_proc = lifecycle.spawn(
+                "emulator", command,
                 cwd=ROOT,
                 stdout=serial_log,
                 stderr=subprocess.STDOUT,
@@ -953,17 +1142,11 @@ def execute(config: LaneConfig) -> dict:
                         break
                     if time.monotonic() - ble_exited_at >= 3:
                         break
-                time.sleep(0.25)
+                stop_requested.wait(0.25)
             else:
                 timed_out = not stop_requested.is_set()
     finally:
-        terminate_process(emu_proc)
-        terminate_process(ble_proc)
-        if lab_server is not None:
-            lab_server.close()
-        if udp_server is not None:
-            udp_server.close()
-        signal.signal(signal.SIGTERM, previous_sigterm)
+        lifecycle.cleanup()
 
     duration = round(time.monotonic() - started, 3)
     serial = read_text(serial_path)

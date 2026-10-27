@@ -1,0 +1,418 @@
+{
+  "savedAt": "2026-10-26T10:52:52.387558+00:00",
+  "stage": "modeled",
+  "scope": "New ADC v1.1/AMeter/VMeter complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 80,
+    "modeled": 94,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "adc-v11",
+      "status": "pass",
+      "report": "docs/research/adc-v11/smoke.json",
+      "meshes": 67,
+      "triangles": 47152
+    },
+    {
+      "id": "ameter",
+      "status": "pass",
+      "report": "docs/research/ameter/smoke.json",
+      "meshes": 131,
+      "triangles": 77904
+    },
+    {
+      "id": "vmeter",
+      "status": "pass",
+      "report": "docs/research/vmeter/smoke.json",
+      "meshes": 95,
+      "triangles": 57936
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/adc-v11/reference-redraw-back.png",
+      "pixels": [
+        2400,
+        1830
+      ],
+      "sha256": "2723caa04804b95c55460329468486ffcc65e90ace14acc0007a955fd737f7ac"
+    },
+    {
+      "path": "src/units/adc-v11/reference-redraw-front.png",
+      "pixels": [
+        1125,
+        630
+      ],
+      "sha256": "dada1e5ae1ccb43881c2f5e44c8e59f535811a6cad8825f08445e99715afceaf"
+    },
+    {
+      "path": "src/units/ameter/reference-redraw-back.png",
+      "pixels": [
+        1920,
+        4080
+      ],
+      "sha256": "c439116b32463ae4ba824d378279eb3618de2b234c411989d3a2338940b4581b"
+    },
+    {
+      "path": "src/units/ameter/reference-redraw-front.png",
+      "pixels": [
+        1920,
+        3168
+      ],
+      "sha256": "40ecff6d0ac72cf1181d37684108a2a1ef12c0e18f21b8d0ba23155ab850d125"
+    },
+    {
+      "path": "src/units/vmeter/reference-redraw-back.png",
+      "pixels": [
+        2400,
+        5700
+      ],
+      "sha256": "43391ff71d8e8639676533b06cdf2af84ddbd49692b3f32f6702d00d999965cc"
+    },
+    {
+      "path": "src/units/vmeter/reference-redraw-front.png",
+      "pixels": [
+        2355,
+        4005
+      ],
+      "sha256": "725dc427bf79661c68882c191a312343dd3a9eba155e7534936795bdcdf964aa"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "adc-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ameter",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "vmeter",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "two-four-four-real-screw-heads-external-angle-and-exact-reset",
+      "supplied-terminal-plug-detach-and-reattach",
+      "fixed-meter-lights-independent-from-input-and-measurements",
+      "passive-anchors-reject-ADC-current-voltage",
+      "terminal-types-reject-Grove",
+      "artwork-toggle-preserves-configured-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, measurement, calibration, isolation, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "adc-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ameter",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "vmeter",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-four-wire-branches",
+      "two-four-four-real-screw-heads-external-angle-and-exact-reset",
+      "supplied-terminal-plug-detach-and-reattach",
+      "fixed-meter-lights-independent-from-input-and-measurements",
+      "passive-anchors-reject-ADC-current-voltage",
+      "terminal-types-reject-Grove",
+      "artwork-toggle-preserves-configured-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, measurement, calibration, isolation, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "adc-v11",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "ameter",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "vmeter",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "c129dbe0b546e38a64c43b03b56e40bbf73d1cac92a78001ec8140ba18955fec",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "59012adbf8b82be422ccda98aee4dd58c043911db2550e5968fd011f5ea4e76b",
+      "logDistributed": false
+    },
+    "livePreview": "94-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 597,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "adc-v11",
+      "record": "docs/research/adc-v11/sources.json",
+      "feedback_id": "7d083ce9fb334c50ba440a29d0591ee0",
+      "accepted": true
+    },
+    {
+      "product": "ameter",
+      "record": "docs/research/ameter/sources.json",
+      "feedback_id": "50ef770e4de548bf891c91e00ed8fe2f",
+      "accepted": true
+    },
+    {
+      "product": "vmeter",
+      "record": "docs/research/vmeter/sources.json",
+      "feedback_id": "db890e93c7aa4c54bec426740de78d1c",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "adc-v11",
+      "file": "assets/adc-v11-BJOotb66.js",
+      "sha256": "601a472d4f10bdd669eeb1f77169c27de85b2ed6532a9032bbb8ca6254978792"
+    },
+    {
+      "id": "ameter",
+      "file": "assets/ameter-DFEf2TlU.js",
+      "sha256": "147a22f28d4ab231332bf359ca6383a18a580a50abc38209c4959195464a96ad"
+    },
+    {
+      "id": "vmeter",
+      "file": "assets/vmeter-CUhpaYDw.js",
+      "sha256": "4fcc40e4c9b44def7baec237d448436b89df11151c959b012b30b40f9abd776e"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/adc-v11/TerminalPlug.js",
+      "sha256": "e16687e2344b07b7ad6aa655474db634421e4840a86d3f1b4eae9aa5d9e8a4fe"
+    },
+    {
+      "path": "src/units/adc-v11/assembly.js",
+      "sha256": "57abbb69ac1ab76fe8dc2d58014250bcea6e53f5643208bf107dfb0d6b6bd882"
+    },
+    {
+      "path": "src/units/adc-v11/cad-map.json",
+      "sha256": "d7d531eaba109bd65f7d3619af43567f2038cedbd3212454d3aa13a945313233"
+    },
+    {
+      "path": "src/units/adc-v11/dimensions.js",
+      "sha256": "a9d524f4e98e87e6db3e9edde33f1c6f05c3c7853d5c415eff9049435c2fd012"
+    },
+    {
+      "path": "src/units/adc-v11/geometry-data.js",
+      "sha256": "706bb790dd6812d692b7b2199b9713a5d5160b33bc5de32be20d350f5531d288"
+    },
+    {
+      "path": "src/units/adc-v11/index.js",
+      "sha256": "61785825ca9f28a3dea4d660de7d6b42d2ec8f79d95768753b7fbf108c53bb5b"
+    },
+    {
+      "path": "src/units/adc-v11/reference-redraw-back.png",
+      "sha256": "2723caa04804b95c55460329468486ffcc65e90ace14acc0007a955fd737f7ac"
+    },
+    {
+      "path": "src/units/adc-v11/reference-redraw-front.png",
+      "sha256": "dada1e5ae1ccb43881c2f5e44c8e59f535811a6cad8825f08445e99715afceaf"
+    },
+    {
+      "path": "src/units/adc-v11/stickers.js",
+      "sha256": "c67d49b4483f8d817586f5b151f42875b6772998d1282e947c8ce90bdbba4a9b"
+    },
+    {
+      "path": "docs/research/adc-v11/artwork.json",
+      "sha256": "1348e4f8be7ded574d73fadf79ad811b6ffd101f0db84e9ed85f41e14c67e86f"
+    },
+    {
+      "path": "docs/research/adc-v11/artwork.md",
+      "sha256": "002a3f99cef8b3e12d8c8099df9067b1fa0b0bdb32e22ad9685e65ce5044d9b7"
+    },
+    {
+      "path": "docs/research/adc-v11/modeling.md",
+      "sha256": "01e16f084b4acd1e17630f62eea14f9a138b1b562a37f592a61975cb186465d2"
+    },
+    {
+      "path": "docs/research/adc-v11/smoke.json",
+      "sha256": "69db29dcbcd074b51b779f40c2a602d8eaf3e591d572a249852c02002dda30f9"
+    },
+    {
+      "path": "docs/research/adc-v11/sources.json",
+      "sha256": "98f0c0b231418a351fb9e4f9e4e006d2e07c922fbf6feda2f0f1469a5bb1d0ce"
+    },
+    {
+      "path": "src/units/ameter/TerminalPlug.js",
+      "sha256": "a20c3c51d796f3e089e7b8ccb1d933da56f65cf4d8b75075023e4022f4f59a4d"
+    },
+    {
+      "path": "src/units/ameter/assembly.js",
+      "sha256": "1e987716f7afe1e72f035a70ac0c084a182b534ff3d19467b3bab075818c1ab4"
+    },
+    {
+      "path": "src/units/ameter/cad-map.json",
+      "sha256": "f187c49b262b0027828a6ea082121839d7b6a7297ca91fe5710bb8a83d96a483"
+    },
+    {
+      "path": "src/units/ameter/dimensions.js",
+      "sha256": "3672abb34b87e4b33c03dc1a8682e4b344bd243f4faacaa2c4bbaa21f7929ec1"
+    },
+    {
+      "path": "src/units/ameter/geometry-data.js",
+      "sha256": "c1ad71ad5f611128362f11329367f6e1c78f28edaf8ed0c6aaa97288c83e4a7c"
+    },
+    {
+      "path": "src/units/ameter/index.js",
+      "sha256": "143465330798bc528429c6548cdb02732ac88c6c5d3e342170b04c29030c4222"
+    },
+    {
+      "path": "src/units/ameter/reference-redraw-back.png",
+      "sha256": "c439116b32463ae4ba824d378279eb3618de2b234c411989d3a2338940b4581b"
+    },
+    {
+      "path": "src/units/ameter/reference-redraw-front.png",
+      "sha256": "40ecff6d0ac72cf1181d37684108a2a1ef12c0e18f21b8d0ba23155ab850d125"
+    },
+    {
+      "path": "src/units/ameter/stickers.js",
+      "sha256": "1bd2e1401c228765d0c2b731cd71b9db37a232dc05f23159b0a9300be6427151"
+    },
+    {
+      "path": "docs/research/ameter/artwork.json",
+      "sha256": "068bdbde18d1b2c1db9d69ee196855ea86c750d1fac45e50429c2586b15d7a88"
+    },
+    {
+      "path": "docs/research/ameter/artwork.md",
+      "sha256": "012fe88eef67b599b09ce90fda2c501e8082e20f7bde6733081806637632242e"
+    },
+    {
+      "path": "docs/research/ameter/modeling.md",
+      "sha256": "30e9f1e366ad0eea47f4b0a571c49df2a7102bfb7d3b98e8b19047adc7bbfe29"
+    },
+    {
+      "path": "docs/research/ameter/smoke.json",
+      "sha256": "a04ab09941c18008b4e7de3a409c036d1efb690cbdd5b1463596caca538dc8e3"
+    },
+    {
+      "path": "docs/research/ameter/sources.json",
+      "sha256": "9213de271d8e5b751afcbf9dbe4757e0cdd3803d12c47c128ff2f6155ab6b58b"
+    },
+    {
+      "path": "src/units/vmeter/TerminalPlug.js",
+      "sha256": "fd7acf2ffac4da451a6c361147046a68c05f2fd42301e9cd72a0eb359f90564f"
+    },
+    {
+      "path": "src/units/vmeter/assembly.js",
+      "sha256": "5c866a3f9c7e96ecb0e086aa12deae9cac8e0e55b662fd50ea07d4dc4dcb623f"
+    },
+    {
+      "path": "src/units/vmeter/cad-map.json",
+      "sha256": "7a259343daa52ecfd67d4565fa32aa88b0c8516e7a5a2b93aa97e39b1c31dcb0"
+    },
+    {
+      "path": "src/units/vmeter/dimensions.js",
+      "sha256": "1b17035f080c6ee5a60b5f60ff9e901da0ce2bc10e08347f9c02da20cbbbf9ae"
+    },
+    {
+      "path": "src/units/vmeter/geometry-data.js",
+      "sha256": "765efacad0c9790f5408b5dfb63f412cdfc6b81041722428ecc6fc5f88149de3"
+    },
+    {
+      "path": "src/units/vmeter/index.js",
+      "sha256": "2e2d83cc7dbce0bd60e43e36d22f9da7ca49d46f80dd40ba7f813b3e8bd6d4ac"
+    },
+    {
+      "path": "src/units/vmeter/reference-redraw-back.png",
+      "sha256": "43391ff71d8e8639676533b06cdf2af84ddbd49692b3f32f6702d00d999965cc"
+    },
+    {
+      "path": "src/units/vmeter/reference-redraw-front.png",
+      "sha256": "725dc427bf79661c68882c191a312343dd3a9eba155e7534936795bdcdf964aa"
+    },
+    {
+      "path": "src/units/vmeter/stickers.js",
+      "sha256": "eca670c70fdb6122996a06fd4093bb183153f771a1533de2d4641c7caa4b17e3"
+    },
+    {
+      "path": "docs/research/vmeter/artwork.json",
+      "sha256": "de1b1476395439370805d424b0f5c63c825651b6d35351b795d108e8658fa874"
+    },
+    {
+      "path": "docs/research/vmeter/artwork.md",
+      "sha256": "dc80d085abd74a73e036fda67aec221f6faae03e7551ebfe42899e4bb185b2a2"
+    },
+    {
+      "path": "docs/research/vmeter/modeling.md",
+      "sha256": "c50162d645e98dde98bb29638a80af2c865af71601caa5b55c069b43e395dce6"
+    },
+    {
+      "path": "docs/research/vmeter/smoke.json",
+      "sha256": "e0788c4c29df38d23e72d4d019298b8c64d70c81d17b1b9bfed4a96f613c54a3"
+    },
+    {
+      "path": "docs/research/vmeter/sources.json",
+      "sha256": "007075a088ea0b41e857746ae173df253b400b160ccb0d65be67fd2cb1c28519"
+    }
+  ],
+  "limitations": [
+    "AMeter and VMeter have evidenced single indicator apertures, but emitted color is unconfirmed; fixed warm/neutral preview color is an explicit appearance estimate with colorConfirmed:false, not a white-light specification or RGB hardware claim",
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "ADC v1.1 owns exact shell, input socket and supplied two-screw plug; no ADC sample, voltage, protocol or electrical model",
+    "AMeter owns its actual connector, supplied detachable plug and physical current-sense components; no current, fuse-state, isolation or electrical model",
+    "VMeter owns its actual connector, supplied detachable plug and physical divider/ADC assembly; no voltage, calibration, isolation or electrical model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

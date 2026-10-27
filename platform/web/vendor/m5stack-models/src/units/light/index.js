@@ -1,0 +1,21 @@
+import * as THREE from 'three';
+import {VisualJoint,materials} from '../../core/index.js';
+import {slab,mesh,disc,mark} from '../../modeling/parts.js';
+import {makeUnit} from '../shared/CADUnit.js';
+import {spec} from './dimensions.js';import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
+void 0;
+const models=makeUnit(spec,data,host=>{
+ slab(host.body,7,6,.8,.2,[0,2.5,3],materials.plastic(0x158bc0),[{w:3.2,h:3.2,r:1.6}],.02).name='Light fixed blue trimmer housing';
+ const joint=host.add(new VisualJoint({id:'trim',label:'Light threshold trimmer',position:[0,2.5,3.72],axis:[0,0,1],meta:{axisEvidence:'Official U021 10K R3 adjustable resistor and front photo of its slotted metal head',visualRangeDeg:[-135,135],ratedMechanicalRangeDeg:null,rangeEvidence:'Illustration range only; manufacturer, end stops, handedness and electrical zero are not confirmed',scope:'Externally requested visible head angle only; no resistance, threshold, comparator, ADC or sensor behavior'}}));
+ const rotor=new THREE.Group();rotor.name='Light moving slotted trimmer head';host.body.add(rotor);rotor.position.set(0,2.5,3.72);
+ const profile=new THREE.Shape();profile.absarc(0,0,1.5,0,Math.PI*2,false);
+ const slot=new THREE.Path();slot.moveTo(-1.18,-.23);slot.lineTo(1.18,-.23);slot.lineTo(1.18,.23);slot.lineTo(-1.18,.23);slot.closePath();profile.holes.push(slot);
+ mesh(rotor,new THREE.ExtrudeGeometry(profile,{depth:.32,bevelEnabled:false,curveSegments:48}),materials.metal(0xaab4b6,{roughness:.4}),[0,0,0],'Light trimmer metal rim with real tool slot');
+ mesh(rotor,new THREE.CylinderGeometry(1.5,1.5,.1,48).rotateX(Math.PI/2),materials.cavity(),[0,0,-.05],'Light trimmer recessed slot floor');
+ joint.adopt(rotor);
+ disc(host.body,2.4,[0,10.5,3.99],materials.plastic(0x9b8060)).name='Light fixed photoresistor';
+ mark(host.body,4.1,4.1,[0,10.5,4.02],(ctx,W,H,s)=>{ctx.strokeStyle='#433f3c';ctx.lineWidth=.25*s;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(.6*s,(.6+i*.6)*s);ctx.lineTo(3.5*s,(.6+i*.6)*s);ctx.stroke();}});
+ addStickers(host);
+});
+export const Model=models.Model;export const GroveModule=models.GroveModule;export default Model;

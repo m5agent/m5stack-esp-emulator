@@ -1,0 +1,427 @@
+{
+  "savedAt": "2026-10-26T11:09:27.704936+00:00",
+  "stage": "modeled",
+  "scope": "New Tube Pressure/MQ/LoRaE220-920 complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 83,
+    "modeled": 97,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "tube-pressure",
+      "status": "pass",
+      "report": "docs/research/tube-pressure/smoke.json",
+      "meshes": 64,
+      "triangles": 18018
+    },
+    {
+      "id": "mq",
+      "status": "pass",
+      "report": "docs/research/mq/smoke.json",
+      "meshes": 189,
+      "triangles": 78888
+    },
+    {
+      "id": "lora-e220-920",
+      "status": "pass",
+      "report": "docs/research/lora-e220-920/smoke.json",
+      "meshes": 107,
+      "triangles": 45236
+    }
+  ],
+  "pngCount": 8,
+  "rasters": [
+    {
+      "path": "src/units/tube-pressure/reference-redraw-back.png",
+      "pixels": [
+        2560,
+        2080
+      ],
+      "sha256": "537b3b19c8cd09bcff8878442bb62e7aca45ff84e69a37e49c5640cf94698215"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-blank.png",
+      "pixels": [
+        2080,
+        1168
+      ],
+      "sha256": "7fb64be6c55cf35ccdf6ed47e4bf97018c15f5242b79669fc9ccf180aff62fd4"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-mq5.png",
+      "pixels": [
+        832,
+        176
+      ],
+      "sha256": "0567220bcddff88a5ee06324565e1695bce07497839d55cd043cb738b44a44d3"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-title.png",
+      "pixels": [
+        2560,
+        768
+      ],
+      "sha256": "e88ec9c3aec57dda723b04ea81a6d182229d0389a64b620361de2017d77bfdab"
+    },
+    {
+      "path": "src/units/mq/source-vector-back.png",
+      "pixels": [
+        1851,
+        3000
+      ],
+      "sha256": "e966af82aa43f7e2744140803b62447c762c141a7acd299148383bb7e6540776"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-back.png",
+      "pixels": [
+        1944,
+        4368
+      ],
+      "sha256": "7846463cda47dea3da3b1b9c6a0c855f04ed30e351e1e6f69719f2c4f9383d0b"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-dip.png",
+      "pixels": [
+        624,
+        744
+      ],
+      "sha256": "ace45bf3f061d74b15133de9a93fd18688902bf346faf8d3d185f0cf0da4a341"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-front.png",
+      "pixels": [
+        1944,
+        4368
+      ],
+      "sha256": "b98beca79fa196f993e09bf37b0303529f0f5cba8db4155519ada00b4a990c66"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "tube-pressure",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mq",
+        "panels": 4,
+        "kinds": [
+          "source-vector-raster",
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "lora-e220-920",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "single-real-pressure-nozzle-and-passive-anchor",
+      "MQ5-cartridge-detach-retains-fixed-socket-and-adapter",
+      "two-real-latching-DIP-input-and-external-detents",
+      "supplied-SMA-antenna-detach-and-real-hinge",
+      "non-Grove-mating-type-rejection",
+      "configured-artwork-toggle-keeps-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, pressure, gas, heater, RF, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "tube-pressure",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mq",
+        "panels": 4,
+        "kinds": [
+          "source-vector-raster",
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "lora-e220-920",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "single-real-pressure-nozzle-and-passive-anchor",
+      "MQ5-cartridge-detach-retains-fixed-socket-and-adapter",
+      "two-real-latching-DIP-input-and-external-detents",
+      "supplied-SMA-antenna-detach-and-real-hinge",
+      "non-Grove-mating-type-rejection",
+      "configured-artwork-toggle-keeps-physical-buffers-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New Unit construction and external shape/attachment APIs only; Node canvas stub, no browser, pressure, gas, heater, RF, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "tube-pressure",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "mq",
+        "status": "frozen",
+        "checkedFiles": 16
+      },
+      {
+        "id": "lora-e220-920",
+        "status": "frozen",
+        "checkedFiles": 15
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "4237bf245fa195192c8be59cf17dbeb85c90087f7f71e08eba60e1e9aa541d3f",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "8cc6d58f08dca5e8ea4f60fe38314aa27e596a5fca0e18e529253fc2548ea9f4",
+      "logDistributed": false
+    },
+    "livePreview": "97-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 624,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "lora-e220-920",
+      "record": "docs/research/lora-e220-920/sources.json",
+      "feedback_id": "00ea6ae3dfc5419192d9e28306a0bdbe",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "tube-pressure",
+      "file": "assets/tube-pressure-D4qeq6nB.js",
+      "sha256": "6702ca7b823db6338432b01fc36072133c8a99ca0c5388636d1b35bbcecf727a"
+    },
+    {
+      "id": "mq",
+      "file": "assets/mq-Dt6EOK3_.js",
+      "sha256": "585d3092ee3cfaedbd407eb909a559b78b5f7628c363e1492eb3672076fbdbb0"
+    },
+    {
+      "id": "lora-e220-920",
+      "file": "assets/lora-e220-920-C_A6qPlc.js",
+      "sha256": "6b4754c56bba2a2ac117f198045a4d929d442286827bac161901b293d62cb535"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/tube-pressure/assembly.js",
+      "sha256": "3bda230442154febbfd874a48b5950bef6fe3e2f249ec8bdbd463e2e28263098"
+    },
+    {
+      "path": "src/units/tube-pressure/cad-map.json",
+      "sha256": "a7ef25a5c42f86372116d9bf313d901c50536ba3c4395a24c527dbace86e4f9e"
+    },
+    {
+      "path": "src/units/tube-pressure/dimensions.js",
+      "sha256": "8886ca347b84ea97d784622ce2cb07e3578fee562fa86262869d640789107603"
+    },
+    {
+      "path": "src/units/tube-pressure/geometry-data.js",
+      "sha256": "88d3f44f6d92ded6d366dea11f15aba97d20995955c1cc8e77bd7f3a3c0021bf"
+    },
+    {
+      "path": "src/units/tube-pressure/index.js",
+      "sha256": "7d0d4434d767ad555922f345bece59d99d450dfefeff3c09877846776b1f9ff3"
+    },
+    {
+      "path": "src/units/tube-pressure/reference-redraw-back.png",
+      "sha256": "537b3b19c8cd09bcff8878442bb62e7aca45ff84e69a37e49c5640cf94698215"
+    },
+    {
+      "path": "src/units/tube-pressure/stickers.js",
+      "sha256": "d63b18394f79ffd3c8feb5d13fe978d4ede19766f97646aba08e5274f605e851"
+    },
+    {
+      "path": "docs/research/tube-pressure/artwork.json",
+      "sha256": "b35bf3d7fed6fbe798f3b271658eaee1898c824627e6071968554ea7add3c3ac"
+    },
+    {
+      "path": "docs/research/tube-pressure/artwork.md",
+      "sha256": "c3d68bc16b780d9312a8c5ff941d9c2f1166f1d07454fd66763ac05078035a52"
+    },
+    {
+      "path": "docs/research/tube-pressure/modeling.md",
+      "sha256": "66ef76bb81f418d602509db9cdbc2f5fd360a21bc598a4fe6455e2b3f974e246"
+    },
+    {
+      "path": "docs/research/tube-pressure/smoke.json",
+      "sha256": "570ec9277dea365eceaa1e945968e1869512104526b15b2a2ef284af8907b31f"
+    },
+    {
+      "path": "docs/research/tube-pressure/sources.json",
+      "sha256": "72862f5330635edb405d23eb345f0086b3baf7a03c87c26c22b8a1dc17fad73c"
+    },
+    {
+      "path": "src/units/mq/MQ5Cartridge.js",
+      "sha256": "566ddd3ba08f327592a721293e9157720d0d23029e4b3719f4bea0113254b17d"
+    },
+    {
+      "path": "src/units/mq/assembly.js",
+      "sha256": "6fa6c273d5933ea05c261815c79ec31795c6a8604820a057b8ef6289e1d9ce92"
+    },
+    {
+      "path": "src/units/mq/cad-map.json",
+      "sha256": "91d6546e087b813de57f69bb95735c4fe48fa9c2fed8f17ef67860392c7afeef"
+    },
+    {
+      "path": "src/units/mq/dimensions.js",
+      "sha256": "31d106163e4033c76c0bc205a6e3d4089b6171ea6cb3d1de100226f0bd9ccf62"
+    },
+    {
+      "path": "src/units/mq/geometry-data.js",
+      "sha256": "bc39ffecbe1b91eff7f95e93bda87b857da215ea40bb5398b91bc13ac4784c9d"
+    },
+    {
+      "path": "src/units/mq/index.js",
+      "sha256": "582dff2d7a66972bd72f97dc2319030c4c43c271571c0fef8203307316f45085"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-blank.png",
+      "sha256": "7fb64be6c55cf35ccdf6ed47e4bf97018c15f5242b79669fc9ccf180aff62fd4"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-mq5.png",
+      "sha256": "0567220bcddff88a5ee06324565e1695bce07497839d55cd043cb738b44a44d3"
+    },
+    {
+      "path": "src/units/mq/reference-redraw-title.png",
+      "sha256": "e88ec9c3aec57dda723b04ea81a6d182229d0389a64b620361de2017d77bfdab"
+    },
+    {
+      "path": "src/units/mq/source-vector-back.png",
+      "sha256": "e966af82aa43f7e2744140803b62447c762c141a7acd299148383bb7e6540776"
+    },
+    {
+      "path": "src/units/mq/stickers.js",
+      "sha256": "1c4a366b95c06dd1541c0bd7d0a332713c0bc8c588aa3d2a5633fe19479cbe0c"
+    },
+    {
+      "path": "docs/research/mq/artwork.json",
+      "sha256": "8ca8204c133cc3c9277747f4e63c697db03f64c2386d24bfe6a6e6322f71aa95"
+    },
+    {
+      "path": "docs/research/mq/artwork.md",
+      "sha256": "be4ebcd06d2c4caf93f848f9691266ecbe0288ea0b13e783386a549d54dbe797"
+    },
+    {
+      "path": "docs/research/mq/modeling.md",
+      "sha256": "c1c3e8b4fb8251417027f9addc3f5527a5b399f3b534ce6d7c40ead2ac2260a0"
+    },
+    {
+      "path": "docs/research/mq/smoke.json",
+      "sha256": "041445efcb900bcd7ae5db9b800469b0bee57724c1d3d8795d775dd051aa618f"
+    },
+    {
+      "path": "docs/research/mq/sources.json",
+      "sha256": "a3005c143936b4a90c588c0a3368e13047f8ad538748161f01716d41b50988ba"
+    },
+    {
+      "path": "src/units/lora-e220-920/Antenna.js",
+      "sha256": "10b30236675acc76d4d5cad5f2f5030fd14fb7bc63d1390b99f1a0940b61e8d4"
+    },
+    {
+      "path": "src/units/lora-e220-920/assembly.js",
+      "sha256": "a478b3ad2f2bed7718738d6912bf45616cafa395820d350bfb05519e61baa932"
+    },
+    {
+      "path": "src/units/lora-e220-920/cad-map.json",
+      "sha256": "6f4e9ca47def46e5754524f7871af0b40c6f581bba33c5bdbc1ecf9f6cd2ef61"
+    },
+    {
+      "path": "src/units/lora-e220-920/dimensions.js",
+      "sha256": "b5f23d5c4ec1907ab9654b274c7591ee8863ad8e9abbb541fe3b759fb29cb4ed"
+    },
+    {
+      "path": "src/units/lora-e220-920/geometry-data.js",
+      "sha256": "59b48ab33daef652cb119d989c8a5f587ef2e5e71c413130c658f58b751308f7"
+    },
+    {
+      "path": "src/units/lora-e220-920/index.js",
+      "sha256": "ac5cb6d329da63968c774cfc3e9203713331ae83d264e9f22efa5d54bb117885"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-back.png",
+      "sha256": "7846463cda47dea3da3b1b9c6a0c855f04ed30e351e1e6f69719f2c4f9383d0b"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-dip.png",
+      "sha256": "ace45bf3f061d74b15133de9a93fd18688902bf346faf8d3d185f0cf0da4a341"
+    },
+    {
+      "path": "src/units/lora-e220-920/reference-redraw-front.png",
+      "sha256": "b98beca79fa196f993e09bf37b0303529f0f5cba8db4155519ada00b4a990c66"
+    },
+    {
+      "path": "src/units/lora-e220-920/stickers.js",
+      "sha256": "ce8d5bdacdc621d6a7781425f69f8bec1633d999ffeba8543c8a7eac4dc4ba40"
+    },
+    {
+      "path": "docs/research/lora-e220-920/artwork.json",
+      "sha256": "bdca1e52746cbe6f3024f41ec30e4dafeb4b4d95824cd516075d3822a4d7abbf"
+    },
+    {
+      "path": "docs/research/lora-e220-920/artwork.md",
+      "sha256": "6be066fa1a092f64ff92824530a9c7956e3d71dd7d81b90ac2f9178e45bb40db"
+    },
+    {
+      "path": "docs/research/lora-e220-920/modeling.md",
+      "sha256": "63a51af5a7119a68e21640f7067982545cf49205ebd3bc07725f03c2b58bd16b"
+    },
+    {
+      "path": "docs/research/lora-e220-920/smoke.json",
+      "sha256": "280c6d237cab23f15949a78dcb1e1b7f9f64744c221a6d58bdf36fe865632fa3"
+    },
+    {
+      "path": "docs/research/lora-e220-920/sources.json",
+      "sha256": "b957a3350589d65aefc24118a11dfdd3f819d418a05521fcc15aacada1fa1c9b"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Tube Pressure owns its gas nozzle, sensing package and real PCB; no pressure, voltage, gas flow or fluid simulation",
+    "MQ owns its actual MQ5 mesh package, socket/adapter and evidenced indicator; no gas, heater, ADC, thermal or alarm model",
+    "LoRaE220-920 owns its actual SMA, supplied antenna and two physical mode actuators; no RF, UART, register, communication or electrical model",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

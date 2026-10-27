@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href;
+/** Own U094 readable marks redrawn to final ordinary PNGs;no photo pixels. */
+export function addStickers(host){const a=host.rs485ISOAssembly;return[...(printedArtwork(host,{target:a.labelFront,url:front,size:[15.8,26.7],position:[0,2.3,3.8],depth:.16,artworkKind:'reference-redraw',name:'RS485-ISO front485 bus isolation label reference redraw'})??[]),...(printedArtwork(host,{target:a.labelBack,url:back,size:[16,36],position:[0,7,-3.9],face:'back',depth:.16,artworkKind:'reference-redraw',name:'RS485-ISO rear isolation diagram reference redraw'})??[])];}

@@ -1,0 +1,182 @@
+{
+  "id": "step16",
+  "sku": "U198",
+  "officialDocs": "https://docs.m5stack.com/en/unit/Unit_Step16",
+  "retrievedAt": "2026-10-26",
+  "officialMCP": {
+    "query": "Unit Step16 U198 \u4ea7\u54c1\u5c3a\u5bf8 \u63a5\u53e3 \u5b9e\u4f53 \u6309\u952e \u65cb\u94ae LED \u663e\u793a\u5c4f \u5305\u88c5\u7535\u673a",
+    "result": "Confirms 32 \u00d7 24 \u00d7 16.9 mm, GSMR-16 16-position rotary, STM32G031G8U6, FPC1 seven-segment A-G/DP, independent WS2812C-2020 RGB, Grove I2C and internal SWD; no press or motor.",
+    "rawResponseDistributed": false
+  },
+  "reference": {
+    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_01.webp",
+    "sha256": "a00535a6e624227ba1ed98e38668a8b5da068e6aa3115e9d59acf467c3bca532"
+  },
+  "structures": [
+    {
+      "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "gitBlob": "93269e6139be39823bafb4c4098d6c030bdba299",
+      "sha256": "12003d0b0e6270a5b6efadc314caae921e53f4676ed7eea241e8a7b9dcbe5b3c",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/m5stack/M5_Hardware/blob/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/LICENSE",
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U198_Unit_Step16/Structures/Unit_Step16.stl"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_01.webp",
+      "sha256": "a00535a6e624227ba1ed98e38668a8b5da068e6aa3115e9d59acf467c3bca532"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_02.webp",
+      "sha256": "ad4beab0c7b6a121a806e63d9a2dc6bd0029f61d104897be1d552d07881752b8"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_03.webp",
+      "sha256": "c31b727c9a7bc41ed4c8068dd423bd7fc497d058208ca6ca8c0feb6bc3bdf3e4"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_04.webp",
+      "sha256": "1e0bc1f8238d2e6c3a34585c3ec498478fd27b321be7b0144eef0eee94f459c0"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_05.webp",
+      "sha256": "f28ef3dcf145d16ffaa08e1165767a8e28b7189ec01c2ca5ff75b098d85dc376"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_06.webp",
+      "sha256": "fbd9a49bd7d3d5f1fe5e47b00e0f6de0ae891e25b529103bf74b76fe3a7db822"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_07.webp",
+      "sha256": "bdc0779e3e0a0cce374459ad9a270fc93e55f8cc863eaa35c1a28b2ff879bd46"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_08.webp",
+      "sha256": "c4649b1415a6a8abb0aa959d57536b64d90aeb4d28dc9b05fddff91570ba29d4"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_09.webp",
+      "sha256": "55096951085f4fb31dad34d69880085ab29e5eb97bdee53dc04db3675497b85c"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_10.webp",
+      "sha256": "1ebde1db672d2377973e200d092cf64a3dc1034292bcf4840e5245e9e85c9d74"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_11.webp",
+      "sha256": "86549bff00d2a9fe06aa7a8d4576a858726875e75d62d03ca89bdfcfa12ebb26"
+    }
+  ],
+  "selectedAssembly": {
+    "components": [
+      1,
+      2,
+      4,
+      6
+    ],
+    "excludedComponents": [
+      0,
+      3,
+      5,
+      7
+    ],
+    "origin": [
+      11.013000875711441,
+      14.01300024986267,
+      -2.799999952316284
+    ],
+    "axes": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "method": "One common rigid translation, scale 1; all native triangles preserved, no shell cuts/fills or per-part assembly registration. Cap rotates externally; RGB guide has a compensated local frame shift retaining exact assembled world pose."
+  },
+  "dimensions": {
+    "nominalMm": [
+      24,
+      32,
+      16.9
+    ],
+    "vendorDimensionOrderMm": [
+      32,
+      24,
+      16.9
+    ],
+    "cadEnvelopeMm": [
+      24,
+      32,
+      16.899999618530273
+    ],
+    "visualEnvelopeMm": [
+      24,
+      32,
+      16.907999515533447
+    ],
+    "mountingHolesMm": [
+      [
+        -8,
+        -4
+      ],
+      [
+        8,
+        -4
+      ]
+    ],
+    "nativeBoreNote": "Source rear straight bore X span 4.85 mm; front X span 4.8 mm. Original source facets preserved; no manufacturing drill specification."
+  },
+  "artwork": {
+    "kind": "reference-redraw",
+    "originalsDistributed": false,
+    "source": {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1160/Unit_Step16_05.webp",
+      "sha256": "f28ef3dcf145d16ffaa08e1165767a8e28b7189ec01c2ca5ff75b098d85dc376"
+    },
+    "purpose": "Complete rear circuit-diagram label, independently redrawn from same-model official photo, without photographic crop. Typography/color/layout reconstructed. Source table, mappings, vector/generator/intermediates remain private.",
+    "files": [
+      {
+        "path": "src/units/step16/reference-redraw-back.png",
+        "sha256": "da553d39593acfff18d14b1b785503e8705d0043df1687c0a48e4031865a126b",
+        "pixels": [
+          2292,
+          1704
+        ],
+        "sizeMm": [
+          19.1,
+          14.2
+        ],
+        "positionMm": [
+          0,
+          7.1,
+          -3.97
+        ],
+        "face": "back",
+        "method": "printedArtwork",
+        "target": "Step16 complete native rear shell"
+      }
+    ],
+    "unprintedSurfaces": [
+      "plain white front",
+      "native white rotary cap"
+    ]
+  },
+  "inferences": [
+    "PCB outline and installed depth, concealed package sizes/placement, switch fixed seat/shaft depth, seven-segment package/segment spacing, front-membrane light spread, Grove internals and screw shank are appearance reconstructions.",
+    "Warm yellow/amber display appearance follows same-model lit official photo; no measured spectrum or confirmed display part number.",
+    "Native CAD cap rest is visual rest; no firmware mechanical-zero, BCD code order, direction mapping or switch press is inferred."
+  ],
+  "scope": "Visual appearance and external joint/LED/cable commands only; no firmware, BCD sensor values, glyph mapping, I2C, electrical supply or stepper/motor behavior."
+}

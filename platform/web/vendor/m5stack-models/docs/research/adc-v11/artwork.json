@@ -1,0 +1,82 @@
+{
+  "id": "adc-v11",
+  "sku": "U013-V11",
+  "kind": "reference-redraw",
+  "status": "reference-redraw",
+  "originalsDistributed": false,
+  "privateSourcesDistributed": false,
+  "pngCount": 2,
+  "defaultPanels": 2,
+  "method": "Code-drawn high-resolution RGBA text and color blocks at150px/mm from exact U013-V11 official product photographs. No photograph crops, pixel sampling or preview upscaling.",
+  "sources": [
+    {
+      "kind": "official-own-product-photograph",
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-ADC_V1.1/img-53c84a8a-00c3-4cbe-8a48-3e52c9db6ae6.webp",
+      "sha256": "9c26de4f527363d7b02d1b4774c25ea2d1f35780976e430394823d20e8046250"
+    },
+    {
+      "kind": "official-own-product-photograph",
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-ADC_V1.1/img-fcea998d-6c16-483f-8b34-6eeb32a7e34a.webp",
+      "sha256": "caf693cc6679479acfe3f9296072500e0da49552a32fa3fba4aff365f4c13c68"
+    },
+    {
+      "kind": "official-own-product-photograph",
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit-ADC_V1.1/img-61ce5d9c-1c35-4091-ada6-0f652d69779a.webp",
+      "sha256": "b1c5d9204a50abcc189a0aa55f9ef60cdf344a130298003e8f5de7f335d5950e"
+    }
+  ],
+  "assets": [
+    {
+      "path": "src/units/adc-v11/reference-redraw-front.png",
+      "sha256": "dada1e5ae1ccb43881c2f5e44c8e59f535811a6cad8825f08445e99715afceaf",
+      "pixels": [
+        1125,
+        630
+      ],
+      "sizeMm": [
+        7.5,
+        4.2
+      ],
+      "positionMm": [
+        0,
+        8.8,
+        6.2
+      ],
+      "face": "front",
+      "kind": "reference-redraw",
+      "method": "printedArtwork",
+      "target": "ADC v1.1 fixed terminal roof with physical positive/negative print support"
+    },
+    {
+      "path": "src/units/adc-v11/reference-redraw-back.png",
+      "sha256": "2723caa04804b95c55460329468486ffcc65e90ace14acc0007a955fd737f7ac",
+      "pixels": [
+        2400,
+        1830
+      ],
+      "sizeMm": [
+        16,
+        12.2
+      ],
+      "positionMm": [
+        0,
+        7.6,
+        -3.8
+      ],
+      "face": "back",
+      "kind": "reference-redraw",
+      "method": "printedArtwork",
+      "target": "ADC v1.1 complete native assembled shell"
+    }
+  ],
+  "content": {
+    "front": "White + on red / white minus on black, mounted on the physical orange fixed connector roof.",
+    "back": "ADC V1.1; 0-12V; PORT. A. I2C; ADS1110; SCL / SDA / 5V / GND"
+  },
+  "limitations": [
+    "Reference redraw; fonts, colorimetry and registration are photo estimates, not supplied production artwork.",
+    "The ADC and M5 shell marks are retained native embossed geometry; no print is used to hide missing physical assembly.",
+    "PNG decoding and local physical-registration checks passed; browser and exhaustive visual acceptance deferred."
+  ],
+  "rights": "Printed designs, product names and trademarks retain their respective rights."
+}

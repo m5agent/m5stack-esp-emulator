@@ -1,12 +1,18 @@
 # 代码与验证入口地图
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
 [项目当前状态](project-status.md)，未完成事项只看
 [项目 Backlog](project-backlog.md)。完整文档分类和新鲜度规则见
 [文档导航](README.md)。
+
+二进制checkpoint与普通/托管旧程序保护入口为
+[`run_binary_checkpoint_admission.py`](../tests/units/run_binary_checkpoint_admission.py)，
+范围与兼容固件构建分层见[证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-binary-checkpoint-admission/README.md)。
+
+FlashLight的EN边沿/虚拟定时器在`0045-unit-flashlight-aw3641.patch`；`0046-unit-flashlight-route-lifecycle.patch`从真实GPIO OUT_SEL提交撤销旧资格/计时来源，0046历史MMIO→内部状态正负回归在`platform/tests/test_unit_flashlight_route_patch.py`，创建期fixture门禁在`unit_runtime.input_values`、实际白灯反馈在`unit-visual-mappings.js`。严格base/CAS门禁在`FirmwareStore._explicit_uiflow_base/create`；包容量在`ProgramPackageStore`及`serve.py --max-program-packages`。对应[分层证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md)包含固件loader诊断、失败attempt、八会话、默认mounted Web与独立完整矩阵。 0047在GPIO控制器/RTC aux建立pad commit观察，AW消费连续可信低；完整当前栈的纯C重放在`test_unit_flashlight_cold_pad_patch.py`与fixture，soft-I2C owned弱上拉修复及首候选失败见[收尾记录](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。
 
 ## 单一事实源
 
@@ -18,6 +24,7 @@
 | 现在到底支持什么 | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、最新测试与 [项目当前状态](project-status.md) |
 | 还有什么没做 | [项目 Backlog](project-backlog.md) |
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
+| 外部 Agent 如何提交 Python、配置 Unit 和取证 | [UIFlow 源码到 Unit 会话](unit-agent-api.md) |
 | 单 lease 设备验收标准 | [统一设备运行时契约](unified-device-runtime.md) |
 | 固件如何规范化和拒绝 | [固件清单与 WebBurner 导入](firmware-manifest.md) |
 | 已知模拟器运行时缺口和关闭条件 | [运行时模型缺口登记](runtime-model-gap-register.md) |
@@ -34,6 +41,7 @@
 | `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
 | `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_*_contract.py` 分域防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
+| `platform/units/` | 外接 Unit 官方芯片/协议、主机物理口接线和独立 runtime 状态 | 是 |
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
 | `patches/` | 可重放的 QEMU/板级补丁源；总索引见 `patches/README.md`，精确顺序见各子目录 | 是 |
 | `tests/` | 测试分层、evidence 命名和 Agent 功能测试路由；入口见 `tests/README.md` | 是 |
@@ -75,7 +83,22 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 路径 | 职责 | 主要调用方 |
 | --- | --- | --- |
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
+| `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
+| `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
+| `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
+| `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files`/`revision_id` program请求、公共checkpoint、包证据 |
+| `platform/tools/preview_service.py` | 稳定Preview/同guest Run协调、串行UART、latest-wins、实际prompt取消与输入/帧身份门禁 | authenticated Preview HTTP、宿主并发负控 |
+| `platform/tools/preview_store.py` | SQLite WAL/FULL短事务ledger、幂等原收据、generation和不可复活状态转换、revision pins | Preview协调器、retention |
+| `platform/tools/preview_retention.py` | ledger/managed磁盘历史/运行中引用扫描与删除代际门禁；未知分配及损坏元数据fail closed | Device Service cache/history/manual/bulk清理 |
+| `platform/tools/micropython_repl.py` | 单 owner 的有限 raw REPL RPC、raw-paste credit、双 EOF 与错误恢复门禁；不 soft reset | guest 文件传输与读回 |
+| `platform/tools/uiflow_package_runtime.py` | guest 文件暂存、逐文件 SHA/size 读回、发布与工作目录/托管模块切换 | 同 guest 文件包部署 |
+| `platform/tools/mpy_bytecode.py` | 固定官方 v6 容器与指令边界的有界静态检查，递归拒绝 native；非 VM 类型验证或沙箱 | `.mpy` 依赖准入、负控测试 |
+| `platform/tools/frame_cache.py` | QEMU预览显式按需single-flight/TTL样本、采集身份和失效门禁；默认fresh取证不进入缓存 | `preview_frame`、条件GET与Live sessions |
+| `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
+| `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |
+| `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单 | 外壳更新、来源复核 |
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |
@@ -114,6 +137,88 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence、Backlog、文档新鲜度表和全量 Markdown 清单生成并校验项目快照；分别标记权威页与委派文档的旧复核日期 | CI、交接、文档维护 |
 | `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
+
+Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
+`unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、
+`run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
+Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连续程序，
+`run_frame_preview.py` 与 `platform/tests/test_frame_preview.mjs` 分别验证实际预览和浏览器异步隔离。
+`preview-client.js`由SessionVisual、ProgramPanel与UnitPanel共享，用权威Preview/Run查询、generation/epoch及冻结context协调输入、完整包编辑、续租/取消/关闭和Run帧；`test_preview_client.mjs`与面板fixture属于宿主/浏览器证据，实际链路由显式opt-in的`test_live_preview_service_browser.mjs`另验。
+`DeviceService.create/get_program_revision`提供完整package公共保存/查询；`DeviceSession.run_program`按引用读取且不重建revision。`test_program_revision_api.py`区分宿主HTTP/准入与guest部署，`run_live_package.py --revision-references`以8787实际会话验证原文件包路径；新接口不等于Preview/Run协调器。`serial_read`按offset seek读取有界窗口，任意byte切片的UTF-8 replace解码边界保持。
+`test_model_shell.mjs`及`model_shell_probe_helpers.mjs`以有界context/PNG decode核固定vendor、全部printed-artwork种类和公开LED/joint输出；默认配置、census、明确变体和真实guest证据分别标记，不从新增视觉壳子继承Unit协议准入。
+`arrayLedFeedback`在默认无binding时只映射全N灯同色，非对称/不可用状态撤回旧颜色并标unknown；`test_uniform_unit_led_feedback.mjs`核真实mounted材质与销毁/失败fixture，`test_live_uniform_led_service_browser.mjs`经可见session核原I2C/RMT驱动、同VM四阶段与默认网页反馈。`device_service._public_device`的`program_features`显式发布入口/字节码/namespace/清理边界；[固定源码与真实guest研究](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)不等于二进制入口已实现。
+`scroll_protocol_probe.py`/`run_live_scroll.py`经同guest原ScrollUnit与raw I2C验证Scroll限定协议；`test_live_scroll_service_browser.mjs`验证真实Web按键、RGB灯与屏幕，`test_scroll_visual_mapping.mjs`另做无guest的可信pointer/零回声/销毁fixture。`0043-unit-scroll-controller.patch`为独立部分C模型；RGB队列、回绕、bootloader/持久化与机械角度不能继承PASS。证据见[Scroll](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-scroll-controller/README.md)。
+`0044-unit-2relay-gpio.patch`在独立冷构建中添加U131双GPIO pad观察与下拉，两个通道各自计数且只读；`relay2_preview_probe.py`和`test_live_relay2_preview_service_browser.mjs`核官方驱动原字节、同VM七Run、主机输入/两灯、帧和历史清理。`preview_controls_probe.py`和`test_live_preview_controls_service_browser.mjs`核HUB控制组的托管Web输入、全灯同色、包保留编辑和取消恢复；二者默认离线，显式execute才调用8787。证据和失败层级见[本块索引](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)。
+`ModelDeviceShell.installAssemblyCamera/fitAssembly`只包装该实例公开fit/resize与render(dt)，按主机/Unit/线缆world bounds构图；`test_model_camera_fit.mjs`保留旧窄屏与长RAF阻塞负控、四断点、用户视角与无回声回归，不修改共享vendor。
+`scripts/bootstrap-unit-runtime.py` 和
+`patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
+`platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，以及历史证据索引结构；
+`tests/units/verify_historical_runtime_evidence.py` 显式取得完整旧归档后，
+通过 `_unit_host_control_evidence.py` 核对控制类/Web证据契约：原始
+准备字段、精确附件接线、同guest数据面、直接PID、原生帧和实际停止历史。
+`_unit_host_sensor_evidence.py` 独立核对 sensor/Web 契约：原初始化负控、两组
+实际逐字段 POST 后的新鲜串口、adapter/完整 VFS、冻结源与 exact Git baseline
+重建、三路非原子帧和停止历史；人工可读性另绑原始 review。
+旧主机探针的双观察者契约仍单独保留，功能通过与显示可读性分开记录。
+AtomS3R/StickS3/StopWatch 的五款控制类入口是
+`tests/units/prepare_host_controls.py`、`run_host_control_cases.py` 与
+`host_controls_probe/`：前者按实际参考分区离线打包，后者默认离线核对当前
+依赖/工具链和准备产物，只有显式 `--execute` 才经 Device Service 与真实 Web
+运行原控制类断言。命令见 `tests/units/README.md`；
+`test_host_control_preparation.py` 保护来源漂移与执行前拒绝边界。
+六类 I2C sensor 对应 `prepare_host_sensors.py`、`run_host_sensor_cases.py` 与
+`host_sensors_probe/`；`test_host_sensor_preparation.py` 与
+`test_host_sensor_execution.py` 保护离线准备、准入、来源和实际输入窗口。
+十二款 IO 对应 `prepare_host_io.py`、`run_host_io_cases.py` 与
+`host_io_probe/`；准备采用实际 reference VFS 和原 IO 驱动/流程，执行默认
+离线预检，只在显式执行时经真实 Web/Device Service 运行原断言。Python 3.12
+ABI、精确来源冻结、ADC blocker、默认 IR/Buzzer 与显式 custom 边界及 root
+独占 API 规则见 [Unit 测试入口说明](../tests/units/README.md)。Thermal 仍走
+独立 sensor 路径；`test_host_io_preparation.py`、`test_host_io_execution.py`
+保护准备/执行门禁，不把离线结果升级为功能 PASS。
+`tests/units/test_sensor_evidence.py` 校验传感器证据故障边界。脚本或构建成功
+不等于完整 Unit 功能 PASS；结果链接到项目状态和验证台账。
+
+`tests/units/run_web_cases.py` 通过可选 `web_ui_bridge.py` 和
+`platform/tests/unit_web_bridge.mjs` 将同一批 guest probe 的正向输入交给真实
+产品控件，并保存实际 HTTP、DOM、模型与 PID/binary 证据；负向 API 路径单列。
+`tests/units/check_batch_evidence.py` 使用显式选择清单核对全部 Unit 的
+controller、live browser 和 bridge contract 三层，逐项校验 ZIP 与原工件
+hash，区分直接 PID 与间接 generation、原驱动与 custom guest，不自动挑选
+最新的成功尝试。`test_batch_evidence.py` 覆盖错配、缺件和输入覆盖拒绝。
+
+`tests/units/run_web_recovery.py` 与
+`platform/tests/test_live_unit_recovery.mjs` 在一个可见 Button 会话中对实际
+产品页面延迟模型加载并丢弃一次松开请求，核对画面保留、实际控制器状态、
+guest GPIO 串口、自动松开补偿及正常手势无额外 POST。测试只改变网络交付时序，
+不替换 guest 或输入/读回数据；结果需要独立 evidence，不继承批次功能结论。
+`platform/tests/test_frontend_recovery.mjs` 在 CI 中检查异步 owner、异常清理与
+松开补偿的确定性故障边界；内存 API/DOM fixture 不作为实际会话证据。
+
+`platform/web/unit-annotations.js` 在交互画布外显示静态 Unit 的实时读数，
+以实际 sensor anchor 与同号标签关联。数值需同时满足冻结 session 定义、
+live 响应、guest-QOM 单元来源、running/available 和字段范围；不从 pending
+输入或目录默认值补数值。`test_unit_annotation_contract.mjs` 在 CI 中验证来源、
+方向、范围及可选读数异常不影响输入确认。`tests/units/run_annotation_cases.py`
+和 `platform/tests/unit_annotation_bridge.mjs` 复用原 service/sensor/io guest，
+仅 `--execute` 才创建可见会话，核对实际 HTTP/控制器/DOM、停止前 ZIP 和终态
+清值；默认 preflight 不创建会话。几何部件绑定覆盖与读数展示是独立层级。
+`tests/units/annotation_contract.py` 约束十二款 rail 的阶段、单位、原 guest
+读数、严格输入 POST 与新鲜度；Light 首次 false 的无操作必须有真实先前 GET。
+Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配位于
+`patches/uiflow2-unit-buzzer/`，默认原驱动与补丁结果分开记录。
+
+`tests/units/prepare_host_sensors.py`、`run_host_sensor_cases.py` 和
+`host_sensors_probe/` 是三主机六传感器的准备/执行边界。完整 VFS、原驱动、
+初始化/负控/采样链和实际配置逐项绑定；未准入组合在任何 API 前拒绝，
+离线产物不扩展运行时或硬件结论。
+
+`platform/web/unit-assembly-layout.js` 只为已检查的 CoreS3 单层紧凑 HUB 装配
+提供外观布局，使用公开 unitFrame/cable API、真实尺寸与端口坐标；不改总线、
+输入或厂商模型几何。adapter 对可选布局失败隔离，范围外保持原 pose。
+所有新浏览器/执行冻结清单纳入该依赖，历史源冻结保持原样。
+`unit_web_bridge.mjs` 的长卡片取图使用有界 CDP document clip，避免元素截图
+二次滚动造成 sticky 导航遮挡；真实标题命中、完整 PNG 与旧实现负控分别核对。
 
 ## 测试入口归属
 
@@ -215,6 +320,7 @@ HTTP / browser
 | --- | --- |
 | `platform/tools/serve.py` | HTTP 服务、静态页面和 `/api/v1` 路由入口 |
 | `platform/tools/device_service.py` | lease、artifact/firmware 存储、可恢复 chunk upload、会话生命周期、QEMU/esp-emu 编排、证据包 |
+| `platform/tools/uiflow_source.py` | 将获准 UIFlow2 reference 的真实 LittleFS VFS 叠加 caller Python，重新挂载核对持久字节、保留原文件并记录源码/镜像/工具链 provenance；不在宿主执行 guest 代码 |
 | `platform/tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、租约和 drain 状态机 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久注册表、identity/generation 校验、stale/drain/stop 和有界结果索引 |
 | `platform/tools/worker_queue.py` | 持久任务、幂等提交、能力匹配、worker lease、超时重试和 terminal result |
@@ -447,3 +553,15 @@ evidence stream 仍开放；这些场景不能从 trusted-host PASS 继承。
   专题说明还是历史证据。
 - 被推翻的当前结论：在所有当前入口删除旧陈述，在历史页保留原日期并写明
   取代关系；不要只在新页面加一句更正而留下互相矛盾的主入口。
+
+
+公共二进制入口由 `platform/tools/uiflow_main_loader.py` 以真实UART纯字节码
+canary取得会话能力，`platform/tools/uiflow_runtime.py`区分import派发与应用body，
+`platform/tools/uiflow_package_runtime.py`保留真实文件发布与依赖切换；
+`platform/web/uiflow-main-loader.js`在托管Web消费者核验同一proof和会话身份。
+`tests/units/run_main_mpy_runtime.py`通过8787验证stock/兼容固件与Web handoff，
+实施范围和门禁见[公共main.mpy计划](plans/2026-10-27-public-main-mpy-runtime.md)。
+
+历史工具来源的离线digest索引在`platform/tests/fixtures/historical_tool_provenance.json`；
+`tests/units/verify_historical_tool_provenance.py`对独立历史Git检出执行逐blob校验，
+普通docs CI不下载旧source或运行时附件，详见[保留规则](evidence-retention.md)。

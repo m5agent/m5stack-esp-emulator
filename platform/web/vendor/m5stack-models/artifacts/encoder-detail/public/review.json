@@ -1,0 +1,1391 @@
+{
+  "checkedAt": "2026-10-25T23:20:48.200872+00:00",
+  "status": "pass-with-recorded-limits",
+  "goalStatus": "active",
+  "scope": "Encoder U135 native-solid rotary/push assembly, original solid white-shell diffuse lower light, product-local open-top Grove and Port attach-callback reentrancy reliability.",
+  "sourceCommit": "3aaeb1b076092994e77d6df0500e8e027019d3be",
+  "basePublicCommit": "14c4006bda4db89d895ccbfcb66f489432ab3198",
+  "readmeSha256": "0181dbdf5569446662e3b2cb17fbb304c88f6ddc1864f3023e6baed5f73a8dea",
+  "sourceHashes": {
+    "catalog/products.json": "bd56dfd86e34461b8b1ba8e9172ee33e3ef3d61f79849456392d5ea197135389",
+    "demo/dynamics.js": "b330fff877189c4faef9605a19a3860470c76ad86e200b37a102752db6d39f43",
+    "demo/framebuffers.js": "676e2079a6e7c9fd47a33a1447681b63ce3ce1a907394062d12f0e7ac1c6c349",
+    "demo/index.html": "64609124d4571e28a71244a0ca52708c21a8c1e53ed0681f0412b63e5ae336f8",
+    "demo/main.js": "5944d3b12ef01ca144dee27c5f338a4a112d01ab216392c7851a481084a5c415",
+    "demo/style.css": "fd4b9a97a2f36a59833dcb36cda44cebbd3f3cacb00e8cc38d489b57e689da0b",
+    "docs/AGENT-INTEGRATION.md": "2aac24a516f1f3f7cec558fafad2f87f93040339fd3c461c57fd8c4c978f4ca9",
+    "docs/GROVE-CABLE.md": "c7e7b06df4e89a47da3615656d79e0efb1505970991a1e60faaee8d05a71f181",
+    "docs/VISUAL-MOTION.md": "e204781cf9543bc31595f6aa6adcf3b1d69c51b2a1dd142bbcfc11aafcb4a163",
+    "manage.sh": "cf6e7c0d8968f1a5719fed59399e84b0b2355f1e86ec36af4604953ab151c9b1",
+    "package.json": "d8235cc09316ceb6c6e046909ed2e33af773f6d397d893bbe13adb71ade1746e",
+    "scripts/catalog.mjs": "07256b426f864067c701a29303470556867d7db6c616ab02afbd30885b29b4c5",
+    "scripts/check-8encoder.mjs": "d2fac20d57908664232a273a5d61d877e1812b37cf869c5d22d01322aa310a3a",
+    "scripts/check-actuator-materials.mjs": "780b4fb191471358a026760e79d54edd18acc7d7d3bc4ccd87da5db730e1eada",
+    "scripts/check-atoms3r-closure.mjs": "d13681f1541082fdf137ffc7a806fd3706c8d22c6e71451ba7aa172c0c495edd",
+    "scripts/check-button-actuation.mjs": "f5ca09f3d24ddb3e95ad3732ff5b1bd4a9936c1a6dd3e5afd7f52516f00f7986",
+    "scripts/check-cardkb.mjs": "2bcdadf32ab930a9df38c5b17d6c916dedb106a393a186e55c8d034054e6cf25",
+    "scripts/check-cardputer-adv-assembly.mjs": "f7e0ba84c6716abaa8a27969bcc80bb7ed9d0ef3479f52445320e6e29eca3754",
+    "scripts/check-cardputer-zero-assembly.mjs": "33093ac3b3fa4822f7d9e270273d1e593dadbde604a3e335fbbb647b791d12d8",
+    "scripts/check-classic-unit-connectors.mjs": "6e1309d8154f21164370c44cdbcf05c6fc2f83ed3ffbf5e465df225f01e31262",
+    "scripts/check-core2-assembly.mjs": "43039438b750aa365ff40160a13d85444e177a86005570633214194c2afa13fa",
+    "scripts/check-demo-framebuffers.mjs": "883d8dc95166402e8de56f9899c89a5250585e21c35eb3cca9c2fbc37de9a337",
+    "scripts/check-demo-lifecycle.mjs": "b2e0c7a576c81bf23214eba138b3f0338a747a6f6da5b658c0e0c541e4e19acf",
+    "scripts/check-details.mjs": "27088f3b1ad2f8c9355292ec2ddaed71873bae87d27e5427628fbf2d86ee9d5c",
+    "scripts/check-device-actuators.mjs": "19525b59f813602802729ec885f15f74d058031d8c1348cb6bd2dad5e7d02feb",
+    "scripts/check-display-touch.mjs": "4683855b4246b26fe4eeb9f98ccf379f3ebb4c8c93155528dc9aa4263f64257b",
+    "scripts/check-encoder-assembly.mjs": "af84ca67d22d0bdaedcf59c33098589a719c828daaae80a07fdbbae858838f07",
+    "scripts/check-grove-cable.mjs": "662840b87b83d1242ce1aef34517c83d3fa4a7b3fa12229ee46bf28fd02451fd",
+    "scripts/check-header-sockets.mjs": "9e738a575426c4aa71b2bcad5315ccde84e0af4318c13ec72a7653fd9aab7e9a",
+    "scripts/check-heart-optics.mjs": "33276ba68bfe8339e8d6f2052edcfcf390d5c79bf4aea6062143457f1782e472",
+    "scripts/check-host-grove-assembly.mjs": "03ceb5543d8fda870a996a748a1691df6b6259cc2e490f02272da7eb50bd1cbc",
+    "scripts/check-host-visible-leds.mjs": "b73aaa06155d7d3de84f895c376ffd9970f24c4fbf97c192f521e641ddf82938",
+    "scripts/check-ir-hub-rfid2.mjs": "e86522c9e381d46f9c2b3a807237fe84a66e7a5f51fe8a9da724482fe0451bba",
+    "scripts/check-key.mjs": "db8197615100fd9ece4144ceeafbe4388a0f48df4f51f0df3df9bb8799f98d0b",
+    "scripts/check-limit-lever.mjs": "0776def4d40fa88c050abf9a7f253ccd051b9d6ce5e896b25de9927e39328908",
+    "scripts/check-nanoc6-assembly.mjs": "0b447f602aae6f3a3890244c32611a86334a67d4c5914f0130c514da28598f52",
+    "scripts/check-nesso-assembly.mjs": "76e885aa08eb2aa86a810a569a267df7ab9a9e018468565318c120a10fa43248",
+    "scripts/check-open-top-grove.mjs": "aee15d5e0f0904bfbc95b9ec68e7af7ed70144b7ae239b0f3a08cda7340dc6e1",
+    "scripts/check-paper-assembly.mjs": "aba64c0830a982e45ed75c4fa720227a7a779c452434805f14ddc33cb0361543",
+    "scripts/check-port-lifecycle.mjs": "8e789f965f227e02d47a86bac067d3072218a3359d2e794f4feea7cc06c38533",
+    "scripts/check-relay-assembly.mjs": "f21f892128097678c076f60cafc953be854d701c0bbe96c60058fe37b53e0061",
+    "scripts/check-roller485.mjs": "8eabc902845f28ffd513f590d923577bcb773f92ac8300a1b58ceecd8f7d5fa8",
+    "scripts/check-rs485-buzzer-fan.mjs": "7d367f5e679a7448283453c27dddcd9e2e7a1a0c38c92acb6ac6a5cb6846e275",
+    "scripts/check-rs485-terminal.mjs": "9a25f8610b401e7b5b7a6ec31dc665fe3879a01f6d34c603873fa2d3f80bcdd4",
+    "scripts/check-scroll.mjs": "793c04b06df470adc988910494f4a244cd7bd35ba232045f9fece0b6a1d8275c",
+    "scripts/check-stackchan-assembly.mjs": "9723e9c85dd8b8641bb4b85e43cfae9c8813cf10f5897a3152b92c5df239753c",
+    "scripts/check-stackchan-cover-seats.mjs": "8c7370a6ec6517a13b98992b189cce4f9aab4a7053e9ef99e72a7e7b1eb5a1a3",
+    "scripts/check-stackchan-moving-assembly.mjs": "7bf10dcb9c6a3f882c80553402708cb2db29067a432eeb8fe28f4e9142208b05",
+    "scripts/check-stackchan-servo-fit.mjs": "5fc62b124a000cf10aaddd52fbd351ec56f321ded77a5cc7b1032b6218d7c338",
+    "scripts/check-stackchan-servo-outline.mjs": "ac2d21d477221c6fa5f41c3288ea16bc6a4deb60a522e06b9cfb4c41ee9810a6",
+    "scripts/check-stackchan-touch-led.mjs": "a0ecd384c536ffb22b4bea73f8bf92eb88461d1c4e9fdd5f7a86fba944733b46",
+    "scripts/check-stamplc-terminals.mjs": "277b2bd04ac5d33cf939c1925b570da5704b81579c380f0d45555eb5db2c26cd",
+    "scripts/check-sticks3-assembly.mjs": "ded606ac21249f2f08ecaf508eb5adab3b5d4d20d96ad9ab9bc50127da24bc65",
+    "scripts/check-stopwatch-assembly.mjs": "691a76820c8d06d12c3cfb854e735f29084d68b1bdbbf5b4475c4e0ad1634530",
+    "scripts/check-tab5-connectors.mjs": "a6f632c0de4b80d16694bcd373bf38cd94abc9a94798d1d1e924dc051a14afeb",
+    "scripts/check-unit-actuators.mjs": "30eef8cc34367e034fec071052bdfaa0dd43d340fe4cdfc138d4926b3cb7823f",
+    "scripts/check-unit-visible-functions.mjs": "553b326b7722e535bd4c321dbaca9a3c78d48441b4ad55a9f462b553272421d5",
+    "scripts/check-viewer-lifecycle.mjs": "a471cf11d5e1dba09530138af461f2f7d1119b28090eeb4332774139bdfdfd26",
+    "scripts/check-visual-motion.mjs": "4211db1c25643977bebed8e10c182c5369ae6cd8824d090cd5201791eab205ac",
+    "scripts/check.mjs": "d453a9e4729ef2c136dd874bcbb7fdb38431a084bc20a4e44f0b7918b74c3973",
+    "scripts/serve.py": "632c8376d49b9c6c74160fffe6a3d49cf282d88b04711749d47e6f34186a3fbb",
+    "src/core/Component.js": "61e2d39fcb97890ecdbdf1abfb51ab331ad85770c6b2d165e25ff5f0b9766bcc",
+    "src/core/ComponentHost.js": "019f32dd28489a4fe7cb60263285b358662ba65dab7ba7c7d2767a01a98f7e40",
+    "src/core/Device.js": "0c788fb4f0ef0b490ab640221f246d2d23a44649c0f9c4ba6aadfabb865b4543",
+    "src/core/DeviceViewer.js": "b4fba212018e15268499ba3c6658fbf290273a9fb461b2ae43569b837d52c995",
+    "src/core/EventEmitter.js": "aadc64147ea1c4dcb8e18cb06c76ec41d6c4936ae684b1186a397b6a63e22c1c",
+    "src/core/Module.js": "20fbae04c35e0693fe3dd688807a7f9bae2754d5d7b914c8aeb958ec26795203",
+    "src/core/bridge.js": "e073d0538a972439594c18846b305603edf91eb41b3c0b832e02e69cd19f6abe",
+    "src/core/components/Button.js": "c2b99313190d4ecf26f2522530360e0aeec687a8a6abd1a5120eb53809414b9e",
+    "src/core/components/Display.js": "fa984c28ba73fce747a63fb33326dab19009e3bdf40cfddb4b9589b167f255a9",
+    "src/core/components/Imu.js": "903d39e7a1d5248c30529b152b42325cf8c35061c75a12575ec28aa2bfe3934f",
+    "src/core/components/Led.js": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+    "src/core/components/Port.js": "9b888b81e43b7397ac5eee82cb25e7b1abfd5c9f30d29a8ba967f8f5080208dc",
+    "src/core/components/Speaker.js": "4f50645b9bfb71ab5266bb45809a5d6780c90abc5e1b22d8b19030ccd4d6f8f9",
+    "src/core/components/VisualJoint.js": "654fe92b14931824362b5c6f7fb24be509c7e1be1ff4a77d6903bcc51581e84c",
+    "src/core/geometry.js": "2bb560fe5cb934e3ad18f5ac8370e57ace42aa28bf4421d62e8fa132c906b94e",
+    "src/core/index.js": "8a890c229810e93fa576cd2c9c5915a7238fd964ea23468d18c426c2a7863358",
+    "src/core/materials.js": "9f5250b54644c5d746ed37791289a99650be4e286e266ecd57aefddf562f3717",
+    "src/core/registry.js": "07388515318616b183a88bb7f23593b2137900547f3f3e61e300b1f753309bb8",
+    "src/devices/atoms3r/cad-map.json": "a9b9e744dfdfd640414cfbc281419e0869077a4c18ca37661d902e85f906c0b6",
+    "src/devices/atoms3r/dimensions.js": "0a2051f45fd5301785245e2fd51e8f63bc5f5b6e8fa39d22d3b0cc3e44619dd4",
+    "src/devices/atoms3r/geometry-data.js": "ec1b477ac3c00a47ea2b9e83729655ed816b829b6a3bae02d25262952f250f96",
+    "src/devices/atoms3r/index.js": "c3bd85b9bcaf0ca1558ce9e912a338ed1505648c306257f487453e944275598d",
+    "src/devices/cardputer-adv/assembly.js": "bc7da4058b5017017861e41844a79c0069f8d2b991a1651b364bb0020b799f1b",
+    "src/devices/cardputer-adv/cad-map.json": "6430693b23657517127b074e8d1a9a59b971edf98e09177aa25375db725e03fe",
+    "src/devices/cardputer-adv/dimensions.js": "f85e3b5b2b9e9fb942395cd3977ed5e87001a908ebc10afd4e614408dfce069a",
+    "src/devices/cardputer-adv/geometry-data.js": "224241be078f232ad14e8d5703066df25bdca4f6b7cf49735c59b4dfe5bca1c4",
+    "src/devices/cardputer-adv/index.js": "de4460645821337e8bb83bd7f0a2254120c4273e3022217432497b494f2916b4",
+    "src/devices/cardputer-zero/body.js": "0fd7d59a8314a839e91819b850e37e8e3a3df55edc4c81b33af54c9860ded2fc",
+    "src/devices/cardputer-zero/dimensions.js": "b69584f5a875ed5f4aa45d8971bbfaad8bac98d38feab0d9e083ce84eacf54a2",
+    "src/devices/cardputer-zero/index.js": "07deabcd82e30661dc8ba5d3ce684a6edeb9375962d65af6f9291eb6c7c89929",
+    "src/devices/cardputer-zero/keyboard.js": "6fc17c6156d708e8c2973b01248fa2e500da8ee7e0cbcbfbec58341039ba5ed4",
+    "src/devices/cardputer-zero/ports.js": "4b5cc9d899ad4430c33e299fc108022deaee4a6a22374424c864d5700ecee3e5",
+    "src/devices/core2/assembly.js": "1eb2ec32a35a71bcc9db52c4572f5fb1563199cb2e9a9351622126f84edf46f8",
+    "src/devices/core2/cad-map.json": "33cca2e6433a99fa1b40c6215bb2f7cba014d310e8542759e56b528fc5ca9424",
+    "src/devices/core2/dimensions.js": "a18e72e730a385a30f97757966883769bd07a1ce6c9a985e95c3f63e20406913",
+    "src/devices/core2/geometry-data.js": "13237abd2dd4e5b667bb98e7f997ff6dd280449523290d273c30f10ed4303bfe",
+    "src/devices/core2/index.js": "8bb70a22a75b952e333ee40fb533877ca0d1fb270cbca29781d6bbf058eec9ea",
+    "src/devices/cores3/CoreS3.js": "cbf80413a6ec982b920de5d316b19c64ab9b9f6aec1836a35f927ffe7f3ebe42",
+    "src/devices/cores3/cad-map-din.json": "b2771524ee38b2da3cd84a8c6bd31cf2abbe92256769378f124116cc983ed696",
+    "src/devices/cores3/cad-map.json": "cc8f4726fecd6c39c44057d626e51f5bdaaaf00e99f13f4eabee0c2988fa5652",
+    "src/devices/cores3/dimensions.js": "6b8286fc8bc8fbe4f728060a835632442ad686b206b8468764400e744ec9d067",
+    "src/devices/cores3/geometry-data-din.js": "be7ff625e27c38fcfb55e09bcdede3c6bc655808614d0e6249f7d0860ec2d63f",
+    "src/devices/cores3/geometry-data.js": "f5ae63bd7aba8bd799934e4e55d7c2e8adbb3e5d806340017ba358778c9cb517",
+    "src/devices/cores3/index.js": "c92c0678fcde424aaa7c4677cf21bcf127bbd2835f6492cdab4dbba6097a5796",
+    "src/devices/nanoc6/assembly.js": "1075fb701eb8357035fa80fbcab68cab7068eaa378faf7452f3b5705cad70a70",
+    "src/devices/nanoc6/cad-map.json": "e0f050d713feb9424d871aa3479b2610531f00e96b8c1f963fa2de47619d211b",
+    "src/devices/nanoc6/dimensions.js": "a727847892bafd9481b39917dc529955de591c2750d36123ca68a1f22bca01f6",
+    "src/devices/nanoc6/geometry-data.js": "dd84cc062400e8765ae8ca34492c5ba39671277a04356233067b0d78eecaad08",
+    "src/devices/nanoc6/index.js": "cddca725f170c6cc236e371d33990ee26b369a0208755c3e161fe04fc67aaf48",
+    "src/devices/nesso-n1/assembly.js": "c7b41a6feef78f4766b989cfeaf2720321466f45bb79fd1d7a0e6bc60cb81d42",
+    "src/devices/nesso-n1/cad-map.json": "0cecfcf00d6caa6dcd779b76736a6ac228e843b774a955944f5e3ec50adbd3f9",
+    "src/devices/nesso-n1/dimensions.js": "27acf1d75306cd3740e8e185b85932908d67f663c7725d7ec86928426b184d28",
+    "src/devices/nesso-n1/geometry-data.js": "68e82d56d71d336ea6db79643610e24570e2b2cf0cee28f3331f46cca71cb8b3",
+    "src/devices/nesso-n1/index.js": "ad9a3bed3b56ca7ca3a9069b7b1b278aaff965fa7692f7e05a0da2cad856b105",
+    "src/devices/papercolor/assembly.js": "274628ffaeff2b9dc3ec7b2df6d34a9871967b1e5e077326eac6c3e9fff0b9a1",
+    "src/devices/papercolor/cad-map.json": "81c80f8f5b191abd47b5333089694374e28974b6e079d18bcd95b4c97c9b7d30",
+    "src/devices/papercolor/dimensions.js": "5443b5d347e90efb86e9f80ef96163afea91ac6689256fb2912ddc1aea89eb14",
+    "src/devices/papercolor/geometry-data.js": "a0b763dcf8b6155131bfaf0f67667a02b576d988bb85c9359d711c25903579f6",
+    "src/devices/papercolor/index.js": "15a0bf54f74a169042dd15e3b7eb36927161f52586929d8150962db29f2e7c31",
+    "src/devices/papermono/assembly.js": "8e785869ec24077f8c2aad8601c5cb93fe1a6f8f9433ba2cf18d6575a7b36111",
+    "src/devices/papermono/cad-map.json": "30de56ad2fd0c6f69e6b97725c0600d5ea6efc6681be737feb4e24b81cb913cb",
+    "src/devices/papermono/dimensions.js": "3f7ef51d54f60884a8ec07d164c675a31e3adecf1d70be43b864c5a7a3ad7d42",
+    "src/devices/papermono/geometry-data.js": "582b6ac698e615643518eb87dc76294388744a624d5ea23696ff287a49a17df1",
+    "src/devices/papermono/index.js": "30c387232637610460ef5d43c858267c431cdc62b9caf1c086084da45f249ca5",
+    "src/devices/stackchan/PitchHarness.js": "cd76bcd959268284fde600a665f1ce62fd3656697658bcf9085ad8bb3fb6a826",
+    "src/devices/stackchan/cad-map-motion.json": "a2a45ed6e1e05008899fd8c277843be6cb0a8f093c0fabcb1ce4783a4219d17e",
+    "src/devices/stackchan/cad-map.json": "62fdbc9a410396126216de8c38ab259bd99da361580a74beefdcf2e8e6b78f7a",
+    "src/devices/stackchan/dimensions.js": "a6583eea8ceb18cf74a33d22260b8297e999dcebf730b73c6364a678625012fd",
+    "src/devices/stackchan/geometry-data-motion.js": "938358b1fddc1a9defc59e1a299c7f2ad2be6db41fbc4eecb3ab18a63747e195",
+    "src/devices/stackchan/geometry-data.js": "af43e3820a01f8c038f85b21621d6560bb172df55ab53d04361f2135f70d51ae",
+    "src/devices/stackchan/index.js": "1b98883e8b6caf9d0c0e7b05bdaf4181e1a6dff75accf8acfb214b3cbcc29498",
+    "src/devices/stackchan/motion-mechanics.js": "6fda87a9472758728817752ffe4def9c567ece7fc661fd1a754f6abe1168a466",
+    "src/devices/stackchan/rear-assembly.js": "76e32f0af1885cd332430657b649a29a4201d3535a1c0f63d9039d494cbae0cd",
+    "src/devices/stackchan/servo-packages.js": "bb005356f53d826dcd8cd9a77a25b51a0b0c401ecd691cd396bfc36c3849b0d3",
+    "src/devices/stackchan/touch-led.js": "4aa634af4d85c6154efd03ecef3adde84749324bc88e4112c829bce1aec5be0d",
+    "src/devices/stamplc/cad-map.json": "470ec4e2cb96bafd8861f5ac3b222eaf64e989ce862d904e1ffc56924a68dc3e",
+    "src/devices/stamplc/dimensions.js": "a5e51938ff502591cddf2fad07b1eafc93a505f73a4c80e8ce2b1a0c590ff1b5",
+    "src/devices/stamplc/geometry-data.js": "3568ec5408207a6bcf5f97f2cbc412a500af00474ecc145c01c87c9a986a7130",
+    "src/devices/stamplc/index.js": "7412281c85d2126acbfb5d60ed5a828a1765ad26fa9fc9b540177e1905a00d0d",
+    "src/devices/stamplc/terminals.js": "5dd9e8bc913351dbeaf53bfa7b081004fa8e222a3bb3966d6d19e27554615faf",
+    "src/devices/sticks3/StickS3.js": "bb196c164413556040c0f904833ab25486e5e4d65cec3bd7c670557deffd9071",
+    "src/devices/sticks3/assembly.js": "ef74bc2e771bbc18a91be85e1733d84d905f2987ae59c5c3858f7a289461eba3",
+    "src/devices/sticks3/cad-map.json": "5c98ef9b112f6689da0c40768dc201c641a4e9e6a1cf73864e0ef82d2c23ce6f",
+    "src/devices/sticks3/dimensions.js": "bd2e9f0aa607e13cbee8497b2505ff4fc44f77fd503eb09fa8ec544f35af45b6",
+    "src/devices/sticks3/geometry-data.js": "55eaa76fc305ee883a166d4af3c097c633b1f25d06c1cd1cd1461bd66c440cd7",
+    "src/devices/sticks3/index.js": "d187fcef16d19813b50d849b72b270b669d89baf2b087142eb99382c0507231d",
+    "src/devices/sticks3/labels.js": "10f4c8bce0fb42bed362d27435bebfb3de22627b8b3dfa81bd85ddf21fbd6114",
+    "src/devices/stopwatch/cad-map.json": "b56cba6451e5109bed1f5a94b7a4b72da9b1230f4943413ef3f7b05108f6ba1f",
+    "src/devices/stopwatch/dimensions.js": "1395a2a2d792587d88c02f1bd28841a5f257ff1e1d7c4a57be7ad219c9be3b33",
+    "src/devices/stopwatch/geometry-data.js": "1408d728f45726fff69ba77b137861f40b3e4d3d9590499623c20a416278a5e2",
+    "src/devices/stopwatch/index.js": "1a393032d7f4e2717c7b051bff0507df5c07781999a7b85e570972111d02a7b2",
+    "src/devices/tab5/cad-map.json": "9940c6048830de17eb613709521d0d0a076f74b0ce612b2f524e39843d4ef61e",
+    "src/devices/tab5/dimensions.js": "89fbbf9efc31b413f401fc5364dec5b5b7cfed15eb8afd2d260bde9e4279d478",
+    "src/devices/tab5/edge-details.js": "68b6685435444ed9173e6be559dda3b38002547167783e6d838a97ecb1522946",
+    "src/devices/tab5/geometry-data.js": "520dc0c2c6edce396aa86cd233241a46e6ad1553228c9a75ec102f2af977adc7",
+    "src/devices/tab5/index.js": "26f3fba628c5af9f5050aad6c176dc2bb6f1c69b5a94e3b39a2cec0bb0c94658",
+    "src/devices/tab5/main-board.js": "88d7209f717bd3c4844fd10c73adfde8a2aa30b8f7a9bc79321e3129980d88d0",
+    "src/index.js": "5c3d20d689515a950fb238eb7b3d4c3614f5382c580d3b44690ac0a64d6c44aa",
+    "src/loaders.js": "0e0156b693e954193bc1204e4ee3a434c69e2cffded16028a5c313fbbf807e5b",
+    "src/modeling/PaperDisplay.js": "e65c23e41319a320f94f337a9efd49c5b0bbeed19fc5f1551a5f6fb299055542",
+    "src/modeling/RoundDisplay.js": "0d5fde964a55d2082fae2ba6768229c470956712a652d96474dca75c0c046eff",
+    "src/modeling/actuators.js": "c87e5723bc0351a42516084f7f4990633651b63913a6922383216567dc3787d8",
+    "src/modeling/artwork.js": "c395bfefd9a1d5fb067251837bafe41060136b3cf6295d471df757115eb4851d",
+    "src/modeling/cad.js": "83e8e600aa182b5a94bbccfcd26f0ab35d569c5828ee8ce7f11bc54d964a88fd",
+    "src/modeling/connectors.js": "5aa32f504f5e8d8a047129963fd57840b9325009e64ffc87038ff8f47afdb80c",
+    "src/modeling/grove-cable.js": "854e33e5e00545c0c907df1b166d27fdc1480b4b3c02fbd4cda04caee6f5e649",
+    "src/modeling/parts.js": "387cddaf0ab614a783a024ad4e38918cd47ad8a887041bd22b12908064564fd3",
+    "src/modeling/subassemblies.js": "b173fc663a0ec92aae084830cbf674ffc1dcf521a368f3cd333eec39c68f7c0e",
+    "src/units/8encoder/cad-map.json": "f534307d7937e74fa14ee154a8651eff27e1341cff72291202505f44f92b2c31",
+    "src/units/8encoder/dimensions.js": "074ee4673891d12ac06f56e0ef140ea9656e3b3f319820916138cfd1d81f77a7",
+    "src/units/8encoder/geometry-data.js": "ae6f4be66238263bd5f0c36838ec54f8a64a3be56c0b90f5aa4b5ec852525915",
+    "src/units/8encoder/index.js": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+    "src/units/angle/cad-map.json": "09adf1783353faaec91c47a1a9d38eb2e74499192039d08f574d2c3af4f8f39e",
+    "src/units/angle/dimensions.js": "0b831cc5de33fa3c53dfc0ad7c0c06e3230410a6623e60718e3a8d6f1f8d538a",
+    "src/units/angle/geometry-data.js": "7e714507fe2a959085c2f77bf3b5cc859da156c7907bc2f1a31ebd32e3be60cb",
+    "src/units/angle/index.js": "68d009accbd671b59de13ab5be24e82dfe145e454f4bdb3f9b33d3f8b8aad7cd",
+    "src/units/button/FlexPadButton.js": "dab4803edde0b97b275a46e8792b87da7471f7229cd744dc3a1929c49c742f35",
+    "src/units/button/cad-map.json": "64a44e596196121332835faf08da5b17ba88fe2706f49f53d61782eba356f295",
+    "src/units/button/dimensions.js": "715514bfaa7aa1275594b5dfbbffb1b21e92d86fbd453e5b1965ea4466f5cabf",
+    "src/units/button/geometry-data.js": "f6c263a78d73692afc031cd8979b33d2a45af6302d3857b4c86b8b111704bec0",
+    "src/units/button/index.js": "62dee8910cceda66b5345483e2b41cfc7d2ddfa906137e39ff9c92e108f22c51",
+    "src/units/buzzer/cad-map.json": "5b671e39e0960216e93d57981fac4d989b176cd25025f0f0791ea412ff99f156",
+    "src/units/buzzer/dimensions.js": "4cd1e0f55593f99bc5cfb40a4176c27a7df5a8a125f9478002b7f725dd6e16fb",
+    "src/units/buzzer/geometry-data.js": "dd3f074bf89bce8f32479971a8d826f5c09e7ecd73ce7864a5875ec82c9d25c1",
+    "src/units/buzzer/index.js": "c7f6c90bf3f9ad8bd792f26826b778b5b7c186fa51fb9d48bf1fe59879e01be2",
+    "src/units/cardkb/dimensions.js": "4e7812359ec925a0b97f1aeec1ab8207acd97d94b077790c4d98fc72468fd1cb",
+    "src/units/cardkb/index.js": "664bc25db9cd2d960509dccffc2bba8f356643b8fc286ccba8e15eb91a16b872",
+    "src/units/color/cad-map.json": "4644bf0c52767c2e3e72fbdd1145e21b7aafa05fa0b39f1476029fc07ba0d8b3",
+    "src/units/color/dimensions.js": "494fa4b3efb4de541e0ac9168321ddabfc7293b60f0f3fce6a1c29acd1b11762",
+    "src/units/color/geometry-data.js": "c9233b403f06ade334ff566ddd7010359e723260f8cf34a8f769bd2a4aa05355",
+    "src/units/color/index.js": "d743ecfd8df8407a607ff60a7002112516ba4639e2fd21b4d166ea4813608d35",
+    "src/units/dual-button/cad-map.json": "3e18e97d3820ac34886aa2d865729d3895594d153b0ad538e1618a70cfea32b0",
+    "src/units/dual-button/dimensions.js": "f278c37f87e5f433378c5f32fb65c568afe2439f1dc1778423a5102a4d9953dc",
+    "src/units/dual-button/geometry-data.js": "4ac042dc016244ce68c1f21aecf50e1bc16df8b1d68167b8d77e3d7e8c294ac9",
+    "src/units/dual-button/index.js": "d12fda74465d94e5660560623ceab299df7aa07acf16fee834bfbe46817eb912",
+    "src/units/encoder/assembly.js": "cbc2125aeebf18989e4add89178e422d728704bebdb0260f0bcb3ca22a62d027",
+    "src/units/encoder/cad-map.json": "11a929295292e4ba10d6fe25cc0a5a9d2b9a3b11a329a96c9fc28d3dba69b965",
+    "src/units/encoder/dimensions.js": "948c7ba8c5fcc5929814172b045dfc19e9ca977fbfae963034137996b94deac5",
+    "src/units/encoder/geometry-data.js": "7722c5e5e3fffa66b7c747fd00008fe412d3392fc1d1ba4a46250150bc52023a",
+    "src/units/encoder/index.js": "3bd67b6086dd13a39e7e5c110c49fabb938881ca9910fa8a13abc63f34aaa6c1",
+    "src/units/env-iii/dimensions.js": "5695f199938621b1098b9778c3ad48871b96096c405ee1813a32969d2980f747",
+    "src/units/env-iii/index.js": "acfe37bc1f372a7100c3e8719c89b03a30fcdbd99cc126d5c5204923e1456f1a",
+    "src/units/fan/assembly.js": "f016ffc067e4628f6f717ae9943d236e600c82fa26c4fd7b874cf91d6f26f213",
+    "src/units/fan/cad-map.json": "6096ca0046def0e90b2f3ec1654e7ab25005e836d558ef3582d5f4aae19943f9",
+    "src/units/fan/dimensions.js": "1fbb98bbe848dff04abcb6e8bf546aa77696a4aafd47bc3dee657629807c56b9",
+    "src/units/fan/geometry-data.js": "212034bb3adc37b4408efdc9231d0452884ab1012f06b620ff126fc86cdc85a7",
+    "src/units/fan/index.js": "d18324b77a9143e0317c0873b4340b88388398730c9db41bbc3875a85e4d9d16",
+    "src/units/heart/cad-map.json": "2d8b1526f9c484cd34e201f79957d7961ef71305bdd9344b340853a5abd467b6",
+    "src/units/heart/dimensions.js": "0824dd3237007a8b35e099c71e5c8bad531f1aebae7dace9aa09b95c2f66798f",
+    "src/units/heart/geometry-data.js": "9a27726220a67e2a43c230e082ec4039973f2d5260f396e3788a0a5fdf964dfe",
+    "src/units/heart/grove-assembly.js": "7472d361d95da609f72fca5e1cdb6ffbfbe8b741342ec06e1302c7b200e709b6",
+    "src/units/heart/index.js": "e85b367803e1ea0409a26f609019ddd1699a197682ea3173469615b8ffc8ce13",
+    "src/units/heart/optical-assembly.js": "cbdfb7080074f0d4e357a4d9a358be345b93fbc88c283ac4b1685afcacf9f82b",
+    "src/units/hub/cad-map.json": "0dd37465c44d9d2202e519f48112fae3a3c92aa14569d8750a15877b32193e57",
+    "src/units/hub/dimensions.js": "500f221ba1119f3f6303e8bf1db09b00e5d032adf51b0f5282506e7f26f96b16",
+    "src/units/hub/geometry-data.js": "7cb3298b9f36fed6f1ec4a61eba8409949413550e7b7415a413621d2670fbd3c",
+    "src/units/hub/index.js": "2878447a3e1216dd89531430a4727de201f264dcfbffa290e68a5cd32c56b14b",
+    "src/units/ir/cad-map.json": "a747afbee32f374ebde8e05eb22d89ba76ad9099f1477d67967d526e5a4d4385",
+    "src/units/ir/dimensions.js": "1ac64782dc53cec5f331fba8e38f1fd7b5e10cdb841b2f1886fc321ed9bf59cb",
+    "src/units/ir/geometry-data.js": "1c0ed64dd84f60b62779ee8e908349e629daba5088022b29d37ee9914f4d0435",
+    "src/units/ir/index.js": "bf8063ade509cbe5967244269a3676bcd8d88469813722100a7501a580beb167",
+    "src/units/joystick-v11/cad-map.json": "b3a07ff9e6208515874dcd4055ea4e5602e4e7308d22c17414e6b6509e57051d",
+    "src/units/joystick-v11/dimensions.js": "679a55a60da1a00746d89b326bedfc1fc5a717fbd1330e34616a07862fc1db18",
+    "src/units/joystick-v11/geometry-data.js": "0a28db0304f9069b65abf960308a16348a6791d63540c8d94d34837147833812",
+    "src/units/joystick-v11/index.js": "8350ed5725c608a0ef657b12597325e24762245151a0c3023a8c7290bedc48c2",
+    "src/units/key/cad-map.json": "446498c91b5169992c1ae4a59a27d7e0e1dc6cd3b148ac1188de57222aa908b9",
+    "src/units/key/dimensions.js": "fbf63cd99442de90af64e4feee254df63365cd913015ab7facf0e63a6d1aa6b7",
+    "src/units/key/geometry-data.js": "76fa1f0407188b585cd2c054015f8b73b8276644f097911d0449cdb052400aef",
+    "src/units/key/index.js": "41382014efc3a2307444a1833e66ab11cfcb6cc3142000a8b95ce186fdc3ccc7",
+    "src/units/key/key-geometry.js": "6ae50a907cc41518b4af773a8b0685e1bb9668321d32b4e8c0fa4a11c368e63c",
+    "src/units/light/cad-map.json": "c24a7c5d5dc2730c9d7b1cf4b77f2dedd8a49f8e739be41649ffeea7c5b3aa49",
+    "src/units/light/dimensions.js": "7222da9d2796ffbf187a49fe93573d5ffdc2add3db2699dc9eb5f7ae693584cd",
+    "src/units/light/geometry-data.js": "f0258371317d05014a247075f69bac6723cf1593b075000e53e0ba3995509687",
+    "src/units/light/index.js": "4abd1ee0bc8fba357b515418b719968d2c8b0b9fe647935cef563f88fda2259d",
+    "src/units/limit/LeverButton.js": "7441fd2336e92eb6b9f18f3996c6a84e8ab1061782c0819fa82349ff9639beb9",
+    "src/units/limit/cad-map.json": "b2bfb89dfbe34e7d26c04617737dcac898f62e7d51c634fdd1a9a3a30dabd10a",
+    "src/units/limit/dimensions.js": "dbbf417d3667c5b38e52a8b96a6a6fb87efb3ee6ca8ab6339e40d6fdd1cbcc39",
+    "src/units/limit/geometry-data.js": "bd074334bed80ae901ff559e408e64fa5228fe9f39b6e2e946f71ccdd15c4518",
+    "src/units/limit/index.js": "fe7b8d9b0d1e49ce7a4d9175bc79ef19c70bd74f4b9ec62c48e942020e019052",
+    "src/units/ncir/cad-map.json": "e5a79a039db0ed3bd24475be36f6339efd578eefca73b0790010198f9309daea",
+    "src/units/ncir/dimensions.js": "5d205eb0a423b3395ec67d427ad37999add37314cd9ed022bcb96727ece9f7a8",
+    "src/units/ncir/geometry-data.js": "380cd829a765aa3eb784d50942782c8322fd13bc7de355d50b96d641ecb5fa73",
+    "src/units/ncir/index.js": "7bf97e4b1f5429ac3a4f81340756c30f5ff89dda6311cee088436e70ffeccc0c",
+    "src/units/pir/dimensions.js": "9eda33a9c42a6ac4354010a06b815653dbf4e15b94ecfc4315b5b70a6373d67d",
+    "src/units/pir/index.js": "acfe37bc1f372a7100c3e8719c89b03a30fcdbd99cc126d5c5204923e1456f1a",
+    "src/units/relay/assembly.js": "0fe8671ebd10eb8ae775559fd1e6e41d6f384f66cd73cfc8a6d3570c92d5c1c6",
+    "src/units/relay/cad-map.json": "821e09c46a85e8f968b92da2acfde8cce53b0b082e6dbafdab0b55e56a8ed3b2",
+    "src/units/relay/dimensions.js": "3cb033076499c67f08fa4ef84145ff836e08a954737f309def8851f7d59bc4fc",
+    "src/units/relay/geometry-data.js": "f595eec71fea6f7a33d1f2800112f11262ce030119bd225f08082174f8d937ae",
+    "src/units/relay/index.js": "4e63b971bee7c5bf5321dc31c41b4ac44b2b951bd246e6eb02df399b3bb35c79",
+    "src/units/rfid2/cad-map.json": "b176c0a11eef3952bd7169fe564b0105592a61cfcc409416f2ea49d6c7803f6e",
+    "src/units/rfid2/dimensions.js": "08bee5234cedf9bb253ea69bf7f84e0a8e9ecd6b038b3d747d846769a714f312",
+    "src/units/rfid2/geometry-data.js": "0a97d304a17e328f53decb0ddbd86d54759a1ddc2cd09adc1ce40cb73dd778d4",
+    "src/units/rfid2/index.js": "24433f230cf7b191e9ffd515cb67382a987b2ee010ebfcbd5099cf48727ac146",
+    "src/units/rgb/cad-map.json": "348cdeb436471c9bd2992da27b946897e14f7a767a82eff59ed1b840cbb0e439",
+    "src/units/rgb/dimensions.js": "76ac677124336dfc534088a086ad8a9614dcac767f56ec41bef2938912c7295f",
+    "src/units/rgb/geometry-data.js": "b88e3ed25d625f79109a7124cb70ed8ef77442cd244cb9df71b90e6634bf79c2",
+    "src/units/rgb/index.js": "655e8b57959c01a93b20ea44553d735b7437fbe08f08120b6b9f510cc57a9471",
+    "src/units/roller485/cad-map.json": "4e49e298b3a4acdd5824902486d4eb7e9d9e60f7b37775a5d4a383dc1856ab04",
+    "src/units/roller485/dimensions.js": "d67d18995d47499676e93c008a5c2096b572305bdfbe9a8979f2bce2376023e9",
+    "src/units/roller485/geometry-data.js": "f246c7ca8ff77d83bd9788d5827615e83cfee24d02dbe06d1caf5a9e167e98d6",
+    "src/units/roller485/index.js": "821ef89719edc981e818e57dee8e3b9dbea4fb534bbb0532401518c3a9d1b702",
+    "src/units/rs485/TerminalPlug.js": "c88893747b391bcffcd6c23141c682417de711d2342f844f9d582d579ecb0f1b",
+    "src/units/rs485/assembly.js": "7e05e29ee3effcf1ec595ca2420ca56cd07e9fe0d0a548ca2eb710d9fe5fc213",
+    "src/units/rs485/cad-map.json": "d51267db022195e3c8b8ace5425ca1adf9c5e5d5e0b41e4287d32e12f584df09",
+    "src/units/rs485/dimensions.js": "071e6890c8d2f7e26e4b4d6d56bf5c5e26b42f9daa58cd7e65ab942961f9e154",
+    "src/units/rs485/geometry-data.js": "54b3d7755199c7f77431ef4935950d2f7978edafbc2bff650c571678930c2903",
+    "src/units/rs485/index.js": "18a4763ba9874a2bd13bf800a8aba9a04515ea588e9dba0e311dc9dd9fda6560",
+    "src/units/scroll/cad-map.json": "0875349b44ad91023dcfba0dc74afec78a4af7288916b18b8d87d69c093c20f9",
+    "src/units/scroll/dimensions.js": "ebfd7e4404d038a3a5ee734adbe7951f50468819bc10c37a2372aca7b5e9d433",
+    "src/units/scroll/geometry-data.js": "2a756a0c740cf97c96a334aaa1397b85ec7accddbfceead2319ec1cda0778157",
+    "src/units/scroll/index.js": "0c5d110f2a388c8295811ec2213c73ce219b1ce47c5bf98de48d753a6d7f9129",
+    "src/units/shared/CADUnit.js": "eb337eaff2c267ebae8fe46921cbc289cbb5b49b3bcf548e84f1fc6d89b89c94",
+    "src/units/shared/ClassicUnit.js": "84fe43abe71c1e9b7a2d9d42ee9d8f08c256ef9448847f98f84f9486db6464e3",
+    "src/units/shared/open-top-grove.js": "07364ba732ff38bf83ce9a2025a7ea89f9abf7b95aff65e406fc873e8f94456d",
+    "src/units/shared/parts.js": "e9f8ea00706c398082dd2334337b32df4ab0600474692669365313d21433e37d",
+    "src/units/thermal/cad-map.json": "7333d269dfd49f0ae16d21fc570be40180f0cd97942a7c550b8feb5da76f18df",
+    "src/units/thermal/dimensions.js": "081031b313debdf908f1d1a358a11a2349ab87256754f79fa17056a21e7c946d",
+    "src/units/thermal/geometry-data.js": "f8196386f5bbcd44274faa8fcdf2bb5617596a73fe295acd5fccdf1ccf2bc0a4",
+    "src/units/thermal/index.js": "b00044934dc3257cdd9d80c0c4ff62cff7aef5c9d2578c3d272254b7a4da6ad6",
+    "src/units/tof/cad-map.json": "ac26554774709568ecb3517b3ba386835e21a1466cd30c37979055df38437d87",
+    "src/units/tof/dimensions.js": "d99b73220152919f848a594bda4b4f656d44bb2a10efbec9778476c39c6f30e1",
+    "src/units/tof/geometry-data.js": "9c1a6c3bbe0ce39ed6bd89e90a2d5ddf64934051289e219e3919eece8c819827",
+    "src/units/tof/index.js": "90060670376607463459862ab2c3a2c90f2cc250f01e2367117e0e14cb5509f2",
+    "src/units/tvoc/cad-map.json": "e80b71bed2e84eeb042297948948bbcf6c8b7e73649a71209bcb16c7027b9a64",
+    "src/units/tvoc/dimensions.js": "51a03dddc458da30f1ba0084ff64d98bcb36a7761edfe299f2fbd3fd29d06168",
+    "src/units/tvoc/geometry-data.js": "0df202af4cd624148f821bd11d60adc10a0d409637d426ddfd2ac63db3487ea8",
+    "src/units/tvoc/index.js": "c9a7954aeff66ed32e5fc83e9ba0e347d7e91ddff2fb0c3be226ab985cc475e3",
+    "src/units/ultrasonic-i2c/dimensions.js": "1eec86b78e1cf810d8e1b52b39a10e223a94fe9d0c93f218c2e5c248e3f2f17c",
+    "src/units/ultrasonic-i2c/index.js": "acfe37bc1f372a7100c3e8719c89b03a30fcdbd99cc126d5c5204923e1456f1a"
+  },
+  "imageHashes": {
+    "artifacts/encoder-detail/public/encoder-front.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-front.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/encoder-back.png": "c02dd05561c858992a4e78f85d8988e3c82b2b2bb88d73c845202f5e70a8fd3b",
+    "artifacts/encoder-detail/encoder-back.png": "c02dd05561c858992a4e78f85d8988e3c82b2b2bb88d73c845202f5e70a8fd3b",
+    "artifacts/encoder-detail/public/encoder-left.png": "f9cfc2ba952eb1449960fc2ccb987ff2851c3d74493d2f8891f08a68df70066c",
+    "artifacts/encoder-detail/encoder-left.png": "f9cfc2ba952eb1449960fc2ccb987ff2851c3d74493d2f8891f08a68df70066c",
+    "artifacts/encoder-detail/public/encoder-right.png": "5c56b1e42574f925e0ea169ed732686c277dfc4bc789bb6ede5e706bd835647e",
+    "artifacts/encoder-detail/encoder-right.png": "5c56b1e42574f925e0ea169ed732686c277dfc4bc789bb6ede5e706bd835647e",
+    "artifacts/encoder-detail/public/encoder-top.png": "3709f08cb9ae1229d7ce27aee56ea48fc1f4b83263d483ba28f3d6d76767eac5",
+    "artifacts/encoder-detail/encoder-top.png": "3709f08cb9ae1229d7ce27aee56ea48fc1f4b83263d483ba28f3d6d76767eac5",
+    "artifacts/encoder-detail/public/encoder-bottom.png": "2cad6e893074e76cb6d89deb883e87cc0e0d45298173a0745888729318254088",
+    "artifacts/encoder-detail/encoder-bottom.png": "2cad6e893074e76cb6d89deb883e87cc0e0d45298173a0745888729318254088",
+    "artifacts/encoder-detail/public/encoder-iso.png": "9f7e8dc21065895ede17043c3486d7c3f9080a04e3a386723d0c33aadacb7792",
+    "artifacts/encoder-detail/encoder-iso.png": "9f7e8dc21065895ede17043c3486d7c3f9080a04e3a386723d0c33aadacb7792",
+    "artifacts/encoder-detail/public/encoder-leds-off.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-leds-off.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/encoder-led0-only.png": "235633ff40d4a722a3511e0d3cf1cb8a56fbf6fbd16304d1671194b9d62830e9",
+    "artifacts/encoder-detail/encoder-led0-only.png": "235633ff40d4a722a3511e0d3cf1cb8a56fbf6fbd16304d1671194b9d62830e9",
+    "artifacts/encoder-detail/public/encoder-led0-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-led0-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/encoder-led1-only.png": "4d66b94ea45937ce0688856df5ceae86e70391116bc71ceeff785c2b95b5958e",
+    "artifacts/encoder-detail/encoder-led1-only.png": "4d66b94ea45937ce0688856df5ceae86e70391116bc71ceeff785c2b95b5958e",
+    "artifacts/encoder-detail/public/encoder-led1-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-led1-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/encoder-leds-both.png": "b914fec74816c4b2f7d59b2b51f64651afb0cc9271848c3403c3280fad3b70cd",
+    "artifacts/encoder-detail/encoder-leds-both.png": "b914fec74816c4b2f7d59b2b51f64651afb0cc9271848c3403c3280fad3b70cd",
+    "artifacts/encoder-detail/public/encoder-leds-both-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-leds-both-reset.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/encoder-angle-0.png": "185f5dd6badd5236d3a6bbf5feac96cd7aca341b91c54792d92043669d563b8f",
+    "artifacts/encoder-detail/encoder-angle-0.png": "185f5dd6badd5236d3a6bbf5feac96cd7aca341b91c54792d92043669d563b8f",
+    "artifacts/encoder-detail/public/encoder-angle-37.png": "f3787f70dffe0a2322d3e4c1e148465def8a7c91a2c6295f8d4afca4fb20b39c",
+    "artifacts/encoder-detail/encoder-angle-37.png": "f3787f70dffe0a2322d3e4c1e148465def8a7c91a2c6295f8d4afca4fb20b39c",
+    "artifacts/encoder-detail/public/encoder-angle-180.png": "633b80816537278a074caee624c75b889b34ed2ba7b33d50bd9d24a697b15271",
+    "artifacts/encoder-detail/encoder-angle-180.png": "633b80816537278a074caee624c75b889b34ed2ba7b33d50bd9d24a697b15271",
+    "artifacts/encoder-detail/public/encoder-angle-reset.png": "185f5dd6badd5236d3a6bbf5feac96cd7aca341b91c54792d92043669d563b8f",
+    "artifacts/encoder-detail/encoder-angle-reset.png": "185f5dd6badd5236d3a6bbf5feac96cd7aca341b91c54792d92043669d563b8f",
+    "artifacts/encoder-detail/public/encoder-press-rest.png": "e92bd96dc54e4a556ea6852f6d0493bcd1543a84b7bd4736058cd5d5e5fc0d3d",
+    "artifacts/encoder-detail/encoder-press-rest.png": "e92bd96dc54e4a556ea6852f6d0493bcd1543a84b7bd4736058cd5d5e5fc0d3d",
+    "artifacts/encoder-detail/public/encoder-press-down.png": "c7e1ebc92f69cb45593b464065491ab2ccc5621cc679fe171ca2ff9706c1da43",
+    "artifacts/encoder-detail/encoder-press-down.png": "c7e1ebc92f69cb45593b464065491ab2ccc5621cc679fe171ca2ff9706c1da43",
+    "artifacts/encoder-detail/public/encoder-press-released.png": "e92bd96dc54e4a556ea6852f6d0493bcd1543a84b7bd4736058cd5d5e5fc0d3d",
+    "artifacts/encoder-detail/encoder-press-released.png": "e92bd96dc54e4a556ea6852f6d0493bcd1543a84b7bd4736058cd5d5e5fc0d3d",
+    "artifacts/encoder-detail/public/encoder-spinning-pressed.png": "deddc4cc0d9b804c79fa1b277d40d79f62b04c7ec968e9d45b3b0498bd5151db",
+    "artifacts/encoder-detail/encoder-spinning-pressed.png": "604ccffc7d3f373f5cbb984b5f93b19e3ed652fd2c4ecf999065006d53b0334b",
+    "artifacts/encoder-detail/public/encoder-spinning-released.png": "427e7322cb5ba815373dd223193c0bd0eaf8bc097b46caf870b4222c90039431",
+    "artifacts/encoder-detail/encoder-spinning-released.png": "318ec322a4e9e2c5f91fa8274c3bcd9d5bf7237f222ddd2f1adae920b4b13f25",
+    "artifacts/encoder-detail/public/encoder-spinning-stopped.png": "1f566f88329ee60cc8d2cde42e04db26c7a17bba897cb27a48b77015937802ab",
+    "artifacts/encoder-detail/encoder-spinning-stopped.png": "1f566f88329ee60cc8d2cde42e04db26c7a17bba897cb27a48b77015937802ab",
+    "artifacts/encoder-detail/public/encoder-canvas-cap-hover-rest.png": "2ac7b0610437f610a334e71b69d23b0ab40ab5c48fafd7f1cfd36feb09615387",
+    "artifacts/encoder-detail/encoder-canvas-cap-hover-rest.png": "2ac7b0610437f610a334e71b69d23b0ab40ab5c48fafd7f1cfd36feb09615387",
+    "artifacts/encoder-detail/public/encoder-canvas-cap-pointer-down.png": "c0fdbd5771e4f1d5b494414bcf41fdeada0c9d47e55e4e574c75a42c7bf83c20",
+    "artifacts/encoder-detail/encoder-canvas-cap-pointer-down.png": "c0fdbd5771e4f1d5b494414bcf41fdeada0c9d47e55e4e574c75a42c7bf83c20",
+    "artifacts/encoder-detail/public/encoder-canvas-cap-pointer-released.png": "2ac7b0610437f610a334e71b69d23b0ab40ab5c48fafd7f1cfd36feb09615387",
+    "artifacts/encoder-detail/encoder-canvas-cap-pointer-released.png": "2ac7b0610437f610a334e71b69d23b0ab40ab5c48fafd7f1cfd36feb09615387",
+    "artifacts/encoder-detail/public/encoder-panel-two-sources-held.png": "e696dd30375cc99062bbcb4128f2cd48233673bc74211e5d188c9bef2edc4adc",
+    "artifacts/encoder-detail/encoder-panel-two-sources-held.png": "e696dd30375cc99062bbcb4128f2cd48233673bc74211e5d188c9bef2edc4adc",
+    "artifacts/encoder-detail/public/encoder-panel-inspection-released-pointer-held.png": "e696dd30375cc99062bbcb4128f2cd48233673bc74211e5d188c9bef2edc4adc",
+    "artifacts/encoder-detail/encoder-panel-inspection-released-pointer-held.png": "e696dd30375cc99062bbcb4128f2cd48233673bc74211e5d188c9bef2edc4adc",
+    "artifacts/encoder-detail/public/encoder-panel-two-sources-released.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/encoder-panel-two-sources-released.png": "a569235b8546d6a4deca9531bcc4c0fa905dc3e05428675b4de1ee4d2cc6e5ac",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-default.png": "4e0776e9bbc569496aa90f95a3bc5098f5e1681a78197fc37be7febdffd0606b",
+    "artifacts/encoder-detail/sticks3-hub-encoder-default.png": "4e0776e9bbc569496aa90f95a3bc5098f5e1681a78197fc37be7febdffd0606b",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-angle-37.png": "4f6ba83203448538007c8a27a4c0b8aa9dadbd4451b12b8f008a983a781b0e94",
+    "artifacts/encoder-detail/sticks3-hub-encoder-angle-37.png": "4f6ba83203448538007c8a27a4c0b8aa9dadbd4451b12b8f008a983a781b0e94",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-angle-180.png": "c2613a27ef28f47688d46ef020a4fde2f1205a9c4885feb6506bce6eeabafe46",
+    "artifacts/encoder-detail/sticks3-hub-encoder-angle-180.png": "c2613a27ef28f47688d46ef020a4fde2f1205a9c4885feb6506bce6eeabafe46",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-led0.png": "8376e07bdb383f27343af357077644424de8b49b7310ca7179b8e99a24616aef",
+    "artifacts/encoder-detail/sticks3-hub-encoder-led0.png": "8376e07bdb383f27343af357077644424de8b49b7310ca7179b8e99a24616aef",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-led0-off.png": "c2613a27ef28f47688d46ef020a4fde2f1205a9c4885feb6506bce6eeabafe46",
+    "artifacts/encoder-detail/sticks3-hub-encoder-led0-off.png": "c2613a27ef28f47688d46ef020a4fde2f1205a9c4885feb6506bce6eeabafe46",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-visible-led0-on.png": "cb163193c2a487e60cad22054993cf94fab7894db2ea34f7843ed48b8b95ac07",
+    "artifacts/encoder-detail/sticks3-hub-encoder-visible-led0-on.png": "cb163193c2a487e60cad22054993cf94fab7894db2ea34f7843ed48b8b95ac07",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-visible-led0-off.png": "1ab1f3cf54116f41280f6916611f8c53dc80ab24ec5595fd64cbd69d84b5d6cb",
+    "artifacts/encoder-detail/sticks3-hub-encoder-visible-led0-off.png": "1ab1f3cf54116f41280f6916611f8c53dc80ab24ec5595fd64cbd69d84b5d6cb",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-posed.png": "54e019cc2ea34f4a9927a70ee5766f49d4ce71907f305a1aea3ef350d271eee6",
+    "artifacts/encoder-detail/sticks3-hub-encoder-posed.png": "54e019cc2ea34f4a9927a70ee5766f49d4ce71907f305a1aea3ef350d271eee6",
+    "artifacts/encoder-detail/public/sticks3-hub-encoder-pressed.png": "bb6b2da4451c7470cd4c7d39379ff08548fc5feb9ac20beab55d457ec37711ef",
+    "artifacts/encoder-detail/sticks3-hub-encoder-pressed.png": "bb6b2da4451c7470cd4c7d39379ff08548fc5feb9ac20beab55d457ec37711ef",
+    "artifacts/encoder-detail/public/sticks3-hub-after-encoder-detach.png": "e18fa25658e0e1f718a3a8235bba23034ec99aa03311906b6f45f600276b2b0b",
+    "artifacts/encoder-detail/sticks3-hub-after-encoder-detach.png": "e18fa25658e0e1f718a3a8235bba23034ec99aa03311906b6f45f600276b2b0b"
+  },
+  "runtimeHashes": {
+    "dist/assets/8encoder-CWxisua7.js": "aefb12b294563d023c5d9428b7ff43a3c29a7e38e50c158d85cfb908d8630805",
+    "dist/assets/CADUnit-BiICMHWL.js": "b8a4ab7971c6186aa1ba08083983821a45c3c9e20407b7d27f885ee0c806484a",
+    "dist/assets/ClassicUnit-CS7bAOL-.js": "7f74221f026e40bdd785ca81ec4f702830c5c51f7a594c636b1e3e478585f992",
+    "dist/assets/CoreS3-DqDjNq_d.js": "10ea109e792af69954c011e4f92a7372a4ba9f98694efbe8145b8e1dc63c441a",
+    "dist/assets/Led-ByDEsOk0.js": "f9425e0aed100b99c385dbbe402af2c508625c614661709c9011afc55baafd6c",
+    "dist/assets/PaperDisplay-B1IG6LXm.js": "f36ddc6613c006bc5561db2d27048cdc787e17fe8549a32f9a058c90cb9239cb",
+    "dist/assets/VisualJoint-CzKw4h7U.js": "5303680512351d74f700bddc96379eea0ac3533cdbdbbb33b057d6af88babef0",
+    "dist/assets/actuators-CtnLJefA.js": "3cb7ec3111d773afdb288da405ec4ace32dcd2ef84a6ffa3d949da304b1e9ef2",
+    "dist/assets/angle-D3QYOOZJ.js": "bb53613721a1de6023b027b9f2725a2f80b8920aacb0ff71dd1e294350ad13bd",
+    "dist/assets/artwork-CV0cEdGX.js": "fadc109caea2a4fd4a5d8b97799408e555054ee65ce0f4e4680c1ddc1da56a04",
+    "dist/assets/atoms3r-rvoS9__3.js": "2a38b372f902eaa78f8276f481ec359fa079ade65200f257130bc656f6c1e1a4",
+    "dist/assets/button-B_0I2m3F.js": "91b299626f465db204bd570a15a1a0ecf49559a0e9ec2dff88cae60e6ed8eb5f",
+    "dist/assets/buzzer-X_MiHZpz.js": "c281f4f34a303e23ff05e94104fa72940420096f3381339f1aa230317d5db50d",
+    "dist/assets/cad-CUFHQtQ_.js": "2d930277a708ae9017dea4081d88d80877b5608eef8ea64e31e66b3932cb6487",
+    "dist/assets/cardkb-AWQxq2mP.js": "83cffb53cd888a9c3ba439f2367935831ca6fac45dbf46cb44740af56fbe66d2",
+    "dist/assets/cardputer-adv-CuwFfiDN.js": "9a053ffcf5ee5b7064a80a273d18783368dac3ac97c20b6b6eaf46695c83190e",
+    "dist/assets/cardputer-zero-DBlSepyt.js": "60ec13e52b19c5677b5350f907b86a211c2c51b3dd3667b1b17ad73b3cd44f51",
+    "dist/assets/color-v-MOnquJ.js": "74978a54bdb601c58a1714005beb078973892e5013380606a5c74db727665886",
+    "dist/assets/connectors-CCXQ02AJ.js": "4f5d74f152d4d99d1c5a713033e06d95175738ce9404eb98ba89ddb451a0bc25",
+    "dist/assets/core-CM0p_29I.js": "3e063a7a050d50d57dbd417bea727509f266650c3ccd080639ae43e7f325ae92",
+    "dist/assets/core2-pEjeagmH.js": "207d474b245a8405ea970544944e3011d844ff8576be3c0b5a93f7598ec233c7",
+    "dist/assets/cores3-DuvxmDze.js": "ba59e31ecb8340fb808223c371e2a766de844b045202cf57611eadbc31ab0e2e",
+    "dist/assets/dual-button-Y7dRWZ34.js": "dc69e88a3d68e99fdc2f714e4b8b01b5b346d19b614eb2ac9bbbd2e9ae6515b7",
+    "dist/assets/encoder-Cs1enqv-.js": "85b0d0013f17a040cb702020d9bcafdb4492b56895ac446271d2d09136725ac9",
+    "dist/assets/env-iii-B5sdxnPM.js": "0b3b6631f249ebcc3da5ad58c4dca35234d1a668e9f69e369c6b3fc70ae18956",
+    "dist/assets/fan-CmZkLnH7.js": "40c034ff8e1c1a4e66d95997a81bee869c059ef2f97f8069596bb6074136629c",
+    "dist/assets/grove-cable-Duv42nr3.js": "15e950782aff6830d748b123d1b697c4ffbc94a83e90f4704a29b624fd1f0000",
+    "dist/assets/heart-B7gthYmI.js": "b5b3916c0f2c4b87d329816767a5e7efcf2bf442244e75c5253449ea839fba22",
+    "dist/assets/hub-BdYAQmSf.js": "745d6f06a61b0abf445a85d1b88fe95d30558d6764068dfd2acd5e6abaf2807b",
+    "dist/assets/index-7VN00lT3.js": "7ee6ca09cd927fdc14b8aaf4027f2f36e8595fa7b736181be6b08605acf766e0",
+    "dist/assets/index-DUfIhopB.css": "60ba438373a62e53f96fc2321990239236fc203cea8b3a8d305a78dc7fff29e5",
+    "dist/assets/ir-DNnRW6Qa.js": "0c77cf8811d6c4078e543658f13a35956c3195ff056d6e9ac0685b6b7f16e366",
+    "dist/assets/joystick-v11-e4IYFHwg.js": "b1e2d373c69bb7753529a6314c718d54e3f4fb2ae8c566caf3b0297b37b81d55",
+    "dist/assets/key-C0ugM7e2.js": "57f07f34795dd2314fbeaa897ee83e20e4df7b2e0bc39e27415df83b48d21f0a",
+    "dist/assets/light-BIaGBWOm.js": "e200389f01ef74073f116c1f6573a477d79c01f17219d88b853559ed9b463819",
+    "dist/assets/limit-BRn3jC4k.js": "f45e91e9d0949cc8d7cf47f34adad9be7ab430626c75ebe307f7d9288374b6d5",
+    "dist/assets/nanoc6-DuOn9kPp.js": "33c03068fd672dfcfe6d529b7c55d6863bd6cffc3afeeeaae67f3ec426bb13a6",
+    "dist/assets/ncir-CbLW3u9N.js": "7814cd0a297afb1fba80dbab586a0baebce8ad1b5ed4c53a168aaf9330590e3d",
+    "dist/assets/nesso-n1--ShntOU0.js": "320fdd58d944500b541f2a736e25c961b5157930c7c48c883083570a6747045c",
+    "dist/assets/open-top-grove-B2DazZgI.js": "c5b0575784370c629d3dc3490710ec457107f9f59688b80dead6358f5ce38a3e",
+    "dist/assets/papercolor-DKvEYcwc.js": "7266ed889459d690f8599b7c17df412d64e2af531dbfc6fcb18e634a399cc55c",
+    "dist/assets/papermono-B-goUgXY.js": "bdb4148a8e78b2246ebf6acb5b63b349c89caed081094fa453177e1d85fe487e",
+    "dist/assets/parts-Dw7nWvyh.js": "c34719204d3647b46a3ae90794608ccf3ac891d0ffbfd396d6237a44cf9fafcb",
+    "dist/assets/parts-oPe2Sfj6.js": "2c63b2a4e735b13462bc264b9d6840ec041e48ff05024d71bcd56afc5058dc81",
+    "dist/assets/pir-Qg_T3mZt.js": "f3b31739e7b74d145e4eb6979dadd272dc636f9c2ee9ba66d14941c28cc61f37",
+    "dist/assets/relay-Hmm4kfip.js": "bb0e0bd5ad2ffa52f85ee02643847f26f235784baad0ab38b785af7451216b88",
+    "dist/assets/rfid2-mwU7zAp6.js": "7554b65325263c670da70d7d34b10b707222629837c82942371e2b2a57f93ece",
+    "dist/assets/rgb-DEXAj9ZS.js": "ea13f37de78d3a47aaa428223a8433b7ea69d9a4c6f16649748e9a5e0b7e606c",
+    "dist/assets/roller485-C8xAD3zt.js": "a327a56a79aa80f13f532b24427c188ba1981cb58fdf053d1222d045087eff20",
+    "dist/assets/rs485-D8OF_kPU.js": "4298d94808de71bd678f78660c1848f983361c4a8390fd7e54d6780136f1d51a",
+    "dist/assets/scroll-Bk_r1x2K.js": "3082f1145b6a621a02282b330db7b89672bc634f9d9214072849d0eceeb54e23",
+    "dist/assets/stackchan-mfb4wsUT.js": "f62eaf5a647dcd5b5b191fa9e45a30b6a32954ecc7ba18e6d2205e036a1e9805",
+    "dist/assets/stamplc-n58zT4ND.js": "f113f9f6bb6f5cc88444b4201cd3e7ae4e971942ed3b6f25e2d210ef8a088e70",
+    "dist/assets/sticks3-B4DSfRgn.js": "ceb0b77f40279c9d8764338564117f5a3a31e954529b3e390077dd275193dbd8",
+    "dist/assets/stopwatch-BvQrTyzL.js": "c4a0a8ca4d6d13ce3efd63918bc850563b9768dd53a483ca634a97dfc8c7fd2e",
+    "dist/assets/tab5-DC3LzKtZ.js": "aff1365e40e3cff6f5866b83776924b250e7c6121890611cbac9862c4eadbf6e",
+    "dist/assets/thermal-CJEhMTC6.js": "d69c2f7149ab3a94b0da3594e80bfa2051e7f124fec23038605599cf9735313e",
+    "dist/assets/tof-Bcr2K8gy.js": "24445b60e49aea3f275d576e605534b659abccf16dfcd48a8979098c45f20b88",
+    "dist/assets/tvoc-DXBZloms.js": "0495370063d37b10d58624e3f6bdac71e69fc6ea25e1b99b5eea9b28cdcf6dcb",
+    "dist/assets/ultrasonic-i2c-CSLzuQI9.js": "929f7de54f47f6c788a263e3caccd840e2956c7f2227dc4434c6ecb13625ce8d",
+    "dist/data/catalog.json": "bd56dfd86e34461b8b1ba8e9172ee33e3ef3d61f79849456392d5ea197135389",
+    "dist/index.html": "4a460d56b2d7d1676a4db28772734cdc2eaeed579eb260ac32dd2efbefba0fdd"
+  },
+  "reportHashes": {
+    "artifacts/geometry-check.json": "4991e3e7060f0c4a99d25704672c2e23a2060ef7bb816a7cef3c07baa257da75",
+    "artifacts/detail-check.json": "65a5570a0daed3f39e124741405ccda583195c6e64903b09d0f87f983dc5a033",
+    "artifacts/dynamics-check.json": "e33433361b36068222b1c92d474d9f1971361040ae3dd574bb9c36517f1b3090",
+    "artifacts/grove-cable-check.json": "3ef6babb32fe6c714dabccdf47a6e3de0910ba87accae5233c50d40ccbe9f116",
+    "artifacts/host-grove-assembly-check.json": "8f0f8769773c9d41c9078daadb00deb40646381d4e33ae912fe93a2739b21462"
+  },
+  "evidenceHashes": {
+    "artifacts/encoder-detail/public/commands/check.log": "30c6fae3ecea9705a95d917f18f477e876a1354af0e3b976fa19548e0a6aa0ef",
+    "artifacts/encoder-detail/public/commands/build.log": "5fa5b9aaf41ae2156e37b0642a16e5b57b62eec3d4c737f262e4b5d2fd2dbc83",
+    "artifacts/encoder-detail/public/commands/status.log": "d3b8d2b8e5b8685a58b6f62413abe87a7664329e7caaac20c268eb08767cc260",
+    "artifacts/encoder-detail/public/browser-review.json": "7c0c2158a9ad59d555a634417d15e5ad1aa340e3e1149c53a2ee1bf2657e38c7",
+    "artifacts/encoder-detail/public/pixel-equivalence.json": "868868db2a7f013e9bcb963889da74a0d1a43eb3a41386fd46647f5e9506b017"
+  },
+  "commands": {
+    "npm run check": {
+      "exitCode": 0,
+      "startedAt": "2026-10-25T23:15:38.063210+00:00",
+      "completedAt": "2026-10-25T23:19:17.923918+00:00",
+      "logPath": "artifacts/encoder-detail/public/commands/check.log",
+      "logSha256": "30c6fae3ecea9705a95d917f18f477e876a1354af0e3b976fa19548e0a6aa0ef"
+    },
+    "npm run build": {
+      "exitCode": 0,
+      "startedAt": "2026-10-25T23:19:17.924555+00:00",
+      "completedAt": "2026-10-25T23:19:18.582755+00:00",
+      "logPath": "artifacts/encoder-detail/public/commands/build.log",
+      "logSha256": "5fa5b9aaf41ae2156e37b0642a16e5b57b62eec3d4c737f262e4b5d2fd2dbc83"
+    },
+    "./manage.sh status": {
+      "exitCode": 0,
+      "startedAt": "2026-10-25T23:19:18.583103+00:00",
+      "completedAt": "2026-10-25T23:19:18.603883+00:00",
+      "logPath": "artifacts/encoder-detail/public/commands/status.log",
+      "logSha256": "d3b8d2b8e5b8685a58b6f62413abe87a7664329e7caaac20c268eb08767cc260"
+    }
+  },
+  "browserCases": [
+    {
+      "case": "Encoder published DOM exposes press, continuous rotation and two independently off LEDs",
+      "pass": true,
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#ff2020",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff2020",
+            "brightness": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "Seven neutral native Encoder views rendered",
+      "pass": true,
+      "views": [
+        "front",
+        "back",
+        "left",
+        "right",
+        "top",
+        "bottom",
+        "iso"
+      ]
+    },
+    {
+      "case": "led0 externally renders diffuse lower-shell light through the solid white enclosure and preserves its peer",
+      "pass": true,
+      "leds": {
+        "led0": {
+          "color": "#ff2020",
+          "brightness": 0.65
+        },
+        "led1": {
+          "color": "#ff2020",
+          "brightness": 0
+        }
+      },
+      "pixelDifference": {
+        "changedPixels": 7574,
+        "maxChannelDifference": 41,
+        "bbox": [
+          448,
+          324,
+          556,
+          428
+        ]
+      }
+    },
+    {
+      "case": "led0 off returns exact neutral RGB",
+      "pass": true,
+      "pixelDifference": {
+        "changedPixels": 0,
+        "maxChannelDifference": 0,
+        "bbox": null
+      }
+    },
+    {
+      "case": "led1 externally renders diffuse lower-shell light through the solid white enclosure and preserves its peer",
+      "pass": true,
+      "leds": {
+        "led0": {
+          "color": "#ff2020",
+          "brightness": 0
+        },
+        "led1": {
+          "color": "#2080ff",
+          "brightness": 0.65
+        }
+      },
+      "pixelDifference": {
+        "changedPixels": 7407,
+        "maxChannelDifference": 38,
+        "bbox": [
+          584,
+          324,
+          690,
+          428
+        ]
+      }
+    },
+    {
+      "case": "led1 off returns exact neutral RGB",
+      "pass": true,
+      "pixelDifference": {
+        "changedPixels": 0,
+        "maxChannelDifference": 0,
+        "bbox": null
+      }
+    },
+    {
+      "case": "Both Encoder addresses retain independent external color and brightness",
+      "pass": true,
+      "leds": {
+        "led0": {
+          "color": "#20ff50",
+          "brightness": 0.5
+        },
+        "led1": {
+          "color": "#ff8020",
+          "brightness": 0.5
+        }
+      }
+    },
+    {
+      "case": "Both LEDs reset without automatic control linkage",
+      "pass": true
+    },
+    {
+      "case": "Published angle control drives 37 degrees and renders native rotation",
+      "pass": true,
+      "joint": {
+        "angleDeg": 37,
+        "targetAngleDeg": 37,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "pixelDifference": {
+        "changedPixels": 2328,
+        "maxChannelDifference": 226,
+        "bbox": [
+          506,
+          101,
+          632,
+          232
+        ]
+      }
+    },
+    {
+      "case": "Published angle control reaches 180 degrees",
+      "pass": true,
+      "joint": {
+        "angleDeg": 180,
+        "targetAngleDeg": 180,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "pixelDifferenceFromZero": {
+        "changedPixels": 330,
+        "maxChannelDifference": 237,
+        "bbox": [
+          517,
+          111,
+          621,
+          216
+        ]
+      }
+    },
+    {
+      "case": "Existing reset button settles at exact zero and restores native RGB",
+      "pass": true,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      }
+    },
+    {
+      "case": "Rotated Encoder cap presses through the existing inspection UI",
+      "pass": true,
+      "actuation": {
+        "pressed": "true",
+        "settled": "true",
+        "text": "位移 0.000, 0.000, -0.350 mm · 名义行程 0.35 mm"
+      },
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": true
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 37,
+            "targetAngleDeg": 37,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff8020",
+            "brightness": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "Rotated Encoder cap release settles and restores native RGB",
+      "pass": true,
+      "actuation": {
+        "pressed": "false",
+        "settled": "true",
+        "text": "位移 0.000, 0.000, 0.000 mm · 名义行程 0.35 mm"
+      }
+    },
+    {
+      "case": "Continuous rotation remains active while the cap is pressed",
+      "pass": true,
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": true
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 94.58560000000008,
+            "targetAngleDeg": 94.58560000000008,
+            "rpm": 18,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff8020",
+            "brightness": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "Release preserves externally commanded continuous rotation",
+      "pass": true,
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 206.18200000000007,
+            "targetAngleDeg": 206.18200000000007,
+            "rpm": 18,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff8020",
+            "brightness": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "Existing reset stops continuous motion at zero",
+      "pass": true
+    },
+    {
+      "case": "Actual canvas cap pointer down changes the published press state and native pixels",
+      "pass": true,
+      "normalizedCanvasPoint": {
+        "x": 0.5,
+        "y": 0.33
+      },
+      "clientPoint": {
+        "x": 878,
+        "y": 176.09312500000001
+      },
+      "canvasBox": {
+        "x": 309.5,
+        "y": 0.203125,
+        "width": 1137,
+        "height": 533
+      },
+      "actuation": {
+        "pressed": "true",
+        "settled": "true",
+        "text": "位移 0.000, 0.000, -0.350 mm · 名义行程 0.35 mm"
+      },
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": true
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff8020",
+            "brightness": 0
+          }
+        }
+      },
+      "pixelDifference": {
+        "changedPixels": 1862,
+        "maxChannelDifference": 146,
+        "bbox": [
+          508,
+          109,
+          629,
+          232
+        ]
+      },
+      "inputs": "press · down · pointer:1\npress · up · inspect:press\npress · longpress · inspect:press\npress · down · inspect:press\npress · click · inspect:press"
+    },
+    {
+      "case": "Actual canvas cap pointer release restores the same hovered native RGB",
+      "pass": true,
+      "normalizedCanvasPoint": {
+        "x": 0.5,
+        "y": 0.33
+      },
+      "actuation": {
+        "pressed": "false",
+        "settled": "true",
+        "text": "位移 0.000, 0.000, 0.000 mm · 名义行程 0.35 mm"
+      },
+      "state": {
+        "buttons": {
+          "press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "led1": {
+            "color": "#ff8020",
+            "brightness": 0
+          }
+        }
+      },
+      "pixelDifference": {
+        "changedPixels": 0,
+        "maxChannelDifference": 0,
+        "bbox": null
+      },
+      "inputs": "press · click · pointer:1\npress · up · pointer:1\npress · down · pointer:1\npress · up · inspect:press\npress · longpress · inspect:press"
+    },
+    {
+      "case": "Inspection and DOM panel pointer sources independently hold the cap",
+      "pass": true,
+      "inputs": "press · down · inspect:press\npress · click · pointer:1\npress · up · pointer:1\npress · down · pointer:1\npress · up · inspect:press"
+    },
+    {
+      "case": "Releasing inspection source leaves the DOM panel pointer source held",
+      "pass": true,
+      "actuation": "位移 0.000, 0.000, -0.350 mm · 名义行程 0.35 mm",
+      "inputs": "press · longpress · inspect:press\npress · down · inspect:press\npress · click · pointer:1\npress · up · pointer:1\npress · down · pointer:1"
+    },
+    {
+      "case": "Last DOM panel pointer source release returns the cap",
+      "pass": true,
+      "inputs": "press · up · panel:press:1\npress · longpress · inspect:press\npress · down · inspect:press\npress · click · pointer:1\npress · up · pointer:1"
+    },
+    {
+      "case": "Real StickS3 HUB Encoder exposes complete nested addresses",
+      "pass": true,
+      "state": {
+        "buttons": {
+          "btnA": {
+            "pressed": false
+          },
+          "btnB": {
+            "pressed": false
+          },
+          "btnPWR": {
+            "pressed": false
+          },
+          "grove/grove-1/press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "grove/grove-1/rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "grove/grove-1/led0": {
+            "color": "#ff2020",
+            "brightness": 0
+          },
+          "grove/grove-1/led1": {
+            "color": "#ff2020",
+            "brightness": 0
+          },
+          "irTx": {
+            "color": "#ff2020",
+            "brightness": 0
+          }
+        },
+        "cable": {
+          "slack": 16,
+          "bend": [
+            0,
+            0,
+            -1
+          ],
+          "faceDistanceMm": 85,
+          "curveLengthMm": 84.1920788423786,
+          "source": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "quaternion": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "outward": [
+              0,
+              1,
+              0
+            ]
+          },
+          "target": {
+            "position": [
+              0,
+              85,
+              0
+            ],
+            "quaternion": [
+              0,
+              0,
+              1,
+              6.123233995736766e-17
+            ],
+            "outward": [
+              -1.2246467991473532e-16,
+              -1,
+              0
+            ]
+          },
+          "wireCount": 4,
+          "plugCount": 2,
+          "space": "module-port"
+        }
+      }
+    },
+    {
+      "case": "Nested joint commands route to the full component path",
+      "pass": true,
+      "joint": {
+        "angleDeg": 180,
+        "targetAngleDeg": 180,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      }
+    },
+    {
+      "case": "Nested LED command preserves its peer and externally resets",
+      "pass": true,
+      "leds": {
+        "grove/grove-1/led0": {
+          "color": "#20ff50",
+          "brightness": 0.4
+        },
+        "grove/grove-1/led1": {
+          "color": "#ff2020",
+          "brightness": 0
+        },
+        "irTx": {
+          "color": "#ff2020",
+          "brightness": 0
+        }
+      }
+    },
+    {
+      "case": "Nested LED0 visibly diffuses through the front shell at the unobscured existing left view and switches off",
+      "pass": true,
+      "view": "left",
+      "requestedMouth": {
+        "distance": 110,
+        "x": 50
+      },
+      "pixelDifference": {
+        "changedPixels": 218,
+        "maxChannelDifference": 40,
+        "bbox": [
+          657,
+          411,
+          674,
+          429
+        ]
+      },
+      "onState": {
+        "buttons": {
+          "btnA": {
+            "pressed": false
+          },
+          "btnB": {
+            "pressed": false
+          },
+          "btnPWR": {
+            "pressed": false
+          },
+          "grove/grove-1/press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "grove/grove-1/rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "grove/grove-1/led0": {
+            "color": "#20ff50",
+            "brightness": 0.65
+          },
+          "grove/grove-1/led1": {
+            "color": "#ff2020",
+            "brightness": 0
+          },
+          "irTx": {
+            "color": "#ff2020",
+            "brightness": 0
+          }
+        },
+        "cable": {
+          "slack": 16,
+          "bend": [
+            0,
+            0,
+            -1
+          ],
+          "faceDistanceMm": 120.83045973594574,
+          "curveLengthMm": 119.7808733096234,
+          "source": {
+            "position": [
+              0,
+              -3.58046925441613e-15,
+              -1.7763568394002505e-15
+            ],
+            "quaternion": [
+              1.3877787807814457e-17,
+              2.081668171172168e-17,
+              -6.938893903907228e-18,
+              1
+            ],
+            "outward": [
+              1.3877787807814457e-17,
+              1,
+              2.7755575615628914e-17
+            ]
+          },
+          "target": {
+            "position": [
+              50,
+              110.00000000000003,
+              5.329070518200751e-15
+            ],
+            "quaternion": [
+              6.938893903907227e-18,
+              -1.3877787807814454e-17,
+              1,
+              6.245004513516503e-17
+            ],
+            "outward": [
+              -1.2490009027033006e-16,
+              -1,
+              -2.7755575615628907e-17
+            ]
+          },
+          "wireCount": 4,
+          "plugCount": 2,
+          "space": "module-port"
+        }
+      },
+      "offState": {
+        "buttons": {
+          "btnA": {
+            "pressed": false
+          },
+          "btnB": {
+            "pressed": false
+          },
+          "btnPWR": {
+            "pressed": false
+          },
+          "grove/grove-1/press": {
+            "pressed": false
+          }
+        },
+        "joints": {
+          "grove/grove-1/rotation": {
+            "angleDeg": 0,
+            "targetAngleDeg": 0,
+            "rpm": 0,
+            "transitioning": false,
+            "mode": "continuous",
+            "continuous": true,
+            "rangeDeg": null,
+            "visualRangeDeg": null,
+            "demoRpmMax": 60
+          }
+        },
+        "leds": {
+          "grove/grove-1/led0": {
+            "color": "#20ff50",
+            "brightness": 0
+          },
+          "grove/grove-1/led1": {
+            "color": "#ff2020",
+            "brightness": 0
+          },
+          "irTx": {
+            "color": "#ff2020",
+            "brightness": 0
+          }
+        },
+        "cable": {
+          "slack": 16,
+          "bend": [
+            0,
+            0,
+            -1
+          ],
+          "faceDistanceMm": 120.83045973594574,
+          "curveLengthMm": 119.7808733096234,
+          "source": {
+            "position": [
+              0,
+              -3.58046925441613e-15,
+              -1.7763568394002505e-15
+            ],
+            "quaternion": [
+              1.3877787807814457e-17,
+              2.081668171172168e-17,
+              -6.938893903907228e-18,
+              1
+            ],
+            "outward": [
+              1.3877787807814457e-17,
+              1,
+              2.7755575615628914e-17
+            ]
+          },
+          "target": {
+            "position": [
+              50,
+              110.00000000000003,
+              5.329070518200751e-15
+            ],
+            "quaternion": [
+              6.938893903907227e-18,
+              -1.3877787807814454e-17,
+              1,
+              6.245004513516503e-17
+            ],
+            "outward": [
+              -1.2490009027033006e-16,
+              -1,
+              -2.7755575615628907e-17
+            ]
+          },
+          "wireCount": 4,
+          "plugCount": 2,
+          "space": "module-port"
+        }
+      }
+    },
+    {
+      "case": "Published nested pose controls preserve the actual mouth coordinates",
+      "pass": true,
+      "cable": {
+        "slack": 18,
+        "bend": [
+          0,
+          0,
+          -1
+        ],
+        "faceDistanceMm": 112.24972160321826,
+        "curveLengthMm": 113.01324266881136,
+        "source": {
+          "position": [
+            0,
+            -3.58046925441613e-15,
+            -1.7763568394002505e-15
+          ],
+          "quaternion": [
+            1.3877787807814457e-17,
+            2.081668171172168e-17,
+            -6.938893903907228e-18,
+            1
+          ],
+          "outward": [
+            1.3877787807814457e-17,
+            1,
+            2.7755575615628914e-17
+          ]
+        },
+        "target": {
+          "position": [
+            20,
+            110.00000000000001,
+            10.00000000000002
+          ],
+          "quaternion": [
+            -0.028251038652918566,
+            -0.1274322002890053,
+            0.967943659438827,
+            -0.21458794303666345
+          ],
+          "outward": [
+            0.42261826174069944,
+            -0.8754260980655932,
+            -0.2345697160098045
+          ]
+        },
+        "wireCount": 4,
+        "plugCount": 2,
+        "space": "module-port"
+      }
+    },
+    {
+      "case": "Nested Encoder inspection hold reaches the addressed cap",
+      "pass": true
+    },
+    {
+      "case": "Selective detach removes Encoder inputs and preserves HUB outputs",
+      "pass": true,
+      "state": {
+        "buttons": {
+          "btnA": {
+            "pressed": false
+          },
+          "btnB": {
+            "pressed": false
+          },
+          "btnPWR": {
+            "pressed": false
+          }
+        },
+        "joints": {},
+        "leds": {
+          "irTx": {
+            "color": "#ff2020",
+            "brightness": 0
+          }
+        }
+      },
+      "inputs": "grove/grove-1 · detach\ngrove/grove-1/press · up · inspect:grove/grove-1/press\ngrove/grove-1/press · down · inspect:grove/grove-1/press\ngrove/grove-1 · attach\ngrove · attach"
+    },
+    {
+      "case": "Native application assets match the frozen built runtime with no application or shader errors",
+      "pass": true,
+      "runtimeResponses": 33,
+      "applicationRequestFailures": [],
+      "blockingConsoleFailures": [],
+      "externalReferenceFailures": []
+    },
+    {
+      "case": "Source and built runtime remain unchanged during all captures",
+      "pass": true
+    }
+  ],
+  "browserLogs": "artifacts/encoder-detail/public/browser-review.json",
+  "harnessSha256": "1a1d21ad83bbcd5da8282e0e61eb08d3452cc6c115ae1406cc15d35cd1cac392",
+  "browserToolRevision": 5,
+  "imageOrigins": {
+    "independentPublicBrowser": 40,
+    "frozenOriginalStageMedia": 40
+  },
+  "pixelEquivalence": {
+    "report": "artifacts/encoder-detail/public/pixel-equivalence.json",
+    "images": 40,
+    "requiredSettledImages": 38,
+    "requiredSettledRgbIdenticalImages": 38,
+    "continuousRpmLiveImages": 2,
+    "rgbIdenticalImages": 38
+  },
+  "sourceAuditReport": "artifacts/encoder-detail/public/source-audit.json",
+  "borrowedOriginalReview": {
+    "sourceCommit": "3aaeb1b076092994e77d6df0500e8e027019d3be",
+    "sha256": "9208dcba18843651c385cf86e67b7d1760dd3bccf5e60885e36ac024614896bd",
+    "scope": "Immutable original native geometry/photo review provenance; actual public commands, browser, served bytes and images were independently checked."
+  },
+  "limits": [
+    "All 43 products remain modeled; zero verified.",
+    "Original artwork remains deferred. Official photographs, HTML, video, CAD probes and MCP responses remain private.",
+    "Finite native geometry samples and browser renders do not prove manufacturing fit, firmware behavior, quadrature pulse emulation or electrical/optical performance.",
+    "Two continuous-rpm screenshots capture live phases; exact independent-run RGB identity is required only where a settled comparison is meaningful.",
+    "43 modeled, zero verified; goal active.",
+    "Original shell positions/topology retained. Concealed board/package/tails, 0.35 mm cap travel, cap details and diffuse light are appearance estimates.",
+    "Finite mesh sampling and native browser input/rendering do not prove manufacturing fit, optical transport, electrical mapping or physical execution.",
+    "LED left/right visual addresses do not establish schematic LED1/LED2 order.",
+    "Encoder own Grove mouth centre Z changes from0 to-.6; default module aligns, explicit unitPose remains assembly origin.",
+    "Stickers deferred. StackChan production datums/hidden collisions and Heart prior PCB edge intersections remain unresolved."
+  ]
+}

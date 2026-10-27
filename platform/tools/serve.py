@@ -32,7 +32,10 @@ from device_service import (
     ServiceError,
 )
 from peripheral_inventory import build_inventory
+from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
+from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
 from runtime_interfaces import build_interfaces
+from unit_runtime import UnitError, UnitRegistry
 from transport_security import (
     TransportSecurityError,
     build_server_tls_context,
@@ -215,9 +218,16 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header(
             "Access-Control-Allow-Headers",
             (
-                "Authorization, Content-Type, X-Artifact-Name, "
-                "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256"
+                "Authorization, Content-Type, If-None-Match, X-Artifact-Name, "
+                "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256, Idempotency-Key"
             ),
+        )
+        self.send_header(
+            "Access-Control-Expose-Headers",
+            "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, "
+            "X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, "
+            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, "
+            "X-Preview-ID, X-Run-ID",
         )
         super().end_headers()
 
@@ -321,6 +331,12 @@ class Handler(SimpleHTTPRequestHandler):
                     )
                 ),
                 default_ttl=int(os.environ.get("M5_SERVICE_DEFAULT_TTL", "1800")),
+                max_program_revisions=int(os.environ.get(
+                    "M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS),
+                )),
+                max_program_packages=int(os.environ.get(
+                    "M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES),
+                )),
                 api_token=os.environ.get("M5_SERVICE_API_TOKEN") or None,
             )
         return type(self).service
@@ -372,6 +388,15 @@ class Handler(SimpleHTTPRequestHandler):
             status = 200
             headers = {"X-Request-ID": request_id}
             verified_worker: dict[str, Any] | None = None
+            if parts and parts[0] == "previews":
+                self._handle_preview(method, parts, query, request_id)
+                return
+            if method in {"POST", "DELETE"} and len(parts) >= 2 and parts[0] == "sessions":
+                read_actions = {"wait", "qom-snapshot", "flash-snapshot"}
+                if method == "DELETE" or len(parts) < 3 or parts[2] not in read_actions:
+                    target_session = service.get_session(parts[1])
+                    if getattr(target_session, "management_binding", None) is not None:
+                        target_session.require_management_handle()
             if (
                 self.api_token or self.previous_api_token
             ) and is_worker_auth_path(method, path):
@@ -396,6 +421,20 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.get_device(parts[1])
             elif method == "GET" and parts == ["capacity"]:
                 response = service.capacity()
+            elif method == "GET" and len(parts) == 2 and parts[0] == "program-revisions":
+                response = service.get_program_revision(parts[1])
+            elif method == "GET" and len(parts) == 3 and parts[0] == "program-revisions" and parts[2] == "files":
+                response = service.get_program_revision_files(parts[1])
+            elif method == "GET" and parts == ["units"]:
+                try:
+                    response = UnitRegistry().inventory(query.get("device_id", [None])[0])
+                except UnitError as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
+            elif method == "GET" and len(parts) == 2 and parts[0] == "units":
+                try:
+                    response = UnitRegistry().unit(parts[1])
+                except UnitError as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
             elif method == "GET" and parts == ["storage"]:
                 response = service.storage_stats()
             elif method == "GET" and parts == ["worker"]:
@@ -451,6 +490,16 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.list_sessions(include_stopped=include_stopped)
             elif method == "GET" and len(parts) == 2 and parts[0] == "sessions":
                 response = service.get_session(parts[1]).snapshot()
+            elif (
+                method == "GET" and len(parts) == 3
+                and parts[0] == "sessions" and parts[2] == "units"
+            ):
+                response = service.get_session(parts[1]).unit_state()
+            elif (
+                method == "GET" and len(parts) == 3
+                and parts[0] == "sessions" and parts[2] == "program"
+            ):
+                response = service.get_session(parts[1]).program_status()
             elif (
                 method == "GET"
                 and len(parts) == 3
@@ -597,6 +646,36 @@ class Handler(SimpleHTTPRequestHandler):
                 and parts[2] in {"frame", "frame.png"}
             ):
                 session = service.get_session(parts[1])
+                ages = query.get("max_age_ms", ["0"])
+                if len(ages) != 1 or not 1 <= len(ages[0]) <= 4 or not ages[0].isascii() or not ages[0].isdigit() or not 0 <= int(ages[0]) <= 1000:
+                    raise ServiceError("invalid_frame_age", "max_age_ms must be an integer between 0 and 1000", 400)
+                max_age_ms = int(ages[0])
+                if max_age_ms:
+                    frame = session.preview_frame(max_age_ms)
+                    frame_headers = {
+                        "X-Request-ID": request_id,
+                        "X-Frame-Width": str(frame["width"]),
+                        "X-Frame-Height": str(frame["height"]),
+                        "X-Frame-SHA256": frame["sha256"],
+                        "X-Frame-Capture-Seq": str(frame["capture_seq"]),
+                        "X-Frame-Source": frame["source"],
+                        "ETag": '"' + frame["sha256"] + '"',
+                    }
+                    for field, header in (("captured_at", "X-Frame-Captured-At"),
+                                          ("execution_id", "X-Frame-Execution-ID"),
+                                          ("revision_id", "X-Frame-Revision-ID"),
+                                          ("program_state", "X-Frame-Program-State")):
+                        if frame.get(field) is not None:
+                            frame_headers[header] = str(frame[field])
+                    candidates = [value.strip().removeprefix("W/") for value in self.headers.get("If-None-Match", "").split(",")]
+                    if frame_headers["ETag"] in candidates or "*" in candidates:
+                        self.send_response(304)
+                        for key, value in frame_headers.items():
+                            self.send_header(key, value)
+                        self.end_headers()
+                    else:
+                        self._send_bytes(frame["png"], "image/png", extra_headers=frame_headers)
+                    return
                 png, width, height = session.frame_png()
                 self._send_bytes(
                     png,
@@ -623,6 +702,10 @@ class Handler(SimpleHTTPRequestHandler):
                         "invalid_qom", "path and property query values are required", 400
                     )
                 response = session.qom_get(path_value, prop)
+            elif method == "POST" and parts == ["program-revisions"]:
+                response = service.create_program_revision(self._read_json(max_bytes=2 * 1024 * 1024, reject_duplicate_keys=True))
+                status = 201
+                headers["Location"] = f"/api/v1/program-revisions/{response['revision']['revision_id']}"
             elif method == "POST" and parts == ["artifact-uploads"]:
                 payload = self._read_json()
                 expected_size = payload.get("expected_size")
@@ -687,6 +770,9 @@ class Handler(SimpleHTTPRequestHandler):
                 status = 201
             elif method == "POST" and parts == ["firmware", "import"]:
                 response = service.import_firmware_package(self._read_json())
+                status = 201
+            elif method == "POST" and parts == ["firmware", "uiflow"]:
+                response = service.create_uiflow_firmware(self._read_json())
                 status = 201
             elif method == "POST" and parts == ["firmware"]:
                 response = service.create_firmware(self._read_json())
@@ -809,9 +895,13 @@ class Handler(SimpleHTTPRequestHandler):
             ):
                 session = service.get_session(parts[1])
                 action = parts[2]
-                payload = self._read_json(required=False)
+                payload = self._read_json(required=False, max_bytes=2 * 1024 * 1024 if action == "program" else 1024 * 1024)
                 if action == "input":
                     response = session.inject(payload)
+                elif action == "program":
+                    response = session.run_program(payload)
+                elif action == "unit-input":
+                    response = session.unit_input(payload)
                 elif action == "qom":
                     response = session.qom_set(payload)
                 elif action == "network-fault":
@@ -862,7 +952,7 @@ class Handler(SimpleHTTPRequestHandler):
             ):
                 response = service.abort_artifact_upload(parts[1])
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
-                response = service.artifacts.delete(parts[1])
+                response = service.delete_artifact(parts[1])
             elif method == "DELETE" and parts == ["sessions"]:
                 state = query.get("state", [""])[0]
                 if state not in {"stopped", "failed", ""}:
@@ -920,6 +1010,60 @@ class Handler(SimpleHTTPRequestHandler):
                 extra_headers={"X-Request-ID": request_id},
             )
 
+    def _handle_preview(self, method, parts, query, request_id):
+        """Authenticated local-control facade; the coordinator owns execution."""
+        if not (type(self).api_token or type(self).previous_api_token):
+            raise ServiceError("preview_auth_unavailable", "Preview requires a configured control Bearer token", 503)
+        control = self._get_service().preview_control()
+        owner = "local-control"
+        headers = {"X-Request-ID": request_id}
+        keys = self.headers.get_all("Idempotency-Key", [])
+        if len(keys) > 1:
+            raise ServiceError("invalid_idempotency_key", "only one Idempotency-Key header is accepted", 400)
+        key = keys[0] if keys else ""
+        status = 200
+        def body():
+            return self._read_json(max_bytes=1024 * 1024, reject_duplicate_keys=True)
+        if parts == ["previews"] and method == "POST":
+            response = control.create(body(), owner=owner, idempotency_key=key)
+            status = 202
+            headers["Location"] = f"/api/v1/previews/{response['preview_id']}"
+        elif parts == ["previews"] and method == "GET":
+            response = control.list(owner=owner)
+        elif len(parts) == 2 and method == "GET":
+            response = control.get(parts[1], owner=owner)
+        elif len(parts) == 3 and parts[2] == "runs" and method == "POST":
+            response = control.submit(parts[1], body(), owner=owner, idempotency_key=key)
+            status = 202
+            headers["Location"] = f"/api/v1/previews/{parts[1]}/runs/{response['run_id']}"
+        elif len(parts) == 4 and parts[2] == "runs" and method == "GET":
+            response = control.run(parts[1], parts[3], owner=owner)
+        elif len(parts) == 5 and parts[2] == "runs" and parts[4] == "cancel" and method == "POST":
+            response = control.cancel(parts[1], parts[3], body(), owner=owner)
+            status = 202
+        elif len(parts) == 3 and parts[2] in {"renew", "close", "input"} and method == "POST":
+            response = getattr(control, parts[2])(parts[1], body(), owner=owner)
+            if parts[2] == "close":
+                status = 202
+        elif len(parts) == 5 and parts[2] == "runs" and parts[4] == "frame.png" and method == "GET":
+            values = query.get("max_age_ms", ["0"])
+            if set(query) - {"max_age_ms"} or len(values) != 1 or not values[0].isascii() or not values[0].isdigit() or not 0 <= int(values[0]) <= 1000:
+                raise ServiceError("invalid_frame_age", "max_age_ms must be an integer between 0 and 1000", 400)
+            frame = control.frame(parts[1], parts[3], owner=owner, max_age_ms=int(values[0]))
+            headers.update(frame["headers"])
+            candidates = [value.strip().removeprefix("W/") for value in self.headers.get("If-None-Match", "").split(",")]
+            if headers["ETag"] in candidates or "*" in candidates:
+                self.send_response(304)
+                for name, value in headers.items():
+                    self.send_header(name, str(value))
+                self.end_headers()
+            else:
+                self._send_bytes(frame["png"], "image/png", extra_headers=headers)
+            return
+        else:
+            raise ServiceError("not_found", "unknown Preview action", 404)
+        self._json(response, status, extra_headers=headers)
+
     def _read_body(self, max_bytes: int) -> bytes:
         cached = getattr(self, "_cached_body", None)
         if cached is not None:
@@ -959,12 +1103,20 @@ class Handler(SimpleHTTPRequestHandler):
                 409,
             )
 
-    def _read_json(self, required: bool = True) -> dict:
+    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024,
+                   reject_duplicate_keys: bool = False) -> dict:
         if not required and int(self.headers.get("Content-Length", "0") or "0") == 0:
             return {}
-        raw = self._read_body(max_bytes=1024 * 1024)
+        raw = self._read_body(max_bytes=max_bytes)
+        def unique_object(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ServiceError("invalid_json", "duplicate JSON field", 400)
+                result[key] = value
+            return result
         try:
-            payload = json.loads(raw)
+            payload = json.loads(raw, object_pairs_hook=unique_object if reject_duplicate_keys else None)
         except json.JSONDecodeError as error:
             raise ServiceError("invalid_json", "request body must be valid JSON", 400) from error
         if not isinstance(payload, dict):
@@ -1067,6 +1219,18 @@ def main() -> None:
         ),
     )
     parser.add_argument("--session-ttl", type=int, default=1800)
+    parser.add_argument(
+        "--max-program-revisions",
+        type=int,
+        default=os.environ.get("M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS)),
+        help="maximum retained immutable source revisions (1–4096; default 256)",
+    )
+    parser.add_argument(
+        "--max-program-packages",
+        type=int,
+        default=os.environ.get("M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES)),
+        help="maximum retained immutable program packages (1–4096; default 256)",
+    )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
         "--api-token",
@@ -1199,6 +1363,10 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+    if not 1 <= args.max_program_revisions <= MAX_CONFIGURED_REVISIONS:
+        parser.error("--max-program-revisions must be between 1 and 4096")
+    if not 1 <= args.max_program_packages <= MAX_CONFIGURED_PACKAGES:
+        parser.error("--max-program-packages must be between 1 and 4096")
     if args.api_token and args.api_token_file:
         parser.error("--api-token and --api-token-file are mutually exclusive")
     if args.api_token_previous_file and not (
@@ -1278,6 +1446,8 @@ def main() -> None:
         state_dir=args.state_dir or DEFAULT_STATE_DIR,
         max_sessions=args.max_sessions,
         max_per_device=args.max_per_device,
+        max_program_revisions=args.max_program_revisions,
+        max_program_packages=args.max_program_packages,
         default_ttl=args.session_ttl,
         api_token=initial_api_token,
         previous_api_token=initial_previous_api_token,

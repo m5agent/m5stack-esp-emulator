@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -14,10 +15,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
 COVERAGE = ROOT / "platform/peripherals/runtime-coverage.json"
-QEMU = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
-ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
-QEMU_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32"
-ROM_DIR_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"
+QEMU = Path(os.environ.get("M5_QEMU_XTENSA", ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"))
+ROM_DIR = Path(os.environ.get("M5_QEMU_XTENSA_ROM_DIR", ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"))
+QEMU_C6 = Path(os.environ.get("M5_QEMU_RISCV32", ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32"))
+ROM_DIR_C6 = Path(os.environ.get("M5_QEMU_RISCV32_ROM_DIR", ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"))
 
 DEFAULT_SERIAL_FAILURES = (
     "Guru Meditation Error:",
@@ -2444,8 +2445,40 @@ CASES = [
 ]
 
 
+def reference_layout(case: dict) -> dict:
+    """Resolve the refreshed reference's VFS before composing a probe image."""
+    tools_path = str(ROOT / "platform/tools")
+    if tools_path not in sys.path:
+        sys.path.insert(0, tools_path)
+    from firmware_analysis import parse_partition_table
+
+    raw = (ROOT / case["base"]).read_bytes()
+    flash_size = int(case["flash_size"], 0)
+    table = parse_partition_table(raw, image_size=flash_size)
+    if len(raw) > flash_size or not table["valid"]:
+        raise ValueError(f"{case['id']}: invalid reference partition table")
+    candidates = [part for part in table["partitions"] if (
+        part["label"] == "vfs" and part["type"] == 1 and part["subtype"] == 0x81
+    )]
+    if len(candidates) != 1:
+        raise ValueError(f"{case['id']}: expected exactly one LittleFS vfs partition")
+    vfs = candidates[0]
+    start, end = vfs["offset"], vfs["offset"] + vfs["size"]
+    if not vfs["size"] or start % 4096 or vfs["size"] % 4096 or any(
+        part is not vfs and start < part["offset"] + part["size"] and part["offset"] < end
+        for part in table["partitions"]
+    ):
+        raise ValueError(f"{case['id']}: overlapping or unaligned vfs partition")
+    return {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": hashlib.sha256(raw).hexdigest(),
+        "declared": {"offset": int(case["vfs_offset"], 0), "size": int(case["vfs_size"], 0)},
+        "effective": {"offset": start, "size": vfs["size"]},
+    }
+
+
 def command_for(case: dict, out_dir: Path,
-                sd_image: Path | None = None) -> list[str]:
+                sd_image: Path | None = None, *, reference: dict | None = None) -> list[str]:
     backend = case.get("backend", "qemu-esp32s3")
     qemu = QEMU_C6 if backend == "qemu-esp32c6" else QEMU
     rom_dir = ROM_DIR_C6 if backend == "qemu-esp32c6" else ROM_DIR
@@ -2459,8 +2492,8 @@ def command_for(case: dict, out_dir: Path,
         "--base", str(ROOT / case["base"]),
         "--machine", case["machine"],
         "--files-dir", str(ROOT / case["files_dir"]),
-        "--vfs-offset", case["vfs_offset"],
-        "--vfs-size", case["vfs_size"],
+        "--vfs-offset", hex(reference["effective"]["offset"]) if reference else case["vfs_offset"],
+        "--vfs-size", hex(reference["effective"]["size"]) if reference else case["vfs_size"],
         "--flash-size", case["flash_size"],
         "--expected-size", case["expected_size"],
         "--wait", case["wait"],
@@ -2578,7 +2611,7 @@ def main() -> None:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(
-        filter(None, [str(ROOT / ".work/py"), env.get("PYTHONPATH", "")])
+        filter(None, [str(os.environ.get("M5_PYTHON_DEPS") or ROOT / ".work/py"), env.get("PYTHONPATH", "")])
     )
 
     results = {}
@@ -2635,7 +2668,8 @@ def main() -> None:
                 env=env,
                 check=True,
             )
-        command = command_for(case, case_out, sd_image)
+        reference = reference_layout(case)
+        command = command_for(case, case_out, sd_image, reference=reference)
         case_env = env.copy()
         for key, value in case.get("env", {}).items():
             case_env[key] = value.format(out_dir=case_out)
@@ -2735,15 +2769,15 @@ def main() -> None:
             validation_ok = validation_ok and validation.returncode == 0
         rmt_ws2812 = case.get("rmt_ws2812")
         if rmt_ws2812 and process.returncode == 0:
-            command = [
+            validation_command = [
                 sys.executable,
                 str(ROOT / "tests/uiflow2/check_rmt_ws2812.py"),
                 str(rmt_ws2812["capture"]).format(out_dir=case_out),
             ]
             for led in rmt_ws2812["leds"]:
-                command.extend(["--led", led])
+                validation_command.extend(["--led", led])
             validation = subprocess.run(
-                command,
+                validation_command,
                 cwd=ROOT,
                 env=case_env,
                 text=True,
@@ -2839,6 +2873,7 @@ def main() -> None:
         ]
         results[case["id"]] = {
             "status": status,
+            "reference_layout": reference,
             "exit_code": process.returncode,
             "command": command,
             "output": str(case_out),

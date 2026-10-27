@@ -1,0 +1,8 @@
+/** Millimetres; +X right, +Y thermocouple socket, +Z labeled front. */
+export const spec={
+ id:'kmeter-iso-v11',name:'Unit KMeter-ISO v1.1',sku:'U133-V11',size:[24,56,8],nominalMm:[24,56,8],vendorDimensionOrderMm:[56,24,8],cadEnvelopeMm:[24,56,8],visualEnvelopeMm:[24,56,8],
+ mountingHolesMm:[[-8,-16],[8,-16]],mountingHoleDiameterMm:5,
+ grove:{position:[0,-27.65,1.4],color:0xb92127,widthMm:10,heightMm:5.2,pitchMm:2},
+ thermocouple:{position:[0,28,.8],connector:'thermocouple-k-mini-flat',part:'PCC-SMP-K-100-CE',outward:[0,1,0],bodyMm:[17,12.8,5.2],bodyCentreZMm:1.2,slots:[{name:'T+',material:'Chromel',x:-4,widthMm:2.5,heightMm:.9},{name:'T-',material:'Alumel',x:4,widthMm:3.3,heightMm:.9}],slotCentreZMm:.8,slotDepthMm:12.1},
+ source:{dimensions:'Exact U133-V11 official product specification: 56 × 24 × 8 mm vendor order. Native CAD retained at scale 1 with one common translation [0,-16,-4]. Native bores centered at X +/-8, Y -16.',electronics:'Exact v1.1 photo and schematic: STM32F030F4P6, CA-IS3641HW, MAX31855KASA+T, MD5333, LED1 red and PCC-SMP-K-100-CE; no ESP32-C3, external crystal or v1.0 power LED inferred.',inferred:'PCB outline/thickness/Z, populated package placement/height, concealed lead bends/solder, screw shank, Grove internals and K-socket slot widths/spacing/depth are visual reconstructions from this version photo scaled to the native 24 mm shell; not manufacturing dimensions. K socket has two unequal flat slots, recessed metal springs and a closed physical rear. No supplied probe module without its installed mechanical dimensions. LED1 has no independently confirmed external optical path and remains concealed non-emissive geometry.'}
+};

@@ -1,0 +1,192 @@
+{
+  "savedAt": "2026-10-26T07:58:29.571609+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 47,
+    "modeled": 61,
+    "verified": 0
+  },
+  "scope": "New Relay/DMX construction/API smoke and actual three-branch Grove fixture; no browser pixels or hardware acceptance",
+  "products": [
+    {
+      "id": "2relay",
+      "report": "docs/research/2relay/smoke.json",
+      "status": "pass",
+      "meshes": 84,
+      "triangles": 35292
+    },
+    {
+      "id": "4relay",
+      "report": "docs/research/4relay/smoke.json",
+      "status": "pass",
+      "meshes": 119,
+      "triangles": 36334
+    },
+    {
+      "id": "dmx",
+      "report": "docs/research/dmx/smoke.json",
+      "status": "pass",
+      "meshes": 74,
+      "triangles": 25222
+    }
+  ],
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "61-product catalog and three runtime chunks byte-identical to public dist",
+    "newSourcePrivacy": "code/self-authored research only, no private sticker inputs or raw official binaries",
+    "narrowSync": "new products/catalog entries/exports/guides only",
+    "existingPublicUnitFilesUnchanged": 279,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "4relay",
+      "feedbackId": "c652a5b1396f4b56bbb28b97efc62911",
+      "record": "docs/research/4relay/sources.json"
+    },
+    {
+      "product": "dmx",
+      "feedbackId": "66724e13e6234c4a9547fb39e08b066f",
+      "record": "docs/research/dmx/sources.json"
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "2relay",
+      "file": "assets/2relay-_Gkh5vdp.js",
+      "sha256": "df1672cdb565a186fe121e296f15d8aed2e41bba2401a03e5db24cc2910d2588"
+    },
+    {
+      "id": "4relay",
+      "file": "assets/4relay-C_fBL-D7.js",
+      "sha256": "6a6e923107b1b262c405a375154267ff49962e5bdb93c7430e7e17e7b805a102"
+    },
+    {
+      "id": "dmx",
+      "file": "assets/dmx--oE816JQ.js",
+      "sha256": "c2ba0ddb4e5012420bd70e06d94d71200c8b102433e2ec071aed1df8c420aa1c"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/2relay/dimensions.js",
+      "sha256": "2cae8f26dcab88017594505e9402f6f54417867fc3b88c6d69ec853d2eccba57"
+    },
+    {
+      "path": "src/units/2relay/index.js",
+      "sha256": "fdd6f7b2880d3c0a71590b03261f6aa8372a6138b6f317b5035647606785a614"
+    },
+    {
+      "path": "src/units/2relay/cad-map.json",
+      "sha256": "13e72bc2b4a68152f7cbf822819143753e7f11879b23e4e3643e72cd7d91c2b9"
+    },
+    {
+      "path": "src/units/2relay/assembly.js",
+      "sha256": "32537b88671f49dba727a7e2986f5051b17b1afb8e926746184d6eed25ed2fdb"
+    },
+    {
+      "path": "src/units/2relay/geometry-data.js",
+      "sha256": "78d5f6b1ac53c2b57f9bb558f2e07333e23c2ee2fe111e87efd41003cc925fae"
+    },
+    {
+      "path": "src/units/2relay/TerminalPlug.js",
+      "sha256": "9169c5ce7942c80dde21bd34cf8480352094e8973ca3df925164d5d5e61568cb"
+    },
+    {
+      "path": "docs/research/2relay/sources.json",
+      "sha256": "fbeb18f5d9e7259f706b321c1f8e5bba3ac73a90781f84674bba554bbca6e9f3"
+    },
+    {
+      "path": "docs/research/2relay/modeling.md",
+      "sha256": "8847f6c45526f24b3c55234fed27654df21cb6e9a7e8c9ab3a31bf194d144ee7"
+    },
+    {
+      "path": "docs/research/2relay/smoke.json",
+      "sha256": "37b96bfd48c63ccd9a9014b032c3e02cd0e2746e339d6bef8136de862783af12"
+    },
+    {
+      "path": "src/units/4relay/dimensions.js",
+      "sha256": "85019df569d71959fc94a3a88b75934ba6a03c2b43edfaa74ca2979e23fb8319"
+    },
+    {
+      "path": "src/units/4relay/index.js",
+      "sha256": "a3ac89aeac4dfafde82ee26aac017b1d23cf168179b9b354b993d0b84c0408a0"
+    },
+    {
+      "path": "src/units/4relay/cad-map.json",
+      "sha256": "01c7dabac0ffcf4918e3e945ab316a7843ee4bc5f4370a98c95e69629a640a8f"
+    },
+    {
+      "path": "src/units/4relay/assembly.js",
+      "sha256": "627d7d4168b2677df617367718f594720927de0d8796ac612d7e3c1e6e911f98"
+    },
+    {
+      "path": "src/units/4relay/geometry-data.js",
+      "sha256": "627553d295c8b2c9b48694809280d0deae7b130843c577c99ae74c0cb72f7ef3"
+    },
+    {
+      "path": "src/units/4relay/TerminalPlug.js",
+      "sha256": "83b2d2f825b10ea237fd4aa8aa2d1386bdccaa0aa4390829eb79eced3a904d63"
+    },
+    {
+      "path": "docs/research/4relay/sources.json",
+      "sha256": "6bf522a437adc25e57330e497598c653bf19cfdae94c5c5af06fd4adbd5433c5"
+    },
+    {
+      "path": "docs/research/4relay/modeling.md",
+      "sha256": "0ee5179ad483eec3302c822c08a76bee4368b98f50f667f09f7b95504e7551b2"
+    },
+    {
+      "path": "docs/research/4relay/smoke.json",
+      "sha256": "787942d7d2e6f29f53d6301ecab2156a0641e256019366a2ec918e60f2d73bba"
+    },
+    {
+      "path": "src/units/dmx/dimensions.js",
+      "sha256": "d5d5d28b2ca045141c7efe08a27551be814a4a0f60fa3acab9e87dd9a945fe05"
+    },
+    {
+      "path": "src/units/dmx/index.js",
+      "sha256": "ce546632c536e0d3c02cfbdd6221435c26b505035229c0fc33b3dbf814e6d638"
+    },
+    {
+      "path": "src/units/dmx/cad-map.json",
+      "sha256": "2b575e1b197d216a87e84b799b884114852c14ef0649548ede8f285ba7368c3e"
+    },
+    {
+      "path": "src/units/dmx/assembly.js",
+      "sha256": "93e0a4d854b26d68785fe709ae8a4545424d39c52e736db30162586fc540529a"
+    },
+    {
+      "path": "src/units/dmx/geometry-data.js",
+      "sha256": "40e3afee3f5ed09be6ee24bca2d60761b1402b85cc0a451708f7316c86906ad5"
+    },
+    {
+      "path": "docs/research/dmx/sources.json",
+      "sha256": "de9cdf94b94e070f0615bcf309a326f0eabfd2da27683e6adc9a90538d9b1b00"
+    },
+    {
+      "path": "docs/research/dmx/modeling.md",
+      "sha256": "b4a83684918d834e7af84e0694d8016bfbcb1525a09ac69a9879b0716f5c7a1d"
+    },
+    {
+      "path": "docs/research/dmx/smoke.json",
+      "sha256": "183c981f2d65b6d497d20e325224bc6af480a2bdfd00e590e5811f5f155c46cc"
+    }
+  ],
+  "limitations": [
+    "Terminal internals, screw slots, PCB installed details and DMX control travel include documented visual estimates",
+    "4Relay official dimension/mounting-count discrepancies preserved and reported",
+    "DMX marketing RGB claim conflicts with schematic D4 red LED; fixed red appearance follows schematic",
+    "New print artwork and micro markings deferred",
+    "XLR external cable is not modeled",
+    "Previous sticker and Scroll checkpoints preserved",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

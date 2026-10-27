@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "validation": "virtual-device validation",
+  "scope": "CoreS3 first three Unit controller paths; not whole-batch or Web acceptance",
+  "runtime_provenance": {
+    "schema_version": 1,
+    "purpose": "runtime used by first three CoreS3 Unit leases",
+    "recorded_at": "2026-10-25T17:03:04.409064+00:00",
+    "qemu_sha256": "732d137bf03acd2cadbe686d182f4ea737bb41193f61b48caaa59a5630794c1f",
+    "tools": {
+      "platform/tools/device_service.py": "71ab18c371cf5c5711d55be251c5376ea94d8cd16152bd10bfa7be0d2f2397cf",
+      "platform/tools/serve.py": "478bec15f3340365cd1ce9b192e76515b12a18dc381145228efd32957dbd5e2d",
+      "platform/tools/unit_runtime.py": "75dba23ad894857bb1e402ad7b8388846c45fd2b13c574996e64c65de60cb3da",
+      "tests/uiflow2/esp_flash.py": "9b6f322071f769ec92a549bc9628f5f9af330d4879ed9e04cf1175b0b41cd979"
+    },
+    "roms": {
+      "esp32s3_rev0_rom.bin": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+    }
+  },
+  "cases": [
+    {
+      "unit_id": "button",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+      "status": "PASS",
+      "checks": {
+        "official_driver_ready": true,
+        "web_input_reaches_guest_gpio": true,
+        "live_controller_state": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "frame_sha256": "4e23f47688af8ec9986413576e48cf442cafff25f8657635cf42ab479c008a17",
+      "evidence_sha256": "3a1114fff0f60e16f3ed7acd6164255879c2964010d53c28f100602e459f8d64",
+      "session_id_sha256": "2b8915910136fb6f1070c470a86bb0ab8fe344141e515d7dfaa3bae0677b82f5"
+    },
+    {
+      "unit_id": "relay",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+      "status": "PASS",
+      "checks": {
+        "official_driver_ready": true,
+        "guest_gpio_output_readback": true,
+        "live_controller_state": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "frame_sha256": "4f04fa35863b798c99ca34c48f418ff950227a949b400d5bd3f10eebdbee722e",
+      "evidence_sha256": "9c0bc97b70b96d434c4f1fde906ed3441cd82e1150e71d30bc927936a601ff5b",
+      "session_id_sha256": "e32e6e1852e86849348473a1d9ec5bdfa872116b8fc219639cb3125d03724447"
+    },
+    {
+      "unit_id": "env-iii",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+      "status": "PASS",
+      "checks": {
+        "official_driver_ready": true,
+        "official_sensor_compensation_matches_input": true,
+        "live_controller_state": true,
+        "nonempty_application_frame": true,
+        "evidence_complete": true,
+        "stopped_with_history": true
+      },
+      "frame_sha256": "78e12f35c42ed6e634daa1b4394ef5f2b7f11ada7bbe09cff60de163422107ab",
+      "evidence_sha256": "4fe3b7a538a6a450c29ff37bc0d6ae380994b708e30092e297bd197a5757349f",
+      "session_id_sha256": "0551b8409029921ccffab52c7e3f93e5d375da76fe3997a9180bcf3a6b336c25"
+    }
+  ],
+  "hardware_validation": "NOT RUN",
+  "full_matrix_after_unit_changes": "NOT RUN",
+  "evidence_storage": "external",
+  "evidence_commit": "a37342f61c05964c060719a6e35c2d568c828e84",
+  "validation_scope": "historical-exact-runtime",
+  "archive_url": "https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/tests/units/evidence-2026-10-26-service-first3.json",
+  "summary_redaction": "Session identifiers are SHA256 digests; original raw evidence remains byte-identical at archive_url. This derived summary is not an original report."
+}

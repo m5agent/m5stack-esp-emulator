@@ -1,0 +1,383 @@
+{
+  "savedAt": "2026-10-26T12:42:25.515226+00:00",
+  "stage": "modeled",
+  "scope": "New UWB/TMOS PIR/Mini ToF-90 complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 101,
+    "modeled": 115,
+    "verified": 0
+  },
+  "localHead": "32c95e05ded1bb7f1ff6437f5bce0db9bf91eefd",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "uwb",
+      "status": "pass",
+      "report": "docs/research/uwb/smoke.json",
+      "meshes": 116,
+      "triangles": 70722
+    },
+    {
+      "id": "tmos-pir",
+      "status": "pass",
+      "report": "docs/research/tmos-pir/smoke.json",
+      "meshes": 72,
+      "triangles": 12136
+    },
+    {
+      "id": "mini-tof-90",
+      "status": "pass",
+      "report": "docs/research/mini-tof-90/smoke.json",
+      "meshes": 81,
+      "triangles": 12904
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/uwb/source-vector-back.png",
+      "pixels": [
+        1600,
+        2800
+      ],
+      "sha256": "7b083871f4c838b70e4fc2be96d48690ff1ac928d2fcee10a0473fc6d54871df"
+    },
+    {
+      "path": "src/units/uwb/source-vector-front.png",
+      "pixels": [
+        1780,
+        2780
+      ],
+      "sha256": "4b3d0dd0f375eb4cb70117549056818d7d41ad6db1607d3900d22a47eee9f904"
+    },
+    {
+      "path": "src/units/tmos-pir/reference-redraw-back.png",
+      "pixels": [
+        3200,
+        2400
+      ],
+      "sha256": "27db9848a3017b5d5e45318fb2a56ea4b311c013b04f614e256a9c027bab1dfc"
+    },
+    {
+      "path": "src/units/tmos-pir/reference-redraw-front.png",
+      "pixels": [
+        3280,
+        700
+      ],
+      "sha256": "beeb836e17ebaf46206ba4196512c954f41f79107eb4660c7ee87342f308627e"
+    },
+    {
+      "path": "src/units/mini-tof-90/reference-redraw-back.png",
+      "pixels": [
+        1880,
+        480
+      ],
+      "sha256": "6465a0039e9dbab22c1de18e8ca8d22276b6b1786d0a6f0ce8ddbb7c3eb9a01e"
+    },
+    {
+      "path": "src/units/mini-tof-90/reference-redraw-front.png",
+      "pixels": [
+        1880,
+        480
+      ],
+      "sha256": "9c52025f331eded0f49c1f26828ed55290615243179fd62377ef603049720a60"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "uwb",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      },
+      {
+        "id": "tmos-pir",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-tof-90",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-fixed-UWB-integrated-antenna-TMOS-window-and-right-angle-ToF-structures",
+      "no-invented-buttons-joints-displays-external-antennas-or-visible-IR",
+      "passive-anchors-and-UART-connector-reject-numeric-internal-functions",
+      "independent-fixed-red-native-power-guide-without-halo-or-geometry-change",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-pose-and-independent-selective-detach"
+    ],
+    "scope": "New actual fixed bodies/optical structures and external appearance APIs only; Node canvas stub, no browser, RF, AT, positioning, ranging, IR optics, presence, motion, temperature, distance, registers, firmware, electrical, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "uwb",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      },
+      {
+        "id": "tmos-pir",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-tof-90",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-fixed-UWB-integrated-antenna-TMOS-window-and-right-angle-ToF-structures",
+      "no-invented-buttons-joints-displays-external-antennas-or-visible-IR",
+      "passive-anchors-and-UART-connector-reject-numeric-internal-functions",
+      "independent-fixed-red-native-power-guide-without-halo-or-geometry-change",
+      "configured-artwork-preserves-physical-attributes-indices-and-world-matrices",
+      "external-pose-and-independent-selective-detach"
+    ],
+    "scope": "New actual fixed bodies/optical structures and external appearance APIs only; Node canvas stub, no browser, RF, AT, positioning, ranging, IR optics, presence, motion, temperature, distance, registers, firmware, electrical, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "uwb",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "tmos-pir",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "mini-tof-90",
+        "status": "frozen",
+        "checkedFiles": 12
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "12f70362e0df64bd74e311fd7a7c55e5f704ee4a15ce8477339d81e631cde598",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "27918bb481e68d86a35ec2604a6f863b74c46942e37c1c36633b9907692a7ece",
+      "logDistributed": false
+    },
+    "livePreview": "115-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 793,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "tmos-pir",
+      "record": "docs/research/tmos-pir/sources.json",
+      "feedback_id": "052dc71fcd6b48e5a17651bb4f438896",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "uwb",
+      "file": "assets/uwb-DIiZhc-V.js",
+      "sha256": "4b7edd1c1760613bd5042d3dbab554b72263f3be957cbb4e6af1f45b6f888a80"
+    },
+    {
+      "id": "tmos-pir",
+      "file": "assets/tmos-pir-Bu2GKVLw.js",
+      "sha256": "a38278183eddc833d18f5919c178212fd84aa989b18a5558928d6deb37dd685a"
+    },
+    {
+      "id": "mini-tof-90",
+      "file": "assets/mini-tof-90-B8h7_Llx.js",
+      "sha256": "684dfaf5da4f812b6559baa5a987644c86bf33fef981252f0b0bdda006ad371b"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/uwb/assembly.js",
+      "sha256": "7c6ab9e89c8d5bab69e3862dd9c6b9a7eb6a98ed14b63ee0d3efbf711cf7413c"
+    },
+    {
+      "path": "src/units/uwb/cad-map.json",
+      "sha256": "0fbd13e670d84d18d48fc419d7cd7a4c81543c664bac2788e021a65cb82f5e9d"
+    },
+    {
+      "path": "src/units/uwb/connectors.js",
+      "sha256": "1a201742607374a87ab6e2d383900bb548e9a5a48dea3383f4bb63429ad1449b"
+    },
+    {
+      "path": "src/units/uwb/dimensions.js",
+      "sha256": "8b692fe4da65fb00e0bdb84a47d91635cb37cef48aaaf5abb0689c33c44d3549"
+    },
+    {
+      "path": "src/units/uwb/geometry-data.js",
+      "sha256": "8150930c8cd338954b0f0d5b10a527c5db2a6dca9393ec61698562b921a30a69"
+    },
+    {
+      "path": "src/units/uwb/index.js",
+      "sha256": "f84c4cf3d13a8bd9090219b06dace259a3de900009349c47ef308261a1f5e047"
+    },
+    {
+      "path": "src/units/uwb/source-vector-back.png",
+      "sha256": "7b083871f4c838b70e4fc2be96d48690ff1ac928d2fcee10a0473fc6d54871df"
+    },
+    {
+      "path": "src/units/uwb/source-vector-front.png",
+      "sha256": "4b3d0dd0f375eb4cb70117549056818d7d41ad6db1607d3900d22a47eee9f904"
+    },
+    {
+      "path": "src/units/uwb/stickers.js",
+      "sha256": "ebe77de8dea457bee1fd6894f6d0970859161457891b1891be248d104db483a0"
+    },
+    {
+      "path": "docs/research/uwb/artwork.json",
+      "sha256": "054208004b9a19a5ebc1ec9db5c7d75ecf01b1983d2264fdfb58bfbf6d8cdf28"
+    },
+    {
+      "path": "docs/research/uwb/modeling.md",
+      "sha256": "9b7a902f22ed7b932550c4d48ab00a69c42a2701264d5bd30ce3081139b5954d"
+    },
+    {
+      "path": "docs/research/uwb/smoke.json",
+      "sha256": "259fe001aaa0c10c4d7c5eda06f1ba9ff6a3304c9f989be472b7defadca463e7"
+    },
+    {
+      "path": "docs/research/uwb/sources.json",
+      "sha256": "21f45a9c639f2a4d90fb977d3ce858699e1c1235f8cac390955b1c27f36e5367"
+    },
+    {
+      "path": "src/units/tmos-pir/assembly.js",
+      "sha256": "2f8911584146dedae61c5e1fbc0a03494c57fe64cbe833c98fda546f37b3d785"
+    },
+    {
+      "path": "src/units/tmos-pir/cad-map.json",
+      "sha256": "b7827ccc281439dd00e21c08c2175746276c9e5e09314b63886c874db9a4cbfe"
+    },
+    {
+      "path": "src/units/tmos-pir/dimensions.js",
+      "sha256": "dfb689c58cddd6faf83840447a7252def2727ce3b1f931c9c0e5381ef8b594bd"
+    },
+    {
+      "path": "src/units/tmos-pir/geometry-data.js",
+      "sha256": "4ceed75f0b51add219a06cc3a7515f9af38de16766c0bb1a9549bc0fd7248072"
+    },
+    {
+      "path": "src/units/tmos-pir/index.js",
+      "sha256": "a4f0c4265f5f48fa2f1a416c7cf93932dbb4f91759ff74f8df98fc11910c02de"
+    },
+    {
+      "path": "src/units/tmos-pir/reference-redraw-back.png",
+      "sha256": "27db9848a3017b5d5e45318fb2a56ea4b311c013b04f614e256a9c027bab1dfc"
+    },
+    {
+      "path": "src/units/tmos-pir/reference-redraw-front.png",
+      "sha256": "beeb836e17ebaf46206ba4196512c954f41f79107eb4660c7ee87342f308627e"
+    },
+    {
+      "path": "src/units/tmos-pir/stickers.js",
+      "sha256": "72065ae1055acb9d57e114205d4eb58bc7137b47e1786b904400bac012c097f6"
+    },
+    {
+      "path": "docs/research/tmos-pir/artwork.json",
+      "sha256": "7fdecbf7e1a9b46784f6c4ad273a828a69e7eb87f2d830eae9304491137c74db"
+    },
+    {
+      "path": "docs/research/tmos-pir/modeling.md",
+      "sha256": "e9759dcdc15c7bf85f6a8daf3b032bd17133c2cb451403b2e5473453478deea4"
+    },
+    {
+      "path": "docs/research/tmos-pir/smoke.json",
+      "sha256": "28289853e63a6640cef9e59ada897040ec9483008beeadb08b826dbb5110d530"
+    },
+    {
+      "path": "docs/research/tmos-pir/sources.json",
+      "sha256": "6345fceac0d4b3a413332a72f7e5c2952738fdcd6e62dc4ced8a370b50147a95"
+    },
+    {
+      "path": "src/units/mini-tof-90/assembly.js",
+      "sha256": "1f5d6638607c81ead191f7c26dd735f0353797913f189bbe8d6a528ab7a3e4c6"
+    },
+    {
+      "path": "src/units/mini-tof-90/cad-map.json",
+      "sha256": "1cc4c74932e7d9e6e891ce33d4f8be5b47f86e0597d61dd4ffd0ffef73979d5b"
+    },
+    {
+      "path": "src/units/mini-tof-90/dimensions.js",
+      "sha256": "8d4856fb24100b8360e1f314f24d52459d0d6a207935303cea61a0143965a158"
+    },
+    {
+      "path": "src/units/mini-tof-90/geometry-data.js",
+      "sha256": "50304ea656134c0eb7bf90940eddd315dd44b6988b97c25c99da6196d24ad859"
+    },
+    {
+      "path": "src/units/mini-tof-90/index.js",
+      "sha256": "59b1add8202cc0574aa766bbca55b8148448df49d9be047ef264432ffea204ca"
+    },
+    {
+      "path": "src/units/mini-tof-90/reference-redraw-back.png",
+      "sha256": "6465a0039e9dbab22c1de18e8ca8d22276b6b1786d0a6f0ce8ddbb7c3eb9a01e"
+    },
+    {
+      "path": "src/units/mini-tof-90/reference-redraw-front.png",
+      "sha256": "9c52025f331eded0f49c1f26828ed55290615243179fd62377ef603049720a60"
+    },
+    {
+      "path": "src/units/mini-tof-90/stickers.js",
+      "sha256": "4949516475ba464a75669822a20909d267103eb5e570b669271994e9a9f60141"
+    },
+    {
+      "path": "docs/research/mini-tof-90/artwork.json",
+      "sha256": "d6970cfc9d0c0660d4dc7650c333b21cc021c1f879ca00c60c1fba4887a35841"
+    },
+    {
+      "path": "docs/research/mini-tof-90/modeling.md",
+      "sha256": "a0fb947ab5cf329e7483c19b96c6cfa806cf98ec67fafd236ce5823b354c5ec9"
+    },
+    {
+      "path": "docs/research/mini-tof-90/smoke.json",
+      "sha256": "3513c15314d1ad4e2bb8745069f6b5d9e2b5637f211fc7e08e8d4b6582784540"
+    },
+    {
+      "path": "docs/research/mini-tof-90/sources.json",
+      "sha256": "660c181bef8f062817afd9a5099a9f199b6cd3ab6854d0856c3166b26c722d0b"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "UWB owns its actual BU01/STM32/PCB and integrated antenna appearance; no RF, AT commands, positioning, ranging or electrical behavior",
+    "TMOS PIR owns its actual STHS34PF80 optical package and window; no visible IR, presence, motion, temperature, gain or electrical behavior",
+    "Mini ToF-90 owns its actual fixed right-angle PCB pair and optical package; no invented hinge, visible IR, distance or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows the user-requested112-model Git sync;current Git state is recorded separately"
+  ]
+}

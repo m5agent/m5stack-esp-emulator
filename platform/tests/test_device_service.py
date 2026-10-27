@@ -48,6 +48,22 @@ from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
 
 
+NETWORK_LIFECYCLE_FIXTURE = """
+import hashlib,os,subprocess
+def _write_lifecycle(out_dir):
+    def probe(field):
+        return subprocess.check_output(
+            ['ps','-ww','-p',str(os.getpid()),'-o',field+'='],text=True
+        ).strip()
+    receipt={'schema_version':1,'kind':'m5stack-network-lane-lifecycle',
+        'state':'cleanup-complete','cleanup_complete':True,
+        'runner':{'pid':os.getpid(),'start_token':probe('lstart'),
+            'command_sha256':hashlib.sha256(probe('command').encode()).hexdigest()},
+        'children':{'ble':None,'emulator':None}}
+    (out_dir/'lifecycle.json').write_text(json.dumps(receipt))
+"""
+
+
 def hermetic_flash_preparer(
     spec: device_service_module.DeviceSpec,
     image: Path,
@@ -198,6 +214,85 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def tearDown(self):
         self.service.close_all()
         self.tmp.cleanup()
+
+    def test_live_mode_initializes_reference_once_and_preserves_create_idempotency(self):
+        source_sha = "a" * 64
+        firmware = {"firmware_id": "b" * 64, "sha256": "b" * 64, "device_id": "cores3",
+                    "source": {"kind": "uiflow", "artifact_id": source_sha,
+                               "metadata": {"source_sha256": source_sha}}}
+        request = {"device_id": "cores3", "program_mode": "uiflow-live", "idempotency_key": "live-mode-test"}
+        with mock.patch.object(self.service, "create_uiflow_firmware", return_value=firmware) as compose, \
+             mock.patch.object(self.service.firmware, "get", return_value=firmware), \
+             mock.patch.object(self.service.firmware, "path", return_value=self.service.specs["cores3"].reference_path), \
+             mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session(request)
+            replay = self.service.create_session(dict(request))
+        self.assertEqual(compose.call_count, 1)
+        files = compose.call_args.args[0]["files"]
+        self.assertIn("os.dupterm", files["boot.py"])
+        self.assertIn("_uiflow_run_main = False", files["boot.py"])
+        self.assertEqual(files["main.py"], "pass\n")
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(session.program_transport, "uart-repl")
+        self.assertEqual(session.ready_marker, "M5EMU_UART_REPL_READY")
+        self.assertEqual(result["session_id"], replay["session_id"])
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertNotIn("firmware_id", request, "caller request must remain unchanged")
+
+    def test_live_mode_rejects_conflicts_before_composing_or_reserving_a_lease(self):
+        for extra, code in (
+            ({"program_mode": []}, "unsupported_program_mode"),
+            ({"runtime": "qemu-unified"}, "unsupported_program_mode"),
+            ({"firmware_id": "b" * 64}, "program_mode_firmware_conflict"),
+            ({"uiflow_source_sha256": "a" * 64}, "program_mode_firmware_conflict"),
+            ({"ready_marker": "USER_APPLICATION_READY"}, "program_mode_ready_conflict"),
+            ({"ready": {"frame_nonblank": True}}, "program_mode_ready_conflict"),
+        ):
+            with self.subTest(extra=extra), mock.patch.object(self.service, "create_uiflow_firmware") as compose:
+                with self.assertRaises(ServiceError) as error:
+                    self.service.create_session({"device_id": "cores3", "program_mode": "uiflow-live", **extra})
+                self.assertEqual(error.exception.code, code)
+                compose.assert_not_called()
+                self.assertEqual(self.service.capacity()["active_sessions"], 0)
+
+    def test_program_modes_are_advertised_only_on_admitted_devices(self):
+        for device_id in ("cores3", "atoms3r", "sticks3", "stopwatch"):
+            self.assertEqual(self.service.get_device(device_id)["program_modes"], ["uiflow-live"])
+            features = self.service.get_device(device_id)["program_features"]
+            self.assertEqual(features["runtimes"], ["qemu"])
+            self.assertEqual(features["entrypoints"], ["main.py"])
+            self.assertEqual(features["mpy_dependencies"], "bytecode-only")
+            self.assertIs(features["mpy_entrypoint"], False)
+            self.assertIs(features["native_mpy"], False)
+            self.assertEqual(features["main_namespace"], "fresh-exec-globals")
+            self.assertEqual(features["cleanup_mode"], "interrupt-only")
+        for device_id in ("core2", "tab5", "nanoc6"):
+            self.assertEqual(self.service.get_device(device_id)["program_modes"], [])
+            self.assertEqual(self.service.get_device(device_id)["program_features"], {})
+
+    def test_unit_creation_uses_one_catalog_snapshot_for_wiring_and_contract(self):
+        registry = device_service_module.UnitRegistry()
+        with mock.patch.object(device_service_module, "UnitRegistry", side_effect=[registry]) as factory, mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session({
+                "device_id": "cores3", "units": [{"id": "button1", "unit_id": "button", "port_id": "port-a"}],
+            })
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(factory.call_count, 1)
+        self.assertEqual(session.unit_contract["source_hashes"], registry.source_hashes)
+        self.assertEqual(session.unit_contract["profiles"]["button"]["state"]["pressed"]["property"], "pressed")
+
+    def test_restore_without_unit_contract_does_not_reinterpret_current_catalog(self):
+        with mock.patch.object(device_service_module, "UnitRegistry", side_effect=AssertionError("legacy history must not load current catalog")):
+            session = DeviceSession(
+                self.service, session_id="c" * 32, spec=self.service.specs["cores3"],
+                firmware_id="d" * 64, firmware_path=Path(self.tmp.name) / "legacy.bin",
+                firmware_sha="d" * 64, firmware_source="uploaded", source_artifacts=[],
+                ttl_seconds=60, ready_marker=None, ready_timeout=10, ready_conditions=None,
+                units=[{"id": "old1", "unit_id": "removed-product", "port_id": "port-a"}],
+                restored=True, initial_state="stopped", events=[], persist=False,
+            )
+            self.assertIsNone(session.unit_contract)
+            self.assertEqual(session.unit_state()["contract_status"], "unrecorded")
 
     def test_http_companion_persists_requests_and_recovers_by_generation(
         self,
@@ -500,6 +595,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.service.firmware.path(firmware["firmware_id"]).stat().st_size,
             8 << 20,
         )
+
+    def test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it(self):
+        payload = {"device_id": "cores3", "files": {"main.py": "pass\n"},
+                   "base_firmware_id": "a" * 64, "expected_base_sha256": "a" * 64}
+        result = {"kind": "uiflow", "firmware_id": "b" * 64}
+        with mock.patch.object(self.service.firmware, "create", return_value=result) as create:
+            self.assertEqual(self.service.create_uiflow_firmware(payload), result)
+        create.assert_called_once_with({**payload, "kind": "uiflow"})
+        self.assertNotIn("kind", payload)
 
     def test_manifest_firmware_is_validated_and_recorded(self):
         data = b"\xe9" + b"M" * 1023
@@ -2823,7 +2927,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,sys\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -2833,6 +2937,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "(a.out_dir/'serial.log').write_text('LANE_DONE\\n')\n"
             "e={'status':'PASS','checks':{'wifi_dhcp':True}}\n"
             "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '_write_lifecycle(a.out_dir)\n'
             "print(json.dumps(e))\n"
         )
         fake_lane.chmod(0o755)
@@ -2913,7 +3018,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_generic_network_session_passes_restricted_backend(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,sys\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -2922,6 +3027,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "(a.out_dir/'argv.json').write_text(json.dumps(sys.argv[1:]))\n"
             "e={'status':'PARTIAL','checks':{}}\n"
             "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '_write_lifecycle(a.out_dir)\n'
             "print(json.dumps(e))\n"
         )
         fake_lane.chmod(0o755)
@@ -3028,7 +3134,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_network_session_stop_collects_runner_evidence(self):
         fake_lane = Path(self.tmp.name) / "graceful-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,signal,sys,time\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -3037,6 +3143,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "def stop(_signum,_frame):\n"
             "    e={'status':'PARTIAL','checks':{},'stop_requested':True}\n"
             "    (a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '    _write_lifecycle(a.out_dir)\n'
             "    sys.exit(0)\n"
             "signal.signal(signal.SIGTERM,stop)\n"
             "while True: time.sleep(0.1)\n"
@@ -3431,8 +3538,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 side_effect=lambda: clock["now"],
             ),
             mock.patch.object(
-                device_service_module.time,
-                "sleep",
+                session._stop_event,
+                "wait",
                 side_effect=sleep_and_complete,
             ),
         ):
@@ -4948,6 +5055,65 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(
             persisted["components"]["power"]["properties"]["pa-enabled"], True
         )
+
+    def test_serial_read_is_bounded_to_requested_window(self):
+        session = self._stopped_session()
+        prefix_size = 16 * 1024 * 1024
+        tail = "中文尾\n".encode() + b"\xff"
+        with session.serial0.open("wb") as stream:
+            stream.seek(prefix_size)
+            stream.write(tail)
+        original_open = Path.open
+        reads = []
+
+        class BoundedStream:
+            def __init__(self, stream):
+                self.stream = stream
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return self.stream.__exit__(*args)
+
+            def __getattr__(self, name):
+                return getattr(self.stream, name)
+
+            def read(self, size=-1):
+                if not 0 <= size <= 5:
+                    raise AssertionError("serial polling must not read the whole log")
+                reads.append(size)
+                return self.stream.read(size)
+
+        def opened(path, *args, **kwargs):
+            stream = original_open(path, *args, **kwargs)
+            return BoundedStream(stream) if path == session.serial0 else stream
+
+        # An arbitrary byte offset still has the documented replacement decode;
+        # bounded I/O does not silently introduce a different text cursor.
+        with mock.patch.object(Path, "open", autospec=True, side_effect=opened):
+            result = session.serial_read(prefix_size + 2, 5)
+        self.assertEqual(reads, [5])
+        self.assertEqual(result, {"session_id": session.id,
+                         "offset": prefix_size + 2, "next_offset": prefix_size + 7,
+                         "data": tail[2:7].decode("utf-8", errors="replace"), "bytes": 5})
+
+    def test_serial_read_keeps_empty_clamping_and_stopped_history_contract(self):
+        session = self._stopped_session()
+        session.serial0.write_bytes(b"abc")
+        self.assertEqual(session.state, "stopped")
+        self.assertEqual(session.serial_read(-10, 0), {
+            "session_id": session.id, "offset": 0, "next_offset": 1,
+            "data": "a", "bytes": 1})
+        self.assertEqual(session.serial_read(100, 5), {
+            "session_id": session.id, "offset": 3, "next_offset": 3,
+            "data": "", "bytes": 0})
+        session.serial0.write_bytes(b"")
+        self.assertEqual(session.serial_read(100)["next_offset"], 0)
+        session.serial0.unlink()
+        self.assertEqual(session.serial_read(37), {
+            "session_id": session.id, "offset": 37, "next_offset": 37,
+            "data": "", "bytes": 0})
 
     def test_serial_readiness_and_evidence_bundle(self):
         session = self._stopped_session()

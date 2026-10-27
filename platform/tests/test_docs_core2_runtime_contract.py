@@ -2195,13 +2195,10 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                 "platform/tools/unified_http_guestfwd.py"
             ),
         }.items():
-            current_digest = hashlib.sha256(
-                (ROOT / relative).read_bytes()
-            ).hexdigest()
             for evidence in current_concurrent:
-                self.assertEqual(
+                self._assert_recorded_tool_hash(
+                    "core2-recorded-concurrency-20261026-network-hardening", relative,
                     evidence["tool_hashes"][name],
-                    current_digest,
                 )
 
         latency = json.loads(

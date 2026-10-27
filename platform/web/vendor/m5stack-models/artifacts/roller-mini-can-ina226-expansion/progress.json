@@ -1,0 +1,417 @@
+{
+  "savedAt": "2026-10-26T12:56:43.292712+00:00",
+  "stage": "modeled",
+  "scope": "New Roller485 Lite/Mini CAN/INA226-10A complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 104,
+    "modeled": 118,
+    "verified": 0
+  },
+  "localHead": "32c95e05ded1bb7f1ff6437f5bce0db9bf91eefd",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "roller485-lite",
+      "status": "pass",
+      "report": "docs/research/roller485-lite/smoke.json",
+      "meshes": 121,
+      "triangles": 42998
+    },
+    {
+      "id": "mini-can",
+      "status": "pass",
+      "report": "docs/research/mini-can/smoke.json",
+      "meshes": 123,
+      "triangles": 52676
+    },
+    {
+      "id": "ina226-10a",
+      "status": "pass",
+      "report": "docs/research/ina226-10a/smoke.json",
+      "meshes": 163,
+      "triangles": 22808
+    }
+  ],
+  "pngCount": 7,
+  "rasters": [
+    {
+      "path": "src/units/roller485-lite/reference-redraw-debug.png",
+      "pixels": [
+        2400,
+        870
+      ],
+      "sha256": "fc33203e371c0d60b00320aedd13fab497a349dfc90e76ec95b8d7793044ea2d"
+    },
+    {
+      "path": "src/units/roller485-lite/reference-redraw-port-a.png",
+      "pixels": [
+        1440,
+        1840
+      ],
+      "sha256": "9087ece0bc43592d85288df0228857cbaa0ef8a5ec5983a767e91fd6fbb11a82"
+    },
+    {
+      "path": "src/units/roller485-lite/reference-redraw-pwr485.png",
+      "pixels": [
+        2400,
+        1380
+      ],
+      "sha256": "0df2dbcf6a04685847a4044677509d3e8f038eb6efb3c60b0c887f1f1ad9da10"
+    },
+    {
+      "path": "src/units/mini-can/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        1220
+      ],
+      "sha256": "89e4868a89940dde6cd88a111464345f7e96acedd783723fe71271733f4b8b2c"
+    },
+    {
+      "path": "src/units/mini-can/reference-redraw-front.png",
+      "pixels": [
+        1600,
+        1485
+      ],
+      "sha256": "1714b76519114035954d76b197814f0a148e6120750e20232cc354b4f42250b8"
+    },
+    {
+      "path": "src/units/ina226-10a/source-vector-back.png",
+      "pixels": [
+        1600,
+        3600
+      ],
+      "sha256": "eb789c7ac8ca49d3139f09617e3fc82a7700574bc4379f64ab8f83c94150b992"
+    },
+    {
+      "path": "src/units/ina226-10a/source-vector-front.png",
+      "pixels": [
+        1580,
+        2690
+      ],
+      "sha256": "103784518f71cdecc8b9aa59b289d4a76c87d31ec17103ce8af8ba74e973c455"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "roller485-lite",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-can",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ina226-10a",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-Lite-motor-no-slip-ring-and-fixed-versus-moving-ownership",
+      "exactly-once-continuous-rotation-and-neutral-return",
+      "actual-native-flexure-release-cancel-and-exact-position-normal-return",
+      "independent-external-RGB-and-monochrome-OLED-framebuffer-ownership",
+      "three-removable-four-screw-plugs-with-head-angle-tween-and-no-RPM",
+      "configured-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "non-Grove-types-and-internal-control-bus-measurement-rejected",
+      "external-pose-and-independent-detach"
+    ],
+    "scope": "New product assemblies and external appearance APIs only;Node canvas stub,no browser,FOC,motor dynamics,encoder feedback,CAN,RS485,I2C,current,voltage,power,protection,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "roller485-lite",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-can",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "ina226-10a",
+        "panels": 2,
+        "kinds": [
+          "source-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "own-Lite-motor-no-slip-ring-and-fixed-versus-moving-ownership",
+      "exactly-once-continuous-rotation-and-neutral-return",
+      "actual-native-flexure-release-cancel-and-exact-position-normal-return",
+      "independent-external-RGB-and-monochrome-OLED-framebuffer-ownership",
+      "three-removable-four-screw-plugs-with-head-angle-tween-and-no-RPM",
+      "configured-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "non-Grove-types-and-internal-control-bus-measurement-rejected",
+      "external-pose-and-independent-detach"
+    ],
+    "scope": "New product assemblies and external appearance APIs only;Node canvas stub,no browser,FOC,motor dynamics,encoder feedback,CAN,RS485,I2C,current,voltage,power,protection,electrical,firmware,physical or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "roller485-lite",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "mini-can",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "ina226-10a",
+        "status": "frozen",
+        "checkedFiles": 14
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "5788720cc6febeddcf1377e6835cd0f741182a5b9b46497ef59fa037b3eacee6",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "1c4264ca179ef5358ff57ba05e44616c719da01c792936c00f6b4186c7896a40",
+      "logDistributed": false
+    },
+    "livePreview": "118-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 818,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "roller485-lite",
+      "record": "docs/research/roller485-lite/sources.json",
+      "feedback_id": "b6a2e2bf5b174a788c7be66dab54c907",
+      "accepted": true
+    },
+    {
+      "product": "ina226-10a",
+      "record": "docs/research/ina226-10a/sources.json",
+      "feedback_id": "692e32ec722240559336c5c6fb24a03f",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "roller485-lite",
+      "file": "assets/roller485-lite-JdJtiRRl.js",
+      "sha256": "98de114c8016ba7a3d741dc44f602171af5663ee497707918295064a8b76dfac"
+    },
+    {
+      "id": "mini-can",
+      "file": "assets/mini-can-CRJHUbm4.js",
+      "sha256": "d565beaa56662bb76a8225b0bce1bd611b33ff8879dc8ce16a091d4df9ad2d3d"
+    },
+    {
+      "id": "ina226-10a",
+      "file": "assets/ina226-10a-BjUIUdm_.js",
+      "sha256": "6f7890b8f76f5da1eeab7296456637ce11a8b2c9167c6aec92b862b36e02c5a3"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/roller485-lite/TerminalPlug.js",
+      "sha256": "5a99089500a9afbb760f9223746602638b9d5d5ed0e9979f92df621023dc84e6"
+    },
+    {
+      "path": "src/units/roller485-lite/cad-map.json",
+      "sha256": "9682fa1cbc52c098450ff83c276c43b6d24fd98dc15ca5a02f2e87a6cf01bbf1"
+    },
+    {
+      "path": "src/units/roller485-lite/dimensions.js",
+      "sha256": "4d62edd4cae23fd9c47581636d6973e0ee057cb8884594a37140e84c693636ea"
+    },
+    {
+      "path": "src/units/roller485-lite/geometry-data.js",
+      "sha256": "f44194d7237aff720f1638eff51e598386f9025917c96d59feae7c72eee29eec"
+    },
+    {
+      "path": "src/units/roller485-lite/index.js",
+      "sha256": "c0159dc978940d6b244fd535eadf3d48f700ee6c883e773eedb68936447bbfb7"
+    },
+    {
+      "path": "src/units/roller485-lite/reference-redraw-debug.png",
+      "sha256": "fc33203e371c0d60b00320aedd13fab497a349dfc90e76ec95b8d7793044ea2d"
+    },
+    {
+      "path": "src/units/roller485-lite/reference-redraw-port-a.png",
+      "sha256": "9087ece0bc43592d85288df0228857cbaa0ef8a5ec5983a767e91fd6fbb11a82"
+    },
+    {
+      "path": "src/units/roller485-lite/reference-redraw-pwr485.png",
+      "sha256": "0df2dbcf6a04685847a4044677509d3e8f038eb6efb3c60b0c887f1f1ad9da10"
+    },
+    {
+      "path": "src/units/roller485-lite/stickers.js",
+      "sha256": "b1383659d91c78d0872a1f5037e6ffaeec23701370845920870f1517b44035b8"
+    },
+    {
+      "path": "docs/research/roller485-lite/artwork.json",
+      "sha256": "8dff38bcf978d02f0ffee8fae2435bff273bd871c344c9c4ec236f833de88e05"
+    },
+    {
+      "path": "docs/research/roller485-lite/modeling.md",
+      "sha256": "4854c6a775a7871f19b89414b6a4b1daa8c5c46cd4e1bf4468726f84f8969012"
+    },
+    {
+      "path": "docs/research/roller485-lite/smoke.json",
+      "sha256": "e923c6eafeca84159826cb4257a2002a7fcd95ac6983712c2edb9a3983d50abd"
+    },
+    {
+      "path": "docs/research/roller485-lite/sources.json",
+      "sha256": "0fb49d6d1bee94f74df5714319cb2613fcfb7174e61b8596f27362c28e372723"
+    },
+    {
+      "path": "src/units/mini-can/TerminalPlug.js",
+      "sha256": "999fd13e4e2354b8bd498780d03a57c0e29fc47498d6132f9b185b385fde35c6"
+    },
+    {
+      "path": "src/units/mini-can/assembly.js",
+      "sha256": "80420be6558eb22696386ae504f06a035c24bd2146724948690d7e2993e1e039"
+    },
+    {
+      "path": "src/units/mini-can/cad-map.json",
+      "sha256": "c46aed8c7be8d469d75b292565a973d9c9390fedfd34f503e94c9cba46b8d700"
+    },
+    {
+      "path": "src/units/mini-can/connectors.js",
+      "sha256": "f36924805f5b559d72dea099bf07fedb5646bb1768ac4ea95f01b7f803813f66"
+    },
+    {
+      "path": "src/units/mini-can/dimensions.js",
+      "sha256": "387993d21c4cb8cc93c44fef42b56f18abe33367b812f3307be285c937e6a0f6"
+    },
+    {
+      "path": "src/units/mini-can/geometry-data.js",
+      "sha256": "ed4a7a948cd04e06766dc810272eea66fc9dc86a4be83015b895f7fd172ec5f9"
+    },
+    {
+      "path": "src/units/mini-can/index.js",
+      "sha256": "ec65b4f3f1631c0bb6fe9619472dc489969b30f7e252099c24ae3daa08433940"
+    },
+    {
+      "path": "src/units/mini-can/reference-redraw-back.png",
+      "sha256": "89e4868a89940dde6cd88a111464345f7e96acedd783723fe71271733f4b8b2c"
+    },
+    {
+      "path": "src/units/mini-can/reference-redraw-front.png",
+      "sha256": "1714b76519114035954d76b197814f0a148e6120750e20232cc354b4f42250b8"
+    },
+    {
+      "path": "src/units/mini-can/stickers.js",
+      "sha256": "f9c0b5abdac324a13643dcb651b09612565e2b2a8b770a3dfa09876b225713f9"
+    },
+    {
+      "path": "docs/research/mini-can/artwork.json",
+      "sha256": "d71661a38b19b004def56e6a6fd9c9dcc41007e96b6be25a6d05ec6e672b3ba3"
+    },
+    {
+      "path": "docs/research/mini-can/modeling.md",
+      "sha256": "3c6777d29637264bbcfc870a0c43b9fba2328cc0aaf8a77aeb70f07a9d3a73c2"
+    },
+    {
+      "path": "docs/research/mini-can/smoke.json",
+      "sha256": "b5c6f1e707fbb09e5984cb3d3b4c4cabfe1d1b48cdf1663409b093c592bb3a15"
+    },
+    {
+      "path": "docs/research/mini-can/sources.json",
+      "sha256": "32b9bd4e2918baa11f420074de3badb396083ee1e21522959f147746c6c34053"
+    },
+    {
+      "path": "src/units/ina226-10a/TerminalPlug.js",
+      "sha256": "f74f2f191774d4bc0e1c076d1b72ae0407e33203d0809af79e4ed06b4abf65b4"
+    },
+    {
+      "path": "src/units/ina226-10a/assembly.js",
+      "sha256": "9a810077999b718fec5696e41d3b4db02ae84b82fbdb145f2e87bf2c48474fa5"
+    },
+    {
+      "path": "src/units/ina226-10a/cad-map.json",
+      "sha256": "8a9317c13d551edd3328e3597f9b11ab67167ecd615eb5455b61a56448f15b12"
+    },
+    {
+      "path": "src/units/ina226-10a/connectors.js",
+      "sha256": "b6edc9f662bb468dbad1028f00554a4d34c2f4007b65c14c90580cf9547cb65c"
+    },
+    {
+      "path": "src/units/ina226-10a/dimensions.js",
+      "sha256": "5a359bd32989e151c30b666b780218f754567987afcf0650f028a68a114a6cfb"
+    },
+    {
+      "path": "src/units/ina226-10a/geometry-data.js",
+      "sha256": "2449f0a48f8502f56150861179448a9227d67d98eaeae700fbba358e759c4776"
+    },
+    {
+      "path": "src/units/ina226-10a/index.js",
+      "sha256": "ba61961d2c160f371b6dc2ca383d8c644ebe494757736e47af1ee66905ded7d1"
+    },
+    {
+      "path": "src/units/ina226-10a/source-vector-back.png",
+      "sha256": "eb789c7ac8ca49d3139f09617e3fc82a7700574bc4379f64ab8f83c94150b992"
+    },
+    {
+      "path": "src/units/ina226-10a/source-vector-front.png",
+      "sha256": "103784518f71cdecc8b9aa59b289d4a76c87d31ec17103ce8af8ba74e973c455"
+    },
+    {
+      "path": "src/units/ina226-10a/stickers.js",
+      "sha256": "4b91c7c24405b7d9569a31c560d7ed9a318a2951a9b60d6dacb6257f3e3d569b"
+    },
+    {
+      "path": "docs/research/ina226-10a/artwork.json",
+      "sha256": "3a7843f26831d577853ba271d869818fbf8903a1ea6bba9fe8fdd7f64f4d98dd"
+    },
+    {
+      "path": "docs/research/ina226-10a/modeling.md",
+      "sha256": "1cee91fc35a6c033a36a079a9a3b94a11fa05b1718d594e732ab2ba87995179d"
+    },
+    {
+      "path": "docs/research/ina226-10a/smoke.json",
+      "sha256": "edd8795f5c9cfb4b1e617dfd03faaa065bc5aeeaf75a11bdcb022cbf6e9fd44c"
+    },
+    {
+      "path": "docs/research/ina226-10a/sources.json",
+      "sha256": "410a8ed808da03bfe06ea888d2ba8e926e00a1f0786c507b51cc9f42feae5806"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Roller485 Lite owns its actual rotating motor, OLED, native press tongue and connectors; no motor control, feedback, firmware, load or electrical behavior",
+    "Mini CAN owns its actual non-isolated TJA1051T/3 PCB and terminal; no CAN, voltage, power, protocol or electrical behavior",
+    "INA226-10A owns its actual isolation/current-sense PCB, shunt and terminal; no current, voltage, power, measurement, protection or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows the user-requested112-model Git sync;current Git state is recorded separately"
+  ]
+}

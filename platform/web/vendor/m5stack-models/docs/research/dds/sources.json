@@ -1,0 +1,231 @@
+{
+  "id": "dds",
+  "sku": "U105",
+  "officialDocs": "https://docs.m5stack.com/en/unit/dds",
+  "retrievedAt": "2026-10-26",
+  "officialMCP": {
+    "query": "Unit DDS U105 dimensions SMA contacts PCB AD9833 STM32F0 Grove schematic reference clock",
+    "rawResponseDistributed": false,
+    "result": "Exact U105 own product and original schematic subset; original public product photographs/drawing cross-checked. No other-model geometry/electronics borrowed."
+  },
+  "reference": {
+    "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_06.webp",
+    "sha256": "50b92d9587bdb45253d9e6e149dae558eb9a8f842e0180520326bd74d4fb2512"
+  },
+  "structures": [
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U105_Unit_DDS/Structures/Unit_DDS.stl",
+      "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "gitBlob": "6d9ac2db8f9e742dfac076518bf70362bb4a7bc0",
+      "sha256": "51a2b9b92afe198f97b52e4a8a26e2dfd8330156af6061d2607167b68b614d9d",
+      "license": "MIT; retain licenses/M5_Hardware-MIT.txt"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_01.webp",
+      "sha256": "26cec3b1c08909af41ed3054e2ae76f5a5fd970a9298838abba80adbe2eb2db6"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_02.webp",
+      "sha256": "bce78beceec8c5416cce8986c475889cda4ad90c4c6d43297bb62745db4334ac"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_03.webp",
+      "sha256": "aaafa1704561bf2540cac1014e4f1762073781eed79cb8a34c0eb8efa524ff4b"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_04.webp",
+      "sha256": "cecc254a91ded5c1f7105f6b5d1b0c2b7830ad501065bdd443796f5b290f76bb"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_05.webp",
+      "sha256": "c8e9b5c100f34744391f71401dfaa2eb000e6695ef998c1101388204bd6d73de"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_06.webp",
+      "sha256": "50b92d9587bdb45253d9e6e149dae558eb9a8f842e0180520326bd74d4fb2512"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/787/U105_Model_Size.jpg",
+      "sha256": "9371a9193e6fb8704621c2df12abbfb104ea388c3a1ba808529702f662f22337"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_sch_01.webp",
+      "sha256": "ec76bf6dc6ae3fd13b08846d12e89734db2aa87d13b67e60879f6c6d915ade37"
+    }
+  ],
+  "selectedAssembly": {
+    "components": [
+      0
+    ],
+    "excludedComponents": [
+      1,
+      2
+    ],
+    "origin": [
+      0,
+      32,
+      -4
+    ],
+    "axes": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "triangles": 6562,
+    "method": "One common rigid translation, scale1; no shell cuts, hole filling or per-part alignment",
+    "reason": "Complete assembled shell component0 retained at scale1 with one common rigid translation. Components1/2 are displaced individual rear/front copies. No cuts, fill, scaling or per-part alignment."
+  },
+  "dimensions": {
+    "nominalMm": [
+      24,
+      71.4,
+      8
+    ],
+    "vendorDimensionOrderMm": [
+      71.4,
+      24,
+      8
+    ],
+    "cadEnvelopeMm": [
+      24,
+      64,
+      8
+    ],
+    "visualEnvelopeMm": [
+      24,
+      71.40000019073486,
+      8
+    ],
+    "mountingHoleCentersMm": [
+      [
+        -8,
+        -20
+      ],
+      [
+        8,
+        -20
+      ]
+    ],
+    "mountingHoleDiameterMm": 4.85
+  },
+  "artwork": {
+    "kind": "reference-redraw",
+    "sources": "docs/research/dds/artwork.json",
+    "originalsDistributed": false,
+    "files": [
+      {
+        "path": "src/units/dds/reference-redraw-front.png",
+        "sha256": "2c2b04c1effff55e30e53bad0de2a092bc5af16226c0d42b32c84e48ccc0dabc",
+        "pixels": [
+          1920,
+          4356
+        ],
+        "sizeMm": [
+          16,
+          36.3
+        ],
+        "positionMm": [
+          0,
+          2.95,
+          3.8
+        ],
+        "face": "front",
+        "method": "printedArtwork",
+        "artworkKind": "reference-redraw",
+        "target": "DDS complete native assembled shell",
+        "reference": {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_06.webp",
+          "sha256": "50b92d9587bdb45253d9e6e149dae558eb9a8f842e0180520326bd74d4fb2512"
+        }
+      },
+      {
+        "path": "src/units/dds/reference-redraw-back.png",
+        "sha256": "ac6f48679f58bae7c27aa25e8961fa65ab0def16a7f02df705901b4a5e71e33e",
+        "pixels": [
+          1944,
+          4344
+        ],
+        "sizeMm": [
+          16.2,
+          36.2
+        ],
+        "positionMm": [
+          0,
+          3,
+          -3.8
+        ],
+        "face": "back",
+        "method": "printedArtwork",
+        "artworkKind": "reference-redraw",
+        "target": "DDS complete native assembled shell",
+        "reference": {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dds/dds_02.webp",
+          "sha256": "bce78beceec8c5416cce8986c475889cda4ad90c4c6d43297bb62745db4334ac"
+        }
+      }
+    ]
+  },
+  "runtimeFiles": [
+    {
+      "path": "src/units/dds/assembly.js",
+      "sha256": "bdc1869519b15919e06eb665d2103ff10c90b06ff4e8e3ac3ec9f9a688fd8e48"
+    },
+    {
+      "path": "src/units/dds/cad-map.json",
+      "sha256": "dcf219e5250a903aa6c93ed45be7a960ca94385162abc2f4e904bded68e8d1b1"
+    },
+    {
+      "path": "src/units/dds/dimensions.js",
+      "sha256": "b7fac5704ea8475842bb8892dbf5af380ceef85a82ee06f4017dd9e0f1767863"
+    },
+    {
+      "path": "src/units/dds/geometry-data.js",
+      "sha256": "ffcb90fea78fc4d8a336bbf272a2542df856a56674c24e2fa43d4d42b34d38b9"
+    },
+    {
+      "path": "src/units/dds/index.js",
+      "sha256": "2eb12d8a655f987a938cc23410cee91ffbb53f5fd14eaa652a8d713cc6e663be"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-back.png",
+      "sha256": "ac6f48679f58bae7c27aa25e8961fa65ab0def16a7f02df705901b4a5e71e33e"
+    },
+    {
+      "path": "src/units/dds/reference-redraw-front.png",
+      "sha256": "2c2b04c1effff55e30e53bad0de2a092bc5af16226c0d42b32c84e48ccc0dabc"
+    },
+    {
+      "path": "src/units/dds/stickers.js",
+      "sha256": "932f7c577a7340c7b42b804dcb2b1302fb02a021d214aa497a961c2555f7f1b0"
+    }
+  ],
+  "inferences": [
+    "Complete native assembled shell retained at scale1 with one common translation; displaced separate copies excluded.",
+    "PCB profile/thickness/installation, fixed packages, hidden coax/IPEX arrangement, SMA threads/contact/depth and screw details are visual reconstruction, without production-fit validation.",
+    "Product size24×71.4×8 mm includes SMA; native shell24×64×8 mm has origin at its own centre and overall asymmetric Y bounds[-32,39.4].",
+    "No externally visible LEDs or controls are evidenced; the two gold native windows are backed by actual connector metal, with no invented glow or motion.",
+    "SMA connector family describes physical mating only and rejects Grove; no SMA-to2.54 mm accessory cable is included.",
+    "Sensor is a passive appearance anchor; no waveform, frequency, phase, sleep, signal, I2C firmware, sensor values or electrical simulation.",
+    "Two matching labels are newly code-drawn reference-redraw PNGs from exact U105 photos; typography/colour/diagram/registration are reconstructed; full browser review deferred.",
+    "Observed25MHz print retained; official product text10MHz versus schematic25M/RCC_CLK_25MHz remains a runtime-clock question and is not simulated."
+  ],
+  "feedback": {
+    "feedback_id": "618a44e752d24afd8575022fb72781c9",
+    "outcome": "success",
+    "subject": "Clarify U10510MHz product-text reference versus25M/RCC_CLK_25MHz original schematic and25MHz exact rear print."
+  }
+}

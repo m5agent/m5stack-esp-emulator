@@ -1,0 +1,111 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-10-26T10:23:09.761Z",
+  "scope": "Bounded original-shell, finite geometry, native bores/FrontSide walls, unequal K flat-slot depth/walls/recessed springs/rear stops, passive API, own connector rejection, four-wire Grove pose/detach/disposal and artwork invariance. No browser/full historical, temperature, firmware, electrical, isolation, hardware or manufacturing-fit verification.",
+  "meshes": 178,
+  "triangles": 15326,
+  "visualEnvelopeMm": [
+    24.00001621246338,
+    56.00000762939453,
+    8.000000095367431
+  ],
+  "cadEnvelopeMm": [
+    24.00001621246338,
+    56.00000762939453,
+    8
+  ],
+  "nativeShellComponents": [
+    0,
+    2
+  ],
+  "nativeTriangles": 4284,
+  "mountingRays": 10,
+  "mountingWalls": 8,
+  "pcbBoreWalls": 14,
+  "kInsertionRays": 18,
+  "kSlotWalls": 8,
+  "slotHits": [
+    {
+      "name": "T+",
+      "widthMm": 2.5,
+      "depthMm": 12.1,
+      "contact": "KMeter-ISO T+ recessed flat contact spring"
+    },
+    {
+      "name": "T-",
+      "widthMm": 3.3,
+      "depthMm": 12.1,
+      "contact": "KMeter-ISO T- recessed flat contact spring"
+    }
+  ],
+  "externalComponents": [
+    "grove",
+    "thermocouple",
+    "sensor"
+  ],
+  "externalLeds": [],
+  "buttons": [],
+  "joints": [],
+  "artwork": {
+    "panels": 3,
+    "pngs": 3,
+    "kind": [
+      "official-vector-raster",
+      "reference-redraw"
+    ],
+    "disabledWithFalse": true,
+    "physicalGeometryInvariant": true
+  },
+  "grovePins": [
+    "GND",
+    "5V",
+    "SDA",
+    "SCL"
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 338,
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        -35,
+        1.4
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 16,
+      "purpose": "Open Grove mouth has recessed physical rear wall"
+    },
+    {
+      "origin": [
+        -4,
+        35,
+        0.8
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 20,
+      "purpose": "K T+ insertion slot has closed recessed polymer stop"
+    },
+    {
+      "origin": [
+        4,
+        35,
+        0.8
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 20,
+      "purpose": "K T- insertion slot has closed recessed polymer stop"
+    }
+  ]
+}
