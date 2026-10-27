@@ -74,3 +74,8 @@ ASCII marker 按原始 byte offset/window 验证，内存中的字符映射不�
 它校验全部归档指纹、固定的controller/build/testing/live四个子门禁、真实live摘要
 和服务终态，不启动guest或联系API。预备版曾允许空child列表，独立离线负控
 复现后已修正；旧误PASS与新版拒绝都见[门禁复核](review/acceptance-gate-fixed-r1/receipt.json)。
+
+功能块提交`6ca4c158`后fetch/merge `origin/main@f2061759`，已同步且无代码变化，
+未push。初始11436份归档文件指纹全部保持；独立系统Python副本验证四子门禁通过，
+gen48当前83份源码/runtime及全部历史包/源码记录一致，active/lease0，未新guest或
+再次重载，见[同步与收尾](integration/index.json)。

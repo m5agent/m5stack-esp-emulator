@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "category": "POST_COMMIT_GENERATED_SNAPSHOT_REFRESH",
+  "initial_check": {
+    "exit_code": 1,
+    "stdout": "PROJECT_SNAPSHOT_STALE: run python3 platform/tools/project_snapshot.py --write\n",
+    "classification": "root post-execution tool-output attestation"
+  },
+  "regenerated": true,
+  "final_check": {
+    "exit_code": 0,
+    "stdout": "PROJECT_SNAPSHOT_OK\n",
+    "stderr": ""
+  },
+  "snapshot_sha256": "831ac5fd4cf443b8bc6f3c21f732c4f8479fe0d51483f5458f9f996102725499",
+  "api_contacted": false,
+  "guest": "NOT RUN"
+}

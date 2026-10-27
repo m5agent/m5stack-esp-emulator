@@ -1,0 +1,41 @@
+{
+  "recorded_at_utc": "2026-10-27T00:13:34.716237+00:00",
+  "category": "INDEPENDENT_COPIED_ROOT_ARCHIVE_PORTABLE_VERIFICATION",
+  "status": "PASS",
+  "source_root": "docs/evidence/2026-10-27-flashlight-route-history",
+  "copied_root": ".work/unit-host38-root-portable-20261027-r1/copied-evidence-root",
+  "source_manifest_sha256": "ac28c64183c7b1707fcfd6fe1fe8f575985e6cdcf2a4fca3a027411388c50601",
+  "source_root_verifier_sha256": "2c96a4fd4e9873990bb97913817d40bc98eec6c7e2c2535b835f497a3a5a0704",
+  "source_files_including_manifest": 11437,
+  "source_file_bytes_including_manifest": 97690855,
+  "source_files_match_manifest_before_copy": true,
+  "copied_files_match_all_original_bytes": true,
+  "source_files_unchanged_after_verification": true,
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-host38-root-portable-20261027-r1/copied-evidence-root/verify.py"
+  ],
+  "cwd": "/tmp",
+  "exit_code": 0,
+  "stdout_sha256": "bf2826f69871e0defa65d83be74dcdfb3d2654b96a81af985ad7d3516ee699fb",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "api_contacted": false,
+  "new_guests": 0,
+  "hardware": "NOT RUN",
+  "source_archive_modified": false,
+  "git_modified": false,
+  "verifier_result": {
+    "api_contacted": false,
+    "bytes": 95423287,
+    "category": "OFFLINE_SCOPED_ARCHIVE_INTEGRITY",
+    "child_verifiers": 4,
+    "files": 11436,
+    "hardware": "NOT RUN",
+    "matrix": "66 PASS / 1 FAIL (core2-imu)",
+    "new_guests": 0,
+    "status": "PASS",
+    "unit_goal": "ACTIVE",
+    "unit_host_37": "OPEN"
+  }
+}

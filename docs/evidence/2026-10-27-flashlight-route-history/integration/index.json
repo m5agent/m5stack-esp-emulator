@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "AFTER_COMMIT_FETCH_MERGE_AND_READ_ONLY_FINAL_STATE",
+  "captured_at": "2026-10-27T00:15:50.719726+00:00",
+  "feature_commit": "6ca4c158e3b83c0bde6e98cfe5a49d487a2b403d",
+  "remote_main": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+  "fetch_merge": {
+    "classification": "root-provided post-execution tool attestation; no pre-execution trace claimed",
+    "fetch_argv": [
+      "git",
+      "fetch",
+      "origin",
+      "main"
+    ],
+    "merge_argv": [
+      "git",
+      "merge",
+      "--no-edit",
+      "origin/main"
+    ],
+    "merge_stdout": "Already up to date.",
+    "remote_is_ancestor": true,
+    "pushed": false
+  },
+  "original_archive": {
+    "manifest_sha256": "ac28c64183c7b1707fcfd6fe1fe8f575985e6cdcf2a4fca3a027411388c50601",
+    "listed_files_verified_unchanged": 11436,
+    "current_files_before_this_integration": 11437
+  },
+  "portable_root_verification": "PASS: copied root, /usr/bin/python3, cwd=/tmp, four children",
+  "privacy_full_scope": {
+    "classification": "fingerprint-only report plus generated compact projection",
+    "source_path": ".work/unit-host38-privacy-final-20261027-r2.json",
+    "original_bytes": 2108009,
+    "original_sha256": "7da2eb037de8a926828053aa27e47ab7646aa64313922d426673c4c4b08ecd4d",
+    "status": "PASS",
+    "files": 11437,
+    "finding_kinds": {},
+    "actual_credentials_and_digests_compared_only_in_memory": true
+  },
+  "service": {
+    "generation": 48,
+    "pid": 35117,
+    "source_files_match": 83,
+    "runtime_sha256": "3f161756cdb31dec3812393b730e1ae670733e7354d7b57fddbbd0149b8645e1",
+    "active_sessions": 0,
+    "active_leases": 0,
+    "all_startup_packages_preserved": 516,
+    "all_startup_source_records_preserved": 408,
+    "reloaded_after_merge": false
+  },
+  "records": [
+    {
+      "source_path": ".work/unit-host38-root-portable-20261027-r1/receipt.json",
+      "archive_path": "portable/receipt.json",
+      "classification": "original-bytes",
+      "bytes": 1647,
+      "sha256": "d5b5f3aa1457ec23b5bf4714f4af58d19461baf6f84cc0c0186d1cd2c9e01d8b"
+    },
+    {
+      "source_path": ".work/unit-host38-root-portable-20261027-r1/verify.stdout.json",
+      "archive_path": "portable/verify.stdout.json",
+      "classification": "original-bytes",
+      "bytes": 277,
+      "sha256": "bf2826f69871e0defa65d83be74dcdfb3d2654b96a81af985ad7d3516ee699fb"
+    },
+    {
+      "source_path": ".work/unit-host38-root-portable-20261027-r1/verify.stderr.txt",
+      "archive_path": "portable/verify.stderr.txt",
+      "classification": "original-bytes",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": ".work/unit-host38-staging-receipt-20261027-r1.json",
+      "archive_path": "staging.json",
+      "classification": "original-bytes",
+      "bytes": 1245,
+      "sha256": "78e8e98e4550192482369be615095a180ad5f583315541de4a3e776f0dffd0dd"
+    }
+  ],
+  "health_response_sha256": "d6d53ce406173ba75b1826f54bd8296d1f753625e398092ceb3ae0804f55b334",
+  "worktree_clean_before_bookkeeping": true,
+  "new_guests": 0,
+  "hardware": "NOT RUN",
+  "unit_goal": "ACTIVE"
+}
