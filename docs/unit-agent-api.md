@@ -27,8 +27,8 @@ CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、ro
 资格；`active=false`而`output-known=false`不代表已知熄灭。原驱动部分长闪
 请求编码错误，超出推荐时序的波形保持unknown；详见
 [分层证据与限制](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。
-`0046`已修复OUT_SEL返回GPIO后暴露旧资格的历史问题；当前恢复需新的受支持
-下降沿及完整低复位，冷初始化无边沿仍unknown，见[新路由验收](evidence/2026-10-27-flashlight-route-history/README.md)。
+`0046/3f1617`已验范围修复OUT_SEL返回旧资格，采用新下降沿及完整低复位，见[路由验收](evidence/2026-10-27-flashlight-route-history/README.md)。
+`0047/faee96da`的C实现支持无假边沿的新可信低基线；新Unit API/Web及完整矩阵仍NOT RUN，见[冷pad边界](evidence/2026-10-27-flashlight-cold-pad/README.md)。
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 
@@ -98,7 +98,7 @@ Content-Type: application/json
 `expected_execution_id` 换成返回的 `program.execution_id`。过期身份或并发传输
 返回 409；超时返回明确错误，不自动重新刷机或替换 guest。源码最多 65536
 UTF-8 字节，超时配置 1–30 秒，由 guest MicroPython 编译。多文件、纯字节码
-`.mpy` 依赖与资源使用下方 `files` 请求；二进制入口和保存开机程序仍待实现。
+`.mpy` 依赖与资源使用下方 `files` 请求；main.mpy入口须通过上述会话loader准入，保存开机程序仍未实现。
 
 每次尝试保存独立 `execution_id`、不可变 `revision_id`、源码 SHA、固件 SHA、
 PID、串口窗口与执行状态，停止前 evidence ZIP 包含执行记录和 revision 源码。

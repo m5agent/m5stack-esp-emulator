@@ -49,7 +49,7 @@ Apache-2.0 license. See `platform/runtime/wasm/LICENSE`.
   These are synthetic calibration inputs, not physical calibration records.
 - `platform/web/vendor/m5stack-models/` is imported from the MIT-licensed
   `yuyun2000/m5stack-models` commit
-  `48ab992f5ff63c1a91296051e1afcb5959877903`; retain its `LICENSE`,
+  `3681a6482aff96501d44659ba5a1603246f1fe1f`; retain its `LICENSE`,
   `THIRD_PARTY_NOTICES.md` and source manifests. Three.js and the imported
   BufferGeometryUtils addon retain their upstream MIT terms and notices.
 
