@@ -36,6 +36,12 @@ histograms. `0072` additionally records command-length pairs, per-command gaps
 and command transitions with bounded overflow counters. `0073` adds a bounded
 command/CPU/issuer-PC table; the raw PC is diagnostic and must be mapped against
 the same BIN segment or a sourced ROM linker symbol, not an unrelated ELF.
+`0075` also records the `RDSR(0x05)` status byte, its preceding `0xBB/64`
+address and receive prefix, cache-counter deltas, and
+CPU/PC/PS/IRQ context. Its bounded `s32c1i` table records
+PC/caller/lock/old-owner/result plus holder-PC buckets. The optional
+`M5SW_XTENA_CONTENDED_CAS_YIELD` switch is a default-off negative control;
+enabling it did not move the normal-WDT reset boundary and it is not a fix.
 `uart_tx_lines`
 reconstructs guest lines with start/end virtual times. These fields are
 diagnostic controls; a sampled PC cluster is not a matching ELF symbol, and

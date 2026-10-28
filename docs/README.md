@@ -38,6 +38,9 @@
 
 Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于历史审计；普通 CI
 不下载归档，具体保留范围与显式验证入口见[证据保留规则](evidence-retention.md)。
+Core2 legacy 的最新 status/CAS 诊断见
+[RDSR 与锁竞争关联](evidence/2026-10-29-core2-legacy-status-cas/README.md)；
+它只更新 `RUNTIME-03` 的排查入口，不表示 legacy 启动已通过。
 
 ## 按角色继续阅读
 
@@ -134,6 +137,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [StopWatch / StickS3 / Core2 UIFlow2 全接口复测](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md) | 当前三设备证据 / runner 修复 | `2026-10-29` | `fccfa931…` 上完成 system/shared、通信、音频、ESP-NOW、BLE 和已选外设；StopWatch/Core2 M5UI 505 方法全量审计，stock 三缺陷与 Core2 candidate 帧路由问题保留；修复设备尺寸/旋转、Core2 预算、BLE identity 和 blocker 文案 |
 | [Core2 TIMG WDTFEED 写保护语义](evidence/2026-10-28-core2-timg-wdt-feed/README.md) | 当前 Core2 运行时证据 | `2026-10-28` | `0069` 让 `WDTFEED` 在 `WDTPROTECT` 下仍可喂狗，同时保留配置写保护；同固件 60 秒正常 WDT 仍在 `17.2529 s` TG0 stage-1 reset，startup UI、setup/REPL 和应用帧仍 OPEN |
 | [Core2 legacy UART 与虚拟时钟对齐](evidence/2026-10-29-core2-legacy-uart-clock/README.md) | 当前 Core2 启动证据 | `2026-10-29` | `0070` 给 opt-in UART trace 加虚拟时间戳；WDT-off 下 BOARD/APIKEY 到 `55.00 s`、boot.py 到 `77.11 s`，normal WDT 仍 `17.25 s` reset；`shift=2` 也未消除 reset，不能把 accelerator override 当修复 |
+| [Core2 legacy status/CAS 关联](evidence/2026-10-29-core2-legacy-status-cas/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | `0075` 证明 RDSR WIP/BUSY 始终为 0，主要预算位于 `0xBB/64` 后的 scheduler/list 跨核锁竞争；failed-CAS slice yield 与原 normal-WDT 都在约 `17.249 s` 重置，`RUNTIME-03` 仍 OPEN |
 | [Cardputer-ADV 当前参考固件 BMI270 闭环](evidence/2026-10-29-cardputer-adv-imu/README.md) | 当前设备证据 | `2026-10-29` | I2C `0x69`、CHIP_ID/INIT/data-ready 与 `0x0C..0x17` 读取可达；Device Service 注入经官方 `Imu.getAccel/getGyro` 回读，原样矩阵首轮 PASS；关闭当前参考固件 IMU 全零待办，物理精度仍 NOT RUN |
 | [Core2 legacy pre-boot phase profile](evidence/2026-10-29-core2-preboot-phase-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | 显式 PC/UART sampling 记录 WDT-off 80 秒的 SSI transaction/RX 聚合总量与 108 个采样 begin event；全量 command/length 分布仍未知，四类立即切核控制均无改善并丢弃，normal-WDT 仍 stage-1 reset |
 | [Core2 SSI transaction profile](evidence/2026-10-29-core2-ssi-transaction-profile/README.md) | 当前 Core2 诊断证据 | `2026-10-29` | `0071` 输出完整 command、RX-length、completion→next-command gap 聚合；无采样控制得到约五万组 `0x05` 与 `0xBB/64B`，`79.7/80 s` 位于相邻 command 间隔；normal-WDT 仍 `17.2537 s` reset，`RUNTIME-03` 保持 OPEN |

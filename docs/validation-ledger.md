@@ -945,3 +945,38 @@ QOM 503 都保留为 harness control，不写成固件失败；补 fixture 与
 `M5SW_CORE2_PMIC=axp192` 后均通过。全部为 virtual-device validation，
 真机、RF、安全和物理 timing 仍 `NOT RUN`。见[证据](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)
 和[机器摘要](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/summary.json)。
+
+## 2026-10-29：Core2 legacy RDSR 与 CAS 关联诊断
+
+`0075-esp32-legacy-status-cas-correlation.patch` 在既有 handoff freeze
+上增加三组有界诊断：`RDSR(0x05)` 返回状态及其前序 `0xBB/64`
+地址/数据前缀；两次 status read 之间的 cache counter delta；以及
+`s32c1i` 的 PC/caller/lock/old-owner/跨核 holder-PC 聚合。稀疏表和
+固定数组都有 overflow，输出只在显式 pause 时发生。另保留一个默认关闭的
+`M5SW_XTENA_CONTENDED_CAS_YIELD`，只作为失败 CAS 的 TCG-slice
+负向控制。
+
+同一 public `UIFlow_Core2 v1.15.4` normalized SHA `4d2d648b…`、
+QEMU `d60e6fb0…`、`runtime=qemu-wifi`、`icount shift=5` 的 20 秒
+WDT-off 诊断得到 12,093 次 `RDSR`：`0x00` 4,278 次、`0x02` 7,815 次，
+bit0 WIP/BUSY 全为 `0`。11,904 次 status read 紧跟 `0xBB/64`；
+这些 status gap 合计 `17.074056543 s`，占窗口 `85.370%`。所有 status
+上下文均为 PS intlevel 0 和 `interrupt_request=0`。cache sync 与
+state-update counter 在大多数区间继续变化，但 illegal-read 为 `0`。
+
+同窗口记录 6,288,123 次 `s32c1i`、537,482 次成功和 5,737,336 次真实
+跨核竞争。`0x3ffbf2cc` 单独占 5,482,913 次 CAS、253,241 次成功；
+old-owner 常态为 free、`0xABAB` 或 `0xCDCD`，没有证明 QEMU CAS
+返回值损坏。最高 failed-CAS 调用是 CPU0 `A0=0x8009655c` 在
+site `0x40095b2e` 等锁 `0x3ffbf2cc`。holder-PC 以 256-byte 桶记录，
+热点覆盖 `0x400958xx-0x400961xx`、`0x40096dxx` 和
+`0x40097axx-0x40097bxx`；没有 matching legacy ELF/MAP，不能命名
+精确函数。
+
+normal-WDT 与 failed-CAS slice-yield 都在约 `17.249 s` 触发
+`TG0` stage-1 system reset，TG1 持续 feed 且零 timeout。两次 serial
+仍只有 MicroPython banner、没有 REPL prompt，frame 仍是 302-byte
+black PNG；因此 failed-CAS yield 被否定为修复，`RUNTIME-03` 保持
+`OPEN`。全部为 virtual-device validation；物理 cache/PSRAM timing、
+RF、电气和真机均 `NOT RUN`。见[证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)
+和[机器摘要](evidence/2026-10-29-core2-legacy-status-cas/summary.json)。

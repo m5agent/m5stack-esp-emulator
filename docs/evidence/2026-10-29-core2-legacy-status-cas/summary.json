@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "d60e6fb0e24e025ff19a521b34debbb9c16d9e5e427d35c8d22596ad98de42fa"
+  },
+  "patch": {
+    "name": "0075-esp32-legacy-status-cas-correlation.patch",
+    "sha256": "7be9f75c6d65250c80f30b4580569d7c7bc804d087f688f917f396104e35ca35"
+  },
+  "wdt_off_20s": {
+    "evidence_sha256": "27c2c16d3989df90a9994b8dd0436e07adec91e9a396ac559f2e6360c9b579b3",
+    "qemu_stderr_sha256": "0085ea92647b53dc391b0215835fe2cc4f8bb38859297be8dd54467144019a26",
+    "rdsr": {
+      "count": 12093,
+      "status_counts": {
+        "0x00": 4278,
+        "0x02": 7815
+      },
+      "wip_busy_set_count": 0,
+      "previous_fast_read_64": 11904,
+      "gap_total_ns": 17074056543,
+      "gap_max_ns": 1923178656,
+      "gap_share_of_window": 0.85370282715
+    },
+    "cache_delta": {
+      "sync_calls_nonzero": 11954,
+      "sync_calls_total": 55316,
+      "sync_calls_max": 120,
+      "sync_pages_nonzero": 3,
+      "sync_pages_total": 5655,
+      "sync_pages_max": 4708,
+      "state_updates_nonzero": 11954,
+      "state_updates_total": 55350,
+      "state_updates_max": 154,
+      "invalidate_nonzero": 3,
+      "invalidate_total": 84,
+      "invalidate_max": 70,
+      "illegal_reads": 0
+    },
+    "s32c1i": {
+      "total": 6288123,
+      "success": 537482,
+      "raw_failure": 5750641,
+      "cross_core_contention": 5737336,
+      "holder_overflow": 0,
+      "lock_0x3ffbf2cc": {
+        "count": 5482913,
+        "success": 253241
+      },
+      "old_owner_counts": {
+        "0xb33fffff": 537437,
+        "0x0000abab": 4832401,
+        "0x0000cdcd": 918240,
+        "other": 45
+      },
+      "top_failed_callers": [
+        {
+          "cpu": 0,
+          "a0": "0x8009655c",
+          "site": "0x40095b2e",
+          "lock": "0x3ffbf2cc",
+          "count": 3254878
+        },
+        {
+          "cpu": 0,
+          "a0": "0x80095833",
+          "site": "0x40094a5a",
+          "lock": "0x3ffbf2cc",
+          "count": 1010213
+        },
+        {
+          "cpu": 1,
+          "a0": "0x80095833",
+          "site": "0x40094a5a",
+          "lock": "0x3ffbf2cc",
+          "count": 767177
+        },
+        {
+          "cpu": 0,
+          "a0": "0x80094e8d",
+          "site": "0x40095b2e",
+          "lock": "0x3ffb7a58",
+          "count": 442274
+        }
+      ],
+      "top_holder_pc_buckets": [
+        "0x40096100",
+        "0x40095b00",
+        "0x40097a00",
+        "0x40095900"
+      ]
+    }
+  },
+  "normal_wdt": {
+    "evidence_sha256": "4320b4d5329cfa248f466e94c378ee003f0f327aebcf0ccc5e2d8017a8a90c2b",
+    "stage0_timeout_ns": 7248411234,
+    "stage1_timeout_ns": 17248411265,
+    "first_reset_ns": 17248490561,
+    "tg1_feed_count": 14996,
+    "tg1_max_feed_interval_ns": 3926687,
+    "tg1_timeout_count": 0,
+    "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE"
+  },
+  "failed_cas_yield_control": {
+    "evidence_sha256": "6fc1e18856f4ac4943b4ae533c5a66b0e261c2deb200b18e1ceab8e142ca6734",
+    "stage0_timeout_ns": 7248929759,
+    "stage1_timeout_ns": 17248929760,
+    "first_reset_ns": 17248930720,
+    "tg1_feed_count": 14998,
+    "tg1_max_feed_interval_ns": 3926684,
+    "tg1_timeout_count": 0,
+    "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+    "result": "NO_WDT_BOUNDARY_CHANGE"
+  },
+  "serial": {
+    "has_micropython_banner": true,
+    "has_repl_prompt": false,
+    "application_frame": "BLACK_302_BYTES",
+    "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+  },
+  "interpretation": {
+    "flash_wip_wait_rejected": true,
+    "cache_illegal_read_observed": false,
+    "s32c1i_malformed_old_value_observed": false,
+    "cross_core_lock_contention_observed": true,
+    "failed_cas_slice_yield_is_not_a_fix": true,
+    "legacy_symbols_available": false
+  },
+  "next_actions": [
+    "characterize tick/IRQ rate and the longest 0x3ffbf2cc holder intervals",
+    "obtain matching UIFlow_Core2 v1.15.4 ELF/MAP",
+    "require normal-WDT startup markers, non-empty app frame and no retry before closing RUNTIME-03"
+  ]
+}

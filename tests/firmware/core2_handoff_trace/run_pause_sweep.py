@@ -244,7 +244,7 @@ def summarize_phase_profile(
             for pc, count in counter.most_common(top_limit)
         ]
 
-    return {
+    profile = {
         "pc_samples": len(samples),
         "sample_window_ns": (
             {
@@ -274,6 +274,13 @@ def summarize_phase_profile(
         "ssi_command_transitions": histograms["transitions"],
         "ssi_command_pcs": histograms["command_pcs"],
     }
+    rdsr_profile = summarize_rdsr_profile(events)
+    if rdsr_profile["count"]:
+        profile["ssi_rdsr_profile"] = rdsr_profile
+    s32c1i_profile = summarize_s32c1i_profile(events)
+    if s32c1i_profile["total"]:
+        profile["s32c1i_profile"] = s32c1i_profile
+    return profile
 
 
 def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
@@ -388,6 +395,326 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarize_rdsr_profile(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize the bounded RDSR status/cache correlation table."""
+    statuses: Counter[int] = Counter()
+    previous_commands: Counter[int] = Counter()
+    previous_lengths: Counter[int] = Counter()
+    byte0: Counter[int] = Counter()
+    byte1: Counter[int] = Counter()
+    intlevels: Counter[int] = Counter()
+    irq_requests: Counter[int] = Counter()
+    contexts: dict[int, Counter[tuple[int, int]]] = {}
+    cache_delta: dict[int, dict[str, int]] = {}
+    fast_read = {
+        "count": 0,
+        "address_min": None,
+        "address_max": None,
+    }
+    last: dict[str, Any] = {}
+    last_context: dict[str, Any] = {}
+    last_cache: dict[str, Any] = {}
+    count = 0
+    previous_command_hi = 0
+    context_overflow = 0
+    gap_total = 0
+    gap_max = 0
+
+    for event in events:
+        if event["component"] != "ssi":
+            continue
+        name = event["event"]
+        if name == "freeze-rdsr-count":
+            count += int(event["a"], 10)
+        elif name == "freeze-rdsr-status":
+            statuses[int(event["a"], 10)] += int(event["b"], 10)
+        elif name == "freeze-rdsr-previous-command":
+            previous_commands[int(event["a"], 10)] += int(event["b"], 10)
+        elif name == "freeze-rdsr-previous-command-hi":
+            previous_command_hi += int(event["a"], 10)
+        elif name == "freeze-rdsr-previous-length":
+            previous_lengths[int(event["a"], 10)] += int(event["b"], 10)
+        elif name == "freeze-rdsr-gap":
+            gap_total = int(event["a"], 10)
+            gap_max = int(event["b"], 10)
+        elif name == "freeze-rdsr-fast-read":
+            fast_read = {
+                "count": int(event["a"], 10),
+                "address_min": int(event["b"], 10),
+                "address_max": int(event["c"], 10),
+            }
+        elif name == "freeze-rdsr-fast-read-byte":
+            value = int(event["a"], 10)
+            byte0[value] += int(event["b"], 10)
+            byte1[value] += int(event["c"], 10)
+        elif name == "freeze-rdsr-interrupt":
+            level = int(event["a"], 10)
+            intlevels[level] += int(event["b"], 10)
+            irq_requests[level] += int(event["c"], 10)
+        elif name == "freeze-rdsr-context":
+            status = int(event["a"], 10)
+            contexts.setdefault(status, Counter())[
+                (int(event["b"], 10), int(event["c"], 16))
+            ] += int(event["d"], 10)
+        elif name == "freeze-rdsr-context-overflow":
+            context_overflow += int(event["a"], 10)
+        elif name == "freeze-rdsr-cache-delta":
+            cache_delta[int(event["a"], 10)] = {
+                "nonzero": int(event["b"], 10),
+                "total": int(event["c"], 10),
+                "max": int(event["d"], 10),
+            }
+        elif name == "freeze-rdsr-last":
+            last = {
+                "status": int(event["a"], 10),
+                "previous_command": int(event["b"], 10),
+                "previous_address": int(event["c"], 10),
+                "previous_prefix": int(event["d"], 10),
+            }
+        elif name == "freeze-rdsr-last-context":
+            last_context = {
+                "cpu": int(event["a"], 10),
+                "ps": int(event["b"], 10),
+                "irq_request": int(event["c"], 10),
+                "pc": int(event["d"], 16),
+            }
+        elif name == "freeze-rdsr-last-cache":
+            last_cache = {
+                "gap_ns": int(event["a"], 10),
+                "sync_calls": int(event["b"], 10),
+                "sync_pages": int(event["c"], 10),
+                "last_sync_ns": int(event["d"], 10),
+            }
+        elif name == "freeze-rdsr-last-cache1":
+            last_cache.update(
+                {
+                    "state_updates": int(event["a"], 10),
+                    "invalidate_calls": int(event["b"], 10),
+                    "illegal_reads": int(event["c"], 10),
+                }
+            )
+
+    return {
+        "count": count,
+        "statuses": {
+            f"0x{status:02x}": status_count
+            for status, status_count in sorted(statuses.items())
+        },
+        "previous_commands": {
+            f"0x{command:02x}": command_count
+            for command, command_count in sorted(previous_commands.items())
+        },
+        "previous_command_hi": previous_command_hi,
+        "previous_lengths": {
+            (
+                f"{length}+"
+                if length == SSI_RX_LENGTH_OVERFLOW_BUCKET
+                else str(length)
+            ): length_count
+            for length, length_count in sorted(previous_lengths.items())
+        },
+        "gap": {"count": max(count - 1, 0), "total_ns": gap_total,
+                "max_ns": gap_max},
+        "fast_read": {
+            "count": fast_read["count"],
+            "address_min": (
+                f"0x{fast_read['address_min']:08x}"
+                if fast_read["address_min"] is not None
+                else None
+            ),
+            "address_max": (
+                f"0x{fast_read['address_max']:08x}"
+                if fast_read["address_max"] is not None
+                else None
+            ),
+            "byte0": {str(value): byte0[value] for value in sorted(byte0)},
+            "byte1": {str(value): byte1[value] for value in sorted(byte1)},
+        },
+        "interrupt": {
+            "intlevel": {
+                str(level): intlevels[level] for level in sorted(intlevels)
+            },
+            "irq_request": {
+                str(level): irq_requests[level]
+                for level in sorted(irq_requests)
+            },
+        },
+        "contexts": {
+            f"0x{status:02x}": {
+                f"cpu{cpu}:0x{pc:08x}": context_count
+                for (cpu, pc), context_count in sorted(context_counts.items())
+            }
+            for status, context_counts in sorted(contexts.items())
+        },
+        "context_total": sum(
+            sum(context_counts.values()) for context_counts in contexts.values()
+        ),
+        "context_overflow": context_overflow,
+        "cache_delta": {
+            str(index): values for index, values in sorted(cache_delta.items())
+        },
+        "last": last,
+        "last_context": {
+            **last_context,
+            "pc": (
+                f"0x{last_context['pc']:08x}"
+                if "pc" in last_context
+                else None
+            ),
+        },
+        "last_cache": last_cache,
+    }
+
+
+def summarize_s32c1i_profile(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize bounded conditional-store sites, lock owners and outcomes."""
+    total = 0
+    success = 0
+    contended = 0
+    pcs: Counter[tuple[int, int, int]] = Counter()
+    pc_successes: Counter[tuple[int, int, int]] = Counter()
+    locks: dict[int, dict[str, int]] = {}
+    old_values: Counter[int] = Counter()
+    callers: Counter[tuple[int, int, int, int, int]] = Counter()
+    holders: Counter[tuple[int, int, int, int]] = Counter()
+    pc_overflow = 0
+    lock_overflow = 0
+    old_overflow = 0
+    caller_overflow = 0
+    holder_overflow = 0
+    last: dict[str, Any] = {}
+    last_context: dict[str, Any] = {}
+
+    for event in events:
+        if event["component"] != "s32c1i":
+            continue
+        name = event["event"]
+        if name == "freeze-total":
+            total += int(event["a"], 10)
+            success += int(event["b"], 10)
+            contended += int(event["c"], 10)
+        elif name == "freeze-pc":
+            key = (
+                int(event["a"], 10),
+                int(event["b"], 10),
+                int(event["c"], 16),
+            )
+            pcs[key] += int(event["d"], 10)
+            if key[1]:
+                pc_successes[key] += int(event["d"], 10)
+        elif name == "freeze-pc-overflow":
+            pc_overflow += int(event["a"], 10)
+        elif name == "freeze-lock":
+            locks[int(event["a"], 16)] = {
+                "count": int(event["b"], 10),
+                "success": int(event["c"], 10),
+                "last_old": int(event["d"], 16),
+            }
+        elif name == "freeze-lock-overflow":
+            lock_overflow += int(event["a"], 10)
+        elif name == "freeze-old":
+            old_values[int(event["a"], 16)] += int(event["b"], 10)
+        elif name == "freeze-old-overflow":
+            old_overflow += int(event["a"], 10)
+        elif name == "freeze-caller":
+            callers[
+                (
+                    event["cpu"],
+                    int(event["pc"]),
+                    int(event["a"], 16),
+                    int(event["c"], 16),
+                    int(event["b"], 10),
+                )
+            ] += int(event["d"], 10)
+        elif name == "freeze-caller-overflow":
+            caller_overflow += int(event["a"], 10)
+        elif name == "freeze-holder":
+            holders[
+                (
+                    int(event["a"], 16),
+                    int(event["b"], 10),
+                    int(event["c"], 16),
+                    int(event["pc"]),
+                )
+            ] += int(event["d"], 10)
+        elif name == "freeze-holder-overflow":
+            holder_overflow += int(event["a"], 10)
+        elif name == "freeze-last":
+            last = {
+                "pc": int(event["a"], 16),
+                "address": int(event["b"], 16),
+                "old": int(event["c"], 16),
+                "desired": int(event["d"], 16),
+            }
+        elif name == "freeze-last-context":
+            last_context = {
+                "cpu": int(event["a"], 10),
+                "success": int(event["b"], 10),
+                "caller": int(event["c"], 16),
+            }
+
+    return {
+        "total": total,
+        "success": success,
+        "failure": total - success,
+        "contended": contended,
+        "pc": {
+            f"cpu{cpu}:success={pc_success}:0x{pc:08x}": count
+            for (cpu, pc_success, pc), count in sorted(pcs.items())
+        },
+        "pc_success": {
+            f"cpu{cpu}:success={pc_success}:0x{pc:08x}": count
+            for (cpu, pc_success, pc), count in sorted(pc_successes.items())
+        },
+        "pc_overflow": pc_overflow,
+        "locks": {
+            f"0x{address:08x}": values
+            for address, values in sorted(locks.items())
+        },
+        "lock_overflow": lock_overflow,
+        "old_values": {
+            f"0x{value:08x}": count
+            for value, count in sorted(old_values.items())
+        },
+        "old_overflow": old_overflow,
+        "callers": {
+            (
+                f"cpu{cpu}:success={success}:site=0x{site:08x}:"
+                f"caller=0x{caller:08x}:lock=0x{address:08x}"
+            ): count
+            for (
+                cpu,
+                caller,
+                site,
+                address,
+                success,
+            ), count in sorted(callers.items())
+        },
+        "caller_overflow": caller_overflow,
+        "holders": {
+            (
+                f"holder_cpu{cpu}:holder=0x{holder_pc:08x}:"
+                f"site=0x{site:08x}:lock=0x{address:08x}"
+            ): count
+            for (
+                site,
+                cpu,
+                address,
+                holder_pc,
+            ), count in sorted(holders.items())
+        },
+        "holder_overflow": holder_overflow,
+        "last": {
+            **last,
+            **{
+                key: f"0x{value:08x}"
+                for key, value in last.items()
+            },
+        },
+        "last_context": last_context,
+    }
+
+
 def snapshot_at_pause(
     stderr: str,
     target_ns: int,
@@ -498,6 +825,22 @@ def snapshot_at_pause(
                 "freeze-command-transition-overflow",
                 "freeze-command-pc",
                 "freeze-command-pc-overflow",
+                "freeze-rdsr-count",
+                "freeze-rdsr-status",
+                "freeze-rdsr-previous-command",
+                "freeze-rdsr-previous-command-hi",
+                "freeze-rdsr-previous-length",
+                "freeze-rdsr-gap",
+                "freeze-rdsr-fast-read",
+                "freeze-rdsr-fast-read-byte",
+                "freeze-rdsr-interrupt",
+                "freeze-rdsr-context",
+                "freeze-rdsr-context-overflow",
+                "freeze-rdsr-cache-delta",
+                "freeze-rdsr-last",
+                "freeze-rdsr-last-context",
+                "freeze-rdsr-last-cache",
+                "freeze-rdsr-last-cache1",
             }
         ):
             io[f"{event['component']}:{event['event']}"] = {
@@ -524,6 +867,8 @@ def snapshot_at_pause(
     if "ssi:freeze-counters" not in io:
         raise RuntimeError("missing SSI freeze counters")
     histograms = summarize_ssi_histograms(same_time)
+    rdsr_profile = summarize_rdsr_profile(same_time)
+    s32c1i_profile = summarize_s32c1i_profile(same_time)
     transactions = io["ssi:freeze-counters"]["a"]
     if histograms["command_total"]:
         if histograms["command_total"] != transactions:
@@ -570,6 +915,44 @@ def snapshot_at_pause(
             raise RuntimeError(
                 "SSI command PC histogram total does not match transactions"
             )
+        if rdsr_profile["count"]:
+            if histograms["commands"].get("0x05", 0) != rdsr_profile["count"]:
+                raise RuntimeError(
+                    "SSI RDSR status total does not match command histogram"
+                )
+            if (
+                rdsr_profile["context_total"]
+                + rdsr_profile["context_overflow"]
+                != rdsr_profile["count"]
+            ):
+                raise RuntimeError(
+                    "SSI RDSR context total does not match status reads"
+                )
+    if s32c1i_profile["total"]:
+        if (
+            sum(s32c1i_profile["pc"].values())
+            + s32c1i_profile["pc_overflow"]
+            != s32c1i_profile["total"]
+        ):
+            raise RuntimeError(
+                "S32C1I PC total does not match conditional stores"
+            )
+        if (
+            sum(s32c1i_profile["callers"].values())
+            + s32c1i_profile["caller_overflow"]
+            != s32c1i_profile["total"]
+        ):
+            raise RuntimeError(
+                "S32C1I caller total does not match conditional stores"
+            )
+        if (
+            sum(s32c1i_profile["holders"].values())
+            + s32c1i_profile["holder_overflow"]
+            != s32c1i_profile["contended"]
+        ):
+            raise RuntimeError(
+                "S32C1I holder total does not match cross-core contention"
+            )
     snapshot = {
         "pause_target_ns": target_ns,
         "pause_event_ns": pause["now_ns"],
@@ -585,6 +968,8 @@ def snapshot_at_pause(
         "ssi_command_gap_profile": histograms["command_gaps"],
         "ssi_command_transitions": histograms["transitions"],
         "ssi_command_pcs": histograms["command_pcs"],
+        "ssi_rdsr_profile": rdsr_profile,
+        "s32c1i_profile": s32c1i_profile,
     }
     if registers:
         snapshot["registers"] = registers

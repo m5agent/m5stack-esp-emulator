@@ -482,6 +482,15 @@ Core2 the hash-pinned M5UI candidate moved from `12736` bytes written into a
 oracles. This is a virtual panel data-plane fix; physical DMA/SPI timing remains
 separate.
 
+`0075-esp32-legacy-status-cas-correlation.patch` adds freeze-only legacy
+Core2 diagnostics for `RDSR(0x05)` status bytes, their preceding `0xBB/64`
+address and receive prefix, cache-counter deltas, CPU/PC/PS/IRQ context and
+bounded `s32c1i` PC/caller/lock/old-owner/result aggregates. It applies after
+`0074` and changes no Flash value, interrupt state, watchdog semantics or
+default scheduling. The included failed-`s32c1i` TCG-slice yield is an explicit
+default-off negative control; enabling it did not move the normal-WDT reset
+boundary and it is not a product fix.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

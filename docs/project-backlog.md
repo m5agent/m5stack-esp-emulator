@@ -138,7 +138,11 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   `105,161` 个 transaction 均有 PC 记录且 overflow 为 `0`。立即切核
   四类控制均没有改善 normal-WDT 启动预算，已全部丢弃。下一步结合
   matching legacy source/ELF/MAP、IRQ delivery 和 cache/MMU 状态解释该
-  路径。
+  路径。`0075` 已记录 `RDSR` 返回值、前序 64-byte read、cache delta 与
+  有界 `s32c1i` caller/lock/holder-PC；status bit0 始终为 `0`，但
+  `0x3ffbf2cc` 上存在真实跨核锁竞争。failed-CAS slice yield 与原
+  normal-WDT 均在同一 TG0 stage-1 边界 reset，不能作为修复。见
+  [status/CAS 证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -206,7 +210,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环，`82.4%` gap 位于下一次 status read 前；`0073` 将主要 issuer 绑定到 ROM `0x4006222c` 和应用 segment 5 `0x40093b57`；下一项结合 matching symbols、IRQ delivery 与 cache/MMU 状态解释该路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -282,9 +286,10 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    `0x40100049` BIN-bound LVGL wait；修正后的 120 秒点未复现该地址，
    不能把旧对象/寄存器结论直接继承为当前第一失败点；
    `0071/0072` 已给出完整 command/RX-length/gap、联合键、per-command gap
-   和 transition 分布；`0073` 已绑定主要 issuer PC，下一步结合
-   matching symbols、interrupt delivery 与缓存/MMU/调度状态解释
-   `0x05` 前的 transaction-bound gap；
+   和 transition 分布；`0073` 已绑定主要 issuer PC，`0075` 已排除
+   RDSR busy 位并定位到 scheduler/list 跨核锁竞争；下一步结合
+   matching symbols、tick/IRQ rate 与最长锁持有区间解释 `0x05` 前的
+   transaction-bound gap；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
    callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
    再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；

@@ -1,0 +1,980 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 12:30:00 +0800
+Subject: [PATCH] esp32: correlate legacy status and contended CAS paths
+
+Add default-off handoff diagnostics for RDSR status bytes, the preceding
+0xBB/64 transaction, cache-counter deltas, and bounded s32c1i
+PC/caller/lock/owner/holder-PC outcomes. The exact-time freeze emits
+fixed-size aggregates without changing Flash data, interrupt levels,
+watchdog semantics or default scheduling.
+
+A separate M5SW_XTENSA_CONTENDED_CAS_YIELD environment gate allows a
+failed conditional store to exit the current TCG slice. It remains off
+by default and is retained only as a negative-control experiment.
+
+---
+diff --git a/include/hw/misc/esp32_handoff_trace.h b/include/hw/misc/esp32_handoff_trace.h
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -21,6 +21,23 @@
+ #define ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS 1024u
+ #define ESP32_HANDOFF_SSI_TRANSITION_SLOTS 1024u
+ #define ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS 2048u
++#define ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS 2048u
++#define ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT 5u
++#define ESP32_HANDOFF_S32C1I_PC_SLOTS 512u
++#define ESP32_HANDOFF_S32C1I_LOCK_SLOTS 128u
++#define ESP32_HANDOFF_S32C1I_OLD_SLOTS 64u
++#define ESP32_HANDOFF_S32C1I_CALLER_SLOTS 512u
++#define ESP32_HANDOFF_S32C1I_HOLDER_SLOTS 512u
++
++typedef struct Esp32HandoffCacheSnapshot {
++    uint64_t sync_calls;
++    uint64_t sync_pages;
++    uint64_t state_updates;
++    uint64_t invalidate_calls;
++    uint64_t illegal_reads;
++    uint64_t last_sync_ns;
++} Esp32HandoffCacheSnapshot;
++
+ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_transactions;
+     uint64_t ssi_rx_bytes;
+@@ -58,6 +75,89 @@
+     uint64_t ssi_command_pc_keys[ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS];
+     uint64_t ssi_command_pc_counts[ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS];
+     uint64_t ssi_command_pc_overflow;
++    uint64_t ssi_previous_addr;
++    uint64_t ssi_previous_rx_bytes;
++    uint64_t ssi_previous_rx_prefix;
++    uint64_t ssi_previous_cpu;
++    uint64_t ssi_previous_pc;
++    uint64_t ssi_previous_ps;
++    uint64_t ssi_previous_irq_request;
++    uint64_t ssi_rdsr_count;
++    uint64_t ssi_rdsr_status_counts[256];
++    uint64_t ssi_rdsr_previous_command_lo_counts[256];
++    uint64_t ssi_rdsr_previous_command_hi;
++    uint64_t ssi_rdsr_previous_rx_length_counts[
++        ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS
++    ];
++    uint64_t ssi_rdsr_gap_ns_total;
++    uint64_t ssi_rdsr_gap_ns_max;
++    uint64_t ssi_rdsr_previous_fast_read_count;
++    uint64_t ssi_rdsr_previous_fast_read_addr_min;
++    uint64_t ssi_rdsr_previous_fast_read_addr_max;
++    uint64_t ssi_rdsr_previous_fast_read_byte0_counts[256];
++    uint64_t ssi_rdsr_previous_fast_read_byte1_counts[256];
++    uint64_t ssi_rdsr_ps_intlevel_counts[16];
++    uint64_t ssi_rdsr_irq_request_counts[16];
++    uint64_t ssi_rdsr_context_keys[ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS];
++    uint64_t ssi_rdsr_context_counts[ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS];
++    uint64_t ssi_rdsr_context_overflow;
++    uint64_t ssi_rdsr_cache_delta_total[
++        ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT
++    ];
++    uint64_t ssi_rdsr_cache_delta_max[
++        ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT
++    ];
++    uint64_t ssi_rdsr_cache_delta_nonzero[
++        ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT
++    ];
++    Esp32HandoffCacheSnapshot ssi_rdsr_previous_cache;
++    bool ssi_rdsr_have_previous_cache;
++    uint64_t ssi_last_rdsr_status;
++    uint64_t ssi_last_rdsr_previous_command;
++    uint64_t ssi_last_rdsr_previous_addr;
++    uint64_t ssi_last_rdsr_previous_prefix;
++    uint64_t ssi_last_rdsr_cpu;
++    uint64_t ssi_last_rdsr_pc;
++    uint64_t ssi_last_rdsr_ps;
++    uint64_t ssi_last_rdsr_irq_request;
++    uint64_t ssi_last_rdsr_gap_ns;
++    Esp32HandoffCacheSnapshot ssi_last_rdsr_cache;
++    uint64_t s32c1i_count;
++    uint64_t s32c1i_success_count;
++    uint64_t s32c1i_contended_count;
++    uint64_t s32c1i_pc_keys[ESP32_HANDOFF_S32C1I_PC_SLOTS];
++    uint64_t s32c1i_pc_counts[ESP32_HANDOFF_S32C1I_PC_SLOTS];
++    uint64_t s32c1i_pc_successes[ESP32_HANDOFF_S32C1I_PC_SLOTS];
++    uint64_t s32c1i_pc_overflow;
++    uint32_t s32c1i_lock_keys[ESP32_HANDOFF_S32C1I_LOCK_SLOTS];
++    uint64_t s32c1i_lock_counts[ESP32_HANDOFF_S32C1I_LOCK_SLOTS];
++    uint64_t s32c1i_lock_successes[ESP32_HANDOFF_S32C1I_LOCK_SLOTS];
++    uint64_t s32c1i_lock_last_old[ESP32_HANDOFF_S32C1I_LOCK_SLOTS];
++    uint64_t s32c1i_lock_last_desired[ESP32_HANDOFF_S32C1I_LOCK_SLOTS];
++    uint64_t s32c1i_lock_overflow;
++    uint64_t s32c1i_old_keys[ESP32_HANDOFF_S32C1I_OLD_SLOTS];
++    uint64_t s32c1i_old_counts[ESP32_HANDOFF_S32C1I_OLD_SLOTS];
++    uint64_t s32c1i_old_overflow;
++    uint32_t s32c1i_caller_pcs[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint32_t s32c1i_caller_a0s[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint32_t s32c1i_caller_addrs[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint8_t s32c1i_caller_flags[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint64_t s32c1i_caller_counts[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint64_t s32c1i_caller_successes[ESP32_HANDOFF_S32C1I_CALLER_SLOTS];
++    uint64_t s32c1i_caller_overflow;
++    uint32_t s32c1i_holder_site_pcs[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
++    uint32_t s32c1i_holder_pcs[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
++    uint32_t s32c1i_holder_addrs[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
++    uint8_t s32c1i_holder_cpus[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
++    uint64_t s32c1i_holder_counts[ESP32_HANDOFF_S32C1I_HOLDER_SLOTS];
++    uint64_t s32c1i_holder_overflow;
++    uint64_t s32c1i_last_pc;
++    uint64_t s32c1i_last_addr;
++    uint64_t s32c1i_last_old;
++    uint64_t s32c1i_last_desired;
++    uint64_t s32c1i_last_cpu;
++    uint64_t s32c1i_last_success;
++    uint64_t s32c1i_last_caller;
+     uint64_t crosscore_writes;
+     uint32_t crosscore_levels;
+     uint64_t intmatrix_levels_lo;
+@@ -67,6 +167,8 @@
+ 
+ extern Esp32HandoffMetrics esp32_handoff_metrics;
+ 
++void esp32_handoff_cache_snapshot(Esp32HandoffCacheSnapshot *snapshot);
++
+ static inline bool esp32_handoff_trace_enabled(void)
+ {
+     static int enabled = -1;
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -68,7 +68,15 @@
+ static uint64_t handoff_last_cache_sync_ns;
+ Esp32HandoffMetrics esp32_handoff_metrics;
+ 
+-
++void esp32_handoff_cache_snapshot(Esp32HandoffCacheSnapshot *snapshot)
++{
++    snapshot->sync_calls = handoff_cache_sync_calls;
++    snapshot->sync_pages = handoff_cache_sync_pages;
++    snapshot->state_updates = handoff_cache_state_updates;
++    snapshot->invalidate_calls = handoff_cache_invalidate_calls;
++    snapshot->illegal_reads = handoff_cache_illegal_reads;
++    snapshot->last_sync_ns = handoff_last_cache_sync_ns;
++}
+ 
+ static inline bool esp32_dport_trace_enabled(void)
+ {
+@@ -915,6 +923,325 @@
+             now_ns, esp32_handoff_metrics.ssi_command_pc_overflow);
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-rdsr-count"
++            " a=%" PRIu64 " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_rdsr_count);
++    for (uint32_t status = 0; status < 256; status++) {
++        uint64_t count =
++            esp32_handoff_metrics.ssi_rdsr_status_counts[status];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-status a=%u b=%" PRIu64
++                    " c=0 d=0\n",
++                    now_ns, status, count);
++        }
++    }
++    for (uint32_t command = 0; command < 256; command++) {
++        uint64_t count = esp32_handoff_metrics
++                             .ssi_rdsr_previous_command_lo_counts[command];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-previous-command a=%u"
++                    " b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, command, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-previous-command-hi a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns,
++            esp32_handoff_metrics.ssi_rdsr_previous_command_hi);
++    for (uint32_t bucket = 0;
++         bucket < ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS; bucket++) {
++        uint64_t count = esp32_handoff_metrics
++                             .ssi_rdsr_previous_rx_length_counts[bucket];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-previous-length a=%u"
++                    " b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, bucket, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-rdsr-gap"
++            " a=%" PRIu64 " b=%" PRIu64 " c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_rdsr_gap_ns_total,
++            esp32_handoff_metrics.ssi_rdsr_gap_ns_max);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-fast-read a=%" PRIu64
++            " b=%" PRIu64 " c=%" PRIu64 " d=0\n",
++            now_ns,
++            esp32_handoff_metrics.ssi_rdsr_previous_fast_read_count,
++            esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_min,
++            esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_max);
++    for (uint32_t value = 0; value < 256; value++) {
++        uint64_t byte0 = esp32_handoff_metrics
++                             .ssi_rdsr_previous_fast_read_byte0_counts[value];
++        uint64_t byte1 = esp32_handoff_metrics
++                             .ssi_rdsr_previous_fast_read_byte1_counts[value];
++
++        if (byte0 || byte1) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-fast-read-byte a=%u"
++                    " b=%" PRIu64 " c=%" PRIu64 " d=0\n",
++                    now_ns, value, byte0, byte1);
++        }
++    }
++    for (uint32_t level = 0; level < 16; level++) {
++        uint64_t count = esp32_handoff_metrics
++                             .ssi_rdsr_ps_intlevel_counts[level];
++        uint64_t irq_count = esp32_handoff_metrics
++                                 .ssi_rdsr_irq_request_counts[level];
++
++        if (count || irq_count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-interrupt a=%u"
++                    " b=%" PRIu64 " c=%" PRIu64 " d=0\n",
++                    now_ns, level, count, irq_count);
++        }
++    }
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS; slot++) {
++        uint64_t encoded =
++            esp32_handoff_metrics.ssi_rdsr_context_keys[slot];
++        uint64_t count =
++            esp32_handoff_metrics.ssi_rdsr_context_counts[slot];
++
++        if (encoded && count) {
++            uint64_t key = encoded - 1;
++            uint32_t status = key >> 42;
++            uint32_t cpu = (key >> 40) & 3;
++            uint32_t pc = key & 0xffffffffu;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rdsr-context a=%u b=%u"
++                    " c=%08" PRIx32 " d=%" PRIu64 "\n",
++                    now_ns, status, cpu, pc, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-context-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_rdsr_context_overflow);
++    for (uint32_t index = 0;
++         index < ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT; index++) {
++        fprintf(stderr,
++                "[esp32-handoff] now=%" PRId64
++                " cpu=-1 pc=00000000 component=ssi"
++                " event=freeze-rdsr-cache-delta a=%u b=%" PRIu64
++                " c=%" PRIu64 " d=%" PRIu64 "\n",
++                now_ns, index,
++                esp32_handoff_metrics
++                    .ssi_rdsr_cache_delta_nonzero[index],
++                esp32_handoff_metrics.ssi_rdsr_cache_delta_total[index],
++                esp32_handoff_metrics.ssi_rdsr_cache_delta_max[index]);
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-rdsr-last"
++            " a=%" PRIu64 " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_last_rdsr_status,
++            esp32_handoff_metrics.ssi_last_rdsr_previous_command,
++            esp32_handoff_metrics.ssi_last_rdsr_previous_addr,
++            esp32_handoff_metrics.ssi_last_rdsr_previous_prefix);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-last-context"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%08" PRIx64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_last_rdsr_cpu,
++            esp32_handoff_metrics.ssi_last_rdsr_ps,
++            esp32_handoff_metrics.ssi_last_rdsr_irq_request,
++            esp32_handoff_metrics.ssi_last_rdsr_pc);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-last-cache"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_last_rdsr_gap_ns,
++            esp32_handoff_metrics.ssi_last_rdsr_cache.sync_calls,
++            esp32_handoff_metrics.ssi_last_rdsr_cache.sync_pages,
++            esp32_handoff_metrics.ssi_last_rdsr_cache.last_sync_ns);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-rdsr-last-cache1"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_last_rdsr_cache.state_updates,
++            esp32_handoff_metrics.ssi_last_rdsr_cache.invalidate_calls,
++            esp32_handoff_metrics.ssi_last_rdsr_cache.illegal_reads);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-total a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_count,
++            esp32_handoff_metrics.s32c1i_success_count,
++            esp32_handoff_metrics.s32c1i_contended_count);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_PC_SLOTS; slot++) {
++        uint64_t encoded = esp32_handoff_metrics.s32c1i_pc_keys[slot];
++        uint64_t count = esp32_handoff_metrics.s32c1i_pc_counts[slot];
++
++        if (encoded && count) {
++            uint64_t key = encoded - 1;
++            uint32_t success = (key >> 33) & 1;
++            uint32_t cpu = (key >> 32) & 1;
++            uint32_t pc = key & 0xffffffffu;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-pc a=%u b=%u c=%08" PRIx32
++                    " d=%" PRIu64 "\n",
++                    now_ns, cpu, success, pc, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-pc-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_pc_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_LOCK_SLOTS; slot++) {
++        uint32_t encoded = esp32_handoff_metrics.s32c1i_lock_keys[slot];
++        uint64_t count = esp32_handoff_metrics.s32c1i_lock_counts[slot];
++
++        if (encoded && count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-lock a=%08" PRIx32
++                    " b=%" PRIu64 " c=%" PRIu64
++                    " d=%08" PRIx64 "\n",
++                    now_ns, encoded - 1, count,
++                    esp32_handoff_metrics.s32c1i_lock_successes[slot],
++                    esp32_handoff_metrics.s32c1i_lock_last_old[slot]);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-lock-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_lock_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_OLD_SLOTS; slot++) {
++        uint64_t encoded = esp32_handoff_metrics.s32c1i_old_keys[slot];
++        uint64_t count = esp32_handoff_metrics.s32c1i_old_counts[slot];
++
++        if (encoded && count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=s32c1i"
++                    " event=freeze-old a=%08" PRIx64
++                    " b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, encoded - 1, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-old-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_old_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_CALLER_SLOTS; slot++) {
++        uint64_t count = esp32_handoff_metrics.s32c1i_caller_counts[slot];
++
++        if (count) {
++            uint8_t flags =
++                esp32_handoff_metrics.s32c1i_caller_flags[slot];
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=%u pc=%08" PRIx32 " component=s32c1i"
++                    " event=freeze-caller a=%08" PRIx32
++                    " b=%u c=%08" PRIx32 " d=%" PRIu64 "\n",
++                    now_ns, flags & 1,
++                    esp32_handoff_metrics.s32c1i_caller_a0s[slot],
++                    esp32_handoff_metrics.s32c1i_caller_pcs[slot],
++                    (flags >> 1) & 1,
++                    esp32_handoff_metrics.s32c1i_caller_addrs[slot],
++                    count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-caller-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_caller_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_S32C1I_HOLDER_SLOTS; slot++) {
++        uint64_t count = esp32_handoff_metrics.s32c1i_holder_counts[slot];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=%08" PRIx32 " component=s32c1i"
++                    " event=freeze-holder a=%08" PRIx32
++                    " b=%u c=%08" PRIx32 " d=%" PRIu64 "\n",
++                    now_ns,
++                    esp32_handoff_metrics.s32c1i_holder_pcs[slot],
++                    esp32_handoff_metrics.s32c1i_holder_site_pcs[slot],
++                    esp32_handoff_metrics.s32c1i_holder_cpus[slot],
++                    esp32_handoff_metrics.s32c1i_holder_addrs[slot],
++                    count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-holder-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_holder_overflow);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-last a=%08" PRIx64
++            " b=%08" PRIx64 " c=%08" PRIx64
++            " d=%08" PRIx64 "\n",
++            now_ns, esp32_handoff_metrics.s32c1i_last_pc,
++            esp32_handoff_metrics.s32c1i_last_addr,
++            esp32_handoff_metrics.s32c1i_last_old,
++            esp32_handoff_metrics.s32c1i_last_desired);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=s32c1i"
++            " event=freeze-last-context a=%" PRIu64 " b=%" PRIu64
++            " c=%08" PRIx64 " d=0\n",
++            now_ns, esp32_handoff_metrics.s32c1i_last_cpu,
++            esp32_handoff_metrics.s32c1i_last_success,
++            esp32_handoff_metrics.s32c1i_last_caller);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=crosscore event=freeze-counters"
+             " a=%" PRIu64 " b=%08" PRIx32 " c=0 d=0\n",
+             now_ns, esp32_handoff_metrics.crosscore_writes,
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -21,6 +21,7 @@
+ #include "hw/ssi/esp32_spi.h"
+ #include "hw/misc/esp32_flash_enc.h"
+ #include "hw/misc/esp32_handoff_trace.h"
++#include "hw/xtensa/xtensa_cpu_regs.h"
+ #include "hw/m5stopwatch/m5stopwatch.h"
+ #include "exec/cpu-common.h"
+ 
+@@ -398,19 +399,204 @@
+     ++esp32_handoff_metrics.ssi_command_pc_overflow;
+ }
+ 
++static uint32_t esp32_spi_rx_prefix(const Esp32SpiTransaction *t)
++{
++    const uint8_t *bytes = (const uint8_t *)t->data;
++    uint32_t prefix = 0;
++    uint32_t length;
++
++    if (!bytes || t->data_rx_bytes <= 0) {
++        return 0;
++    }
++    length = MIN(t->data_rx_bytes, sizeof(prefix));
++    for (uint32_t i = 0; i < length; i++) {
++        prefix |= (uint32_t)bytes[i] << (i * 8);
++    }
++    return prefix;
++}
++
++static void esp32_spi_current_context(uint32_t *cpu, uint32_t *pc,
++                                      uint32_t *ps, uint32_t *irq_request)
++{
++    *cpu = 3;
++    *pc = 0;
++    *ps = 0;
++    *irq_request = 0;
++    if (current_cpu) {
++        *cpu = current_cpu->cpu_index & 3;
++        *irq_request = current_cpu->interrupt_request;
++        if (current_cpu->cc && current_cpu->cc->get_pc) {
++            *pc = current_cpu->cc->get_pc(current_cpu);
++        }
++        *ps = xtensa_cpu_get_ps(current_cpu);
++    }
++}
++
++static void esp32_spi_record_rdsr(
++    Esp32SpiTransaction *t,
++    uint64_t gap_ns,
++    uint32_t previous_command,
++    uint64_t previous_addr,
++    uint32_t previous_rx_bytes,
++    uint32_t previous_rx_prefix,
++    const Esp32HandoffCacheSnapshot *cache
++)
++{
++    uint32_t cpu;
++    uint32_t pc;
++    uint32_t ps;
++    uint32_t irq_request;
++    uint32_t status = ((const uint8_t *)t->data)[0];
++    uint32_t length_bucket = MIN(
++        previous_rx_bytes,
++        ESP32_HANDOFF_SSI_RX_LENGTH_OVERFLOW_BUCKET
++    );
++    uint64_t values[ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT] = {
++        cache->sync_calls,
++        cache->sync_pages,
++        cache->state_updates,
++        cache->invalidate_calls,
++        cache->illegal_reads,
++    };
++    uint64_t previous_values[ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT] = {
++        esp32_handoff_metrics.ssi_rdsr_previous_cache.sync_calls,
++        esp32_handoff_metrics.ssi_rdsr_previous_cache.sync_pages,
++        esp32_handoff_metrics.ssi_rdsr_previous_cache.state_updates,
++        esp32_handoff_metrics.ssi_rdsr_previous_cache.invalidate_calls,
++        esp32_handoff_metrics.ssi_rdsr_previous_cache.illegal_reads,
++    };
++    uint64_t encoded;
++    uint32_t slot;
++
++    esp32_spi_current_context(&cpu, &pc, &ps, &irq_request);
++    ++esp32_handoff_metrics.ssi_rdsr_count;
++    ++esp32_handoff_metrics.ssi_rdsr_status_counts[status];
++    if (previous_command <= 0xff) {
++        ++esp32_handoff_metrics
++              .ssi_rdsr_previous_command_lo_counts[previous_command];
++    } else {
++        ++esp32_handoff_metrics.ssi_rdsr_previous_command_hi;
++    }
++    ++esp32_handoff_metrics
++          .ssi_rdsr_previous_rx_length_counts[length_bucket];
++    esp32_handoff_metrics.ssi_rdsr_gap_ns_total += gap_ns;
++    esp32_handoff_metrics.ssi_rdsr_gap_ns_max =
++        MAX(esp32_handoff_metrics.ssi_rdsr_gap_ns_max, gap_ns);
++
++    if (previous_command == 0xbb) {
++        ++esp32_handoff_metrics.ssi_rdsr_previous_fast_read_count;
++        if (esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_min == 0
++            || previous_addr
++               < esp32_handoff_metrics
++                     .ssi_rdsr_previous_fast_read_addr_min) {
++            esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_min =
++                previous_addr;
++        }
++        esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_max =
++            MAX(esp32_handoff_metrics.ssi_rdsr_previous_fast_read_addr_max,
++                previous_addr);
++        ++esp32_handoff_metrics
++              .ssi_rdsr_previous_fast_read_byte0_counts[
++                  previous_rx_prefix & 0xff
++              ];
++        if (previous_rx_bytes > 1) {
++            ++esp32_handoff_metrics
++                  .ssi_rdsr_previous_fast_read_byte1_counts[
++                      (previous_rx_prefix >> 8) & 0xff
++                  ];
++        }
++    }
++
++    ++esp32_handoff_metrics.ssi_rdsr_ps_intlevel_counts[ps & 0xf];
++    ++esp32_handoff_metrics.ssi_rdsr_irq_request_counts[
++        irq_request & 0xf
++    ];
++    encoded = ((uint64_t)status << 42) | ((uint64_t)cpu << 40) | pc;
++    slot = (uint32_t)(encoded * 11400714819323198485ull)
++           & (ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS - 1);
++    ++encoded;
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS - 1);
++
++        if (esp32_handoff_metrics.ssi_rdsr_context_keys[index] == 0) {
++            esp32_handoff_metrics.ssi_rdsr_context_keys[index] = encoded;
++            ++esp32_handoff_metrics.ssi_rdsr_context_counts[index];
++            break;
++        }
++        if (esp32_handoff_metrics.ssi_rdsr_context_keys[index] == encoded) {
++            ++esp32_handoff_metrics.ssi_rdsr_context_counts[index];
++            break;
++        }
++        if (probe + 1 == ESP32_HANDOFF_SSI_STATUS_CONTEXT_SLOTS) {
++            ++esp32_handoff_metrics.ssi_rdsr_context_overflow;
++        }
++    }
++
++    if (esp32_handoff_metrics.ssi_rdsr_have_previous_cache) {
++        for (uint32_t index = 0;
++             index < ESP32_HANDOFF_SSI_CACHE_COUNTER_COUNT; index++) {
++            uint64_t delta = values[index] >= previous_values[index]
++                           ? values[index] - previous_values[index]
++                           : 0;
++
++            esp32_handoff_metrics.ssi_rdsr_cache_delta_total[index] +=
++                delta;
++            esp32_handoff_metrics.ssi_rdsr_cache_delta_max[index] =
++                MAX(esp32_handoff_metrics.ssi_rdsr_cache_delta_max[index],
++                    delta);
++            if (delta) {
++                ++esp32_handoff_metrics
++                      .ssi_rdsr_cache_delta_nonzero[index];
++            }
++        }
++    }
++    esp32_handoff_metrics.ssi_rdsr_previous_cache = *cache;
++    esp32_handoff_metrics.ssi_rdsr_have_previous_cache = true;
++
++    esp32_handoff_metrics.ssi_last_rdsr_status = status;
++    esp32_handoff_metrics.ssi_last_rdsr_previous_command =
++        previous_command;
++    esp32_handoff_metrics.ssi_last_rdsr_previous_addr = previous_addr;
++    esp32_handoff_metrics.ssi_last_rdsr_previous_prefix =
++        previous_rx_prefix;
++    esp32_handoff_metrics.ssi_last_rdsr_cpu = cpu;
++    esp32_handoff_metrics.ssi_last_rdsr_pc = pc;
++    esp32_handoff_metrics.ssi_last_rdsr_ps = ps;
++    esp32_handoff_metrics.ssi_last_rdsr_irq_request = irq_request;
++    esp32_handoff_metrics.ssi_last_rdsr_gap_ns = gap_ns;
++    esp32_handoff_metrics.ssi_last_rdsr_cache = *cache;
++}
++
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
+     uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     uint32_t command = t->cmd & 0xffff;
++    uint32_t previous_command =
++        esp32_handoff_metrics.ssi_previous_command;
++    uint64_t previous_addr = esp32_handoff_metrics.ssi_previous_addr;
++    uint32_t previous_rx_bytes =
++        esp32_handoff_metrics.ssi_previous_rx_bytes;
++    uint32_t previous_rx_prefix =
++        esp32_handoff_metrics.ssi_previous_rx_prefix;
++    uint64_t gap_ns = 0;
++    bool record_rdsr = esp32_handoff_trace_enabled()
++                       && command == CMD_RDSR
++                       && t->data && t->data_rx_bytes > 0;
++    Esp32HandoffCacheSnapshot rdsr_cache = { 0 };
+     uint32_t rx_length_bucket = MIN(
+         MAX(t->data_rx_bytes, 0),
+         ESP32_HANDOFF_SSI_RX_LENGTH_OVERFLOW_BUCKET
+     );
+ 
++    if (record_rdsr) {
++        esp32_handoff_cache_snapshot(&rdsr_cache);
++    }
+     if (esp32_handoff_metrics.ssi_transactions) {
+-        uint64_t gap_ns = now_ns >= esp32_handoff_metrics.ssi_last_end_ns
+-                        ? now_ns - esp32_handoff_metrics.ssi_last_end_ns
+-                        : 0;
++        gap_ns = now_ns >= esp32_handoff_metrics.ssi_last_end_ns
++               ? now_ns - esp32_handoff_metrics.ssi_last_end_ns
++               : 0;
+         uint32_t gap_bucket = esp32_spi_gap_bucket(gap_ns);
+ 
+         ++esp32_handoff_metrics.ssi_gap_count;
+@@ -435,7 +621,6 @@
+     ++esp32_handoff_metrics.ssi_command_counts[command];
+     ++esp32_handoff_metrics.ssi_rx_length_counts[rx_length_bucket];
+     esp32_spi_record_command_pair(command, rx_length_bucket);
+-    esp32_handoff_metrics.ssi_previous_command = command;
+     esp32_spi_record_command_pc(command);
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-begin",
+@@ -459,6 +644,12 @@
+         esp32_spi_txrx_buffer(
+             s, t->data, t->data_tx_bytes, t->data_rx_bytes);
+     }
++    if (record_rdsr) {
++        esp32_spi_record_rdsr(
++            t, gap_ns, previous_command, previous_addr,
++            previous_rx_bytes, previous_rx_prefix, &rdsr_cache
++        );
++    }
+     if (s->m5_panel && !s->m5_panel_dma_transferred) {
+         if (t->data_tx_bytes) {
+             bool command_phase = s->m5_dc_pin >= 0
+@@ -493,6 +684,23 @@
+     esp32_spi_update_irq(s);
+     esp32_handoff_metrics.ssi_last_end_ns =
+         qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    esp32_handoff_metrics.ssi_previous_command = command;
++    esp32_handoff_metrics.ssi_previous_addr = t->addr;
++    esp32_handoff_metrics.ssi_previous_rx_bytes = t->data_rx_bytes;
++    esp32_handoff_metrics.ssi_previous_rx_prefix =
++        esp32_spi_rx_prefix(t);
++    if (current_cpu) {
++        uint32_t cpu;
++        uint32_t pc;
++        uint32_t ps;
++        uint32_t irq_request;
++
++        esp32_spi_current_context(&cpu, &pc, &ps, &irq_request);
++        esp32_handoff_metrics.ssi_previous_cpu = cpu;
++        esp32_handoff_metrics.ssi_previous_pc = pc;
++        esp32_handoff_metrics.ssi_previous_ps = ps;
++        esp32_handoff_metrics.ssi_previous_irq_request = irq_request;
++    }
+ }
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -33,6 +33,7 @@
+ #include "exec/exec-all.h"
+ #include "qemu/atomic.h"
+ #include "qemu/timer.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ #include "hw/xtensa/xtensa_irq_diag.h"
+ #include "sysemu/cpu-timers.h"
+ 
+@@ -300,6 +301,194 @@
+                           uint32_t old, uint32_t success)
+ {
+     uint32_t prid = env->sregs[PRID];
++    uint32_t cpu = (prid >> 13) & 1;
++    uint32_t caller = env->regs[0];
++    uint32_t holder_cpu = 3;
++    uint32_t holder_pc = 0;
++    uint8_t caller_flags = cpu | ((uint8_t)success << 1);
++    uint64_t pc_key;
++    uint32_t slot;
++
++    if (esp32_handoff_trace_enabled()) {
++        ++esp32_handoff_metrics.s32c1i_count;
++        if (success) {
++            ++esp32_handoff_metrics.s32c1i_success_count;
++        } else {
++            holder_cpu = old == 0xabab ? 1 : (old == 0xcdcd ? 0 : 3);
++            if (holder_cpu < 2) {
++                CPUState *holder = qemu_get_cpu(holder_cpu);
++
++                if (holder && holder->cc && holder->cc->get_pc) {
++                    holder_pc = holder->cc->get_pc(holder) & ~0xffu;
++                }
++            }
++            if (holder_cpu < 2 && holder_cpu != cpu) {
++                ++esp32_handoff_metrics.s32c1i_contended_count;
++            }
++        }
++
++        pc_key = (uint64_t)success << 33
++               | (uint64_t)cpu << 32
++               | pc;
++        slot = (uint32_t)(pc_key * 11400714819323198485ull)
++               & (ESP32_HANDOFF_S32C1I_PC_SLOTS - 1);
++        ++pc_key;
++        for (uint32_t probe = 0;
++             probe < ESP32_HANDOFF_S32C1I_PC_SLOTS; probe++) {
++            uint32_t index = (slot + probe)
++                             & (ESP32_HANDOFF_S32C1I_PC_SLOTS - 1);
++
++            if (esp32_handoff_metrics.s32c1i_pc_keys[index] == 0) {
++                esp32_handoff_metrics.s32c1i_pc_keys[index] = pc_key;
++                ++esp32_handoff_metrics.s32c1i_pc_counts[index];
++                esp32_handoff_metrics.s32c1i_pc_successes[index] += success;
++                break;
++            }
++            if (esp32_handoff_metrics.s32c1i_pc_keys[index] == pc_key) {
++                ++esp32_handoff_metrics.s32c1i_pc_counts[index];
++                esp32_handoff_metrics.s32c1i_pc_successes[index] += success;
++                break;
++            }
++            if (probe + 1 == ESP32_HANDOFF_S32C1I_PC_SLOTS) {
++                ++esp32_handoff_metrics.s32c1i_pc_overflow;
++            }
++        }
++
++        slot = (vaddr * 2654435761u)
++               & (ESP32_HANDOFF_S32C1I_LOCK_SLOTS - 1);
++        for (uint32_t probe = 0;
++             probe < ESP32_HANDOFF_S32C1I_LOCK_SLOTS; probe++) {
++            uint32_t index = (slot + probe)
++                             & (ESP32_HANDOFF_S32C1I_LOCK_SLOTS - 1);
++            uint32_t key = vaddr + 1;
++
++            if (esp32_handoff_metrics.s32c1i_lock_keys[index] == 0) {
++                esp32_handoff_metrics.s32c1i_lock_keys[index] = key;
++                ++esp32_handoff_metrics.s32c1i_lock_counts[index];
++                esp32_handoff_metrics.s32c1i_lock_successes[index] += success;
++                esp32_handoff_metrics.s32c1i_lock_last_old[index] = old;
++                esp32_handoff_metrics.s32c1i_lock_last_desired[index] =
++                    desired;
++                break;
++            }
++            if (esp32_handoff_metrics.s32c1i_lock_keys[index] == key) {
++                ++esp32_handoff_metrics.s32c1i_lock_counts[index];
++                esp32_handoff_metrics.s32c1i_lock_successes[index] += success;
++                esp32_handoff_metrics.s32c1i_lock_last_old[index] = old;
++                esp32_handoff_metrics.s32c1i_lock_last_desired[index] =
++                    desired;
++                break;
++            }
++            if (probe + 1 == ESP32_HANDOFF_S32C1I_LOCK_SLOTS) {
++                ++esp32_handoff_metrics.s32c1i_lock_overflow;
++            }
++        }
++
++        pc_key = (uint64_t)old + 1;
++        slot = (pc_key * 11400714819323198485ull)
++               & (ESP32_HANDOFF_S32C1I_OLD_SLOTS - 1);
++        for (uint32_t probe = 0;
++             probe < ESP32_HANDOFF_S32C1I_OLD_SLOTS; probe++) {
++            uint32_t index = (slot + probe)
++                             & (ESP32_HANDOFF_S32C1I_OLD_SLOTS - 1);
++
++            if (esp32_handoff_metrics.s32c1i_old_keys[index] == 0) {
++                esp32_handoff_metrics.s32c1i_old_keys[index] = pc_key;
++                ++esp32_handoff_metrics.s32c1i_old_counts[index];
++                break;
++            }
++            if (esp32_handoff_metrics.s32c1i_old_keys[index] == pc_key) {
++                ++esp32_handoff_metrics.s32c1i_old_counts[index];
++                break;
++            }
++            if (probe + 1 == ESP32_HANDOFF_S32C1I_OLD_SLOTS) {
++                ++esp32_handoff_metrics.s32c1i_old_overflow;
++            }
++        }
++
++        pc_key = (uint64_t)pc * 11400714819323198485ull
++               ^ (uint64_t)caller * 14029467366897019727ull
++               ^ (uint64_t)vaddr * 1609587929392839161ull
++               ^ caller_flags;
++        slot = pc_key & (ESP32_HANDOFF_S32C1I_CALLER_SLOTS - 1);
++        for (uint32_t probe = 0;
++             probe < ESP32_HANDOFF_S32C1I_CALLER_SLOTS; probe++) {
++            uint32_t index = (slot + probe)
++                             & (ESP32_HANDOFF_S32C1I_CALLER_SLOTS - 1);
++            bool empty =
++                esp32_handoff_metrics.s32c1i_caller_counts[index] == 0;
++            bool match =
++                esp32_handoff_metrics.s32c1i_caller_pcs[index] == pc
++                && esp32_handoff_metrics.s32c1i_caller_a0s[index] == caller
++                && esp32_handoff_metrics.s32c1i_caller_addrs[index] == vaddr
++                && esp32_handoff_metrics.s32c1i_caller_flags[index]
++                   == caller_flags;
++
++            if (empty || match) {
++                esp32_handoff_metrics.s32c1i_caller_pcs[index] = pc;
++                esp32_handoff_metrics.s32c1i_caller_a0s[index] = caller;
++                esp32_handoff_metrics.s32c1i_caller_addrs[index] = vaddr;
++                esp32_handoff_metrics.s32c1i_caller_flags[index] =
++                    caller_flags;
++                ++esp32_handoff_metrics.s32c1i_caller_counts[index];
++                esp32_handoff_metrics.s32c1i_caller_successes[index] +=
++                    success;
++                break;
++            }
++            if (probe + 1 == ESP32_HANDOFF_S32C1I_CALLER_SLOTS) {
++                ++esp32_handoff_metrics.s32c1i_caller_overflow;
++            }
++        }
++
++        if (!success && holder_cpu < 2 && holder_cpu != cpu) {
++            pc_key = (uint64_t)pc * 1609587929392839161ull
++                   ^ (uint64_t)holder_pc * 11400714819323198485ull
++                   ^ (uint64_t)vaddr * 14029467366897019727ull
++                   ^ holder_cpu;
++            slot = pc_key & (ESP32_HANDOFF_S32C1I_HOLDER_SLOTS - 1);
++            for (uint32_t probe = 0;
++                 probe < ESP32_HANDOFF_S32C1I_HOLDER_SLOTS; probe++) {
++                uint32_t index = (slot + probe)
++                                 & (ESP32_HANDOFF_S32C1I_HOLDER_SLOTS - 1);
++                bool empty =
++                    esp32_handoff_metrics.s32c1i_holder_counts[index] == 0;
++                bool match =
++                    esp32_handoff_metrics.s32c1i_holder_site_pcs[index] == pc
++                    && esp32_handoff_metrics.s32c1i_holder_pcs[index]
++                       == holder_pc
++                    && esp32_handoff_metrics.s32c1i_holder_addrs[index]
++                       == vaddr
++                    && esp32_handoff_metrics.s32c1i_holder_cpus[index]
++                       == holder_cpu;
++
++                if (empty || match) {
++                    esp32_handoff_metrics.s32c1i_holder_site_pcs[index] = pc;
++                    esp32_handoff_metrics.s32c1i_holder_pcs[index] =
++                        holder_pc;
++                    esp32_handoff_metrics.s32c1i_holder_addrs[index] = vaddr;
++                    esp32_handoff_metrics.s32c1i_holder_cpus[index] =
++                        holder_cpu;
++                    ++esp32_handoff_metrics.s32c1i_holder_counts[index];
++                    break;
++                }
++                if (probe + 1 == ESP32_HANDOFF_S32C1I_HOLDER_SLOTS) {
++                    ++esp32_handoff_metrics.s32c1i_holder_overflow;
++                }
++            }
++        }
++
++        esp32_handoff_metrics.s32c1i_last_pc = pc;
++        esp32_handoff_metrics.s32c1i_last_addr = vaddr;
++        esp32_handoff_metrics.s32c1i_last_old = old;
++        esp32_handoff_metrics.s32c1i_last_desired = desired;
++        esp32_handoff_metrics.s32c1i_last_cpu = cpu;
++        esp32_handoff_metrics.s32c1i_last_success = success;
++        esp32_handoff_metrics.s32c1i_last_caller = caller;
++        if (!success && icount_enabled()
++            && getenv("M5SW_XTENSA_CONTENDED_CAS_YIELD")) {
++            cpu_exit(env_cpu(env));
++        }
++    }
+ 
+     if (!getenv("M5SW_S32C1I_TRACE")) {
+         return;
+@@ -310,7 +499,7 @@
+             " pc=0x%08" PRIx32 " addr=0x%08" PRIx32
+             " compare=0x%08" PRIx32 " desired=0x%08" PRIx32
+             " old=0x%08" PRIx32 " success=%" PRIu32 "\n",
+-            (prid >> 13) & 1, prid, env->regs[1], pc, vaddr, compare,
++            cpu, prid, env->regs[1], pc, vaddr, compare,
+             desired, old,
+             success);
+     fflush(stderr);
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -2275,7 +2275,8 @@
+     tcg_gen_atomic_cmpxchg_i32(arg[0].out, addr, cpu_SR[SCOMPARE1],
+                                tmp, dc->cring, mop);
+ #ifndef CONFIG_USER_ONLY
+-    if (getenv("M5SW_S32C1I_TRACE")) {
++    if (getenv("M5SW_ESP32_HANDOFF_TRACE")
++        || getenv("M5SW_S32C1I_TRACE")) {
+         TCGv_i32 success = tcg_temp_new_i32();
+ 
+         tcg_gen_setcond_i32(TCG_COND_EQ, success, arg[0].out,
