@@ -90,19 +90,21 @@ def unsupported_ble_peripheral_peer(device, group):
     return group in BLE_CLIENT_GROUPS and device not in BLE_PERIPHERAL_PEER_DEVICES
 
 
-def stock_radio_model_blocker(evidence, device, execution_error=None):
-    if execution_error and "peripheral BLE peer is admitted only" in execution_error:
-        return {
-            "api_prefixes": ["bluetooth.BLE", "bleuart.BLEUARTClient", "m5ble.m5ble.Client"],
-            "status": "BLOCKED_FIXTURE",
-            "reason": (
-                "This client probe requires the Device Service to act as a BLE "
-                "peripheral. Peripheral peer role admission is currently limited "
-                "to CoreS3 and Cardputer-ADV, so this device group is NOT_RUN and "
-                "is not a stock controller result."
-            ),
-            "evidence_refs": evidence,
-        }
+def ble_peripheral_peer_fixture_blocker(evidence):
+    return {
+        "api_prefixes": ["bluetooth.BLE", "bleuart.BLEUARTClient", "m5ble.m5ble.Client"],
+        "status": "BLOCKED_FIXTURE",
+        "reason": (
+            "This client probe requires the Device Service to act as a BLE "
+            "peripheral. Peripheral peer role admission is currently limited "
+            "to CoreS3 and Cardputer-ADV, so this device group is NOT_RUN and "
+            "is not a stock controller result."
+        ),
+        "evidence_refs": evidence,
+    }
+
+
+def stock_radio_model_blocker(evidence, device):
     if device == "core2":
         reason = (
             "The selected stock Core2 image uses its internal Bluetooth "
@@ -469,13 +471,11 @@ def run(args):
             report["library_lane"]=library_lane(args.group, args.m5ble_source)
             report["firmware_lane"]=execution.get("firmware_lane","stock-frozen")
             if radio and not bases and code!=0:
-                report["model_blockers"]=[stock_radio_model_blocker(
-                    evidence,
-                    device,
-                    execution.get("error"),
-                )]
                 if unsupported_ble_peripheral_peer(device, args.group):
                     report["status"]="NOT_RUN"
+                    report["model_blockers"]=[ble_peripheral_peer_fixture_blocker(evidence)]
+                else:
+                    report["model_blockers"]=[stock_radio_model_blocker(evidence, device)]
             if args.group.startswith("audio-"):
                 report["audio_case"]=args.audio_case
                 report["input_fixture_lane"]="explicit-diagnostic-override" if args.runtime_env_json else "service-owned-default"

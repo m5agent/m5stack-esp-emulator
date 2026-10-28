@@ -124,12 +124,7 @@ class ApiSweepProtocolBleIdentityTest(unittest.TestCase):
         self.assertFalse(
             self.runner.unsupported_ble_peripheral_peer("cores3", "ble-client")
         )
-        blocker = self.runner.stock_radio_model_blocker(
-            {},
-            "core2",
-            "POST sessions: HTTP 400 peripheral BLE peer is admitted only for "
-            "CoreS3 and Cardputer-ADV",
-        )
+        blocker = self.runner.ble_peripheral_peer_fixture_blocker({})
         self.assertEqual(blocker["status"], "BLOCKED_FIXTURE")
         self.assertIn("NOT_RUN", blocker["reason"])
 

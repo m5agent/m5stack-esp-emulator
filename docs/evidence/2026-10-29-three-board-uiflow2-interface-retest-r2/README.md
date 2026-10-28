@@ -69,10 +69,10 @@ PMK 加密 payload、跨设备 fabric、丢包/重试、RF 和 timing 均未验�
 | M5UI native marshalling | StopWatch/Core2 各 `4/4 STATE_PASS + 2/2 FRAME_PASS` |
 | Core2 `m5ble` stacked `0021 + 0025` | `22/22 PASS` |
 
-Core2 TLS base candidate SHA256 分别为 StopWatch
-`edcd9a392f1ff5e5741c8331ae41ea18b915ae50b2ff54c173110c65c532e6a6`、
-StickS3 `2e8386057fab9d384489651a544e30ce4edaf86586e1f4ce7f588469439af6aa`、
-Core2 `204def8c601c29b7fa4af83b767c3fd8ced9c6b12815a709c450fb5b80a2e2c6`。
+本轮实际执行的 TLS candidate firmware SHA256 分别为 StopWatch
+`1233e631fbf25f62a29fe30281e67677ced0f47b912762744866511454ee6076`、
+StickS3 `2bf7db4f5f242cb08bed48a861c97b62c263e178a12b72e0596504b86a814a38`、
+Core2 `cc1b4d7eb2d66926f80155dd747a96fbaff5911635dce0af191526760048fde0`。
 Core2 m5ble candidate SHA256 为
 `d82c1aec593de997d2d63f6bc409f6786a3b90e8b4b793c722cb9c61b8c82703`。
 
@@ -148,6 +148,16 @@ M5PM1 使用官方 `m5pm1.py` fixture；首次缺少 fixture 的 ImportError
 `M5SW_CORE2_PMIC=axp192`，不是默认 AXP2101 路径。首次 AXP192 尝试在
 marker 触发 touch 早于 guest 输入就绪时停住；最终隔离重跑在 QOM 动作后
 等待 1 秒再注入 touch，完成 `5/5` host actions 与最终画面。
+
+## 回归与清理
+
+- 平台测试：`1428` 项 `OK`，`1` 项既有 skip；
+- `runtime_coverage`、`peripheral_catalog`、`qemu_profiles` 和
+  `project_snapshot` 均 PASS；
+- 变更 Python 文件 `compileall`、scoped Ruff `E9/F` 和
+  `git diff --check` PASS；
+- 三个隔离 Device Service 均停止，未残留 QEMU、BLE peer 或
+  Device Service 进程；测试历史以 `purge=0` 保留。
 
 ## 未关闭项
 

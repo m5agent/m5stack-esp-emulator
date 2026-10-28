@@ -448,13 +448,15 @@
         },
         "tls": {
           "candidate_source_sha256": null,
-          "counts": {},
-          "evidence_sha256": "8948ab0654c90c61b57714c394bbe4837b0dfae5f4abfe5f9fe29f851484f6ac",
+          "counts": {
+            "PASS": 5
+          },
+          "evidence_sha256": "de9e175ce778a7e6251eb32e7bd1eed22a9d6e4566f9c7da966d347f86d3e639",
           "firmware_lane": "caller-pinned-candidate",
-          "firmware_sha256": "d8575cc05d30b23c956eeda4736d210f222d5b465637342b05ec09d4035db130",
+          "firmware_sha256": "2bf7db4f5f242cb08bed48a861c97b62c263e178a12b72e0596504b86a814a38",
           "library_lane": "stock-frozen",
-          "session_id": "da184f24e0ff44128b0bbae8c23b76b2",
-          "status": "FAIL"
+          "session_id": "9d2bce7434824d678d882e8a8d2c1ef9",
+          "status": "PASS"
         }
       },
       "hardware": {
