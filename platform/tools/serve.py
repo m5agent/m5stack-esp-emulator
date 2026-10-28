@@ -917,7 +917,9 @@ class Handler(SimpleHTTPRequestHandler):
                 elif action == "reset":
                     response = session.reset()
                 elif action == "renew":
-                    ttl = int(payload.get("ttl_seconds", service.default_ttl))
+                    ttl = payload.get("ttl_seconds", service.default_ttl)
+                    if type(ttl) is not int or ttl < 30:
+                        raise ServiceError("invalid_ttl", "ttl_seconds must be an integer >= 30", 400)
                     response = session.renew(ttl)
                 elif action == "wait":
                     response = _wait_for_session(session, payload)

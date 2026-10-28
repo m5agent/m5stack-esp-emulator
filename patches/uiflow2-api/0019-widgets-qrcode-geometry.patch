@@ -1,0 +1,18 @@
+--- a/m5stack/components/M5Unified/mpy_m5widgets.cpp
++++ b/m5stack/components/M5Unified/mpy_m5widgets.cpp
+@@ -1505,6 +1505,7 @@
+     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+ 
+     widgets_qrcode_obj_t *self = (widgets_qrcode_obj_t *)pos_args[0];
++    m5widgets_qrcode_erase_helper(self);
+     self->size.w = args[ARG_w].u_int;
+     m5widgets_qrcode_draw_helper(self);
+     return mp_const_none;
+@@ -1538,6 +1539,7 @@
+     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+ 
+     widgets_qrcode_obj_t *self = (widgets_qrcode_obj_t *)pos_args[0];
++    m5widgets_qrcode_erase_helper(self);
+     self->pos.x0 = args[ARG_x].u_int;
+     self->pos.y0 = args[ARG_y].u_int;
+     m5widgets_qrcode_draw_helper(self);

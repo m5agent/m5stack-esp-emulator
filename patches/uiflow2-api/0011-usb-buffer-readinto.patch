@@ -1,0 +1,8 @@
+--- a/m5stack/libs/usb/device/core.py
++++ b/m5stack/libs/usb/device/core.py
+@@ -881,4 +881,4 @@
+         if to_r:
+             b[:to_r] = pr[:to_r]
+             self.finish_read(to_r)
+-        return to_r4
++        return to_r

@@ -21,9 +21,9 @@ class RuntimeCoverageTests(unittest.TestCase):
             report["simulated_models"],
         )
         self.assertEqual(report["device_case_groups"], 14)
-        self.assertEqual(report["assigned_matrix_cases"], 67)
+        self.assertEqual(report["assigned_matrix_cases"], 68)
         self.assertEqual(report["assigned_external_cases"], 19)
-        self.assertEqual(report["case_model_groups"], 86)
+        self.assertEqual(report["case_model_groups"], 87)
 
     def test_missing_device_case_group_is_rejected(self):
         coverage = json.loads(runtime_coverage.COVERAGE.read_text())

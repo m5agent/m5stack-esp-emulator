@@ -93,6 +93,7 @@ except Exception as error:
     emit("CORES3_RTC_ERR", repr(error))
 
 draw("waiting for input")
+emit("CORES3_PERIPHERAL_INPUT_READY")
 while True:
     M5.update()
     changed = False
@@ -145,4 +146,6 @@ while True:
 
     if changed:
         draw("INPUT OK count=%d" % (state["pwr"] + state["touch"]))
+        if state["pwr"] and state["touch"]:
+            emit("CORES3_PERIPHERAL_DRAW_COMPLETE")
     time.sleep_ms(20)

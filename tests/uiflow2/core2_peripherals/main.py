@@ -43,6 +43,8 @@ def draw():
     d.fillRect(160, 180, 140, 24, d.COLOR.BLUE)
     d.setCursor(224, 186)
     d.print("TOUCH")
+    if ready:
+        emit("CORE2_PERIPHERAL_DRAW_COMPLETE")
 
 
 M5.begin()
@@ -70,6 +72,7 @@ except Exception:
     axp_i2c = None
 
 draw()
+emit("CORE2_PERIPHERAL_INPUT_READY")
 
 while True:
     key_state = Power.getKeyState()

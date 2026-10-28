@@ -272,6 +272,17 @@ def frame_stats(pixels: bytes) -> tuple[int, int]:
     return nonblack, len(colors)
 
 
+def wait_serial_marker(path: Path, marker: str, proc, timeout: float = 30.0) -> None:
+    """Wait for guest completion, failing closed on exit or a bounded timeout."""
+    deadline = time.monotonic() + timeout
+    while marker not in (path.read_text(errors="replace") if path.exists() else ""):
+        if proc.poll() is not None:
+            raise RuntimeError(f"process exited waiting for serial marker {marker!r}")
+        if time.monotonic() >= deadline:
+            raise RuntimeError(f"timed out waiting for serial marker {marker!r}")
+        time.sleep(0.05)
+
+
 def pointer_events(
     x: int, y: int, frame_size: tuple[int, int], down: bool | None = None
 ) -> list[dict]:
@@ -281,14 +292,17 @@ def pointer_events(
             "type": "abs",
             "data": {
                 "axis": "x",
-                "value": int(x * 32767 / max(width - 1, 1)),
+                # QEMU scales back with integer floor. Encode the lower
+                # absolute-axis boundary of this exact pixel using ceil;
+                # applying floor in both directions loses most coordinates.
+                "value": -(-x * 32767 // max(width - 1, 1)),
             },
         },
         {
             "type": "abs",
             "data": {
                 "axis": "y",
-                "value": int(y * 32767 / max(height - 1, 1)),
+                "value": -(-y * 32767 // max(height - 1, 1)),
             },
         },
     ]
@@ -439,6 +453,8 @@ def main():
     )
     parser.add_argument("--wait", type=float, default=6.0)
     parser.add_argument("--post-input-wait", type=float, default=0.6)
+    parser.add_argument("--pre-input-marker", help="guest readiness marker required before injecting inputs")
+    parser.add_argument("--post-input-marker", help="guest completion marker required before final capture")
     parser.add_argument(
         "--capture-frames",
         type=int,
@@ -653,6 +669,8 @@ def main():
                 print(f"qom-step {path} {prop}={current['return']}")
         if args.qom_step:
             time.sleep(args.qom_sequence_settle)
+        if args.pre_input_marker:
+            wait_serial_marker(serial, args.pre_input_marker, proc)
         qmp.cmd("screendump", filename=str(before))
         expected = tuple(map(int, args.expected_size.lower().split("x")))
         actual = read_ppm(before)[:2]
@@ -705,6 +723,8 @@ def main():
                         f"input frame {index} has too few colors: "
                         f"{unique_colors}"
                     )
+        if args.post_input_marker:
+            wait_serial_marker(serial, args.post_input_marker, proc)
         qmp.cmd("screendump", filename=str(after))
         for path, prop, raw_expected in args.qom_expect:
             try:

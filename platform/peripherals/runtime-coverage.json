@@ -200,6 +200,7 @@
     "sticks3-ir": ["ir-tx-rx"],
     "sticks3-ir-rx": ["ir-tx-rx"],
     "cardputer-adv-sd": ["sd-card-spi"],
+    "cores3-sd": ["sd-card-spi"],
     "cardputer-adv-imu": ["bmi270"],
     "cardputer-adv-keyboard": ["keyboard-tca8418"],
     "cardputer-adv-nfc": ["nfc-st25r3916-spi"],
@@ -414,6 +415,7 @@
         "cores3-peripherals",
         "cores3-power-transitions",
         "cores3-usb-hid",
+        "cores3-sd",
         "cores3-camera",
         "cores3-audio",
         "cores3-mic",
@@ -434,7 +436,8 @@
         "aw88298",
         "pwr-button",
         "ltr-553als-wa",
-        "usb-host"
+        "usb-host",
+        "sd-card-spi"
       ]
     },
     "cardputer-adv": {
@@ -723,7 +726,7 @@
     "lora-sx1262": {"matrix": ["papermono-lora"]},
     "cc1101-subghz": {"matrix": ["cardputer-adv-cc1101"]},
     "sd-card": {"matrix": ["papermono-peripherals"]},
-    "sd-card-spi": {"matrix": ["cardputer-adv-sd"]},
+    "sd-card-spi": {"matrix": ["cardputer-adv-sd", "cores3-sd"]},
     "usb-host": {"matrix": ["cores3-usb-hid"]},
     "usb-hub-gl852g": {"external": ["cardputer-zero-ethernet"]},
     "linux-bcm2837": {"external": ["cardputer-zero-full"]}

@@ -1,0 +1,34 @@
+diff --git a/m5stack/cmodules/lv_binding_micropython/lvgl/src/others/observer/lv_observer.c b/m5stack/cmodules/lv_binding_micropython/lvgl/src/others/observer/lv_observer.c
+--- a/m5stack/cmodules/lv_binding_micropython/lvgl/src/others/observer/lv_observer.c
++++ b/m5stack/cmodules/lv_binding_micropython/lvgl/src/others/observer/lv_observer.c
+@@ -301,7 +301,6 @@
+         lv_observer_t * observer_next = lv_ll_get_next(&subject->subs_ll, observer);
+ 
+         if(observer->for_obj) {
+-            lv_obj_remove_event_cb(observer->target, unsubscribe_on_delete_cb);
+             lv_obj_remove_event_cb_with_user_data(observer->target, NULL, subject);
+         }
+ 
+@@ -396,6 +395,12 @@
+ 
+     observer->subject->notify_restart_query = 1;
+ 
++    /* Keep the object's automatic unsubscribe callback coupled to the live
++     * observer, including explicit removal and subject teardown. */
++    if(observer->for_obj && observer->target != NULL) {
++        lv_obj_remove_event_cb_with_user_data(observer->target,
++                                              unsubscribe_on_delete_cb, observer);
++    }
+     lv_ll_remove(&(observer->subject->subs_ll), observer);
+ 
+     if(observer->auto_free_user_data) {
+@@ -413,8 +418,8 @@
+         if(event_dsc->cb == unsubscribe_on_delete_cb) {
+             lv_observer_t * observer = event_dsc->user_data;
+             if(subject == NULL || subject == observer->subject) {
++                /* Observer removal also removes this exact event descriptor. */
+                 lv_observer_remove(observer);
+-                lv_obj_remove_event(obj, i);
+             }
+         }
+     }

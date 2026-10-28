@@ -15,6 +15,7 @@ def main() -> None:
     parser.add_argument("--sample-rate", type=int, default=16000)
     parser.add_argument("--seconds", type=float, default=1.0)
     parser.add_argument("--amplitude", type=int, default=12000)
+    parser.add_argument("--channels", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
 
     samples = int(args.sample_rate * args.seconds)
@@ -24,7 +25,7 @@ def main() -> None:
             args.amplitude
             * math.sin(2.0 * math.pi * args.frequency * index / args.sample_rate)
         )
-        data.extend(struct.pack("<h", value))
+        data.extend(struct.pack("<h", value) * args.channels)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(data)
     print(

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/cmodules/lv_binding_micropython/lvgl/src/others/observer/lv_observer.c",
+  "preimage_sha256": "d496b0835ec9fe60b9b197c3b9b553b784673fa0bfabff5ee7cd78600d3a9627",
+  "candidate_sha256": "f8db3b0cd1ac1962c632fddd088bf8d3271cafaf51d1ff11bc06cae4c566bf1a",
+  "problem": "Explicit removal of an object-owned observer leaves the automatic object-delete subscription attached. Subject teardown also removes unrelated subjects delete callbacks from a shared object.",
+  "correction": "Detach only the exact observer callback before releasing its record, retain unrelated subscriptions, and let object-subject removal use the same single cleanup path.",
+  "validation": "Exact source callback-list C regression and same-source visible matching SDK preimage/candidate subscription-count and object/subject cleanup checks; hardware NOT RUN."
+}

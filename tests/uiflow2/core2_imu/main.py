@@ -12,6 +12,7 @@ d.setCursor(6, 6)
 d.print("Core2 IMU")
 d.setCursor(6, 32)
 d.print("waiting for sample")
+print("CORE2_IMU_SAMPLE_READY")
 
 status = "init"
 last_values = None
@@ -48,6 +49,7 @@ d.fillRect(0, 0, 320, 8,
            d.COLOR.GREEN if status.startswith("ok") else d.COLOR.RED)
 d.setCursor(6, 32)
 d.print(status)
+print("CORE2_IMU_DRAW_COMPLETE", status)
 
 while True:
     M5.update()

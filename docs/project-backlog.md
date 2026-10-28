@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-27`
+日期：`2026-10-28`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -61,7 +61,14 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
-最新用户场景为AIFlow实时编程/实时预览，`UNIT-01`下一块优先补预览执行闭环：
+最新用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
+全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
+易用性修复。按[验证计划](plans/2026-10-27-uiflow2-complete-api-sweep.md)逐项
+对账，清单、导入和调用返回不能代替行为 PASS；模型/fixture/固件差异逐项保留。
+本轮修复与逐项审计见[交付证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)；
+后续优先关闭保留的 stock SDK/绑定失败、WDT warm reboot、未实现控制器和未选外设场景。
+
+此前AIFlow实时编程/实时预览场景仍按 `UNIT-01` 队列补预览执行闭环：
 已满足前置为取消事务、同 guest UART raw REPL、Web 程序面板、限定HUB传感器/
 控制leaf的原驱动执行及显式按需共享QEMU帧样本，范围见[本轮证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-unit-preview/README.md)。
 完整文件包/资源与纯字节码`.mpy`依赖已实现，范围见[文件包证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-live-package-and-detent/README.md)。
@@ -119,6 +126,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
+| `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush`：VDB `flushing=1`、`wait_cb=null`，display `flush_cb=0x40174758` 已调用，但 completion `0x40174884` / `lv_disp_flush_ready` 未观测。下一项修 SPI interrupt/queue completion；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness 与 LVGL flush completion 保持可重放 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |

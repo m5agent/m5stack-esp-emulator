@@ -1,0 +1,70 @@
+--- a/m5stack/libs/label_plus.py
++++ b/m5stack/libs/label_plus.py
+@@ -56,6 +56,7 @@
+         error_msg=None,
+         error_msg_color=0xFF0000,
+     ) -> None:
++        self._tim = None
+         self._url = url
+         # self._tim = Timer(-1)
+         self._period = period
+@@ -77,10 +78,14 @@
+                 mode=soft_timer.SoftTimer.ONE_SHOT, period=self._period, callback=self._cb
+             )
+ 
++    def _stop_timer(self):
++        if self._tim is not None:
++            self._tim.deinit()
++            self._tim = None
++
+     def deinit(self):
+-        if self._enable is True:
+-            self._tim.deinit()
+-            self._enable = False
++        self._stop_timer()
++        self._enable = False
+ 
+     def set_update_enable(self, enable):
+         """Enable or disable automatic updates.
+@@ -100,14 +105,15 @@
+         if self._enable is True and enable is True:
+             return
+         if self._enable is True:
+-            self._tim.deinit()
++            self._stop_timer()
+         self._enable = enable
+         self._init_timer()
+ 
+     def _cb(self, tim):
+         # schedule(self._update(), self)
+         self._update()
+-        self._tim.init(mode=soft_timer.SoftTimer.ONE_SHOT, period=self._period, callback=self._cb)
++        if self._enable and self._period > 0 and self._tim is not None:
++            self._tim.init(mode=soft_timer.SoftTimer.ONE_SHOT, period=self._period, callback=self._cb)
+ 
+     def set_update_period(self, period):
+         """Set the update period for automatic updates.
+@@ -125,7 +131,7 @@
+                 label_plus0.set_update_period(5000)
+         """
+         if self._enable:
+-            self._tim.deinit()
++            self._stop_timer()
+         self._period = period
+         self._init_timer()
+ 
+@@ -225,12 +231,12 @@
+                 return self._data
+ 
+     def update(self):
+-        self._tim.deinit()
++        self._stop_timer()
+         self._update()
+         self._init_timer()
+ 
+     def show_value_of_key(self, key):
+-        self._tim.deinit()
++        self._stop_timer()
+         self._key = key
+         self._update()
+         self._init_timer()

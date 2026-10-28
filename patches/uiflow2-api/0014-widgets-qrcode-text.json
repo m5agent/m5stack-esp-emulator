@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/components/M5Unified/mpy_m5widgets.cpp",
+  "preimage_sha256": "d82e660b862ecd6c0f68d911f06c37c5447d63f579c8de457b8177ba1e18fd7e",
+  "candidate_sha256": "8f1fcf750218311405b996f5eee389fd3e42e59d28d8e85151d7c8addaf68888",
+  "problem": "Widgets.QRCode.setText redraws the previous text because it never assigns new_text to the widget.",
+  "correction": "Erase the previous QR area, retain the requested string in the widget and redraw its encoded content.",
+  "validation": "Independent framebuffer QR decode before and after setText on CoreS3 and Cardputer-ADV; hardware NOT RUN."
+}

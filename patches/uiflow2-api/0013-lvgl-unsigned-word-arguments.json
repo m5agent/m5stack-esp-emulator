@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py",
+  "preimage_sha256": "0955b8d04c7700a900937d113359f28ee608c6552f117794bc9bc73c48217220",
+  "candidate_sha256": "c21d77e06a0f7b28b3a81f775cd9066c84499322457c14c5474fd60230bbb4d7",
+  "stack_preimage_sha256": "467b355a465e59829b737ff50a52524bd09406fd74c86e547a12d555b5bc7fd8",
+  "stack_candidate_sha256": "deab44a974c1f1335bffbc168bad7413a422502e4bd6d97d4b546dbe31a09cb4",
+  "patch_sha256": "519a20a2f97e22b5a8814a43ecfb499f7a975a1b822d4c71e714669618408c81",
+  "status": "candidate_firmware_correction_not_reference_firmware",
+  "contract": "uint32 and unsigned native-word arguments preserve the full C bit pattern through mp_obj_get_int_truncated; high-bit animation speed and ARGB inputs do not pass through a signed-range conversion; signed and 64-bit converters remain unchanged"
+}

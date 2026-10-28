@@ -1,0 +1,95 @@
+From: Codex <codex@openai.com>
+Subject: [PATCH] lcd-cam: complete camera half-buffers across GDMA descriptors
+
+The guest's cam_rec_data_bytelen describes a full half-buffer, while each
+linked GDMA node has a 12-bit capacity. A 15360-byte QVGA half-buffer uses
+four 3840-byte nodes. Complete the entire half-buffer before counting it,
+preserve partial DMA failure, and wait for the guest's EOF acknowledgement
+before the following chunk or VSYNC. Idle/unconfigured capture must not
+consume the frame source.
+
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index 0a34bcdf..d3a23b7d 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -106,13 +106,19 @@ static void lcd_cam_capture(M5LcdCamState *s)
+     uint32_t len = s->chunk_len;
+     g_autofree uint8_t *data = g_malloc0(len);
+ 
++    if (getenv("M5SW_CAMERA_TRACE")) {
++        fprintf(stderr, "[lcd-cam] capture started=%d ena=%x chunks=%u offset=%u\n",
++                s->started, s->int_ena, s->chunks_left, s->frame_offset);
++    }
++    if (!s->started) {
++        return;
++    }
+     if (!(s->int_ena & CAM_VSYNC_INT)) {
+         timer_mod(s->capture_timer,
+                   qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
+         return;
+     }
+ 
+-    lcd_cam_fill_frame(s, data, len);
+     if (s->gdma) {
+         bool found = esp_gdma_get_channel_periph(
+             s->gdma, GDMA_LCDCAM, ESP_GDMA_IN_IDX, &channel);
+@@ -132,9 +138,35 @@ static void lcd_cam_capture(M5LcdCamState *s)
+                       qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
+             return;
+         }
++        /* One camera EOF covers cam_rec_data_bytelen bytes, not one GDMA
++         * descriptor. Do not coalesce the next EOF or VSYNC with an unhandled
++         * completion, since the guest uses each EOF to copy one half-buffer.
++         */
++        if (esp_gdma_read_chan_register(s->gdma, ESP_GDMA_IN_IDX, channel,
++                                       GDMA_INT_ST_REG)
++            & R_GDMA_INTERRUPT_IN_SUC_EOF_MASK) {
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++            return;
++        }
+         s->dma_armed = false;
+         if (s->chunks_left) {
+-            esp_gdma_complete_in_descriptor(s->gdma, channel, data, len);
++            uint32_t offset = s->frame_offset;
++            uint32_t copied = 0;
++            len = MIN(len, s->frame_bytes - offset);
++            lcd_cam_fill_frame(s, data, len);
++            while (copied < len) {
++                uint32_t sent = esp_gdma_complete_in_descriptor(
++                    s->gdma, channel, data + copied, len - copied);
++                if (!sent) {
++                    /* Preserve the real partial transfer and stop at the
++                     * descriptor error; never publish a complete frame.
++                     */
++                    s->frame_offset = (offset + copied) % s->frame_bytes;
++                    return;
++                }
++                copied += sent;
++            }
+             esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
+                                         R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
+             s->chunks_left--;
+@@ -150,6 +182,12 @@ static void lcd_cam_capture(M5LcdCamState *s)
+                 fprintf(stderr, "[lcd-cam] frame complete bytes=%u\n",
+                         s->frame_bytes);
+             }
++            /* The sensor keeps producing VSYNC while the guest temporarily
++             * holds every frame buffer. Returning a buffer does not issue a
++             * new CAM_START; the next VSYNC lets cam_hal arm DMA again.
++             */
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
+         }
+     }
+ }
+@@ -202,6 +240,9 @@ static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
+         }
+         s->regs[addr / 4] = v & ~(CAM_RESET | CAM_AFIFO_RST);
+         s->started = start;
++        if (!start) {
++            timer_del(s->capture_timer);
++        }
+         if (rising) {
+             s->frame_bytes = MAX(2u, s->width * s->height * 2);
+             s->chunk_len = (v & 0xffff) + 1;

@@ -1,0 +1,11 @@
+--- a/m5stack/components/M5Unified/mpy_m5widgets.cpp
++++ b/m5stack/components/M5Unified/mpy_m5widgets.cpp
+@@ -1490,6 +1490,8 @@
+     if (strcmp(self->text, new_text) == 0) {
+         return mp_const_none;
+     }
++    m5widgets_qrcode_erase_helper(self);
++    self->text = new_text;
+     m5widgets_qrcode_draw_helper(self);
+     return mp_const_none;
+ }

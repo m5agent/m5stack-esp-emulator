@@ -1,0 +1,18 @@
+--- a/m5stack/cmodules/lv_binding_micropython/lvgl/src/widgets/roller/lv_roller.c
++++ b/m5stack/cmodules/lv_binding_micropython/lvgl/src/widgets/roller/lv_roller.c
+@@ -230,10 +230,11 @@
+     uint32_t current_option = 0;
+     size_t line_start = 0;
+ 
+-    for(size_t i = 0; i < options_len; i++) {
+-        if(options[i] == '\n') {
+-            /* See if this is the correct option */
+-            if(lv_strncmp(&options[line_start], sel_opt, i - line_start) == 0) {
++    for(size_t i = 0; i <= options_len; i++) {
++        if(options[i] == '\n' || options[i] == '\0') {
++            /* Match the whole option, including the final unterminated row. */
++            if(lv_strlen(sel_opt) == i - line_start &&
++               lv_strncmp(&options[line_start], sel_opt, i - line_start) == 0) {
+                 lv_roller_set_selected(obj, current_option, anim);
+                 option_found = true;
+                 break;

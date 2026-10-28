@@ -1,0 +1,220 @@
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -10,7 +10,7 @@
+ #include "hw/sysbus.h"
+ #include "hw/irq.h"
+ #include "exec/address-spaces.h"
+-#include "hw/dma/esp_gdma.h"
++#include "hw/dma/esp32s3_gdma.h"
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
+ 
+@@ -47,6 +47,13 @@
+     int cs_level;
+     int gdma_periph;
+ } M5GpspiSlave;
++
++typedef struct M5GpspiDmaCursor {
++    uint64_t generation;
++    uint32_t desc_addr;
++    uint32_t desc_off;
++    bool valid;
++} M5GpspiDmaCursor;
+ 
+ struct Esp32s3GpspiState {
+     SysBusDevice parent_obj;
+@@ -68,11 +75,9 @@
+     int last_slave;
+     uint8_t rx[4096];
+     uint32_t rx_len;
+-    /* DMA cursor */
+-    bool dma_reload;
++    /* Byte offsets belong to a GDMA channel, independently of slave CS. */
++    M5GpspiDmaCursor dma_cursor[ESP32S3_GDMA_CHANNEL_COUNT];
+     int debug_id;
+-    uint32_t desc_addr;
+-    uint32_t desc_off;
+     uint8_t *buf;
+     uint32_t buf_size;
+ };
+@@ -184,23 +189,6 @@
+     }
+ }
+ 
+-/* A SPI user transfer may split one GDMA chain into several MS_DLEN chunks.
+- * Only a new controller START/RESTART rewinds the descriptor cursor. */
+-static void gpspi_dma_start(void *opaque, GdmaPeripheral periph, int dir)
+-{
+-    Esp32s3GpspiState *s = opaque;
+-
+-    if (dir == ESP_GDMA_OUT_IDX) {
+-        s->dma_reload = true;
+-    }
+-}
+-
+-static void gpspi_bind_dma(Esp32s3GpspiState *s, uint32_t periph)
+-{
+-    esp_gdma_set_start_callback(s->gdma, periph, ESP_GDMA_OUT_IDX,
+-                                gpspi_dma_start, s);
+-}
+-
+ /* Pull n bytes from the GDMA out-link chain bound to SPI2 */
+ static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, uint8_t *dst, uint32_t n)
+ {
+@@ -209,37 +197,44 @@
+     if (!s->gdma) {
+         return 0;
+     }
+-    if (s->dma_reload) {
+-        uint32_t ch;
+-        if (!esp_gdma_get_channel_periph(s->gdma, periph,
+-                                         ESP_GDMA_OUT_IDX, &ch)) {
+-            qemu_log_mask(LOG_GUEST_ERROR, "gpspi: no GDMA out channel\n");
+-            return 0;
+-        }
+-        uint32_t link = esp_gdma_read_chan_register(s->gdma, ESP_GDMA_OUT_IDX, ch, GDMA_LINK_REG);
+-        s->desc_addr = ((ESP_GDMA_RAM_ADDR >> 20) << 20) | (link & 0xFFFFF);
+-        s->desc_off = 0;
+-        s->dma_reload = false;
+-    }
+-    while (got < n && s->desc_addr) {
++    uint32_t ch;
++    /* Cached descriptors never grant permission to a stopped/reset channel. */
++    if (!esp_gdma_get_channel_periph(s->gdma, periph,
++                                     ESP_GDMA_OUT_IDX, &ch)) {
++        qemu_log_mask(LOG_GUEST_ERROR, "gpspi: no GDMA out channel\n");
++        return 0;
++    }
++    if (ch >= ARRAY_SIZE(s->dma_cursor)) {
++        qemu_log_mask(LOG_GUEST_ERROR, "gpspi: GDMA channel out of range\n");
++        return 0;
++    }
++    M5GpspiDmaCursor *cursor = &s->dma_cursor[ch];
++    const DmaConfigState *channel = &s->gdma->ch_conf[ESP_GDMA_OUT_IDX][ch];
++    if (!cursor->valid || cursor->generation != channel->transfer_generation) {
++        cursor->desc_addr = channel->current_desc_addr;
++        cursor->desc_off = 0;
++        cursor->generation = channel->transfer_generation;
++        cursor->valid = true;
++    }
++    while (got < n && cursor->desc_addr) {
+         uint32_t d[3];
+-        if (address_space_read(&address_space_memory, s->desc_addr, MEMTXATTRS_UNSPECIFIED,
++        if (address_space_read(&address_space_memory, cursor->desc_addr, MEMTXATTRS_UNSPECIFIED,
+                                d, sizeof(d)) != MEMTX_OK) {
+             break;
+         }
+         uint32_t len = (d[0] >> 12) & 0xfff;
+         bool eof = (d[0] >> 30) & 1;
+-        uint32_t avail = len > s->desc_off ? len - s->desc_off : 0;
++        uint32_t avail = len > cursor->desc_off ? len - cursor->desc_off : 0;
+         uint32_t take = MIN(avail, n - got);
+         if (take) {
+-            address_space_read(&address_space_memory, d[1] + s->desc_off,
++            address_space_read(&address_space_memory, d[1] + cursor->desc_off,
+                                MEMTXATTRS_UNSPECIFIED, dst + got, take);
+             got += take;
+-            s->desc_off += take;
+-        }
+-        if (s->desc_off >= len) {
+-            s->desc_off = 0;
+-            s->desc_addr = eof ? 0 : d[2];
++            cursor->desc_off += take;
++        }
++        if (cursor->desc_off >= len) {
++            cursor->desc_off = 0;
++            cursor->desc_addr = eof ? 0 : d[2];
+         }
+     }
+     return got;
+@@ -497,7 +492,6 @@
+     sysbus_init_irq(SYS_BUS_DEVICE(obj), &s->irq_alias);
+     s->active_slave = -1;
+     s->last_slave = -1;
+-    s->dma_reload = true;
+     s->panel_cs_pin = -1;
+     s->panel_cs_level = 1;
+     s->debug_id = next_debug_id++;
+@@ -526,7 +520,6 @@
+     s->spi_panel = spi;
+     s->epd_panel = NULL;
+     s->gdma_periph = gdma_periph;
+-    gpspi_bind_dma(s, gdma_periph);
+     s->dc_pin = -1;
+ }
+ 
+@@ -539,7 +532,6 @@
+     s->spi_panel = NULL;
+     s->epd_panel = panel;
+     s->gdma_periph = gdma_periph;
+-    gpspi_bind_dma(s, gdma_periph);
+     s->dc_pin = -1;
+ }
+ 
+@@ -584,7 +576,6 @@
+     for (int index = 0; index < s->slave_count; index++) {
+         if (s->slaves[index].cs_pin == cs_pin) {
+             s->slaves[index].gdma_periph = gdma_periph;
+-            gpspi_bind_dma(s, gdma_periph);
+             return;
+         }
+     }
+@@ -654,7 +645,6 @@
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     Esp32s3GpspiState *ss = ESP32S3_GPSPI(spi);
+     ss->gdma = gdma;
+-    gpspi_bind_dma(ss, GDMA_SPI2);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     memory_region_add_subregion_overlap(sys_mem, 0x60024000,
+         sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0), 1);
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -131,6 +131,7 @@
+  */
+ static void esp_gdma_reset_fifo(DmaConfigState* s)
+ {
++    s->transfer_generation++;
+ #if GDMA_DEBUG
+     info_report("Resetting FIFO for chan %d, direction: %d", chan, in_out);
+ #endif
+@@ -1024,6 +1025,7 @@
+                 break;
+             }
+             if (value & start_mask) {
++                s->transfer_generation++;
+                 const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
+                 const uint32_t head = high | (value & R_GDMA_IN_LINK_ADDR_MASK);
+                 esp_gdma_push_descriptor(state, chan, dir, head);
+@@ -1204,7 +1206,9 @@
+             /* Backup IRQ since it's going to be erased by the `memset` */
+             DmaConfigState* config = &s->ch_conf[dir][chan];
+             const qemu_irq irq = config->int_state.irq;
++            const uint64_t generation = config->transfer_generation;
+             memset(config, 0, sizeof(DmaConfigState));
++            config->transfer_generation = generation;
+             /* Lower the IRQ and restore it in the configuration structure */
+             qemu_irq_lower(irq);
+             config->int_state.irq = irq;
+@@ -1239,7 +1243,7 @@
+ 
+     /* Initialize the DmaConfigState arrays */
+     for (int dir = 0; dir < ESP_GDMA_CONF_COUNT; dir++) {
+-        s->ch_conf[dir] = g_malloc(sizeof(DmaConfigState) * klass->m_channel_count);
++        s->ch_conf[dir] = g_malloc0(sizeof(DmaConfigState) * klass->m_channel_count);
+         if (s->ch_conf[dir] == NULL) {
+             error_report("[GDMA] %s: could not allocate DmaConfigState", __func__);
+         }
+diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+--- a/include/hw/dma/esp_gdma.h
++++ b/include/hw/dma/esp_gdma.h
+@@ -92,6 +92,8 @@
+ 
+ 
+ typedef struct {
++    /* Monotonic transfer identity; STOP/RESTART preserve the current chain. */
++    uint64_t transfer_generation;
+     /* Configuration registers */
+     uint32_t conf0;
+     uint32_t conf1;

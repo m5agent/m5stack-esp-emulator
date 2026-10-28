@@ -1,0 +1,39 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -1187,2 +1187,3 @@
+     LV_OBJ_T *callbacks;
++    mp_obj_t application_user_data;
+ } mp_lv_obj_t;
+@@ -1252,2 +1253,3 @@
+             .callbacks = NULL,
++            .application_user_data = mp_const_none,
+         };
+@@ -1272,2 +1274,3 @@
+         .callbacks = NULL,
++        .application_user_data = mp_const_none,
+     };
+@@ -3099,2 +3102,16 @@
+     func_metadata[func.name] = {"type": "function", "args": []}
++    # The native object user_data slot belongs to wrapper identity and delete
++    # invalidation. Keep public Python data rooted in the canonical wrapper.
++    object_user_data_dispatch = ""
++    if func.name == "lv_obj_set_user_data":
++        object_user_data_dispatch = """if (lv_func_ptr == (void *)lv_obj_set_user_data) {
++        mp_lv_obj_t *self = MP_OBJ_TO_PTR(lv_to_mp(obj));
++        self->application_user_data = mp_args[1];
++        return mp_const_none;
++    }"""
++    elif func.name == "lv_obj_get_user_data":
++        object_user_data_dispatch = """if (lv_func_ptr == (void *)lv_obj_get_user_data) {
++        mp_lv_obj_t *self = MP_OBJ_TO_PTR(lv_to_mp(obj));
++        return ptr_to_mp(mp_to_ptr(self->application_user_data));
++    }"""
+ 
+@@ -3183,2 +3200,3 @@
+     {build_args}
++    {object_user_data_dispatch}
+     {build_result}(({func_ptr})lv_func_ptr)({send_args});
+@@ -3208,2 +3226,3 @@
+             ),
++            object_user_data_dispatch=object_user_data_dispatch,
+             build_result=build_result,

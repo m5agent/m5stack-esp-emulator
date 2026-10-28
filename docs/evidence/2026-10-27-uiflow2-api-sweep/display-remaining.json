@@ -1,0 +1,1003 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "scope": "Explicit remaining Display/Canvas entry points. IDMON/IDMOFF and indexed register reads remain BLOCKED_MODEL; LCD EPD mode and absent Image module remain unavailable. Narrow glyph/state receipts do not grant arbitrary panel or stream behavior.",
+  "runs": {
+    "cores3-display-remaining-gen5-r3": {
+      "status": "EXECUTED",
+      "device_id": "cores3",
+      "session_id": "8f4a8466e87f48aaa589ebccba3d500b",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "bc05e70e24ac2894ea5375f2a7e643f405364053a97dfc4ea42bd9596ed3b03e",
+      "source_sha256": "5ac07bae2f272b5114dfbec03f7777f7946666b77f8e8bd7be8046b78b5aed6c",
+      "fixture_sha256": {
+        "contract-font.vlw": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "828bbab2bb8af5b43ef924bf07d697cb1e867aab670cde55580f6249ea043248",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cores3-display-remaining-gen5-r3/report.json",
+      "report_sha256": "037410863a93d1895ae107b51d9fea301a27910f95c197dbc3a7451a6ccaec16",
+      "serial_sha256": "7d0d65ab112a3eacd5567a7f9287e37b723f06b98dc4f0a81a56181193a814af",
+      "results": [
+        {
+          "api_target": "M5.Display",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOn",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOff",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "setEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "getEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "pinned official Montserrat VLW asset",
+          "method": "loadFont",
+          "value": true,
+          "status": "CALL_OK"
+        },
+        {
+          "before_height": 21,
+          "api_target": "M5.Display",
+          "method": "loadFont",
+          "after_height": 20,
+          "oracle": "actual VLW load changes builtin font metrics",
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "unloadFont",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display",
+          "method": "unloadFont",
+          "oracle": "M5GFX unloadFont restores builtin Font0 (8px), even when that font lacks a Python export",
+          "value": 8,
+          "expected": 8
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "write",
+          "value": 6,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display",
+          "method": "write",
+          "cursor": [
+            87,
+            38
+          ],
+          "bytes_written": 6,
+          "oracle": "ASCII byte count and actual native cursor advance"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "read",
+          "value": "b''",
+          "status": "CALL_OK"
+        },
+        {
+          "oracle": "bounded native Display stream EOF stub; this is not a keyboard or external RX data plane",
+          "status": "STATE_PASS",
+          "method": "read",
+          "api_target": "M5.Display"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData32",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData",
+          "value": 227,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData16",
+          "value": 58112,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData32",
+          "value": -486539264,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "oracle": "real camera-owned image with independently drawn solid rectangle; host pixel oracle required",
+          "status": "CALL_OK",
+          "method": "show",
+          "api_target": "M5.Display"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "empty owned LVGL core initialization flag; no M5UI display/timer claim",
+          "method": "lvgl_deinit",
+          "value": false,
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "empty owned LVGL core initialization flag; no M5UI display/timer claim",
+          "method": "lvgl_init",
+          "value": true,
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "empty owned LVGL core initialization flag; no M5UI display/timer claim",
+          "method": "lvgl_deinit",
+          "value": false,
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native stream ioctl close is a no-op; global display lifetime is not invalidated",
+          "method": "close",
+          "value": null,
+          "status": "CALL_OK"
+        }
+      ],
+      "intermediate_frame_oracles": [
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "FONT",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "loadFont",
+          "api_target": "M5.Display",
+          "frame": "loadFont.png",
+          "frame_sha256": "7c7d62b267ba51e3e941a2aeb7f6467882d0dea107c415a56b61169cf906fff2",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "FONT",
+            "expected": "FONT",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        },
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "STREAM",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "write",
+          "api_target": "M5.Display",
+          "frame": "write.png",
+          "frame_sha256": "bd22c44095b84ae1dd789d1f70c4e261f630306e2a29b51ab050b4563989bfae",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "STREAM",
+            "expected": "STREAM",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        },
+        {
+          "oracle": {
+            "points": [
+              [
+                75,
+                85,
+                3394560
+              ],
+              [
+                85,
+                95,
+                3394560
+              ]
+            ],
+            "kind": "pixels"
+          },
+          "method": "show",
+          "api_target": "M5.Display",
+          "frame": "show.png",
+          "frame_sha256": "a8133b3150e4d5eebc04be01ccd2e8fe1820a35e5c3e8ee1301496f87f0f8fd1",
+          "result": {
+            "status": "FRAME_PASS",
+            "observations": [
+              {
+                "point": [
+                  75,
+                  85
+                ],
+                "actual": [
+                  49,
+                  206,
+                  0
+                ],
+                "expected": [
+                  51,
+                  204,
+                  0
+                ],
+                "matches": true
+              },
+              {
+                "point": [
+                  85,
+                  95
+                ],
+                "actual": [
+                  49,
+                  206,
+                  0
+                ],
+                "expected": [
+                  51,
+                  204,
+                  0
+                ],
+                "matches": true
+              }
+            ],
+            "tolerance": 8
+          }
+        }
+      ],
+      "source_provenance": {
+        "source": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "font": "m5stack/fs/system/common/font/Montserrat-Medium-18.vlw",
+        "font_sha256": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "flash_released": false
+    },
+    "cores3-canvas-remaining-gen5-r3": {
+      "status": "EXECUTED",
+      "device_id": "cores3",
+      "session_id": "1bccb36eea2d45ffb84e42b74b0018fa",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "9899f390ed97a6325559aadd3293676deff939ca949acfef0db513e562556b1f",
+      "source_sha256": "7a779ba274f7aada8b9e449288577b3b6c3089c37668e5d6ca7005e2ec84cde9",
+      "fixture_sha256": {
+        "contract-font.vlw": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "6b2a5a42b9110c00e7299600ea5c60cd7e00f1c031f0e4f8712199cbffac6831",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cores3-canvas-remaining-gen5-r3/report.json",
+      "report_sha256": "39dfa308fc724ed243893f88c562337750bda4278c0b7f4415e20c5b06d513c4",
+      "serial_sha256": "6c37e28206eb3f6fa76a554c173a1529e0e3398a4cccc8327071497d9cb5dd68",
+      "results": [
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOn",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOff",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "setEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "getEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "pinned official Montserrat VLW asset",
+          "method": "loadFont",
+          "value": true,
+          "status": "CALL_OK"
+        },
+        {
+          "before_height": 21,
+          "api_target": "M5.Display.Canvas",
+          "method": "loadFont",
+          "after_height": 20,
+          "oracle": "actual VLW load changes builtin font metrics",
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": null,
+          "method": "unloadFont",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "unloadFont",
+          "oracle": "M5GFX unloadFont restores builtin Font0 (8px), even when that font lacks a Python export",
+          "value": 8,
+          "expected": 8
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData32",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData16",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData32",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "oracle": "real camera-owned image with independently drawn solid rectangle; host pixel oracle required",
+          "status": "CALL_OK",
+          "method": "show",
+          "api_target": "M5.Display.Canvas"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "owned Canvas native storage released once; freed receiver is never dereferenced",
+          "method": "delete",
+          "value": null,
+          "status": "CALL_OK"
+        }
+      ],
+      "intermediate_frame_oracles": [
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "FONT",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "loadFont",
+          "api_target": "M5.Display.Canvas",
+          "frame": "loadFont.png",
+          "frame_sha256": "7c7d62b267ba51e3e941a2aeb7f6467882d0dea107c415a56b61169cf906fff2",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "FONT",
+            "expected": "FONT",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        },
+        {
+          "oracle": {
+            "points": [
+              [
+                75,
+                85,
+                3394560
+              ],
+              [
+                85,
+                95,
+                3394560
+              ]
+            ],
+            "kind": "pixels"
+          },
+          "method": "show",
+          "api_target": "M5.Display.Canvas",
+          "frame": "show.png",
+          "frame_sha256": "a8133b3150e4d5eebc04be01ccd2e8fe1820a35e5c3e8ee1301496f87f0f8fd1",
+          "result": {
+            "status": "FRAME_PASS",
+            "observations": [
+              {
+                "point": [
+                  75,
+                  85
+                ],
+                "actual": [
+                  49,
+                  206,
+                  0
+                ],
+                "expected": [
+                  51,
+                  204,
+                  0
+                ],
+                "matches": true
+              },
+              {
+                "point": [
+                  85,
+                  95
+                ],
+                "actual": [
+                  49,
+                  206,
+                  0
+                ],
+                "expected": [
+                  51,
+                  204,
+                  0
+                ],
+                "matches": true
+              }
+            ],
+            "tolerance": 8
+          }
+        }
+      ],
+      "source_provenance": {
+        "source": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "font": "m5stack/fs/system/common/font/Montserrat-Medium-18.vlw",
+        "font_sha256": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "flash_released": false
+    },
+    "cardputer-display-remaining-gen5-r3": {
+      "status": "EXECUTED",
+      "device_id": "cardputer-adv",
+      "session_id": "e595b4f54b6146da88bdf0729a657884",
+      "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "firmware_sha256": "3dcc1846900f2599bb1e3731623809e4cdfa859130c36108e5f9509ea6744718",
+      "source_sha256": "5ac07bae2f272b5114dfbec03f7777f7946666b77f8e8bd7be8046b78b5aed6c",
+      "fixture_sha256": {
+        "contract-font.vlw": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "1921f4c66cfc9d7cb786cc424fb8943d08325976bbb9a5283eb6df4a3297fd7a",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cardputer-display-remaining-gen5-r3/report.json",
+      "report_sha256": "2eabed68b20ce9e8b3853c5b101151d97f49b397a5f4285fe2a01a83a451a77a",
+      "serial_sha256": "2f0dd217869936dd470277e43c2b31c1c629f9e728cd95bf6169545427f0887c",
+      "results": [
+        {
+          "api_target": "M5.Display",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOn",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOff",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "setEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "getEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "pinned official Montserrat VLW asset",
+          "method": "loadFont",
+          "value": true,
+          "status": "CALL_OK"
+        },
+        {
+          "before_height": 21,
+          "api_target": "M5.Display",
+          "method": "loadFont",
+          "after_height": 20,
+          "oracle": "actual VLW load changes builtin font metrics",
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "unloadFont",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display",
+          "method": "unloadFont",
+          "oracle": "M5GFX unloadFont restores builtin Font0 (8px), even when that font lacks a Python export",
+          "value": 8,
+          "expected": 8
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "write",
+          "value": 6,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display",
+          "method": "write",
+          "cursor": [
+            87,
+            38
+          ],
+          "bytes_written": 6,
+          "oracle": "ASCII byte count and actual native cursor advance"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": null,
+          "method": "read",
+          "value": "b''",
+          "status": "CALL_OK"
+        },
+        {
+          "oracle": "bounded native Display stream EOF stub; this is not a keyboard or external RX data plane",
+          "status": "STATE_PASS",
+          "method": "read",
+          "api_target": "M5.Display"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData32",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData",
+          "value": 129,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData16",
+          "value": 33024,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData32",
+          "value": -2130706432,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "status": "UNAVAILABLE_ON_DEVICE",
+          "api_target": "M5.Display",
+          "method": "show",
+          "error": "ImportError(\"no module named 'camera'\",)",
+          "oracle": "official image/camera module is CoreS3-only"
+        },
+        {
+          "api_target": "M5.Display",
+          "oracle": "native stream ioctl close is a no-op; global display lifetime is not invalidated",
+          "method": "close",
+          "value": null,
+          "status": "CALL_OK"
+        }
+      ],
+      "intermediate_frame_oracles": [
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "FONT",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "loadFont",
+          "api_target": "M5.Display",
+          "frame": "loadFont.png",
+          "frame_sha256": "f5e994964308eb6a4c399954a081766bb481afefcb878b06a91c5b9167975045",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "FONT",
+            "expected": "FONT",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        },
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "STREAM",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "write",
+          "api_target": "M5.Display",
+          "frame": "write.png",
+          "frame_sha256": "7468c5f9e0beb7d7c9be7b0a3f11820142474426df34db0a7dfcd7d8f4533f11",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "STREAM",
+            "expected": "STREAM",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        }
+      ],
+      "source_provenance": {
+        "source": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "font": "m5stack/fs/system/common/font/Montserrat-Medium-18.vlw",
+        "font_sha256": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "flash_released": false
+    },
+    "cardputer-canvas-remaining-gen5-r3": {
+      "status": "EXECUTED",
+      "device_id": "cardputer-adv",
+      "session_id": "445e45c3752f48aa9f4791552bf23f75",
+      "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "firmware_sha256": "288c3b3b7dc983f36637b52fb5438f8a085e0f3dde7eb8006760fc76211a5f65",
+      "source_sha256": "7a779ba274f7aada8b9e449288577b3b6c3089c37668e5d6ca7005e2ec84cde9",
+      "fixture_sha256": {
+        "contract-font.vlw": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "d6e77cb6aec4546a780119e2e43a3bb9cababb00c34ed6a0bb6cc3bd7b800c6d",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cardputer-canvas-remaining-gen5-r3/report.json",
+      "report_sha256": "3f5d106662a0050e90719208deb5c57a5b27560d9eba5222f9507d2c15c208d0",
+      "serial_sha256": "8c1c797b5a1f6d396804d1a61d249a4f91b852e307bb37c3780a3156e938ef4a",
+      "results": [
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOn",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "actual IDMON/IDMOFF command invoked; the SPI panel model does not implement idle-mode color/power behavior, and Canvas has no physical power contract",
+          "method": "powerSaveOff",
+          "value": null,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "setEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "selected LCD/Canvas ignores EPD mode; actual getter/setter called, no EPD waveform capability",
+          "method": "getEpdMode",
+          "value": 0,
+          "status": "UNAVAILABLE_ON_DEVICE"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "pinned official Montserrat VLW asset",
+          "method": "loadFont",
+          "value": true,
+          "status": "CALL_OK"
+        },
+        {
+          "before_height": 21,
+          "api_target": "M5.Display.Canvas",
+          "method": "loadFont",
+          "after_height": 20,
+          "oracle": "actual VLW load changes builtin font metrics",
+          "status": "STATE_PASS"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": null,
+          "method": "unloadFont",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "unloadFont",
+          "oracle": "M5GFX unloadFont restores builtin Font0 (8px), even when that font lacks a Python export",
+          "value": 8,
+          "expected": 8
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeCommand16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData16",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "safe native NOP/data-domain invocation; arbitrary register effects require a modeled command/readback fixture",
+          "method": "writeData32",
+          "value": null,
+          "status": "CALL_OK"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData16",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "native read invoked; selected SPI panel implements identification/display commands but no complete indexed register readback; Canvas has no hardware registers",
+          "method": "readData32",
+          "value": 0,
+          "status": "BLOCKED_MODEL"
+        },
+        {
+          "status": "UNAVAILABLE_ON_DEVICE",
+          "api_target": "M5.Display.Canvas",
+          "method": "show",
+          "error": "ImportError(\"no module named 'camera'\",)",
+          "oracle": "official image/camera module is CoreS3-only"
+        },
+        {
+          "api_target": "M5.Display.Canvas",
+          "oracle": "owned Canvas native storage released once; freed receiver is never dereferenced",
+          "method": "delete",
+          "value": null,
+          "status": "CALL_OK"
+        }
+      ],
+      "intermediate_frame_oracles": [
+        {
+          "oracle": {
+            "kind": "text",
+            "text": "FONT",
+            "box": [
+              0,
+              25,
+              200,
+              85
+            ]
+          },
+          "method": "loadFont",
+          "api_target": "M5.Display.Canvas",
+          "frame": "loadFont.png",
+          "frame_sha256": "f5e994964308eb6a4c399954a081766bb481afefcb878b06a91c5b9167975045",
+          "result": {
+            "status": "GLYPH_PASS",
+            "recognized": "FONT",
+            "expected": "FONT",
+            "scope": "glyph content only; alignment/color require separate pixel checks"
+          }
+        }
+      ],
+      "source_provenance": {
+        "source": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "font": "m5stack/fs/system/common/font/Montserrat-Medium-18.vlw",
+        "font_sha256": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd"
+      },
+      "flash_released": false
+    }
+  },
+  "invalid_fixture_attempts": {
+    "r1": "Missing Python Font0 export and invalid assumption that LCD EPD field is mutable; raw failures retained.",
+    "r2": "PowerSave means IDMON/IDMOFF idle mode, not panel sleep. FONT18 OCR 1/I ambiguity is not a glyph defect. Canvas stream read/write are not exported. CoreS3 full internal-DMA Canvas allocation failure and later NULL show crash are retained as a separate real SDK boundary, addressed by candidate0020."
+  }
+}

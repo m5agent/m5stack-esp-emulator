@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "validation": "source and virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "platform_suite": {
+    "interpreter": "Python 3.12",
+    "total": 1335,
+    "passed": 1332,
+    "skipped": 3,
+    "failures": 0,
+    "scope": "isolated export of explicitly staged source, excluding unrelated local LAN proxy/skill work",
+    "log_sha256": "110d7260a6ffff551e831d505c7cfa492be0b647f84a0caa477d4d5abc30068c"
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS"
+  },
+  "final_runtime_matrix": {
+    "PASS": 68,
+    "automatic_retries": 0,
+    "runtime_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2"
+  },
+  "review": {
+    "independent_runtime_service_review": "no new substantive findings",
+    "utf8_no_bom_nul": "PASS",
+    "decoded_evidence_privacy_scan": "PASS",
+    "explicit_unrelated_file_and_hunk_exclusion": "PASS",
+    "staged_diff_check": "PASS"
+  },
+  "sdk_patch_checks": {
+    "0001-0018": "18 independent forward/pre/post/reverse and 18-patch stack replay; 14 original source files unchanged",
+    "0019": "exact C++ methods: 7 domains across preimage/candidate/0014-stack; visible source-matched QR decode and old-region oracle",
+    "0020": "exact C++ constructor 16 before/after domains; visible stock/matching/candidate six contracts with 19/19 candidate receipt checks"
+  },
+  "known_limits": "Audited FAIL/pending/blocked/NOT_RUN entries are preserved in the per-API tables; checks do not imply all APIs or physical hardware passed."
+}

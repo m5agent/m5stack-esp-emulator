@@ -1,0 +1,95 @@
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 3e24551..f3c2117 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -46,6 +46,7 @@ enum {
+     M_BQ27220,
+     M_ES8389,
+     M_IP2315,
++    M_GC0308,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -53,6 +54,8 @@ typedef struct M5swI2CDev {
+     char *model_name;
+     int model;
+     uint8_t regs[256];
++    uint8_t gc0308_page;
++    uint8_t gc0308_bank1[256];
+     uint8_t ptr;
+     bool ptr_set;          /* first byte of a write = register address */
+     int64_t rtc_base_seconds; /* host epoch captured at device realize */
+@@ -125,6 +128,43 @@ typedef struct M5swI2CDev {
+     bool bq_unsealed;
+ } M5swI2CDev;
+ 
++/* GC0308 SCCB register 0xfe selects page 0/1; bit 7 resets the sensor.
++ * Page-0 register 0x00 is the read-only product ID (0x9b). The official
++ * esp32-camera GC0308 initialization table writes page-1 register 0x00,
++ * which must not overwrite the identity used on the next camera probe.
++ * This models SCCB state, not sensor image processing or optical behavior.
++ */
++static uint8_t gc0308_read_reg(M5swI2CDev *s, uint8_t reg)
++{
++    if (reg == 0xfe) {
++        return s->gc0308_page;
++    }
++    if (!s->gc0308_page && reg == 0x00) {
++        return 0x9b;
++    }
++    return s->gc0308_page ? s->gc0308_bank1[reg] : s->regs[reg];
++}
++
++static void gc0308_write_reg(M5swI2CDev *s, uint8_t reg, uint8_t value)
++{
++    if (reg == 0xfe) {
++        if (value & 0x80) {
++            memset(s->regs, 0, sizeof(s->regs));
++            memset(s->gc0308_bank1, 0, sizeof(s->gc0308_bank1));
++            s->regs[0] = 0x9b;
++            s->gc0308_page = 0;
++        } else {
++            s->gc0308_page = value & 1;
++        }
++        return;
++    }
++    if (s->gc0308_page) {
++        s->gc0308_bank1[reg] = value;
++    } else if (reg != 0x00) {
++        s->regs[reg] = value;
++    }
++}
++
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+ 
+ typedef struct M5swIP2315 {
+@@ -581,6 +621,9 @@ static void st25_execute_command(M5swI2CDev *s, uint8_t command)
+ 
+ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+ {
++    if (s->model == M_GC0308) {
++        return gc0308_read_reg(s, r);
++    }
+     switch (s->model) {
+     case M_LP5562:
+         if (r == 0x04) {
+@@ -1197,6 +1240,10 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+     }
+     uint8_t r = s->ptr;
+     switch (s->model) {
++    case M_GC0308:
++        gc0308_write_reg(s, r, data);
++        s->ptr++;
++        return 0;
+     case M_BMI270:
+         if (r == 0x5E) {          /* INIT_DATA burst: register does not auto-increment */
+             return 0;
+@@ -2006,7 +2053,7 @@ static void dev_realize(DeviceState *dev, Error **errp)
+                             prop_set_pi4ioe_input, NULL,
+                             &s->pi4ioe_input_bits);
+     } else if (!strcmp(m, "gc0308")) {
+-        s->model = M_GENERIC;
++        s->model = M_GC0308;
+         s->regs[0x00] = 0x9B;
+     } else if (!strcmp(m, "m5ioe1_v4")) {
+         s->model = M_IOE1;

@@ -1,0 +1,202 @@
+diff --git a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+index 15e48446..002d8d1e 100644
+--- a/hw/m5stopwatch/m5_spi_sd.c
++++ b/hw/m5stopwatch/m5_spi_sd.c
+@@ -2,7 +2,9 @@
+  * SPI-mode SD card protocol model backed by a raw sector image.
+  *
+  * The model implements the command/data frames used by ESP-IDF's SDSPI host:
+- * CMD0/8/16/17/24/55/58/59, ACMD41 and single-block read/write.
++ * CMD0/8/16/17/18/24/25/55/58/59, ACMD22/23/41 and sector read/write.
++ * SPI data tokens follow SD Physical Layer Simplified Specification 9.00,
++ * sections 7.2.3 (read), 7.2.4 (write), and 7.3 (command definitions).
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+@@ -19,6 +21,7 @@ typedef enum {
+     SD_WAIT_DATA,
+     SD_WRITE_DATA,
+     SD_WRITE_CRC,
++    SD_READ_NEXT,
+ } SdSpiMode;
+ 
+ typedef struct M5SpiSdState {
+@@ -38,6 +41,9 @@ typedef struct M5SpiSdState {
+     uint8_t crc_pos;
+     SdSpiMode next_mode;
+     bool app_cmd;
++    bool multi_read;
++    bool multi_write;
++    uint32_t written_blocks;
+     bool trace;
+ } M5SpiSdState;
+ 
+@@ -159,6 +165,32 @@ static uint32_t sd_arg(const uint8_t *cmd)
+            ((uint32_t)cmd[3] << 8) | cmd[4];
+ }
+ 
++static void sd_read_block(M5SpiSdState *s, bool first)
++{
++    uint8_t response[SD_BLOCK_SIZE + 4];
++    uint32_t prefix = first ? 2 : 1;
++    uint16_t crc;
++    memset(s->block, 0, sizeof(s->block));
++    if (!s->image || (uint64_t)s->sector * SD_BLOCK_SIZE >= s->image_size ||
++        fseeko(s->image, (off_t)s->sector * SD_BLOCK_SIZE, SEEK_SET) ||
++        fread(s->block, 1, sizeof(s->block), s->image) != SD_BLOCK_SIZE) {
++        s->multi_read = false;
++        sd_r1(s, 0x20); /* address error; do not manufacture a successful sector */
++        return;
++    }
++    response[0] = 0x00;
++    response[prefix - 1] = 0xfe;
++    memcpy(response + prefix, s->block, SD_BLOCK_SIZE);
++    crc = sd_crc16(s->block, SD_BLOCK_SIZE);
++    response[prefix + SD_BLOCK_SIZE] = crc & 0xff;
++    response[prefix + SD_BLOCK_SIZE + 1] = crc >> 8;
++    sd_set_response_lead(s, response, prefix + SD_BLOCK_SIZE + 2, first ? 2 : 1);
++    if (s->multi_read) {
++        s->sector++;
++        s->next_mode = SD_READ_NEXT;
++    }
++}
++
+ static void sd_execute(M5SpiSdState *s)
+ {
+     uint8_t cmd = s->command[0] & 0x3f;
+@@ -166,7 +198,6 @@ static void sd_execute(M5SpiSdState *s)
+     bool app_cmd = s->app_cmd;
+     uint8_t r7[5] = { 0x01, 0x00, 0x00, 0x01, 0xaa };
+     uint8_t r3[5] = { 0x00, 0x00, 0xff, 0x80, 0x00 };
+-    uint8_t read_resp[SD_BLOCK_SIZE + 4];
+ 
+     if (s->trace) {
+         fprintf(stderr, "[sd-spi] cmd=%u arg=%08x app=%d\n",
+@@ -177,6 +208,8 @@ static void sd_execute(M5SpiSdState *s)
+     }
+     switch (cmd) {
+     case 0: /* GO_IDLE_STATE */
++        s->multi_read = false;
++        s->multi_write = false;
+         sd_r1(s, 0x01);
+         break;
+     case 1: /* SEND_OP_COND */
+@@ -200,6 +233,10 @@ static void sd_execute(M5SpiSdState *s)
+         break;
+     }
+     case 12: /* STOP_TRANSMISSION */
++        s->multi_read = false;
++        s->multi_write = false;
++        sd_r1(s, 0x00);
++        break;
+     case 16: /* SET_BLOCKLEN */
+     case 59: /* CRC_ON_OFF */
+         sd_r1(s, 0x00);
+@@ -221,25 +258,36 @@ static void sd_execute(M5SpiSdState *s)
+         }
+         break;
+     case 17: /* READ_SINGLE_BLOCK */
++    case 18: /* READ_MULTIPLE_BLOCK */
+         s->sector = arg / SD_BLOCK_SIZE;
+-        memset(read_resp, 0xff, sizeof(read_resp));
+-        read_resp[0] = 0x00;
+-        read_resp[1] = 0xfe;
+-        memset(s->block, 0, sizeof(s->block));
+-        if (s->image) {
+-            fseeko(s->image, (off_t)s->sector * SD_BLOCK_SIZE, SEEK_SET);
+-            fread(s->block, 1, sizeof(s->block), s->image);
+-        }
+-        memcpy(&read_resp[2], s->block, sizeof(s->block));
+-        {
+-            uint16_t crc = sd_crc16(s->block, sizeof(s->block));
+-            read_resp[SD_BLOCK_SIZE + 2] = crc & 0xff;
+-            read_resp[SD_BLOCK_SIZE + 3] = crc >> 8;
++        s->multi_read = cmd == 18;
++        sd_read_block(s, true);
++        break;
++    case 22: /* ACMD22: SEND_NUM_WR_BLOCKS, big-endian 32-bit count */
++        if (app_cmd) {
++            uint8_t count[8] = {0x00, 0xfe, s->written_blocks >> 24,
++                s->written_blocks >> 16, s->written_blocks >> 8,
++                s->written_blocks, 0, 0};
++            uint16_t crc = sd_crc16(count + 2, 4);
++            count[6] = crc & 0xff;
++            count[7] = crc >> 8;
++            sd_set_read_response(s, count, sizeof(count));
++        } else {
++            sd_r1(s, 0x05);
+         }
+-        sd_set_read_response(s, read_resp, sizeof(read_resp));
++        break;
++    case 23: /* ACMD23: SET_WR_BLK_ERASE_COUNT (pre-erase hint) */
++        sd_r1(s, app_cmd ? 0x00 : 0x05);
+         break;
+     case 24: /* WRITE_SINGLE_BLOCK */
++    case 25: /* WRITE_MULTIPLE_BLOCK */
+         s->sector = arg / SD_BLOCK_SIZE;
++        s->multi_write = cmd == 25;
++        s->written_blocks = 0;
++        if (!s->image || (uint64_t)s->sector * SD_BLOCK_SIZE >= s->image_size) {
++            sd_r1(s, 0x20);
++            break;
++        }
+         s->block_pos = 0;
+         s->crc_pos = 0;
+         {
+@@ -290,6 +338,15 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+     uint8_t result;
+ 
+     switch (s->mode) {
++    case SD_READ_NEXT:
++        if ((tx & 0xc0) == 0x40) {
++            s->command[0] = tx;
++            s->command_pos = 1;
++            s->mode = SD_COMMAND;
++        } else if (tx == 0xff) {
++            sd_read_block(s, false);
++        }
++        break;
+     case SD_RESPONSE:
+         out = s->response[s->response_pos++];
+         if (s->response_pos >= s->response_len) {
+@@ -307,7 +364,11 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+         }
+         break;
+     case SD_WAIT_DATA:
+-        if (tx == 0xfe) {
++        if (s->multi_write && tx == 0xfd) {
++            s->multi_write = false;
++            out = 0x00; /* finite busy period before returning to command mode */
++            s->mode = SD_IDLE;
++        } else if (tx == (s->multi_write ? 0xfc : 0xfe)) {
+             out = 0xff;
+             s->mode = SD_WRITE_DATA;
+             s->block_pos = 0;
+@@ -322,16 +383,21 @@ static uint8_t sd_spi_transfer(void *opaque, uint8_t tx)
+         break;
+     case SD_WRITE_CRC:
+         if (++s->crc_pos >= 2) {
+-            if (s->image) {
+-                fseeko(s->image, (off_t)s->sector * SD_BLOCK_SIZE, SEEK_SET);
+-                fwrite(s->block, 1, sizeof(s->block), s->image);
+-                fflush(s->image);
++            result = 0x0d; /* write rejected */
++            if (s->image && (uint64_t)s->sector * SD_BLOCK_SIZE < s->image_size &&
++                !fseeko(s->image, (off_t)s->sector * SD_BLOCK_SIZE, SEEK_SET) &&
++                fwrite(s->block, 1, sizeof(s->block), s->image) == SD_BLOCK_SIZE &&
++                !fflush(s->image)) {
++                result = 0x05;
++                s->written_blocks++;
++                if (s->multi_write) {
++                    s->sector++;
++                }
+             }
+-            result = 0x05;
+             s->response[0] = result;
+             s->response_pos = 0;
+             s->response_len = 1;
+-            s->next_mode = SD_IDLE;
++            s->next_mode = s->multi_write ? SD_WAIT_DATA : SD_IDLE;
+             s->mode = SD_RESPONSE;
+         }
+         break;

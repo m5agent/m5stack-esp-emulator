@@ -1,0 +1,26 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -2828,12 +2828,22 @@
+             raise MissingConversionException(
+                 "Callback: Missing conversion to %s" % arg_type
+             )
++    convertor = lv_to_mp[arg_type]
+     arg_metadata = {"type": lv_mp_type[arg_type]}
++    if (isinstance(arg.type, c_ast.PtrDecl)
++        and isinstance(arg.type.type, c_ast.TypeDecl)
++        and isinstance(arg.type.type.type, c_ast.IdentifierType)
++        and arg.type.type.type.names == ["char"]
++        and "const" not in arg.type.type.quals):
++        # Writable C string buffers (e.g. fs dir_read_cb output) must retain
++        # their address. Converting to str copies bytes and discards writes.
++        convertor = "ptr_to_mp"
++        arg_metadata["type"] = "C_Pointer"
+     if arg.name:
+         arg_metadata["name"] = arg.name
+     callback_metadata[func_name]["args"].append(arg_metadata)
+     return "mp_args[{i}] = {convertor}({cast}arg{i});".format(
+-        convertor=lv_to_mp[arg_type], i=index, cast=cast
++        convertor=convertor, i=index, cast=cast
+     )
+ 
+ 

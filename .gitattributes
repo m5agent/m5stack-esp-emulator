@@ -2,3 +2,7 @@
 *.patch whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
 platform/web/vendor/** whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
 platform/web/vendor/** whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
+# Preserve the pinned upstream header's exact bytes and provenance hash.
+platform/tests/fixtures/gdma_upstream/esp_gdma.h whitespace=-blank-at-eol
+platform/tests/fixtures/display_canvas_upstream/gfx_new_canvas.cpp whitespace=-blank-at-eof
+platform/tests/fixtures/widgets_qrcode_upstream/qrcode_methods.cpp whitespace=-blank-at-eof

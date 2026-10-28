@@ -581,6 +581,40 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(specs["core2"].rom_dir, xtensa_rom_override)
         self.assertEqual(specs["nanoc6"].rom_dir, riscv_rom_override)
 
+    def test_flash_emulator_override_matches_readiness_and_execution(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            emulator = Path(temporary) / "esp-emu"
+            emulator.write_bytes(b"runtime fixture")
+            with mock.patch.dict(os.environ, {"M5_SERVICE_ESP_EMU": str(emulator)}):
+                spec = device_service_module.load_device_specs()["cores3"]
+            self.assertEqual(spec.flash_emulator, emulator)
+            ready_spec = replace(spec, qemu=Path(__file__), rom_dir=Path(temporary))
+            self.assertTrue(ready_spec.backend_ready)
+            self.assertEqual(ready_spec.missing_backend_files, [])
+            # A later process environment change must not substitute a binary
+            # different from the one checked for this service configuration.
+            with mock.patch.dict(os.environ, {"M5_SERVICE_ESP_EMU": "/missing/later-runtime"}), mock.patch.object(
+                device_service_module, "flash_with_esp_emu", return_value={"verified": True}
+            ) as prepare:
+                device_service_module.default_flash_preparer(
+                    ready_spec, Path(temporary) / "image.bin", "f" * 64, Path(temporary) / "flash",
+                )
+            self.assertEqual(prepare.call_args.kwargs["emulator"], emulator)
+            emulator.unlink()
+            self.assertFalse(ready_spec.backend_ready)
+            self.assertEqual(ready_spec.missing_backend_files, [emulator])
+
+    def test_relative_flash_emulator_override_is_repository_relative_and_missing_fails_closed(self):
+        configured = Path("__missing_runtime__/esp-emu")
+        with mock.patch.dict(os.environ, {"M5_SERVICE_ESP_EMU": str(configured)}):
+            spec = device_service_module.load_device_specs()["cores3"]
+        self.assertEqual(spec.flash_emulator, ROOT / configured)
+        spec = replace(spec, qemu=Path(__file__), rom_dir=Path(__file__).parent)
+        self.assertFalse(spec.backend_ready)
+        self.assertEqual(spec.missing_backend_files, [ROOT / configured])
+        self.service.specs["cores3"] = spec
+        self.assertEqual(self.service.get_device("cores3")["missing_runtime_files"], [configured.as_posix()])
+
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
         firmware = self.service.create_firmware(
@@ -1425,6 +1459,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "invalid_runtime_env",
         )
 
+    def test_controller_trace_accept_only_explicit_boolean_enable(self):
+        traces = {key: "1" for key in ("M5SW_CAMERA_TRACE", "M5SW_GDMA_TRACE", "M5SW_GPSPI_TRACE", "M5SW_SPI_XFER_TRACE")}
+        for key in traces:
+            for value in ("0", "true", "/tmp/trace", "1\x00", True):
+                with self.subTest(key=key, value=value), self.assertRaises(ServiceError) as caught:
+                    self.service.create_session({"device_id": "cores3", "runtime_env": {key: value}})
+                self.assertEqual(caught.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_session({"device_id": "cores3", "runtime_env": {"M5SW_CAMERA_FRAME": "/tmp/frame"}})
+        self.assertEqual(caught.exception.code, "invalid_runtime_env")
+        with mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session({"device_id": "cores3", "runtime_env": traces})
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(session.runtime_env, traces)
+
     def test_storage_fixture_is_bound_to_a_modeled_sd_card(self):
         artifact = self.service.upload_artifact(b"\x00" * 512)
         with self.assertRaises(ServiceError) as wrong_device:
@@ -1619,6 +1668,51 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "sticks3/network",
             network_runtime.exception.message,
         )
+
+    def test_ble_peer_role_admission_is_explicit_and_bounded(self):
+        for device in ("cores3", "cardputer-adv"):
+            spec = self.service.specs[device]
+            normal = device_service_module.parse_qemu_ble_execution(spec, {})
+            self.assertEqual(normal["ble_peer_role"], "central")
+            peer = device_service_module.parse_qemu_ble_execution(spec, {"ble_peer_role": "peripheral"})
+            self.assertEqual(peer["ble_peer_role"], "peripheral")
+            session = object.__new__(DeviceSession)
+            session.spec = spec
+            session.network_config = peer
+            session.ready_timeout = 60
+            command, _environment = session._hci_probe_command()
+            self.assertEqual(command[command.index("--role") + 1], "peripheral")
+            for value in (None, True, [], {}, "PERIPHERAL", "unknown"):
+                with self.subTest(device=device, role=value), self.assertRaises(ServiceError) as caught:
+                    device_service_module.parse_qemu_ble_execution(spec, {"ble_peer_role": value})
+                self.assertEqual(caught.exception.code, "invalid_network")
+                self.assertEqual(caught.exception.status, 400)
+            for options in ({"ble_reconnect_cycles": 2}, {"ble_post_pass_continuity": True}):
+                with self.assertRaises(ServiceError) as caught:
+                    device_service_module.parse_qemu_ble_execution(spec, {"ble_peer_role": "peripheral", **options})
+                self.assertEqual(caught.exception.code, "invalid_network")
+        with self.assertRaises(ServiceError):
+            device_service_module.parse_qemu_ble_execution(self.service.specs["sticks3"], {"ble_peer_role": "peripheral"})
+
+    def test_ble_peer_completion_cannot_inherit_the_other_role_pass(self):
+        session = object.__new__(DeviceSession)
+        session._stop_event = threading.Event()
+        session.state = "running"
+        session.hci_probe_log = Path(self.tmp.name) / "role-peer.log"
+        session._record_event = mock.Mock()
+        session._hci_probe_running = lambda: False
+        for role, expected, opposite in (
+            ("central", "BLE_BUMBLE_PASS", "BLE_PERIPHERAL_PASS"),
+            ("peripheral", "BLE_PERIPHERAL_PASS", "BLE_BUMBLE_PASS"),
+        ):
+            with self.subTest(role=role):
+                session.network_config = {"ble_peer_role": role}
+                session.hci_probe_log.write_text(opposite + "\n")
+                with self.assertRaises(ServiceError) as caught:
+                    session._wait_hci_probe_result(1)
+                self.assertEqual(caught.exception.code, "ble_peer_failed")
+                session.hci_probe_log.write_text(expected + "\n")
+                session._wait_hci_probe_result(1)
 
     def test_qemu_unified_runtime_selects_single_guest_profiles(self):
         unified = device_service_module.parse_qemu_ble_execution(
@@ -3589,6 +3683,23 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session._hci_probe = None
         session.state = "stopped"
 
+    def test_hci_probe_dependency_directory_matches_selected_python_runtime(self):
+        session = object.__new__(DeviceSession)
+        session.spec = self.service.specs["cores3"]
+        session.network_config = {"profile": device_service_module.CORES3_UNIFIED_PROFILE}
+        session.ready_timeout = 60
+        for selected in (None, "", "/tmp/api sweep/python312-deps"):
+            with self.subTest(selected=selected), mock.patch.dict(os.environ, {"PYTHONPATH": "/tmp/inherited-deps"}):
+                if selected is None:
+                    os.environ.pop("M5_PYTHON_DEPS", None)
+                else:
+                    os.environ["M5_PYTHON_DEPS"] = selected
+                command, environment = session._hci_probe_command()
+                expected = selected or str(ROOT / ".work/py")
+                self.assertEqual(environment["PYTHONPATH"], expected + os.pathsep + "/tmp/inherited-deps")
+                self.assertEqual(command[:2], [sys.executable, str(device_service_module.BLE_PROBE)])
+                self.assertEqual(command[command.index("--name-prefix") + 1], "M5-CORES3-UNIFIED")
+
     def test_hci_probe_post_pass_continuity_trigger_is_explicit(self):
         spec = self.service.specs["sticks3"]
         firmware_path = Path(self.tmp.name) / "sticks3-continuity.bin"
@@ -3615,6 +3726,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             persist=False,
         )
         command, _ = session._hci_probe_command()
+        self.assertEqual(command[command.index("--role") + 1], "central")
         self.assertIn("--post-pass-trigger", command)
         gatt_timeout_index = command.index("--gatt-request-timeout") + 1
         self.assertEqual(command[gatt_timeout_index], "30")
@@ -5630,6 +5742,23 @@ class DeviceServiceHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(resumed["worker"]["state"], "ready")
+
+    def test_session_renew_rejects_invalid_ttl_before_mutating_lease(self):
+        from types import SimpleNamespace
+        lease = SimpleNamespace(management_binding=None, renew=mock.Mock(return_value={"renewed": True}))
+        with mock.patch.object(self.service, "get_session", return_value=lease):
+            for ttl in (None, True, False, -1, 0, 29, 30.5, "60"):
+                with self.subTest(ttl=ttl), self.assertRaises(HTTPError) as caught:
+                    self.request("/api/v1/sessions/owned/renew", method="POST",
+                                 data=json.dumps({"ttl_seconds": ttl}).encode(),
+                                 headers={"Content-Type": "application/json"})
+                self.assertEqual(caught.exception.code, 400)
+                self.assertEqual(json.load(caught.exception)["error"]["code"], "invalid_ttl")
+                lease.renew.assert_not_called()
+            for payload, expected in (({"ttl_seconds": 30}, 30), ({"ttl_seconds": 7200}, 7200), ({}, self.service.default_ttl)):
+                self.assertEqual(self.request("/api/v1/sessions/owned/renew", method="POST",
+                                 data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})[0], 200)
+                lease.renew.assert_called_with(expected)
 
     def test_openapi_is_served(self):
         with urlopen(self.base + "/api/v1/openapi.yaml", timeout=5) as response:

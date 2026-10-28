@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "status": "CANDIDATE_PASS",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "checks": {
+    "same_exact_probe": true,
+    "same_runtime": true,
+    "same_six_domains": true,
+    "stock_reference_separate": true,
+    "matching_sdk_build": true,
+    "candidate_image_bound": true,
+    "only_one_correction": true,
+    "candidate_exact_source": true,
+    "successful_compile_archive_link_image": true,
+    "original_source_library_app_boundary_preserved": true,
+    "old_invalid_returns_empty": true,
+    "old_dma_oom_returns_empty": true,
+    "candidate_invalid_raises_value_error": true,
+    "candidate_dma_oom_raises_memory_error": true,
+    "normal_allocation_survives": true,
+    "normal_canvas_frame_all_lanes": true,
+    "completed_without_native_crash": true,
+    "all_zip_crc_sha_and_firmware_hashes": true,
+    "all_stopped_history_pid_cleanup": true
+  },
+  "scope": "Four invalid dimension domains, one real DMA allocation failure, safe release of old empty wrappers, then a small native Canvas allocation and draw/push. Exact C++ constructor tests separately prove native Canvas destructor and zero published Python wrappers on rejection. Does not increase available DMA memory or turn stock full-screen allocation into success.",
+  "build_receipt_sha256": "cadad6a388c779d429c56708b2fdf5400b2e12f4cdd7b3bef3e2f9ec94f96abc",
+  "lanes": {
+    "stock": {
+      "run": ".work/api-sweep/canvas-allocation-stock-gen5-r2",
+      "counts": {
+        "FAIL": 5,
+        "STATE_PASS": 1
+      },
+      "results": [
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            0,
+            24,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            0,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            -1,
+            24,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            -1,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            320,
+            240,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "the selected DMA allocation failure must raise MemoryError; a successful allocator is outside this negative domain"
+        },
+        {
+          "status": "STATE_PASS",
+          "method": "newCanvas",
+          "api_target": "M5.Display.Canvas",
+          "argument_domain": [
+            32,
+            24,
+            16,
+            false
+          ],
+          "oracle": "normal DMA Canvas still allocates, draws and pushes after rejected dimensions and OOM; independent final framebuffer checks pixels",
+          "dimensions": [
+            32,
+            24
+          ],
+          "color_depth": 16
+        }
+      ],
+      "frame_oracle": {
+        "status": "FRAME_PASS",
+        "observations": [
+          {
+            "point": [
+              12,
+              12
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              40,
+              32
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              9,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              42,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              12,
+              34
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          }
+        ],
+        "tolerance": 8
+      },
+      "status": "EXECUTED",
+      "source_sha256": "27dc6e887d24b14ccf5c3f75302369d6ece54d39c4e91ec2d92561c8c766c2ad",
+      "firmware_sha256": "85d1570d70bdd867a021598ebd6c9ee263a6bae4199eb214e99b70dc86439b5e",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "session_id": "68f1cea3cb6e475182fb43b21ef6bf14",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "dd18b52243a452df12916f88d512d53586529f98336f991d67b1a5b09a07f8f6",
+      "evidence_sha256": "6bfe6fc33ada1f276963cfe8849703a152c552e9007dc2447e6d2e4bd0d37a32",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      }
+    },
+    "preimage": {
+      "run": ".work/api-sweep/canvas-allocation-preimage-gen5-r2",
+      "counts": {
+        "FAIL": 5,
+        "STATE_PASS": 1
+      },
+      "results": [
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            0,
+            24,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            0,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            -1,
+            24,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            -1,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "invalid dimensions must raise ValueError before a Canvas wrapper is published"
+        },
+        {
+          "status": "FAIL",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            320,
+            240,
+            16,
+            false
+          ],
+          "returned_dimensions": [
+            0,
+            0
+          ],
+          "oracle": "the selected DMA allocation failure must raise MemoryError; a successful allocator is outside this negative domain"
+        },
+        {
+          "status": "STATE_PASS",
+          "method": "newCanvas",
+          "api_target": "M5.Display.Canvas",
+          "argument_domain": [
+            32,
+            24,
+            16,
+            false
+          ],
+          "oracle": "normal DMA Canvas still allocates, draws and pushes after rejected dimensions and OOM; independent final framebuffer checks pixels",
+          "dimensions": [
+            32,
+            24
+          ],
+          "color_depth": 16
+        }
+      ],
+      "frame_oracle": {
+        "status": "FRAME_PASS",
+        "observations": [
+          {
+            "point": [
+              12,
+              12
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              40,
+              32
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              9,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              42,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              12,
+              34
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          }
+        ],
+        "tolerance": 8
+      },
+      "status": "EXECUTED",
+      "source_sha256": "27dc6e887d24b14ccf5c3f75302369d6ece54d39c4e91ec2d92561c8c766c2ad",
+      "firmware_sha256": "18bdde73351247c8b5ad3ba9eb00ab4ad20a00b501f6230426e8ad06c85112b8",
+      "base_sha256": "8a319c22dc59760ae71a5adadc6e3e204d25ea6b0ccd7bea2aec2c085c01551c",
+      "session_id": "9349ab8ac35744e2a9208ab5a63d1568",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "dd18b52243a452df12916f88d512d53586529f98336f991d67b1a5b09a07f8f6",
+      "evidence_sha256": "a7976e0062598af6f24208044e73dcf1b75297c6ab10ac6f39194a2aab02622a",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      }
+    },
+    "candidate": {
+      "run": ".work/api-sweep/canvas-allocation-candidate-gen5-r2",
+      "counts": {
+        "STATE_PASS": 6
+      },
+      "results": [
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            0,
+            24,
+            16,
+            false
+          ],
+          "exception": "ValueError",
+          "oracle": "invalid dimensions rejected before publishing a Canvas"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            0,
+            16,
+            false
+          ],
+          "exception": "ValueError",
+          "oracle": "invalid dimensions rejected before publishing a Canvas"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            -1,
+            24,
+            16,
+            false
+          ],
+          "exception": "ValueError",
+          "oracle": "invalid dimensions rejected before publishing a Canvas"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            32,
+            -1,
+            16,
+            false
+          ],
+          "exception": "ValueError",
+          "oracle": "invalid dimensions rejected before publishing a Canvas"
+        },
+        {
+          "status": "STATE_PASS",
+          "api_target": "M5.Display.Canvas",
+          "method": "newCanvas",
+          "argument_domain": [
+            320,
+            240,
+            16,
+            false
+          ],
+          "exception": "MemoryError",
+          "oracle": "native DMA allocation failure is raised instead of returning an empty unsafe Canvas"
+        },
+        {
+          "status": "STATE_PASS",
+          "method": "newCanvas",
+          "api_target": "M5.Display.Canvas",
+          "argument_domain": [
+            32,
+            24,
+            16,
+            false
+          ],
+          "oracle": "normal DMA Canvas still allocates, draws and pushes after rejected dimensions and OOM; independent final framebuffer checks pixels",
+          "dimensions": [
+            32,
+            24
+          ],
+          "color_depth": 16
+        }
+      ],
+      "frame_oracle": {
+        "status": "FRAME_PASS",
+        "observations": [
+          {
+            "point": [
+              12,
+              12
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              40,
+              32
+            ],
+            "actual": [
+              57,
+              186,
+              205
+            ],
+            "expected": [
+              56,
+              184,
+              200
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              9,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              42,
+              12
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          },
+          {
+            "point": [
+              12,
+              34
+            ],
+            "actual": [
+              8,
+              16,
+              16
+            ],
+            "expected": [
+              11,
+              16,
+              20
+            ],
+            "matches": true
+          }
+        ],
+        "tolerance": 8
+      },
+      "status": "EXECUTED",
+      "source_sha256": "27dc6e887d24b14ccf5c3f75302369d6ece54d39c4e91ec2d92561c8c766c2ad",
+      "firmware_sha256": "9ebdf7237e242ecb6277dc0059d200c43ea3d48307a91ce6b3b2b2b8eb9e9229",
+      "base_sha256": "e57364a8c3294c46992c809c48e4558cba5dc22e0ede7c6f3728eea71a02a971",
+      "session_id": "c304e49bedd8428a9ed6199cebdc7ce8",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "dd18b52243a452df12916f88d512d53586529f98336f991d67b1a5b09a07f8f6",
+      "evidence_sha256": "bfc1559f077cbc8c0988760cb32d761b2e1bad3f3c176ab20663749838a2e505",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "component_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/components/M5Unified/mpy_m5gfx.cpp",
+  "preimage_sha256": "b13f252dbfd05eaa9135169acb13c65766af7529973debdc45690e4e9ae853f7",
+  "candidate_sha256": "f220d44743312e13043b4a841a14f0930d67c2f3a63e885d4dc58e4409520dbf",
+  "status": "candidate_firmware_correction_not_reference_firmware",
+  "contract": "len counts bytes, RGB565 writePixels counts uint16 pixels; invalid lengths fail before startWrite"
+}

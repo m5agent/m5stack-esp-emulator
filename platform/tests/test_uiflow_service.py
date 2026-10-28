@@ -26,7 +26,7 @@ import test_uiflow_source as source_fixtures
 from serve import Handler
 from uiflow_source import DEFAULT_BOOT, UIFlowSourceError, build_uiflow_source_image
 
-SUPPORTED = ("cores3", "atoms3r", "sticks3", "stopwatch")
+SUPPORTED = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv")
 SENTINEL = "UIFLOW_SOURCE_CONTENT_MUST_NOT_APPEAR_IN_LIST_METADATA_20261026"
 CALLER_FILES = {
     "main.py": f"print('{SENTINEL}')\n",
@@ -167,7 +167,7 @@ class UIFlowServiceAdmissionTests(ServiceFixture, unittest.TestCase):
                 self.assert_error_without_publish(code, payload)
 
     def test_supported_device_gate_is_distinct_from_unknown_device(self):
-        for device_id in ("core2", "tab5", "cardputer-adv"):
+        for device_id in ("core2", "tab5"):
             with self.subTest(device=device_id):
                 self.assert_error_without_publish("unsupported_uiflow_device", {
                     "device_id": device_id, "files": CALLER_FILES,

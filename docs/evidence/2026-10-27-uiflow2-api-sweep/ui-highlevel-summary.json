@@ -1,0 +1,1247 @@
+{
+  "schema_version": 1,
+  "status": "HIGHLEVEL_AUDIT_PARTIAL",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "inventory": {
+    "path": "tests/uiflow2/api_sweep/inventory_ui.source.json",
+    "sha256": "d39931531238b7db52bd11d74de1f3c0ecdecc747b37f1941596ec134ed0d3fa",
+    "documented_surfaces": 36,
+    "documented_members": 620,
+    "excluded_constants": 2,
+    "documented_callables": 618,
+    "m5ui_classes": 28,
+    "canvas_denominator_source": ".work/api-sweep/cardputer-ui-isolated-gen3/canvas/000-clear/serial.txt",
+    "canvas_denominator_source_sha256": "ce2edb781ca2219dad51751b547949f69e3e3f8773d4d5c31f2f515225de8c30"
+  },
+  "strict_rules": [
+    "Own documented M5UI methods only; native inherited exports have a separate native audit.",
+    "M5.Lcd is the tested object route for the canonical Display target; no second alias denominator.",
+    "Per-board stock, matching SDK, candidate and every recipe/source/argument domain remain separate.",
+    "Constructor capture, CALL_OK, STATE_PASS, GLYPH_PASS, FRAME_PASS and blockers are distinct; this is not an all-function PASS.",
+    "Legacy gen62/63/64 M5UI observations lacking a recorded runtime hash are excluded from final selected evidence.",
+    "The older ADV Canvas runner ended with HTTP409 after 47 READY cases; only completed per-case observations with checkpoint evidence are retained, never a full-run PASS."
+  ],
+  "detailed_join": {
+    "path": ".work/api-sweep/ui-highlevel-delivery-join.json",
+    "sha256": "9b15338597ac9f6539f3737b406c92370ffafe60656189a20cde0ab05c82bcab",
+    "bytes": 1525378,
+    "report_count": 49,
+    "observation_count": 1163
+  },
+  "references": [
+    {
+      "path": ".work/api-sweep/qrcode-geometry-comparison-summary.json",
+      "sha256": "7d714352a60db9347219262377830ce350a633d018ffba8f3feedb507387114e"
+    },
+    {
+      "path": ".work/api-sweep/ui-display-remaining-summary.json",
+      "sha256": "3313b340194bf19d3669f3ca4eccee4ffa77652c736ea58577a0081674b3b406"
+    }
+  ],
+  "targets": [
+    {
+      "surface": "m5ui",
+      "documented_callable_count": 2,
+      "callable_denominator": 2,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 2,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FAIL": 1,
+            "STATE_PASS": 5
+          },
+          "stock_failure_members": [
+            "init:FAIL"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Arc",
+      "documented_callable_count": 15,
+      "callable_denominator": 15,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 15,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 12,
+            "PENDING_FRAME_OR_INPUT": 2
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Bar",
+      "documented_callable_count": 22,
+      "callable_denominator": 22,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 22,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 20,
+            "PENDING_FRAME_OR_INPUT": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Button",
+      "documented_callable_count": 24,
+      "callable_denominator": 24,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 24,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 17,
+            "PENDING_FRAME_OR_INPUT": 5,
+            "EXPECTED_UNSUPPORTED": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_pressed_effect",
+            "set_shadow",
+            "set_style_text_font"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5ButtonMatrix",
+      "documented_callable_count": 27,
+      "callable_denominator": 27,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 27,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 4,
+            "STATE_PASS": 22
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_button_width",
+            "value_changed_event"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Calendar",
+      "documented_callable_count": 11,
+      "callable_denominator": 11,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 11,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 3,
+            "STATE_PASS": 7
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_calendar_style"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Canvas",
+      "documented_callable_count": 25,
+      "callable_denominator": 25,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 25,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 19,
+            "PENDING_FRAME_OR_INPUT": 4,
+            "FAIL": 3
+          },
+          "stock_failure_members": [
+            "draw_triangle:FAIL"
+          ],
+          "pending_method_members": [
+            "align_to",
+            "draw_arc",
+            "draw_image",
+            "draw_label"
+          ],
+          "candidate_observed_members": 1
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Chart",
+      "documented_callable_count": 36,
+      "callable_denominator": 36,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 36,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 27,
+            "PENDING_FRAME_OR_INPUT": 8
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "get_pressed_point",
+            "hide_series",
+            "set_div_line_count",
+            "set_next_value",
+            "set_series_values",
+            "set_update_mode"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Checkbox",
+      "documented_callable_count": 22,
+      "callable_denominator": 22,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 22,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 18,
+            "PENDING_FRAME_OR_INPUT": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_style_text_font"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Dropdown",
+      "documented_callable_count": 28,
+      "callable_denominator": 28,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 28,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 25,
+            "PENDING_FRAME_OR_INPUT": 2
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Image",
+      "documented_callable_count": 12,
+      "callable_denominator": 12,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 12,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 2,
+            "STATE_PASS": 8,
+            "FAIL": 3
+          },
+          "stock_failure_members": [
+            "set_scale:FAIL"
+          ],
+          "pending_method_members": [
+            "align_to",
+            "set_image"
+          ],
+          "candidate_observed_members": 1
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Keyboard",
+      "documented_callable_count": 22,
+      "callable_denominator": 22,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 22,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 17,
+            "PENDING_FRAME_OR_INPUT": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "get_button_text",
+            "get_selected_button"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Label",
+      "documented_callable_count": 18,
+      "callable_denominator": 18,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 18,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 4,
+            "STATE_PASS": 13
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to",
+            "set_shadow",
+            "set_style_text_font",
+            "unset_shadow"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5LED",
+      "documented_callable_count": 16,
+      "callable_denominator": 16,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 16,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 2,
+            "STATE_PASS": 13
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to",
+            "set_color"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Line",
+      "documented_callable_count": 11,
+      "callable_denominator": 11,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 11,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 9,
+            "PENDING_FRAME_OR_INPUT": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5List",
+      "documented_callable_count": 7,
+      "callable_denominator": 7,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 7,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 5,
+            "PENDING_FRAME_OBJECT_REMOVAL": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "delete"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Menu",
+      "documented_callable_count": 7,
+      "callable_denominator": 7,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 7,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 3,
+            "STATE_PASS": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_label",
+            "add_switch",
+            "set_mode_header"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Msgbox",
+      "documented_callable_count": 24,
+      "callable_denominator": 24,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 24,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 6,
+            "DOCUMENTATION_MISMATCH": 5,
+            "STATE_PASS": 11,
+            "PENDING_FRAME_OBJECT_REMOVAL": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_button",
+            "add_close_button",
+            "add_event_cb",
+            "add_text",
+            "align_to",
+            "delete",
+            "set_style_text_font"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Page",
+      "documented_callable_count": 9,
+      "callable_denominator": 9,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 9,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 7,
+            "PENDING_FRAME_OR_INPUT": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Roller",
+      "documented_callable_count": 25,
+      "callable_denominator": 25,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 25,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 21,
+            "DOCUMENTATION_MISMATCH": 1,
+            "PENDING_FRAME_OR_INPUT": 2
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to",
+            "set_visible_row_count"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Scale",
+      "documented_callable_count": 19,
+      "callable_denominator": 19,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 19,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 15,
+            "PENDING_FRAME_OR_INPUT": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to",
+            "set_style_text_font",
+            "set_text_src"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Slider",
+      "documented_callable_count": 24,
+      "callable_denominator": 24,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 24,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 21,
+            "PENDING_FRAME_OR_INPUT": 2
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Spinbox",
+      "documented_callable_count": 26,
+      "callable_denominator": 26,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 26,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 23,
+            "PENDING_FRAME_OR_INPUT": 2,
+            "FAIL": 2
+          },
+          "stock_failure_members": [
+            "set_step:FAIL"
+          ],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to"
+          ],
+          "candidate_observed_members": 1
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Spinner",
+      "documented_callable_count": 9,
+      "callable_denominator": 9,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 9,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 6,
+            "PENDING_FRAME_OR_INPUT": 2
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to",
+            "set_anim_params"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Switch",
+      "documented_callable_count": 16,
+      "callable_denominator": 16,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 16,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 3,
+            "STATE_PASS": 12
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_direction"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Table",
+      "documented_callable_count": 20,
+      "callable_denominator": 20,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 20,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 18,
+            "PENDING_FRAME_OR_INPUT": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "align_to"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5TabView",
+      "documented_callable_count": 4,
+      "callable_denominator": 4,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 4,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 2,
+            "PENDING_FRAME_OR_INPUT": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "rename_tab"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5TextArea",
+      "documented_callable_count": 30,
+      "callable_denominator": 30,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 30,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "STATE_PASS": 26,
+            "PENDING_FRAME_OR_INPUT": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_event_cb",
+            "align_to",
+            "set_style_text_font"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "m5ui.M5Win",
+      "documented_callable_count": 24,
+      "callable_denominator": 24,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 24,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "CONSTRUCTED_FRAME_CAPTURE_ONLY": 1,
+            "PENDING_FRAME_OR_INPUT": 6,
+            "DOCUMENTATION_MISMATCH": 5,
+            "STATE_PASS": 11,
+            "PENDING_FRAME_OBJECT_REMOVAL": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [
+            "add_button",
+            "add_event_cb",
+            "add_text",
+            "add_title",
+            "align_to",
+            "delete",
+            "set_style_text_font"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets",
+      "documented_callable_count": 3,
+      "callable_denominator": 3,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 3,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 2,
+            "FRAME_PASS": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 3,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 2,
+            "CALL_OK": 1,
+            "FRAME_PASS": 1
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Circle",
+      "documented_callable_count": 5,
+      "callable_denominator": 5,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "image_plus.ImagePlus",
+      "documented_callable_count": 6,
+      "callable_denominator": 9,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 9,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 5,
+            "FAIL": 1,
+            "CALL_OK": 4,
+            "FRAME_PASS": 4
+          },
+          "stock_failure_members": [
+            "ImagePlus:FAIL"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 5
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 9,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 5,
+            "FAIL": 5,
+            "CALL_OK": 4
+          },
+          "stock_failure_members": [
+            "ImagePlus:FAIL",
+            "setCursor:FAIL",
+            "setImage:FAIL",
+            "setScale:FAIL",
+            "setVisible:FAIL"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 5
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Image",
+      "documented_callable_count": 4,
+      "callable_denominator": 5,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "label_plus.LabelPlus",
+      "documented_callable_count": 15,
+      "callable_denominator": 15,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 15,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 8,
+            "FAIL": 3,
+            "CALL_OK": 5,
+            "FRAME_PASS": 5
+          },
+          "stock_failure_members": [
+            "deinit:FAIL",
+            "show_value_of_key:FAIL",
+            "update:FAIL"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 10
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 15,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "STATE_PASS": 8,
+            "FAIL": 3,
+            "CALL_OK": 5,
+            "FRAME_PASS": 5
+          },
+          "stock_failure_members": [
+            "deinit:FAIL",
+            "show_value_of_key:FAIL",
+            "update:FAIL"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 10
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Label",
+      "documented_callable_count": 7,
+      "callable_denominator": 7,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 7,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "GLYPH_PASS": 4,
+            "PENDING_FRAME": 6,
+            "FRAME_PASS": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 7,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "GLYPH_PASS": 4,
+            "PENDING_FRAME": 6,
+            "FRAME_PASS": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Display",
+      "documented_callable_count": 43,
+      "callable_denominator": 70,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 70,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 19,
+            "PENDING_FRAME_REVIEW": 4,
+            "FAIL": 10,
+            "GLYPH_PASS": 9,
+            "STATE_PASS": 21,
+            "BLOCKED_MODEL": 5,
+            "UNAVAILABLE_ON_DEVICE": 2,
+            "CALL_OK": 11
+          },
+          "stock_failure_members": [
+            "drawBmp:FAIL",
+            "drawImage:FAIL",
+            "drawJpg:FAIL",
+            "drawPng:FAIL",
+            "drawRawBuf:FAIL"
+          ],
+          "pending_method_members": [
+            "drawArc",
+            "drawEllipseArc",
+            "fillArc",
+            "fillEllipseArc"
+          ],
+          "candidate_observed_members": 5
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 68,
+          "NOT_RUN": [
+            "lvgl_deinit",
+            "lvgl_init"
+          ],
+          "stock_status_counts": {
+            "FRAME_PASS": 19,
+            "PENDING_FRAME_REVIEW": 4,
+            "FAIL": 5,
+            "GLYPH_PASS": 9,
+            "STATE_PASS": 18,
+            "BLOCKED_MODEL": 5,
+            "UNAVAILABLE_ON_DEVICE": 3,
+            "CALL_OK": 10
+          },
+          "stock_failure_members": [
+            "drawBmp:FAIL",
+            "drawImage:FAIL",
+            "drawJpg:FAIL",
+            "drawPng:FAIL",
+            "drawRawBuf:FAIL"
+          ],
+          "pending_method_members": [
+            "drawArc",
+            "drawEllipseArc",
+            "fillArc",
+            "fillEllipseArc"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Line",
+      "documented_callable_count": 0,
+      "callable_denominator": 4,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 4,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 4,
+            "PENDING_FRAME": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 4,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 4,
+            "PENDING_FRAME": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.QRCode",
+      "documented_callable_count": 0,
+      "callable_denominator": 6,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 6,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 8,
+            "PENDING_FRAME": 5,
+            "ORACLE_MISMATCH": 1,
+            "FAIL": 2
+          },
+          "stock_failure_members": [
+            "setCursor:FAIL",
+            "setSize:FAIL",
+            "setText:ORACLE_MISMATCH"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 5
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 6,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 5,
+            "ORACLE_MISMATCH": 1
+          },
+          "stock_failure_members": [
+            "setText:ORACLE_MISMATCH"
+          ],
+          "pending_method_members": [],
+          "candidate_observed_members": 2
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Rectangle",
+      "documented_callable_count": 0,
+      "callable_denominator": 5,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 5,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 5,
+            "PENDING_FRAME": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Title",
+      "documented_callable_count": 0,
+      "callable_denominator": 6,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 6,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "GLYPH_PASS": 2,
+            "PENDING_FRAME": 5,
+            "FRAME_PASS": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 6,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "GLYPH_PASS": 2,
+            "PENDING_FRAME": 5,
+            "FRAME_PASS": 4
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Widgets.Triangle",
+      "documented_callable_count": 0,
+      "callable_denominator": 4,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 4,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 4,
+            "PENDING_FRAME": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 4,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 4,
+            "PENDING_FRAME": 3
+          },
+          "stock_failure_members": [],
+          "pending_method_members": [],
+          "candidate_observed_members": 0
+        }
+      }
+    },
+    {
+      "surface": "M5.Display.Canvas",
+      "documented_callable_count": 0,
+      "callable_denominator": 65,
+      "devices": {
+        "cores3": {
+          "stock_observed_members": 65,
+          "NOT_RUN": [],
+          "stock_status_counts": {
+            "FRAME_PASS": 18,
+            "PENDING_FRAME_REVIEW": 4,
+            "FAIL": 5,
+            "GLYPH_PASS": 9,
+            "STATE_PASS": 16,
+            "BLOCKED_MODEL": 5,
+            "UNAVAILABLE_ON_DEVICE": 2,
+            "CALL_OK": 9
+          },
+          "stock_failure_members": [
+            "drawBmp:FAIL",
+            "drawImage:FAIL",
+            "drawJpg:FAIL",
+            "drawPng:FAIL",
+            "drawRawBuf:FAIL"
+          ],
+          "pending_method_members": [
+            "drawArc",
+            "drawEllipseArc",
+            "fillArc",
+            "fillEllipseArc"
+          ],
+          "candidate_observed_members": 0
+        },
+        "cardputer-adv": {
+          "stock_observed_members": 62,
+          "NOT_RUN": [
+            "setTextSize",
+            "textWidth",
+            "width"
+          ],
+          "stock_status_counts": {
+            "FRAME_PASS": 19,
+            "PENDING_FRAME_REVIEW": 4,
+            "FAIL": 5,
+            "GLYPH_PASS": 8,
+            "STATE_PASS": 14,
+            "BLOCKED_MODEL": 5,
+            "UNAVAILABLE_ON_DEVICE": 3,
+            "CALL_OK": 8
+          },
+          "stock_failure_members": [
+            "drawBmp:FAIL",
+            "drawImage:FAIL",
+            "drawJpg:FAIL",
+            "drawPng:FAIL",
+            "drawRawBuf:FAIL"
+          ],
+          "pending_method_members": [
+            "drawArc",
+            "drawEllipseArc",
+            "fillArc",
+            "fillEllipseArc"
+          ],
+          "candidate_observed_members": 0
+        }
+      }
+    }
+  ],
+  "invalid_fixture_exclusions": [
+    "M5UI r1-r4 admission/ready/raw-REPL attempts; only final r5 selected.",
+    "ADV Title old setSize(1.5) violates required integer height; old visibility oracle compared the page color across excess rows; corrected final gen5 report selected.",
+    "Early Canvas PSRAM/allocation and stale oracle attempts gen69/gen70/gen70b are excluded; completed per-board batches and explicit model boundaries are retained.",
+    "Display.push and Canvas.startWrite/endWrite are absent from actual object exports and do not count as firmware defects.",
+    "Root Display/Canvas remaining r1/r2 setup attempts are excluded; only four r3 runs selected."
+  ],
+  "remaining_boundaries": [
+    "M5UI constructors and pending render/input methods have captures/state observations without independent behavior-specific frame/input closure.",
+    "Arc/ellipse arc shape descriptions without exact evaluators remain PENDING_FRAME_REVIEW.",
+    "Documented child-label methods absent on Msgbox/Win and the Roller event prose remain explicit documentation mismatches.",
+    "LCD EPD and absent ADV Image are unavailable; idle-mode/indexed register paths retain concrete model blockers.",
+    "Stock resource decoder/raw-buffer and Plus/QR defects are retained even when a separate candidate/domain passes."
+  ],
+  "tables": [
+    {
+      "path": "highlevel-m5ui-status.json",
+      "sha256": "ede1b0b6d4cf4aa7f5a0bb367a166a54b5cde22deea010c212d023d28969492a",
+      "bytes": 26957
+    },
+    {
+      "path": "highlevel-display-status.json",
+      "sha256": "866ec0a1f2bb733434f9b0fdc36b207c1bceedee5a4786f867a56875f3d932ab",
+      "bytes": 46769
+    },
+    {
+      "path": "highlevel-widgets-status.json",
+      "sha256": "d591eb6eeec2c1167867dde5eb2cc98018d0efa337625bb5f424c64b6a060da5",
+      "bytes": 26597
+    },
+    {
+      "path": "highlevel-plus-status.json",
+      "sha256": "27e699a5505c066d288c87b7db74e4c3fb4573328f51755a4db4b70738b22065",
+      "bytes": 9668
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -8,8 +8,11 @@
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/dma/esp_gdma.h"
+ #include "hw/qdev-properties.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "qapi/error.h"
+ #include "m5stopwatch.h"
++
++static const char cardputer_adv_i2c_bias_owner;
+ 
+ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                ESPGdmaState *gdma)
+@@ -18,6 +21,20 @@
+     m5stopwatch_regi2c_init(sys_mem);
+     m5stopwatch_fe_init(sys_mem);
+     m5stopwatch_phy_init(sys_mem);
++
++    /* M5GFX distinguishes ADV from the matrix-keyboard Cardputer by the
++     * external pull-ups on the ADV's internal SDA/SCL (G8/G9), while it
++     * temporarily enables the ESP32's internal pull-downs. Model the board
++     * wiring, not a forced input: I2C ACK/data must still be able to pull
++     * either open-drain line low. The GPIO resolver retains its existing
++     * unknown/conflict boundary for opposing weak biases; this is nominal
++     * board identification, not a resistor/threshold or electrical model.
++     */
++    Esp32GpioState *gpio = esp32_gpio_get_controller(true);
++    esp32_gpio_add_board_bias(gpio, 8, ESP32_GPIO_BIAS_PULL_UP,
++                             &cardputer_adv_i2c_bias_owner, &error_fatal);
++    esp32_gpio_add_board_bias(gpio, 9, ESP32_GPIO_BIAS_PULL_UP,
++                             &cardputer_adv_i2c_bias_owner, &error_fatal);
+ 
+     DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);

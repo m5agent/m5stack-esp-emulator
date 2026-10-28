@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-27`
+日期：`2026-10-28`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -110,6 +110,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |
+| [UIFlow2 双主机审计与修复](evidence/2026-10-27-uiflow2-api-sweep/README.md) / [计划](plans/2026-10-27-uiflow2-complete-api-sweep.md) | 当前审计 | `2026-10-28` | UI/硬件/系统/HTTP 逐项状态、原厂与 SDK 候选分 lane；最终完整矩阵 68/68，模型/配置/可选外设及 stock 失败仍保留 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
@@ -189,6 +190,8 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 
 ### 状态、计划与维护
 
+
+- [UIFlow2 全接口双主机验证](plans/2026-10-27-uiflow2-complete-api-sweep.md)
 - [Unit 外设与视觉模型集成计划](plans/2026-10-25-unit-runtime-integration.md)
 - [Unit 接入期间的主机问题](unit-integration-host-issues.md)
 - [Unit 官方芯片与协议研究](unit-research/official-protocols.md)

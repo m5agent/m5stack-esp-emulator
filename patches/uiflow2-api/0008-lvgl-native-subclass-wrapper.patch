@@ -1,0 +1,25 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -1236,11 +1236,17 @@
+         // Find the object type
+         const mp_obj_type_t *mp_obj_type = get_BaseObj_type();
+         const lv_obj_class_t *lv_obj_class = lv_obj_get_class(lv_obj);
+-        const mp_lv_obj_type_t **iter = &mp_lv_obj_types[0];
+-        for (; *iter; iter++) {
+-            if ((*iter)->lv_obj_class == lv_obj_class) {
+-                mp_obj_type = (*iter)->mp_obj_type;
+-                break;
++        /* Native private subclasses (e.g. list_text) inherit their public
++         * widget interface even when no Python constructor is registered. */
++        bool class_found = false;
++        for (; lv_obj_class && !class_found; lv_obj_class = lv_obj_class->base_class) {
++            const mp_lv_obj_type_t **iter = &mp_lv_obj_types[0];
++            for (; *iter; iter++) {
++                if ((*iter)->lv_obj_class == lv_obj_class) {
++                    mp_obj_type = (*iter)->mp_obj_type;
++                    class_found = true;
++                    break;
++                }
+             }
+         }
+ 

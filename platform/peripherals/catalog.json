@@ -596,9 +596,9 @@
       "interface": "spi",
       "capabilities": ["sd"],
       "status": "simulated",
-      "injection": ["qom-sd-image"],
-      "data_plane": "GP-SPI SD SPI command/data model with CMD0/8/9/10/13/16/17/24/51/55/58/59 and ACMD41/SD_STATUS; raw image sector backing and CRC16",
-      "tested_devices": ["cardputer-adv", "papercolor"]
+      "injection": ["raw-image-file", "session-owned-storage-artifact"],
+      "data_plane": "GP-SPI SD SPI command/data model with CMD0/8/9/10/12/13/16/17/18/24/25/51/55/58/59 and ACMD22/23/41/SD_STATUS; single/multiple raw-image sectors, streaming data/stop tokens, completed-write count and CRC16",
+      "tested_devices": ["cores3", "cardputer-adv", "papercolor"]
     },
     "usb-host": {
       "kind": "usb-host",
@@ -702,7 +702,8 @@
         {"id": "speaker", "model": "aw88298"},
         {"id": "power-key", "model": "pwr-button"},
         {"id": "light-proximity", "model": "ltr-553als-wa", "address": "0x23", "qom_path": "/machine/ltr553"},
-        {"id": "usb-host", "model": "usb-host", "qom_path": "/machine/max3421e-usb"}
+        {"id": "usb-host", "model": "usb-host", "qom_path": "/machine/max3421e-usb"},
+        {"id": "sd", "model": "sd-card-spi", "bus": "spi2", "pins": "sck=36,mosi=37,miso=35,cs=4"}
       ]
     },
     "cardputer-adv": {

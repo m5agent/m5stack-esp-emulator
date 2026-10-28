@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "AUDIT_PARTIAL",
+  "inventory_api_count": 460,
+  "result_count": 920,
+  "inventory_sha256": "06b90ef6b4cb62a69b27545db31bad26109ff0c3ffea9ec5585ed91df944dcc1",
+  "status_counts": {
+    "cores3": {
+      "DATA_PLANE_PASS": 13,
+      "PRESENT": 1,
+      "VALUE_OBSERVED": 39,
+      "BLOCKED": 173,
+      "API_ASSERTION_PASS": 13,
+      "FAIL": 2,
+      "CONFIG_ASSERTION_PASS": 29,
+      "UNAVAILABLE": 186,
+      "DATA_PLANE_OBSERVED": 4
+    },
+    "cardputer-adv": {
+      "UNAVAILABLE": 173,
+      "PRESENT": 1,
+      "VALUE_OBSERVED": 39,
+      "BLOCKED": 201,
+      "DATA_PLANE_PASS": 5,
+      "CONFIG_ASSERTION_PASS": 29,
+      "DATA_PLANE_OBSERVED": 4,
+      "FAIL": 3,
+      "API_ASSERTION_PASS": 5
+    }
+  },
+  "required_evidence_met_counts": {
+    "cores3": 87,
+    "cardputer-adv": 78
+  },
+  "mic": {
+    "cores3-mic-final-gen5-r1": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "f1b7fcc6209c4323bc240c650a70a19a",
+      "source_sha256": "01e270a038ca14e818c12edcf169d7c965d05054a407a6dae6c7f3cd507205f2",
+      "fixture_sha256": {},
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "553a2ca89b1b0d942671b1ee9ff225a8c6df706faff82412692e224ee58434e2",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "c4c3f3953a26e5bc7c182cedd7044cdc753a52f74e521523c19585f9e77f6be2",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cores3-mic-final-gen5-r1/report.json",
+      "report_sha256": "eb4a509fe0ca2620a3b04fdebc34a3c3bd1fe2e779ef89c158caf8b57eead306",
+      "serial_sha256": "146941396f98f9cf77f5d747066821ce8c2d482ed52e65d9c1615f38f1e2d65a",
+      "flash_released": false,
+      "oracle": {
+        "path": ".work/api-sweep/cores3-mic-final-gen5-r1/pcm-oracle.json",
+        "sha256": "0c5be598e8cff793e4bc7f9618c9fb77c3518731f19da59643b4da2a4f219394",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_completed": true,
+          "requested_byte_count": true,
+          "recording_finished": true,
+          "input_matches_declared_tone": true,
+          "output_frequency_matches_input": true,
+          "nonzero_output": true,
+          "tone_dominates_output": true,
+          "runtime_stopped": true
+        },
+        "scope": "1600 signed mono samples complete; independent zero-crossing frequency and sinusoidal-energy checks match the same-session owned tone through the actual I2S/M5.Mic path. Gain/DC/clipping are permitted; byte-exact fidelity and physical hardware are outside this result."
+      },
+      "wav_oracle": {
+        "path": ".work/api-sweep/cores3-mic-final-gen5-r1/wav-oracle.json",
+        "sha256": "7300370d4180514b1fe95451b7bcd7c2050ff91ff77a22dc2c7bbcfc1d7c6da0",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_completed": true,
+          "declared_pcm_format": true,
+          "all_declared_bytes_present": true,
+          "frequency_matches_owned_input": true,
+          "tone_dominates_output": true,
+          "nonzero_output": true,
+          "runtime_stopped": true
+        },
+        "format": {
+          "channels": 1,
+          "sample_width": 2,
+          "sample_rate_hz": 16000,
+          "frame_count": 16000
+        }
+      }
+    },
+    "cardputer-mic-final-gen5-r1": {
+      "device_id": "cardputer-adv",
+      "status": "EXECUTED",
+      "session_id": "b8b4568b8fe24593ab425119c71f4f05",
+      "source_sha256": "01e270a038ca14e818c12edcf169d7c965d05054a407a6dae6c7f3cd507205f2",
+      "fixture_sha256": {},
+      "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "firmware_sha256": "e826088a1dcca4ec8e2ef8013556bda51c3c599f4a1dd3660954ec528a24afab",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "f6119f24ed62caa2f2ba12dd5f9cf8b86f6e9418d2aa9c163a6fb42cb12b9e20",
+      "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cardputer-mic-final-gen5-r1/report.json",
+      "report_sha256": "8d096f8fb16b75f08b1949e9121eb41d025b45ce8caa5bc9f37dbf39edb27b3c",
+      "serial_sha256": "d53e2838fae390abfe45cc724677841e2791b5e326ca223877e177c04f42d7b2",
+      "flash_released": false,
+      "oracle": {
+        "path": ".work/api-sweep/cardputer-mic-final-gen5-r1/pcm-oracle.json",
+        "sha256": "bda6f2ae453d1537ece45cde6abaf558c1270c181c2d0ddf4bd119f9b0417a5a",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_completed": true,
+          "requested_byte_count": true,
+          "recording_finished": true,
+          "input_matches_declared_tone": true,
+          "output_frequency_matches_input": true,
+          "nonzero_output": true,
+          "tone_dominates_output": true,
+          "runtime_stopped": true
+        },
+        "scope": "1600 signed mono samples complete; independent zero-crossing frequency and sinusoidal-energy checks match the same-session owned tone through the actual I2S/M5.Mic path. Gain/DC/clipping are permitted; byte-exact fidelity and physical hardware are outside this result."
+      },
+      "wav_oracle": {
+        "path": ".work/api-sweep/cardputer-mic-final-gen5-r1/wav-oracle.json",
+        "sha256": "8a1501179c16aebbd5c1b593e101ca2497d19cc54a5e33f49d8b70260912f863",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_completed": true,
+          "declared_pcm_format": true,
+          "all_declared_bytes_present": true,
+          "frequency_matches_owned_input": true,
+          "tone_dominates_output": true,
+          "nonzero_output": true,
+          "runtime_stopped": true
+        },
+        "format": {
+          "channels": 1,
+          "sample_width": 2,
+          "sample_rate_hz": 16000,
+          "frame_count": 16000
+        }
+      }
+    }
+  },
+  "storage": {
+    "cores3-sd-final-gen5-r1": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "78aa6e1fd750438c86f19c1f798d3dc4",
+      "source_sha256": "f4d61059ac69b1e940653e64f14466f5f53e0d4fbbb7e0de7512ed80afef330e",
+      "fixture_sha256": {
+        "sd_fixture_config.py": "dac1680820b689e6e829e0596769344f9118233faaa69f8d7bc8c3d8cd173d1d"
+      },
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "815641733775f9072b7aee0b3f4401ed870afb3ca37375fa9542722e6573e655",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "627683a9617eea3e4afa1cf3024bd316884175368037f1de6d0fac3db30c03cc",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cores3-sd-final-gen5-r1/report.json",
+      "report_sha256": "02887d84af062d807e7a8bec23133980af9876b8436e998bbad2f9e7be3603c3",
+      "serial_sha256": "fb6f17f469a0a87a2743632562e2ed3f9d0e32aef2b4e706a93694b81ae58646",
+      "flash_released": false,
+      "oracle": {
+        "path": ".work/api-sweep/cores3-sd-final-gen5-r1/storage-oracle.json",
+        "sha256": "6be89850efd8cdebc6e684cb53cdd6a2c0557be8f9127b363b68b5b7a54c357c",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_block_and_remount_assertions": true,
+          "source_hash_still_matches_artifact": true,
+          "owned_disk_changed": true,
+          "distinct_payload_present_once_in_owned_disk": true,
+          "payload_absent_from_source_artifact": true,
+          "independent_host_fat_file_matches": true,
+          "isolated_disk_has_same_capacity": true,
+          "runtime_stopped": true
+        },
+        "scope": "Same-session SPI block roundtrip, FAT file write/sync and exact remount readback; independent retained session disk contains the unique complete payload, changed hash and same capacity while immutable source artifact hash stays unchanged."
+      },
+      "fixture_contents": {
+        "sd_fixture_config.py": "BLOCK_COUNT = 3\nFILE_PATTERN_BYTES = 8195\nFORMAT_DISK = True\n"
+      },
+      "scope": "1536-byte native block transfer; guest format and 8225-byte unique file sync/remount readback, independently parsed from owned FAT disk."
+    },
+    "cardputer-sd-final-gen5-r1": {
+      "device_id": "cardputer-adv",
+      "status": "EXECUTED",
+      "session_id": "4a586b8c9a9a47ec88d07f02aaa03061",
+      "source_sha256": "f4d61059ac69b1e940653e64f14466f5f53e0d4fbbb7e0de7512ed80afef330e",
+      "fixture_sha256": {
+        "sd_fixture_config.py": "dac1680820b689e6e829e0596769344f9118233faaa69f8d7bc8c3d8cd173d1d"
+      },
+      "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "firmware_sha256": "3e532473028536e928673581e03b3cf1f439c1667014f16852002be116bd8ea0",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "69f4c544cfa9ea8b67fc41065a810d083640293ba21e390cad1003fe783e15ac",
+      "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cardputer-sd-final-gen5-r1/report.json",
+      "report_sha256": "801c262db6cd0a87016d505ea39732560636a89863fb680c745c46212286f061",
+      "serial_sha256": "8e1625a7ca2e92be3d09353fda04434ab59bb7f76f8c790538d9498879e7bd6c",
+      "flash_released": false,
+      "oracle": {
+        "path": ".work/api-sweep/cardputer-sd-final-gen5-r1/storage-oracle.json",
+        "sha256": "cf34fd119054c16890bf914506651e87c756f287384d93766b75be4cfa6fc3bc",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "guest_block_and_remount_assertions": true,
+          "source_hash_still_matches_artifact": true,
+          "owned_disk_changed": true,
+          "distinct_payload_present_once_in_owned_disk": true,
+          "payload_absent_from_source_artifact": true,
+          "independent_host_fat_file_matches": true,
+          "isolated_disk_has_same_capacity": true,
+          "runtime_stopped": true
+        },
+        "scope": "Same-session SPI block roundtrip, FAT file write/sync and exact remount readback; independent retained session disk contains the unique complete payload, changed hash and same capacity while immutable source artifact hash stays unchanged."
+      },
+      "fixture_contents": {
+        "sd_fixture_config.py": "BLOCK_COUNT = 3\nFILE_PATTERN_BYTES = 8195\nFORMAT_DISK = True\n"
+      },
+      "scope": "1536-byte native block transfer; guest format and 8225-byte unique file sync/remount readback, independently parsed from owned FAT disk."
+    }
+  },
+  "touch": {
+    "device_id": "cores3",
+    "status": "EXECUTED",
+    "session_id": "45c83d22504a41139e72887209ebbee2",
+    "source_sha256": "dae321f6269887b7f66fcb8c8bdfd54b049de0e2ea6373bb15d3258f3abe2c38",
+    "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "firmware_sha256": "adf4c726993ead374991f4295160214ecf202d0cd7767f8b6a9910b68d16cbb3",
+    "firmware_lane": "stock-frozen",
+    "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+    "evidence_sha256": "f6da33a2e51eb32e94129193c4acf79e5430b4e1173fa1c8390064f0ac646b75",
+    "cleanup": {
+      "terminal_state": "stopped",
+      "runtime_pid_gone": true,
+      "failed_state_preserved": true,
+      "history_preserved": true,
+      "companions_pid_gone": {}
+    },
+    "report": ".work/api-sweep/cores3-touch-codec-isolated-r1/report.json",
+    "oracle": {
+      "path": ".work/api-sweep/cores3-touch-codec-isolated-r1/touch-oracle.json",
+      "sha256": "f7e1d2caaaffc8c1d26fddaed262ffe53127ba70bcac7886df06b36d5e00229d",
+      "status": "DATA_PLANE_PASS",
+      "checks_total": 8,
+      "checks_passed": 8,
+      "failed_checks": {}
+    },
+    "scope": "Only exact single point (61,73), pressed/released, raw and processed native coordinates. Move/multiple points/PMIC short-event recipes not closed."
+  },
+  "camera": {
+    "runtime_final_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+    "sccb": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "050a6ed17b81440897344039068fe1e1",
+      "source_sha256": "805b363480970f94573db722380991b44f49d1ef8c087699acbe2102221db8a5",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "05364ddcac3692c7e1c8e4c6db843a49714f953a2231d005aae12c6fa6957825",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "774b8ccc67c9fcee93bbc3d3c008c2407bf654d305fc88273eb0d4ee0dc7acfa",
+      "evidence_sha256": "9a4ca426d8e6c5bd346f87ab81a3fccf9e5e6d13c2c2b531b88fce8bc7611ce8",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cores3-gc0308-sccb-fixed-r1/report.json",
+      "oracle": {
+        "path": ".work/api-sweep/cores3-gc0308-sccb-fixed-r1/gc0308-sccb-oracle.json",
+        "sha256": "f9e019076883c9ccb6cf28f00f8ac9c23442496e2af35b228b76c7649c289e50",
+        "status": "DATA_PLANE_PASS",
+        "checks_total": 13,
+        "checks_passed": 13,
+        "failed_checks": {}
+      }
+    },
+    "interfaces": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "292a357766c4487cbf95b3ed7e5c6baa",
+      "source_sha256": "43176d34303a2072f7d121d8cfd66d30e3f8e74325ae1993064822d7252a1dba",
+      "fixture_sha256": {},
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "7ef2f3245dc7aa6b98c5a4156d9d11f866d3049bc7d045490196dc013cbbd79d",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "evidence_sha256": "e266e11f92a92c0d25cba5c44eacd2104eb242de53f6a8de911c3d835ae44f0b",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/cores3-camera-final-gen5-r1/report.json",
+      "report_sha256": "39d3f8840c855bb46bb4898a4446f7b141c128d5e22c4c746baa6a614a63ff9b",
+      "serial_sha256": "05c48d6af845416610466e86fdcfd555cfe980d15e2c00c5ec7aa299c2e86c93",
+      "flash_released": false,
+      "oracle": {
+        "path": ".work/api-sweep/cores3-camera-final-gen5-r1/camera-interfaces-oracle.json",
+        "sha256": "406315cb5713759e16db36899548d7a1d9e384be18e5ef946df4bf0e2ba2c083",
+        "status": "DATA_PLANE_PASS",
+        "checks": {
+          "executed_stock_lane": true,
+          "explicit_fixed_scene": true,
+          "all_raw_observation_points": true,
+          "complete_raw_scene_hashes": true,
+          "no_guest_api_failures": true,
+          "no_native_crash": true,
+          "stopped_history_preserved": true,
+          "evidence_zip_hash": true,
+          "evidence_zip_valid": true,
+          "jpg_decoded_scene_correct": true,
+          "bmp_decoded_scene_correct": true
+        },
+        "scope": null
+      }
+    },
+    "patterns": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "42bb41c772a842eb9006e91bae4eb26c",
+      "source_sha256": "ad685248564836f9f06fe6694c8a5c492b537cbf0f04d1356d6335b5718a8f29",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "56196b5c25a93f9070da84603000bfa6385e2f9756d60d8d7938d37e68328170",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+      "evidence_sha256": "68328bbb6d4191c75ff8b67da62395124254c409a9c4e31fa231fa58f50dfcdc",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cores3-camera-patterns-wire-fixed-r1/report.json",
+      "oracle": {
+        "path": ".work/api-sweep/cores3-camera-patterns-wire-fixed-r1/camera-oracle.json",
+        "sha256": "d762f78ad89315bf1516bc53335974ac588eed0cefb3b3029e5ed3a568f1f2f1",
+        "status": "DATA_PLANE_PASS",
+        "checks_total": 6,
+        "checks_passed": 6,
+        "failed_checks": {}
+      }
+    },
+    "phase_comparison": {
+      "path": ".work/api-sweep/camera-phase-comparison.json",
+      "sha256": "7010bf7f52730ed25d0e6e943264eeaa0fe90eea09dcb5a4cafd9b732c24b71d",
+      "status": "DATA_PLANE_PASS",
+      "checks_per_case": 15,
+      "cases": {
+        "raw": {
+          "device_id": "cores3",
+          "status": "EXECUTED",
+          "session_id": "6a29b506a298425097d821e58085515d",
+          "source_sha256": "cf504a0e56b3bc1f2b93f1fec1252b4806bb50bcfffd9bd3e55087cbcb41a82c",
+          "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "firmware_sha256": "0598c6bb52106f07aa86211dff1a8a819a76904698ed62956eec2a91056ea08b",
+          "firmware_lane": "stock-frozen",
+          "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+          "evidence_sha256": "6b7caaf60af5dac7211c4e0f8da6be3b8b4b4956874f36dd64b1a68817073ee1",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "failed_state_preserved": true,
+            "history_preserved": true,
+            "companions_pid_gone": {}
+          },
+          "report": ".work/api-sweep/cores3-camera-raw-phase-fixed-exact-r1/report.json"
+        },
+        "jpg": {
+          "device_id": "cores3",
+          "status": "EXECUTED",
+          "session_id": "84821ef55768408a9569c17574493bca",
+          "source_sha256": "cf504a0e56b3bc1f2b93f1fec1252b4806bb50bcfffd9bd3e55087cbcb41a82c",
+          "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "firmware_sha256": "12f5dfbea5fd94c03c214082ec479c54fe139d8ee796ae9f89752f27ccf51931",
+          "firmware_lane": "stock-frozen",
+          "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+          "evidence_sha256": "f0a538e891b034e770855d44be8d7888835b2819c37a3d2c06db5610e8aaf1c3",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "failed_state_preserved": true,
+            "history_preserved": true,
+            "companions_pid_gone": {}
+          },
+          "report": ".work/api-sweep/cores3-camera-jpg-phase-fixed-exact-r1/report.json"
+        },
+        "bmp": {
+          "device_id": "cores3",
+          "status": "EXECUTED",
+          "session_id": "da79ea169d4a499b89dc1f365b927fd0",
+          "source_sha256": "cf504a0e56b3bc1f2b93f1fec1252b4806bb50bcfffd9bd3e55087cbcb41a82c",
+          "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "firmware_sha256": "502a1612ec3af2e6e2acc5e4a1447b09fab1f9270e4fdf955c635c0557b75962",
+          "firmware_lane": "stock-frozen",
+          "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+          "evidence_sha256": "6f8c91816e6d400095b93dc830625d60879de5b53d8e43e24d9c854080705416",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "failed_state_preserved": true,
+            "history_preserved": true,
+            "companions_pid_gone": {}
+          },
+          "report": ".work/api-sweep/cores3-camera-bmp-phase-fixed-exact-r1/report.json"
+        },
+        "snapshot": {
+          "device_id": "cores3",
+          "status": "EXECUTED",
+          "session_id": "718de5cdc486424693fbd7492c974b3b",
+          "source_sha256": "cf504a0e56b3bc1f2b93f1fec1252b4806bb50bcfffd9bd3e55087cbcb41a82c",
+          "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "firmware_sha256": "c7a7731c032376b668a0767f6d67572cf754cfd582be5a005b1acfd195bd567f",
+          "firmware_lane": "stock-frozen",
+          "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+          "evidence_sha256": "d0f1ab396fd62409386b6a387e27a0f40583e47c4a47b6540b039ef4edad5ad6",
+          "cleanup": {
+            "terminal_state": "stopped",
+            "runtime_pid_gone": true,
+            "failed_state_preserved": true,
+            "history_preserved": true,
+            "companions_pid_gone": {}
+          },
+          "report": ".work/api-sweep/cores3-camera-snapshot-phase-fixed-exact-r1/report.json"
+        }
+      }
+    },
+    "scope": "True GC0308 MSB-first 8-bit DVP; whole QVGA frames, independent BMP exact RGB and JPEG error thresholds, reconfigure after yield, deinit and re-probe. Four old/new phase cases share exact source+firmware+fixture bytes. Mirror getter is STATE only; contrast/gain/orientation/colorbar are CALL_OK only. skip_frames discard count not independently measured. No physical optics or alternate geometry claim. Legacy LSB hashes only model-content diagnostics."
+  },
+  "native_lvgl_stock": {
+    "cores3-lvgl-containers-modules-r2": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "e83a797895834a07bcd7159692bb956c",
+      "source_sha256": "0e5a30d45c3159328a6a747a4b633c4ea4b04824824ddfd73bf796811223b6e1",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "b97735ced84b0ddfaa12599d1ed8c7c4679ad609a6a0ecdccf0364d715f8f6c1",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+      "evidence_sha256": "6d40c5b6d8564a35fc2ad7f8d97cdce0f225c3d9247d9b657520ce9015e174e8",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cores3-lvgl-containers-modules-r2/report.json",
+      "rows": 113,
+      "status_counts": {
+        "STATE_PASS": 110,
+        "FAIL": 3
+      },
+      "failures": [
+        {
+          "error": "SyntaxError(\"Cannot convert 'closure' to pointer!\",)",
+          "api_target": "lvgl.iter_t",
+          "method": "inspect",
+          "status": "FAIL",
+          "oracle": "public Python inspect callback must receive actual native elements; unsupported callback conversion is retained as FAIL"
+        },
+        {
+          "error": "SyntaxError(\"Cannot convert 'closure' to pointer!\",)",
+          "api_target": "lvgl",
+          "method": "iter_create",
+          "status": "FAIL",
+          "oracle": "public iterator creation with Python callback; missing generated callback bridge remains FAIL"
+        },
+        {
+          "value": [
+            0,
+            4,
+            false
+          ],
+          "api_target": "lvgl",
+          "method": "cache_entry_alloc",
+          "status": "FAIL",
+          "oracle": "raw allocator must return initialized trailing metadata; stock pre-initialization bug remains FAIL rather than inherited from later manual init"
+        }
+      ]
+    },
+    "cores3-lvgl-devices-modules-r2": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "0918a2ac87a24e15b50db2bdd548ba14",
+      "source_sha256": "d0327cba99f1d3d250677c61cadd990edb7f2fa6024809fed526681e157314a6",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "91aabd77365cb1871e96e69ac42c6d1318b4c87ee7d20f61530b95eefa650a52",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "317b8d4ef777636a327f1913638bc37830ef807285db40fef4a8e73f7ff4192f",
+      "evidence_sha256": "63084e3d8d7b3129035d3b78e67a67ac326f8efbc245e71da36adbb1e16b2e84",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cores3-lvgl-devices-modules-r2/report.json",
+      "rows": 114,
+      "status_counts": {
+        "STATE_PASS": 112,
+        "FAIL": 2
+      },
+      "failures": [
+        {
+          "value": [
+            0,
+            2
+          ],
+          "api_target": "lvgl.display_t",
+          "method": "remove_event_cb_with_user_data",
+          "status": "FAIL",
+          "oracle": "callback-plus-dictionary matching removes descriptor"
+        },
+        {
+          "value": [
+            0,
+            1
+          ],
+          "api_target": "lvgl.indev_t",
+          "method": "remove_event_cb_with_user_data",
+          "status": "FAIL",
+          "oracle": "callback-plus-dictionary matching removes descriptor"
+        }
+      ]
+    }
+  },
+  "usb_stock": {
+    "cores3-usb-core-gen70-r2": {
+      "device_id": "cores3",
+      "status": "EXECUTED",
+      "session_id": "666a524ec8f0417d95a19094451571c2",
+      "source_sha256": "11d55ad85c8b6eeddaa201cbbff3be2853cc0e734b702f50435d2cedbb6b6f30",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "firmware_sha256": "fc3904d0a563eee331f70bebe1647b32b7696d490238f6a3ca3c071298960971",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "evidence_sha256": "af9137760c9df8f53251a33a431ab04623cc15ae700ed9fb60f55d8562af90ac",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cores3-usb-core-gen70-r2/report.json",
+      "rows": 100,
+      "status_counts": {
+        "PASS": 38,
+        "STATE_PASS": 47,
+        "FAIL": 1,
+        "EXPECTED_REJECTION": 1,
+        "BLOCKED_MODEL": 13
+      },
+      "failures": [
+        {
+          "status": "FAIL",
+          "error": "NameError(\"name 'to_r4' isn't defined\",)",
+          "api": "usb.device.core.Buffer.readinto",
+          "oracle": "readinto returns actual byte count and consumes exactly those bytes"
+        }
+      ],
+      "unique_apis": 98,
+      "scope": "PASS is pure-library byte/descriptor contract; STATE_PASS is local-callback-state-only. Host enumeration and endpoint transfers remain BLOCKED_MODEL.",
+      "invalid_precondition_observations": [
+        {
+          "observed": {
+            "readable": -6,
+            "rejected": false
+          },
+          "api": "usb.device.core.Buffer.finish_read",
+          "scope": "caller precondition violated; source asserts are not guaranteed runtime validation with optimized firmware",
+          "input": 9
+        },
+        {
+          "observed": {
+            "readable": 12,
+            "rejected": false
+          },
+          "api": "usb.device.core.Buffer.finish_write",
+          "scope": "caller precondition violated; source asserts are not guaranteed runtime validation with optimized firmware",
+          "input": 9
+        }
+      ]
+    },
+    "cardputer-adv-usb-core-gen70-r2": {
+      "device_id": "cardputer-adv",
+      "status": "EXECUTED",
+      "session_id": "bd553319126348808fb27571e1419fcb",
+      "source_sha256": "11d55ad85c8b6eeddaa201cbbff3be2853cc0e734b702f50435d2cedbb6b6f30",
+      "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+      "firmware_sha256": "e0ff9deff621fb54ca3b0cf639b70ea09a4f7d934e6e4a573dd5be185fd37062",
+      "firmware_lane": "stock-frozen",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "evidence_sha256": "a1c1110972af81d40d9d5d4a9e322a8c2c0cb7f6d8af53c9b9609bcf18137dae",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {}
+      },
+      "report": ".work/api-sweep/cardputer-adv-usb-core-gen70-r2/report.json",
+      "rows": 100,
+      "status_counts": {
+        "PASS": 38,
+        "STATE_PASS": 47,
+        "FAIL": 1,
+        "EXPECTED_REJECTION": 1,
+        "BLOCKED_MODEL": 13
+      },
+      "failures": [
+        {
+          "status": "FAIL",
+          "error": "NameError(\"name 'to_r4' isn't defined\",)",
+          "api": "usb.device.core.Buffer.readinto",
+          "oracle": "readinto returns actual byte count and consumes exactly those bytes"
+        }
+      ],
+      "unique_apis": 98,
+      "scope": "PASS is pure-library byte/descriptor contract; STATE_PASS is local-callback-state-only. Host enumeration and endpoint transfers remain BLOCKED_MODEL.",
+      "invalid_precondition_observations": [
+        {
+          "observed": {
+            "readable": -6,
+            "rejected": false
+          },
+          "api": "usb.device.core.Buffer.finish_read",
+          "scope": "caller precondition violated; source asserts are not guaranteed runtime validation with optimized firmware",
+          "input": 9
+        },
+        {
+          "observed": {
+            "readable": 12,
+            "rejected": false
+          },
+          "api": "usb.device.core.Buffer.finish_write",
+          "scope": "caller precondition violated; source asserts are not guaranteed runtime validation with optimized firmware",
+          "input": 9
+        }
+      ]
+    }
+  },
+  "usb_candidate": {
+    "cores3-usb-buffer-candidate-isolated-r1": {
+      "status": "CANDIDATE_PASS",
+      "scope": "No USB OTG enumeration or endpoint transfer claim; isolated exact official Python modules are compared inside a real guest.",
+      "checks": {
+        "executed": true,
+        "separate_candidate_lane": true,
+        "official_source_hash": true,
+        "corrected_source_hash": true,
+        "original_nameerror_and_consumption": true,
+        "all_six_corrected_cases": true,
+        "no_failed_assertions": true,
+        "evidence_zip_valid": true,
+        "evidence_zip_hash": true,
+        "stopped_history_preserved": true,
+        "runtime_pid_gone": true
+      },
+      "evidence": {
+        "device_id": "cores3",
+        "session_id": "f0d9deab97ef4b4985fe9d54c01cf55f",
+        "source_sha256": "978b2e89e541e5398392cacd831de756e80a9baf5a282c7c4e7941ea278539b1",
+        "firmware_sha256": "fdad13b0f544d66b71530582bfb788a3114fb825270ca3670b0b5adc0879a420",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+        "evidence_sha256": "05d54058300cf6a4d6cdc8328b8d5ef6ce76515d20688665e56410ce8cef6b13",
+        "firmware_lane": "candidate-python-source"
+      },
+      "provenance": {
+        "upstream": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "path": "m5stack/libs/usb/device/core.py",
+        "preimage_sha256": "2e5b1bf82eb60ed7593be6413d452f023fac09b5fb024497378a1afa977d9588",
+        "candidate_sha256": "1fc68b2516d779299fcaf64921466349205fda9e35a9bd593a216f97b94839ae",
+        "patch_sha256": "e68abf7bc1b85db32b3c15362cfb26bda26639a2e59b686261648d931fc64081"
+      }
+    },
+    "cardputer-adv-usb-buffer-candidate-isolated-r1": {
+      "status": "CANDIDATE_PASS",
+      "scope": "No USB OTG enumeration or endpoint transfer claim; isolated exact official Python modules are compared inside a real guest.",
+      "checks": {
+        "executed": true,
+        "separate_candidate_lane": true,
+        "official_source_hash": true,
+        "corrected_source_hash": true,
+        "original_nameerror_and_consumption": true,
+        "all_six_corrected_cases": true,
+        "no_failed_assertions": true,
+        "evidence_zip_valid": true,
+        "evidence_zip_hash": true,
+        "stopped_history_preserved": true,
+        "runtime_pid_gone": true
+      },
+      "evidence": {
+        "device_id": "cardputer-adv",
+        "session_id": "214d764730f648a6ad5e832c6e7dadae",
+        "source_sha256": "978b2e89e541e5398392cacd831de756e80a9baf5a282c7c4e7941ea278539b1",
+        "firmware_sha256": "3a87fa76bd481fdfc74d6b3af38e9fb595baff84624ccf4177d8a093b23e21fe",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+        "evidence_sha256": "c5411076a820610189534e53c24f5f54340240e1987bc11952bb5d685e5a00b1",
+        "firmware_lane": "candidate-python-source"
+      },
+      "provenance": {
+        "upstream": "https://github.com/m5stack/uiflow-micropython",
+        "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+        "path": "m5stack/libs/usb/device/core.py",
+        "preimage_sha256": "2e5b1bf82eb60ed7593be6413d452f023fac09b5fb024497378a1afa977d9588",
+        "candidate_sha256": "1fc68b2516d779299fcaf64921466349205fda9e35a9bd593a216f97b94839ae",
+        "patch_sha256": "e68abf7bc1b85db32b3c15362cfb26bda26639a2e59b686261648d931fc64081"
+      }
+    }
+  },
+  "remaining_actual_failures": [
+    {
+      "device": "cores3",
+      "api": "M5.Imu.getMag",
+      "status": "FAIL",
+      "blocker": "guest return did not match expected value",
+      "evidence": [
+        {
+          "report": ".work/api-sweep/cores3-sensors-dynamic-r1/report.json",
+          "session_id": "edfe9bb972244657a935874b8d0bc103",
+          "firmware_sha256": "fe49d246285db8abafb305bee0ea7682204d80d75162f81d00d1c1b7808762f1",
+          "runtime_binary_sha256": "1284c57da9c6ec87833e767a0677153c474fdc450b171dde7eee5c1fb7dec101",
+          "evidence_sha256": "d1d25bd0c1bd8d1958e62788a31d603f8d459c940cd822c8e975b9563d3d9d5a"
+        }
+      ]
+    },
+    {
+      "device": "cores3",
+      "api": "machine.Timer.value",
+      "status": "FAIL",
+      "blocker": "Guest API assertion failed; see retained exact-firmware transcript.",
+      "evidence": [
+        {
+          "report": ".work/api-sweep/cores3-timer-rtc-r2/report.json",
+          "session_id": "ad79e60cb01644cf8cce585c7a44b6dc",
+          "firmware_sha256": "085cbecb83a0fb78e2963db24b872c94b249c6e86baeed1c6827df7a9e73cc89",
+          "runtime_binary_sha256": "1284c57da9c6ec87833e767a0677153c474fdc450b171dde7eee5c1fb7dec101",
+          "evidence_sha256": "8a8f7bf7d64c384481913e59e4d3d2a10e63bf7bdb129b7dc601a8d046e4bf29"
+        }
+      ]
+    },
+    {
+      "device": "cardputer-adv",
+      "api": "hardware.IR.rx_cb",
+      "status": "FAIL",
+      "blocker": "NotImplementedError('IR receiver is not supported on this board',)",
+      "evidence": [
+        {
+          "report": ".work/api-sweep/cardputer-hardware-buses-r1/report.json",
+          "session_id": "3cfadd9322074a7d9c3e6d89be27d595",
+          "firmware_sha256": "74d7e74f6732db481a44e3fc781a683bff0420a710a7d382d75933d9c6d6c955",
+          "runtime_binary_sha256": null,
+          "evidence_sha256": "cf6d6f90680cdb9df80cc1117753f46f8cfbb04e0524bf7f33b1d7884d4ac804"
+        }
+      ]
+    },
+    {
+      "device": "cardputer-adv",
+      "api": "machine.I2C.init",
+      "status": "FAIL",
+      "blocker": "OSError('I2C operation not supported',)",
+      "evidence": [
+        {
+          "report": ".work/api-sweep/cardputer-hardware-buses-r1/report.json",
+          "session_id": "3cfadd9322074a7d9c3e6d89be27d595",
+          "firmware_sha256": "74d7e74f6732db481a44e3fc781a683bff0420a710a7d382d75933d9c6d6c955",
+          "runtime_binary_sha256": null,
+          "evidence_sha256": "cf6d6f90680cdb9df80cc1117753f46f8cfbb04e0524bf7f33b1d7884d4ac804"
+        }
+      ]
+    },
+    {
+      "device": "cardputer-adv",
+      "api": "machine.Timer.value",
+      "status": "FAIL",
+      "blocker": "Guest API assertion failed; see retained exact-firmware transcript.",
+      "evidence": [
+        {
+          "report": ".work/api-sweep/cardputer-timer-rtc-r2/report.json",
+          "session_id": "4f6f20953cc74d55ab1e971bde1f0aa2",
+          "firmware_sha256": "f31793651abc44ee4395c8f74b8acb3fa3d60bb2476d9caa034b0923e3e8b692",
+          "runtime_binary_sha256": "1284c57da9c6ec87833e767a0677153c474fdc450b171dde7eee5c1fb7dec101",
+          "evidence_sha256": "8abe4421be2be06e7f3e18e1e48c194d8c183627ba141b35a830f765faf16ef5"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    "Presence, reflection and CALL_OK never establish functional coverage. All status counts retain narrower evidence tiers.",
+    "Final cc21773f runtime explicitly revalidates camera interfaces/reinit/encoded images, Cardputer Canvas, both SD/FAT paths and both PCM/WAV paths. Other receipts retain exact earlier runtime hashes; shared-controller full matrix is a separate gate.",
+    "No physical-hardware validation performed.",
+    "Sleep/wake/power-off remain blocked without native reset/wake/stopped-device evidence.",
+    "Touch move/multiple-point and complete PMIC/ADV button recipes remain open.",
+    "USB Buffer Python source A/B covers bytes/IRQs; no OTG enumeration or endpoints.",
+    "Stock LVGL allocator/iterator callback/display-indev callback removal failures are retained. Candidate SDK corrections are separate firmware lanes.",
+    "Unsupported/conversion LCD_CAM paths log a model gap and do not output invented RGB565 DMA frames.",
+    "Fixture host .pyc/.pyo/__pycache__/.DS_Store are excluded; explicit .mpy preserved; symlinks fail closed."
+  ],
+  "native_lvgl_allocator_candidate": {
+    "status": "CANDIDATE_PASS",
+    "oracle": ".work/api-sweep/cores3-cache-entry-alloc-sdk-candidate-r1/cache-entry-alloc-oracle.json",
+    "oracle_sha256": "c0bfab49c675749026439cf3d611cb42ae9abb0475967d79caeec51ae6aeeebb",
+    "checks_passed": 23,
+    "native_contracts": 30,
+    "scope": "Matching SDK original metadata FAIL for payload4/8/16/64; candidate5sizes×6contracts allPASS without manual repair. C exact-source28cases/version. Other candidate SDK patches explicitly recorded, stock remains separate."
+  },
+  "date": "2026-10-28",
+  "redaction": "Concise derived summary; raw execution files and credentials excluded.",
+  "canvas_final": {
+    "device_id": "cardputer-adv",
+    "status": "EXECUTED",
+    "session_id": "70de81ef14b04a1a99a0b6229fb81358",
+    "source_sha256": "3be383b40a97982dc1489c935c6cf1fdc98b887d184a9c26a2cd6c02481d537f",
+    "fixture_sha256": {},
+    "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+    "firmware_sha256": "53be0cd8cb3bf39a5c5c61812afc45a9084be10e61f1f5109edd194fe04b5de8",
+    "firmware_lane": "stock-frozen",
+    "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+    "evidence_sha256": "a9124ee4c093beee3151f946fbe2467ca322f35f1eea1c6bcac255bf1f31e57a",
+    "frame_sha256": "ab185dd199d8ceb1d4128bbbc930d2a4c44175cacbc9f7730a996a5d4ca55551",
+    "cleanup": {
+      "terminal_state": "stopped",
+      "runtime_pid_gone": true,
+      "failed_state_preserved": true,
+      "history_preserved": true,
+      "companions_pid_gone": {},
+      "companions_lifecycle": {},
+      "companions_cleanup_complete": true
+    },
+    "report": ".work/api-sweep/cardputer-canvas-final-gen5-r1/report.json",
+    "report_sha256": "f4faf0cb93e5d0358f42ace9453a5f50c8624e8f7317b699296d1dfa53471675",
+    "serial_sha256": "82dd2d0098aa73870cca615d1e0cc92e29753cb5cf1e5484f2cf7bd90df6bbc5",
+    "flash_released": false,
+    "oracle": {
+      "path": ".work/api-sweep/cardputer-canvas-final-gen5-r1/frame-oracle.json",
+      "sha256": "f69bb514d6b1d46a9f36ae44fd5fcd416f109766cfe3487021cf9caff813c4b7",
+      "status": "FRAME_PASS",
+      "checks": {},
+      "scope": null
+    }
+  },
+  "matrix_receipt": "runtime-regression.json",
+  "full_hardware_table": [
+    "hardware-cores3-status.json",
+    "hardware-cardputer-adv-status.json"
+  ]
+}

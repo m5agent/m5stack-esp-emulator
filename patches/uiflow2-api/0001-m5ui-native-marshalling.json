@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "status": "candidate_source_correction_not_stock_firmware",
+  "files": [
+    {
+      "path": "m5stack/libs/m5ui/canvas.py",
+      "candidate_module": "candidate_m5ui/canvas.py",
+      "preimage_sha256": "a705a7dafb193ededd007d65d98aacaf3e4a70b1b0a941889197b8fb50246970",
+      "candidate_sha256": "e9c76bcc2589f8d07c6d0bba2da3eedc53b457e6ae057f289b40aac17d27ce65"
+    },
+    {
+      "path": "m5stack/libs/m5ui/image.py",
+      "candidate_module": "candidate_m5ui/image.py",
+      "preimage_sha256": "87eb1e5db9ba9c1e305c8e3c3d966d489a5b776ad2c646a90fc0a6d76d3f59f3",
+      "candidate_sha256": "4b1206bf7a30430b2b66291203082f1d77654984941b07b550102af781f01482"
+    },
+    {
+      "path": "m5stack/libs/m5ui/spinbox.py",
+      "candidate_module": "candidate_m5ui/spinbox.py",
+      "preimage_sha256": "c25a0edfc588851af04dc19083e3fcdc21ab598a4a22f13471e6a2310f1ca4af",
+      "candidate_sha256": "b90e86e97eec371accfa332d8610be846781d1393f05c968c4bc8cd93c3151ec"
+    }
+  ],
+  "support_modules": {
+    "candidate_m5ui/__init__.py": "",
+    "candidate_m5ui/base.py": "from m5ui.base import M5Base\n"
+  }
+}

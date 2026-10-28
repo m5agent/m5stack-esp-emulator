@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/libs/usb/device/core.py",
+  "status": "candidate_python_source_correction_not_reference_firmware",
+  "preimage_sha256": "2e5b1bf82eb60ed7593be6413d452f023fac09b5fb024497378a1afa977d9588",
+  "candidate_sha256": "1fc68b2516d779299fcaf64921466349205fda9e35a9bd593a216f97b94839ae",
+  "patch_sha256": "e68abf7bc1b85db32b3c15362cfb26bda26639a2e59b686261648d931fc64081",
+  "contract": "Buffer.readinto returns the number of bytes actually copied and consumed, including zero-length/empty/partial reads; caller preconditions remain unchanged.",
+  "boundary": "No USB OTG enumeration or endpoint transfer claim; isolated exact official Python modules are compared inside a real guest."
+}

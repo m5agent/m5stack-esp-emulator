@@ -1,0 +1,83 @@
+diff --git a/hw/timer/esp_timg.c b/hw/timer/esp_timg.c
+--- a/hw/timer/esp_timg.c
++++ b/hw/timer/esp_timg.c
+@@ -211,6 +211,9 @@
+         wdt->prescaler = 1;
+     } else {
+         wdt->prescaler = FIELD_EX32(value, TIMG_WDTCONFIG1, CLK_PRESCALE);
++        if (wdt->prescaler == 0) {
++            wdt->prescaler = 1;
++        }
+     }
+ 
+     /* Recalculate the frequency out of the new prescaler and current clock */
+@@ -252,6 +255,8 @@
+ 
+ static void esp_wdt_update_config(ESPWdtState* wdt, uint32_t value)
+ {
++    ESPTimgState *state = container_of(wdt, ESPTimgState, wdt);
++    ESPTimgClass *klass = ESP_TIMG_GET_CLASS(state);
+     /* If the WDT is protected return */
+     if (!esp_wdt_is_writable(wdt)) {
+         return;
+@@ -264,7 +269,8 @@
+     const bool enabled = FIELD_EX32(value, TIMG_WDTCONFIG0, EN) ? true : false;
+     const bool enabled_changed = FIELD_EX32(former_conf, TIMG_WDTCONFIG0, EN) != enabled;
+ 
+-    if (FIELD_EX32(value, TIMG_WDTCONFIG0, CONF_UPDATE_EN)) {
++    if (klass->m_wdt_config_immediate ||
++        FIELD_EX32(value, TIMG_WDTCONFIG0, CONF_UPDATE_EN)) {
+         /* If the prescaler value or the source clock changed update the timer */
+         if ((FIELD_EX32(wdt->prescaler_mirror, TIMG_WDTCONFIG1, CLK_PRESCALE) != wdt->prescaler) ||
+             (FIELD_EX32(former_conf, TIMG_WDTCONFIG0, USE_XTAL) != FIELD_EX32(value, TIMG_WDTCONFIG0, USE_XTAL)))
+@@ -672,13 +678,27 @@
+             esp_wdt_update_config(&s->wdt, value);
+             break;
+         case A_TIMG_WDTCONFIG1:
++            if (!esp_wdt_is_writable(&s->wdt)) {
++                break;
++            }
+             s->wdt.prescaler_mirror = value;
++            if (klass->m_wdt_config_immediate) {
++                esp_wdt_update_prescaler(&s->wdt, value);
++            }
+             break;
+         case A_TIMG_WDTCONFIG2:
+         case A_TIMG_WDTCONFIG3:
+         case A_TIMG_WDTCONFIG4:
+         case A_TIMG_WDTCONFIG5:
++            if (!esp_wdt_is_writable(&s->wdt)) {
++                break;
++            }
+             s->wdt.stage_mirror[(addr - A_TIMG_WDTCONFIG2) / sizeof(uint32_t)] = value;
++            if (klass->m_wdt_config_immediate) {
++                esp_wdt_update_stage(&s->wdt,
++                                    (addr - A_TIMG_WDTCONFIG2) / sizeof(uint32_t),
++                                    value, true);
++            }
+             break;
+         case A_TIMG_WDTFEED:
+             esp_wdt_feed(&s->wdt);
+diff --git a/hw/timer/esp32s3_timg.c b/hw/timer/esp32s3_timg.c
+--- a/hw/timer/esp32s3_timg.c
++++ b/hw/timer/esp32s3_timg.c
+@@ -14,6 +14,7 @@
+ {
+     ESPTimgClass* esp = ESP_TIMG_CLASS(klass);
+     esp->m_has_t1 = true;
++    esp->m_wdt_config_immediate = true;
+ }
+ 
+ static const TypeInfo esp32s3_timg_info = {
+diff --git a/include/hw/timer/esp_timg.h b/include/hw/timer/esp_timg.h
+--- a/include/hw/timer/esp_timg.h
++++ b/include/hw/timer/esp_timg.h
+@@ -165,6 +165,8 @@
+     SysBusDeviceClass parent_class;
+     /* Virtual attribute */
+     size_t m_has_t1;
++    /* ESP32-S3 applies MWDT register writes without CONF_UPDATE_EN. */
++    bool m_wdt_config_immediate;
+ } ESPTimgClass;
+ 
+ 
