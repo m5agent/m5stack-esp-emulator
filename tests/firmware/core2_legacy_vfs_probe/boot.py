@@ -1,0 +1,1 @@
+print("CORE2_LEGACY_VFS_BOOT")

@@ -112,7 +112,7 @@ in-band命令保持。须用无诊断最终产物重新完成双场功能与停�
 Rust 两款仅保留独立原型。ROM/固件由浏览器官方直取，默认示例由 LittleFS 本地
 组合；固定源码、补丁、依赖、链接实参和 GPL/LGPL 对应源码均纳入导出。
 
-已同步 `origin/main@9f9c31c7`；新 ESP-NOW 原生能力不授予离线 WASM。
+已同步 `origin/main@a22638ec`；新 ESP-NOW 原生能力不授予离线 WASM。
 本地最终 64KiB 产物在项目子路径两场真实 guest 共21检查通过；10 Workers关闭，
 分享直开/四档布局/正常停止与本地记录通过。Linux Actions 完整源码构建、导出站
 验收及测试 fork 部署已通过，公开 HTTPS 同测试器另跑21检查通过；对应源码包

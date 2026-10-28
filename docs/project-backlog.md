@@ -163,7 +163,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT 并让 legacy Serial 到达 `APIKEY`。WDT-off 68 秒仍为 302-byte 黑帧，normal WDT 仍 TG0 stage-1 reset；下一项定位 `APIKEY` 后 display completion / setup 路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；DPORT 协作、classic RMT、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT 并让 legacy Serial 到达 `APIKEY`。原生 LittleFS2 VFS + `qemu-wifi` 120 秒已执行注入的 `CORE2_LEGACY_VFS_BOOT`，但 setup/main 和 nonblack frame 仍未出现，normal WDT 仍 reset；下一项从 WiFi-backed 系统菜单初始化定位首个未完成路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染非空应用帧并保持运行；DPORT 协作、classic RMT、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -196,13 +196,22 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 
 当前阻断：
 
-- normal-WDT 在同一 public legacy SHA 上仍由 TG0 stage-1 触发首次 system
-  reset，reset CPU PC 为 `0`，没有非空应用帧；
-- 关闭 WDT 只作为诊断 control 后，Flash/SSI 活动约在 44 秒结束，但 CPU1
-  到 120 秒仍停在 LVGL 双缓冲 flush wait，无 setup/REPL；
+- service-form functional lane 必须使用 `runtime=qemu-wifi`。早先默认
+  `runtime=qemu` 的直接诊断没有 `misc.esp32_wifi`，guest 可能在
+  `0x60033d24` 的 WiFi DMA status alias 上等待无设备状态，不能单独作为
+  legacy 启动或黑帧根因证据；
+- 通用 LittleFS 会被 legacy guest 拒绝并重新格式化。使用 UIFlow
+  checkout 自带 LittleFS2 packer 后，`qemu-wifi` 120 秒已执行注入的
+  `/flash/boot.py` 并输出 `CORE2_LEGACY_VFS_BOOT`，但 setup/main 仍未出现；
+- normal-WDT 在同一 public legacy SHA 上仍触发 TG0/TG1 system reset，
+  没有非空应用帧；
+- 关闭 WDT 只作为诊断 control 后，120 秒仍为 302-byte 黑帧；该轮 CPU0
+  `0x40249c5d`、CPU1 `0x400e1ffd`，旧 CPU1 `0x40100049` LVGL wait
+  未复现，后续必须在 matching VFS + WiFi lane 上重新定位；
 - BIN-bound 映射已把该 wait 定位到 `lv_refr_vdb_flush`；display flush
   callback 曾在旧 runtime control 中调用，但 SPI completion 与
-  `lv_disp_flush_ready` 未出现；
+  `lv_disp_flush_ready` 未出现。该结论保留为历史无 NIC 控制，不自动继承到
+  corrected fixture；
 - `0064` 已修复 pending SPI source 在 mapping 写回时不重算的通用缺陷，
   独立 Core2 ESP-IDF probe 在同一固件/ELF 上由 callback timeout 变为
   fixed PASS；最新 legacy runtime 仍没有到达 display completion，
@@ -212,7 +221,8 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
   路径协作让出，五轮首启动均到 `5 s` 边界且不再固定旧双 PC；
 - `0066` 补 classic ESP32 RMT 寄存器、RMTMEM、threshold、`TX_END` 和
   INTMATRIX source 47；同一 legacy 固件不再报 Neopixel translator
-  `OSError`，Serial 到达 `APIKEY`，WDT-off 68 秒帧仍为 `0` 个非黑像素；
+  `OSError`，Serial 到达 `APIKEY`。该历史 WDT-off 轮未使用 matching VFS
+  和 WiFi NIC，因此其黑帧只保留为无网络诊断控制；
 - 当前 local UIFlow2 ELF 与该 BIN 字节仍不一致，因此函数命名全部来自
   BIN 指令/结构匹配，不声明 ELF 符号等价；
   `Core2FactoryTest` 在 I2C 修复后仍未重跑。
@@ -221,13 +231,13 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 
 1. 取得 public `UIFlow_Core2 v1.15.4` 的 matching ELF/MAP。byte audit 已证明
    local UIFlow2 v2.5.3 ELF 不能用于符号命名；
-2. 保持 BIN-bound 结论：`0x40100049` 是 LVGL `lv_refr_vdb_flush` 的
-   double-buffer wait，`A2` 是 `lv_disp_buf_t`，`A10` 是 display driver；
+2. 在 matching LittleFS2 VFS 与 `runtime=qemu-wifi` lane 重新观察旧
+   `0x40100049` BIN-bound LVGL wait；修正后的 120 秒点未复现该地址，
+   不能把旧对象/寄存器结论直接继承为当前第一失败点；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
-   callback 回归；解释最新 legacy runtime 为何在 display `flush_cb` 前
-   reset/停止，让 completion callback `0x40174884` 和
-   `lv_disp_flush_ready` 可观测；保留 `0036` stateful SSI 数据面，不使用
-   `blk_pread` bypass；
+   callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
+   再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；
+   保留 `0036` stateful SSI 数据面，不使用 `blk_pread` bypass；
 4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase
    放回同一条启动时间线，解释 reset 与 late state 的关系；
 5. 保持同一 public SHA 的 AXP2101/AXP192 A/B 对照，并重跑
