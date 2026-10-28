@@ -340,7 +340,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace、三次 WDT liveness、45/120 秒 late-state 和 BIN-bound LVGL wait 定位已验证；Flash 工作约 44 秒结束，随后 CPU0 idle，CPU1 等 LVGL 双缓冲 `flushing` 清零 | 修正 SPI interrupt/completion 投递，证明 `0x40174884` 调用 `lv_disp_flush_ready()`，再验证 normal-WDT setup/REPL/非空帧；matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS、SPI IRQ level=1 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；LVGL callback 未完成前不能把 `0x40100049` 再称为未知对象 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace、三次 WDT liveness、45/120 秒 late-state 和 BIN-bound LVGL wait 定位已验证；`0064` 修复 pending SPI level 在 interrupt-matrix remap 时不重算的通用缺陷，独立 guest SPI probe 从 pre-fix timeout 变为 fixed PASS | 保持 `0064` 回归，解释最新 legacy runtime 为何在 display `flush_cb` 前停止或 watchdog reset；随后证明 `0x40174884` 调用 `lv_disp_flush_ready()`，再验证 normal-WDT setup/REPL/非空帧 | 临时 `blk_pread`、关闭 WDT、accelerator、独立 SPI probe PASS、SPI IRQ level=1 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；LVGL callback 未完成前不能把 `0x40100049` 再称为未知对象 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -381,7 +381,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow normal-WDT 首 reset、WDT-off 约 44 秒后的 LVGL double-buffer flush wait、SPI completion callback 未观测、黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI、pending SPI/INTMATRIX remap fixes | legacy UIFlow 在 display completion 前的 reset/stop、`lv_disp_flush_ready` 与缓存 wait 未闭环、黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -404,10 +404,10 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
    前完成约 4,376 次；三次 WDT liveness 又证明 TG1 持续 feed 到 TG0
    stage-1 reset 前数毫秒，历史 800 ms gap 未复现。WDT-off 45/120 秒
    对照又把后续失败收敛到约 44 秒后的 LVGL 双缓冲 flush wait；
-   BIN-bound 映射确认 display `flush_cb` 已执行，但 SPI completion 到
-   `lv_disp_flush_ready()` 的链路未完成。下一步是修 interrupt/queue
-   completion，不再寻找已不成立的 TG1 feed 停摆、无限 Flash 扫描或未知
-   late object。量化结果只以验证台账和 evidence 为准。
+   BIN-bound 映射确认 display `flush_cb` 已执行。`0064` 修复 pending SPI source 在
+   interrupt-matrix 映射写回时不重算的通用缺陷，ESP-IDF SPI3 probe 由 callback
+   timeout 变为 fixed PASS；但最新 legacy runtime 仍未到达 completion，
+   60 秒 PC trace 未命中 flush/callback 地址并在约 `15.53 s` reset；下一步回到 display-driver 到达条件和 reset 前启动 phase，独立 SPI PASS 不扩大为 legacy PASS。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

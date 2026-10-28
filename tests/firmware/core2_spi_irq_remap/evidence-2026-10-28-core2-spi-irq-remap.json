@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "kind": "core2-spi-irq-remap",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "firmware_sha256": "1f4d1b405425f093c40459e31e3e3c643e4ac49ccd529b9018a7dc346470faf9",
+  "elf_sha256": "00d946fe3f6ca6a5bf431a609afa32beb8c71fc4ea753baa9e6920cb4ed3387d",
+  "qemu_binary_sha256": "22bf9dba026ccb8a2d5f483de5917eb56433610d97709abe29122c49358d3d67",
+  "attempts_requested": 3,
+  "attempts_passed": 3,
+  "runs": [
+    {
+      "status": "PASS",
+      "queue_observed": true,
+      "callback_count": 1,
+      "result_count": 1,
+      "pass_count": 1,
+      "fail_count": 0,
+      "serial_sha256": "dbef7a6bbe0d05df4374442a9ec3975319549cad8b3e3a8381c4bde5711b5a0e",
+      "session_id_sha256": "94586f32c22afff1da961be92fba897b4e2ece0d03daea17a536bce0e15a0476",
+      "session_state": "running",
+      "evidence_zip": true
+    },
+    {
+      "status": "PASS",
+      "queue_observed": true,
+      "callback_count": 1,
+      "result_count": 1,
+      "pass_count": 1,
+      "fail_count": 0,
+      "serial_sha256": "dbef7a6bbe0d05df4374442a9ec3975319549cad8b3e3a8381c4bde5711b5a0e",
+      "session_id_sha256": "7a762c3c685f9377ce1c1eb3f1842c51819e0dc73c9453c259a87b0551593714",
+      "session_state": "running",
+      "evidence_zip": true
+    },
+    {
+      "status": "PASS",
+      "queue_observed": true,
+      "callback_count": 1,
+      "result_count": 1,
+      "pass_count": 1,
+      "fail_count": 0,
+      "serial_sha256": "dbef7a6bbe0d05df4374442a9ec3975319549cad8b3e3a8381c4bde5711b5a0e",
+      "session_id_sha256": "f4d632ec331c4115d20c02d3c142784a9b76b2a833c97b78482dcee08dfa18fa",
+      "session_state": "running",
+      "evidence_zip": true
+    }
+  ],
+  "guest_path": "ESP-IDF 5.5.4 spi_master queues a 16-byte SPI3 transaction; the guest remaps the pending SPI3 level IRQ before enabling it",
+  "boundary": {
+    "proven": [
+      "SPI_SLAVE.TRANS_DONE and TRANS_INTEN level semantics",
+      "interrupt-matrix remap while the source level is pending",
+      "guest ISR post_callback and queued-transaction completion"
+    ],
+    "not_proven": [
+      "physical ESP32 SPI DMA timing",
+      "legacy UIFlow boot completion"
+    ]
+  }
+}

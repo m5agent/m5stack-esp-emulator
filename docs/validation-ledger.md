@@ -398,3 +398,32 @@ Mic/Speaker `6/6` 一次完成，三台 raw 另行并发全部通过。第一次
 A/B/C 走触控条，P 继续到电源键事件路径。该结果是 virtual-device
 validation，物理触控压力和 PMIC 电气为 `NOT RUN`，见
 [Core2 触控/电源键证据](evidence/2026-10-28-core2-touch-buttons/README.md)。
+
+## 2026-10-28：Core2 pending SPI IRQ remap
+
+Core2 ESP-IDF 5.5.4 probe 以 `spi_master` queue 一个 16-byte SPI3
+transaction，并要求 guest `post_cb` 和
+`spi_device_get_trans_result()` 都完成。pre-fix QEMU
+`03ae86b5…` 观察到 `QUEUE_OK` 后 callback timeout；trace 显示 guest
+先将 source 31 映射到 CPU interrupt 5，清回 unconnected 6，抬高
+`SPI_SLAVE.TRANS_DONE && TRANS_INTEN`，最后才写回 map 5。旧
+interrupt-matrix 只在输入 level 变化时转发，没有在 mapping 写入时重算
+pending level，因此 guest ISR 永不运行。
+
+`0064-esp32-intmatrix-pending-irq-remap.patch` 保存 69 个输入 level，
+在输入或 mapping 变化时按 CPU external interrupt 汇总所有映射 source，
+并把 SPI IRQ 改为 `TRANS_DONE && TRANS_INTEN`。同一 firmware
+`1f4d1b40…` / ELF `00d946fe…` 在 fixed QEMU `22bf9dba…` 上
+`3/3 PASS`，每轮各一次 callback 和 queued result；平台合同直接编译
+patch 的真实 C 函数并覆盖 pending remap 与同 output 多 source OR。同一
+fixed runtime 的 Core2 UIFlow2 设备组 `6/6 PASS`（touch/RTC/PWR、音频、
+Mic、INA3221、MPU6886 和 AXP192），均 attempt 1、无 retry。
+
+该结果关闭通用 SPI/INTMATRIX completion 子缺口，但不关闭
+`RUNTIME-03`。最新 legacy `UIFlow_Core2 v1.15.4` 的 60 秒 PC trace
+没有命中 display flush/callback 地址，并在约 `15.53 s` 发生 reset；
+仍无非空应用帧或 REPL。见
+[`evidence`](../tests/firmware/core2_spi_irq_remap/evidence-2026-10-28-core2-spi-irq-remap.json)、
+[`pre-fix control`](../tests/firmware/core2_spi_irq_remap/evidence-2026-10-28-core2-spi-irq-remap-control.json)、
+[`probe`](../tests/firmware/core2_spi_irq_remap/README.md)、
+[`本块说明`](evidence/2026-10-28-core2-intmatrix-pending-irq/README.md)。
