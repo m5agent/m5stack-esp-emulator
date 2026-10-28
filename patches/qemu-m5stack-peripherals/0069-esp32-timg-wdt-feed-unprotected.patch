@@ -1,0 +1,38 @@
+diff --git a/hw/timer/esp32_timg.c b/hw/timer/esp32_timg.c
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -303,17 +303,20 @@ static void esp32_timg_write(void *opaque, hwaddr addr,
+     case A_TIMG_WDTFEED:
+-        if (!esp32_timg_wdt_protected(&s->wdt)) {
+-            if (esp32_handoff_trace_enabled()) {
+-                s->wdt.last_feed_ns =
+-                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+-                ++s->wdt.feed_count;
+-            }
+-            esp32_timg_handoff_trace(
+-                s, "wdt-feed", s->wdt.cur_stage, s->wdt.en,
+-                s->wdt.flashboot_en, s->wdt.protect_reg
+-            );
+-            if (esp32_timg_trace_enabled()) {
+-                fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+-            }
+-            esp32_timg_wdt_feed(&s->wdt);
++        /*
++         * WDTFEED is intentionally outside the register write-protection
++         * check. ESP-IDF wdt_hal_feed() writes it directly without unlocking
++         * WDTPROTECT, matching the hardware feed register semantics.
++         */
++        if (esp32_handoff_trace_enabled()) {
++            s->wdt.last_feed_ns =
++                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++            ++s->wdt.feed_count;
++        }
++        esp32_timg_handoff_trace(
++            s, "wdt-feed", s->wdt.cur_stage, s->wdt.en,
++            s->wdt.flashboot_en, s->wdt.protect_reg
++        );
++        if (esp32_timg_trace_enabled()) {
++            fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+         }
++        esp32_timg_wdt_feed(&s->wdt);
+         break;

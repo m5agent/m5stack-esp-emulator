@@ -89,13 +89,16 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 `espnow`/`m5espnow` 的 controller TX/RX DMA、unicast、broadcast、receive
 和 IRQ；外部 peer、PMK 加密 payload、跨设备 fabric 与 RF/timing 仍由
 `RUNTIME-06` 跟踪。所有 28 类 Core2 文档方法矩阵仍待完成。
-最终 `c3c31403…` runtime 的三设备并发回归为 system runtime 各 `51` 项零失败、
+最终 `78555183…` runtime 的三设备并发回归为 system runtime 各 `51` 项零失败、
 共享候选修复各 `7/7`、设备组 StopWatch `6/6`、StickS3 `5/5`、Core2
 `6/6`，全部首轮 PASS 且无 retry；sockets/MQTT/network/EzData、audio
-wrapper、requests/Modbus candidate 和 TLS candidate 也在同一 binary 重绑。
+wrapper、requests/Modbus candidate、TLS candidate 和 Device API 也在同一
+binary 重绑；stock HTTP/Modbus/TLS 的原始失败继续保留。见
+[最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
-normal-WDT reset 继续保留，见[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)和[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)。
+normal-WDT reset 继续保留，见[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)和
+[最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -163,7 +166,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink；legacy `m5stack`/`lcd` probe 已得到 1422 nonblack pixels。但原厂 startup UI 和 normal WDT 仍未完成；下一项定位 startup UI 生命周期与 WDT feed 关系 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；legacy `m5stack`/`lcd` probe 已得到 1422 nonblack pixels，但原厂 startup UI 和 normal WDT 仍未完成；下一项定位 startup UI 生命周期与 WDT feed 关系 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |

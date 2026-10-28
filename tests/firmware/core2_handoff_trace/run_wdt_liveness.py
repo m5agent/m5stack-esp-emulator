@@ -393,6 +393,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--qemu", type=Path, default=DEFAULT_QEMU)
+    parser.add_argument(
+        "--expected-image-sha256",
+        default=EXPECTED_IMAGE_SHA256,
+        help="exact normalized image SHA256 pin",
+    )
     parser.add_argument("--observe-seconds", type=float, default=18)
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--trace-sample", type=int, default=1024)
@@ -432,10 +437,10 @@ def main() -> int:
     if not 1 <= args.trace_sample <= 1_000_000:
         parser.error("--trace-sample must be from 1 to 1000000")
     image_sha256 = sha256_file(args.image)
-    if image_sha256 != EXPECTED_IMAGE_SHA256:
+    if image_sha256 != args.expected_image_sha256.lower():
         parser.error(
             f"image SHA256 mismatch: expected "
-            f"{EXPECTED_IMAGE_SHA256}, got {image_sha256}"
+            f"{args.expected_image_sha256}, got {image_sha256}"
         )
 
     args.out_dir.mkdir(parents=True, exist_ok=True)

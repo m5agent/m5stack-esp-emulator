@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime": {
+    "qemu_sha256": "78555183d53318fc25bc8413300e928d35bbbc1305f9d9648e97a73d34ce63b1",
+    "patch": "0069-esp32-timg-wdt-feed-unprotected.patch"
+  },
+  "devices": {
+    "stopwatch": {
+      "firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "device_group": {"PASS": 6, "FAIL": 0, "retry_used": false},
+      "protocols": {"sockets": 23, "easysocket": 57, "mqtt": 42, "network": 14, "ezdata": 17},
+      "audio": {"player": 15, "recorder": 12},
+      "espnow": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1},
+      "espnow_native": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3}
+    },
+    "sticks3": {
+      "firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "device_group": {"PASS": 5, "FAIL": 0, "retry_used": false},
+      "protocols": {"sockets": 23, "easysocket": 57, "mqtt": 42, "network": 14, "ezdata": 17},
+      "audio": {"player": 15, "recorder": 12},
+      "espnow": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1},
+      "espnow_native": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3}
+    },
+    "core2": {
+      "firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "device_group": {"PASS": 6, "FAIL": 0, "retry_used": false},
+      "protocols": {"sockets": 23, "easysocket": 57, "mqtt": 42, "network": 14, "ezdata": 17},
+      "audio": "NOT_EXPORTED",
+      "espnow": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1},
+      "espnow_native": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3}
+    }
+  },
+  "stock_boundaries": {
+    "http": {"PASS": 15, "FAIL": 1, "failure": "requests2.urlencode"},
+    "modbus": {"PASS": 42, "ERROR": 8, "failure": "Loop.sock_recv"},
+    "tls": {"STATE_PASS": 3, "ERROR": 2, "failure": "mbedtls epoch"}
+  },
+  "candidates": {
+    "requests_source_sha256": "40d1a98d2413b379e14c1732b329004feb8b6675655ae2548931ef2dd16ba052",
+    "requests_result": "2/2 PASS on each device",
+    "modbus_source_sha256": "86125ad2cff3929849709a6670750847835f8e8fa3f9d0c493d37fe0042ed37a",
+    "modbus_result": "50/50 PASS on each device",
+    "tls": {
+      "stopwatch": {"base_sha256": "edcd9a392f1ff5e5741c8331ae41ea18b915ae50b2ff54c173110c65c532e6a6", "PASS": 5},
+      "sticks3": {"base_sha256": "2e8386057fab9d384489651a544e30ce4edaf86586e1f4ce7f588469439af6aa", "PASS": 5},
+      "core2": {"base_sha256": "204def8c601c29b7fa4af83b767c3fd8ced9c6b12815a709c450fb5b80a2e2c6", "PASS": 5}
+    }
+  },
+  "checks": {
+    "device_api": {"operations": 81, "cases": 95, "positive_operations": 13, "boundary_operations": 70, "status": "PASS"},
+    "platform_tests": {"run": 1366, "status": "PASS", "skipped": 1},
+    "cleanup": "PASS for all retained sessions"
+  },
+  "remaining": [
+    "RUNTIME-03 legacy Core2 normal-WDT, startup UI, setup/REPL and complete application frame",
+    "external/encrypted ESP-NOW peer, cross-device fabric and RF/timing",
+    "explicit-HCI BLE and unadmitted Modbus RTU/PPP combinations",
+    "Core2 complete documented M5UI matrix",
+    "all physical hardware validation"
+  ]
+}

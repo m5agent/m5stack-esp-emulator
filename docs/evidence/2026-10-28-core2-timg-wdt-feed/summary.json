@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime": {
+    "qemu_sha256": "78555183d53318fc25bc8413300e928d35bbbc1305f9d9648e97a73d34ce63b1",
+    "patch": "0069-esp32-timg-wdt-feed-unprotected.patch",
+    "patch_sha256": "53b6557f0db174d8b0a280f354fbba42152f8c2918edfaf27b71de65c9cd04a8"
+  },
+  "firmware_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+  "official_semantics": {
+    "source": "ESP-IDF v4.4.8 wdt_hal_iram.c / esp32 mwdt_ll.h",
+    "feed_requires_unlock": false,
+    "configuration_requires_unlock": true
+  },
+  "checks": {
+    "c_contract": "PASS",
+    "patch_reverse_apply": "PASS",
+    "incremental_rebuild": "PASS",
+    "normal_wdt_stage0_timeout_ns": 7252822559,
+    "normal_wdt_stage1_timeout_ns": 17252822560,
+    "normal_wdt_first_reset_ns": 17252907520,
+    "tg1_feeds_before_reset": 14993,
+    "tg1_max_interval_ns": 5181212,
+    "core2_uiflow2_peripherals": "PASS",
+    "core2_uiflow2_nonblack_pixels": 6612,
+    "serial_bytes": 1207,
+    "serial_has_repl": false,
+    "frame_bytes": 373,
+    "frame_nonblack_pixels": 49
+  },
+  "remaining": [
+    "RUNTIME-03 startup UI, setup/REPL and stable normal-WDT application",
+    "physical hardware and watchdog electrical validation"
+  ]
+}
