@@ -424,6 +424,16 @@ model, `conf0.mem_size` read as zero and UIFlow1's Neopixel translator
 allocated a zero-byte buffer. This is a functional-controller model, not a
 GPIO waveform, electrical or physical-timing claim.
 
+`0067-esp32-espnow-controlled-peer-loopback.patch` adds a default-off
+`M5SW_ESPNOW_LOOPBACK=1` test fixture for controller-level ESP-NOW delivery.
+When enabled, an 802.11 management action frame that the guest wrote through
+the normal TX DMA path is echoed back through RX DMA with the peer/source
+addresses exchanged; broadcast frames use a fixed locally administered peer.
+The stock `espnow`/`m5espnow` Python stack therefore demonstrates unicast,
+broadcast, receive-buffer and IRQ delivery without host-side Python values.
+This is one virtual peer echo, not an external ESP-NOW peer, encrypted message
+delivery, retry/loss behavior, RF, timing or physical-hardware validation.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
