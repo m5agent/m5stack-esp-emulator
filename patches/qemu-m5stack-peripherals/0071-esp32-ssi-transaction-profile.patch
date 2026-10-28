@@ -1,0 +1,178 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 03:10:00 +0800
+Subject: [PATCH] esp32: aggregate SSI transaction profile
+
+Keep exact controller-side command, receive-length and completion-to-next-
+command gap counters in the default-off handoff diagnostics. The arrays and
+timing counters reset with the existing metrics state and are emitted only at
+an explicit pause/freeze point, so normal execution and sampled trace cadence
+are unchanged.
+
+This distinguishes small status reads from larger read transactions without
+treating sampled verbose events as a distribution, and measures virtual-time
+gaps between returned SPI transactions and the next command.
+
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -13,6 +13,11 @@
+ #include "qemu/timer.h"
+ #include "hw/core/cpu.h"
+ 
++#define ESP32_HANDOFF_SSI_COMMAND_COUNT 65536u
++#define ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS 257u
++#define ESP32_HANDOFF_SSI_RX_LENGTH_OVERFLOW_BUCKET 256u
++#define ESP32_HANDOFF_SSI_GAP_BUCKETS 9u
++
+ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_transactions;
+     uint64_t ssi_rx_bytes;
+@@ -22,6 +27,13 @@ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_last_rx_bytes;
+     uint64_t ssi_last_tx_bytes;
+     uint64_t ssi_last_ns;
++    uint64_t ssi_command_counts[ESP32_HANDOFF_SSI_COMMAND_COUNT];
++    uint64_t ssi_rx_length_counts[ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS];
++    uint64_t ssi_gap_count;
++    uint64_t ssi_gap_ns_total;
++    uint64_t ssi_gap_ns_max;
++    uint64_t ssi_last_end_ns;
++    uint64_t ssi_gap_counts[ESP32_HANDOFF_SSI_GAP_BUCKETS];
+     uint64_t crosscore_writes;
+     uint32_t crosscore_levels;
+     uint64_t intmatrix_levels_lo;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -247,8 +247,56 @@ static void esp32_spi_cs_set(Esp32SpiState *s, int value)
+     }
+ }
+ 
++static uint32_t esp32_spi_gap_bucket(uint64_t gap_ns)
++{
++    if (gap_ns == 0) {
++        return 0;
++    }
++    if (gap_ns <= 1000) {
++        return 1;
++    }
++    if (gap_ns <= 10000) {
++        return 2;
++    }
++    if (gap_ns <= 100000) {
++        return 3;
++    }
++    if (gap_ns <= 1000000) {
++        return 4;
++    }
++    if (gap_ns <= 10000000) {
++        return 5;
++    }
++    if (gap_ns <= 100000000) {
++        return 6;
++    }
++    if (gap_ns <= 1000000000) {
++        return 7;
++    }
++    return 8;
++}
++
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    uint32_t command = t->cmd & 0xffff;
++    uint32_t rx_length_bucket = MIN(
++        MAX(t->data_rx_bytes, 0),
++        ESP32_HANDOFF_SSI_RX_LENGTH_OVERFLOW_BUCKET
++    );
++
++    if (esp32_handoff_metrics.ssi_transactions) {
++        uint64_t gap_ns = now_ns >= esp32_handoff_metrics.ssi_last_end_ns
++                        ? now_ns - esp32_handoff_metrics.ssi_last_end_ns
++                        : 0;
++        uint32_t gap_bucket = esp32_spi_gap_bucket(gap_ns);
++
++        ++esp32_handoff_metrics.ssi_gap_count;
++        esp32_handoff_metrics.ssi_gap_ns_total += gap_ns;
++        esp32_handoff_metrics.ssi_gap_ns_max =
++            MAX(esp32_handoff_metrics.ssi_gap_ns_max, gap_ns);
++        ++esp32_handoff_metrics.ssi_gap_counts[gap_bucket];
++    }
+     ++esp32_handoff_metrics.ssi_transactions;
+     esp32_handoff_metrics.ssi_rx_bytes += t->data_rx_bytes;
+     esp32_handoff_metrics.ssi_tx_bytes += t->data_tx_bytes;
+@@ -256,8 +304,9 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     esp32_handoff_metrics.ssi_last_addr = t->addr;
+     esp32_handoff_metrics.ssi_last_rx_bytes = t->data_rx_bytes;
+     esp32_handoff_metrics.ssi_last_tx_bytes = t->data_tx_bytes;
+-    esp32_handoff_metrics.ssi_last_ns =
+-        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    esp32_handoff_metrics.ssi_last_ns = now_ns;
++    ++esp32_handoff_metrics.ssi_command_counts[command];
++    ++esp32_handoff_metrics.ssi_rx_length_counts[rx_length_bucket];
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-begin",
+         t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
+@@ -311,6 +360,8 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     );
+     s->trans_done = 1;
+     esp32_spi_update_irq(s);
++    esp32_handoff_metrics.ssi_last_end_ns =
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+ }
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -765,6 +765,52 @@ static void esp32_handoff_pause_dump_state(Esp32DportState *s, uint64_t now_ns)
+             esp32_handoff_metrics.ssi_last_rx_bytes,
+             esp32_handoff_metrics.ssi_last_tx_bytes,
+             esp32_handoff_metrics.ssi_last_ns);
++    for (uint32_t command = 0;
++         command < ESP32_HANDOFF_SSI_COMMAND_COUNT; command++) {
++        uint64_t count = esp32_handoff_metrics.ssi_command_counts[command];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-command a=%u b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, command, count);
++        }
++    }
++    for (uint32_t bucket = 0;
++         bucket < ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS; bucket++) {
++        uint64_t count = esp32_handoff_metrics.ssi_rx_length_counts[bucket];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-rx-length a=%u b=%" PRIu64
++                    " c=0 d=0\n",
++                    now_ns, bucket, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-timing"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_gap_count,
++            esp32_handoff_metrics.ssi_gap_ns_total,
++            esp32_handoff_metrics.ssi_gap_ns_max,
++            esp32_handoff_metrics.ssi_last_end_ns);
++    for (uint32_t bucket = 0;
++         bucket < ESP32_HANDOFF_SSI_GAP_BUCKETS; bucket++) {
++        uint64_t count = esp32_handoff_metrics.ssi_gap_counts[bucket];
++
++        if (count) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-gap a=%u b=%" PRIu64 " c=0 d=0\n",
++                    now_ns, bucket, count);
++        }
++    }
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=crosscore event=freeze-counters"

@@ -40,6 +40,18 @@ UART_TRACE_PATTERN = re.compile(
     r"^\[uart-tx\] now=(?P<now>\d+) (?P<byte>[0-9a-fA-F]{2})$"
 )
 SSI_READ_COMMANDS = frozenset({0x03, 0x0B, 0xBB})
+SSI_RX_LENGTH_OVERFLOW_BUCKET = 256
+SSI_GAP_BUCKET_LABELS = (
+    "0ns",
+    "1..1000ns",
+    "1001..10000ns",
+    "10001..100000ns",
+    "100001..1000000ns",
+    "1000001..10000000ns",
+    "10000001..100000000ns",
+    "100000001..1000000000ns",
+    ">1000000000ns",
+)
 
 
 class Api:
@@ -224,6 +236,7 @@ def summarize_phase_profile(
     ]
     cpu0 = Counter(int(event["a"], 16) for event in samples)
     cpu1 = Counter(int(event["b"], 16) for event in samples)
+    histograms = summarize_ssi_histograms(events)
 
     def top(counter: Counter[int]) -> list[dict[str, Any]]:
         return [
@@ -253,6 +266,46 @@ def summarize_phase_profile(
             and int(event["d"], 10) == 64
             for event in ssi_commands
         ),
+        "ssi_command_histogram": histograms["commands"],
+        "ssi_rx_length_histogram": histograms["rx_lengths"],
+        "ssi_gap_histogram": histograms["gaps"],
+    }
+
+
+def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return exact controller-side command and RX-length bucket totals."""
+    commands: Counter[int] = Counter()
+    rx_lengths: Counter[int] = Counter()
+    gaps: Counter[int] = Counter()
+    for event in events:
+        if event["component"] != "ssi":
+            continue
+        if event["event"] == "freeze-command":
+            commands[int(event["a"], 10)] += int(event["b"], 10)
+        elif event["event"] == "freeze-rx-length":
+            rx_lengths[int(event["a"], 10)] += int(event["b"], 10)
+        elif event["event"] == "freeze-gap":
+            gaps[int(event["a"], 10)] += int(event["b"], 10)
+    return {
+        "commands": {
+            f"0x{command:02x}": count
+            for command, count in sorted(commands.items())
+        },
+        "rx_lengths": {
+            (
+                f"{bucket}+"
+                if bucket == SSI_RX_LENGTH_OVERFLOW_BUCKET
+                else str(bucket)
+            ): count
+            for bucket, count in sorted(rx_lengths.items())
+        },
+        "gaps": {
+            SSI_GAP_BUCKET_LABELS[bucket]: count
+            for bucket, count in sorted(gaps.items())
+        },
+        "command_total": sum(commands.values()),
+        "rx_length_total": sum(rx_lengths.values()),
+        "gap_total": sum(gaps.values()),
     }
 
 
@@ -350,9 +403,12 @@ def snapshot_at_pause(
                     "c": int(event["c"], 10),
                     "d": int(event["d"], 10),
                 }
-        elif event["component"] in {"ssi", "crosscore"} and event[
-            "event"
-        ].startswith("freeze-"):
+        elif (
+            event["component"] in {"ssi", "crosscore"}
+            and event["event"].startswith("freeze-")
+            and event["event"]
+            not in {"freeze-command", "freeze-rx-length", "freeze-gap"}
+        ):
             io[f"{event['component']}:{event['event']}"] = {
                 "a": int(event["a"], 10),
                 "b": int(event["b"], 10),
@@ -376,6 +432,21 @@ def snapshot_at_pause(
         raise RuntimeError("missing DPORT freeze state")
     if "ssi:freeze-counters" not in io:
         raise RuntimeError("missing SSI freeze counters")
+    histograms = summarize_ssi_histograms(same_time)
+    transactions = io["ssi:freeze-counters"]["a"]
+    if histograms["command_total"]:
+        if histograms["command_total"] != transactions:
+            raise RuntimeError(
+                "SSI command histogram total does not match transactions"
+            )
+        if histograms["rx_length_total"] != transactions:
+            raise RuntimeError(
+                "SSI RX-length histogram total does not match transactions"
+            )
+        if histograms["gap_total"] != transactions - 1:
+            raise RuntimeError(
+                "SSI gap histogram total does not match transaction gaps"
+            )
     snapshot = {
         "pause_target_ns": target_ns,
         "pause_event_ns": pause["now_ns"],
@@ -384,6 +455,9 @@ def snapshot_at_pause(
         "memory": memory,
         "dport": dport,
         "io": io,
+        "ssi_command_histogram": histograms["commands"],
+        "ssi_rx_length_histogram": histograms["rx_lengths"],
+        "ssi_gap_histogram": histograms["gaps"],
     }
     if registers:
         snapshot["registers"] = registers

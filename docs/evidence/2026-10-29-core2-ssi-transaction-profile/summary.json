@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "fbc2850c924d535d6c3a2c5dedf5772fec403da6e36ccecf20d811de1cf81fbe"
+  },
+  "patch": {
+    "name": "0071-esp32-ssi-transaction-profile.patch",
+    "sha256": "3c53c5a74128891988d73addfed710c865f094b188a30be47f661beca72afc6c"
+  },
+  "wdt_off_no_pc_sampling": {
+    "pause_event_ns": 80000000030,
+    "transactions": 104302,
+    "rx_bytes": 3226641,
+    "command_histogram": {
+      "0x00": 5135,
+      "0x01": 2,
+      "0x02": 38,
+      "0x05": 49489,
+      "0x06": 43,
+      "0x20": 3,
+      "0x35": 2,
+      "0x9f": 3,
+      "0xab": 1,
+      "0xbb": 49586
+    },
+    "rx_length_histogram": {
+      "0": 1653,
+      "1": 53054,
+      "3": 3,
+      "8": 1,
+      "10": 2,
+      "15": 2,
+      "16": 1,
+      "64": 49586
+    },
+    "gap_histogram": {
+      "1001..10000ns": 50581,
+      "10001..100000ns": 3936,
+      "100001..1000000ns": 23800,
+      "1000001..10000000ns": 25819,
+      "10000001..100000000ns": 94,
+      "100000001..1000000000ns": 69,
+      ">1000000000ns": 2
+    },
+    "gap_count": 104301,
+    "gap_total_ns": 79699109375,
+    "gap_max_ns": 2693165726,
+    "last_transaction_end_ns": 79999507423,
+    "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+    "qemu_stderr_sha256": "660567337345096a3408cd3fb1a9206a948e8d08c5a81ff77907900da7ba8693",
+    "evidence_sha256": "918ee740d3e9b819e0ac61a4c258db20da5a62b5649f9c9a20101f2d32ccd244"
+  },
+  "wdt_off_pc_sampling": {
+    "pc_sample_ns": 50000000,
+    "transactions": 104975,
+    "gap_count": 104974,
+    "gap_total_ns": 79694773694,
+    "gap_max_ns": 2678539837,
+    "status_read_count": 49908,
+    "fast_read_64_count": 49736,
+    "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+    "qemu_stderr_sha256": "bdbbdb76bc93c251b1d6cbdc3ed6dbe95cfaee668609bc3bd5fbf87ff4ae9ad2",
+    "evidence_sha256": "43c92ca1a0ed764bcfd5305fc4690e1f22317680b0684744e4beb1cfcb25ea44"
+  },
+  "normal_wdt": {
+    "stage0_timeout_ns": 7253601472,
+    "stage1_timeout_ns": 17253601473,
+    "first_reset_ns": 17253695649,
+    "tg1_feed_count": 14998,
+    "tg1_max_feed_interval_ns": 3926687,
+    "tg1_timeout_count": 0,
+    "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+    "serial_sha256": "1b05da3c6cb0153bda0074f2792ac33cb00e6a901abe607d15ad4822b3ad561d",
+    "qemu_stderr_sha256": "76fd488b8b4f7b34ce3dcad427910d289d3640a0cd92d6d98af7fef5857aedf6",
+    "evidence_sha256": "ee1c33f403d7b71ef186d0d4d83494f487f258da906d41a6fe062b64b974bf9e"
+  },
+  "interpretation": {
+    "sampling_stable": true,
+    "controller_split_of_one_large_operation_not_observed": true,
+    "guest_command_interval_dominates_observed_budget": true,
+    "command_length_pairing_still_unmeasured": true
+  },
+  "next_actions": [
+    "add command-length joint counts and per-command gap aggregates",
+    "identify the guest driver path issuing repeated 0x05 and 0xBB transactions",
+    "locate remaining normal-WDT startup work before BOARD/APIKEY",
+    "obtain matching UIFlow_Core2 v1.15.4 source/ELF/MAP"
+  ]
+}

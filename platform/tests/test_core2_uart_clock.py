@@ -72,6 +72,12 @@ class Core2UartClockTests(unittest.TestCase):
 [esp32-handoff] now=400 cpu=1 pc=40093b57 component=ssi event=transaction-begin a=3 b=1234 c=0 d=64
 [esp32-handoff] now=500 cpu=1 pc=40093b57 component=ssi event=transaction-begin a=3 b=1238 c=0 d=64
 [esp32-handoff] now=600 cpu=1 pc=4006222c component=ssi event=transaction-end a=5 b=0 c=0 d=1
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command a=3 b=2 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command a=5 b=1 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-rx-length a=64 b=2 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-rx-length a=1 b=1 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-gap a=4 b=1 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-gap a=6 b=1 c=0 d=0
 """
         self.assertEqual(
             runner.summarize_phase_profile(trace),
@@ -89,6 +95,42 @@ class Core2UartClockTests(unittest.TestCase):
                 "ssi_transaction_events": 2,
                 "ssi_read_events": 2,
                 "ssi_read64_events": 2,
+                "ssi_command_histogram": {
+                    "0x03": 2,
+                    "0x05": 1,
+                },
+                "ssi_rx_length_histogram": {
+                    "1": 1,
+                    "64": 2,
+                },
+                "ssi_gap_histogram": {
+                    "100001..1000000ns": 1,
+                    "10000001..100000000ns": 1,
+                },
+            },
+        )
+
+    def test_ssi_histograms_preserve_overflow_and_totals(self):
+        runner = load_runner()
+        events = runner.parse_trace(
+            "\n".join(
+                (
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command a=187 b=3 c=0 d=0",
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-rx-length a=64 b=2 c=0 d=0",
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-rx-length a=256 b=1 c=0 d=0",
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-gap a=1 b=3 c=0 d=0",
+                )
+            )
+        )
+        self.assertEqual(
+            runner.summarize_ssi_histograms(events),
+            {
+                "commands": {"0xbb": 3},
+                "rx_lengths": {"64": 2, "256+": 1},
+                "gaps": {"1..1000ns": 3},
+                "command_total": 3,
+                "rx_length_total": 3,
+                "gap_total": 3,
             },
         )
 
@@ -99,6 +141,9 @@ class Core2UartClockTests(unittest.TestCase):
         self.assertIn('"pc_sampling_ns": args.pc_sample_ns', source)
         self.assertIn('"uart_trace": args.uart_trace', source)
         self.assertIn('"phase_profile": summarize_phase_profile(stderr)', source)
+        self.assertIn("ssi_command_histogram", source)
+        self.assertIn("ssi_rx_length_histogram", source)
+        self.assertIn("ssi_gap_histogram", source)
 
 
 if __name__ == "__main__":

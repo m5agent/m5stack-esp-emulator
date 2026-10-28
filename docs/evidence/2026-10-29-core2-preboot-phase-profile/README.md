@@ -106,3 +106,6 @@ PYTHONPATH=.work/py python3 \
 - 没有 matching ELF/MAP，地址只描述 BIN 控制流，不是函数符号；
 - 没有证明物理 Flash、cache、PSRAM、RF、电气或真机时序；
 - `RUNTIME-03` 仍为 `OPEN`。
+
+后续 controller 级完整 command/RX-length/gap 聚合见
+[SSI transaction profile](../2026-10-29-core2-ssi-transaction-profile/README.md)。

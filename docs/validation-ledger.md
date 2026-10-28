@@ -690,6 +690,37 @@ Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
 [phase profile 证据](evidence/2026-10-29-core2-preboot-phase-profile/README.md)
 和[机器摘要](evidence/2026-10-29-core2-preboot-phase-profile/summary.json)。
 
+## 2026-10-29：Core2 legacy SSI transaction profile
+
+新增 `0071-esp32-ssi-transaction-profile.patch`，在默认关闭的 handoff
+metrics 中记录完整 16-bit SSI command、RX payload length bucket 和
+completion→next-command virtual-time gap，并只在显式 freezes 时输出。
+runner 对 command 总数、RX-length 总数和 gap 总数分别与 transaction
+计数交叉校验。QEMU 重建后 SHA256 为 `fbc2850c…`，patch SHA256 为
+`3c53c5a7…`。
+
+同一 `UIFlow_Core2 v1.15.4` `4d2d648b…` 在 WDT-off、`qemu-wifi`、
+`icount shift=5` 下执行有无 50 ms PC sampling 两轮 80 秒控制。无采样
+轮记录 `104,302` transactions：`0x05` RDSR `49,489`、`0xBB` Dual-I/O
+64-byte Fast Read `49,586`、`0x00` `5,135`，其余 command `92`；
+RX length `1` 为 `53,054`、`64` 为 `49,586`。`104,301` 个
+completion→next-command gap 合计 `79,699,109,375 ns`，最大值
+`2,693,165,726 ns`，主要分布为 `1-10 us` `50,581`、
+`100 us-1 ms` `23,800`、`1-10 ms` `25,819`。开启 PC sampling 的
+控制得到 `104,975` transactions 和 `79,694,773,694 ns` gap 总量，
+分布形状一致，排除采样单独制造该请求形态。
+
+新 QEMU 的 normal-WDT 控制仍在 `7.253601472 s` stage-0、
+`17.253695649 s` first reset；TG1 在 reset 前 `14,998` feed、
+最大间隔 `3.926687 ms`、零 timeout，和 instrumentation 前边界基本
+重合。该结果证明约十万次小 transaction 是 controller 边界真实收到的
+guest command 序列，且主要虚拟时间位于相邻 command 之间；仍不能命名
+具体 legacy guest driver/IRQ 函数或关闭 startup UI/非空应用帧。
+`RUNTIME-03` 保持 `OPEN`。全部为 virtual-device validation；物理
+Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
+[证据](evidence/2026-10-29-core2-ssi-transaction-profile/README.md) 和
+[机器摘要](evidence/2026-10-29-core2-ssi-transaction-profile/summary.json)。
+
 ## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
 
 原仓库已启用 GitHub Actions Pages 来源，并在 main 提交

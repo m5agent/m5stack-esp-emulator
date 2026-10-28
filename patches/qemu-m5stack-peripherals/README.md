@@ -455,6 +455,12 @@ the existing opt-in `M5SW_UART_TRACE` transmit log. The trace remains disabled
 by default and changes no UART data path or guest instruction; it aligns boot
 markers, watchdog transitions and handoff traces on one virtual-time axis.
 
+`0071-esp32-ssi-transaction-profile.patch` extends the existing default-off
+handoff metrics with exact SSI command, RX-length and
+completion-to-next-command gap histograms. The counters are emitted only at an
+explicit freezes and reset with the existing metrics state. They do not alter
+SPI timing, scheduler behaviour, watchdog configuration or transaction data.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
