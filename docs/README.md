@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-28`
+日期：`2026-10-29`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -104,10 +104,10 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-28` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-28` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-28` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；最终三设备接口回绑与 ESP-NOW loopback 边界见对应 evidence，Core2 legacy 已校正 VFS/WiFi fixture，setup/main、非空帧和正常 WDT 仍 OPEN |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-28` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；`0067` 已完成 ESP-NOW controller loopback，外部/加密 peer 仍为 `RUNTIME-06`；Core2 下一门禁是 matching VFS + `qemu-wifi` 下的系统菜单初始化、normal-WDT 和同 SHA 非空应用帧 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-29` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Cardputer-ADV 当前参考固件 BMI270 已闭环，Core2 legacy 的 setup/main、非空帧和正常 WDT 仍 OPEN |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-29` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Cardputer-ADV 当前参考 BMI270 已移出，`FW-03` 仍保留真实业务和更多固件族 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-27` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-28` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-29` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
@@ -133,6 +133,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [最新 runtime 三设备 UIFlow2 接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md) | 当前三设备证据 | `2026-10-28` | `78555183…` 上三台 system/shared/17 设备组、socket/MQTT/network/EzData/ESP-NOW/audio 与 Device API 81 operations 通过；stock HTTP/Modbus/TLS 缺陷仍保留，requests/Modbus/TLS 候选在同一 runtime 重新 PASS |
 | [Core2 TIMG WDTFEED 写保护语义](evidence/2026-10-28-core2-timg-wdt-feed/README.md) | 当前 Core2 运行时证据 | `2026-10-28` | `0069` 让 `WDTFEED` 在 `WDTPROTECT` 下仍可喂狗，同时保留配置写保护；同固件 60 秒正常 WDT 仍在 `17.2529 s` TG0 stage-1 reset，startup UI、setup/REPL 和应用帧仍 OPEN |
 | [Core2 legacy UART 与虚拟时钟对齐](evidence/2026-10-29-core2-legacy-uart-clock/README.md) | 当前 Core2 启动证据 | `2026-10-29` | `0070` 给 opt-in UART trace 加虚拟时间戳；WDT-off 下 BOARD/APIKEY 到 `55.00 s`、boot.py 到 `77.11 s`，normal WDT 仍 `17.25 s` reset；`shift=2` 也未消除 reset，不能把 accelerator override 当修复 |
+| [Cardputer-ADV 当前参考固件 BMI270 闭环](evidence/2026-10-29-cardputer-adv-imu/README.md) | 当前设备证据 | `2026-10-29` | I2C `0x69`、CHIP_ID/INIT/data-ready 与 `0x0C..0x17` 读取可达；Device Service 注入经官方 `Imu.getAccel/getGyro` 回读，原样矩阵首轮 PASS；关闭当前参考固件 IMU 全零待办，物理精度仍 NOT RUN |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-28` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
@@ -219,6 +220,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 - [Unit 官方芯片与协议研究](unit-research/official-protocols.md)
 - [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md)
 - [Core2 首帧、离线 WLAN 与 LVGL 修复](evidence/2026-10-27-core2-startup/README.md)
+- [Cardputer-ADV BMI270 当前参考固件闭环](evidence/2026-10-29-cardputer-adv-imu/README.md)
 - [固定版本外壳浏览器集成证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-model-integration/README.md)
 - [Encoder 官方协议冲突](unit-research/encoder-protocol-conflicts.md)
 - [Unit 首批控制器运行证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-runtime/README.md)

@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-28`
+日期：`2026-10-29`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -33,6 +33,8 @@
   QEMU，以及 worker-owned process/companion fencing；
 - Core2 native-HCI、WiFi/公网/GATT、重连、active-stop、QOM `8 MiB` PSRAM、
   upper-bank MMU 和当前服务容量内并发；
+- Cardputer-ADV 当前 UIFlow2 参考固件的 BMI270 `0x69` 初始化、官方
+  `Imu.getAccel/getGyro`、QOM 注入回读、串口和可见 frame 闭环；
 - FirmwareManifest/WebBurner、content-stable manifest、unknown required
   capability fail closed、mandatory capability policy、文件系统/SD/NVS
   fixture、静态审查、Secure Boot v2 镜像数学，以及
@@ -358,8 +360,6 @@ SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-fi
 
 - issues #2/#3 的原始私有完整 Core2 应用归档复跑；公开最小启动路径与
   UIFlow2 LVGL 字形已修复验证，不能替代原归档或私有业务验收；
-- Cardputer-ADV 当前参考样本的 IMU 全零；未修改主线也复现，需核对
-  guest 板型识别、IMU 类型和 I2C 初始化，不能用 QOM setter 代替 guest 数据；
 - 真实 key、Realtime、音频和云端业务结果；
 - 更多设备、ESP32 LX6/P4 和 vendor/MicroPython framework；
 - 新的 SD/NVS、输入和网络 fixture；

@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-28`
+日期：`2026-10-29`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -640,6 +640,27 @@ change the watchdog gate and cannot be used as a product fix. `RUNTIME-03`
 物理硬件和电气行为为 `NOT RUN`。见
 [证据](evidence/2026-10-29-core2-legacy-uart-clock/README.md) 和
 [机器摘要](evidence/2026-10-29-core2-legacy-uart-clock/summary.json)。
+
+## 2026-10-29：Cardputer-ADV 当前参考固件 BMI270 闭环
+
+官方 UIFlow2 `v2.5.3` Cardputer-ADV 参考固件在 QEMU
+`f0eb5f6c…` 上通过板载 BMI270 数据面。器件位于 I2C `0x69`；QEMU
+记录 CHIP_ID `0x24`、软复位、INIT_DATA/INIT_CTRL、data-ready 和
+`0x0C..0x17` 连续数据读取。通过 Device Service `/api/v1` 注入
+`0.25/-0.50/0.75 g` 与 `10/-20/30 dps` 后，原样用例的官方
+`Imu.getAccel()` / `Imu.getGyro()` 返回
+`(0.25,-0.5,0.75)` 与
+`(10.009766,-20.019532,30.029296)`，串口成功标记和
+`240x135` 绿色 `PASS` frame 均出现；evidence ZIP 在
+`purge=0` 停止前取得，PID/历史清理通过。
+
+仓库定向矩阵 `cardputer-adv-imu` 同底固件首轮 PASS，
+`attempts=1`、`retry_used=false`、四项 checks 全通过。当前结论
+关闭 Backlog 中“Cardputer-ADV 当前参考样本 IMU 全零”，历史
+`66/67` 失败仍只对旧 runtime/commit 有效。本结果不证明物理 IMU
+精度、噪声、温漂、轴向装配、电气特性或其它固件 SHA。见
+[证据](evidence/2026-10-29-cardputer-adv-imu/README.md) 和
+[机器摘要](evidence/2026-10-29-cardputer-adv-imu/summary.json)。
 
 ## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
 

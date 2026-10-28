@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "base_commit": "e5a94bbba93bfa1785a72a0140a9f4de9be53bbf",
+  "issue": "FW-03 Cardputer-ADV current reference BMI270 returned zero",
+  "device": {
+    "id": "cardputer-adv",
+    "machine": "m5cardputeradv",
+    "i2c_address": "0x69",
+    "display": "240x135"
+  },
+  "firmware": {
+    "base_sha256": "a3961c8eda7358771c8e06c9160648e87ada973d23c6f71c9939b76fa973bed9",
+    "device_service_composed_sha256": "ea9fb400cdcb64f8020b4a43fca24c06f88097d7805b8dc2292185281d48c077",
+    "probe_source_sha256": "619f7d493161de5d1e94a282f4e60af932bbbe805125a37b4f14fda098b027c9",
+    "lane": "stock-frozen"
+  },
+  "runtime": {
+    "qemu_sha256": "f0eb5f6c26f82ce99d6dad4006fcd0748991ba1a8d1ce780092d57d01d8e798e",
+    "api": "/api/v1",
+    "runtime": "qemu"
+  },
+  "injection": {
+    "accel_g": [0.25, -0.5, 0.75],
+    "gyro_dps": [10, -20, 30]
+  },
+  "observations": {
+    "chip_id": "0x24",
+    "soft_reset": "0xB6 acknowledged",
+    "init_data_and_control": "PASS",
+    "data_registers": "0x0C..0x17",
+    "data_ready": "PASS",
+    "accel_g": [0.25, -0.5, 0.75],
+    "gyro_dps": [10.009766, -20.019532, 30.029296],
+    "serial_sha256": "1ebd6c408b96e2a3d800214bae35db632978bed39b84b7968c2c462d6f07dc34",
+    "frame_sha256": "a05b389509396e9c6d878b5f783a599c55a96074ef69f9418ca73338112d2b72",
+    "frame_nonblack_pixels": 5519,
+    "frame_green_pixels": 1920,
+    "frame_status_pixel": [0, 255, 0]
+  },
+  "session_evidence": {
+    "evidence_zip_sha256": "1f186159a4200d79519535af16ddc0eefdefe6ac3207bbb53c61d72f0f3867dc",
+    "report_sha256": "a7ab195269222565336d718155d97b9c343674f1abe52ecd283aed6aee09f627",
+    "cleanup": "PASS"
+  },
+  "direct_matrix": {
+    "case": "cardputer-adv-imu",
+    "status": "PASS",
+    "attempts": 1,
+    "retry_used": false,
+    "checks": 4,
+    "summary_sha256": "3c3b5523754d3286ff79c55894dd20f5737cb34eae9fc8a298971b9c47b97927"
+  },
+  "closure": {
+    "new_qemu_change_required": false,
+    "backlog_item": "CLOSED for the current reference firmware",
+    "historical_failure_rewritten": false
+  },
+  "limits": [
+    "Physical IMU accuracy, noise, temperature drift, axis installation, range error and electrical behavior are NOT RUN",
+    "The result applies only to the recorded firmware, QEMU binary and cardputer-adv/m5cardputeradv path",
+    "No other firmware SHA, board model or external sensor source inherits this PASS"
+  ]
+}
