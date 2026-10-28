@@ -37,10 +37,34 @@ BLE_IDENTITIES = {
 
 CORE2_NATIVE_HCI_PROFILE = "core2-native-hci"
 BLE_GROUPS = {"ble-nus","m5ble-server","ble-client","m5ble-client"}
+BLE_CLIENT_GROUPS = {"ble-client","m5ble-client"}
+BLE_PERIPHERAL_PEER_DEVICES = {"cores3","cardputer-adv"}
 
 
 def radio_profile(device):
     return CORE2_NATIVE_HCI_PROFILE if device == "core2" else "uiflow2-" + device + "-unified"
+
+
+def library_lane(group, m5ble_source):
+    candidate = group in {"requests-candidate", "modbus-candidate"} or (
+        group == "m5ble-server" and m5ble_source is not None
+    )
+    return "candidate-source" if candidate else "stock-frozen"
+
+
+def candidate_source_sha256(group, config):
+    key = {
+        "requests-candidate": "requests_source",
+        "modbus-candidate": "modbus_master_source",
+        "m5ble-server": "m5ble_source",
+    }.get(group)
+    source = config.get(key) if key else None
+    return hashlib.sha256(source.encode()).hexdigest() if source is not None else None
+
+
+def require_m5ble_source_group(group, source_path):
+    if source_path is not None and group != "m5ble-server":
+        raise SystemExit("--m5ble-source is only valid for --group m5ble-server")
 
 
 def require_core2_native_hci_elf(device, group, elf_path):
@@ -62,7 +86,23 @@ def ble_nus_exchange_observed(log, ack):
     )
 
 
-def stock_radio_model_blocker(evidence, device):
+def unsupported_ble_peripheral_peer(device, group):
+    return group in BLE_CLIENT_GROUPS and device not in BLE_PERIPHERAL_PEER_DEVICES
+
+
+def stock_radio_model_blocker(evidence, device, execution_error=None):
+    if execution_error and "peripheral BLE peer is admitted only" in execution_error:
+        return {
+            "api_prefixes": ["bluetooth.BLE", "bleuart.BLEUARTClient", "m5ble.m5ble.Client"],
+            "status": "BLOCKED_FIXTURE",
+            "reason": (
+                "This client probe requires the Device Service to act as a BLE "
+                "peripheral. Peripheral peer role admission is currently limited "
+                "to CoreS3 and Cardputer-ADV, so this device group is NOT_RUN and "
+                "is not a stock controller result."
+            ),
+            "evidence_refs": evidence,
+        }
     if device == "core2":
         reason = (
             "The selected stock Core2 image uses its internal Bluetooth "
@@ -85,6 +125,7 @@ def stock_radio_model_blocker(evidence, device):
 
 
 def run(args):
+    require_m5ble_source_group(args.group, args.m5ble_source)
     if not args.execute:
         print(json.dumps({"mode":"offline-plan","devices":args.device,"group":args.group,
                           "peers":"owned loopback HTTP/TCP/UDP servers via guest actual WiFi/SLiRP",
@@ -300,6 +341,8 @@ def run(args):
         if args.modbus_master_source is None:
             raise SystemExit("--modbus-master-source is required for candidate source lane")
         config["modbus_master_source"]=args.modbus_master_source.read_text(encoding="utf-8")
+    if args.m5ble_source is not None:
+        config["m5ble_source"]=args.m5ble_source.read_text(encoding="utf-8")
     source=build_program(args.group,config)
     source_path=args.out_dir/"probe.py";source_path.write_text(source,encoding="utf-8")
     reports=[]
@@ -423,10 +466,16 @@ def run(args):
                     "evidence_sha256":execution.get("evidence_sha256"),"cases":results,
                     "counts":dict(Counter(row["status"] for row in results)),
                     "status":"PASS" if code==0 and results and all(row["status"] in successful_statuses for row in results) else "FAIL"}
-            report["library_lane"]="candidate-source" if args.group in {"requests-candidate","modbus-candidate"} else "stock-frozen"
+            report["library_lane"]=library_lane(args.group, args.m5ble_source)
             report["firmware_lane"]=execution.get("firmware_lane","stock-frozen")
             if radio and not bases and code!=0:
-                report["model_blockers"]=[stock_radio_model_blocker(evidence, device)]
+                report["model_blockers"]=[stock_radio_model_blocker(
+                    evidence,
+                    device,
+                    execution.get("error"),
+                )]
+                if unsupported_ble_peripheral_peer(device, args.group):
+                    report["status"]="NOT_RUN"
             if args.group.startswith("audio-"):
                 report["audio_case"]=args.audio_case
                 report["input_fixture_lane"]="explicit-diagnostic-override" if args.runtime_env_json else "service-owned-default"
@@ -442,11 +491,9 @@ def run(args):
                     "peer_mac":"02:00:00:00:00:42",
                     "scope":"controller DMA TX to same-guest RX DMA echo; not an external ESP-NOW peer",
                 }
-            if args.group=="requests-candidate":
-                report["candidate_source_sha256"]=hashlib.sha256(config["requests_source"].encode()).hexdigest()
-                report["stock_firmware_result_unchanged"]=True
-            elif args.group=="modbus-candidate":
-                report["candidate_source_sha256"]=hashlib.sha256(config["modbus_master_source"].encode()).hexdigest()
+            candidate_source_sha256_value = candidate_source_sha256(args.group, config)
+            if candidate_source_sha256_value is not None:
+                report["candidate_source_sha256"] = candidate_source_sha256_value
                 report["stock_firmware_result_unchanged"]=True
             save(output/"protocol-results.json",report)
             reports.append({"device_id":device,"status":report["status"],"counts":report["counts"],"failures":[{key:row[key] for key in ("api","status","error","oracle","value") if key in row} for row in results if row["status"] not in {"PASS","NOT_APPLICABLE_LISTENER"}]})
@@ -467,6 +514,7 @@ if __name__=="__main__":
     parser.add_argument("--group",choices=("http","sockets","easysocket","mqtt","network","modbus","modbus-candidate","modbus-rtu","modbus-rtu-slave","ppp","ezdata","requests-candidate","audio-player","audio-recorder","ble-nus","m5ble-server","ble-client","m5ble-client","espnow","espnow-native","tls"),required=True)
     parser.add_argument("--requests2-source",type=Path)
     parser.add_argument("--modbus-master-source",type=Path)
+    parser.add_argument("--m5ble-source",type=Path)
     parser.add_argument("--base-image",action="append",default=[],help="device_id=/path/to/explicit-HCI-test-base.bin")
     parser.add_argument("--expected-base-sha256",action="append",default=[],help="device_id=exact-SHA256; mandatory for each alternate base")
     parser.add_argument("--core2-elf",type=Path,help="matching Core2 UIFlow2 ELF for core2-native-hci")

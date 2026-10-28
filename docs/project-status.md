@@ -3,11 +3,9 @@
 日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
-[验证证据台账](validation-ledger.md)维护，设备/Task 计数由
-[自动项目快照](project-snapshot.md)生成。代码阅读顺序见
-[工程交接总览](engineering-handoff.md)，工作流归属见
-[工作流总台账](workstreams.md)，源码与测试入口见
-[代码与验证入口地图](code-map.md)。
+[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
+代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，
+源码与测试入口见[代码与验证入口地图](code-map.md)。
 
 ## 一页结论
 
@@ -49,6 +47,7 @@ Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.
 
 最终 runtime `78555183…` 的三设备 system、shared、17 个设备组和通信/音频/候选接口均重绑 PASS 且无 retry；Device Service API 的 81 operations/95 cases 也 PASS。stock HTTP、Modbus async 和 TLS epoch 缺陷继续保留，固定候选分别在相同 runtime 通过 2/2、50/50 和三台各 5/5，见[最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。`0070` UART virtual-clock trace 进一步证明 legacy Core2 的 BOARD/APIKEY 发生在 normal-WDT 后，shift=2 仍 reset，不能把 accelerator override 当修复；`RUNTIME-03` 保持 OPEN。
 2026-10-29 又在 QEMU `fccfa931…` 上完成 StopWatch、StickS3、Core2 的三设备全接口复测：system 各 `50 PASS + 1 STATE_PASS`、shared 各 `7/7`，通信、EzData、音频、ESP-NOW 和已选设备组稳定。StopWatch/Core2 各完成 28 类、505 个 M5UI 文档方法，stock 仍稳定复现 Canvas triangle、Image float scale 和 integer Spinbox step 三个缺陷；StopWatch candidate 状态和画面均通过，Core2 candidate 状态 `4/4`。该轮当时仍观察到 Core2 全屏刷新条带；后续 `0074` 定位为 DMA descriptor 与 CPU data-register 对同一 panel flush 的双消费，修复后 hash-pinned candidate 的 triangle/image 两个 frame oracle 均为 `FRAME_PASS`，见[M5UI DMA 修复证据](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)。三台 stock GATT 在该轮因 internal controller/board-ready 边界不可用；后续 Core2 改用 `core2-native-hci` + matching ELF，独立 `ble-nus` session 全部通过，见[Core2 stock BLE 证据](evidence/2026-10-29-core2-stock-ble-native-hci/README.md)。StopWatch/StickS3 stock controller、BLE 安全、RF 和真机仍开放。本轮同时修复 M5UI 设备尺寸与旋转、Core2 超时预算、完整 BLE 身份表和 Core2 blocker 文案，见[三设备全接口证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)；该结果不关闭 Core2 legacy `RUNTIME-03` 或任何真机边界。
+随后的 `9bf74439…` 再次复测重新执行三台 system/shared、board display、通信、audio、ESP-NOW 和板级接口；StopWatch/Core2 的 M5UI 文档 widget 方法加 lifecycle 均有可观察结果且没有漏测。stock M5UI 失败保持，hash-pinned candidate 的状态和 frame oracle 通过；requests2/Modbus/TLS candidate 三台重绑通过，Core2 `0021+0025` M5BLE candidate 通过。stock `requests2`、Modbus async、TLS、Core2 `Server.get_client` 失败负控及 StopWatch/StickS3 internal-controller BLE 边界继续保留，精确计数和证据见[接口再次复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)。
 Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp32_wifi` NIC；改用 UIFlow 自带 packer 与 `/api/v1` 的 `runtime=qemu-wifi` 后，120 秒诊断已执行注入的 `CORE2_LEGACY_VFS_BOOT`。随后 `0068` 修复 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 的共享 panel routing，legacy `m5stack`/`lcd` probe 从 0 变为 1422 nonblack pixels；`0069` 修正 protected `WDTPROTECT` 下合法 `WDTFEED` 被丢弃的模型错误，但同固件 60 秒正常 WDT 仍在 `17.2529 s` 触发 TG0 stage-1 reset。原厂 startup UI、setup/REPL 和应用帧仍未完成，`RUNTIME-03` 保持 `OPEN`。
 `0071`-`0073` 又把 WDT-off 的工作预算收窄到稳定的 `0xBB/64 -> 0x05/1` 循环：`0x05` 主要由 ROM read-command 区间的 `0x4006222c` 发起，`0xBB/64` 主要来自应用 segment 5 的 `0x40093b57`；同一 frozen QEMU 的 normal-WDT 仍在 `17.2536 s` reset。没有 matching legacy ELF/MAP，当前仍不能把 issuer PC 命名成精确应用函数或据此关闭启动问题，见[issuer PC 证据](evidence/2026-10-29-core2-ssi-command-pc/README.md)。旧无 NIC 黑帧不再单独作为显示完成路径结论，见[协作 IRQ/RMT 证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)、[VFS/WiFi fixture 校正](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、[dual-SPI panel routing](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)和[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)。
 ## 本轮目标盘点
@@ -364,7 +363,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | 公众 C/QEMU / CoreS3 | 本地、Linux Actions 与正式 GitHub Pages 限定通过 | 浏览器本地组合固定示例、LCD/触摸/PIR/暂停/分享重开；正式 HTTPS 地址独立 21 项验收通过。虚拟时间和 WDT 为墙钟 1/8，UART 只输出，无 Flash 持久化；其它设备/固件/Unit 不继承。[正式部署证据](evidence/2026-10-29-github-pages-production/README.md) / [部署](pages-deployment.md) |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
-| Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 已限定通过。`m5ble.Server.get_client` 仍暴露 stock SDK `set` indexing 错误；新固件需重新校验 |
+| Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；stock BLEUART NUS 已限定通过。`m5ble.Server.get_client` 的 stock `set` indexing 错误已有 hash-pinned 候选修复并通过两个独立 session；原厂冻结固件失败继续保留，新固件需重新校验 |
 | Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；WDT-off Serial 到达 `APIKEY`，normal-WDT 在 BOARD/APIKEY 前 reset。pre-boot work/WDT deadline、display completion、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |

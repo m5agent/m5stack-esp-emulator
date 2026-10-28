@@ -66,6 +66,49 @@ class ApiSweepProtocolBleIdentityTest(unittest.TestCase):
                         source,
                     )
 
+    def test_m5ble_source_is_injected_only_as_a_candidate_lane(self):
+        candidate_source = "M5_CANDIDATE_SOURCE = 'reviewed'\n"
+        source = self.probes.build_program(
+            "m5ble-server",
+            {
+                "device_id": "core2",
+                "ble_identity": list(self.runner.BLE_IDENTITIES["core2"]),
+                "m5ble_source": candidate_source,
+            },
+        )
+        compile(source, "<core2-m5ble-server-candidate>", "exec")
+        self.assertIn("candidate_m5ble.py", source)
+        self.assertIn("M5_CANDIDATE_SOURCE", source)
+        self.assertIn("class _CandidateM5BLE", source)
+        self.assertIn("_m5ble_namespace[_candidate_name]", source)
+        self.assertEqual(
+            self.runner.library_lane("m5ble-server", Path("candidate.py")),
+            "candidate-source",
+        )
+        self.assertEqual(
+            self.runner.library_lane("m5ble-server", None),
+            "stock-frozen",
+        )
+        self.assertEqual(
+            self.runner.candidate_source_sha256(
+                "m5ble-server",
+                {"m5ble_source": candidate_source},
+            ),
+            "3a89fc24a05f9f4859af7548ddd350cb766ced6e240a29740b8ca8afc0810bc1",
+        )
+        self.assertIsNone(
+            self.runner.candidate_source_sha256("m5ble-server", {}),
+        )
+        self.runner.require_m5ble_source_group(
+            "m5ble-server",
+            Path("candidate.py"),
+        )
+        with self.assertRaises(SystemExit):
+            self.runner.require_m5ble_source_group(
+                "ble-nus",
+                Path("candidate.py"),
+            )
+
     def test_model_blocker_names_the_selected_device_family(self):
         core2 = self.runner.stock_radio_model_blocker({}, "core2")
         self.assertIn("Core2", core2["reason"])
@@ -73,6 +116,22 @@ class ApiSweepProtocolBleIdentityTest(unittest.TestCase):
 
         sticks3 = self.runner.stock_radio_model_blocker({}, "sticks3")
         self.assertIn("stock sticks3 image", sticks3["reason"])
+
+    def test_client_groups_on_non_admitted_peer_device_are_not_run(self):
+        self.assertTrue(
+            self.runner.unsupported_ble_peripheral_peer("core2", "ble-client")
+        )
+        self.assertFalse(
+            self.runner.unsupported_ble_peripheral_peer("cores3", "ble-client")
+        )
+        blocker = self.runner.stock_radio_model_blocker(
+            {},
+            "core2",
+            "POST sessions: HTTP 400 peripheral BLE peer is admitted only for "
+            "CoreS3 and Cardputer-ADV",
+        )
+        self.assertEqual(blocker["status"], "BLOCKED_FIXTURE")
+        self.assertIn("NOT_RUN", blocker["reason"])
 
     def test_core2_ble_uses_the_native_hci_profile_and_requires_elf(self):
         self.assertEqual(
@@ -111,6 +170,22 @@ class ApiSweepProtocolBleIdentityTest(unittest.TestCase):
                 log.replace("BLE_BUMBLE_SUBSCRIBED", "UNSUBSCRIBED"),
                 "M5_CORE2_UNIFIED",
             )
+        )
+
+    def test_ble_server_probes_settle_disconnect_before_deinit(self):
+        config = {
+            "device_id": "core2",
+            "ble_identity": list(self.runner.BLE_IDENTITIES["core2"]),
+        }
+        ble_nus = self.probes.build_program("ble-nus", config)
+        self.assertIn(
+            "server.close();time.sleep_ms(2000)",
+            ble_nus,
+        )
+        m5ble = self.probes.build_program("m5ble-server", config)
+        self.assertIn(
+            "client.close();time.sleep_ms(2000)",
+            m5ble,
         )
 
 

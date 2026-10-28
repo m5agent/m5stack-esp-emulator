@@ -16,6 +16,7 @@ SWEEP = ROOT / "tests/uiflow2/api_sweep"
 sys.path.insert(0, str(SWEEP))
 
 from prepare_uiflow_library_candidates import prepare
+from prepare_m5ui_candidate import prepare as prepare_m5ui
 
 
 class UUID:
@@ -117,6 +118,64 @@ class SharedLibraryCandidateTests(unittest.TestCase):
                     peer_socket.close()
             finally:
                 sys.path[:] = previous_path
+
+    def test_m5ble_server_client_index_candidate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "m5ble-server"
+            receipt = prepare("m5ble-server-client-index", SOURCE, output)
+            module = load(output / receipt["files"][0]["guest_file"])
+            self.assertEqual(
+                receipt["dependencies"],
+                [{
+                    "candidate": "ble-uuid32",
+                    "patch_sha256": "8ec1f14f42702cc38b9c15975c300cad833aa32a64cb0598e420b5f1e392e15c",
+                }],
+            )
+            decoded = module["decode_services"](
+                b"\x05\x05\x78\x56\x34\x12"
+            )
+            self.assertEqual([bytes(value).hex() for value in decoded], ["78563412"])
+            server = object.__new__(module["Server"])
+            clients = []
+            for connect_handle in (7, 2, 5):
+                client = object.__new__(module["Server"].Client)
+                client.connect_handle = connect_handle
+                clients.append(client)
+            server._connected_devices = set(reversed(clients))
+            ordered = sorted(clients, key=lambda client: client.connect_handle)
+            self.assertEqual(
+                [server.get_client(index) for index in range(len(clients))],
+                ordered,
+            )
+            with self.assertRaises(IndexError):
+                server.get_client(len(clients))
+
+    def test_m5ui_candidate_accepts_later_commit_only_with_reviewed_preimages(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "m5ui"
+            receipt = prepare_m5ui(SOURCE, output)
+            actual_commit = subprocess.check_output(
+                ["git", "-C", str(SOURCE), "rev-parse", "HEAD"],
+                text=True,
+            ).strip()
+            self.assertEqual(receipt["source_commit_actual"], actual_commit)
+            self.assertEqual(
+                receipt["source_commit_matches_manifest"],
+                actual_commit == receipt["commit"],
+            )
+            self.assertEqual(
+                receipt["source_admission"],
+                "exact-commit"
+                if actual_commit == receipt["commit"]
+                else "all-reviewed-file-preimages-match",
+            )
+            for entry in receipt["files"]:
+                candidate = output / entry["candidate_module"]
+                self.assertTrue(candidate.is_file())
+                self.assertEqual(
+                    hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                    entry["candidate_sha256"],
+                )
 
     def test_tls_epoch_patch_is_rebound_to_the_current_release_source(self):
         manifest = json.loads(

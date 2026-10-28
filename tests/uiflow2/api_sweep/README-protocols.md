@@ -48,6 +48,40 @@ subscription, the exact peer write and the exact ACK notification in one peer
 log; the host-only one-second cycle tail is not required after the guest has
 already emitted its completion marker.
 
+Server teardown probes wait two seconds after an intentional disconnect before
+calling `deinit()`. Both frozen server libraries schedule an advertising
+restart from the disconnect IRQ; under concurrent host load, immediately
+deactivating BLE raced that restart and intermittently left `deinit()` pending.
+The settle is a test-timing correction, not evidence that arbitrary
+`active(False)` calls always complete promptly.
+
+`m5ble-server` supports a hash-pinned Python source candidate without replacing
+the stock firmware image. Prepare the reviewed correction and pass its guest
+module explicitly:
+
+```sh
+PYTHONPATH=platform/tools:.work/py312 python3.12 \
+  tests/uiflow2/api_sweep/prepare_uiflow_library_candidates.py \
+  --candidate m5ble-server-client-index \
+  --source-root /path/to/pinned-uiflow --out-dir /tmp/m5ble-candidate
+
+PYTHONPATH=.work/py312 python3.12 tests/uiflow2/api_sweep/run_protocols.py \
+  --execute --api http://127.0.0.1:<isolated-port> --group m5ble-server \
+  --device core2 --m5ble-source /tmp/m5ble-candidate/candidate_m5ble.py \
+  --core2-elf /path/to/micropython.elf \
+  --token-file /path/to/private-token \
+  --out-dir /tmp/m5ble-candidate-run --timeout 240
+```
+
+The report must say `library_lane=candidate-source`,
+`firmware_lane=stock-frozen` and `stock_firmware_result_unchanged=true`.
+`--m5ble-source` is rejected for every other group.
+
+`ble-client` and `m5ble-client` require Device Service to expose an owned BLE
+peripheral. Current peripheral-peer admission is limited to CoreS3 and
+Cardputer-ADV; other devices are reported as `NOT_RUN / BLOCKED_FIXTURE`, not
+as a stock controller failure.
+
 ```sh
 PYTHONPATH=.work/py312 python3.12 tests/uiflow2/api_sweep/run_protocols.py \
   --execute --api http://127.0.0.1:8788 --group ble-client --device cores3 \

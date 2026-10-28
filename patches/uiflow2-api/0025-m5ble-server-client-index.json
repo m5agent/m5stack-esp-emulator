@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/m5stack/uiflow-micropython",
+  "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+  "depends_on": [
+    "ble-uuid32"
+  ],
+  "patch_sha256": "2eb188e55907121204fca732cecbdb3dc8e0878a09191b2e093b477169ea11d7",
+  "files": [
+    {
+      "path": "m5stack/libs/m5ble/m5ble.py",
+      "guest_file": "candidate_m5ble.py",
+      "preimage_sha256": "18c449e6be47b1d311ffeb4320809d02d01a73e0af11630728c56a19d00ce180",
+      "candidate_sha256": "d82c1aec593de997d2d63f6bc409f6786a3b90e8b4b793c722cb9c61b8c82703"
+    }
+  ],
+  "problem": "Server.get_client indexes _connected_devices even though the field is a set.",
+  "correction": "Stack the UUID32 decoder correction, then sort connected clients by connection handle before applying the documented zero-based index accessor.",
+  "scope": "candidate source correction only; stock firmware failure remains unchanged"
+}

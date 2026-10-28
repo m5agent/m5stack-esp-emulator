@@ -89,11 +89,27 @@ PYTHONPATH=platform/tools:.work/py312 python3.12 \
 身份、停止、Flash 释放和历史收据通过后，报告仍为 `EXECUTED_WITH_BOUNDARIES`，
 不把方法调用或构造成功汇总为全功能 PASS。
 
+StopWatch/Core2 的 cold per-class 全矩阵入口为：
+
+```sh
+PYTHONPATH=platform/tools:.work/py312 python3.12 \
+  tests/uiflow2/api_sweep/run_m5ui_matrix.py \
+  --api http://127.0.0.1:8788 --token-file /path/to/service-token \
+  --device stopwatch --out-dir .work/api-sweep/m5ui-stopwatch
+```
+
+该入口为每个文档 widget 创建独立可见 session，使用设备清单中的 API
+尺寸和 rotation；默认执行全部 28 类、505 个 widget 方法并追加
+`m5ui.init/deinit`，`--target` 可收窄到单个类。`summary` 会保留每个
+session 的 firmware/evidence/cleanup 收据，不能从构造成功或
+`PENDING_FRAME_OR_INPUT` 推断画面/输入 PASS。
+
 ## M5UI 源码候选
 
 `0001-m5ui-native-marshalling.patch` 修正三处独立源码问题：三角形 descriptor
 数组 getter 返回副本、单参数浮点图像缩放缺整数转换、整数 Spinbox step
-错误乘十。准备器校验固定 commit、全部 pre/post SHA 与 patch 正反应用；
+错误乘十。准备器校验全部 reviewed-file pre/post SHA 与 patch 正反应用；
+checkout 不在原 patch commit 时，只有三个相关文件逐字节匹配 preimage 才准入，
 输出保留 `candidate_m5ui` 包及原 `M5Base`，不改变参考固件或冻结模块。
 
 ```sh

@@ -880,3 +880,68 @@ API `Server.get_client` 的 `TypeError("'set' object isn't subscriptable")`，
 stock internal-controller、BLE 安全、RF、共存、时序和物理硬件仍
 `NOT RUN`/开放。见[证据](evidence/2026-10-29-core2-stock-ble-native-hci/README.md)
 和[机器摘要](evidence/2026-10-29-core2-stock-ble-native-hci/summary.json)。
+
+## 2026-10-29：Core2 UIFlow2 `m5ble.Server.get_client` 候选修复
+
+Core2 stock `m5ble-server` 的唯一 API 错误定位到
+`Server._connected_devices` 是 `set`，而 `get_client(index)` 直接执行
+`self._connected_devices[index]`。`0025` 按 `connect_handle` 对连接对象
+排序后应用零基索引，不改变内部集合和其他 BLE 方法。生成器先叠加
+`0021` 的 UUID32 decoder 修正，最终 candidate SHA256 为 `d82c1aec…`。
+
+同一 stock base `b228c0e2…`、matching ELF `5bec056b…` 和 frozen QEMU
+`9bf74439…` 上，最终两个并发 Core2 native-HCI session 均从 stock
+`21 PASS + 1 ERROR` 转为 candidate source `22/22 PASS`。两轮 peer 均实际
+完成连接、GATT discovery、CCCD 订阅、写入 `M5_CORE2_UNIFIED` 并收到
+`ACK:M5_CORE2_UNIFIED`；`get_client(0)` 返回回调中的同一连接对象。
+报告保持 stock firmware lane 与 candidate source lane 分离，两个 session
+均取得 evidence ZIP、以 `purge=0` 停止并验证 runtime/companion PID gone。
+
+首次候选注入轮因测试夹具错误查找模块级不存在的 `M5BLE` 符号而保留为
+`KeyError: M5BLE` 诊断，不计入功能结果。并发矩阵另保留两次断连后
+`deinit()` timeout：stock `BLEUARTServer` 为 `7 PASS + 1 TIMED_OUT`，
+candidate `m5ble.Device` 为 `21 PASS + 1 TIMED_OUT`；两次 GATT/ACK 均已完成。
+协议 probe 在显式断连后等待 `2000 ms` 让自动重广告和 BLE task 收口，随后
+两轮 stock `ble-nus` 均为 `8/8 PASS`、两轮最终 candidate 均为
+`22/22 PASS`，且与同一 Core2 M5UI 矩阵并发。该 settle 只修正测试时序，
+不声称任意负载下固件 `active(False)` 都有有界完成时间。该结论只覆盖 Core2 当前
+base/ELF/QEMU/native-HCI；StopWatch/StickS3 stock controller、BLE
+pairing/security、RF、共存、controller bit-exact 和物理硬件仍
+`NOT RUN`/开放。见[证据](evidence/2026-10-29-m5ble-get-client-candidate/README.md)
+和[机器摘要](evidence/2026-10-29-m5ble-get-client-candidate/summary.json)。
+
+## 2026-10-29：StopWatch / StickS3 / Core2 UIFlow2 接口再次复测
+
+在 frozen QEMU `9bf74439ddbe7225a64eb437290043729fb032525756adb834565ec412f8c197`
+上重新并发执行三台当前 stock UIFlow2 `v2.5.3`。system runtime 各
+`50 PASS + 1 STATE_PASS`、shared corrections 各 `7/7`、board display
+分别为 StopWatch `468x468`、StickS3 `135x240`、Core2 `320x240` PASS。
+Sockets、EasySocket、MQTT、network、EzData 与 ESP-NOW/native ESP-NOW
+继续保持通过；StopWatch/StickS3 的 audio player/recorder 为
+`15/15`、`12/12`，Core2 当前镜像不导出这两个模块。
+
+三台 stock 仍稳定复现 `requests2.urlencode`、八个 Modbus async
+`Loop.sock_recv` 和 TLS epoch 缺陷；相同 stock base 上的 requests2
+candidate 各 `2/2`、Modbus async candidate 各 `50/50`、TLS candidate
+各 `5/5`。Core2 stock `m5ble-server` 保持 `21 PASS + 1 ERROR`，叠加
+`0021` UUID32 与 `0025` sorted-client accessor 后为 `22/22 PASS`。
+Core2 `ble-nus` 在 GATT/ACK 后增加 2 秒 teardown settle 后重新
+`8/8 PASS`；首轮并发下的单次 deinit timeout 作为时序 control 保留。
+
+StopWatch/Core2 各执行 28 个 M5UI 类、505 个 widget 方法，另加
+`m5ui.init/deinit`，共 507 个结果且没有未观察方法。分类均为
+`409 STATE_PASS + 80 PENDING_FRAME_OR_INPUT + 3
+PENDING_FRAME_OBJECT_REMOVAL + 11 DOCUMENTATION_MISMATCH +
+1 EXPECTED_UNSUPPORTED + 3 FAIL`；stock 三失败仍为 Canvas triangle、
+Image float scale 和 Spinbox integer step。StopWatch/Core2 candidate
+均为 `4/4` 状态和 `2/2 FRAME_PASS`，Core2 frame SHA256
+`5a074d29…` 与此前 `0074` 结果一致。
+
+三台通用硬件 probe 各得到 `115 CALL_OK + 66 API_ASSERTION_PASS +
+1 OBSERVED`；StopWatch 的 M5IOE1/M5PM1/vibration、StickS3 的
+peripherals/IR、Core2 的 INA3221/IMU/AXP192/Mic/Speaker 均重跑。
+M5PM1 缺失 fixture 的 ImportError 和 Core2 默认 AXP2101 路径的
+QOM 503 都保留为 harness control，不写成固件失败；补 fixture 与
+`M5SW_CORE2_PMIC=axp192` 后均通过。全部为 virtual-device validation，
+真机、RF、安全和物理 timing 仍 `NOT RUN`。见[证据](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)
+和[机器摘要](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/summary.json)。

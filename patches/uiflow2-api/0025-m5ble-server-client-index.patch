@@ -1,0 +1,12 @@
+--- a/m5stack/libs/m5ble/m5ble.py
++++ b/m5stack/libs/m5ble/m5ble.py
+@@ -257,7 +257,8 @@ class Server:
+                 break
+ 
+     def get_client(self, index):
+-        return self._connected_devices[index]
++        clients = sorted(self._connected_devices, key=lambda client: client.connect_handle)
++        return clients[index]
+ 
+     def get_clients(self):
+         return self._connected_devices

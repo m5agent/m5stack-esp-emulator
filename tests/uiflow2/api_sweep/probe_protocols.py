@@ -574,14 +574,25 @@ server.write(b"ACK:"+identity[1].encode())
 time.sleep_ms(2500)
 emit("bleuart.BLEUARTServer.write","OBSERVED_PENDING_PEER",True,"notification must be independently received by external Bumble central")
 emit("bleuart.BLEUARTServer","OBSERVED_PENDING_PEER",True,"native constructor advertises/registers NUS and receives actual central write")
-server.close();time.sleep_ms(500)
+# Let the scheduled post-disconnect advertising restart settle before teardown.
+server.close();time.sleep_ms(2000)
 check("bleuart.BLEUARTServer.close",lambda:len(server._connections),lambda value:value==0,"real central disconnected and original server connection tracking cleared")
 check("bleuart.BLEUARTServer.deinit",lambda:(server.deinit(),server._ble.active())[1],lambda value:value is False,"original native BLE interface deactivated after real exchange")
 '''
 
 
 M5BLE_SERVER='''import M5,bluetooth
-from m5ble import M5BLE
+_m5ble_source = CONFIG.get("m5ble_source")
+if _m5ble_source:
+    _m5ble_namespace = {"__name__": "candidate_m5ble"}
+    exec(compile(_m5ble_source, "candidate_m5ble.py", "exec"), _m5ble_namespace)
+    class _CandidateM5BLE:
+        pass
+    M5BLE = _CandidateM5BLE()
+    for _candidate_name in ("Device","Server","Client","advertising_payload","decode_name","decode_field","decode_services"):
+        setattr(M5BLE, _candidate_name, _m5ble_namespace[_candidate_name])
+else:
+    from m5ble import M5BLE
 M5.begin()
 identity=CONFIG["ble_identity"]
 for name in ("Device","Server","Client"):
@@ -615,7 +626,8 @@ client.write(b"ACK:"+identity[1].encode(),tx_uuid);time.sleep_ms(2500)
 for api in ("m5ble.m5ble.Device","m5ble.m5ble.Server","m5ble.m5ble.Server.clear_services","m5ble.m5ble.Server.create_characteristic","m5ble.m5ble.Server.add_service","m5ble.m5ble.Server.start","m5ble.m5ble.Server.on_connected","m5ble.m5ble.Server.on_receive","m5ble.m5ble.Server.Client","m5ble.m5ble.Server.Client.write"):
  emit(api,"OBSERVED_PENDING_PEER",True,"configured original NUS server receives peer write and peer must independently verify ACK")
 check("m5ble.m5ble.Device.get_mtu",device.get_mtu,lambda value:isinstance(value,int) and value>=23,"actual BLE session MTU tracked by original Device")
-client.close();time.sleep_ms(300)
+# Deinit must not race the advertising restart queued by GAP disconnect.
+client.close();time.sleep_ms(2000)
 check("m5ble.m5ble.Server.Client.close",lambda:len(device.server.get_clients()),lambda value:value==0,"actual connected GATT peer disconnected and removed")
 check("m5ble.m5ble.Server.on_disconnected",lambda:bool(disconnected),lambda value:value,"original callback delivered for actual connection teardown")
 check("m5ble.m5ble.Device.deinit",lambda:(device.deinit(),device._ble.active())[1],lambda value:value is False,"original native BLE deactivated after session teardown")

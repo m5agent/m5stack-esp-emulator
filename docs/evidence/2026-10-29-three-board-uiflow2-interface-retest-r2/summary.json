@@ -1,0 +1,995 @@
+{
+  "date": "2026-10-29",
+  "devices": {
+    "core2": {
+      "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "baseline": {
+        "board": {
+          "cleanup_ok": true,
+          "display": [
+            {
+              "board": 2,
+              "display_type": "Display",
+              "height": 240,
+              "status": "PASS",
+              "width": 320
+            }
+          ],
+          "evidence_sha256": "1a15aaab34a22f3a09728102729270e94221018717765f70ebfc07ed111d4a79",
+          "firmware_sha256": "66377bf2117419f11d3b577753fa67780cb846bca8af6494a283b8d2e32d32ea",
+          "imports": {
+            "M5": "PRESENT",
+            "M5UI": "ABSENT",
+            "lvgl": "PRESENT",
+            "m5ui": "PRESENT",
+            "m5ui.page": "PRESENT",
+            "m5ui.port": "PRESENT",
+            "ui": "ABSENT"
+          },
+          "session_id": "fea3c3e9d18e408da14c429f9f058da0",
+          "status": "EXECUTED"
+        },
+        "shared": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 7
+          },
+          "evidence_sha256": "9fe327806c75c1b0f04b15f697df38248f940c83632d3ec0dd68d667a85436f5",
+          "firmware_sha256": "7011e65c4d95ef7caab819f86158fb33ea44a85c7021c335fdbbec9e73850257",
+          "session_id": "923d38b9870142358850d14696ad5463",
+          "status": "EXECUTED"
+        },
+        "system": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 50,
+            "STATE_PASS": 1
+          },
+          "evidence_sha256": "0d0d0a84a942d59c8c997fc4fd9abb23a4defa2bad9bdbc41f341f60c9b7bc05",
+          "firmware_sha256": "2ce305a686721f0ed270c1b327e2985a7fcd59f323e12904ec38501fa7d06b70",
+          "session_id": "5bee1f7e39ff402a9805ef71edb11d4f",
+          "status": "EXECUTED"
+        }
+      },
+      "candidate_protocols": {
+        "m5ble_server": {
+          "candidate_source_sha256": "d82c1aec593de997d2d63f6bc409f6786a3b90e8b4b793c722cb9c61b8c82703",
+          "counts": {
+            "PASS": 22
+          },
+          "evidence_sha256": "7364dbe577bdc5ffe8723b2b271d5f69da454f85b79cb449d5b0c5a3d3fbc250",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "a46f0913623a5ef13adc9eafd05a08a3b14792f8ae54dc9dbe60bf80a9d0d867",
+          "library_lane": "candidate-source",
+          "session_id": "a7fa8b54e5af4d04b0c6e7dcdb5d6de8",
+          "status": "PASS"
+        },
+        "modbus_async": {
+          "candidate_source_sha256": "86125ad2cff3929849709a6670750847835f8e8fa3f9d0c493d37fe0042ed37a",
+          "counts": {
+            "PASS": 50
+          },
+          "evidence_sha256": "14bc1fb4b5a3b895800aba83946a9c9961ef3be3fd43af2013747db1e96f5090",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "d485242a8d608b5dd9213f92db5e6beaef5680a5fd8536ae0fb3b29dd8a54c98",
+          "library_lane": "candidate-source",
+          "session_id": "018118503e684f74a67421f7df0ba170",
+          "status": "PASS"
+        },
+        "requests2": {
+          "candidate_source_sha256": "40d1a98d2413b379e14c1732b329004feb8b6675655ae2548931ef2dd16ba052",
+          "counts": {
+            "PASS": 2
+          },
+          "evidence_sha256": "4139bcc4bd6e2137fe2ab74b49baf7c647cf33ce2484492556ced6a7ecbde743",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "f06e2665790c486b3f0c4cc9c7f89b3420fab9cd9aa8bbb152029768b7bc8f7b",
+          "library_lane": "candidate-source",
+          "session_id": "62507da9571441379ff82f7c379de76d",
+          "status": "PASS"
+        },
+        "tls": {
+          "candidate_source_sha256": null,
+          "counts": {
+            "PASS": 5
+          },
+          "evidence_sha256": "1efe36decc43b002418b5817406db30af7ce19460bfd06f5e3020cca363de4e2",
+          "firmware_lane": "caller-pinned-candidate",
+          "firmware_sha256": "cc1b4d7eb2d66926f80155dd747a96fbaff5911635dce0af191526760048fde0",
+          "library_lane": "stock-frozen",
+          "session_id": "51734774e99a40f19b626f1f234d6b30",
+          "status": "PASS"
+        }
+      },
+      "hardware": {
+        "audio": {
+          "action_statuses": {
+            "OBSERVED": 2
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "c17903a386aeaf80946be90103f15c71c1cfcef601bed9defaa6db292a07cf71",
+          "firmware_sha256": "f2c11bb9859f34b0786c3bd9bac32f6bb43c3f49e27ff7ca354ca093876c1426",
+          "frame_sha256": "7dece91d8cfd24687227e6251679f732f7ab22fa161458a9e00950897dc169c0",
+          "session_id": "178058367c844effb780b4d9444c22fe",
+          "status": "EXECUTED"
+        },
+        "axp192": {
+          "action_statuses": {
+            "OBSERVED": 5
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "613ac5c2db37ccd4800bba00fe0238a6285e874cf9d66de5e9aee26c16c96897",
+          "firmware_sha256": "86ca136530d72d0b37cbf26cd04ef93f6811a31ef40e50805d898910b0a895a5",
+          "frame_sha256": "a4b9893e0eaf74b7997978bd295d336bbf52333c953074d1e7813a01d1eb4807",
+          "session_id": "5aa9651557164572bbec01577e6a782a",
+          "status": "EXECUTED"
+        },
+        "imu": {
+          "action_statuses": {
+            "OBSERVED": 7
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "5729837637b85d5def838302285c34c78cf823334cbea77f37f1d7e866c84c93",
+          "firmware_sha256": "e82ca96513e1f35b3cd7336e205eec990e8ca544a0c91cb5536c475afae2af9a",
+          "frame_sha256": "d6ac4c38057b23822ef19cf0e0c2b3a9cde0dcffe80e6faee31519fa66993277",
+          "session_id": "7c755fb984c24fd29fa7854ee57f9778",
+          "status": "EXECUTED"
+        },
+        "matrix": {
+          "cleanup_ok": true,
+          "counts": {
+            "API_ASSERTION_PASS": 66,
+            "CALL_OK": 115,
+            "OBSERVED": 1
+          },
+          "evidence_sha256": "6c9c3b1a08755d09496d8d53a204e1a4fc8aabffe342d8e1c8a2c176917dced2",
+          "firmware_sha256": "79b71c2f4192218d67ed3aa46b3b7df467b5e787a18ba50f955957c27ab1afa3",
+          "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "session_id": "835eb805bc874994ba949b5a4a4c1485",
+          "status": "EXECUTED"
+        },
+        "mic": {
+          "action_statuses": {},
+          "cleanup_ok": true,
+          "evidence_sha256": "6be6b950b8010783181a216b2511f2088dd49f0f00de8bda1ef5b37a1af425eb",
+          "firmware_sha256": "83c24d9e2b37bdc51757619750894422f1ddf9b73d66a46851bae4bb1b5bc820",
+          "frame_sha256": "8a4f6913d4af470f4b6f6b9e8ae31651dbd987c98ee31fb5571328fcd34bce5a",
+          "session_id": "914ce81823f745fd952735b652e08fb7",
+          "status": "EXECUTED"
+        },
+        "peripherals": {
+          "action_statuses": {
+            "OBSERVED": 2
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "41f6c858575acd67a413ba3acc297a815d713e754a875d87ab7539507fcf80d0",
+          "firmware_sha256": "d3d4bd626fb2b5aebf4dcf8f003fa9ce64919acb06490e51a324c92d7c541739",
+          "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "session_id": "0925438dfe08491bbf85f2b9990b46e7",
+          "status": "EXECUTED"
+        },
+        "power_monitor": {
+          "action_statuses": {
+            "OBSERVED": 3
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "6aae01921003b6e9d1df7e0ec9b86d7c788b1d032ff3a0f404f1fad68b7371e5",
+          "firmware_sha256": "3f221853ccbc96d296f5bb4b535eb5a81a836259092ea17e9bb99cf29fb96406",
+          "frame_sha256": "fd94c45a162095e19abc0a34488856524bb63d6b9626d144c7e3cb4486c2aaae",
+          "session_id": "e161115e54c94e40b53e0dd0f2ee7eb8",
+          "status": "EXECUTED"
+        }
+      },
+      "m5ui": {
+        "all_cleanup_ok": true,
+        "batches": 29,
+        "counts": {
+          "DOCUMENTATION_MISMATCH": 11,
+          "EXPECTED_UNSUPPORTED": 1,
+          "FAIL": 3,
+          "PENDING_FRAME_OBJECT_REMOVAL": 3,
+          "PENDING_FRAME_OR_INPUT": 80,
+          "STATE_PASS": 409
+        },
+        "documented_widget_methods": 505,
+        "failures": [
+          {
+            "error": null,
+            "method": "draw_triangle",
+            "oracle": "obj.get_px_color(120,60)==0x38B8C8",
+            "target": "M5Canvas"
+          },
+          {
+            "error": "TypeError(\"can't convert float to int\",)",
+            "method": "set_scale",
+            "oracle": null,
+            "target": "M5Image"
+          },
+          {
+            "error": null,
+            "method": "set_step",
+            "oracle": "obj._spinbox.get_step()==5",
+            "target": "M5Spinbox"
+          }
+        ],
+        "frame_count": 29,
+        "frame_set_sha256": "17d12e7ecdee4292f79c56b9db21a02bd80457d9c0cb8ae582057323fd8e0840",
+        "frame_sizes": [
+          [
+            320,
+            240
+          ]
+        ],
+        "result_count": 507,
+        "session_count": 29,
+        "session_set_sha256": "9d74719cb38225c72c438def132cf6cbfe379a61f734391911198150d42fcc60",
+        "unobserved": 0
+      },
+      "m5ui_candidate": {
+        "cleanup_ok": true,
+        "evidence_sha256": "ab5afad203de61bc8230394e301f2315da1d9ffadd303f7655661580c7a690f9",
+        "frame_oracles": [
+          "FRAME_PASS",
+          "FRAME_PASS"
+        ],
+        "frame_sha256": "5a074d2987258112f79cecc800578df7325e6f35c32ceace859b828c8f942403",
+        "source_sha256": "68da5e2ef246ff503ef8001d5c03a2f2bcd392e934de5e42c9bcd9e8a5571895",
+        "state_counts": {
+          "STATE_PASS": 4
+        },
+        "status": "EXECUTED"
+      },
+      "protocols": {
+        "ble-nus": {
+          "counts": {
+            "PASS": 8
+          },
+          "evidence_sha256": "5108108369a82fec241e00f64bffec009bf1543494b0fe090d1fb9b7c8d59603",
+          "execution_error": null,
+          "firmware_sha256": "7d853fa9f28ce7fbda3ffe3e0632c0ba2591631121366b0b9c883a7898b5cac4",
+          "session_id": "7d73e79aa9b9431c8f937e50c176e3f6",
+          "status": "PASS"
+        },
+        "easysocket": {
+          "counts": {
+            "NOT_APPLICABLE_LISTENER": 1,
+            "PASS": 57
+          },
+          "evidence_sha256": "353d9d76d3708d2904598e92845f0e085a8fafe07664b26912ab7fd84e565bf7",
+          "execution_error": null,
+          "firmware_sha256": "b002f00f67c8b65509930cd78209c2c1bc284430fe9d98e175db00c0ac4477c2",
+          "session_id": "2f00a8e0034e41509c472a118164f97e",
+          "status": "PASS"
+        },
+        "espnow": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 1,
+            "PASS": 12,
+            "STATE_PASS": 5
+          },
+          "evidence_sha256": "43379e77c90c9026482909a72fccb3f99388a7ab0cd8d0c2dad509bfd8d4dd7e",
+          "execution_error": null,
+          "firmware_sha256": "6f61983c8d1adddc68578bd76885b79308784066380456e6467157979658b584",
+          "session_id": "5e8bdff6be0541698e623169ed9785e1",
+          "status": "PASS"
+        },
+        "espnow-native": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 3,
+            "PASS": 21,
+            "STATE_PASS": 21
+          },
+          "evidence_sha256": "8cd3639d7469cdcc674ef40316f87f3857eb6ee54d103d3d92e453eff3772617",
+          "execution_error": null,
+          "firmware_sha256": "6668c13b4cbb8514c4ec74201ff819467e00774812287f69f51de6992ea056e3",
+          "session_id": "5c4d9d17680949b087e477ea0690e899",
+          "status": "PASS"
+        },
+        "ezdata": {
+          "counts": {
+            "PASS": 17
+          },
+          "evidence_sha256": "e55e200a35016888e8d775cb1c480dba361afa928360981657325ca6c6c2c0cd",
+          "execution_error": null,
+          "firmware_sha256": "4941a318da584e232e0356556ede8b1548793309afe5524ed3bee5ed9beadc5b",
+          "session_id": "6b39d05694dc47288953deb89e0917ce",
+          "status": "PASS"
+        },
+        "http": {
+          "counts": {
+            "FAIL": 1,
+            "PASS": 15
+          },
+          "evidence_sha256": "37cf041f5187a2e72245ce2e13411b2e9c007493111dfca3cf67c9a7ea6c39a9",
+          "execution_error": null,
+          "firmware_sha256": "e621156c0916dfa4832643f7c25cd1b514abd4b21a28c96fef98a6e01bd75317",
+          "session_id": "6da25bdc9081405ebc423bda1f15e642",
+          "status": "FAIL"
+        },
+        "m5ble-server": {
+          "counts": {
+            "ERROR": 1,
+            "PASS": 21
+          },
+          "evidence_sha256": "7db187258611036abe666865f4e40e9fb3e78676b5fd700b187ace5cb3993bea",
+          "execution_error": null,
+          "firmware_sha256": "a0aa5f2ddde66801aed55ef11b844a7396210d0045d7e82276d012d545b94fb5",
+          "session_id": "ac3c1e0cf4784025a8056daeca8d821a",
+          "status": "FAIL"
+        },
+        "modbus": {
+          "counts": {
+            "ERROR": 8,
+            "PASS": 42
+          },
+          "evidence_sha256": "11220fa29a3d4f4c5de96716975b6fb6dbf3838fb5fca6160b3dcdcef80d9858",
+          "execution_error": null,
+          "firmware_sha256": "11f9d6126502a818454fa7234fc2980bf68d0def54d46d563ce2572307c803f2",
+          "session_id": "2ca95ff698dc4da0bb72d75539516df7",
+          "status": "FAIL"
+        },
+        "mqtt": {
+          "counts": {
+            "PASS": 42
+          },
+          "evidence_sha256": "938cb3283083a73e1975a09f09c2314ddb66cef5a2963a185e96b6883bfaf9f9",
+          "execution_error": null,
+          "firmware_sha256": "95039ede77d68a213f12270c9ba7771b720ca4380873202aaab8a1401828fb4e",
+          "session_id": "8d80a74019814d9fa00882792570a3a3",
+          "status": "PASS"
+        },
+        "network": {
+          "counts": {
+            "PASS": 14
+          },
+          "evidence_sha256": "6cf3014ff567b5331637c3abb7caa9a664596275e0e5df257dd426424daca22e",
+          "execution_error": null,
+          "firmware_sha256": "cbbcf99d93d032981a4173a9be4ecd16c7367a1f8a4557fe650dddd26cec203a",
+          "session_id": "68d4261923b844269ba99498be17f0a9",
+          "status": "PASS"
+        },
+        "sockets": {
+          "counts": {
+            "PASS": 23
+          },
+          "evidence_sha256": "25da51ec53f1d0467561700fd6bdd73b1027995c06936843d13405e0886b11d2",
+          "execution_error": null,
+          "firmware_sha256": "7b5953748b2636af21cf3d8ef4da057c10b672bc19cc23ce28df28104826c1c6",
+          "session_id": "a965cb911c5b43a6844fed04460288c8",
+          "status": "PASS"
+        },
+        "tls": {
+          "counts": {
+            "ERROR": 2,
+            "STATE_PASS": 3
+          },
+          "evidence_sha256": "05d9e0e712fd9b2bfd08298e93115910de4a03d7b078e4cbd44ca261efbc1fb1",
+          "execution_error": null,
+          "firmware_sha256": "13ce789e340c1660febb3122af31279a27da4f865132504653713cb62498da9d",
+          "session_id": "eb30283c22eb455cabe0ce1d408cf81f",
+          "status": "FAIL"
+        }
+      }
+    },
+    "sticks3": {
+      "base_firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "baseline": {
+        "board": {
+          "cleanup_ok": true,
+          "display": [
+            {
+              "board": 26,
+              "display_type": "Display",
+              "height": 240,
+              "status": "PASS",
+              "width": 135
+            }
+          ],
+          "evidence_sha256": "f056e1bd63cff8212fb9511b787e72ac3fcd6c773aa7fc8bf28471c100b209e7",
+          "firmware_sha256": "fe823772fde282eb0cb06d4147fd920e3959ff92f06035f85d1116c9cfe66b6b",
+          "imports": {
+            "M5": "PRESENT",
+            "M5UI": "ABSENT",
+            "lvgl": "ABSENT",
+            "m5ui": "ABSENT",
+            "m5ui.page": "ABSENT",
+            "m5ui.port": "ABSENT",
+            "ui": "ABSENT"
+          },
+          "session_id": "116e64fe30784fb79f076baca3c7869a",
+          "status": "EXECUTED"
+        },
+        "shared": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 7
+          },
+          "evidence_sha256": "3d9325ab7fa574b814f44e91e2c3d01895fd8fb28c535fcb0b573c9c2fece041",
+          "firmware_sha256": "c7c3f640fcd59f5788401b00d8a23c42a54b5e0c9b3c17e0789f6c07e7bee4a1",
+          "session_id": "67bcc8fce71d4f3aa87ad883cfe7ca22",
+          "status": "EXECUTED"
+        },
+        "system": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 50,
+            "STATE_PASS": 1
+          },
+          "evidence_sha256": "5dedb206b914de8593ffca4ec44795e9879c62c8b000306957780e3a268ae1a4",
+          "firmware_sha256": "40f3ee1cde4c22eace2e9e78c6d78a1f593d958ec72c102d2027e29d7e973b0f",
+          "session_id": "e8064a70dfd24b4e8ea9372f56ba7382",
+          "status": "EXECUTED"
+        }
+      },
+      "candidate_protocols": {
+        "modbus_async": {
+          "candidate_source_sha256": "86125ad2cff3929849709a6670750847835f8e8fa3f9d0c493d37fe0042ed37a",
+          "counts": {
+            "PASS": 50
+          },
+          "evidence_sha256": "2838506e873c170de11d98eeeae7b507a36bb1e1ec92b2da254d607d15979d5a",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "c2e0770433427547e4599122cecfcae755ece97c4d862d464ee833685d4f0309",
+          "library_lane": "candidate-source",
+          "session_id": "a1d5f7a6553240c688c736ffb3593ca8",
+          "status": "PASS"
+        },
+        "requests2": {
+          "candidate_source_sha256": "40d1a98d2413b379e14c1732b329004feb8b6675655ae2548931ef2dd16ba052",
+          "counts": {
+            "PASS": 2
+          },
+          "evidence_sha256": "bf76681a77520e4e62c012d8579e0425afad798b2e2f7467aa0fb433c7a65ab6",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "55bf8a00d735a9b48990b64d50a949408d6325352a182a7bf2f51f641148274b",
+          "library_lane": "candidate-source",
+          "session_id": "e8ce0c2bcdf94156a4169daf94038c83",
+          "status": "PASS"
+        },
+        "tls": {
+          "candidate_source_sha256": null,
+          "counts": {},
+          "evidence_sha256": "8948ab0654c90c61b57714c394bbe4837b0dfae5f4abfe5f9fe29f851484f6ac",
+          "firmware_lane": "caller-pinned-candidate",
+          "firmware_sha256": "d8575cc05d30b23c956eeda4736d210f222d5b465637342b05ec09d4035db130",
+          "library_lane": "stock-frozen",
+          "session_id": "da184f24e0ff44128b0bbae8c23b76b2",
+          "status": "FAIL"
+        }
+      },
+      "hardware": {
+        "ir_rx": {
+          "action_statuses": {},
+          "cleanup_ok": true,
+          "evidence_sha256": "bbb4e5283b37a1126a37520da0ae7dae57b5369fedefc46d40d49c046094a3b2",
+          "firmware_sha256": "ed834c98738941357e702747eb058ea2c3e1f5efca18431aa757ff56f362663d",
+          "frame_sha256": "92dc80599553ea7f5f987afd7af4de551069ba896306b57ee37fb1d25e67d804",
+          "session_id": "06acd4c8c8574107ace3b29eede50368",
+          "status": "EXECUTED"
+        },
+        "ir_tx": {
+          "action_statuses": {},
+          "cleanup_ok": true,
+          "evidence_sha256": "a970e888dae0bd2e6ac97e3f20935c95451091c5663113dfffb67acc5436aef3",
+          "firmware_sha256": "7194a0f8a579915e735c0012a71c6460fbb87ff9be3a60c1bf4d6a96fc997af9",
+          "frame_sha256": "b08000b86bdfc36b05165eac4473375c8b82804ab506f52614dd404adc1a3545",
+          "session_id": "ac096d3a26a24348b4deec22a0e2c2e9",
+          "status": "EXECUTED"
+        },
+        "matrix": {
+          "cleanup_ok": true,
+          "counts": {
+            "API_ASSERTION_PASS": 66,
+            "CALL_OK": 115,
+            "OBSERVED": 1
+          },
+          "evidence_sha256": "79ed2e40631f5dacb990c6cf1e128e6f7b082ca91726d58ea5120feb6d06f0ca",
+          "firmware_sha256": "758dbe815acd87ba76eaa45669f452b0ab8be26d45c55f95964464d2aef4db5a",
+          "frame_sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0",
+          "session_id": "793b2dce290a4d1da22f2c1400558f37",
+          "status": "EXECUTED"
+        },
+        "peripherals": {
+          "action_statuses": {
+            "OBSERVED": 9
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "fe00adda925492a79731639024f39145ff7eb29209073c52cb24bed1f5298146",
+          "firmware_sha256": "3093929eddc001d86e630e7372a27cb2b45276743a8f651ac3c36810fc87b38e",
+          "frame_sha256": "bb39742859d741de1eae82970048c4d5a37df4e97700dcf580e81d037f9fa89d",
+          "session_id": "18999f1f02344beea460b99f94f4e82d",
+          "status": "EXECUTED"
+        }
+      },
+      "protocols": {
+        "ble-nus": {
+          "classification": "BLOCKED_MODEL",
+          "counts": {},
+          "evidence_sha256": "6314180ea56ed238f6ed0ea705c328bd7777c37872da51c9a0ce3dfcb144d16a",
+          "execution_error": "session ended: external BLE peer did not complete the GATT exchange",
+          "firmware_sha256": "f3568540c491db0bf1422ae7a6fc9b3b9a437861e2d8d1da439c285bcf372713",
+          "session_id": "4cad248c832445d28b762aab1d29cab1",
+          "status": "FAIL"
+        },
+        "easysocket": {
+          "counts": {
+            "NOT_APPLICABLE_LISTENER": 1,
+            "PASS": 57
+          },
+          "evidence_sha256": "e4711035de7bb4f245a7dcb2a4fa73841bff0cad51d1954d892d5e98d7b362ae",
+          "execution_error": null,
+          "firmware_sha256": "86809379371d5890273026d756d2ee1cff20a71245715d383581bb242b2560bd",
+          "session_id": "33364472ea34490aaddfdfe43b266431",
+          "status": "PASS"
+        },
+        "espnow": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 1,
+            "PASS": 12,
+            "STATE_PASS": 5
+          },
+          "evidence_sha256": "ab192b7641247637fef147e7c349c9baca9bbeeec029989764aa6d69b9bd12af",
+          "execution_error": null,
+          "firmware_sha256": "b248ce76dc0d6b35459707f30fea1a53e7065bbc38c2d6eb09e8dcecf6521705",
+          "session_id": "16dcd692c46748eca31d82fc906b95ad",
+          "status": "PASS"
+        },
+        "espnow-native": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 3,
+            "PASS": 21,
+            "STATE_PASS": 21
+          },
+          "evidence_sha256": "cc7eaabecda97359bd0fe04d12a657bd6665a308aba2f1d09449137813dce0d4",
+          "execution_error": null,
+          "firmware_sha256": "6970c392f3eee9d68b27e46360bf8afd8ed2d0f5f1810d89e3c4a09dbbd061b7",
+          "session_id": "32bee428bba247648124cbb52cbdeb66",
+          "status": "PASS"
+        },
+        "ezdata": {
+          "counts": {
+            "PASS": 17
+          },
+          "evidence_sha256": "39332fc36b373c3df142a877d2546faafe6a674e2f5bc4bf19feb85726070c0f",
+          "execution_error": null,
+          "firmware_sha256": "abd7dfcf2bb97146bef20f333b36ef6dc7142224ea601c06c1fae95640f986c9",
+          "session_id": "3e56058d793c4132848fe8a2428b5dd0",
+          "status": "PASS"
+        },
+        "http": {
+          "counts": {
+            "FAIL": 1,
+            "PASS": 15
+          },
+          "evidence_sha256": "301384b49c9d862c9d79ab29158fc42c4588ab85318fc0bf757f215fcf4858ce",
+          "execution_error": null,
+          "firmware_sha256": "45f78bf4e2ad2d25da70806ef75c3bd91604b6664f6f892757c787db997d50f8",
+          "session_id": "db3c2afcb7474bed9c55ded29ff639b8",
+          "status": "FAIL"
+        },
+        "m5ble-server": {
+          "classification": "BLOCKED_MODEL",
+          "counts": {
+            "PASS": 4
+          },
+          "evidence_sha256": "b10530b66b08d7bb6dd53d4aa61783fcd21a167f310a50a055852abc7af1e356",
+          "execution_error": "session ended: external BLE peer did not complete the GATT exchange",
+          "firmware_sha256": "51bd36aae345dce562bfbc1bf21313ef19feba5d04b89bf84a174bac846288bd",
+          "session_id": "afef421fd54a4772943d35a8abfd4d01",
+          "status": "FAIL"
+        },
+        "modbus": {
+          "counts": {
+            "ERROR": 8,
+            "PASS": 42
+          },
+          "evidence_sha256": "5c40fa711f84e6b8312a4bc238f0824b59ed6047eaeaf423a3c33a005e512733",
+          "execution_error": null,
+          "firmware_sha256": "4592c9b70bdfb3a4cd364907c5ddf64ad90e3c248275a3d74f7f0fc29e8b680f",
+          "session_id": "460f0a21f7aa40dcb4e1cc1fe1c9ff62",
+          "status": "FAIL"
+        },
+        "mqtt": {
+          "counts": {
+            "PASS": 42
+          },
+          "evidence_sha256": "94b48681de4cf9bd0570dd1001d1900601a9a2146aa3f65fa8b1ba5893892875",
+          "execution_error": null,
+          "firmware_sha256": "d766de90e5eab807858ab13eabd012d5c121a1b0c40deed935f642d8e0d13760",
+          "session_id": "9aec17cca60a4affaf9e2a1d8515a711",
+          "status": "PASS"
+        },
+        "network": {
+          "counts": {
+            "PASS": 14
+          },
+          "evidence_sha256": "6e25f263635942270bbacacde6c1fa200fdddd6da51f15b9eca373ff6aee7fe0",
+          "execution_error": null,
+          "firmware_sha256": "c9843ebdb55d0d1d1139685487a00f98576bed626e2faedb382c82d1e8b09cc3",
+          "session_id": "e4c2303cbe50498f9c7626dc3d08d7cd",
+          "status": "PASS"
+        },
+        "sockets": {
+          "counts": {
+            "PASS": 23
+          },
+          "evidence_sha256": "ff6d887ee5a64b16e5f13e84ea0c85b18928037c62406a84ab3ab1690bcedf69",
+          "execution_error": null,
+          "firmware_sha256": "b7e1c3641c933e537fe5110e3dd9bdd0e57165c2025ca65a40759cf27bac404f",
+          "session_id": "761bfb840f154600913854d47fb016a1",
+          "status": "PASS"
+        },
+        "tls": {
+          "counts": {
+            "ERROR": 2,
+            "STATE_PASS": 3
+          },
+          "evidence_sha256": "ba91d6d9421ebc34ec38b78b1209ded3b13b638e9503deb4ce0b1667332c6307",
+          "execution_error": null,
+          "firmware_sha256": "eaa07df237fb398cffe9f135fe72044c4f15b8b29191e237e727b0b01cd9e2ef",
+          "session_id": "7d6187fb59834fba9922b1875455d112",
+          "status": "FAIL"
+        }
+      }
+    },
+    "stopwatch": {
+      "base_firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "baseline": {
+        "board": {
+          "cleanup_ok": true,
+          "display": [
+            {
+              "board": 30,
+              "display_type": "Display",
+              "height": 468,
+              "status": "PASS",
+              "width": 468
+            }
+          ],
+          "evidence_sha256": "0951b33854341b4eb46275504532df7790d1e3797b94143efb9eb2e5df731936",
+          "firmware_sha256": "560f098eda025d0494b6dbc7a5378ab27cf2cd1ecf3fe239c41750ed0bc35944",
+          "imports": {
+            "M5": "PRESENT",
+            "M5UI": "ABSENT",
+            "lvgl": "PRESENT",
+            "m5ui": "PRESENT",
+            "m5ui.page": "PRESENT",
+            "m5ui.port": "PRESENT",
+            "ui": "ABSENT"
+          },
+          "session_id": "fd925b73e6da48d3a6bc0db41dffa15d",
+          "status": "EXECUTED"
+        },
+        "shared": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 7
+          },
+          "evidence_sha256": "fe7634b00fadd18477d449449378c8fca42a70a5ec10fb6e296069bd044736f4",
+          "firmware_sha256": "d498d93b53ab1105c0c1c8bd635f86a62f62bb6008f9916d7aed3d179f201c42",
+          "session_id": "238179fd63c5463e8dc83e6b40fda9d9",
+          "status": "EXECUTED"
+        },
+        "system": {
+          "cleanup_ok": true,
+          "counts": {
+            "PASS": 50,
+            "STATE_PASS": 1
+          },
+          "evidence_sha256": "67520e187d188fc04541deacbe75f2d776dc8d85d80c820c330bad236ba7e493",
+          "firmware_sha256": "58b436c7b092c7ca173129708a4f2899d247b9088cf9c6531b3d5a96e532bfbd",
+          "session_id": "d599d39adf854c07b27f841d5a96e33a",
+          "status": "EXECUTED"
+        }
+      },
+      "candidate_protocols": {
+        "modbus_async": {
+          "candidate_source_sha256": "86125ad2cff3929849709a6670750847835f8e8fa3f9d0c493d37fe0042ed37a",
+          "counts": {
+            "PASS": 50
+          },
+          "evidence_sha256": "a341a9a9433af824fdfda15f09a2d57074adc02985bde6f6fda847839e68962f",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "26c05c2cc66fb97a526da1aabf97786d098c8032a484643e3264644c3dc54116",
+          "library_lane": "candidate-source",
+          "session_id": "54428440f1044032968d1bbe3a8618a8",
+          "status": "PASS"
+        },
+        "requests2": {
+          "candidate_source_sha256": "40d1a98d2413b379e14c1732b329004feb8b6675655ae2548931ef2dd16ba052",
+          "counts": {
+            "PASS": 2
+          },
+          "evidence_sha256": "b8f2032f8feeabfe011b51ba35327a7cf37f4c1b845bb8ca5bf9a56375f9eae0",
+          "firmware_lane": "stock-frozen",
+          "firmware_sha256": "8b86bb2b52f9f2b6168de06254a8200e8782d6242f1ca9d35071ed0e877c032b",
+          "library_lane": "candidate-source",
+          "session_id": "2876cad4dcbb47879d9eef9b0293e5bd",
+          "status": "PASS"
+        },
+        "tls": {
+          "candidate_source_sha256": null,
+          "counts": {
+            "PASS": 5
+          },
+          "evidence_sha256": "0abd8c114de13c5f9514b9760a0bd8b584c7d5eb311c5ce538fed9b9cf338b51",
+          "firmware_lane": "caller-pinned-candidate",
+          "firmware_sha256": "1233e631fbf25f62a29fe30281e67677ced0f47b912762744866511454ee6076",
+          "library_lane": "stock-frozen",
+          "session_id": "0ba63059bfa64d7b91ee0488647412da",
+          "status": "PASS"
+        }
+      },
+      "hardware": {
+        "m5ioe1": {
+          "action_statuses": {
+            "OBSERVED": 3
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "0f7e9c2ba4bcc85f1f063d990293d2a47843156d285667c7f5d671d51c62432d",
+          "firmware_sha256": "d222dde1ffb54414ec58992f1b647718c1a29ea0b4aa88e0e84e343297940bb9",
+          "frame_sha256": "86e68bd52cddb2854c0eefb04bc44a0428bc75c177d8618fdb085806d4a9515f",
+          "session_id": "5b0ce3474ea04de29f8b5d4dc6cc4f3f",
+          "status": "EXECUTED"
+        },
+        "m5pm1": {
+          "action_statuses": {
+            "OBSERVED": 7
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "fa23e46d2162b7208f85f858ed9f6eba559f6b1c3e6f701adf12c94e68f26d8a",
+          "firmware_sha256": "bc29fb5c4d2ce133309ff73d161aff888a94984037cfd0d851a7f7679983c223",
+          "frame_sha256": "4726a228d5fe1712b427250615b9f1e1bfc0dd861505171f236859d509ba7cf3",
+          "session_id": "5d25c758a51b4f4198bca20836831f92",
+          "status": "EXECUTED"
+        },
+        "matrix": {
+          "cleanup_ok": true,
+          "counts": {
+            "API_ASSERTION_PASS": 66,
+            "CALL_OK": 115,
+            "OBSERVED": 1
+          },
+          "evidence_sha256": "66c8a638d1ed1f964230f911511769d8ae9a825968453a66344012a470beb149",
+          "firmware_sha256": "57d41bbbdbec020f9c693b7d7c8616de313a37f21c11536b62dddcd2d0c19a4c",
+          "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+          "session_id": "9217a13509ff48909153f577dbf6ff6d",
+          "status": "EXECUTED"
+        },
+        "peripherals": {
+          "action_statuses": {
+            "OBSERVED": 11
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "9f5e80b3b405c7f76f765ab5b01896ffb9ba2050bf897adc95ac6ff7e2de24ca",
+          "firmware_sha256": "cf29f11fd5fd124e19ca5b33a49c4ae05a373a094944d0a0f92c7b0c0f52bb9b",
+          "frame_sha256": "31b0fddb1c1523a98cb79c431edcfc920539ada4f5f8f1d6a65ffea507085212",
+          "session_id": "ba07b361277b489fa91204ebe62d7fea",
+          "status": "EXECUTED"
+        },
+        "vibration": {
+          "action_statuses": {
+            "OBSERVED": 1
+          },
+          "cleanup_ok": true,
+          "evidence_sha256": "121507340c2910ef0f831e28b6b37f96322fbab247e79dbd9dee505199ee4e50",
+          "firmware_sha256": "a18b17c778248a7f640e355179d2dfcaccb04dd70d5613fc07d1baf62406a739",
+          "frame_sha256": "2c8c0c4ac5beaa870d3c44004f472fd4f0c52bfee484f1d0848744250bf7c40e",
+          "session_id": "4df69052fcd94953b1f54d2d7dea1a90",
+          "status": "EXECUTED"
+        }
+      },
+      "m5ui": {
+        "all_cleanup_ok": true,
+        "batches": 29,
+        "counts": {
+          "DOCUMENTATION_MISMATCH": 11,
+          "EXPECTED_UNSUPPORTED": 1,
+          "FAIL": 3,
+          "PENDING_FRAME_OBJECT_REMOVAL": 3,
+          "PENDING_FRAME_OR_INPUT": 80,
+          "STATE_PASS": 409
+        },
+        "documented_widget_methods": 505,
+        "failures": [
+          {
+            "error": null,
+            "method": "draw_triangle",
+            "oracle": "obj.get_px_color(120,60)==0x38B8C8",
+            "target": "M5Canvas"
+          },
+          {
+            "error": "TypeError(\"can't convert float to int\",)",
+            "method": "set_scale",
+            "oracle": null,
+            "target": "M5Image"
+          },
+          {
+            "error": null,
+            "method": "set_step",
+            "oracle": "obj._spinbox.get_step()==5",
+            "target": "M5Spinbox"
+          }
+        ],
+        "frame_count": 29,
+        "frame_set_sha256": "f2934f4477d939db3effb7d95337a3b78bd272a46acec1efa787ce3693a00d46",
+        "frame_sizes": [
+          [
+            466,
+            466
+          ]
+        ],
+        "result_count": 507,
+        "session_count": 29,
+        "session_set_sha256": "513f39b9525b221f3cc49240d4b4bb316146ae6bd77aee344b77ecd1ab786ee6",
+        "unobserved": 0
+      },
+      "m5ui_candidate": {
+        "cleanup_ok": true,
+        "evidence_sha256": "9af1cc396f89557fdd5a8db82a299831029c7a80995bf00af1eaeed67a3ebb52",
+        "frame_oracles": [
+          "FRAME_PASS",
+          "FRAME_PASS"
+        ],
+        "frame_sha256": "195231931ebca534a6b1377a84f6057f570236efc290e5c3e552fe60880ae91b",
+        "source_sha256": "455f590064fbdb65cf2de7d505059896486d53841bff4bb5b55dde1bdf077142",
+        "state_counts": {
+          "STATE_PASS": 4
+        },
+        "status": "EXECUTED"
+      },
+      "protocols": {
+        "ble-nus": {
+          "classification": "BLOCKED_MODEL",
+          "counts": {},
+          "evidence_sha256": "055fccdb2a2ae581b3448c96dbe6563e020b8c23e29719e25ade9e9b20f084d2",
+          "execution_error": "session ended: external BLE peer did not complete the GATT exchange",
+          "firmware_sha256": "7645c2a61e0c8a60f3ccfb8f7adbcc43df98bfaa54fe8ef1bff2443100602659",
+          "session_id": "60a8ded70d694204a89c2f143c0a1848",
+          "status": "FAIL"
+        },
+        "easysocket": {
+          "counts": {
+            "NOT_APPLICABLE_LISTENER": 1,
+            "PASS": 57
+          },
+          "evidence_sha256": "1bcd239503198bfea59a9bbc59ff0318aee4ea480c83ed8c520027985e8e3936",
+          "execution_error": null,
+          "firmware_sha256": "50d1884b8f2ca818408182642ffb41dee4c8c4e325cd737904d0f6053aa790a5",
+          "session_id": "aa3b1a2aeb3146e99c2770ff38324b1d",
+          "status": "PASS"
+        },
+        "espnow": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 1,
+            "PASS": 12,
+            "STATE_PASS": 5
+          },
+          "evidence_sha256": "0f689dfd45b1d190197e379ef2755dab03afb981b07bf2d1a51a6aae89075e91",
+          "execution_error": null,
+          "firmware_sha256": "bfa941ba8730e85692cc59287123be19868c52b03aeb7883c48ee143af1cc4ab",
+          "session_id": "42d1296d47fb415ab5ed316355e3de38",
+          "status": "PASS"
+        },
+        "espnow-native": {
+          "counts": {
+            "CONFIGURED_UNVERIFIED": 3,
+            "PASS": 21,
+            "STATE_PASS": 21
+          },
+          "evidence_sha256": "480e3b6abaeeafdb87cd1f8ef11c63d110beac1e2bf5b0eea0d86c60ef6e2577",
+          "execution_error": null,
+          "firmware_sha256": "a56440f7c5f7feb0091285aeee41061e6d1e044513e119a3c96782d57f1d3272",
+          "session_id": "51fe6a1d47424a8394259ffabfea5368",
+          "status": "PASS"
+        },
+        "ezdata": {
+          "counts": {
+            "PASS": 17
+          },
+          "evidence_sha256": "c0c89d5a819cc60b4309314ed717c01004743e73d946fb231027b8de72afa5d2",
+          "execution_error": null,
+          "firmware_sha256": "85f2d245e5c154582440875a0104d952202f1a4c896fe535a4c0c9b157bdceae",
+          "session_id": "2f264ce38ae340b296595f10c2d9c5df",
+          "status": "PASS"
+        },
+        "http": {
+          "counts": {
+            "FAIL": 1,
+            "PASS": 15
+          },
+          "evidence_sha256": "df7f5ffc6c604a6fec7ec5ca3a8ad62c156cc8c88be0a0360c701991e29a3fed",
+          "execution_error": null,
+          "firmware_sha256": "b80149e20e10255762298e791bd45e8b8a04820b4ad89e56959cacd8992268cb",
+          "session_id": "d91eda10270849b4985bd0beea29fcd5",
+          "status": "FAIL"
+        },
+        "m5ble-server": {
+          "classification": "BLOCKED_MODEL",
+          "counts": {
+            "PASS": 4
+          },
+          "evidence_sha256": "9db56a5582cfa5350e46acf13b91e05682e7f62a59c722921bc117811404de8b",
+          "execution_error": "session ended: external BLE peer did not complete the GATT exchange",
+          "firmware_sha256": "8f4e2f7694df2daac6e7468476a68c9e28e07cd265070de9ac1e0854526b1d74",
+          "session_id": "d35776fffeac4743b3df0c0d39065bb2",
+          "status": "FAIL"
+        },
+        "modbus": {
+          "counts": {
+            "ERROR": 8,
+            "PASS": 42
+          },
+          "evidence_sha256": "77fb92f499f04931d6a96e6a57e9687ff603b3ec65fe72e8db8c92adc2e79f2b",
+          "execution_error": null,
+          "firmware_sha256": "7a02203b0ead2bb66aae2a4b632ecd2057bd4b4455260e02baf5da89bb9e6074",
+          "session_id": "3eb0f5b44b1248d98f82d676c649de96",
+          "status": "FAIL"
+        },
+        "mqtt": {
+          "counts": {
+            "PASS": 42
+          },
+          "evidence_sha256": "fafd460e004edae59c9c75a3e27ed9599cb86af8a1b7876159357a8d889f8fd8",
+          "execution_error": null,
+          "firmware_sha256": "830eb0621c4034d71d0b2dd67eb8331761f025bc62d46faa136c9681f7b31492",
+          "session_id": "f5f666f6d4754d36b03f4c3d471ddeb0",
+          "status": "PASS"
+        },
+        "network": {
+          "counts": {
+            "PASS": 14
+          },
+          "evidence_sha256": "33c64895b2d0bd8c5cbf9a07632e35b766bc9b425187efca457308273eff1089",
+          "execution_error": null,
+          "firmware_sha256": "41a1107b1377a5b3df5a737baf6fa9dda84a5d54626f8a6fa966e0283fd406ce",
+          "session_id": "5defba69515d4c8e902cea3b9bcd4241",
+          "status": "PASS"
+        },
+        "sockets": {
+          "counts": {
+            "PASS": 23
+          },
+          "evidence_sha256": "de2a30bfae9cb51781b33088c70de829e47206ada24e5b02d3d46a9a48402d5e",
+          "execution_error": null,
+          "firmware_sha256": "e641ad41f40c39232b31efbd31f1b5f7caa8cf8da2c785988a006efa1f0d2010",
+          "session_id": "985108027d82416692fa7c744ae3a318",
+          "status": "PASS"
+        },
+        "tls": {
+          "counts": {
+            "ERROR": 2,
+            "STATE_PASS": 3
+          },
+          "evidence_sha256": "34a602f03ae2b11057984e08bc5372385f7d1be599c66fbce50d2c4012ef03c8",
+          "execution_error": null,
+          "firmware_sha256": "80bc89f0ef892b5656291b1d8282e4255444acb9ec4396e4d895e29c58e76932",
+          "session_id": "2bbb70464d394d569d72752b6bc54a9b",
+          "status": "FAIL"
+        }
+      }
+    }
+  },
+  "hardware_validation": "NOT RUN",
+  "known_boundaries": {
+    "audio": "Core2 stock exports M5.Speaker/M5.Mic wrappers but not audio.Player/audio.Recorder modules",
+    "ble_client_groups": "ble-client/m5ble-client are not admitted by current peripheral-role policy for these three devices",
+    "ble_internal_controller": "StopWatch/StickS3 stock ble-nus and m5ble-server remain BLOCKED_MODEL; Core2 uses separate core2-native-hci evidence",
+    "not_claimed": [
+      "physical hardware validation",
+      "RF, pairing or encrypted BLE",
+      "external or encrypted ESP-NOW",
+      "physical PSRAM/cache timing",
+      "all parameter domains"
+    ],
+    "stock_sdk_defects": [
+      "requests2.urlencode",
+      "eight Modbus async Loop.sock_recv calls",
+      "TLS epoch expiry",
+      "M5UI draw_triangle/set_scale/set_step"
+    ]
+  },
+  "runtime_binary_sha256": "9bf74439ddbe7225a64eb437290043729fb032525756adb834565ec412f8c197",
+  "schema_version": 1,
+  "validation": "virtual-device validation"
+}

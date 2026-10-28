@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "device_id": "core2",
+  "firmware": {
+    "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49"
+  },
+  "runtime": {
+    "runtime": "qemu-unified",
+    "profile": "core2-native-hci",
+    "icount_shift": 5,
+    "qemu_sha256": "9bf74439ddbe7225a64eb437290043729fb032525756adb834565ec412f8c197"
+  },
+  "candidate": {
+    "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+    "path": "m5stack/libs/m5ble/m5ble.py",
+    "preimage_sha256": "18c449e6be47b1d311ffeb4320809d02d01a73e0af11630728c56a19d00ce180",
+    "candidate_sha256": "d82c1aec593de997d2d63f6bc409f6786a3b90e8b4b793c722cb9c61b8c82703",
+    "patch_sha256": "2eb188e55907121204fca732cecbdb3dc8e0878a09191b2e093b477169ea11d7",
+    "dependencies": [
+      {
+        "candidate": "ble-uuid32",
+        "patch_sha256": "8ec1f14f42702cc38b9c15975c300cad833aa32a64cb0598e420b5f1e392e15c"
+      }
+    ],
+    "library_lane": "candidate-source",
+    "firmware_lane": "stock-frozen",
+    "stock_firmware_result_unchanged": true
+  },
+  "stock_failure": {
+    "group": "m5ble-server",
+    "checks_pass": 21,
+    "checks_error": 1,
+    "api": "m5ble.m5ble.Server.get_client",
+    "error": "TypeError('set' object isn't subscriptable)",
+    "classification": "stock-sdk-api-defect"
+  },
+  "runs": [
+    {
+      "status": "PASS",
+      "checks": 22,
+      "session_id": "25c17a963cf74d5a9db6f7e67f0c03da",
+      "firmware_sha256": "ed4202801720bdcdff3a6055de9e8ba177b6930455b48903cff141cae5e79724",
+      "evidence_zip_sha256": "8594a6cbd6f89d1d404c2533c9e79bece28f0b5791314ac35fff5b0da23f339e",
+      "serial_sha256": "c082d1696b50ad8104c1c77ba8e24f7c9e7de76e6e535a1498e63ac6d9433690",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "ble_peer_log_sha256": "d81c6ae694269e71c92e852c21af167265ad3da1c268b984b4ac3d86a8e9e9d9"
+    },
+    {
+      "status": "PASS",
+      "checks": 22,
+      "session_id": "f7fd68a2115e44c59dd08fb10f6b59fe",
+      "firmware_sha256": "52440b0c15cbc76fc639780c0ca4075898e348780758a13758a65444ce2cb6b4",
+      "evidence_zip_sha256": "33cd2e073e97183b5596dc0e685060c643e708836093f6a43ddcdd7b486b81c4",
+      "serial_sha256": "0e328dbdcb0f110b985321b94cbffd0ea51b424cdf6eb96f0207b2c03117d435",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "ble_peer_log_sha256": "69b2c272e531582982a63eee88c064ae9c95f00bc813195f0294259bff18001e"
+    }
+  ],
+  "teardown_settle": {
+    "milliseconds": 2000,
+    "pre_fix_observations": [
+      {
+        "group": "ble-nus",
+        "session_id": "65d5ae3abaec4943a074faaabc6fc945",
+        "status": "7 PASS + 1 TIMED_OUT",
+        "api": "bleuart.BLEUARTServer.deinit"
+      },
+      {
+        "group": "m5ble-server",
+        "session_id": "f7fa5027b1934ba28dfe2fd7ffef5e9a",
+        "status": "21 PASS + 1 TIMED_OUT",
+        "api": "m5ble.m5ble.Device.deinit"
+      }
+    ],
+    "post_fix_stock_ble_nus_runs": [
+      {
+        "status": "PASS",
+        "checks": 8,
+        "session_id": "bcd21a23ef9149f28847ff8708506b98",
+        "evidence_zip_sha256": "e7325829c024b252b44818c748696195d271a8a1b71f8cec78448e503bda59c1",
+        "ble_peer_log_sha256": "7b9ef95d108e3d64476f044d1371eae16eb228e3cf39701fbf0b55f40796c03c"
+      },
+      {
+        "status": "PASS",
+        "checks": 8,
+        "session_id": "c83fea59d9eb49a29e5c29823827ffc6",
+        "evidence_zip_sha256": "514eda309681a661c20d6d44ec281a3ba4a49cbddc8234ca1be6064d595d0406",
+        "ble_peer_log_sha256": "58a1c38d4c6af06c1deb3a17eb6c97a2bc886de5b8bfdd5d77f968883545b5d9"
+      }
+    ],
+    "claim": "bounded probe wait avoids racing the stock library's post-disconnect advertising restart; it does not prove active(False) always completes promptly"
+  },
+  "peer_observations": {
+    "advertisement_name": "M5-CORE2-UNIFIED",
+    "service_uuid": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic_uuid": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "guest_write": "M5_CORE2_UNIFIED",
+    "notification": "ACK:M5_CORE2_UNIFIED"
+  },
+  "not_claimed": [
+    "StopWatch or StickS3 stock internal-controller BLE",
+    "BLE pairing, security or encrypted NUS",
+    "RF, antenna, coexistence, controller bit-exact timing",
+    "physical hardware validation"
+  ]
+}

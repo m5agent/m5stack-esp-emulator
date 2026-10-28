@@ -22,8 +22,6 @@ MANIFEST = PATCH.with_suffix(".json")
 def prepare(source_root: Path, output: Path) -> dict:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     commit = subprocess.check_output(["git", "-C", str(source_root), "rev-parse", "HEAD"], text=True).strip()
-    if commit != manifest["commit"]:
-        raise ValueError("candidate source commit does not match the pinned patch")
     if output.exists():
         raise ValueError("candidate output must be a new directory")
     with tempfile.TemporaryDirectory() as temporary:
@@ -56,7 +54,12 @@ def prepare(source_root: Path, output: Path) -> dict:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(source, encoding="utf-8")
         support_files.append({"path": name, "sha256": hashlib.sha256(source.encode()).hexdigest()})
-    provenance = {**manifest, "patch_sha256": hashlib.sha256(PATCH.read_bytes()).hexdigest(),
+    provenance = {**manifest,
+                  "patch_sha256": hashlib.sha256(PATCH.read_bytes()).hexdigest(),
+                  "source_commit_actual": commit,
+                  "source_commit_matches_manifest": commit == manifest["commit"],
+                  "source_admission": "exact-commit" if commit == manifest["commit"]
+                  else "all-reviewed-file-preimages-match",
                   "support_files": support_files,
                   "candidate_scope": "uploaded-source override; reference firmware unchanged"}
     (output / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")

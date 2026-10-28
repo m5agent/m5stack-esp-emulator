@@ -111,6 +111,16 @@ StopWatch/StickS3 stock internal-controller BLE 仍阻塞。见
 [全接口证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)、
 [Core2 M5UI DMA 修复](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)
 和[Core2 stock BLE 证据](evidence/2026-10-29-core2-stock-ble-native-hci/README.md)。
+Core2 stock `m5ble-server` 的 `Server.get_client` SDK 错误另由 `0025`
+候选源码修复，两轮独立 session 均为 `22/22 PASS`；stock 失败与
+candidate lane 分开保留，见
+[get_client 候选证据](evidence/2026-10-29-m5ble-get-client-candidate/README.md)。
+`9bf74439…` 的三设备再次复测已重绑这些路径：system/shared、协议、
+ESP-NOW、音频和板级接口稳定；StopWatch/Core2 M5UI 的 505 个 widget
+方法均有结果，candidate state/frame 均通过；requests2、Modbus async、
+TLS 和三设备 M5BLE candidate 也重新通过。新增结果没有改变本文仍开放的
+stock SDK、StopWatch/StickS3 controller、真机和物理边界，见
+[接口再次复测](evidence/2026-10-29-three-board-uiflow2-interface-retest-r2/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
@@ -195,7 +205,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，StopWatch/StickS3 stock controller 和 `Server.get_client` SDK 缺陷仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环，`82.4%` gap 位于下一次 status read 前；`0073` 将主要 issuer 绑定到 ROM `0x4006222c` 和应用 segment 5 `0x40093b57`；下一项结合 matching symbols、IRQ delivery 与 cache/MMU 状态解释该路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |

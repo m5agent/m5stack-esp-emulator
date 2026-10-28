@@ -128,6 +128,10 @@ PMK 加密 payload、跨设备 fabric、RF、loss/retry 和 timing 均未验证�
 stock internal-controller GATT 路径仍为 `BLOCKED_MODEL`；显式 HCI
 test-firmware 的既有结果不能替代 stock 结果。
 
+Core2 后续改用 native-HCI 并通过 stock `ble-nus`；`m5ble-server` 的
+`Server.get_client` 错误也已有两轮 candidate source `22/22 PASS`，详见
+[get_client 候选证据](../2026-10-29-m5ble-get-client-candidate/README.md)。
+
 ## 本轮测试工具修正
 
 M5UI runner 现在从设备清单读取 `api_size` 和 `ui_rotation`，不再对

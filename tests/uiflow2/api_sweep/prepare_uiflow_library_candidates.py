@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 
@@ -25,6 +24,11 @@ CANDIDATES = {
         "manifest": ROOT / "patches/uiflow2-api/0023-modbus-async-socket.json",
         "patch": ROOT / "patches/uiflow2-api/0023-modbus-async-socket.patch",
     },
+    "m5ble-server-client-index": {
+        "manifest": ROOT / "patches/uiflow2-api/0025-m5ble-server-client-index.json",
+        "patch": ROOT / "patches/uiflow2-api/0025-m5ble-server-client-index.patch",
+        "depends_on": ("ble-uuid32",),
+    },
 }
 
 
@@ -34,23 +38,52 @@ def digest(payload):
 
 def prepare(name, source_root, out_dir):
     definition = CANDIDATES[name]
-    metadata = json.loads(definition["manifest"].read_text(encoding="utf-8"))
-    patch = definition["patch"]
-    if digest(patch.read_bytes()) != metadata["patch_sha256"]:
-        raise ValueError("patch digest differs from its reviewed metadata")
+    dependency_names = definition.get("depends_on", ())
+    dependency_definitions = [CANDIDATES[dependency] for dependency in dependency_names]
+    definitions = [*dependency_definitions, definition]
+    manifests = [
+        (row, json.loads(row["manifest"].read_text(encoding="utf-8")))
+        for row in definitions
+    ]
+    for row, metadata in manifests:
+        if digest(row["patch"].read_bytes()) != metadata["patch_sha256"]:
+            raise ValueError("patch digest differs from its reviewed metadata")
     out_dir.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix="m5-uiflow-candidate-") as temporary:
         work = Path(temporary)
-        for row in metadata["files"]:
-            source = source_root / row["path"]
-            payload = source.read_bytes()
-            if digest(payload) != row["preimage_sha256"]:
-                raise ValueError("official source preimage differs: " + row["path"])
-            target = work / row["path"]
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(payload)
+        copied = set()
+        for _row, metadata in manifests:
+            for entry in metadata["files"]:
+                if entry["path"] in copied:
+                    continue
+                source = source_root / entry["path"]
+                payload = source.read_bytes()
+                if digest(payload) != entry["preimage_sha256"]:
+                    raise ValueError("official source preimage differs: " + entry["path"])
+                target = work / entry["path"]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(payload)
+                copied.add(entry["path"])
+        dependencies = []
+        for dependency, (row, metadata) in zip(dependency_names, manifests[:-1]):
+            subprocess.run(
+                ["patch", "-p1", "--batch", "--forward", "-i", str(row["patch"])],
+                cwd=work,
+                check=True,
+                capture_output=True,
+            )
+            for entry in metadata["files"]:
+                if digest((work / entry["path"]).read_bytes()) != entry["candidate_sha256"]:
+                    raise ValueError(
+                        "dependency source postimage differs: " + entry["path"]
+                    )
+            dependencies.append({
+                "candidate": dependency,
+                "patch_sha256": metadata["patch_sha256"],
+            })
+        metadata = manifests[-1][1]
         subprocess.run(
-            ["patch", "-p1", "--batch", "--forward", "-i", str(patch)],
+            ["patch", "-p1", "--batch", "--forward", "-i", str(definition["patch"])],
             cwd=work,
             check=True,
             capture_output=True,
@@ -73,6 +106,7 @@ def prepare(name, source_root, out_dir):
         "candidate": name,
         "source_commit": metadata["source_commit"],
         "patch_sha256": metadata["patch_sha256"],
+        "dependencies": dependencies,
         "files": rows,
     }
     (out_dir / "candidate.json").write_text(
