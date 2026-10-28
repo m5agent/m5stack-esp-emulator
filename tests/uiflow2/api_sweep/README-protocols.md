@@ -32,6 +32,22 @@ explicit compatible HCI test images, following the board-specific UART build
 configuration in `../unified_cores3/README.md` and
 `../unified_cardputer/README.md`:
 
+Core2 stock UIFlow2 uses the canonical `core2-native-hci` profile instead of
+`core2-unified`. Pass the matching ELF explicitly:
+
+```sh
+PYTHONPATH=.work/py312 python3.12 tests/uiflow2/api_sweep/run_protocols.py \
+  --execute --api http://127.0.0.1:8788 --group ble-nus --device core2 \
+  --core2-elf .work/uiflow-core2-2.5.3/m5stack/build-M5STACK_Core2/micropython.elf \
+  --token-file "$M5_TOKEN_FILE" --out-dir .work/api-sweep/core2-stock-ble
+```
+
+The runner uploads the ELF as an artifact and fails closed if it is missing.
+The accepted GATT oracle requires connection, service discovery, CCCD
+subscription, the exact peer write and the exact ACK notification in one peer
+log; the host-only one-second cycle tail is not required after the guest has
+already emitted its completion marker.
+
 ```sh
 PYTHONPATH=.work/py312 python3.12 tests/uiflow2/api_sweep/run_protocols.py \
   --execute --api http://127.0.0.1:8788 --group ble-client --device cores3 \

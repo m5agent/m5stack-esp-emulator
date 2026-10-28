@@ -24,7 +24,7 @@ from probe_protocols import build_program
 from protocol_peers import mqtt_handler,modbus_handler,RTUControllerPeer,RTUSlaveControllerPeer
 from ppp_peer import PPPControllerPeer
 from run_device_api import save
-from run_guest import DEVICE_CHOICES, run as run_guest
+from run_guest import Api, DEVICE_CHOICES, run as run_guest
 
 
 BLE_IDENTITIES = {
@@ -35,12 +35,38 @@ BLE_IDENTITIES = {
     "core2": ("M5-CORE2-UNIFIED", "M5_CORE2_UNIFIED"),
 }
 
+CORE2_NATIVE_HCI_PROFILE = "core2-native-hci"
+BLE_GROUPS = {"ble-nus","m5ble-server","ble-client","m5ble-client"}
+
+
+def radio_profile(device):
+    return CORE2_NATIVE_HCI_PROFILE if device == "core2" else "uiflow2-" + device + "-unified"
+
+
+def require_core2_native_hci_elf(device, group, elf_path):
+    if device == "core2" and group in BLE_GROUPS and elf_path is None:
+        raise SystemExit("--core2-elf is required for Core2 stock internal-controller BLE")
+    if elf_path is not None and not elf_path.is_file():
+        raise SystemExit(f"Core2 native-HCI ELF does not exist: {elf_path}")
+
+
+def ble_nus_exchange_observed(log, ack):
+    lines = log.splitlines()
+    exact_ack = "BLE_BUMBLE_NOTIFICATION_OK ACK:" + ack
+    return bool(
+        any(line.startswith("BLE_BUMBLE_CONNECTED") for line in lines)
+        and any(line.startswith("BLE_BUMBLE_GATT_DISCOVERED ") for line in lines)
+        and any(line.startswith("BLE_BUMBLE_SUBSCRIBED ") for line in lines)
+        and any(line.startswith("BLE_BUMBLE_WRITE ") for line in lines)
+        and exact_ack in lines
+    )
+
 
 def stock_radio_model_blocker(evidence, device):
     if device == "core2":
         reason = (
             "The selected stock Core2 image uses its internal Bluetooth "
-            "controller; the core2-unified/native-HCI profile did not reach "
+            "controller; the core2-native-hci profile did not reach "
             "board I/O readiness before timeout. An HCI test-firmware result "
             "cannot close this stock GATT gap."
         )
@@ -66,6 +92,11 @@ def run(args):
         return 0
     if args.out_dir is None:
         raise SystemExit("--out-dir is required with --execute")
+    require_core2_native_hci_elf(
+        "core2" if "core2" in args.device else None,
+        args.group,
+        args.core2_elf,
+    )
     bases=dict(value.split("=",1)for value in getattr(args,"base_image",[]))
     base_hashes=dict(value.split("=",1)for value in getattr(args,"expected_base_sha256",[]))
     if set(bases)!=set(base_hashes):
@@ -73,6 +104,25 @@ def run(args):
     if bases and set(bases)!=set(args.device):
         raise ValueError("alternate firmware lanes require a pinned base for every selected device")
     args.out_dir.mkdir(parents=True,exist_ok=False)
+    core2_elf = None
+    if args.core2_elf is not None:
+        elf_body = args.core2_elf.read_bytes()
+        elf_api = Api(args.api, args.token_file)
+        uploaded_elf = elf_api.json(
+            "artifacts",
+            "POST",
+            body=elf_body,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "X-Artifact-Name": "core2-native-hci.elf",
+            },
+        )
+        core2_elf = {
+            "artifact_id": uploaded_elf["artifact_id"],
+            "sha256": hashlib.sha256(elf_body).hexdigest(),
+            "bytes": len(elf_body),
+        }
+        save(args.out_dir / "core2-native-hci-elf.json", core2_elf)
     peer_requests=[]
     ez_values={}
     ez_history={}
@@ -264,7 +314,7 @@ def run(args):
             })
             source_path=args.out_dir/(device+"-probe.py");source_path.write_text(source,encoding="utf-8")
             plain=args.group.startswith("audio-") or args.group in {"modbus-rtu","modbus-rtu-slave","ppp"}
-            radio=args.group in {"ble-nus","m5ble-server","ble-client","m5ble-client"}
+            radio=args.group in BLE_GROUPS
             wifi_profile={"sticks3":"uiflow2-sticks3-wifi","core2":"core2-openmac"}.get(device,"generic-observe")
             arguments=SimpleNamespace(api=args.api,token_file=args.token_file,device=device,runtime="qemu-unified" if radio else "qemu" if plain else "qemu-wifi",
                        timeout=args.timeout,source=source_path,out_dir=output,done_marker="PROTOCOL_GROUP_DONE "+args.group,
@@ -277,8 +327,12 @@ def run(args):
                 arguments.expected_base_sha256=base_hashes[device]
                 arguments.firmware_lane=("hci-offload-test-firmware" if radio else "caller-pinned-candidate")
             if radio:
-                radio_profile={"core2":"core2-unified"}.get(device,"uiflow2-"+device+"-unified")
-                arguments.network.update(profile=radio_profile,ble_linger_seconds=8)
+                profile=radio_profile(device)
+                arguments.network.update(profile=profile,ble_linger_seconds=8)
+                if device == "core2":
+                    if core2_elf is None:
+                        raise ValueError("Core2 native-HCI ELF upload is unavailable")
+                    arguments.network["elf_artifact_id"] = core2_elf["artifact_id"]
                 if args.group in {"ble-client","m5ble-client"}:arguments.network["ble_peer_role"]="peripheral"
             if args.group in {"modbus-rtu","modbus-rtu-slave","ppp"}:
                 if device!="cores3":raise ValueError("Cardputer-ADV RS485 Unit is not admitted")
@@ -336,8 +390,13 @@ def run(args):
                          for name in archive.namelist() if name.startswith("audio/")}
                     if radio:
                         ble_logs=[archive.read(name).decode(errors="replace") for name in archive.namelist() if "ble" in name.lower() and name.endswith(".log")]
-                        exact_ack="BLE_BUMBLE_NOTIFICATION_OK ACK:"+BLE_IDENTITIES[device][1]
-                        peer_ok=any(exact_ack in log.splitlines() and "BLE_BUMBLE_CYCLE_PASS 1" in log for log in ble_logs)
+                        peer_ok=any(
+                            ble_nus_exchange_observed(
+                                log,
+                                BLE_IDENTITIES[device][1],
+                            )
+                            for log in ble_logs
+                        )
                         evidence["ble_peer_logs"]={name:hashlib.sha256(archive.read(name)).hexdigest() for name in archive.namelist() if "ble"in name.lower() and name.endswith(".log")}
                         for row in results:
                             if row["status"]=="OBSERVED_PENDING_PEER":
@@ -410,6 +469,7 @@ if __name__=="__main__":
     parser.add_argument("--modbus-master-source",type=Path)
     parser.add_argument("--base-image",action="append",default=[],help="device_id=/path/to/explicit-HCI-test-base.bin")
     parser.add_argument("--expected-base-sha256",action="append",default=[],help="device_id=exact-SHA256; mandatory for each alternate base")
+    parser.add_argument("--core2-elf",type=Path,help="matching Core2 UIFlow2 ELF for core2-native-hci")
     parser.add_argument("--uart-repl-bootstrap",choices=("dupterm","native"),
                         help="guest bootstrap for an explicit base with a native UART REPL")
     parser.add_argument("--audio-case",choices=("all","raw","tone","file"),default="all")

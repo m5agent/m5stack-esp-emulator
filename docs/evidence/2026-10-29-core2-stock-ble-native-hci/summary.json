@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "device_id": "core2",
+  "firmware": {
+    "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "elf_bytes": 50143184
+  },
+  "runtime": {
+    "runtime": "qemu-unified",
+    "profile": "core2-native-hci",
+    "icount_shift": 5,
+    "qemu_sha256": "9bf74439ddbe7225a64eb437290043729fb032525756adb834565ec412f8c197"
+  },
+  "runs": [
+    {
+      "status": "PASS",
+      "checks": 8,
+      "evidence_zip_sha256": "8bce94370d3be9a433dea55b785a0070540f65aac10ac9385bcf3f102d38faa1",
+      "ble_peer_log_sha256": "6f1cdd792ce08b71862dad1de2d4478682afaa445c50ad52970b9f7cb4d31f6c"
+    },
+    {
+      "status": "PASS",
+      "checks": 8,
+      "evidence_zip_sha256": "a35f1fd7ebfce401ead664a38ff761715cb0f9a5bf776bf842646d100811e060",
+      "ble_peer_log_sha256": "f9fcf6e2c04a42ba97b5dd97e73f8bfe28b995c1dc09c17333fb8eddbed6dc66"
+    },
+    {
+      "status": "PASS",
+      "checks": 8,
+      "evidence_zip_sha256": "66122c83ba2318e4697d1ccb7bbdc9f00119d0d7c995e94eacc50454d8dfb4a36",
+      "ble_peer_log_sha256": "0625ab754a1567aaf412e3fac796c7f8d1dc139fb33565d4e7315853b7fe8754"
+    }
+  ],
+  "peer_observations": {
+    "advertisement_name": "M5-CORE2-UNIFIED",
+    "service_uuid": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic_uuid": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "guest_write": "M5_CORE2_UNIFIED",
+    "notification": "ACK:M5_CORE2_UNIFIED"
+  },
+  "stock_api_failure": {
+    "group": "m5ble-server",
+    "checks_pass": 21,
+    "checks_error": 1,
+    "api": "m5ble.m5ble.Server.get_client",
+    "error": "TypeError('set' object isn't subscriptable)",
+    "classification": "stock-sdk-api-defect"
+  },
+  "not_claimed": [
+    "StopWatch or StickS3 stock internal-controller BLE",
+    "BLE pairing/security or encrypted NUS",
+    "RF, antenna, coexistence or physical timing",
+    "physical hardware validation"
+  ]
+}

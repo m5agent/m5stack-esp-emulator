@@ -74,6 +74,45 @@ class ApiSweepProtocolBleIdentityTest(unittest.TestCase):
         sticks3 = self.runner.stock_radio_model_blocker({}, "sticks3")
         self.assertIn("stock sticks3 image", sticks3["reason"])
 
+    def test_core2_ble_uses_the_native_hci_profile_and_requires_elf(self):
+        self.assertEqual(
+            self.runner.radio_profile("core2"),
+            "core2-native-hci",
+        )
+        self.assertEqual(
+            self.runner.radio_profile("sticks3"),
+            "uiflow2-sticks3-unified",
+        )
+        with self.assertRaises(SystemExit):
+            self.runner.require_core2_native_hci_elf(
+                "core2",
+                "ble-nus",
+                None,
+            )
+
+    def test_exact_ack_notification_is_sufficient_without_host_cycle_tail(self):
+        log = "\n".join(
+            (
+                "BLE_BUMBLE_CONNECTED",
+                "BLE_BUMBLE_GATT_DISCOVERED 6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+                "BLE_BUMBLE_SUBSCRIBED 6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+                "BLE_BUMBLE_WRITE M5_CORE2_UNIFIED",
+                "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_CORE2_UNIFIED",
+            )
+        )
+        self.assertTrue(
+            self.runner.ble_nus_exchange_observed(
+                log,
+                "M5_CORE2_UNIFIED",
+            )
+        )
+        self.assertFalse(
+            self.runner.ble_nus_exchange_observed(
+                log.replace("BLE_BUMBLE_SUBSCRIBED", "UNSUBSCRIBED"),
+                "M5_CORE2_UNIFIED",
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

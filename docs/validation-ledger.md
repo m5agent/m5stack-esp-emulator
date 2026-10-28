@@ -857,3 +857,26 @@ session 均取 evidence ZIP 后以 `purge=0` 停止。当前限定为
 virtual-device validation；物理 ILI9342 DMA/SPI timing、电气和真机视觉
 仍 `NOT RUN`。见[证据](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)
 和[机器摘要](evidence/2026-10-29-core2-m5ui-dma-dedup/summary.json)。
+
+## 2026-10-29：Core2 stock UIFlow2 BLE via native HCI
+
+此前 `run_protocols.py` 把 Core2 stock BLE 强制送入 `core2-unified`，
+没有上传 `core2-native-hci` 所需 matching ELF，导致 timeout 被错误归类为
+stock GATT 模型阻塞。runner 现在使用 `core2-native-hci`，要求显式
+`--core2-elf` 并上传 artifact；ACK oracle 改为要求同一条 peer log 内
+完成 connection、GATT discovery、subscription、exact write 和 exact
+notification，不再依赖 guest 完成后才会出现的 host-only cycle tail。
+
+同一个 stock `UIFlow2 v2.5.3` base `b228c0e2…`、matching ELF
+`5bec056b…` 和 frozen QEMU `9bf74439…` 上，Core2 `ble-nus` 三个独立
+session 均为 `8/8 PASS`。peer 实际发现 `M5-CORE2-UNIFIED`，订阅
+`6e400003…`，写入 `M5_CORE2_UNIFIED`，并收到精确通知
+`ACK:M5_CORE2_UNIFIED`；所有 session 均取得 evidence ZIP 且 runtime
+PID gone。Core2 `m5ble-server` 为 `21 PASS + 1 ERROR`，唯一错误是 stock
+API `Server.get_client` 的 `TypeError("'set' object isn't subscriptable")`，
+继续作为 SDK/API 缺陷保留。
+
+该结果只关闭当前 Core2 stock BLE NUS/native-HCI 路径；StopWatch/StickS3
+stock internal-controller、BLE 安全、RF、共存、时序和物理硬件仍
+`NOT RUN`/开放。见[证据](evidence/2026-10-29-core2-stock-ble-native-hci/README.md)
+和[机器摘要](evidence/2026-10-29-core2-stock-ble-native-hci/summary.json)。
