@@ -672,16 +672,20 @@ sampling 仍被记录为 `NOT RUN` 的工具缺口。公开
 BOARD NAME `54.9924 s`、APIKEY `54.9971 s`、boot.py start/done
 `77.8622/78.3712 s`。1,599 个 50 ms PC 样本中，CPU0 的
 `0x4026306e` waiti 形态 31.0%，`0x40087980..8e` handoff 簇 60.4%；
-SSI 共 103,058 transactions、3,181,984 RX bytes，最后 command
-`0xBB` 的 payload 为 64 bytes。
+SSI 聚合计数为 103,058 transactions、3,181,984 RX bytes（平均约
+30.9 bytes/transaction），最后记录的 command/payload counter 为
+`0xBB/64`。verbose trace 采样间隔 1024，仅捕获 108 个 begin event
+（95 个 `0x05` status read、2 个 `0xBB` 64-byte read、10 个 `0x00`、
+1 个 `0x02`），全量 command/length 分布仍未知。
 
 同固件 normal-WDT 仍在 `7.2536 s` stage-0、`17.2536 s` stage-1 reset；
 TG1 在 reset 前 14,998 次 feed、最大间隔 3.927 ms、0 timeout。
 “所有 high-priority memw/retw 立即切核”“仅 CPU1 首次立即切核”
 “cross-core 写时退出 TB”“SPI TRANS_DONE 时退出 TB”四类负控均执行后
 丢弃，均未改善 BOARD/APIKEY 或 normal-WDT 启动预算。`RUNTIME-03`
-保持 `OPEN`；下一项是区分 guest 64-byte read cadence 与缺失的
-controller/DMA bulk path。全部为 virtual-device validation；物理
+保持 `OPEN`；下一项先补 controller 级 command/length/RX-byte 聚合直方图，
+再判断 guest driver 请求分布、interrupt delivery 与缺失的 controller/DMA
+bulk path。全部为 virtual-device validation；物理
 Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
 [phase profile 证据](evidence/2026-10-29-core2-preboot-phase-profile/README.md)
 和[机器摘要](evidence/2026-10-29-core2-preboot-phase-profile/summary.json)。

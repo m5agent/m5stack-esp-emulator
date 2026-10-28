@@ -102,12 +102,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
   晚于 stage-1 deadline，而降低 icount shift 仍不消除 reset，见
   [UART clock 证据](evidence/2026-10-29-core2-legacy-uart-clock/README.md)。
-  新 phase profile 进一步把启动工作收敛到大量 64-byte read-class SSI
-  transaction：WDT-off 80 秒内累计 `103,058` transactions，CPU0 约
-  60% 采样落 `0x40087980..8e` 的 handoff 簇；立即切核四类控制均没有
-  改善 normal-WDT 启动预算，已全部丢弃。下一项必须判断 64-byte cadence
-  来自 guest driver 还是缺失的大块 controller/DMA transaction，或取得
-  matching legacy source。
+  新 phase profile 在 WDT-off 80 秒内记录 `103,058` SSI transactions、
+  `3,181,984` RX bytes，CPU0 约 60% 采样落 `0x40087980..8e` 的 handoff
+  簇；verbose trace 仅采样到 108 个 begin event（95 个 `0x05` status
+  read、2 个 `0xBB` 64-byte read），全量 command/length 分布仍未知。
+  立即切核四类控制均没有改善 normal-WDT 启动预算，已全部丢弃。下一项
+  必须补 controller 级聚合直方图，判断请求分布、guest driver 来源与缺失
+  的大块 controller/DMA transaction，或取得 matching legacy source。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -175,7 +176,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；phase profile 将 pre-boot 工作收敛到约十万次 64-byte read-class SSI transaction，四类立即切核控制均无改善；下一项判断小块读取的 guest/controller 来源 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；phase profile 记录约十万次 SSI transaction，但全量 command/length 分布仍未知；四类立即切核控制均无改善，下一项补 controller 级聚合直方图并判断 guest/controller 来源 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -250,8 +251,9 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 2. 在 matching LittleFS2 VFS 与 `runtime=qemu-wifi` lane 重新观察旧
    `0x40100049` BIN-bound LVGL wait；修正后的 120 秒点未复现该地址，
    不能把旧对象/寄存器结论直接继承为当前第一失败点；
-   当前 50 ms phase profile 显示大量 64-byte read-class SSI transaction，
-   下一步需区分 guest driver 小块读取与缺失的 controller/DMA bulk path；
+   当前 50 ms phase profile 只确定 SSI transaction/RX 聚合总数，采样不足以
+   给出全量 command 或长度分布；下一步需先补 controller 级聚合直方图，再
+   区分 guest driver 请求模式与缺失的 controller/DMA bulk path；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
    callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
    再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；

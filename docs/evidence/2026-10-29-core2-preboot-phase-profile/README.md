@@ -29,20 +29,27 @@ PC 采样共 `1,599` 个 50 ms 样本。CPU0 约 `31.0%` 位于
 | --- | ---: |
 | SSI transactions | `103,058` |
 | SSI RX bytes | `3,181,984` |
-| 最后一次 SSI command | `0xBB` |
-| 最后一次 SSI payload | `64` bytes |
+| 最后记录的 SSI command counter | `0xBB` |
+| 最后记录的 SSI payload counter | `64` bytes |
 | DPORT cache-sync calls | `215,836` |
 | Changed pages | `5,911` |
 | Cross-core writes | `428,205` |
 
-sampled SSI stream 中大量 transaction 为 read-class command，接收长度
-通常为 64 bytes。当前结果把下一问题缩小到：
+SSI 聚合计数只证明 `103,058` 次 transaction 和 `3,181,984` RX bytes，
+平均约 `30.9` bytes/transaction；它不产出全量 command 或长度直方图。
+verbose trace 的采样间隔是 `1024`，只能描述被采到的 event：108 个
+`transaction-begin` 中有 95 个 `0x05` status read（1 byte）、2 个
+`0xBB` Dual I/O Fast Read（64 bytes）、10 个 `0x00` 和 1 个 `0x02`。
+因此不能把“约十万次 64-byte read”写成结论；最后记录的 command/payload
+counter 是 `0xBB/64` 也不是分布。当前结果把下一问题缩小到：
 
-1. guest 为什么在启动期执行约十万次小块 Flash read；
-2. 为什么每次 read completion 到下一次 host controller command 之间存在
-   明显虚拟时间间隔；
-3. 该间隔来自 guest 指令路径、SPI interrupt delivery，还是缺少更大的
-   controller/DMA transaction。
+1. guest 为什么在启动期执行约十万次 SSI transaction，这些请求来自哪个
+   driver 路径；
+2. 全量 command/length 分布是什么，尤其 status read 与偶发 64-byte read
+   的比例；
+3. read completion 到下一次 host controller command 的间隔来自 guest
+   指令路径、SPI interrupt delivery，还是缺少更大的 controller/DMA
+   transaction。
 
 三组“立即切核”负控均已执行并丢弃：
 

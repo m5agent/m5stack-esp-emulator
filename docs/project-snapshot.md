@@ -77,7 +77,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；phase profile 将 pre-boot 工作收敛到约十万次 64-byte read-class SSI transaction，四类立即切核控制均无改善；下一项判断小块读取的 guest/controller 来源 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；phase profile 记录约十万次 SSI transaction，但全量 command/length 分布仍未知；四类立即切核控制均无改善，下一项补 controller 级聚合直方图并判断 guest/controller 来源 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
@@ -111,7 +111,7 @@
 
 - `tests/`：`127` 个可执行 Python 测试文件，分布在 `58` 个目录；`223` 个 evidence JSON。
 - `patches/`：`15` 个补丁组，`145` 个 patch 文件。
-- 文档：`404` 个 Markdown 页面；除本生成页外共 `38487` 行。
+- 文档：`404` 个 Markdown 页面；除本生成页外共 `38500` 行。
 
 ## 文档与测试
 

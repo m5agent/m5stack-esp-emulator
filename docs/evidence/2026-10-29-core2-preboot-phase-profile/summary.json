@@ -30,6 +30,17 @@
     "ssi_rx_bytes": 3181984,
     "ssi_last_command": "0xBB",
     "ssi_last_payload_bytes": 64,
+    "sampled_ssi_commands": {
+      "trace_sample_interval": 1024,
+      "transaction_begin_events": 108,
+      "distribution": {
+        "0x05": 95,
+        "0xBB": 2,
+        "0x00": 10,
+        "0x02": 1
+      },
+      "full_command_length_distribution": "UNKNOWN"
+    },
     "cache_sync_calls": 215836,
     "changed_pages": 5911,
     "crosscore_writes": 428205
@@ -87,7 +98,8 @@
     "contract": "platform/tests/test_core2_uart_clock.py"
   },
   "next_actions": [
-    "Determine whether the 64-byte read cadence is the guest driver path or a missing larger controller/DMA transaction",
+    "Add default-off aggregate SSI command and RX-byte histograms without relying on sampled verbose events",
+    "Determine which guest driver path issues the sampled status reads and occasional 64-byte reads",
     "Measure SPI completion-to-next-command virtual latency without scheduler overrides",
     "Obtain matching UIFlow_Core2 v1.15.4 ELF/MAP or keep all PC names BIN-bound"
   ],
