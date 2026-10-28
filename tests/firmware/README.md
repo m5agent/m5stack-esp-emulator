@@ -330,8 +330,19 @@ bounded stack window. BIN-bound analysis identifies the loop as LVGL
 `flushing=1`, and the display driver has `wait_cb=null`. `0042` adds the
 optional object-word dump and a partial SPI `TRANS_DONE/TRANS_INTEN` IRQ
 model. Display `flush_cb` executes, but the completion callback and
-`lv_disp_flush_ready` are not observed. The current boundary is the SPI
-interrupt/queue completion chain, not an unknown flag/object.
+`lv_disp_flush_ready` are not observed. At that point the boundary was the
+SPI interrupt/queue completion chain, not an unknown flag/object.
+
+[`core2_spi_irq_remap/`](core2_spi_irq_remap/) isolates one part of that
+chain with a 16-byte ESP-IDF SPI3 queue transaction. It reproduces a guest
+that raises the SPI level before writing the final interrupt-matrix mapping.
+The old matrix model only forwarded level edges, so the queued transaction
+timed out without a guest callback. Patch `0064` recomputes outputs for
+pending input levels and models `SPI_SLAVE.TRANS_DONE/TRANS_INTEN`; the same
+firmware is pre-fix `FAIL` and fixed `3/3 PASS`. Legacy UIFlow still does not
+reach the display completion or a non-empty frame, so this does not close
+`RUNTIME-03`.
+
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC

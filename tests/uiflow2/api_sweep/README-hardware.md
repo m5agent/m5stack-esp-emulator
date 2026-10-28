@@ -12,6 +12,11 @@ that the runtime process is gone. Use a fresh ignored output directory per run.
 The examples assume Python 3.12 and the project's local `littlefs-python`
 dependency directory. Supply the existing Device Service token file privately.
 
+For concurrent sweeps, `run_guest.py` and `run_hardware_guest.py` accept
+`--ready-timeout`. The default 60 seconds matches ordinary single-session
+runs; a six-session UIFlow2 local-service sweep should use at least 180
+seconds so QEMU launch pressure is not misreported as a guest failure.
+
 Fixture intake excludes host `__pycache__`, `.pyc`, `.pyo` and `.DS_Store`
 files. Explicit guest `.mpy` and other binary fixtures remain supported.
 Symlinks are rejected even when their names would otherwise be excluded.

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "core2-spi-irq-remap-control",
+  "validation": "virtual-device validation",
+  "status": "FAIL",
+  "classification": "PRE_FIX_CALLBACK_TIMEOUT",
+  "firmware_sha256": "1f4d1b405425f093c40459e31e3e3c643e4ac49ccd529b9018a7dc346470faf9",
+  "elf_sha256": "00d946fe3f6ca6a5bf431a609afa32beb8c71fc4ea753baa9e6920cb4ed3387d",
+  "qemu_binary_sha256": "03ae86b5ce2d2029bf68a1b0e9c89153447217a02938a556ea292066b222afaf",
+  "attempts_requested": 1,
+  "attempts_passed": 0,
+  "serial_sha256": "4bec0d18adefa7d9d85993e60477802457b00bf58c8124315f31e7f0cb62219b",
+  "observed": {
+    "queue_observed": true,
+    "callback_count": 0,
+    "result_count": 0,
+    "fail_count": 1
+  },
+  "boundary": "The same firmware and ELF complete only after patch 0064 is applied."
+}

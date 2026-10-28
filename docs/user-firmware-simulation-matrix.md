@@ -334,9 +334,13 @@ stage-1 reset and marked that gap `NOT_REPRODUCED`.
 Flash/SSI counters stop changing around 44 seconds, CPU0 enters `waiti`, and
 CPU1 remains in LVGL `lv_refr_vdb_flush` waiting for a double-buffer flush to
 complete. The display flush callback runs once, but the completion callback
-that should call `lv_disp_flush_ready` is not observed. The next acceptance
-requires the SPI interrupt/queue completion chain to run and a non-empty
-application frame under the normal WDT.
+that should call `lv_disp_flush_ready` is not observed. `0064` subsequently
+fixed pending SPI source delivery when the INTMATRIX mapping changes after the
+level is already high; an isolated ESP-IDF SPI3 guest callback probe is
+pre-fix timeout and fixed `3/3 PASS`. The latest legacy runtime still resets or
+stops before display completion, so the next acceptance requires that path to
+reach `lv_disp_flush_ready` and a non-empty application frame under the normal
+WDT.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for

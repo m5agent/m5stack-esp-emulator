@@ -389,6 +389,18 @@ therefore also swallowed PWR. The replay test now checks that A/B/C enter the
 touch branch while the PWR path remains reachable. Final guest sessions observe
 callback state 2 for all four controls and no new callback after removal.
 
+`0064-esp32-intmatrix-pending-irq-remap.patch` retains every ESP32 interrupt
+matrix input level and recomputes CPU external-interrupt outputs whenever a
+source level or mapping changes. The old model forwarded only input edges; a
+guest could raise a pending SPI source, rewrite its mapping from unconnected to
+a CPU interrupt, and leave the IRQ undelivered forever. The patch also stores
+`SPI_SLAVE.TRANS_DONE/TRANS_INTEN` and drives the SPI line as their logical AND.
+The same ESP-IDF 5.5.4 Core2 probe times out before the patch and passes `3/3`
+after it, with one guest `post_cb` and queued-result completion per run. This
+fixes the generic SPI/INTMATRIX completion defect but does not close legacy
+UIFlow `RUNTIME-03`; its retained runtime still resets or fails to reach the
+display flush callback.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

@@ -1,0 +1,158 @@
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -31,6 +31,8 @@
+     uint32_t miso_dlen_reg;
+     uint32_t pin_reg;
+     uint32_t m5_dma_out_link;
++    uint32_t trans_done;
++    uint32_t trans_inten;
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -47,6 +47,18 @@
+ static void esp32_spi_txrx_buffer(Esp32SpiState *s, void *buf,
+                                     int tx_bytes, int rx_bytes);
+ 
++static void esp32_spi_update_irq(Esp32SpiState *s)
++{
++    bool level = s->trans_done && s->trans_inten;
++
++    if (getenv("M5SW_ESP32_SPI_IRQ_TRACE")) {
++        fprintf(stderr,
++                "[esp32-spi-irq] trans_done=%u trans_inten=%u level=%u\n",
++                s->trans_done, s->trans_inten, level);
++    }
++    qemu_set_irq(s->irq, level);
++}
++
+ static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link,
+                                   uint32_t remaining, bool command_phase)
+ {
+@@ -126,7 +138,8 @@
+         r = 0;
+         break;
+     case A_SPI_SLAVE:
+-        r = BIT(R_SPI_SLAVE_TRANS_DONE_SHIFT) | BIT(R_SPI_SLAVE_TRANS_INTEN_SHIFT);
++        r = FIELD_DP32(0, SPI_SLAVE, TRANS_DONE, s->trans_done);
++        r = FIELD_DP32(r, SPI_SLAVE, TRANS_INTEN, s->trans_inten);
+         break;
+     }
+     return r;
+@@ -182,6 +195,11 @@
+     case A_SPI_CMD:
+         esp32_spi_do_command(s, value);
+         break;
++    case A_SPI_SLAVE:
++        s->trans_done = FIELD_EX32(value, SPI_SLAVE, TRANS_DONE);
++        s->trans_inten = FIELD_EX32(value, SPI_SLAVE, TRANS_INTEN);
++        esp32_spi_update_irq(s);
++        break;
+     case 0x100:
+         if (getenv("M5SW_ESP32_SPI_DMA_TRACE")) {
+             fprintf(stderr, "[esp32-spi-dma] conf=%08lx\n",
+@@ -278,6 +296,8 @@
+         }
+     }
+     esp32_spi_cs_set(s, 1);
++    s->trans_done = 1;
++    esp32_spi_update_irq(s);
+ }
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,
+@@ -441,6 +461,9 @@
+     s->user2_reg = FIELD_DP32(s->user2_reg, SPI_USER2, COMMAND_VALUE, 0);
+     s->status_reg = 0;
+     s->m5_dma_out_link = 0;
++    s->trans_done = 0;
++    s->trans_inten = 0;
++    esp32_spi_update_irq(s);
+ }
+ 
+ static void esp32_spi_realize(DeviceState *dev, Error **errp)
+--- a/include/hw/xtensa/esp32_intc.h
++++ b/include/hw/xtensa/esp32_intc.h
+@@ -34,6 +34,7 @@
+     MemoryRegion iomem;
+     qemu_irq *outputs[ESP32_CPU_COUNT];
+     uint8_t irq_map[ESP32_CPU_COUNT][ESP32_INT_MATRIX_INPUTS];
++    uint8_t irq_level[ESP32_INT_MATRIX_INPUTS];
+ 
+     /* properties */
+     XtensaCPU *cpu[ESP32_CPU_COUNT];
+--- a/hw/xtensa/esp32_intc.c
++++ b/hw/xtensa/esp32_intc.c
+@@ -22,23 +22,40 @@
+ 
+ #define IRQ_MAP(cpu, input) s->irq_map[cpu][input]
+ 
+-static void esp32_intmatrix_irq_handler(void *opaque, int n, int level)
++static void esp32_intmatrix_update_outputs(Esp32IntMatrixState *s)
+ {
+-    Esp32IntMatrixState *s = ESP32_INTMATRIX(opaque);
+-    for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+-        if (s->outputs[i] == NULL) {
++    for (int cpu = 0; cpu < ESP32_CPU_COUNT; ++cpu) {
++        if (s->outputs[cpu] == NULL) {
+             continue;
+         }
+-        int out_index = IRQ_MAP(i, n);
+-        for (int int_index = 0; int_index < s->cpu[i]->env.config->nextint; ++int_index) {
+-            if (s->cpu[i]->env.config->extint[int_index] == out_index) {
+-                qemu_set_irq(s->outputs[i][int_index], level);
+-                break;
++        for (int int_index = 0;
++             int_index < s->cpu[cpu]->env.config->nextint;
++             ++int_index) {
++            int output = s->cpu[cpu]->env.config->extint[int_index];
++            int level = 0;
++
++            for (int input = 0; input < ESP32_INT_MATRIX_INPUTS; ++input) {
++                if (s->irq_map[cpu][input] == output
++                    && s->irq_level[input]) {
++                    level = 1;
++                    break;
++                }
+             }
++            qemu_set_irq(s->outputs[cpu][int_index], level);
+         }
+     }
+ }
+ 
++static void esp32_intmatrix_irq_handler(void *opaque, int n, int level)
++{
++    Esp32IntMatrixState *s = ESP32_INTMATRIX(opaque);
++    s->irq_level[n] = !!level;
++    if (getenv("M5SW_ESP32_INTMATRIX_TRACE")) {
++        fprintf(stderr, "[esp32-intmatrix] input=%d level=%d\n", n, level);
++    }
++    esp32_intmatrix_update_outputs(s);
++}
++
+ static inline uint8_t* get_map_entry(Esp32IntMatrixState* s, hwaddr addr)
+ {
+     int source_index = addr / sizeof(uint32_t);
+@@ -64,6 +81,14 @@
+     uint8_t* map_entry = get_map_entry(s, addr);
+     if (map_entry != NULL) {
+         *map_entry = value & 0x1f;
++        if (getenv("M5SW_ESP32_INTMATRIX_TRACE")) {
++            fprintf(stderr,
++                    "[esp32-intmatrix] write addr=%03lx source=%lu map=%u\n",
++                    (unsigned long)addr,
++                    (unsigned long)(addr / sizeof(uint32_t)),
++                    *map_entry);
++        }
++        esp32_intmatrix_update_outputs(s);
+     }
+ }
+ 
+@@ -77,6 +102,7 @@
+ {
+     Esp32IntMatrixState *s = ESP32_INTMATRIX(obj);
+     memset(s->irq_map, INTMATRIX_UNINT_VALUE, sizeof(s->irq_map));
++    memset(s->irq_level, 0, sizeof(s->irq_level));
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         if (s->outputs[i] == NULL) {
+             continue;

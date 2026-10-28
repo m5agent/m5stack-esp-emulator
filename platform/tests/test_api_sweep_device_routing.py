@@ -3,6 +3,7 @@ import importlib.util
 import math
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 import unittest
 
 
@@ -67,6 +68,22 @@ class ApiSweepDeviceRoutingTests(unittest.TestCase):
     def test_unknown_geometry_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "unknown device"):
             self.ui.display_dimensions("not-a-device")
+
+    def test_concurrent_ready_timeout_is_explicit_and_positive(self):
+        self.assertEqual(self.guest.session_ready_timeout(SimpleNamespace()), 60)
+        self.assertEqual(
+            self.guest.session_ready_timeout(
+                SimpleNamespace(ready_timeout=180)
+            ),
+            180,
+        )
+        for value in (0, -1, True, 1.5):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                ValueError, "positive integer"
+            ):
+                self.guest.session_ready_timeout(
+                    SimpleNamespace(ready_timeout=value)
+                )
 
 
 if __name__ == "__main__":

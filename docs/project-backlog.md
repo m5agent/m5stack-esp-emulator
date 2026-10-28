@@ -48,7 +48,7 @@ eFuse 或生产 key。
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask 和 QIO/stateful SSI 已修复/验证；WDT-off 已把约 44 秒后的 CPU1 `0x40100049` 绑定到 LVGL 双缓冲 flush wait；display flush callback 已调用，但 SPI completion/`lv_disp_flush_ready` 未完成 | probe/UIFlow2 PASS、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、QIO/stateful SSI 和 pending SPI/INTMATRIX remap 已修复/验证；独立 guest SPI probe 已从 timeout 变为 PASS，但最新 legacy runtime 仍在 display flush 前停止或 reset | probe/UIFlow2 PASS、独立 SPI probe PASS、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -125,12 +125,12 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 主线其余 P0 继续按以下顺序推进，已有修复和诊断不扩大为 legacy 应用启动：
 
-1. `RUNTIME-03`：timer、WDT mask、stateful SSI、统一 handoff timeline 和
-   WDT liveness 已验证。WDT-off 45/120 秒对照显示 Flash 工作约在 44 秒
-   结束，随后 CPU0 idle、CPU1 在 LVGL `lv_refr_vdb_flush` 的双缓冲
-   `flushing` wait 中自旋。Display `flush_cb` 已执行，但 SPI completion
-   到 `lv_disp_flush_ready()` 的链路未完成。下一步修正 interrupt/queue
-   completion，而不是继续识别已映射的 late object。
+1. `RUNTIME-03`：timer、WDT mask、stateful SSI、统一 handoff timeline、
+   WDT liveness 和 pending SPI source remap 已验证。`0064` 让独立
+   ESP-IDF SPI3 probe 从 callback timeout 变为 fixed PASS；
+   最新 legacy runtime 仍未到达 display completion，60 秒 PC trace 在
+   约 `15.53 s` reset 前没有命中 flush/callback。下一步解释
+   display-driver 到达条件和 reset 前启动 phase。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -153,7 +153,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush`：VDB `flushing=1`、`wait_cb=null`，display `flush_cb=0x40174758` 已调用，但 completion `0x40174884` / `lv_disp_flush_ready` 未观测。下一项修 SPI interrupt/queue completion；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness 与 LVGL flush completion 保持可重放 |
+| `RUNTIME-03` | 进行中 | `0064` 已修复 pending SPI source 在 interrupt-matrix remap 后不投递的通用缺陷，独立 guest probe PASS。legacy `0x40100049` 仍绑定 LVGL 双缓冲 wait，但最新 runtime 在 display completion 前 reset/停止。下一项解释 display-driver 到达条件和 reset 前启动 phase；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness、SPI remap 与 LVGL flush completion 保持可重放 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -190,7 +190,12 @@ WDT-off 45/120 秒 late-state 捕获均可重放。
 - 关闭 WDT 只作为诊断 control 后，Flash/SSI 活动约在 44 秒结束，但 CPU1
   到 120 秒仍停在 LVGL 双缓冲 flush wait，无 setup/REPL；
 - BIN-bound 映射已把该 wait 定位到 `lv_refr_vdb_flush`；display flush
-  callback 已调用，但 SPI completion 与 `lv_disp_flush_ready` 未出现；
+  callback 曾在旧 runtime control 中调用，但 SPI completion 与
+  `lv_disp_flush_ready` 未出现；
+- `0064` 已修复 pending SPI source 在 mapping 写回时不重算的通用缺陷，
+  独立 Core2 ESP-IDF probe 在同一固件/ELF 上由 callback timeout 变为
+  fixed PASS；最新 legacy runtime 仍没有到达 display completion，
+  60 秒 PC trace 在约 `15.53 s` reset 前未命中 flush/callback；
 - 当前 local UIFlow2 ELF 与该 BIN 字节仍不一致，因此函数命名全部来自
   BIN 指令/结构匹配，不声明 ELF 符号等价；
   `Core2FactoryTest` 在 I2C 修复后仍未重跑。
@@ -201,8 +206,9 @@ WDT-off 45/120 秒 late-state 捕获均可重放。
    local UIFlow2 v2.5.3 ELF 不能用于符号命名；
 2. 保持 BIN-bound 结论：`0x40100049` 是 LVGL `lv_refr_vdb_flush` 的
    double-buffer wait，`A2` 是 `lv_disp_buf_t`，`A10` 是 display driver；
-3. 修正 SPI `TRANS_DONE`/interrupt matrix/queue completion 的剩余缺口，
-   让 display completion callback `0x40174884` 和
+3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
+   callback 回归；解释最新 legacy runtime 为何在 display `flush_cb` 前
+   reset/停止，让 completion callback `0x40174884` 和
    `lv_disp_flush_ready` 可观测；保留 `0036` stateful SSI 数据面，不使用
    `blk_pread` bypass；
 4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase

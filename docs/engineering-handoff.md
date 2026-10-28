@@ -68,9 +68,11 @@
   路径匹配，并通过 UIFlow2 Core2 外设组，但 normal-WDT legacy 仍失败；
   WDT 关闭后的 45/120 秒对照显示 Flash/SSI 工作约在 44 秒结束，随后 CPU1
   稳定停在 LVGL `lv_refr_vdb_flush` 的双缓冲 `flushing` wait，仍无
-  setup/REPL 或应用帧。display `flush_cb` 已执行，但 SPI completion 与
-  `lv_disp_flush_ready` 未完成；当前未闭合物是该 completion 链和
-  normal-WDT TG0 stage-1 reset。不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
+  setup/REPL 或应用帧。`0064` 已修复 pending SPI source 在 INTMATRIX
+  remap 时不重算的通用缺陷，独立 guest callback probe 通过；
+  最新 legacy runtime 仍在 display completion 前 reset/停止。当前未闭合物
+  是 legacy display-driver 到达条件和 reset 前启动 phase，不是通用 SPI
+  IRQ level。不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
   “Flash 扫描没有终点”作为当前结论。运行比例和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
@@ -99,8 +101,9 @@
   排除当前配置下的 UART storm、永久 handoff deadlock、TG1 feed 停止和
   “Flash 扫描永不结束”；late state 的 CPU1 `0x40100049` 已由 BIN-bound
   反汇编绑定到 LVGL `lv_refr_vdb_flush`；
-- 当前最窄的下一步是修正 SPI `TRANS_DONE` 到 guest interrupt/queue
-  completion 的剩余缺口，使 display completion callback 调用
+- `0064` 已证明 pending SPI `TRANS_DONE` 能通过 guest ISR/queue
+  completion 返回；当前最窄的下一步是解释最新 legacy runtime 为何尚未
+  到达 display `flush_cb`，并让 completion callback 调用
   `lv_disp_flush_ready`；matching ELF/MAP 可并行提高符号置信度；
 - 当前事实只在[项目当前状态](project-status.md)，详细证据只在
   [验证证据台账](validation-ledger.md)；本页不再复制逐次运行时间线。
@@ -250,7 +253,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 修 SPI completion/interrupt delivery，使 `0x40174884` 调用 `lv_disp_flush_ready`；同版本 ELF/MAP 可并行取得 | LVGL double-buffer `flushing` 到 120 秒仍为 1；仍无同 SHA 非空应用帧 |
+| `RUNTIME-03` | `0064` 已修复 pending SPI source remap 和 guest callback；下一项解释最新 legacy runtime 为何在 display `flush_cb` 前 reset/停止。同版本 ELF/MAP 可并行取得 | legacy LVGL double-buffer completion、`0x40174884`、`lv_disp_flush_ready` 和同 SHA 非空应用帧仍 OPEN；独立 SPI PASS 不外推 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
