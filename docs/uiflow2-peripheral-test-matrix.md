@@ -44,6 +44,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | CoreS3 / StackChan | LTR553 环境光与接近 | `M5.Als` | PASS |
 | CoreS3 | GC0308 初始化、LCD_CAM 采集、GDMA 帧、拍照 | `camera.init()` / `camera.snapshot()` | PASS |
 | StopWatch | BMI270、CST820、M5PM1、RX8130、A/B/PWR | IMU / Touch / Power / RTC / Button | PASS |
+| Core2 | FT5x06 下方 A/B/C 触控条、AXP2101 PWR 事件、四路回调/remove | `M5.BtnA/B/C/PWR.setCallback` | PASS（virtual device；final runtime） |
 | StamPLC | PI4IOE 继电器/输入、RGB、INA226 | StamPLC / INA226Unit | PASS |
 | PaperMono | BMI270、M5PM1、IP2315、RX8130、FT6336、按键、SDMMC | IMU / Power / RTC / Touch / Button / SDCard | PASS |
 | StickS3 | RMT0 NEC 38 kHz 红外发送 | `hardware.IR.tx()` | PASS |
@@ -298,6 +299,13 @@ QEMU 的 I2S 模型现在区分 TX/RX，并按真实 GDMA 循环描述的语义�
 
 StickS3 扬声器抓取的 64 KiB PCM 有 18410 个非零样本，峰峰值 2881；
 CoreS3 扬声器抓取峰峰值 11523，均来自固件实际 I2S 写入而不是 Python 伪造。
+
+ESP32-S3 I2S DMA completion 与 evidence capture 是两个边界。`0062` 让
+completion 在 guest 保持 TX 使能时持续运行，PCM 文件仅受 4 MiB 捕获上限；
+不能用“两秒内抓到非静音数据”代表 `playWavFile` 等长音频路径通过。
+StopWatch、StickS3 与 Core2 的 raw、`playWav`、完整一秒 `playWavFile`
+和连续 `playWav → playWavFile` 已分别按板级 44.1/22.05/48 kHz 输出格式
+完成虚拟设备频谱验证，声学结果仍 `NOT RUN`。
 
 Nesso N1 蜂鸣器抓取 48128 字节 PCM，非零样本 12866，峰峰值 65535；测试同时
 要求 `Speaker.isPlaying()` 为真，避免只验证任务启动。

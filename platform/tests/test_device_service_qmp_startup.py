@@ -55,6 +55,10 @@ class StartupQMPTests(unittest.TestCase):
         self.fixture = service_tests.DeviceServiceUnitTests(methodName="runTest")
         self.fixture.setUp()
         self.session = self.fixture._stopped_session()
+        self.audio_fixture = mock.patch.object(
+            self.session, "_prepare_microphone_tone"
+        )
+        self.audio_fixture.start()
         self.session.state = "booting"
         self.connection = Connection()
         self.creations = []
@@ -62,6 +66,7 @@ class StartupQMPTests(unittest.TestCase):
 
     def tearDown(self):
         # Never let fixture cleanup interpret the synthetic PID as host-owned.
+        self.audio_fixture.stop()
         self.session._proc = None
         self.session.pid = None
         self.session._qmp = None

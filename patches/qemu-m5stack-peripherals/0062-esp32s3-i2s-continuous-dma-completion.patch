@@ -1,0 +1,72 @@
+diff --git a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+--- a/hw/m5stopwatch/m5_i2s.c
++++ b/hw/m5stopwatch/m5_i2s.c
+@@ -181,31 +181,47 @@ static void i2s_tx_timer(void *opaque)
+     uint32_t bytes;
+     GdmaPeripheral periph = s->port ? GDMA_I2S1 : GDMA_I2S0;
+ 
+-    if (qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->capture_until_ms
+-        || s->pcm_bytes >= s->pcm_limit) {
++    if (!s->tx_started) {
+         return;
+     }
+     timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
+-    if (s->dma_irq && s->dma_active && s->dma_events < 128
+-        && qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->dma_due_ms) {
+-        if (s->trace) {
+-            fprintf(stderr, "[i2s%d] dma completion due chan=%u\n",
+-                    s->port, s->dma_channel);
++
++    /*
++     * The completion lane models hardware progress, not evidence capture.
++     * Keep completing descriptors for as long as TX is enabled; otherwise a
++     * guest can fill the driver ring after the evidence window and block
++     * forever waiting for a completion that the controller would still issue.
++     */
++    if (s->dma_irq) {
++        if (s->dma_active
++            && qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->dma_due_ms) {
++            if (s->trace) {
++                fprintf(stderr, "[i2s%d] dma completion due chan=%u\n",
++                        s->port, s->dma_channel);
++            }
++            i2s_complete_dma(s, s->dma_channel);
++            s->dma_active = false;
++            s->dma_due_ms =
++                qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
+         }
+-        i2s_complete_dma(s, s->dma_channel);
+-        s->dma_active = false;
+-        s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
+-    }
+-    if (!s->gdma
+-        || !esp_gdma_get_channel_periph(s->gdma, periph,
+-                                         ESP_GDMA_OUT_IDX, &channel)) {
++        if (!s->dma_active
++            && s->gdma
++            && esp_gdma_get_channel_periph(s->gdma, periph,
++                                           ESP_GDMA_OUT_IDX, &channel)) {
++            s->dma_channel = channel;
++            s->dma_active = true;
++            s->dma_due_ms =
++                qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
++        }
+         return;
+     }
+-    if (!s->dma_active) {
+-        s->dma_channel = channel;
+-        s->dma_active = true;
+-        s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
+-    }
+-    if (s->dma_irq) {
++
++    if (qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->capture_until_ms
++        || s->pcm_bytes >= s->pcm_limit) {
++        return;
++    }
++    if (!s->gdma
++        || !esp_gdma_get_channel_periph(s->gdma, periph,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
+         return;
+     }
+ 

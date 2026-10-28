@@ -17,6 +17,11 @@ QEMU runtime SHA256 为
 由 28 个当前补丁构建。测试服务与用户现有服务隔离；每个保留 session 都先请求
 evidence ZIP，再以 `purge=0` 停止，确认 PID 消失和 Flash 释放。
 
+本页保留三设备 API 审计的基线轮。随后 Audio `0062` 和 Core2 输入
+`0063` 更新了 QEMU；最终音频与按键 rebind 分别见
+[三设备音频](../2026-10-28-three-board-audio/README.md)和
+[Core2 触控/电源键](../2026-10-28-core2-touch-buttons/README.md)。
+
 ## 稳定通过项
 
 | 域 | StopWatch | StickS3 | Core2 |
@@ -66,8 +71,10 @@ StopWatch 的 `0001` 最终对照在同一个 hash-pinned firmware/runtime 上�
   仍为 `REVIEW`。
 - StickS3 的该固件不导出 `m5ui`/`lvgl`，分类为 `NOT_EXPORTED`。
 - StopWatch 的 `drawPixel` 在无后续 flush 时没有向 CO5300 发出像素数据。
-  trace 显示只发送 CASET/RASET 和 RAMWR 头，原因是单像素窗口宽度为 1，
-  与 `Panel_AMOLED` 的偶数窗口限制冲突。该项仍为固件/绑定缺陷。
+  后续已更正根因：不是 CO5300 单像素窗口限制，而是 Python
+  `gfx_drawPixel()` 没有打开 display transaction，framebuffer panel 的
+  auto-display 从未执行 `endWrite()`；`0024` 候选和相邻像素/嵌套事务证据见
+  [drawPixel 证据](../2026-10-28-stopwatch-drawpixel-transaction/README.md)。
 - StopWatch 与 StickS3 的 PNG/BMP/JPEG/Image 在绝对 `/flash` 路径下通过；
   文档中的相对路径没有绘制。StopWatch `drawRawBuf` 使用像素数而非字节数
   后通过。
@@ -84,14 +91,16 @@ StopWatch 的 `0001` 最终对照在同一个 hash-pinned firmware/runtime 上�
   没有 vendor-action peer TX/RX 路由，稳定标记为 `BLOCKED_MODEL`。
 - Core2 的 native ESP-NOW API 形状和 peer table 可用，payload/IRQ 同样为
   `BLOCKED_MODEL`。
-- 无输入 PCM fixture 时，三台 Mic buffer 均为零。Core2 能从 recording
-  回到 0；StopWatch/StickS3 保持 `isRecording=1`，因此只记录控制面边界。
-- Core2 `Speaker.playWavFile` 完成；StopWatch/StickS3 在 `playWav` 后调用
-  `playWavFile` 不返回，记录为设备模型/固件路径边界。
+- 首轮 plain-QEMU 仅覆盖 CoreS3/Cardputer，StopWatch/StickS3/Core2
+  没有 session-owned Mic fixture，且 S3 `playWavFile` 在固定 I2S
+  completion 窗口后阻塞。该边界已由后续 three-board audio 轮的
+  `record`、`recordWavFile`、raw、`playWav`、`playWavFile` 和并发复测
+  取代，见[三设备音频证据](../2026-10-28-three-board-audio/README.md)。
 - StopWatch 与 StickS3 的 BtnA hold callback 在真实 host key input 下完成
-  attach、事件送达和 remove 验证。Core2 的 `setCallback/removeCallback`
-  参数形式通过，但 key injection 到 hold/pressed callback 不稳定；只保留
-  一次通过的原始记录，当前状态为 `REVIEW`，不外推为可靠输入 PASS。
+  attach、事件送达和 remove 验证。Core2 在本基线轮只完成参数形状检查；
+  后续 `0063` 修正 FT5x06 触控条与 `key:p` 被提前吞掉的路由错误，最终
+  A/B/C/PWR 四回调均 PASS，见
+  [Core2 触控/电源键](../2026-10-28-core2-touch-buttons/README.md)。
 - `EasyTCPServer.getpeername` 在 listening socket 上返回随机 tuple，而非
   明确异常；归类为 listener misuse 边界，不把结果当功能失败。
 

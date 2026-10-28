@@ -65,16 +65,25 @@ eFuse 或生产 key。
 [公众入口计划](plans/2026-10-28-public-simulator.md)。按最新要求先完成
 [纯浏览器执行调研](browser-runtime-feasibility.md)，已在独立 worktree 实现
 browser backend、公众首页与模型更新，限定官方固件的当前结果见
-[公众入口证据](evidence/2026-10-28-public-simulator/README.md)。剩余上线门禁为
-更多原生固件/路径验收、创建请求丢失收据后的幂等恢复及部署审阅；不把现有 native
-架构当成必须依赖服务的产品约束，也不转授完整 Unit/任意固件支持。
+[公众入口证据](evidence/2026-10-28-public-simulator/README.md)。创建响应丢失后的同key/body恢复与安全停止已完成限定真实回归；
+上线剩余最终合并检查、部署审阅及公开URL验收。更多stock/unified原生路径属于
+后续扩展，不作为两个browser官方演示的部署硬门禁；完整Unit/任意固件不继承支持。
 
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
 hash-pinned 候选修正及三设备虚拟结果，见
 [三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
-仍需关闭 StopWatch 单像素 CO5300 路径、QR/TLS 候选固件重建、WAV/mic 数据面、
-ESP-NOW controller TX/RX/IRQ、Core2 稳定按键输入和所有 28 类 Core2 文档方法矩阵。
+QRCode.setText 与 TLS epoch 已完成三台 matching preimage→candidate 固件对照，
+见[候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。
+`Display.drawPixel` 的 framebuffer transaction 已在三台候选固件验证，见
+[drawPixel 证据](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md)。
+三台 Mic、Speaker raw/WAV、`playWavFile` 和 `playWav → playWavFile`
+数据面已在最新 QEMU 上通过，并修复 ESP32-S3 DMA completion 的固定时间窗
+缺陷，见[三设备音频证据](evidence/2026-10-28-three-board-audio/README.md)。
+Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 runtime
+完成回调、hold 状态与 remove 验证；首版分支吞掉 `key:p` 的路由问题已修复，
+见[Core2 输入证据](evidence/2026-10-28-core2-touch-buttons/README.md)。
+仍需关闭 ESP-NOW controller TX/RX/IRQ 和所有 28 类 Core2 文档方法矩阵。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -156,7 +165,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UI-02` | 进行中 | 更多stock/unified原生路径就绪/输入验收，POST丢失创建收据后的幂等恢复，Pages部署审阅；browser官方演示与模型当前结果转证据页 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
+| `UI-02` | 进行中 | 最终合并检查、Pages部署审阅及公开URL验收；stock/unified就绪/输入属于后续扩展，已有browser演示和创建收据恢复转证据页 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 

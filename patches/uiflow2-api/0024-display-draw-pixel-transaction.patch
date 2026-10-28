@@ -1,0 +1,12 @@
+--- a/m5stack/components/M5Unified/mpy_m5gfx.cpp
++++ b/m5stack/components/M5Unified/mpy_m5gfx.cpp
+@@ -420,7 +420,9 @@ mp_obj_t gfx_drawPixel(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_arg
+     if (args[ARG_color].u_int != -1) {
+         gfx->setColor((uint32_t)args[ARG_color].u_int);
+     }
++    gfx->startWrite();
+     gfx->drawPixel(args[ARG_x].u_int, args[ARG_y].u_int);
++    gfx->endWrite();
+     return mp_const_none;
+ }
+ 

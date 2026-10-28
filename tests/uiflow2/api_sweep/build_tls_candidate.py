@@ -9,7 +9,8 @@ from firmware_analysis import parse_partition_table
 
 def build(args):
     args.out_dir.mkdir(parents=True,exist_ok=False);out=args.out_dir.resolve()
-    source=args.build_root/'uiflow';build=source/'m5stack'/('build-'+args.board)
+    source=(args.build_root/'uiflow').resolve()
+    build=args.build_dir.resolve() if args.build_dir is not None else source/'m5stack'/('build-'+args.board)
     manifest=json.loads((ROOT/'patches/uiflow2-api/0010-mbedtls-epoch.json').read_text())
     original=source/manifest['path'];patch=ROOT/'patches/uiflow2-api/0010-mbedtls-epoch.patch'
     if digest(original)!=manifest['preimage_sha256']:raise ValueError('source preimage mismatch')
@@ -17,7 +18,7 @@ def build(args):
     for command in (['git','apply','--check',str(patch)],['git','apply',str(patch)],['git','apply','--reverse','--check',str(patch)]):
         subprocess.run(command,cwd=out/'source',check=True,capture_output=True)
     if digest(copied)!=manifest['candidate_sha256']:raise ValueError('patched source mismatch')
-    base=args.base_image.read_bytes();table=parse_partition_table(base,image_size=16<<20)
+    base=args.base_image.read_bytes();table=parse_partition_table(base,image_size=args.flash_size)
     apps=[entry for entry in table['partitions']if entry['type']==0]
     if not table['valid']or len(apps)!=1:raise ValueError('one valid application partition required')
     app=apps[0];old=(build/'micropython.bin').read_bytes();start=app['offset'];end=start+app['size']
@@ -37,12 +38,28 @@ def build(args):
     entry=next(row for row in commands if row['file']==str(original));argv=shlex.split(entry['command'])
     obj=out/'main.c.obj';argv[argv.index('-o')+1]=str(obj);argv[argv.index('-c')+1]=str(copied)
     argv+=['-I',str(original.parent)];run('compile-main',argv)
+    auxiliary=[]
+    for number,source_path in enumerate(args.extra_source):
+        source_path=source_path.resolve()
+        source_entry=next(row for row in commands if row['file']==str(source_path))
+        source_argv=shlex.split(source_entry['command'])
+        source_obj=out/Path(source_entry["output"]).name
+        if source_obj.exists():
+            raise ValueError("duplicate auxiliary object basename")
+        source_argv[source_argv.index('-o')+1]=str(source_obj)
+        source_argv[source_argv.index('-c')+1]=str(source_path)
+        run(f"compile-extra-{number}",source_argv)
+        auxiliary.append({"path":str(source_path),"source_sha256":digest(source_path),
+                          "object_name":source_obj.name,"object_sha256":digest(source_obj)})
     original_library=build/'esp-idf/main/libmain.a';library=out/'libmain.a';shutil.copy2(original_library,library)
     receipt['cached_library_sha256']=digest(original_library)
     compiler=Path(argv[0]);ar=compiler.with_name(compiler.name.removesuffix('gcc')+'ar')
     members=subprocess.check_output([str(ar),'t',str(library)],text=True).splitlines()
     if members.count(obj.name)!=1:raise ValueError('main archive member is ambiguous')
-    run('archive',[str(ar),'r',str(library),str(obj)])
+    if any(members.count(row['object_name'])!=1 for row in auxiliary):
+        raise ValueError('auxiliary archive member is ambiguous')
+    receipt['auxiliary_objects']=auxiliary
+    run('archive',[str(ar),'r',str(library),str(obj),*[str(out/row['object_name']) for row in auxiliary]])
     ninja=args.build_root/'build-tools/ninja'
     lines=subprocess.check_output([str(ninja),'-C',str(build),'-t','commands','micropython.elf'],text=True).splitlines()
     argv=segment(next(row for row in reversed(lines)if ' -o micropython.elf 'in row),'-o')
@@ -73,5 +90,9 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-root',type=Path,required=True)
     parser.add_argument('--board',choices=('M5STACK_CoreS3','M5STACK_Cardputer_Adv'),default='M5STACK_CoreS3')
+    parser.add_argument('--build-dir',type=Path,help='Explicit matching build directory for another board')
     parser.add_argument('--base-image',type=Path,required=True);parser.add_argument('--out-dir',type=Path,required=True)
+    parser.add_argument('--flash-size',type=lambda value:int(value,0),default=16<<20)
+    parser.add_argument('--extra-source',type=Path,action='append',default=[],
+                        help='Additional cached source object required by the selected transport profile')
     build(parser.parse_args())

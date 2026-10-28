@@ -116,6 +116,10 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |
 | [UIFlow2 双主机审计与修复](evidence/2026-10-27-uiflow2-api-sweep/README.md) / [计划](plans/2026-10-27-uiflow2-complete-api-sweep.md) | 当前审计 | `2026-10-28` | UI/硬件/系统/HTTP 逐项状态、原厂与 SDK 候选分 lane；最终完整矩阵 68/68，模型/配置/可选外设及 stock 失败仍保留 |
 | [StopWatch / StickS3 / Core2 UIFlow2 三设备复测](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md) | 当前三设备证据 | `2026-10-28` | system、协议、M5UI 和 shared SDK 候选；requests2、BLE UUID32、Modbus transform/async 与 M5UI 缺陷有候选修复，其余模型/固件边界显式保留 |
+| [QRCode.setText 与 TLS epoch 三设备候选固件](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md) | 当前候选固件证据 | `2026-10-28` | StopWatch/StickS3/Core2 各自完成 stock→candidate 对照；QR 旧文本失败均转为新文本解码 PASS，TLS 证书过期均转为 5/5 mTLS HTTPS PASS；incremental relink、真机和公网 PKI NOT RUN |
+| [Display.drawPixel framebuffer transaction](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md) | 当前候选固件证据 | `2026-10-28` | StopWatch preimage 的 standalone even/odd 像素均未 flush；三台候选均通过 standalone 奇偶像素、相邻像素保留和显式嵌套事务；不是 CO5300 单像素限制 |
+| [StopWatch / StickS3 / Core2 UIFlow2 音频数据面](evidence/2026-10-28-three-board-audio/README.md) | 当前三设备证据 | `2026-10-28` | 六个并发可见会话验证 Mic `record`/WAV 与 Speaker raw/WAV/file；修复 ESP32-S3 I2S completion 的固定时间窗；物理声学仍 NOT RUN |
+| [Core2 UIFlow2 触控条与电源键回调](evidence/2026-10-28-core2-touch-buttons/README.md) | 当前 Core2 输入证据 | `2026-10-28` | A/B/C 经 FT5x06 触控条、PWR 经 AXP2101 事件；四个回调与 remove 全通过，修复首次触控分支吞掉 `key:p` 的路由错误 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |

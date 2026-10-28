@@ -237,6 +237,7 @@ def run(args):
                        network=None if plain else {"profile":wifi_profile,"capture_pcap":True,"attempts":1,
                                 "expected_markers":["PROTOCOL_GROUP_DONE "+args.group]})
             arguments.runtime_env=json.loads(args.runtime_env_json.read_text()) if args.runtime_env_json else None
+            arguments.uart_repl_bootstrap=args.uart_repl_bootstrap
             if device in bases:
                 arguments.base_image=Path(bases[device])
                 arguments.expected_base_sha256=base_hashes[device]
@@ -366,6 +367,8 @@ if __name__=="__main__":
     parser.add_argument("--modbus-master-source",type=Path)
     parser.add_argument("--base-image",action="append",default=[],help="device_id=/path/to/explicit-HCI-test-base.bin")
     parser.add_argument("--expected-base-sha256",action="append",default=[],help="device_id=exact-SHA256; mandatory for each alternate base")
+    parser.add_argument("--uart-repl-bootstrap",choices=("dupterm","native"),
+                        help="guest bootstrap for an explicit base with a native UART REPL")
     parser.add_argument("--audio-case",choices=("all","raw","tone","file"),default="all")
     parser.add_argument("--runtime-env-json",type=Path)
     parser.add_argument("--tls-clock-year",type=int,default=2026,help="non-default RTC years are diagnostic input and excluded from stock join")

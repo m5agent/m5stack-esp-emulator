@@ -53,6 +53,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0059-lcd-cam-dvp-wire-order.patch",
     "patches/qemu-m5stack-peripherals/0060-gdma-link-cursor-lifecycle.patch",
     "patches/qemu-m5stack-peripherals/0061-gpspi-gdma-channel-lifecycle.patch",
+    "patches/qemu-m5stack-peripherals/0062-esp32s3-i2s-continuous-dma-completion.patch",
+    "patches/qemu-m5stack-peripherals/0063-core2-touch-buttons.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

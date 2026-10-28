@@ -20,6 +20,8 @@ def replay_bridge(root, current=True):
     for name in cold.bootstrap_stack():
         if not current and name == cold.PATCH:
             continue
+        if BRIDGE not in cold.patch_paths(name):
+            continue
         command = ["git", "apply", "--include=" + BRIDGE]
         subprocess.run(command + ["--check", str(cold.ROOT / name)], cwd=root,
                        check=True, capture_output=True, timeout=10)

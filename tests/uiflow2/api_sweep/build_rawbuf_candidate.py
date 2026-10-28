@@ -42,7 +42,7 @@ def segment(command, required):
 def build(args):
     args.out_dir.mkdir(parents=True, exist_ok=False)
     out = args.out_dir.resolve()
-    source_root = args.build_root / "uiflow"
+    source_root = (args.build_root / "uiflow").resolve()
     build_root = args.cached_build or source_root / "m5stack/build-M5STACK_CoreS3"
     build_root = build_root.resolve()
     manifest_path = args.manifest.resolve()

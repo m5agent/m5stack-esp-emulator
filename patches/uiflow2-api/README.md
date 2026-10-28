@@ -17,11 +17,11 @@
 | [0007-labelplus-optional-timer.patch](0007-labelplus-optional-timer.patch) | 关闭自动更新或周期为零时仍可手动更新、选 key 和 deinit；只操作已创建的 `SoftTimer` | 独立 `candidate_label_plus.py` 源码覆盖，以实际 HTTP 值和定时器新增请求为 oracle；stock 冻结库失败独立保留 |
 | [0008-lvgl-native-subclass-wrapper.patch](0008-lvgl-native-subclass-wrapper.patch) | 将未直接登记的原生子类包装为最近已登记的基类，保留真实 class 身份 | CoreS3 matching SDK 原版 / 候选固件，以真实内部 label / button 子对象及其方法验证；不是任意自定义类兼容性声明 |
 | [0009-lvgl-writable-callback-string.patch](0009-lvgl-writable-callback-string.patch) | 可写 `char *` 回调参数保留原 buffer 地址；`const char *` 仍转换为字符串 | CoreS3 文件系统原生回调写回及目录条目内容对照；只覆盖实际可写回调路径，不授予其它文件系统后端通过 |
-| [0010-mbedtls-epoch.patch](0010-mbedtls-epoch.patch) | 1970 epoch 端口直接返回 Unix 秒数，避免重复加上 1970–2000 偏移；保留 2000 epoch 分支 | CoreS3 matching SDK 原版 / 候选固件，在正确 RTC 上执行原有 `CERT_REQUIRED` mTLS 案例；1996 RTC 诊断不计 stock，通过范围见[TLS 说明](README-tls.md) |
+| [0010-mbedtls-epoch.patch](0010-mbedtls-epoch.patch) | 1970 epoch 端口直接返回 Unix 秒数，避免重复加上 1970–2000 偏移；保留 2000 epoch 分支 | StopWatch / StickS3 / Core2 matching source preimage 均为证书过期 ERROR，候选固件三台均 `5/5` `CERT_REQUIRED` mTLS HTTPS PASS；1996 RTC 诊断不计 stock，通过范围见[TLS 说明](README-tls.md) |
 | [0011-usb-buffer-readinto.patch](0011-usb-buffer-readinto.patch) | 修正未定义的 `to_r4`，返回实际复制并消费的字节数，覆盖空读、零长度和部分读取 | 双板 guest 内精确官方 Python 模块原版 / 候选对照；只证明 Buffer 字节与 IRQ 临界区契约，不证明 OTG 枚举或 endpoint 传输 |
 | [0012-lvgl-menu-page-helpers.patch](0012-lvgl-menu-page-helpers.patch) | 对首参数为其它资源的 widget namespace helper 生成独立 static alias；保留 canonical struct / calendar 实例绑定 | CoreS3 matching SDK 原版 / 候选的真实 menu page、calendar parent、scale section 等 typed 资源；每个别名须实际调用，不从 owner 或候选继承 stock 通过 |
 | [0013-lvgl-unsigned-word-arguments.patch](0013-lvgl-unsigned-word-arguments.patch) | `uint32` 和 unsigned native-word 参数保留完整位模式，避免高位值经过 signed-range 转换 | CoreS3 matching SDK 原版 / 候选的高位动画 speed 和 ARGB 等已执行域；signed / 64-bit 转换保持原实现 |
-| [0014-widgets-qrcode-text.patch](0014-widgets-qrcode-text.patch) | `Widgets.QRCode.setText` 保存新字符串，擦除旧 QR 区域并重新编码绘制 | CoreS3 / Cardputer-ADV matching SDK 原版 / 候选固件；独立解码调用前后的 framebuffer QR 内容，不以非空图代替文本验证 |
+| [0014-widgets-qrcode-text.patch](0014-widgets-qrcode-text.patch) | `Widgets.QRCode.setText` 保存新字符串，擦除旧 QR 区域并重新编码绘制 | StopWatch / StickS3 / Core2 matching source preimage 三台均解码旧文本失败，候选固件三台均解码 `UPDATED-API` PASS；CoreS3 / Cardputer-ADV 既往证据保留，不以非空图代替文本验证 |
 | [0015-lvgl-object-user-data.patch](0015-lvgl-object-user-data.patch) | 应用 user-data 独立持有，不覆盖用于 Python wrapper 身份及删除失效的原生槽位 | CoreS3 matching SDK 原版 / 候选，以 object、event、group、screen getter 的精确对象身份和删除生命周期验证；stock 结果不覆盖 |
 | [0016-lvgl-custom-animation-lookup.patch](0016-lvgl-custom-animation-lookup.patch) | custom animation 按 `custom_exec_cb` 查找 / 删除，保留变量过滤、NULL 通配和删除回调修改链表的安全遍历 | 精确源码 C 正反回归及 CoreS3 matching SDK 原版 / 候选原生回调验证；不外推未执行动画参数域 |
 | [0017-lvgl-observer-object-cleanup.patch](0017-lvgl-observer-object-cleanup.patch) | 显式移除 observer 时先解绑其精确 object-delete 订阅；subject 清理不误删同对象上其它 subject 的订阅 | 精确源码回调链表 C 回归及 CoreS3 stock / matching SDK 原版 / 候选三 lane；检查订阅成员身份、保留的通知和自动删除，清理 repair 不把原失败转为通过 |
@@ -31,6 +31,7 @@
 | [0021-ble-advertising-uuid32.patch](0021-ble-advertising-uuid32.patch) | 两个 BLE advertising 解码器不再把 4-byte UUID 当作 8-byte `double`；将原始 4-byte 蓝牙 UUID 交给 `bluetooth.UUID` | StopWatch / StickS3 / Core2 stock 32-bit 失败保留；同 VM 候选源码包在 16/32-bit 向量上通过，见 2026-10-28 三设备证据 |
 | [0022-modbus-transform-frame.patch](0022-modbus-transform-frame.patch) | `ModbusRTUFrame.transform_frame` 用源 TCP frame 的字段直接构造 RTU frame，不再先创建非法 `func_code=0` 对象 | StopWatch / StickS3 / Core2 stock 失败保留；同 VM 候选源码包验证 function-03 request、response 和 exception frame 的精确 RTU bytes/CRC |
 | [0023-modbus-async-socket.patch](0023-modbus-async-socket.patch) | MicroPython 下不再调用不存在的 `asyncio.Loop.sock_recv`，改为有界、可让出执行权的 `select.poll` + socket receive；CPython 路径保留 | StopWatch / StickS3 / Core2 stock 八个 async TCP 方法均报 `sock_recv`；候选须由真实 owned Modbus peer 验证读、写和回读 |
+| [0024-display-draw-pixel-transaction.patch](0024-display-draw-pixel-transaction.patch) | Python `Display.drawPixel` 使用嵌套安全的 `startWrite/endWrite`，让 framebuffer-backed panel 的 auto-display 提交 dirty range | StopWatch preimage 的 standalone 奇/偶像素不出现；StopWatch / StickS3 / Core2 候选通过 standalone、相邻像素保留和用户显式外层事务；真机 NOT RUN |
 
 相邻 JSON 固定官方源码及 preimage / candidate SHA；`0001` 使用多文件
 `files` 清单，`0002` 使用 `source_path` / `postimage_sha256`。含

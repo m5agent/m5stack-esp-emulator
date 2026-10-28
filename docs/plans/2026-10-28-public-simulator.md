@@ -32,5 +32,5 @@
 
 - 已核查运行架构、当前页面和来源 pin；模型在独立 worktree 更新，模块闭合、同步器检查和独立完整浏览器模型回归已通过，默认配置边界见证据页。
 - Unit / sessions 信息层级改造、公众首页四档布局、设备/Unit 搜索与失败契约已验证；Pages 子路径导出、URL 下载/取消/SHA、独立 Worker 后端已实现。
-- 用户要求先研究 esp-online-tester 的全浏览器架构；已从固定源码独立重建 browser backend，并在 Chromium 跑通 PaperS3 / StopWatch 官方固件、真实帧、输入和暂停/停止。首页分享直开、实际DOM触摸与四档布局均已通过。CoreS3 plain受控原生示例也已同guest完成输入/帧/evidence/停止；更多stock/unified路径和创建收据丢失后的幂等恢复仍是部署前门禁。证据和不可继承边界见[纯浏览器调研](../browser-runtime-feasibility.md)。
+- 用户要求先研究 esp-online-tester 的全浏览器架构；已从固定源码独立重建 browser backend，并在 Chromium 跑通 PaperS3 / StopWatch 官方固件、真实帧、输入和暂停/停止。首页分享直开、实际DOM触摸与四档布局均已通过。CoreS3 plain受控原生示例也已同guest完成输入/帧/evidence/停止；创建收据丢失后以同key/body恢复同guest并安全停止已完成真实回归；独立审查进一步补齐有界停止和明确lease释放。更多stock/unified路径作为后续扩展，不作为两profile browser部署硬门禁。证据和不可继承边界见[纯浏览器调研](../browser-runtime-feasibility.md)。
 - 尚未部署。browser backend 的限定结果不转授已有 native 板级、任意固件或完整 Unit 协议；部署前继续完成本地页面与证据验收。

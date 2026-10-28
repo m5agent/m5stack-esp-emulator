@@ -1,8 +1,10 @@
 """Plain CoreS3/Cardputer audio completion, owned fixtures and ZIP contracts."""
 
 import hashlib
+import importlib.util
 import io
 import json
+import math
 from pathlib import Path
 import struct
 import uuid
@@ -48,11 +50,34 @@ class PlainQemuAudioTests(unittest.TestCase):
         self.assertNotEqual(*paths)
 
     def test_unvalidated_devices_and_other_runtimes_do_not_inherit_support(self):
-        for device, runtime in (("atoms3r", "qemu"), ("core2", "qemu"), ("cores3", "qemu-unified")):
+        for device, runtime in (("atoms3r", "qemu"), ("stopwatch", "qemu-unified"), ("cores3", "qemu-unified")):
             with self.subTest(device=device, runtime=runtime):
                 environment = {}
                 self.session(device, runtime=runtime)._plain_qemu_audio_environment(environment)
                 self.assertEqual(environment, {})
+
+    def test_stopwatch_sticks3_and_core2_receive_owned_mono_fixtures(self):
+        for device in ("stopwatch", "sticks3", "core2"):
+            with self.subTest(device=device):
+                session = self.session(device)
+                environment = {}
+                session._plain_qemu_audio_environment(environment)
+                self.assertEqual(environment["M5SW_I2S_DMA_IRQ"], "1")
+                self.assertEqual(Path(environment["M5SW_I2S_PCM_FILE"]), session.speaker_pcm)
+                self.assertEqual(
+                    Path(environment["M5SW_I2S_RX_PCM_FILE"]),
+                    session.microphone_source_pcm,
+                )
+                session._prepare_microphone_tone(
+                    session.spec.id, "plain_qemu_audio_inputs_prepared"
+                )
+                self.assertEqual(len(session.microphone_source_pcm.read_bytes()), 32000)
+                self.assertTrue(
+                    any(
+                        event["event"] == "plain_qemu_audio_inputs_prepared"
+                        for event in session.events
+                    )
+                )
 
     def test_explicit_diagnostic_overrides_remain_explicit_and_are_not_archived_as_fixture(self):
         session = self.session("cores3", runtime_env={"M5SW_I2S_DMA_IRQ": "0", "M5SW_I2S_RX_PCM_FILE": "/explicit-diagnostic/input.pcm"})
@@ -98,6 +123,24 @@ class PlainQemuAudioTests(unittest.TestCase):
         with zipfile.ZipFile(io.BytesIO(session.evidence_bundle({"manifest"}))) as archive:
             manifest = json.loads(archive.read("manifest.json"))
             self.assertEqual(manifest["audio_fixture"]["channels"], 2)
+
+    def test_mic_frequency_oracle_recovers_clipped_fundamental(self):
+        root = Path(__file__).resolve().parents[2]
+        path = root / "tests/uiflow2/api_sweep/verify_mic_recording.py"
+        spec = importlib.util.spec_from_file_location("verify_mic_recording", path)
+        verifier = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(verifier)
+        samples = []
+        for index in range(16000):
+            # Core2 PDM capture clips asymmetrically; a rectangular-window DFT
+            # can report 395 Hz for this still-periodic 440 Hz fixture.
+            value = int(
+                32767
+                * math.sin(2 * math.pi * 440 * index / 16000 + 0.31)
+            )
+            samples.append(max(-32768, min(4096, value)))
+        measured = verifier.dominant_frequency(samples, 16000, 440)
+        self.assertLess(abs(measured - 440) / 440, 0.002)
 
 
 if __name__ == "__main__":

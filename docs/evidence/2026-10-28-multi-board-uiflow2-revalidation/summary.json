@@ -66,6 +66,11 @@
     "0022-modbus-transform-frame",
     "0023-modbus-async-socket"
   ],
+  "follow_up_evidence": {
+    "audio_and_final_runtime": "docs/evidence/2026-10-28-three-board-audio/README.md",
+    "core2_a_b_c_pwr": "docs/evidence/2026-10-28-core2-touch-buttons/README.md",
+    "final_runtime_sha256": "03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419"
+  },
   "validation_checks": {
     "platform_tests": {
       "run": 1344,
@@ -91,7 +96,7 @@
     }
   },
   "remaining": [
-    "StopWatch drawPixel does not transfer a one-pixel CO5300 window",
+    "StopWatch drawPixel transaction root cause retained as historical review; resolved by 0024 candidate evidence in the 2026-10-28 drawPixel record",
     "QRCode.setText stock behavior remains unverified with candidate firmware",
     "TLS stock certificate epoch remains unverified with candidate firmware",
     "StopWatch/StickS3 playWavFile hangs after playWav",

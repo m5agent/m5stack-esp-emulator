@@ -183,6 +183,14 @@ def bootstrap_stack():
     return values["PATCHES"]
 
 
+def patch_paths(name):
+    return {
+        line[6:]
+        for line in (ROOT / name).read_text().splitlines()
+        if line.startswith("+++ b/")
+    }
+
+
 def replay(root, current=True):
     root.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True)
@@ -192,6 +200,8 @@ def replay(root, current=True):
         path.write_text(data)
     patches = [name for name in bootstrap_stack() if current or name != PATCH]
     for name in patches:
+        if not patch_paths(name) & set(REPLAY_FILES):
+            continue
         command = ["git", "apply", *["--include=" + item for item in REPLAY_FILES]]
         subprocess.run(command + ["--check", str(ROOT / name)], cwd=root, check=True, capture_output=True)
         subprocess.run(command + [str(ROOT / name)], cwd=root, check=True, capture_output=True)

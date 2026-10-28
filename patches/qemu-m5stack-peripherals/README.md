@@ -371,6 +371,24 @@ including `START 128 → pull 64 → STOP/reset → pull 64`, legal resume, two
 channels/slaves and the complete 64800-byte Canvas split. These checks do not
 replace the separate visible guest or shared-controller matrix gates.
 
+`0062-esp32s3-i2s-continuous-dma-completion.patch` separates ESP32-S3 I2S DMA
+hardware progress from the evidence-capture window. TX completion now continues
+while the guest keeps TX enabled, instead of stopping after two seconds or 128
+descriptors. The existing PCM limit remains the evidence bound. Without this
+split, a guest that fills the speaker driver ring after the capture window can
+block forever even though the virtual controller still has descriptors to
+complete.
+
+`0063-core2-touch-buttons.patch` maps `key:a/b/c` on Core2 to the FT5x06
+lower touch-button band consumed by M5Unified. The three Core2 buttons are not
+the generic GPIO key path; without this explicit panel mode, input lands on
+unrelated default GPIOs and `BtnA/B/C` callbacks never observe the press.
+The touch mapping is limited to A/B/C; `key:p` must continue to the AXP2101
+power-key switch arm. The first revision broke early for every key code and
+therefore also swallowed PWR. The replay test now checks that A/B/C enter the
+touch branch while the PWR path remains reachable. Final guest sessions observe
+callback state 2 for all four controls and no new callback after removal.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

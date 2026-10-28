@@ -2021,14 +2021,17 @@ not guarantee that the application reached its first frame or a serial marker.
 For application-level readiness, provide `ready_marker` in the create request
 or call `/wait`, then inspect serial and/or `/frame.png`.
 
-Plain `runtime=qemu` on CoreS3 and Cardputer-ADV enables the emulated I2S DMA
-completion path and session-owned speaker PCM capture by default. A generated
-one-second 440 Hz microphone fixture uses 16 kHz signed 16-bit little-endian
-PCM: mono on Cardputer-ADV and two identical interleaved channels on CoreS3,
-matching each board's native microphone input. It is an explicit virtual input source, with bytes/hash and provenance in
-the evidence ZIP; it is not an acoustic measurement. Only these two plain
-profiles receive this default. Playback completion still requires guest and
-controller observations; source preparation alone is not a functional PASS.
+Plain `runtime=qemu` on CoreS3, Cardputer-ADV, StopWatch, StickS3 and Core2
+enables the emulated I2S DMA completion path and session-owned speaker PCM
+capture by default. A generated one-second 440 Hz microphone fixture uses
+16 kHz signed 16-bit little-endian PCM: CoreS3 uses two identical interleaved
+channels and the other four profiles use mono, matching each board's native
+microphone input. It is an explicit virtual input source, with bytes/hash and
+provenance in the evidence ZIP; it is not an acoustic measurement. Only these
+five plain profiles receive this default. Speaker capture retains each board's
+native output format rather than relabeling every stream as one common rate.
+Playback completion still requires guest and controller observations; source
+preparation alone is not a functional PASS.
 
 Audio data-plane tests can additionally provide a narrow, trusted-local `runtime_env`
 object when creating a session:
@@ -2048,7 +2051,8 @@ object when creating a session:
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
 `M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
-`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_CAMERA_TRACE`,
+`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_INPUT_TRACE`,
+`M5SW_FT_TRACE`, `M5SW_I2C_TRACE`, `M5SW_CAMERA_TRACE`,
 `M5SW_GDMA_TRACE`, `M5SW_GPSPI_TRACE`, `M5SW_LCD_TRACE`, and
 `M5SW_SPI_XFER_TRACE` are accepted.
 The camera/GDMA/GP-SPI trace keys accept only the

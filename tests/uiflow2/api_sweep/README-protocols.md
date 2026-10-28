@@ -37,6 +37,10 @@ PYTHONPATH=.work/py312 python3.12 tests/uiflow2/api_sweep/run_protocols.py \
 
 Both original frozen SDKs and controller traffic still execute in this lane;
 `firmware_lane=hci-offload-test-firmware` prevents merging it into stock results.
+An explicit source build that already owns UART0 as its REPL also requires
+`--uart-repl-bootstrap native`; the runner then leaves that native console in
+place instead of calling `os.dupterm(UART(0))` a second time. This is a
+transport prerequisite for the same base image, not a functional PASS.
 The owned peripheral requires a genuine guest CCCD subscription before sending
 notifications. It never force-sends an unrequested notification to hide a client
 SDK subscription defect. Central checks require the complete ACK, and negotiate

@@ -202,6 +202,9 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
     "M5SW_I2S_TRACE",
+    "M5SW_INPUT_TRACE",
+    "M5SW_FT_TRACE",
+    "M5SW_I2C_TRACE",
     "M5SW_CAMERA_TRACE",
     "M5SW_GDMA_TRACE",
     "M5SW_GPSPI_TRACE",
@@ -212,11 +215,20 @@ BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_GDMA_TRACE",
     "M5SW_GPSPI_TRACE",
+    "M5SW_FT_TRACE",
+    "M5SW_INPUT_TRACE",
+    "M5SW_I2C_TRACE",
     "M5SW_LCD_TRACE",
     "M5SW_SPI_XFER_TRACE",
 })
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
-PLAIN_QEMU_AUDIO_DEVICES = frozenset({"cores3", "cardputer-adv"})
+PLAIN_QEMU_AUDIO_DEVICES = frozenset({
+    "cores3",
+    "cardputer-adv",
+    "stopwatch",
+    "sticks3",
+    "core2",
+})
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 UNIFIED_HTTP_GUESTFWD = (
