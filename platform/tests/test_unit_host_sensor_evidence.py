@@ -261,7 +261,7 @@ class SensorArchiveFixture:
         self.write(self.browser_dir / "before.png", self.png())
         self.write(self.browser_dir / "web-report.json", self.browser)
         self.report["artifact_sha256"] = {p.relative_to(self.case).as_posix(): evidence.digest(p.read_bytes())
-            for p in self.case.rglob("*") if p.is_file() and p.name not in {"report.json", "normalization-receipt.json"}}
+            for p in sorted(self.case.rglob("*")) if p.is_file() and p.name not in {"report.json", "normalization-receipt.json"}}
         self.report_path = self.case / "report.json"
         report_pin = self.write(self.report_path, self.report)
         receipt = {"schema_version": 1, "evidence_contract": evidence.SENSOR_WEB_CONTRACT, "report": report_pin["path"],
