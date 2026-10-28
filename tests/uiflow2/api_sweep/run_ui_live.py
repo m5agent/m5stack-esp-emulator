@@ -59,7 +59,15 @@ def ui_rotation(device):
 
 def source_for(args, method):
     if args.lane == "m5ui":
-        return probe_ui.build_m5ui_program(args.target, [method] if method else [], args.target + "-" + str(method))
+        width, height = api_dimensions(args.device)
+        return probe_ui.build_m5ui_program(
+            args.target,
+            [method] if method else [],
+            args.target + "-" + str(method),
+            width=width,
+            height=height,
+            rotation=ui_rotation(args.device),
+        )
     if args.lane in ("display", "canvas"):
         width, height = api_dimensions(args.device)
         return probe_ui.build_display_program(method, args.lane + "-" + method, canvas=args.lane == "canvas", width=width, height=height)
@@ -77,7 +85,10 @@ def source_for(args, method):
         return probe_ui.build_lifecycle_program()
     if args.lane == "corrections":
         source = Path(__file__).with_name("probe_m5ui_corrections.py").read_text(encoding="utf-8")
-        return ("M5UI_CANDIDATE=True\n" if args.candidate_dir else "") + source
+        prefix = f"M5UI_ROTATION={ui_rotation(args.device)}\n"
+        if args.candidate_dir:
+            prefix = "M5UI_CANDIDATE=True\n" + prefix
+        return prefix + source
     if args.lane == "native-objects-more":
         return Path(__file__).with_name("probe_lvgl_obj_more.py").read_text(encoding="utf-8")
     if args.lane == "native-objects":
@@ -158,7 +169,7 @@ def run(args):
             package = requires_package(args, method)
             request = {
                 "expected_execution_id": previous.get("execution_id"),
-                "timeout_seconds": 120 if package else 30,
+                "timeout_seconds": args.program_timeout if package else min(30, args.program_timeout),
             }
             if package:
                 files = probe_ui.fixture_files()
@@ -184,7 +195,7 @@ def run(args):
             execution_id = receipt["program"]["execution_id"]
             offset = receipt["program"]["serial_offset"]
             transcript = ""
-            deadline = time.monotonic() + 45
+            deadline = time.monotonic() + args.program_timeout
             while time.monotonic() < deadline:
                 text, offset, _pages = serial_pages(api, args.session_id, offset)
                 transcript += text
@@ -256,8 +267,12 @@ def main():
     parser.add_argument("--uiflow-root", type=Path)
     parser.add_argument("--candidate-dir", type=Path)
     parser.add_argument("--keep-session", action="store_true")
+    parser.add_argument("--program-timeout", type=int, default=120,
+                        help="bounded program and marker budget in seconds (1-120)")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
+    if not 1 <= args.program_timeout <= 120:
+        parser.error("--program-timeout must be in 1..120")
     raise SystemExit(run(args))
 
 

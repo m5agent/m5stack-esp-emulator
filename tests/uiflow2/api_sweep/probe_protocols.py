@@ -555,7 +555,7 @@ check("candidate.requests2.request.utf8_length",unicode_body,lambda value:value=
 BLE_NUS='''import bluetooth,M5
 from bleuart import BLEUARTServer
 M5.begin()
-identity={"cores3":["M5-CORES3-UNIFIED","M5_CORES3_UNIFIED"],"cardputer-adv":["M5-CPTR-ADV-UNIFIED","M5_CPTR_ADV"]}[CONFIG["device_id"]]
+identity=CONFIG["ble_identity"]
 events=[]
 server=BLEUARTServer(name=identity[0])
 server.irq(lambda:events.append("rx"))
@@ -583,7 +583,7 @@ check("bleuart.BLEUARTServer.deinit",lambda:(server.deinit(),server._ble.active(
 M5BLE_SERVER='''import M5,bluetooth
 from m5ble import M5BLE
 M5.begin()
-identity={"cores3":["M5-CORES3-UNIFIED","M5_CORES3_UNIFIED"],"cardputer-adv":["M5-CPTR-ADV-UNIFIED","M5_CPTR_ADV"]}[CONFIG["device_id"]]
+identity=CONFIG["ble_identity"]
 for name in ("Device","Server","Client"):
  target=getattr(M5BLE,name)
  print("SYSTEM_EXPORT "+json.dumps({"path":"m5ble.M5BLE."+name,"count":len(dir(target)),"members":[[member,type(getattr(target,member)).__name__,callable(getattr(target,member))]for member in dir(target)if not member.startswith("_")]}))
@@ -625,7 +625,7 @@ check("m5ble.m5ble.Device.deinit",lambda:(device.deinit(),device._ble.active())[
 BLE_CLIENT='''import M5
 from bleuart import BLEUARTClient
 M5.begin()
-identity={"cores3":"M5_CORES3_UNIFIED","cardputer-adv":"M5_CPTR_ADV"}[CONFIG["device_id"]]
+identity=CONFIG["ble_identity"][1]
 client=BLEUARTClient()
 events=[]
 client.irq(lambda *args:events.append("notify"))
@@ -764,7 +764,7 @@ for prefix,factory in (("espnow.ESPNow",espnow.ESPNow),("espnow.ESPNowBase",espn
 M5BLE_CLIENT='''import M5,bluetooth
 from m5ble import M5BLE
 M5.begin()
-identity={"cores3":"M5_CORES3_UNIFIED","cardputer-adv":"M5_CPTR_ADV"}[CONFIG["device_id"]]
+identity=CONFIG["ble_identity"][1]
 device=M5BLE.Device(name="M5-Client")
 client=device.client
 found=[];scanned=[];connected=[];disconnected=[];notified=[];readback=[]

@@ -27,10 +27,34 @@ from run_device_api import save
 from run_guest import DEVICE_CHOICES, run as run_guest
 
 
-def stock_radio_model_blocker(evidence):
+BLE_IDENTITIES = {
+    "cores3": ("M5-CORES3-UNIFIED", "M5_CORES3_UNIFIED"),
+    "cardputer-adv": ("M5-CPTR-ADV-UNIFIED", "M5_CPTR_ADV"),
+    "stopwatch": ("M5-STOPWATCH-UNIFIED", "M5_STOPWATCH_U"),
+    "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
+    "core2": ("M5-CORE2-UNIFIED", "M5_CORE2_UNIFIED"),
+}
+
+
+def stock_radio_model_blocker(evidence, device):
+    if device == "core2":
+        reason = (
+            "The selected stock Core2 image uses its internal Bluetooth "
+            "controller; the core2-unified/native-HCI profile did not reach "
+            "board I/O readiness before timeout. An HCI test-firmware result "
+            "cannot close this stock GATT gap."
+        )
+    else:
+        reason = (
+            "The selected stock " + device + " image uses the internal BT "
+            "controller. This runtime exposes a UART H4 controller-offload "
+            "seam; it does not implement the stock controller. Actual stock "
+            "guest/peer exchange timed out. An HCI test firmware result "
+            "cannot close this gap."
+        )
     return {"api_prefixes":["bluetooth.BLE","bleuart.BLEUARTServer","bleuart.BLEUARTClient",
                             "m5ble.m5ble.Device","m5ble.m5ble.Server","m5ble.m5ble.Client"],
-            "status":"BLOCKED_MODEL","reason":"The stock ESP32-S3 image uses the internal BT controller. This runtime exposes a UART H4 controller-offload seam; it does not implement the stock S3 controller. Actual stock guest/peer exchange timed out. An HCI test firmware result cannot close this gap.",
+            "status":"BLOCKED_MODEL","reason":reason,
             "evidence_refs":evidence}
 
 
@@ -233,7 +257,11 @@ def run(args):
         for device in args.device:
             peer_start=len(peer_requests)
             output=args.out_dir/device
-            source=build_program(args.group,{**config,"device_id":device})
+            source=build_program(args.group,{
+                **config,
+                "device_id":device,
+                "ble_identity":list(BLE_IDENTITIES[device]),
+            })
             source_path=args.out_dir/(device+"-probe.py");source_path.write_text(source,encoding="utf-8")
             plain=args.group.startswith("audio-") or args.group in {"modbus-rtu","modbus-rtu-slave","ppp"}
             radio=args.group in {"ble-nus","m5ble-server","ble-client","m5ble-client"}
@@ -308,7 +336,7 @@ def run(args):
                          for name in archive.namelist() if name.startswith("audio/")}
                     if radio:
                         ble_logs=[archive.read(name).decode(errors="replace") for name in archive.namelist() if "ble" in name.lower() and name.endswith(".log")]
-                        exact_ack="BLE_BUMBLE_NOTIFICATION_OK ACK:"+{"cores3":"M5_CORES3_UNIFIED","cardputer-adv":"M5_CPTR_ADV"}[device]
+                        exact_ack="BLE_BUMBLE_NOTIFICATION_OK ACK:"+BLE_IDENTITIES[device][1]
                         peer_ok=any(exact_ack in log.splitlines() and "BLE_BUMBLE_CYCLE_PASS 1" in log for log in ble_logs)
                         evidence["ble_peer_logs"]={name:hashlib.sha256(archive.read(name)).hexdigest() for name in archive.namelist() if "ble"in name.lower() and name.endswith(".log")}
                         for row in results:
@@ -316,7 +344,7 @@ def run(args):
                                 row["status"]="PASS" if peer_ok else "FAIL"
                                 row["oracle"]="actual NUS write and exact ACK notification independently observed by external Bumble central" if peer_ok else "external central did not confirm exact ACK notification and completed cycle"
                             elif row["status"]=="OBSERVED_PENDING_PERIPHERAL_WRITE":
-                                expected={"cores3":"M5_CORES3_UNIFIED","cardputer-adv":"M5_CPTR_ADV"}[device].encode().hex()
+                                expected=BLE_IDENTITIES[device][1].encode().hex()
                                 arrived=any("BLE_PERIPHERAL_WRITE "+expected in log for log in ble_logs)
                                 row["status"]="PASS" if arrived else "FAIL"
                                 row["oracle"]="exact guest bytes independently received by owned peripheral over real GATT" if arrived else "owned peripheral did not receive exact guest bytes"
@@ -339,7 +367,7 @@ def run(args):
             report["library_lane"]="candidate-source" if args.group in {"requests-candidate","modbus-candidate"} else "stock-frozen"
             report["firmware_lane"]=execution.get("firmware_lane","stock-frozen")
             if radio and not bases and code!=0:
-                report["model_blockers"]=[stock_radio_model_blocker(evidence)]
+                report["model_blockers"]=[stock_radio_model_blocker(evidence, device)]
             if args.group.startswith("audio-"):
                 report["audio_case"]=args.audio_case
                 report["input_fixture_lane"]="explicit-diagnostic-override" if args.runtime_env_json else "service-owned-default"

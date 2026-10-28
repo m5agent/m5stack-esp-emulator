@@ -711,3 +711,35 @@ PASS：共享内存、实际 RGB 帧、触摸正反例、PIR 双向状态、QMP 
 和[机器摘要](evidence/2026-10-29-github-pages-production/summary.json)。
 结论限定为 browser virtual-device validation；默认墙钟调度、长期稳定性、
 网络、音频、其它设备/固件/Unit、Flash 持久化和物理硬件仍 `NOT RUN`。
+
+## 2026-10-29：StopWatch / StickS3 / Core2 UIFlow2 全接口复测
+
+三台当前原厂 UIFlow2 `v2.5.3` 在 QEMU `fccfa931…` 上并发执行：
+system runtime 各 `50 PASS + 1 STATE_PASS`、shared corrections 各
+`7/7`；sockets `23/23`、MQTT `42/42`、network `14/14`、EzData
+`17/17`、EasySocket `57 + 1 N/A`。StopWatch/StickS3 audio player
+`15/15`、recorder `12/12`；三台 ESP-NOW/native ESP-NOW loopback
+分别通过 `12 + 5 STATE_PASS + 1 CONFIGURED_UNVERIFIED` 和
+`21 + 21 STATE_PASS + 3 CONFIGURED_UNVERIFIED`。已选 peripherals、
+IMU、电源、StopWatch IOE/PM1、StickS3 IR 和 Core2 Speaker/Mic 组完成
+串口、host-action、frame/QOM 或 units 交叉核对。
+
+StopWatch/Core2 各执行 28 类、505 个 M5UI 文档方法，分类均为
+`407 STATE_PASS + 80 PENDING_FRAME_OR_INPUT + 3
+PENDING_FRAME_OBJECT_REMOVAL + 11 DOCUMENTATION_MISMATCH +
+1 EXPECTED_UNSUPPORTED + 3 FAIL`，最终 `28/28` 帧非黑。stock 三失败为
+Canvas triangle descriptor、Image float scale 和 integer Spinbox step；
+StopWatch candidate 得到 `4/4` 状态和 `2/2` frame oracle，Core2
+candidate 得到 `4/4` 状态但全屏刷新仍条带/坐标错误。StickS3 当前镜像
+不导出 `m5ui`。
+
+BLE 测试身份对齐后，StopWatch/StickS3 分别用 `M5-STOPWATCH-UNIFIED`、
+`M5-STICKS3-UNIFIED` 扫描仍无可连接 advertisement，Core2 在
+`UNIFIED_CORE2_IO_CONFIG_READY` 前超时；stock GATT 保持
+`BLOCKED_MODEL`。本轮修复 M5UI runner 的设备尺寸/旋转、最长 120 秒
+program 预算、完整 BLE identity 和 Core2 blocker 文案。平台回归
+`1406` 项 `OK`、`1` skip；生成器、compileall、scoped Ruff 和 diff check
+均 PASS。全部为 virtual-device validation；Core2 legacy `RUNTIME-03`、
+stock BLE、外部/加密 ESP-NOW、RF/timing 和物理硬件仍 `NOT RUN`。见
+[证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)
+和[机器摘要](evidence/2026-10-29-three-board-uiflow2-full-retest/summary.json)。

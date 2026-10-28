@@ -50,8 +50,15 @@ def source_audit(root):
     return result
 
 
-def widget_source(target, methods):
-    source = probe_ui.build_m5ui_program(target, methods, "documented-" + target)
+def widget_source(target, methods, width=320, height=240, rotation=0):
+    source = probe_ui.build_m5ui_program(
+        target,
+        methods,
+        "documented-" + target,
+        width=width,
+        height=height,
+        rotation=rotation,
+    )
     mismatches = CHILD_LABEL_METHODS if target in {"M5Msgbox", "M5Win"} else ({"event"} if target == "M5Roller" else set())
     for method in mismatches.intersection(methods):
         old = "emit('RESULT',method=" + repr(method) + ",status='NOT_RUN',reason='No behavior-specific recipe yet')"

@@ -90,13 +90,20 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 `0067` 已通过 opt-in virtual-peer loopback 验证三台原厂
 `espnow`/`m5espnow` 的 controller TX/RX DMA、unicast、broadcast、receive
 和 IRQ；外部 peer、PMK 加密 payload、跨设备 fabric 与 RF/timing 仍由
-`RUNTIME-06` 跟踪。所有 28 类 Core2 文档方法矩阵仍待完成。
+`RUNTIME-06` 跟踪。StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
+完整执行；stock 仍保留 Canvas triangle、Image float scale 和 integer
+Spinbox step 三个失败，Core2 candidate 状态修复通过但全屏刷新帧仍未闭环。
 最终 `78555183…` runtime 的三设备并发回归为 system runtime 各 `51` 项零失败、
 共享候选修复各 `7/7`、设备组 StopWatch `6/6`、StickS3 `5/5`、Core2
 `6/6`，全部首轮 PASS 且无 retry；sockets/MQTT/network/EzData、audio
 wrapper、requests/Modbus candidate、TLS candidate 和 Device API 也在同一
 binary 重绑；stock HTTP/Modbus/TLS 的原始失败继续保留。见
 [最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
+2026-10-29 的三设备全接口复测进一步确认 system/shared、通信、音频、
+ESP-NOW 和已选外设稳定，并修复 M5UI 设备尺寸/旋转、Core2 程序预算、
+完整 BLE 身份表与 Core2 blocker 文案；stock BLE 仍阻塞，Core2 candidate
+帧条带/坐标问题保留，见
+[全接口证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
@@ -175,7 +182,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、Core2 M5UI 全屏 frame routing/oracle、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；phase profile 记录约十万次 SSI transaction，但全量 command/length 分布仍未知；四类立即切核控制均无改善，下一项补 controller 级聚合直方图并判断 guest/controller 来源 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |

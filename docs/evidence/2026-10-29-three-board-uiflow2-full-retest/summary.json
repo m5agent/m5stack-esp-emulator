@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "fccfa931c032f8cae6b90e97ba5f98b1770fbf6856446c4db5f7950241e1fe90",
+  "firmware": {
+    "stopwatch": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+    "sticks3": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+    "core2": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4"
+  },
+  "results": {
+    "system_runtime": {
+      "stopwatch": {"PASS": 50, "STATE_PASS": 1},
+      "sticks3": {"PASS": 50, "STATE_PASS": 1},
+      "core2": {"PASS": 50, "STATE_PASS": 1}
+    },
+    "shared_corrections": {
+      "stopwatch": {"PASS": 7},
+      "sticks3": {"PASS": 7},
+      "core2": {"PASS": 7}
+    },
+    "sockets": {"PASS": 23},
+    "mqtt": {"PASS": 42},
+    "network": {"PASS": 14},
+    "ezdata": {"PASS": 17},
+    "easysocket": {"PASS": 57, "NOT_APPLICABLE_LISTENER": 1},
+    "stock_http": {"PASS": 15, "FAIL": 1},
+    "stock_modbus": {"PASS": 42, "ERROR": 8},
+    "stock_tls": {"STATE_PASS": 3, "ERROR": 2},
+    "requests_candidate": {"PASS": 2},
+    "modbus_candidate": {"PASS": 50},
+    "tls_candidate": {"PASS": 5},
+    "audio_player": {
+      "stopwatch": {"PASS": 15},
+      "sticks3": {"PASS": 15},
+      "core2": "NOT_EXPORTED"
+    },
+    "audio_recorder": {
+      "stopwatch": {"PASS": 12},
+      "sticks3": {"PASS": 12},
+      "core2": "NOT_EXPORTED"
+    },
+    "espnow": {
+      "stopwatch": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1},
+      "sticks3": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1},
+      "core2": {"PASS": 12, "STATE_PASS": 5, "CONFIGURED_UNVERIFIED": 1}
+    },
+    "espnow_native": {
+      "stopwatch": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3},
+      "sticks3": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3},
+      "core2": {"PASS": 21, "STATE_PASS": 21, "CONFIGURED_UNVERIFIED": 3}
+    }
+  },
+  "m5ui": {
+    "classes": 28,
+    "methods": 505,
+    "status_counts": {
+      "STATE_PASS": 407,
+      "PENDING_FRAME_OR_INPUT": 80,
+      "PENDING_FRAME_OBJECT_REMOVAL": 3,
+      "DOCUMENTATION_MISMATCH": 11,
+      "EXPECTED_UNSUPPORTED": 1,
+      "FAIL": 3
+    },
+    "stock_failures": [
+      "M5Canvas.draw_triangle",
+      "M5Image.set_scale",
+      "M5Spinbox.set_step"
+    ],
+    "candidate": {
+      "stopwatch": {
+        "state_pass": 4,
+        "frame_pass": 2
+      },
+      "core2": {
+        "state_pass": 4,
+        "frame_pass": 0,
+        "remaining": "full-screen refresh/window striping and coordinate mismatch"
+      }
+    }
+  },
+  "ble_stock": {
+    "stopwatch": "no matching advertisement; actual NUS peer write absent",
+    "sticks3": "no matching advertisement; actual NUS peer write absent",
+    "core2": "timeout before UNIFIED_CORE2_IO_CONFIG_READY"
+  },
+  "runner_corrections": [
+    "use device api_size and ui_rotation for M5UI programs",
+    "allow bounded Core2 program and marker budgets up to 120 seconds",
+    "align every BLE advertisement identity and ACK payload with Device Service",
+    "identify Core2 radio blockers as Core2 rather than ESP32-S3"
+  ],
+  "regression": {
+    "platform_tests": 1406,
+    "platform_skips": 1,
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "ruff_scoped": "PASS",
+    "diff_check": "PASS"
+  },
+  "not_claimed": [
+    "physical hardware validation",
+    "RF behavior or timing",
+    "external or encrypted ESP-NOW peers",
+    "stock internal-controller BLE GATT",
+    "Core2 legacy UIFlow RUNTIME-03 closure",
+    "Core2 M5UI full-screen visual completion"
+  ]
+}

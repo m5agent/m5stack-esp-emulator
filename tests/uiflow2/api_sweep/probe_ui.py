@@ -731,10 +731,34 @@ def build_native_style_program(uiflow_root: Path, case_id: str = "native-styles"
     return "\n".join(lines) + "\n"
 
 
-def build_m5ui_program(target: str, methods: list[str], case_id: str, stepwise: bool = False) -> str:
+def build_m5ui_program(
+    target: str,
+    methods: list[str],
+    case_id: str,
+    stepwise: bool = False,
+    *,
+    width: int = 320,
+    height: int = 240,
+    rotation: int = 0,
+) -> str:
     if target not in M5UI_CONSTRUCTORS:
         raise ValueError(f"Unknown M5UI target {target}")
-    prefix = [GUEST_COMMON % (case_id, "m5ui." + target), "import m5ui", "import lvgl as lv", "m5ui.init()"]
+    if type(width) is not int or type(height) is not int or width <= 0 or height <= 0:
+        raise ValueError("M5UI dimensions must be positive integers")
+    if type(rotation) is not int or not 0 <= rotation <= 3:
+        raise ValueError("M5UI rotation must be an integer in 0..3")
+    prefix = [
+        GUEST_COMMON % (case_id, "m5ui." + target),
+        "import m5ui",
+        "import lvgl as lv",
+        "m5ui.init()",
+        f"M5.Lcd.setRotation({rotation})",
+    ]
+    prefix[0] = prefix[0].replace(
+        "    M5.Lcd.setRotation(0)\n",
+        f"    M5.Lcd.setRotation({rotation})\n",
+        1,
+    )
     setup = ["page=m5ui.M5Page(bg_c=0x0B1014)",
         "heading=m5ui.M5Label('API '+API_TARGET,x=8,y=8,text_c=0xF3F7F8,parent=page)",
         "textarea=m5ui.M5TextArea(text='A',x=8,y=35,w=304,h=36,parent=page)",
@@ -760,6 +784,9 @@ def build_m5ui_program(target: str, methods: list[str], case_id: str, stepwise: 
         # oracle, creating a false firmware failure.
         lines += ["old_page=page", "create_target()", "old_page.delete()", "settle()"]
         recipe = SPECIFIC.get(target, {}).get(method, COMMON.get(method))
+        if method == "get_display_size":
+            action = COMMON["get_display_size"][0]
+            recipe = (action, f"tuple(result)==({width},{height})")
         if recipe is None:
             lines.append("emit('RESULT',method=" + repr(method) + ",status='NOT_RUN',reason='No behavior-specific recipe yet')")
             continue

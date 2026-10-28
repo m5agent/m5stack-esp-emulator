@@ -9,7 +9,6 @@ import json
 import os
 import M5
 import m5ui
-import lvgl as lv
 
 M5.begin()
 M5.Display.setBrightness(255)
@@ -35,7 +34,9 @@ def settle():
         time.sleep_ms(20)
 
 
+_rotation = globals().get("M5UI_ROTATION", 0)
 m5ui.init()
+M5.Display.setRotation(_rotation)
 try:
     page = m5ui.M5Page(bg_c=0x0B1014)
     heading = m5ui.M5Label("M5UI source correction" if _candidate else "M5UI reference firmware", x=8, y=8, text_c=0xF3F7F8, parent=page)
@@ -67,7 +68,9 @@ try:
     spin._spinbox.increment()
     value = spin.get_value()
     emit("RESULT", api_target="m5ui.M5Spinbox", method="set_step", argument_domain="decimal", status="STATE_PASS" if abs(value - 12.6) < 0.001 else "FAIL", value_after_increment=value)
+    emit("SCREEN_LOAD", status="BEGIN")
     page.screen_load()
+    emit("SCREEN_LOAD", status="DONE")
     settle()
     emit("READY", status="AWAITING_FRAME", scope="three explicit M5UI source corrections")
     while True:
