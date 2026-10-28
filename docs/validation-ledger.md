@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-27`
+日期：`2026-10-28`
 
 Unit 历史原始归档未迁入精简源码分支。下方外部链接固定到旧提交，记录中的
 PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证据说明](evidence-retention.md)。
@@ -13,6 +13,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-10-28
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UI-02` / 公众工作台与独立browser backend | 固定源码双archive/target重建相同WASM，PaperS3/StopWatch官方演示在Chromium真实Worker的启动/帧/输入/暂停/停止通过，无仿真API；首页13组含实际PaperS3 URL直开、四档布局与DOM触摸通过；模型完整独立第三轮17主机/184附着/201预览/423PNG通过。平台1355项、4可选依赖skip及四生成器通过。独立服务CoreS3 plain源绑定示例触摸计数0→1、ZIP-before-stop、历史与清理通过；stock输入、unified READY、创建收据丢失恢复、硬件及部署不继承 | [本轮范围与复现](evidence/2026-10-28-public-simulator/README.md)、[哈希与逐层状态](evidence/2026-10-28-public-simulator/summary.json)、[架构调研](browser-runtime-feasibility.md) |
 
 ## 2026-10-27
 

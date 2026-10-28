@@ -1,0 +1,548 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "category": "browser-virtual-device-validation",
+  "source_baseline": "2740fd767478a6599ce4d5533cb5d1b345730222",
+  "browser_runtime": {
+    "build": {
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "cargo_lock_sha256": "2a00a0df475dd65f751e83f4681ebf466305c3bc6882335229fe4703c658a2c5",
+      "debug": 0,
+      "kind": "source-build",
+      "locked": true,
+      "offline": true,
+      "rust": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "rustflags": "-Cllvm-args=-inline-threshold=2000",
+      "source_tree": "7e9434bc2063d09ec799b4bbed9d8423a98e6820",
+      "strip": "debuginfo",
+      "target": "wasm32-unknown-unknown"
+    },
+    "firmware_bundled": false,
+    "profiles": [
+      "papers3",
+      "stopwatch"
+    ],
+    "rom": {
+      "bytes": 949552,
+      "license": "Apache-2.0",
+      "path": "esp32s3_rev0_rom.elf",
+      "release": "20260528",
+      "sha256": "c0ce0f338d1de1bdc6efbef1591779a2a42c1ab7d759d3c6ae8ae63a7dd34cfd",
+      "source": "https://github.com/espressif/esp-rom-elfs"
+    },
+    "schema_version": 1,
+    "source": {
+      "commit": "3cd3db3b7202e9fc559328c7247c11134c0437f9",
+      "license": "MIT",
+      "repository": "https://github.com/zhuzhe1983/esp-online-tester"
+    },
+    "wasm": {
+      "bytes": 4213748,
+      "path": "esp32sim.wasm",
+      "sha256": "05f020796d2611865eb570f027bd6d905a5dc19b39f827421cfcae13524bbe45"
+    }
+  },
+  "browser_guest_runs": [
+    {
+      "device": "papers3",
+      "status": "PASS",
+      "checked_at": "2026-10-28T06:17:13.719Z",
+      "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+      "browser": "156.0.8078.73",
+      "api_requests": 0,
+      "stopped": "stopped",
+      "hardware_validation": "NOT RUN",
+      "first_application_wall_ms": 14655,
+      "elapsed_ms": 24568,
+      "report_sha256": "c35aa1adf168525c357b308f463d458ebfaed3f6f55fe3e1e59c335732ce89f3",
+      "checkpoints": [
+        {
+          "name": "official-boot",
+          "width": 540,
+          "height": 960,
+          "sha256": "b5bb311d1262484ae023e52db337b28a64d35311db1ef7df2a6765c16c3d4617",
+          "region_sha256": "71fdbaaa586992ced3f05e21dd3db0d5fa8acde6ba1ea79356f630e39f126118"
+        },
+        {
+          "name": "touch-toggle",
+          "width": 540,
+          "height": 960,
+          "sha256": "7c5f752e6f544ce4ec516835dd6d7b3b5518a30d4a2586b80383e9d706131026",
+          "region_sha256": "ed968cb6249ef5359e7a225858912f2b1618931a98c771163621d4fb4ddf522d"
+        },
+        {
+          "name": "touch-return",
+          "width": 540,
+          "height": 960,
+          "sha256": "323b07bb6cc8def50de4c69111a3a4d27cafc5ce3d6ee39120bcd6bfa271a22b",
+          "region_sha256": "d0359278a07c33170db3c74412f4f4bd6979e173a6ccc093a19096cdd501c677"
+        }
+      ]
+    },
+    {
+      "device": "stopwatch",
+      "status": "PASS",
+      "checked_at": "2026-10-28T06:17:56.583Z",
+      "firmware_sha256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe",
+      "browser": "156.0.8078.73",
+      "api_requests": 0,
+      "stopped": "stopped",
+      "hardware_validation": "NOT RUN",
+      "first_application_wall_ms": 15782,
+      "elapsed_ms": 21524,
+      "report_sha256": "424651c821c80c0b2efe3011cb7a1d673e0980a9b22ba713c33c885234a65367",
+      "checkpoints": [
+        {
+          "name": "official-boot",
+          "width": 468,
+          "height": 466,
+          "sha256": "91ac7638bfc8a7e1833740a9ea5344d48c2e38e84075a2a946956c322dbb3886",
+          "region_sha256": "2979246505c3406e6c36a82663b34483e055b0ddb63dac2f6d7816da87831ef4"
+        },
+        {
+          "name": "button-menu",
+          "width": 468,
+          "height": 466,
+          "sha256": "275f72a1ab60072204391c8dde6d87ea920d98f6fa0ad8375cac863ceed176de",
+          "region_sha256": "1afa9fe5a4451c511f5cb8ce94efa19464e0b6f5ccb1d42f154f96e789851c3a"
+        },
+        {
+          "name": "touch-open-app",
+          "width": 468,
+          "height": 466,
+          "sha256": "5ee9432a402d0a6a4ae80798e21f45ca6c3ccec0b91440a1a8895f152543330f",
+          "region_sha256": "ceac6138aa095db19e04de3d0f668318a5b6c75c20d70a9f118be416b4ad3c2e"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact firmware and rebuilt WASM only; not arbitrary firmware, complete Unit protocols or physical hardware.",
+  "deployment": "NOT RUN",
+  "native_bridge": {
+    "schema_version": 1,
+    "date": "2026-10-28",
+    "category": "virtual-device",
+    "status": "PASS for plain CoreS3 source fixture; broader native acceptance PARTIAL",
+    "hardware_validation": "NOT RUN",
+    "device": "cores3",
+    "runtime": "qemu",
+    "runtime_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+    "input_file_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "normalized_base_firmware_sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73",
+    "actual_source_fixture_sha256": "055593a02c2f9e1488090269169daeeebcc094c4e535ac3518bfe71a67940758",
+    "fixture_source_sha256": "7de227475ef5dc23eae0c3ab65ef6ca351a23acb0c9368ceba73e58fe4ea3321",
+    "checks": {
+      "separate_origin_token_and_cors": "PASS",
+      "chunk_upload_and_import": "PASS in stock intake lane",
+      "real_service_owned_qemu_sessions": "PASS",
+      "plain_stock_display": "PASS: retained UIFlow2 DEVELOP application frame; input feedback not verified for stock",
+      "plain_source_fixture_ready": "PASS: running and exact pre-input 320x240 fixture pixels verified",
+      "plain_source_fixture_input": "PASS: controller longpress at 160,180 accepted; same guest marker 0 to 16 green pixels; touch count 0 to 1 visually verified",
+      "plain_source_fixture_serial": "309 bytes retained as actual output; no application-ready assumption from byte count or missing marker",
+      "first_unified_execution": "NOT RUN: missing BLE companion dependency before guest launch",
+      "isolated_bumble_repair": "PASS: bumble 0.0.236 and complete peer import preflight",
+      "last_unified_source_fixture_display": "PASS: actual fixture rendered",
+      "last_unified_controller_ready_and_input": "NOT VERIFIED: expected UNIFIED_CORES3_READY absent, no running controller/input acceptance",
+      "evidence_before_stop": "PASS: actual controller ZIP Blob obtained before DELETE purge=0",
+      "evidence_integrity": "PASS: all 8 file sizes and SHA256 values verified; embedded session identity matches owned guest",
+      "history": "PASS: stopped metadata and identical post-touch frame retained; mutable flash released",
+      "cleanup": "PASS: no active lease; guest reaped; dedicated service stopped and its port released"
+    },
+    "frame_before_sha256": "7f6bc5e8f48902ae5cd10fb009dc80566c546128e9a4076851ed4392f5a946e7",
+    "frame_after_sha256": "a55e0b18ba4551b790e7ff83e520ffdc2b98702633b92d2a7628dc4ff6843e50",
+    "history_frame_sha256": "a55e0b18ba4551b790e7ff83e520ffdc2b98702633b92d2a7628dc4ff6843e50",
+    "count_region_changed_pixels": 220,
+    "evidence_sha256": "4c3b8797508fc19b61405af5325c7026cecb92e9a4e85293c27c3aff26a9cbba",
+    "evidence_verified_files": 8,
+    "oracle_corrections": [
+      "await async frame checks explicitly instead of treating a Promise as readiness",
+      "use actual fixture pixels and guest output change instead of serial byte threshold",
+      "read native pre-stop ZIP Blob instead of binary response instrumentation"
+    ],
+    "not_transferred": [
+      "stock application full input acceptance",
+      "unified application readiness",
+      "browser WASM acceptance",
+      "physical hardware acceptance"
+    ],
+    "remaining": "Broader stock/unified input acceptance and complete native peripheral regression remain separate path extensions; they are not prerequisites for the scoped two-profile browser-only publication. Exact short-interruption create-response recovery passed separately below; no cross-restart or long-disconnection acceptance."
+  },
+  "homepage_real_guest": {
+    "status": "PASS",
+    "category": "public-page-browser-contract",
+    "checks": [
+      "first-visit-selects-an-available-browser-profile-without-auto-running-reference",
+      "project-path-entry-and-actual-model-without-device-service",
+      "public-console-navigation-opens-connection-panel-without-calling-pages-api",
+      "search-and-browser-admission-are-explicit",
+      "unit-model-preview-and-long-notes-are-separate-from-runtime",
+      "responsive-real-model-at-four-widths",
+      "papers3-alias-is-not-papermono-and-shares-no-credentials",
+      "local-sha-mismatch-fails-before-any-runtime-start",
+      "url-autostart-validates-real-bytes-without-claiming-guest-pass",
+      "cancel-withdraws-delayed-firmware-and-late-start",
+      "unknown-device-never-falls-back-silently",
+      "native-stop-failure-retains-owner-and-blocks-device-switch-ui-fixture",
+      "configured-service-units-are-never-silently-dropped-by-browser-selection-ui-fixture",
+      "first-service-failure-rejects-malformed-directory-and-keeps-browser-usable-ui-fixture",
+      "failed-reconnect-preserves-the-original-service-and-selected-units-ui-fixture",
+      "unresolved-native-owner-blocks-service-replacement-until-stop-recovers-ui-fixture",
+      "real-papers3-url-autostart-serial-screen-touch-pause-and-stop"
+    ],
+    "source_sha256": {
+      "platform/web/index.html": "b465fb3b5942c83d0d4f1160244cd39c66f8da2a5ab5307b04526825a130f1cf",
+      "platform/web/public.js": "f6fc9d55e04515bdecb4d43da170ef78287a89aa46ecdf07b27646a88005cb4e",
+      "platform/web/public.css": "3ef6630e93db9f7c9b9b34f977ab37e0cfbdcd9f848f8108156b6c76c268996c",
+      "platform/tests/test_public_workbench_browser.mjs": "7d8fa143b4335390c587432faa10cea7e6bc70c09fad66f66316aab4508b7d61"
+    },
+    "exported_source_sha256": {
+      "platform/web/index.html": "abeb9675b82a7a43b4719691bbb92a6c673b6f677bf12d9812db104a54787413",
+      "platform/web/public.js": "f6fc9d55e04515bdecb4d43da170ef78287a89aa46ecdf07b27646a88005cb4e",
+      "platform/web/public.css": "3ef6630e93db9f7c9b9b34f977ab37e0cfbdcd9f848f8108156b6c76c268996c"
+    },
+    "browser": "156.0.8078.73",
+    "firmware_sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+    "hardware_execution": "NOT RUN",
+    "errors": [],
+    "check_count": 17,
+    "guest_execution": "PaperS3 official factory v0.5, browser virtual-device",
+    "report_sha256": "4ed60a15fcee8137c99edab25b0f3e7785ce5b2f82104979a55f233e6918cea9",
+    "report_location": "ignored local archive; .work/public-navigation-final-real-ui-r2/report.json",
+    "checkpoints": [
+      {
+        "name": "homepage-official-boot",
+        "width": 540,
+        "height": 960,
+        "rgba_sha256": "102cae8a5553fbb1dae479db14213d781a832610742644a49d96f9886030c66b",
+        "region_sha256": "27d02ab508bb95b218b9be50cf6aba6bb3e4d78e12d82a1ae7c248b7cdfd4831",
+        "dark_pixels": 30464,
+        "light_pixels": 487936
+      },
+      {
+        "name": "homepage-touch-toggle",
+        "width": 540,
+        "height": 960,
+        "rgba_sha256": "51ea88eda99e920253d7ce874d88175dc625e105451112365deb2f75949dc18b",
+        "region_sha256": "831752ea001cbea6a720623eeaa0a7a9e1897b78f4676d5482732785e7facfb4",
+        "dark_pixels": 30170,
+        "light_pixels": 488230
+      },
+      {
+        "name": "homepage-touch-return",
+        "width": 540,
+        "height": 960,
+        "rgba_sha256": "2a672cd265ebfa2b7d47f57cc8dd823bcce19b54f874e47418306323119db80e",
+        "region_sha256": "387000bf9ae27a60e70689b16a2147e85dd93efc883dbdb24e760a8177f42588",
+        "dark_pixels": 30325,
+        "light_pixels": 488075
+      },
+      {
+        "name": "papers3-layout-1440",
+        "stage": {
+          "x": 257,
+          "y": 323.40625,
+          "width": 830,
+          "height": 510
+        },
+        "body": {
+          "x": 527.7000122070312,
+          "y": 360.10626220703125,
+          "width": 288.60003662109375,
+          "height": 436.5999755859375
+        },
+        "within": true,
+        "noOverflow": true
+      },
+      {
+        "name": "papers3-layout-1024",
+        "stage": {
+          "x": 25,
+          "y": 666.203125,
+          "width": 670,
+          "height": 480
+        },
+        "body": {
+          "x": 215.6999969482422,
+          "y": 687.9031372070312,
+          "width": 288.5999755859375,
+          "height": 436.60003662109375
+        },
+        "within": true,
+        "noOverflow": true
+      },
+      {
+        "name": "papers3-layout-768",
+        "stage": {
+          "x": 17,
+          "y": 642.53125,
+          "width": 734,
+          "height": 440
+        },
+        "body": {
+          "x": 239.6999969482422,
+          "y": 644.2312622070312,
+          "width": 288.5999755859375,
+          "height": 436.60003662109375
+        },
+        "within": true,
+        "noOverflow": true
+      },
+      {
+        "name": "papers3-layout-390",
+        "stage": {
+          "x": 17,
+          "y": 618.296875,
+          "width": 356,
+          "height": 340
+        },
+        "body": {
+          "x": 97.5,
+          "y": 640.796875,
+          "width": 195,
+          "height": 295
+        },
+        "within": true,
+        "noOverflow": true
+      },
+      {
+        "name": "stopped",
+        "first_application_wall_ms": 14767,
+        "api_requests": 0,
+        "worker_terminated": true
+      }
+    ],
+    "visual_inspection": "Final 390px full-page PNG inspected; resize compositor settle avoids an earlier duplicated capture artifact. DOM bounds and assertions unchanged."
+  },
+  "model_browser_regression": {
+    "status": "PASS",
+    "validation": "browser visual integration; no guest execution or hardware validation",
+    "source_commit": "c48940c3aad3f2e8e9b8906b82071a88f2a3de1e",
+    "browser_version": "156.0.8078.73",
+    "captured_at": "2026-10-28T06:32:34.787Z",
+    "elapsed_seconds": 936.525,
+    "counts": {
+      "runtime_and_visual_controllers": 17,
+      "attached_visual_units": 184,
+      "standalone_model_previews": 201,
+      "decoded_png_assets": 423,
+      "closed_contexts": 140,
+      "display_frame_controllers": 13
+    },
+    "checks": [
+      "Controller RGB565BE, PNG and RGB565LE red/green/blue readback including native rotated raster",
+      "Standalone previews cannot emit guest control/touch/reset/unit-input routes",
+      "All visual Unit attachment/detachment/ownership and geometry/material/texture disposal",
+      "RGB unknown state clears color; fixed-color unknown state retains native color and removes emission",
+      "No output echo, attachment race, nested HUB input/disposal, focused keyboard release, WebGL fallback",
+      "All decoded assets match pinned SHA256 and all integration sources remain unchanged"
+    ],
+    "page_errors": [],
+    "missing_imports": [],
+    "report_sha256": "4875b9db5ba4ba1ed4c2f50407d24b3205a008a2bdee65557bf7de4d94830bdd",
+    "integration_sha256": {
+      "platform/web/model-shell.js": "f1ddfbb8bb99e65bee970d2c753df14154b093f56e912b50d4efaf8efec34142",
+      "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+      "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "platform/tools/sync_visual_models.py": "ef8a9ec69811ba5e3529d6237a87ea7efed114ce3cbea9a506f44895a0e8f32a",
+      "platform/tests/test_model_shell.mjs": "0293cd6ddc7e41a0bb4869ab49597f47d3631200b1465a9d64af46505219af74",
+      "platform/tests/model_shell_probe_helpers.mjs": "cea513101ea3271b66e0c92c0e2588db238261bfb28d620755af6af3aa1183c0",
+      "platform/web/vendor/m5stack-models/vendor-manifest.json": "0b893c0d9fcebb35ddac375bdbafb03489ef1f91c8bc1bb01eb14d5a823ce5d3",
+      "platform/web/vendor/m5stack-models/catalog/products.json": "ca862b6e37024130ddc5f5816029a57f6e50159012679154aaee91694401d41e"
+    },
+    "limits": [
+      "Browser visual components do not grant Device Service runtime admission",
+      "Default instances do not cover optional catalog configurations",
+      "Printed layer geometry and decoded textures do not prove optical registration, dimensions or electrical behavior",
+      "Slider output bridge is unsupported; Fader is shell-only",
+      "Default catalog constructors only; optional product configurations are not included in this complete run.",
+      "Browser component/state checks do not establish electrical pin compatibility, controller protocols, optical calibration or guest firmware compatibility."
+    ],
+    "earlier_attempts": [
+      {
+        "status": "FAIL",
+        "case": "preview:poe-p4",
+        "reason": "Test oracle omitted instance fixedColor contract."
+      },
+      {
+        "status": "FAIL",
+        "case": "preview:timercamera-f",
+        "reason": "Fixed-blue Component contract required precise test and unknown-state cleanup adaptation."
+      }
+    ]
+  },
+  "platform_suite": {
+    "status": "PASS",
+    "tests": 1355,
+    "skipped": 4,
+    "elapsed_seconds": 104.832,
+    "python": "3.12.14",
+    "skip_reasons": [
+      "optional pinned local compiler unavailable",
+      "three candidate tests require pinned UIFlow source checkout"
+    ],
+    "raw_log": "ignored local archive; not source Git",
+    "source_scope": "Previous complete suite before final session-create recovery and navigation changes; retained as historical evidence, not final-source full-suite acceptance."
+  },
+  "public_cdn_downloads": [
+    {
+      "url": "https://m5burner-cdn.m5stack.com/firmware/16287f6984f8ec7fe8058a6c3497b3b4.bin",
+      "status": 200,
+      "type": "cors",
+      "bytes": 1439168,
+      "sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624"
+    },
+    {
+      "url": "https://m5burner-cdn.m5stack.com/firmware/6ea670900726398df06ab72c2915db3e.bin",
+      "status": 200,
+      "type": "cors",
+      "bytes": 3854192,
+      "sha256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe"
+    }
+  ],
+  "public_cdn_downloads_note": "Actual Chromium CORS fetch with credentials omitted; hash verified. Separate from same-origin mirrored guest fixtures.",
+  "first_view_transfer": {
+    "device": "stopwatch",
+    "resource_count": 62,
+    "resource_bytes": 4521655,
+    "largest": [
+      {
+        "name": "/showcase/platform/web/vendor/three/three.core.js",
+        "bytes": 1458113
+      },
+      {
+        "name": "/showcase/platform/web/vendor/m5stack-models/catalog/products.json",
+        "bytes": 1156786
+      },
+      {
+        "name": "/showcase/platform/web/vendor/three/three.module.js",
+        "bytes": 662772
+      },
+      {
+        "name": "/showcase/platform/web/vendor/m5stack-models/src/devices/stopwatch/geometry-data.js",
+        "bytes": 407878
+      },
+      {
+        "name": "/showcase/platform/web/vendor/m5stack-models/src/devices/stopwatch/artwork/rear.png",
+        "bytes": 264026
+      },
+      {
+        "name": "/showcase/platform/web/unit-panel.js",
+        "bytes": 59717
+      },
+      {
+        "name": "/showcase/platform/web/vendor/m5stack-models/runtime-index.js",
+        "bytes": 42994
+      },
+      {
+        "name": "/showcase/platform/web/public.js",
+        "bytes": 34516
+      }
+    ],
+    "wasm_requested": false,
+    "firmware_requested": false,
+    "api_requests": 0,
+    "page_errors": [],
+    "conditions": "One desktop Chromium cold first view on an uncompressed local static export; excludes navigation document; no guest execution or firmware download.",
+    "source_scope": "Earlier cold first-view measurement before the final lifecycle/navigation edits; not a final-source transfer budget."
+  },
+  "node_default_contracts": {
+    "status": "PASS",
+    "checks": 16,
+    "scope": "Homepage browser UI contracts in the default Node suite; no guest execution",
+    "source_sha256": {
+      "platform/web/index.html": "b465fb3b5942c83d0d4f1160244cd39c66f8da2a5ab5307b04526825a130f1cf",
+      "platform/web/public.js": "f6fc9d55e04515bdecb4d43da170ef78287a89aa46ecdf07b27646a88005cb4e",
+      "platform/web/public.css": "3ef6630e93db9f7c9b9b34f977ab37e0cfbdcd9f848f8108156b6c76c268996c",
+      "platform/tests/test_public_workbench_browser.mjs": "7d8fa143b4335390c587432faa10cea7e6bc70c09fad66f66316aab4508b7d61"
+    },
+    "report_sha256": "3f4e7961543e60503f52d643635ce5f8320c6a9061b30afeafb44146f8febcdc",
+    "report_location": "ignored local archive; .work/public-navigation-contract-ui-r3/report.json",
+    "real_guest_execution": "NOT RUN in default contracts; separate final opt-in homepage guest run above"
+  },
+  "not_run": [
+    "physical hardware",
+    "new complete native QEMU peripheral matrix",
+    "GitHub Pages deployment",
+    "native create recovery across server restart or long disconnection",
+    "all-native-path compatibility acceptance"
+  ],
+  "publication_scope": {
+    "target": "Static GitHub Pages artifact with source-built browser runtime; deployment not performed",
+    "browser_execution_profiles": [
+      "papers3",
+      "stopwatch"
+    ],
+    "browser_acceptance": "Exact official firmware hashes and rebuilt WASM listed above; not arbitrary firmware or complete peripheral compatibility",
+    "native_bridge": "Optional separate Device Service; plain source-bound CoreS3 fixture acceptance only, not all native paths",
+    "visual_models": "17 controller models and 184 Unit models are visual integration evidence; no implicit Unit controller/runtime admission",
+    "deployment_authorization": "Pending user deployment decision; no GitHub Pages publication performed"
+  },
+  "native_create_response_loss": {
+    "schema_version": 1,
+    "date": "2026-10-28",
+    "category": "virtual-device-session-create-response-loss",
+    "status": "PASS",
+    "scenario": "Real homepage upload; first session POST returns a real allocation but its browser response is aborted after QEMU PID launch; automatic stop replays identical JSON/key and cleans up the same guest.",
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "runtime_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+    "firmware_input_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "normalized_firmware_sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "checks": {
+      "cross_origin_real_homepage_connected": true,
+      "actual_guest_allocated_before_loss": true,
+      "real_upload_and_import": true,
+      "same_key_body_id_replay": true,
+      "exactly_one_new_history_session": true,
+      "evidence_zip_before_delete": true,
+      "purge_zero_retained_history": true,
+      "terminal_lease_released": true,
+      "no_active_sessions": true,
+      "actual_guest_pid_exited": true,
+      "automatic_homepage_failure_cleanup": true
+    },
+    "create_count": 2,
+    "idempotent_replay_flags": [
+      false,
+      true
+    ],
+    "same_create_body_sha256": "3cb4ff30ab0884664278d45a5a5d465892fc9f0f63208541f25047a3ad833c74",
+    "evidence": {
+      "zip_sha256": "e2df07684832e49ec606570e80439f1508b5cf56831b8879e1842b191cb61bff",
+      "verified_files": 7
+    },
+    "source_sha256": {
+      "platform/tests/test_public_session_recovery_service.mjs": "0ce22cdd26fb0143922928fc27ba812bffb08d16fb8c91c4714ed379ce2ba522",
+      "platform/web/public.js": "f6fc9d55e04515bdecb4d43da170ef78287a89aa46ecdf07b27646a88005cb4e",
+      "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
+      "platform/web/public-session-controller.js": "08c141ac82d92eea1e78ed5afc9658d85b3238bebe1c388a88209215fab53851",
+      "platform/tools/device_service.py": "3dbbf7576d7289ebaa283594491a1187cabc37a2c7fee09b5f25e6840be62ae8",
+      "platform/tools/serve.py": "6533e5ce996f92eb843c68f0a276f15df59df046e2c2f5398925fc8fa2559eab"
+    },
+    "source_hashes_still_current": true,
+    "receipt_sha256": "8a0adccb6b1f3871f3eb002ae5519582590d94fc07e354e314383276dada7fa6",
+    "history_sha256": "ac6045f8b340a187238ec8f7b602d14e4a28560b1bd1de8b9f7097e171cbe3bc",
+    "screenshot_sha256": "7604c053dfe29157194979a7aa86392c6e6612b4836ed7a3089e1bbdaebf1e34",
+    "application_display": "NOT RUN",
+    "application_input": "NOT RUN",
+    "hardware_validation": "NOT RUN",
+    "cleanup": {
+      "owned_service_exited": true,
+      "port_8829_released": true,
+      "active_sessions_before_service_stop": 0,
+      "user_service_accessed": false,
+      "scope": "only this test owned service"
+    },
+    "boundaries": [
+      "No key-only read API exists; recovery POST may allocate if the first request never arrived.",
+      "Current client uses ttl_seconds=600; replay does not renew the lease.",
+      "The idempotency mapping is capped at 4096 entries and has no standalone TTL; purged/pruned session history can remove deduplication protection.",
+      "This verifies one interrupted-response lifecycle on this firmware/runtime; not cross-restart, long-disconnection, or unrelated firmware acceptance."
+    ],
+    "reproduction": "node --experimental-default-type=module platform/tests/test_public_session_recovery_service.mjs --execute --service http://127.0.0.1:8829 --token-file <private-token-file> --firmware <public-cores3-uiflow2.bin> --python <python3.12> --out <ignored-output>",
+    "summary_sha256": "1ab47528211d85aec19275c6e8fb1a69a3c36289aa57048f3607bb077bdf3dfe",
+    "report_location": "ignored local archive; .work/public-native-recovery/run-r1/receipt.json"
+  }
+}

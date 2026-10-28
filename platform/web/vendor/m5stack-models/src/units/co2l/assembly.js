@@ -1,0 +1,41 @@
+import * as THREE from 'three';
+import {Component,Port,materials} from '../../core/index.js';
+import {roundedRect} from '../../core/geometry.js';
+import {addCadParts} from '../../modeling/cad.js';
+import {mesh,slab,FACE,portQuaternion} from '../../modeling/parts.js';
+import {spec} from './dimensions.js';
+import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
+function bore(shape,x,y,r){const p=new THREE.Path();p.absarc(x,y,r,0,Math.PI*2,false);shape.holes.push(p);}
+function extrude(parent,shape,depth,position,material,name){return mesh(parent,new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false,curveSegments:40}),material,position,name);}
+function board(host){
+ const s=new THREE.Shape();s.moveTo(-6.4,21.8);s.lineTo(6.4,21.8);s.lineTo(10.4,17.8);s.lineTo(10.4,-7.65);s.lineTo(8,-7.65);s.absarc(8,-12,4.35,Math.PI/2,Math.PI*1.5,false);s.lineTo(10.4,-16.35);s.lineTo(10.4,-17.8);s.lineTo(6.4,-21.8);s.lineTo(5.6,-21.8);s.lineTo(5.6,-17.3);s.lineTo(-5.6,-17.3);s.lineTo(-5.6,-21.8);s.lineTo(-6.4,-21.8);s.lineTo(-10.4,-17.8);s.lineTo(-10.4,-16.35);s.lineTo(-8,-16.35);s.absarc(-8,-12,4.35,Math.PI*1.5,Math.PI*2.5,false);s.lineTo(-10.4,-7.65);s.lineTo(-10.4,17.8);s.closePath();bore(s,0,-12,2.1);for(const x of[-3,-1,1,3])bore(s,x,-16.6,.32);
+ const pcb=extrude(host.body,s,.8,[0,0,-4.6],materials.plastic(0x284c3d,{roughness:.91}),'CO2L physical PCB with true retaining and Grove solder bores,open boss reliefs');pcb.userData={role:'physical-pcb',installationInferred:true};return pcb;
+}
+function sensor(host){
+ const frame=new THREE.Group();frame.name='CO2L fixed SCD41 LGA sensor installation';frame.position.fromArray(spec.sensor.position);host.body.add(frame);
+ const dark=materials.plastic(0x303c30,{roughness:.8}),metal=materials.metal(0xb9aa77,{roughness:.53}),substrate=mesh(frame,new THREE.BoxGeometry(10.1,10.1,.7),dark,[0,0,.45],'CO2L SCD41 physical10.1mm LGA substrate');
+ const pads=[];for(let side=0;side<4;side++)for(let n=0;n<5;n++){const along=(n-2)*1.25,edge=4.3,x=side===0?along:side===1?edge:side===2?-along:-edge,y=side===0?edge:side===1?-along:side===2?-edge:along,p=mesh(frame,new THREE.BoxGeometry(.8,1.5,.152),metal,[x,y,.076],'CO2L SCD41 physical perimeter LGA land '+(pads.length+1));p.rotation.z=side*Math.PI/2;pads.push(p);}
+ const groundPads=[];for(const x of[-1.25,1.25])for(const y of[-1.25,1.25])groundPads.push(mesh(frame,new THREE.BoxGeometry(2.3,2.3,.152),metal,[x,y,.076],'CO2L SCD41 split central ground21 physical quadrant'));
+ const ring=roundedRect(8.5,8.5,1.1);ring.holes.push(roundedRect(4.8,4.8,.35,{path:new THREE.Path(),clockwise:true}));const g=new THREE.ExtrudeGeometry(ring,{depth:5.42,bevelEnabled:false,curveSegments:40}),p=g.attributes.position;for(let i=0;i<p.count;i++){const scale=1-(1-7.8/8.5)*p.getZ(i)/5.42;p.setXY(i,p.getX(i)*scale,p.getY(i)*scale);}g.computeVertexNormals();
+ const can=mesh(frame,g,metal,[0,0,.8],'CO2L SCD41 tapered hollow metal protection can');can.userData={role:'physical-sensor-can',internalChamberInferred:true};
+ const s=new THREE.Shape();s.moveTo(-2.9,1.6);s.lineTo(-1.6,2.9);s.lineTo(2.9,2.9);s.lineTo(2.9,-2.9);s.lineTo(-2.9,-2.9);s.closePath();const membrane=extrude(frame,s,.08,[0,0,6.22],materials.plastic(0xe4e4d8,{roughness:1}),'CO2L SCD41 physical notched white protection membrane');
+ frame.userData={role:'physical-sensor-package',part:'SCD41',nominalPackageMm:[10.1,10.1,6.3],scope:'Static sensor enclosure and protection membrane only;no gas,measurement or electrical simulation',installationInferred:true};return{frame,substrate,pads,groundPads,can,membrane};
+}
+function electronics(host){
+ const dark=materials.plastic(0x262b27,{roughness:.83}),metal=materials.metal(0xb6b8a7,{roughness:.53}),ceramic=materials.plastic(0xbaac80,{roughness:.9}),frame=new THREE.Group();frame.name='CO2L U1 VRH3301NLX LLP-4 fixed installation';frame.position.fromArray(spec.regulator.position);host.body.add(frame);
+ const body=mesh(frame,new THREE.BoxGeometry(1.2,1.6,.4),dark,[0,0,.35],'CO2L VRH3301NLX physical LLP-4 body'),pads=[];for(const x of[-.3,.3])for(const y of[-.7,.7])pads.push(mesh(frame,new THREE.BoxGeometry(.3,.2,.15),metal,[x,y,.075],'CO2L VRH3301NLX physical LLP corner terminal'));const paddle=mesh(frame,new THREE.BoxGeometry(.9,.7,.15),metal,[0,0,.075],'CO2L VRH3301NLX exposed ground paddle');
+ const parts=[];for(const[n,x,y,w,h,d]of[['C1 1uF',-5.7,-2.8,1.6,.8,.55],['C2 1uF',3,-2.8,1.6,.8,.55],['C5 100nF',-6.7,7.7,1.2,.7,.45],['C6 100nF',6.7,7.7,1.2,.7,.45],['R3 15K',-3.7,-6.7,1.2,.7,.45],['R4 15K',-.9,-6.7,1.2,.7,.45],['F1 6V1A',3,-7,2,1.25,.7],['D1 RLSD52A031V',-3.8,-9.3,1,.6,.4],['D2 RLSD52A031V',-.8,-9.3,1,.6,.4],['D3 RLSD52A031V',6.8,-6.8,1,.6,.4],['D4 LESD3Z5.0CMT1G',3,-10,1.7,1.2,.65]]){const part=slab(host.body,w,h,d,.04,[x,y,-3.8],n.startsWith('C')||n.startsWith('F')?ceramic:dark,[],0);part.name='CO2L fixed '+n;parts.push(part);for(const sign of[-1,1])mesh(host.body,new THREE.BoxGeometry(.18,h,.18),metal,[x+sign*(w/2-.06),y,-3.67],'CO2L minor package physical termination');}
+ return{regulator:{frame,body,pads,paddle},parts};
+}
+function grove(host){
+ const frame=new THREE.Group();frame.name='CO2L physical red HY2.0-4P socket';frame.position.fromArray(spec.grove.position);frame.quaternion.copy(FACE.bottom);host.body.add(frame);const red=materials.plastic(spec.grove.color,{roughness:.72}),metal=materials.metal(0xb7b6a3,{roughness:.43}),box=(s,p,n,m=red)=>mesh(frame,new THREE.BoxGeometry(...s),m,p,'CO2L Grove '+n),depth=6.1;
+ for(const sign of[-1,1]){box([.65,5.2,depth],[sign*4.675,0,-depth/2],'side rail');box([.7,.6,3.2],[sign*3.85,2.3,-4.5],'inner guide');box([.6,.45,1.2],[sign*3.65,2.375,-1.8],'locking shoulder');}box([8.7,.65,depth],[0,-2.275,-depth/2],'floor');box([8.7,4.55,.65],[0,.325,-depth+.325],'deep dielectric rear wall');box([4.8,.45,2.3],[0,2.375,-4.3],'locking bridge');
+ const contacts=[],tails=[];for(let i=0;i<4;i++){const x=(i-1.5)*2;contacts.push(box([.42,.42,4.3],[x,.2,-3.5],'real contact '+(i+1),metal));tails.push(box([.42,2.05,.42],[x,-.625,-5.65],'descending solder tail '+(i+1),metal));tails.push(box([.42,.42,1.4],[x,-1.6,-6.35],'solder foot '+(i+1),metal));mesh(host.body,new THREE.CylinderGeometry(.22,.22,1,24).rotateX(Math.PI/2),metal,[x,-16.6,-4.2],'CO2L Grove physical terminal through PCB solder bore');}
+ const port=host.add(new Port({id:'grove',label:'PORT.A · I2C · HY2.0-4P',connector:'grove',position:spec.grove.position,quaternion:portQuaternion('bottom'),hitSize:[10,1,5.2],pins:[{n:1,name:'GND',color:'black'},{n:2,name:'5V',color:'red'},{n:3,name:'SDA',color:'yellow'},{n:4,name:'SCL',color:'white'}],meta:{role:'visual-connector',face:'bottom',scope:'Four physical contacts,cable attachment and pose only;no I2C,power,electrical,CO2,temperature,humidity or firmware behavior'}}));return{frame,contacts,tails,port};
+}
+function retaining(host){const metal=materials.metal(0xa3a798,{roughness:.48}),head=mesh(host.body,new THREE.CylinderGeometry(1.35,1.35,.5,48).rotateX(Math.PI/2),metal,[0,-12,-7.6],'CO2L recessed physical retaining screw head'),shank=mesh(host.body,new THREE.CylinderGeometry(.65,.65,6.8,32).rotateX(Math.PI/2),metal,[0,-12,-4.2],'CO2L concealed fixed retaining shank');mesh(host.body,new THREE.CircleGeometry(.55,6).rotateY(Math.PI),materials.cavity(),[0,-12,-7.86],'CO2L recessed screw drive');return{head,shank};}
+export function buildCo2l(host){
+ const parts=addCadParts(host,data,{shell:materials.plastic(0xe7e8e2,{roughness:.82})}),pcb=board(host),scd41=sensor(host),power=electronics(host),input=grove(host),fixing=retaining(host),back=slab(host.body,...spec.labels.back.size,.04,.1,spec.labels.back.position,materials.plastic(0xd9dedb,{roughness:.88}),[],0);back.name='CO2L physical rear adhesive film seated on native recessed back';back.userData={role:'physical-label-substrate',face:'back'};
+ const anchor=host.add(new Component({id:'sensor',label:'SCD41 fixed package appearance anchor',position:spec.sensor.anchor,meta:{role:'visual-anchor',part:'SCD41',scope:'Passive fixed package anchor only;no CO2,temperature,humidity,value,calibration,measurement,single-shot,I2C,power,electrical or firmware commands'}}));host.co2lAssembly={parts,pcb,scd41,power,input,fixing,labels:{back},anchor};host.unitStickers=addStickers(host);
+}

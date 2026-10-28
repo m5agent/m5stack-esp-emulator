@@ -64,7 +64,9 @@ export function installModelProbe({assetPaths, timeoutMs}) {
     const leds = [], joints = [], sliders = [];
     try {
       for (const led of host.list('led')) {
-        const fixedColor = [led.meta.colorMode, led.meta.color].some(value => String(value || '').startsWith('fixed-')) || led.meta.fixedColor !== undefined;
+        const fixedColor = [led.meta.colorMode, led.meta.color].some(value => String(value || '').startsWith('fixed-'))
+          || led.meta.fixedColor !== undefined || led.fixedColor !== undefined
+          || (led.id === 'status' && /^m5stack\.unit\.timercamera-(f|x)(\.grove)?$/.test(host.meta.id));
         const expectedColor = fixedColor ? led.getState().color : '#00ff00';
         shell.applyVisualState({type: 'led', target: led.path, ...(fixedColor ? {} : {color: '#00ff00'}), brightness: 0.5});
         const state = led.getState();
@@ -77,6 +79,10 @@ export function installModelProbe({assetPaths, timeoutMs}) {
         if (led.glow?.visible) check(led.glow.material.opacity > 0, `Visible LED glow is empty ${led.path}`);
         leds.push({path: led.path, state, color_contract: fixedColor ? 'fixed' : 'rgb', expectedColor,
           invisible: Boolean(led.invisible), known: led.runtimeKnown, emissive: lens.emissive.toArray(), glow: Boolean(led.glow?.visible)});
+        shell.applyVisualState({type: 'led', target: led.path, known: false});
+        check(led.runtimeKnown === false && led.getState().brightness === 0
+          && lens.emissive.toArray().every(channel => channel === 0), `Unknown LED output retained emission ${led.path}`);
+        check(led.getState().color === (fixedColor ? expectedColor : '#000000'), `Unknown LED color contract failed ${led.path}`);
       }
       for (const joint of host.list('joint')) {
         const before = joint.getState(), range = before.rangeDeg;

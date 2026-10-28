@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';
+const back=new URL('./artwork/back.png',import.meta.url).href,pcb=new URL('./artwork/pcb.png',import.meta.url).href;
+export function addStickers(host){const a=host.pahubV20Assembly;return[...(printedArtwork(host,{target:a.shell.film,url:back,size:spec.labels.back.size,position:spec.labels.back.position,face:'back',depth:.07,name:'Original U040-B own02 actual rear film accurate reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:a.board.pcb,url:pcb,size:spec.labels.pcb.size,position:spec.labels.pcb.position,depth:.07,name:'Original U040-B own06 six-number direct PCB silk accurate reference redraw',artworkKind:'reference-redraw'})??[])];}

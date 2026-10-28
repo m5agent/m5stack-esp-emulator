@@ -264,6 +264,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
+| `UI-02` | 公众工作台、Pages 分享入口与 browser backend 调研 | 见[公众入口计划](plans/2026-10-28-public-simulator.md)；限定browser/原生fixture与模型验收见证据；更多原生固件、创建收据恢复与部署继续按Backlog |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
 如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、

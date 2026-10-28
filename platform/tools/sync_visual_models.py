@@ -27,7 +27,8 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 DESTINATION = ROOT / "platform/web/vendor/m5stack-models"
-PINNED_COMMIT = '3681a6482aff96501d44659ba5a1603246f1fe1f'
+RUNTIME_DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
+PINNED_COMMIT = 'c48940c3aad3f2e8e9b8906b82071a88f2a3de1e'
 PUBLIC_REPOSITORY = "https://github.com/yuyun2000/m5stack-models"
 THREE_ADDON = "examples/jsm/utils/BufferGeometryUtils.js"
 THREE_DESTINATION = ROOT / "platform/web/vendor/three/addons/utils/BufferGeometryUtils.js"
@@ -37,11 +38,19 @@ THREE_ADDONS = {
         ROOT / "platform/web/vendor/three/addons/geometries/DecalGeometry.js",
 }
 RASTER_SOURCE_COMMIT = PINNED_COMMIT
-GUIDE_SOURCE_COMMIT = PINNED_COMMIT
+# Guides remain a separately reviewed documentation snapshot. New visual models
+# do not pull upstream raw/browser evidence into this source distribution.
+GUIDE_SOURCE_COMMIT = '3681a6482aff96501d44659ba5a1603246f1fe1f'
 RASTER_NOTICE_SHA256 = 'ada400c9e83a9cf8bb92adc6e8312e453e757e827a6949364442ab31a83455db'
 # Exact public Git objects reviewed with the provider-permission notice above.
 # New source commits/assets require an explicit review of this allowlist.
-REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9adb7c4d0675c47584cbd6a9c3762fbf943bbc0366093a5c6f8ea348e1990',
+REVIEWED_RUNTIME_PNGS = {'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e2d4f048418b2264ad8514f5af624ad216f1a2e3b112d8f6a5b86f5',
+ 'src/devices/atom-lite/artwork/compliance.png': '3a7661a742eeebb012e5be6f7276c0255cdd7875042d0da916abc3fca87c734a',
+ 'src/devices/atom-matrix/artwork/compliance.png': '753400d885ee1b4aca284204a8203eacff6dfebfe22ffde65225749e931411a0',
+ 'src/devices/atom-matrix/artwork/rear.png': 'e605b10db38874727fe42a40f0e97285513cbaaa1cfe5f913c7a1f10034beb48',
+ 'src/devices/atoms3-lite/artwork/bottom.png': 'e75498e292397fc4f4a141dde6db3ec23c572407d5a32005fc3e9a6307204ca3',
+ 'src/devices/atoms3-lite/artwork/compliance.png': '271e0911cf7f079259b3310f603f5898277d7d22474574e7daf0611e88995ba3',
+ 'src/devices/atoms3r/artwork/certification.png': 'a8c9adb7c4d0675c47584cbd6a9c3762fbf943bbc0366093a5c6f8ea348e1990',
  'src/devices/atoms3r/artwork/rear-main.png': 'f4559ab19c552641a26ee56d96cb52700afe1a28af1e6dd5f75617fb15b0e463',
  'src/devices/cardputer-adv/artwork/back.png': 'd35128e9e158873df01d32d31bd230c20a5135fc6074ef3cfa4083e19f1db1ca',
  'src/devices/cardputer-adv/artwork/front-name.png': '05062fdb2753812e0e281fe0d8a5148ea2658f69d85548b9f46ac1bdd6dae431',
@@ -131,6 +140,11 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/8servos/reference-redraw-back.png': '9ed466fdc500c629aa3b1392e283588fa220685ead4342245826be58298242a9',
  'src/units/8servos/reference-redraw-front.png': 'd0aecf6ad446b828141c7f0d60ee5985af489fb5292f685ad07908aee9ce86d7',
  'src/units/8servos/reference-redraw-terminal.png': '610f5dbf1e1a6deabca89d7587bd25b605832b514cc4e3e66945ac91c199eac9',
+ 'src/units/8servos2-chain/artwork/back.png': '778ae5edf5998d74c9f4ef55fdc12e1d8537f13e6548396096ed4d187129b0be',
+ 'src/units/8servos2-chain/artwork/front.png': 'ab95b250fdee8b052ff70cdb7cca185c960bddedb6cde6605f60ec738d81d4c8',
+ 'src/units/8servos2-i2c/artwork/back.png': 'c3bbb3d20c137760b25c87922d2d7a45f81af536c2a318d1438456967bdb2a26',
+ 'src/units/8servos2-i2c/artwork/front.png': '17abc0d5069ceba58e3f66322cc357376bf292a3218fd572b866876a38f6a7b8',
+ 'src/units/8servos2-i2c/artwork/selector-scale.png': 'ed50d47b6b7f06bcf9dd1f6571f43dce4d7a271f5bf1ce750e25566b264b61f6',
  'src/units/ac-measure/source-vector-back.png': 'e81f1ccc7c0aca041d337863e50e80fd127e555787e18cffec0ae1ba41e03815',
  'src/units/ac-measure/source-vector-front.png': 'ec26295b907359185df0dfb65775b99796275469f7ff3c8bf199097fb1fcd765',
  'src/units/accel/reference-redraw-back.png': '372ce5b17abaf20b949b01fa0bb5f821aac0b485003ed2fe16914f7af9ce2b0b',
@@ -139,6 +153,8 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/acssr/reference-redraw-ssr.png': '33abafdc87b5a15d0e32cfc973db0476e37d49887e9b980b5f2b28a9b32715a7',
  'src/units/adc-v11/reference-redraw-back.png': '2723caa04804b95c55460329468486ffcc65e90ace14acc0007a955fd737f7ac',
  'src/units/adc-v11/reference-redraw-front.png': 'dada1e5ae1ccb43881c2f5e44c8e59f535811a6cad8825f08445e99715afceaf',
+ 'src/units/adc/artwork/back.png': 'df1c239fc24c5899f2b97dc84c812685b874399763f146d095cf1ec506d05255',
+ 'src/units/adc/artwork/polarity.png': '7879fd406e4aa517cd58eea9fb28b2b140db91ab9b670ee5289528043a4e2a0c',
  'src/units/ain4-20ma/reference-redraw-back.png': '8dd983edba1f1231a0e5f3e0f1b81bc94a8b500560e9d38981f4a5e41fcdcf03',
  'src/units/ain4-20ma/reference-redraw-front.png': '9c657cd045321972157c9a7b210c535ec14ff48e78a4c14a314c22746fc4ce8e',
  'src/units/ameter/reference-redraw-back.png': 'c439116b32463ae4ba824d378279eb3618de2b234c411989d3a2338940b4581b',
@@ -151,21 +167,46 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/audioplayer/reference-front.png': 'd43010d90f995b681d8e5a5517db8a6923eef59e209c4cd16ecb696e05fe4274',
  'src/units/bldc-driver/reference-redraw-back.png': 'db4482f68e1d85d4866f44e0442a9157ea104c04c75f0c96f44112415983b0fc',
  'src/units/bldc-driver/reference-redraw-front.png': '2d8b71ffad16d93553d2e1c0c7c071e06c7853853def448ff3798ae5aff4c5a5',
+ 'src/units/bmm350/artwork/axis.png': 'c1f93c2ca719b679042f128d878a09c9125ffbd8083a494a1f6dd3e7b088a93d',
+ 'src/units/bmm350/artwork/back.png': '35b13182fe8572504c186acc6a864a8c0f6f591d20aff82ed5855b5f1ff1d7d4',
+ 'src/units/bmm350/artwork/front.png': '0c8a50aed0d5b29ca5e5399d1b0ead4cf79786468a5f2d210a92aca8ad59ac2e',
+ 'src/units/bps/artwork/back.png': '053e9008e198ead9820d44c791e12235617ff15e50a6b3e423e65a6747522d3f',
+ 'src/units/bps/artwork/front.png': 'd974d7cff547fcc4d21f6961f201f81ee4c82ac820c3d54d56c6f5800233d755',
  'src/units/button/redrawn-back.png': '86cae8fd5bae5251dcab6cbffec9516b004bd05b0535892ffd639117fa15c823',
  'src/units/buzzer/redrawn-back.png': '567518ada3bb3d4cf2094561e6a87b3a747adb0ab6e792647e421e23ee2002c5',
  'src/units/bytebutton/reference-redraw-back.png': '1f145955a04d2ce2b093c912f4dc601cff9238e114268f09d7c0416a43ab81c3',
  'src/units/bytebutton/reference-redraw-front.png': '31571c68392cf67212f0e441eed37a34cfe696f28bf38e45899c8dcd3c344e32',
  'src/units/byteswitch/reference-redraw-back.png': 'a32db7aa99fb046320476f3ae83af2c7b16e0e9211d64c0e4fb151a899ecf7d0',
  'src/units/byteswitch/reference-redraw-front.png': '4cdf54817475d4a42cfdb21850bfe0fd6179943b190e64a901d88c0e757137c4',
+ 'src/units/c6l/reference-redraw-lora-band.png': '27ca24d52a2b39524500a4abce97b3275ae6feefd143a3c1dd876b7b202e49ae',
+ 'src/units/c6l/reference-redraw-wifi-band.png': '2857879270e477178c78773d49c6f7a2f01b0ebd1f2edd46108a593679250cdf',
+ 'src/units/c6l/source-amended-front.png': 'e92eb0dde87bbcc5a17a86df90345905f9975a05ae29db926b588b030123cfd1',
+ 'src/units/c6l/source-vector-back.png': '767956bca0de2cb9bdafea5313330a1eb59711985313b1fc473f7da717fdb7a6',
  'src/units/cams3-5mp/official-back.png': 'c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3',
  'src/units/cams3-5mp/official-front.png': '2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8',
  'src/units/cams3-5mp/official-pinout.png': '6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028',
  'src/units/cams3-5mp/official-top.png': '0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086',
  'src/units/can/reference-redraw-back.png': '414aada2eadb011d6b9caa32161bb29b0d33c72a541e54575ab0231e3e8af7d4',
  'src/units/can/reference-redraw-front.png': 'baaa95ea6ea07355246ca5d1b51156fab82ce53b4942c1c9a6dacc31efedaaf8',
+ 'src/units/cardkb-original/artwork/front-pcb.png': 'ede4197555824229f0ebad996426caa58dbd4163f93cddf2a0e5ab73d1223c18',
  'src/units/cardkb/reference-redraw-front-legends.png': 'd5c8bfd33daba5f9168ef98677b18b9c310d5e56e538c6958729b6229d48c5a7',
+ 'src/units/cardkb2/artwork/back.png': 'f34c35567a9dcae5fcae361a0c687628992657c851871bd40f63e5d40558064c',
+ 'src/units/cardkb2/artwork/front.png': '2ccacfd4c5765a8c2e43f850ce3d9e7b404c4e9d909cc4f9510d7359e4ecd5fc',
+ 'src/units/cat1-cn/source-vector-back.png': '78dfba5212fa8e2eacbd7249a1f925e9d17048c0a34e1b47fa44c5d602b5a77d',
+ 'src/units/cat1-cn/source-vector-front.png': 'b2f7b9f8745ebe6c341fd6e7ac6c38eaafb85b872df15fb069b01ea9c0792fff',
+ 'src/units/catm-gnss/artwork/back.png': '493c83499f75474ff1cb6475835119f5d88ea66e425def12db7ec4ffc369bd6b',
+ 'src/units/catm-gnss/artwork/front.png': 'f79225e791af6a93bd6d93ea3df328b99cbd2b3c6e7e323927399bd7115e2d60',
+ 'src/units/catm-gnss/artwork/gnss.png': '0e30891eb144e4a48805c2971e581efa0d953d6930c7b56240dd5231dd8198a9',
+ 'src/units/catm/artwork/back.png': 'ae85572c8f228e459afc455c0197861e690f6c2395a74b2f654371ba51f7843a',
+ 'src/units/catm/artwork/front.png': '4bda3062fbab648d5074eea04e5120ead2f5b738c302ace2ab17a8b844859ba2',
+ 'src/units/chainbus/source-vector-back.png': 'c4135f27816e1f58d0234e160309c97964330a8766bd8803a4090eb60858b289',
+ 'src/units/chainbus/source-vector-front.png': '55fa2e31b37201fcea2ebe03de997952f0e2a87beab0534a3457fa40c071c546',
  'src/units/co2/reference-back.png': '57d3b7a0f42b6374b60f56b8c68639bf7e85bb4aeb39c95b76fa9ce0dd5ea451',
+ 'src/units/co2l/reference-redraw-back.png': '924c737e622b237b930b5639b39a6950f976ecb3fb19b0d1276118d65010a044',
+ 'src/units/co2l/reference-redraw-front.png': 'c014967d34d0301865164a312efdff80ef818d94250df26ac4d83189df988509',
  'src/units/color/reference-redraw-back.png': '2d7e3b02d5d64b7873488e42566fad6aa4b68a13db7c6e52f0a802dabf1b34bb',
+ 'src/units/dac/reference-redraw-back.png': '46f959d8a3928af68ad5e2e4d4ff0c5c2ba1cbf15e7c1d16cfd86d9d35401831',
+ 'src/units/dac/reference-redraw-polarity.png': '3d6543686aedb7dedda293bf80a9cdd65ffd82808dcf55d1014931e5e5a33396',
  'src/units/dac2/source-vector-back.png': '1f4511a6281c3e5fc79a1367d494de39980730fe57b0483aa0dc9a44bca769b3',
  'src/units/dac2/source-vector-front.png': '1d4160a0fe69f2552246366deb29e71ecfc004e40d029ae6128b8da18774b4e0',
  'src/units/dcssr/reference-redraw-controller-back.png': 'a29480edd372d7aafa9f04429d7b0f6f0ff1bfb6e2bde6958a5b3dd8e6bb87fc',
@@ -175,39 +216,70 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/dlight/reference-redraw-back.png': 'e8fe607350a122b91bc972216f1e2b155e4d54429a00dd6cfe32d21efab010d6',
  'src/units/dmx/reference-redraw-back.png': '29bbf65d859dedbed0af7dc0638696912b6d7f8d480a56f3e0b81013b4c78179',
  'src/units/dmx/reference-redraw-front.png': 'fa182113ed222085ba19e2dc020cc16ef155f0cc2e89142dd070c0ab466b62fc',
+ 'src/units/dof10/source-vector-axis.png': '1386dc6fbaff4d3bded9bc0b4cf931f7476e026b211c34467a420b6614bcdce7',
+ 'src/units/dof10/source-vector-back.png': 'e74c0ca5d50a1d037428c5a5bcd511c57ac168de3636f8a58e2ce9a3451d942b',
+ 'src/units/dof10/source-vector-front.png': '9bf0cbf363c61dc66450005378afe6766eb24b161688629ce386cd73d9ccdc34',
+ 'src/units/dof6/artwork/axis.png': 'b77647ed7deac03ae58714e5ef210cdb7e951260c7fadf012d8bd27b79f487cf',
+ 'src/units/dof6/artwork/back.png': 'ede90338928b000523436ad40d019726a69b11a4c3d7fd05550ac62f34969acd',
+ 'src/units/dof6/artwork/front.png': '5ced84ba6414986c18ff7f4c229abb9fef6e7dd3cdc5af40b51933efe6d820dd',
+ 'src/units/dof9/source-vector-axis.png': '068c569b2820992fed535966334006a94a7348b44bcee7a5a12b639f3c6db264',
+ 'src/units/dof9/source-vector-back.png': '57a098b59bf0aacfe740d5c805ad31b386e83a706406c45a94bbaf933bfd663c',
+ 'src/units/dof9/source-vector-front.png': '8a60f413333e006f355e378e7683573fd4df32e937641424abad3aeef2103adb',
  'src/units/dual-button/official-back.png': '07efcda08c3cb06b69f84b56ea2ca6a4a4573bc0e75f458efef0ea00a764dadb',
  'src/units/earth/education-cn-back.png': '8233710041a4e755b23f6b94aba2c8da3cbb20c565c9982de6a6b87a948ad02e',
  'src/units/earth/source-vector-back.png': '9d0173efc4a515981e521f7537612352a0f6e310e5475b0e4cb657b477d5b725',
  'src/units/encoder/redrawn-back.png': '84ef1efc55b7545431886827816324caea75a63e059691ffc1f9ee590d8faa61',
+ 'src/units/env-ii/artwork/rear.png': '92c5c39ed3aac3c7f3c2c718d12820ed33e8e408d05f88a9d39166ff2597aac5',
  'src/units/env-iii/education-cn-back.png': '4280ee9b608a15c256f43a44f8a7b840a121578be8453bbee904d6555a0e9e3e',
  'src/units/env-iii/reference-redraw-back.png': 'f367f87a959b0370a191919f55d8cad9b331269e51bfd42f8710f9a9891b1f22',
+ 'src/units/env-iv/artwork/back.png': '27ffb2b26ab284155b85495d26f4a7dfe028e51ee55764438382f285c3d077f6',
  'src/units/env-pro/official-back.png': '2d0ab427ea9798cb4c575ef64f12262cc4997ef9dde5be8dda32766fb04bca79',
+ 'src/units/env/artwork/back.png': '977bdd2afef4561e253d20e4696b74fdcc918328e4c6bdb8895d96fde6f8dd85',
+ 'src/units/env/artwork/qc.png': '27dd05c7f1c5fefd1e29e9efbbd03f40b3cac087299f5ca0b5ccdc84a5e1323d',
  'src/units/extencoder/reference-redraw-back.png': 'fc99abfe3b64bc32e9e8f44bed11dbb9124d40b18fa7e59094d38bbb24bd72e2',
  'src/units/extencoder/reference-redraw-front.png': 'c6cf2986da7c2896564ea916f7ddb98d1b455726a3d229177e22fa152e9a77be',
+ 'src/units/extio/artwork/rear.png': '6645e73fbaf835e24a69ab9e4b6f56fd6dab7fb879653bc1cd419103dc62f200',
  'src/units/extio2/reference-redraw-back.png': '5e8f50a6f6bbd15848e554508240b8fde198e05a66c206e941a7b9c653e93372',
  'src/units/fader/reference-redraw-back.png': '5b2a4796113e29ad2962fa8bfb22ec3b165fa68245c7e3f11ff480feb7ba9d86',
  'src/units/fan/education-cn-back.png': 'e4a51df5d1781e8bb8f4df08a736ba7339a2aee45bd7268dfa2d9a0fdde80712',
  'src/units/fan/reference-redraw-back.png': '8d0fbe6e19dfcce95b0690c61b2c89db03e6b8841fba89867e08e14d2b311d20',
+ 'src/units/finger/reference-redraw-back.png': '565f0f8cfe38539733df372a52b6648f52da7fa1ca8b80f34b7e98af84807834',
  'src/units/fingerprint2/official-back-vector.png': '05a2b85bb1f906f358ead5004531fda274d2adcb8ff430c64a04b56ef9206a6a',
  'src/units/fingerprint2/official-fingerprint-native.png': 'e5bda8d76c7e54f1f9ea8b316a5b143f379123fec22355cd91dde16e0d4b2302',
  'src/units/flashlight/reference-redraw-back.png': 'bd84d2a8f48cb0244dd55df945f71cb890950242dc677d83ca654a02058199d2',
  'src/units/flashlight/reference-redraw-pcb.png': '1f0cc8b1d61ea2e28f4b72cb799c09ec3c1df21b38fcb9e8938c0f1a3b790d9e',
+ 'src/units/gateway-h2/reference-redraw-back.png': '8fdec63aeb34ee0602b9e15859a74a34785d8837df92c47de716bfc2d9cf0fcc',
+ 'src/units/gateway-h2/reference-redraw-front.png': '422d1d38572ed904207df2823c2edcebc8a3bda8adc83f3b3fd05de3837b6a9a',
  'src/units/gesture/reference-back.png': 'be933d4274625abf9adaed93953ee189c4887e25983e40f1497819fc01ee5d0f',
+ 'src/units/glass/artwork/back.png': '0e86b235536ea1670edd6eae8532832983f8ddec48b0a2fefb43414bc239d75b',
+ 'src/units/glass/artwork/front.png': '2a311fdc1f5dda36f64012c0b90ff60725c456391897044b792990ffc13c1065',
+ 'src/units/glass2/reference-redraw-back.png': 'e955f7ab7f75eb315d5e8689f79a9df3d58c408ce37dabb621c258aee62925f9',
+ 'src/units/glass2/reference-redraw-front.png': '06433687000369c421f564342cd59591fea7fbe6f0258a44bb679c001d835e79',
  'src/units/gps-sma/reference-redraw-antenna.png': '719a1170a38c517cc98fc50699c57698c2d891c1763aaad0449a1841e66e48e5',
  'src/units/gps-sma/reference-redraw-back.png': 'd85895567b329b44889335d67593f8033cea4c269fb03f6780094c29be2ce779',
  'src/units/gps-sma/reference-redraw-front.png': 'f278c41bf9bed1adeb5b49c2d0a15728e6ccdacbcc29b8bfc0acc1d305da2c44',
  'src/units/gps-v11/reference-redraw-back.png': '1de94b71d41afa09cb04928663971614bf54ce3a2f9f1d5502a47188c2229742',
  'src/units/gps-v11/reference-redraw-front.png': '1b7977ac30c016c313164488fc9d907b95c4385167e5cf9331e6cc4d9e8bfb3e',
+ 'src/units/gps/artwork/back.png': '8984d122965bd5a18709f70022e07a07f02bc173cdde73352af74647c32998e6',
+ 'src/units/gps/artwork/front.png': '8c5d9869a22ade9a5092791c11805f2c41839a5f95c84f7ad88526eb9f0e48dd',
+ 'src/units/grove-to-grove/reference-redraw-back.png': '5f942e9a01db13afbb50a69fb589d2d8d5c2b0a7e169647099cd1c5699560742',
+ 'src/units/grove-to-grove/reference-redraw-front.png': 'cdc695573a985ba7e37fc51b2079729579d501d762aa82503fe9cf80b932bb3c',
  'src/units/hall/reference-redraw-back.png': '5b07c4bff51023731ac9fdae64e0db5ba46b06858f1261e34c6275ee3f856c7d',
  'src/units/hall/reference-redraw-front.png': '65afd822b525f79ef83fd7ef20a61e88829fdce3c3480f8e9d5f05e3d27458a4',
  'src/units/hbridge-v11/reference-redraw-back.png': '6b8df63f1b8dba1264c1252cd42a1464004d5260b0804f98626f5a85a41abd83',
  'src/units/hbridge-v11/reference-redraw-front.png': '3b4a974c20cd7691e23aaec5153ac84c8a466972b53183c073720156b0f16077',
+ 'src/units/hbridge/reference-redraw-back.png': 'd8bbf821ed5501eef3d770153786f20109b773214209dc4c106ebb199b3be87c',
+ 'src/units/hbridge/reference-redraw-front.png': '77d492b23d620cbcc377a606b255f63740631cc6ae9fb16f3d1164f4c43f7c78',
  'src/units/heart/reference-redraw-back.png': '21f72c5254beda58796eb24c665e80d8baacd244d178f8ce621561c247fa04a5',
+ 'src/units/hex/artwork/rear.png': '341abe326e6e7281c2b4d5708b94fa17ed367507c94faad1d4d35fc84696c938',
  'src/units/hub/official-back.png': '56243d519e2fc690b9b0cd5f55c57a5e942f8642114fd1bb8d4a1aede18bf0ce',
  'src/units/ina226-10a/source-vector-back.png': 'eb789c7ac8ca49d3139f09617e3fc82a7700574bc4379f64ab8f83c94150b992',
  'src/units/ina226-10a/source-vector-front.png': '103784518f71cdecc8b9aa59b289d4a76c87d31ec17103ce8af8ba74e973c455',
+ 'src/units/ina226-1a/source-vector-back.png': '3a0f28b2a755804b98ad2d7c149bb2325c168e6a4a03c3027d05a17386fe6d3b',
+ 'src/units/ina226-1a/source-vector-front.png': 'bbeee09b32f54fd3b07f61cc73cf4b4eea22c28ca245efbe7efbcd40979b6c91',
  'src/units/ir/official-back.png': 'da1d2f124e020e74b29a624a4045a53c9cfff9311a4c59c3746e4b3a4a841017',
  'src/units/joystick-v11/reference-redraw-back.png': '5e6014a7210528c412b7038c0f8d7306a855daae9a15e7cf15de8b2dc300c36f',
+ 'src/units/joystick/reference-redraw-back.png': '700b2df3aaf2fef33283606124845354990b7619f498cc90ecc0830cac1951a7',
  'src/units/joystick2/reference-redraw-back.png': '8793a06b65467b92080fe3f9e0571e70ced3e64128f5ce24df8c98fcc53ce0a5',
  'src/units/key/reference-redraw-back.png': 'a021dbba89b63b957c147b29870024688aa3cb20af7ba181e259647c0dd47ab7',
  'src/units/kmeter-iso-v11/official-back.png': 'c08456abed1f7206a1a0f9c3b92336cc2f5bceac6e44429ad50436e06479e426',
@@ -221,9 +293,23 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/light/education-cn-back.png': '5f8047883cb05d59c8577bd11edc91b0a70d88066b5335931c8d1bc2b49c824b',
  'src/units/light/reference-redraw-back.png': '6f82495340f0e8250135060b40dca2b0419487de03da4d3d8840091c854ab3bf',
  'src/units/limit/redrawn-back.png': '6d79328da035f89247f6c3c229ae9339452df7950dd8172fc08f3a3d768c56d3',
+ 'src/units/lora-e220-433/reference-redraw-back.png': '25c318996af0fa5a6a38929a4849e987227684fd8ca31f84cc2777bea00f9f6c',
+ 'src/units/lora-e220-433/reference-redraw-dip.png': '7e78807987e0405ac4536ff253a89314c1f267abf0e5eb0ffff811f09531754f',
+ 'src/units/lora-e220-433/reference-redraw-front.png': 'c783d1958dcdbf64b02c61fe97c8224a958642f6ecbf2b61ed02968bb95b7809',
  'src/units/lora-e220-920/reference-redraw-back.png': '7846463cda47dea3da3b1b9c6a0c855f04ed30e351e1e6f69719f2c4f9383d0b',
  'src/units/lora-e220-920/reference-redraw-dip.png': 'ace45bf3f061d74b15133de9a93fd18688902bf346faf8d3d185f0cf0da4a341',
  'src/units/lora-e220-920/reference-redraw-front.png': 'b98beca79fa196f993e09bf37b0303529f0f5cba8db4155519ada00b4a990c66',
+ 'src/units/lorawan-as923/artwork/back.png': '1bfb0ad97e59ebfcb2ed4463f12884c0a44ec1e9e5ebf9d20e4faa8540235358',
+ 'src/units/lorawan-as923/artwork/front.png': 'f51e1f0d59812bc3099f921541ecb9464e849990c05bd57de8d52b920cd00339',
+ 'src/units/lorawan-cn470/reference-redraw-back.png': '893b9686f8a5d76c364fe5681af03e07016a97ad1fec86e96751646673a0578a',
+ 'src/units/lorawan-cn470/reference-redraw-front.png': '3c4c2427b8a04328900acb77e2a8a7821af4e711d45a9021e00367f4022c972f',
+ 'src/units/lorawan-eu868/artwork/back.png': 'f7b2da09ec61b49dadd4f7bd79bf2864c0fff713b89b7f54e29ceb303cda99ea',
+ 'src/units/lorawan-eu868/artwork/front.png': '9eafda1ec3846ea53bb9019e61344096bedbd4740f05072e9fcf742f15263768',
+ 'src/units/lorawan-us915/artwork/back.png': '6c033f0506147acb0dbc129b4677a21fe57c0bdaa55d24c186246116ae1996ee',
+ 'src/units/lorawan-us915/artwork/front.png': '096195de6f17515b0b55f98d80d935dc4ba2d2f3e8bd0fecd13b64814ddc05c1',
+ 'src/units/m5-bit/reference-redraw-back.png': '4e1718846a0a3de4f6b3dba2f9fa0c29025df1f6a2c41d6feffe06ec3cee50fe',
+ 'src/units/m5-bit/reference-redraw-front.png': 'c7518fcf76156286e04506e206b424243b0bcd1dcac972c304a695beb5ced188',
+ 'src/units/m5camera/reference-redraw-back.png': '2a1098ef845d4a97c1928c826018f8bb4b7be661b40eca336a63339d6bb6491c',
  'src/units/mic/reference-redraw-back.png': '439b5ac88998f36e15be873dab780ee40aee9105325df16c38fd842c508d582f',
  'src/units/midi/reference-redraw-back.png': 'dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d',
  'src/units/midi/reference-redraw-front.png': '43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196',
@@ -231,11 +317,17 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/mini-bps-v11/reference-redraw-front.png': 'aded45a708b82af9ba8e44d9c69bdc9323769f92ccbc14aaee313ac7d1443cad',
  'src/units/mini-can/reference-redraw-back.png': '89e4868a89940dde6cd88a111464345f7e96acedd783723fe71271733f4b8b2c',
  'src/units/mini-can/reference-redraw-front.png': '1714b76519114035954d76b197814f0a148e6120750e20232cc354b4f42250b8',
+ 'src/units/mini-imu-pro/artwork/axis.png': 'c97e95f4a6f7db64dd2910f95c1502d82acf279709e5a858b3e54c77387fcbab',
+ 'src/units/mini-imu-pro/artwork/back.png': 'f29910c1d40c46af190e8b5b9a7bcfb9d98dcf85dae85560c1ae077833029c98',
+ 'src/units/mini-imu-pro/artwork/front.png': 'aa57e9074bc35b8727c302d79160aacb41c988b003b04f1d57a9145256f78a4a',
  'src/units/mini-imu/reference-redraw-axes.png': '782b63744f03fc0c4ee586032d63bd24f2c89be970cce4b480a4548fed40b727',
  'src/units/mini-imu/reference-redraw-back.png': '20fcb984f0241bdcae2c0ec38a5c071279c1c28c819d8c210fe7d58f19f8a701',
  'src/units/mini-imu/reference-redraw-front.png': '0358b4be273734133513c12211374a03f804aebdff56662834f13d1ae291b23a',
+ 'src/units/mini-oled/artwork/back.png': '3e4e40055763892d67dfdaa7b9624d5e82c9d03f14d9d7b188ba01a33a6d08ae',
+ 'src/units/mini-oled/artwork/front.png': '814e6882a758116b51f82b1a3e075d4c7213cc78e59eb90af2e580d3bdd025c0',
  'src/units/mini-pdm/reference-redraw-back.png': 'bd4dd60db64f757fbb4743e8ec14c79eacc9359e422e47b552f9506b4159fdd3',
  'src/units/mini-pdm/reference-redraw-front.png': 'c3e7fd8c65480b65f22efed5f63fdb4575c5c015ec3d3f9493c1ffa81b23a22b',
+ 'src/units/mini-proto/artwork/back.png': '0164e7bb7ec9a4e2a128285f057076a92b662478f34a20e5ee63f59e27709e2d',
  'src/units/mini-scales/reference-redraw-back.png': 'c038a4338951842b43d278186481753d1c2500f87338d10e735d5868d3469315',
  'src/units/mini-scales/reference-redraw-end.png': 'a5c869e1d194770c097fc93c1398769f8a51c2c6987b4db18584add814416c37',
  'src/units/mini-scales/reference-redraw-front.png': '8256d1b3ffd950d58d3262689044c379ed4c3190ff8e8b538fdf2f5146ff471e',
@@ -245,22 +337,42 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/mq/reference-redraw-mq5.png': '0567220bcddff88a5ee06324565e1695bce07497839d55cd043cb738b44a44d3',
  'src/units/mq/reference-redraw-title.png': 'e88ec9c3aec57dda723b04ea81a6d182229d0389a64b620361de2017d77bfdab',
  'src/units/mq/source-vector-back.png': 'e966af82aa43f7e2744140803b62447c762c141a7acd299148383bb7e6540776',
+ 'src/units/nbiot-cn/artwork/back.png': 'cae96908e4d38cf9b32c09b31eee1548e3bfb760b04ccf17121b2d51565d4d25',
+ 'src/units/nbiot-cn/artwork/front.png': 'ccff981b4907a20a5557394905d6de232dcc04b518422d00a06a6be9e35943ce',
+ 'src/units/nbiot2/reference-redraw-back.png': 'f748e5795ee925b9625b897f57caf4226ee24120a84ae0738b21d86b4b89214f',
+ 'src/units/nbiot2/reference-redraw-front.png': 'b86445242f81a67413eb82788ff057dfd29bf2af11518ee9da0a78a7b2490c8a',
  'src/units/ncir/reference-redraw-back.png': 'd3d1721c9e0282b2eadca16ae751c6307bbb353148322807e8885e8e30fcc76a',
  'src/units/ncir2/reference-redraw-back.png': '2054e5e354d917d3908788602dca60e4413386ea8869c678eda99abf228039fe',
  'src/units/ncir2/reference-redraw-front.png': 'e417403e9a726b901a63ddaf8efbbae047adf62e965f74fbc61beaf66f6c9137',
+ 'src/units/neco/artwork/back.png': '490e5ad82f33cb71efbfa501bd694f432bf7cf645c5bfb1d4c7e3fcc7dfb88dc',
+ 'src/units/neco/artwork/front.png': '1d1137af78f54cd72f6e5d2900d9c90953092a554d464cecd98d8356478a6852',
+ 'src/units/neohex/artwork/back.png': '187fd2d8183416338557d57ac01f88aaea926b808058d6dd68894a66192a04ea',
+ 'src/units/neohex/artwork/front.png': 'af95a87510acb7bec81522916082acba073f7eb7ddb51e0384b3dc15779cb696',
  'src/units/nfc/source-vector-back.png': 'c25adfa93762e9acd2f771f16437e0909c16ea39b90b5e93a0c9ba2bda796d1e',
  'src/units/nfc/source-vector-front.png': '0c9feb4d338d1c4109e154216a7fe3e7b447960527b5ca986e2cdf152e931192',
  'src/units/oled/reference-back.png': 'cfd852f872b263bf64fe8b379cf718cf1a51e769076ce7baf749d69f145566da',
  'src/units/op180/reference-redraw-back.png': 'd13f03033cbdea6b3cfb1dff2cc62b0f790bc7292daa1b396651ba9842f4c045',
  'src/units/op90/reference-redraw-back.png': 'adc1f1dccaa4df4363ec8a8b22e8cd45f84d02e3db7d21ca88f7191d02f1957d',
+ 'src/units/pahub-v20/artwork/back.png': '3341baec127667e37418d4c7c7f9a0db5a58153b35406422ef8fe5670f36dd7d',
+ 'src/units/pahub-v20/artwork/pcb.png': 'b4580c50ba34a58611b28e9260e9632b0bdc358ab479de2050b3de85cef59d0f',
  'src/units/pahub-v21/official-back.png': '6c601a2c540e4bdf6318558b09a660ff6d52d1a1a573b53501cd180664902e2c',
  'src/units/pahub-v21/official-chip.png': 'f371a894269e53792c6ce7af4cbb774fff305cfb719ca2f02c0a7ef120337ab6',
  'src/units/pbhub-v11/official-back.png': '5fcec5d5c36da7e49aa3ad047c2d037a4fa6768eba30025f5614443fc4a0f954',
+ 'src/units/pbhub/artwork/pcb.png': '1b8ae244a12dca5417b222b4b27eb8d3f399827b28d30c96244ba4aa59e99675',
+ 'src/units/pbhub/artwork/rear.png': '51c90d56cfac7971e07af11c4a53ef85249897a6ab6774037db6fce85047f2fb',
  'src/units/pir/education-cn-back.png': '734922c95c3c39b067da0d5a2e6016879da1d3595af5f319033457389fb55e5e',
  'src/units/pir/reference-redraw-back.png': 'e4d0ff2c3b16b369331bd3a68dcd8ad10540ec71eb660a7e325b5bf6ce40a34e',
+ 'src/units/poe-cam-w-v11/artwork/front.png': '04d782421e39e865309749abb411d868895ce13233b7edb9ee9ed8208841d574',
+ 'src/units/poe-cam-w-v11/artwork/rear.png': '8c53ec563aed0a1093572fb4908c1a7ab87c3bfe7e7c93e1190332ab929f7719',
+ 'src/units/poe-cam-w/reference-redraw-back.png': '48a793ab0b8b8095827459fb103a7e654e2680f1561579b6d40867678dec4e82',
+ 'src/units/poe-p4/source-vector-back.png': '0103b0184670fca03aae709381b44d43a7b3e8cf83ce3fc29ea7c6751562ca2c',
+ 'src/units/poe-p4/source-vector-front.png': '643fbc5e0a51f83d171ed3c2b073db070ee91e953920f423681be3376e39cb4a',
+ 'src/units/poe-p4/source-vector-hat.png': '0ba7513b83376e5eb09235179559e8e80690fe69d85babba9d05ca9d4507cbf2',
+ 'src/units/poe-p4/source-vector-side.png': 'f27e8d5865401d32d0d561352668d4f1e37d4490b5c893fbdace187132e624d2',
  'src/units/poesp32/official-back.png': '619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d',
  'src/units/poesp32/official-certification.png': 'd49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda',
  'src/units/poesp32/official-front.png': '45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c',
+ 'src/units/proto/reference-redraw-back.png': '9e3f02d6094db95ea7c697e0dacbc3429c8c8295338efa81d22060e55bc943cf',
  'src/units/puzzle/reference-redraw-back.png': 'f8c459d39256cd41f30e59deab0a9db4b5c71871a34869b8c5593e6821432c88',
  'src/units/puzzle/reference-redraw-bridge.png': 'b804389ea583592d3468c12d6549b674bedc0deb9311dad3d239fcf7fffbb1d6',
  'src/units/qrcode/official-back.png': '9a75f91bf05cf79e571c851a75c368b340711aed5fa8c89ab940e9fa97f11b8c',
@@ -275,8 +387,14 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/rf433r/reference-redraw-front.png': 'b92e0ba60edcfb53ab298b665e7b56305108a5c94c4ef6c4efde37d3928abba4',
  'src/units/rf433t/reference-redraw-back.png': 'ee26df00ff6bac58e24c4d5790d1086cbdb0ccd0c4d5adbe22b93e83b8142e11',
  'src/units/rf433t/reference-redraw-front.png': 'a6a3e70495d773c5d317b9d7380cf1063d9242740c254b92812de38fd6e41a30',
+ 'src/units/rfid/artwork/front.png': 'f27e41868ddce0036feccd50b15d9a29af1d0e44c91df0080795ac07661cda6c',
+ 'src/units/rfid/artwork/rear.png': 'dc5e2b611a4941c29c7f6367bf597f23df4855b1b8b704122e05b37e53342647',
  'src/units/rfid2/official-back.png': '33c7e0d72c5fa71590a50c5c67b0cf60caf51b10a5d61adf7806b36d20c26959',
  'src/units/rfid2/official-front.png': '898330c070a6d71c99b6fae3f9ce91f26f77320b2ac6d517d8bf477a72f0b662',
+ 'src/units/rgb-led-10cm/reference-redraw-input.png': '73159e3f570eb770f46e3cf5bbef245f226a21aeb3fcec7dd301c9ad7578903b',
+ 'src/units/rgb-led-10cm/reference-redraw-next.png': 'a59964f6c2fce1e2d6db6031d4f4fbf141fc04dcde73010584e7561792e2afd8',
+ 'src/units/rgb-led-10cm/reference-redraw-strip.png': '91fcc8bb35c7ff91f9616f4e80d2d77121fc0d614e874d66fcb88a125b500492',
+ 'src/units/rgb-led-strip-50cm/artwork/plus5v.png': '86def3685a178e1665e33082dc20dc482d7159949acdfa07529534e4dbc82b83',
  'src/units/rgb/official-back.png': 'f5f4d5e7f0924881b82764e6d44e40df0e594a6b2b4f96a46df7c8e9a83f538c',
  'src/units/roller485-lite/reference-redraw-debug.png': 'fc33203e371c0d60b00320aedd13fab497a349dfc90e76ec95b8d7793044ea2d',
  'src/units/roller485-lite/reference-redraw-port-a.png': '9087ece0bc43592d85288df0228857cbaa0ef8a5ec5983a767e91fd6fbb11a82',
@@ -294,8 +412,11 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/rs485/reference-redraw-back.png': 'f32e4269c85eb180f4204126043515e2f01f5437f7eebda491fbfda0bf742ff4',
  'src/units/rtc/reference-back.png': 'ec8d087e5b569d0279914a5bb1aeb64470b1faa4e94e64fae77df8275bc2c873',
  'src/units/rtc/reference-front.png': '578e2a076ebac051669d0b980dd7df207aec92b4e0894c00b537f6fda976aeeb',
+ 'src/units/scales/reference-redraw-back.png': '79296445da43c71b2659a2af26f5c92decff5c31d087ea06b505281ed32e1c0b',
  'src/units/scroll/education-cn-back.png': '9662ad9d9f949649dcdc49eb8124adb482d026c122d2c14d9430a83dc52b4598',
  'src/units/scroll/reference-redraw-back.png': 'f0e4c29b17507f06f8a3725f9640a4a35dedeee174271e05bc48fa42fcb4ff33',
+ 'src/units/ssr/source-vector-back.png': 'b450cd59d9ef97b56aa1850f68da700923e046953e8195556022f71227cbeb1c',
+ 'src/units/ssr/source-vector-front.png': '2f1373ccd2446f68951494b12d700d7c06262ac5985c0e4818b304754a81c64f',
  'src/units/step16/reference-redraw-back.png': 'da553d39593acfff18d14b1b785503e8705d0043df1687c0a48e4031865a126b',
  'src/units/synth/reference-redraw-back.png': '25a5320710a04d4637ac5fdba9ec9957a37648be1baa31a6e081ae6d8f8a58f3',
  'src/units/synth/reference-redraw-front.png': '365d345d3d991df2612fd4f311dcf2a4e7116db0ebe998168b0a48cc9fef6533',
@@ -303,6 +424,9 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/thermal/reference-redraw-back.png': '62a70cd62a1f2d33db877603ff6a5bfa77edfc1eceac2697d419100dae3f2e47',
  'src/units/thermal2/reference-redraw-back.png': '416519019c82e838d8fef427a093435ae335201391dff285de2878659b09b8b8',
  'src/units/thermal2/reference-redraw-front.png': '397991f5c79dda53f8bf5966bf9a6770d31663267ca2ffc49aca352cc3ddd183',
+ 'src/units/timercamera-f/artwork/back.png': '8518631db80ed3a9f4474f15ae5cc7ffd7058ecaf14062687b0d826abd88e12e',
+ 'src/units/timercamera-x/artwork/back.png': '34c199671e9a0a8958332ffe9248fc05a25e10b773b98a6e8f90e1ed4b9037d8',
+ 'src/units/timercamera/reference-redraw-front.png': '60b25a334a14252504f252bb454a39afdf53c4031fd7b677cfa8e04560039dca',
  'src/units/timerpwr/reference-redraw-back.png': '81e7a861266abc4c2b03fff04c23b9c3bb23ccc470cd17910d890f4c3eeaf700',
  'src/units/timerpwr/reference-redraw-controls.png': '3f387193d2f230fe8c456d964ed3be854c7d9db80a9d44c7ce2a87e93e8de9d1',
  'src/units/timerpwr/reference-redraw-ports.png': '63b386031413df45eb2d41f25b9d92bb0089b49273cdd9736be0d081883da0b2',
@@ -314,11 +438,22 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/tube-pressure/reference-redraw-back.png': '537b3b19c8cd09bcff8878442bb62e7aca45ff84e69a37e49c5640cf94698215',
  'src/units/tvoc/reference-redraw-back.png': 'dd13f0cef61321e8d46f8e55bc49a9dd6f85a0c1eaa3533943ff948e35ce1d76',
  'src/units/tvoc/reference-redraw-front.png': 'e4883e681081afcaa7f2ba67224064d4ef0df5772d7624ad3d03e0208387174e',
+ 'src/units/typec-to-grove/reference-redraw-back.png': '44ca3eaf84e4917835d3ff440b29e43b7372922d56b4f73b58b56f3dd8ad26cc',
+ 'src/units/typec-to-grove/reference-redraw-banner.png': 'c000a80b5bebf859c5db4324a6afae6d011fa23ed41284f5be1806042d4f0b2c',
+ 'src/units/typec-to-grove/reference-redraw-power.png': '7a7a31a06da6ef6694029c004bd677d59914d92e7511cbf889056b898180fed9',
  'src/units/uhf-rfid/official-back.png': 'da75a923d4419af4205250021375b4dba84d0f7b4f268787873169294d52f834',
  'src/units/uhf-rfid/reference-redraw-front.png': 'bb6ba2599411837286868844ad6d62939faacf3358d0a4ae1d0bada7af587d9f',
  'src/units/ultrasonic-i2c/official-back.png': '718b6c859a3ccbc166b4595ba44e4d63bbe503261f4c4258374b9b4dbd4962f0',
+ 'src/units/ultrasonic-io/artwork/back.png': '067973ae36a0c3c6c6069ccc59613b0371530d795227b16a8835f4311fb95ce3',
+ 'src/units/unit-396/reference-redraw-back.png': '034b401d032cef422d85a43bf0d1821befe6a1781cc4f6bfb1aaade06363f32a',
  'src/units/unit-id/reference-redraw-back.png': 'c998a3b56cdede56d080bbe3ca3c11a559fbe749ab5db46c13d3da1ec91c5f4a',
  'src/units/unit-id/reference-redraw-front.png': '26470aa83f8bcc14b4712b74973cb04f768a16665544a722bad00d52a41f3168',
+ 'src/units/unitv-m12/artwork/front.png': 'da12d3517e9846120aa720f6dd83d46975200419afbfbde6f487a327a04c0d4f',
+ 'src/units/unitv-m12/artwork/rear.png': 'c8addf92d886eff80f685de5d13c73008b22b3ca5e02ef319d1112024353c3d4',
+ 'src/units/unitv-ov7740/artwork/back.png': '851e857ddb5afecc4c39b9ab21760e744ee5402cd5d1b14a22edba26e62aac08',
+ 'src/units/unitv2-m12/artwork/rear.png': '78af0f014686286d39f54e3a8e3b0fc961ae7fc6c4efa2a047300cd930fbf1a9',
+ 'src/units/unitv2-usb/artwork/rear.png': '1de3d56f49580a61e0e0a1895440cd54ceea158e74d4e2e2cebff01020a5a1b7',
+ 'src/units/unitv2/artwork/rear.png': '72272097590fabd58e4079300236dcb7306b61987fb7f5baf04ed7bbc84d3a2d',
  'src/units/uwb/source-vector-back.png': '7b083871f4c838b70e4fc2be96d48690ff1ac928d2fcee10a0473fc6d54871df',
  'src/units/uwb/source-vector-front.png': '4b3d0dd0f375eb4cb70117549056818d7d41ad6db1607d3900d22a47eee9f904',
  'src/units/vibrator/reference-back.png': 'db892d47296ccdfd0e5da60effa3f5db4720e73ddc1a6c2f27521dcc273bd2ef',
@@ -327,7 +462,12 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atoms3r/artwork/certification.png': 'a8c9a
  'src/units/watering/reference-redraw-motor.png': '98caad348c74685123f36d903ce9df0dd603fc48510e8eb9cdafba73f5655371',
  'src/units/watering/source-vector-back.png': '9c1d2bbeab2f6a6d0e9cdde9b726162d237d823608f4ce5bd89798b9aa293fab',
  'src/units/weight-i2c/reference-redraw-back.png': '2413cb288369425f08ef8468dae7870f480e2ab1c9add53270ea5c87ba060736',
- 'src/units/weight-i2c/reference-redraw-front.png': '6228ebc5bcde9e504aa0881d0928056b3c2fe25f062155b872a1789ac6becdd0'}
+ 'src/units/weight-i2c/reference-redraw-front.png': '6228ebc5bcde9e504aa0881d0928056b3c2fe25f062155b872a1789ac6becdd0',
+ 'src/units/weight/reference-redraw-back.png': 'a6f65fee21e1441291495fa7f2cecb91e8096264984b1d51fc071eb95e58e0e8',
+ 'src/units/weight/reference-redraw-front.png': '4a5e6862bc9cafbabd9ff5d0256b0deaead624831344230da8b90c852e942e97',
+ 'src/units/zigbee/reference-redraw-back.png': '3133315d418b42d0e784ab4c4e46c7b80d920bd6d756ae23742910e84059c180',
+ 'src/units/zigbee/reference-redraw-front.png': '86be7e2cbbe3e0dc21de73e938f1d38b3d320ac8ce15ae27bbbef33d751a144a'}
+REVIEWED_RUNTIME_LICENSES = {'src/devices/atoms3-lite/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea'}
 # Exact public text closure reviewed at GUIDE_SOURCE_COMMIT. Never glob docs,
 # research or artifacts: additions require source/hash/content/link review.
 REVIEWED_GUIDE_FILES = {'artifacts/accel-op90-op180-expansion/progress.json': '16e2f3117ef495d07b5646e8fc1daba9ca1c3d95c4731de21e1108c8032d5868',
@@ -710,6 +850,7 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
     selected = [name for name in names if name in EXPLICIT_FILES
                 or name.startswith("src/") and name.endswith(".js")
                 or name in REVIEWED_RUNTIME_PNGS
+                or name in REVIEWED_RUNTIME_LICENSES
                 or name in REVIEWED_GUIDE_FILES
                 or name.startswith("licenses/") and "/" not in name[len("licenses/"):]]
     missing = EXPLICIT_FILES - set(selected)
@@ -717,10 +858,22 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
         raise ValueError(f"public snapshot is missing required files: {sorted(missing)}")
     files = {name: git(source, "show", f"{commit}:{name}") for name in selected}
     reviewed_runtime_assets(commit, names, files)
-    reviewed_guide_texts(commit, names, files)
+    for name, expected in REVIEWED_RUNTIME_LICENSES.items():
+        if name not in files or hashlib.sha256(files[name]).hexdigest() != expected:
+            raise ValueError(f"runtime license differs from reviewed Git object: {name}")
+    guide_commit = GUIDE_SOURCE_COMMIT if REVIEWED_GUIDE_FILES else commit
+    if guide_commit != commit:
+        guide_names = git(source, "ls-tree", "-r", "--name-only", guide_commit).decode().splitlines()
+        for name in sorted(REVIEWED_GUIDE_FILES.keys() | {path for path in GUIDE_ENTRY_FILES if path.startswith("docs/")}):
+            files[name] = git(source, "show", f"{guide_commit}:{name}")
+    else:
+        guide_names = names
+    reviewed_guide_texts(guide_commit, guide_names, files)
     closure = resource_closure(files)
     guide_closure = guide_resource_closure(files)
     products = json.loads(files["catalog/products.json"])["products"]
+    runtime_devices = {item["id"] for item in json.loads(RUNTIME_DEVICE_CATALOG.read_text())["devices"]}
+    visual_controllers = [item["id"] for item in products if item["category"] == "controller"]
     manifest = {
         "schema_version": 1,
         "source_repository": PUBLIC_REPOSITORY,
@@ -728,13 +881,15 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
         "scope": "visual-only; firmware and electrical behavior belong to Device Service",
         "sync_command": f"python3 platform/tools/sync_visual_models.py --source /path/to/public/repo --commit {commit}",
         "three_version": json.loads(files["package.json"])["dependencies"]["three"],
-        "controllers": [item["id"] for item in products if item["category"] == "controller"],
+        "controllers": visual_controllers,
+        "visual_only_controllers": sorted(set(visual_controllers) - runtime_devices),
         "units": [item["id"] for item in products if item["category"] == "unit"],
         "resource_closure": closure,
+        "documentation_source_commit": guide_commit,
         "documentation_closure": guide_closure,
         "reviewed_guide_texts": {
             name: {"sha256": REVIEWED_GUIDE_FILES[name], "bytes": len(files[name]),
-                   "source_url": f"{PUBLIC_REPOSITORY}/blob/{commit}/{name}"}
+                   "source_url": f"{PUBLIC_REPOSITORY}/blob/{guide_commit}/{name}"}
             for name in sorted(REVIEWED_GUIDE_FILES)
         },
         "source_manifest_scope": "source-manifest.json is unchanged upstream provenance; its sourceCommit is a historical preparation baseline, not this vendor source_commit",
@@ -765,7 +920,8 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
         f"Source: {PUBLIC_REPOSITORY}\n\nCommit: `{commit}`\n\n"
         "Copied from Git objects with explicit file/hash allowlists. Local changes and "
         "private research are never copied. Reviewed public guide/provenance texts "
-        "preserve their source bytes and close relative links in the bundled guides. "
+        f"remain pinned separately at `{guide_commit}` and preserve their source bytes "
+        "and close relative links in the bundled guides. "
         "`vendor-manifest.json` records each source file and the reviewed guide closure. "
         "The unchanged upstream `source-manifest.json` records provenance; its "
         "`sourceCommit` is a historical preparation baseline, not this snapshot Git pin.\n\n"

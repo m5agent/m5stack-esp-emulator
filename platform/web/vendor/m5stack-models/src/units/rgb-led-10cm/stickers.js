@@ -1,0 +1,4 @@
+/** MIT code; exactfamily ordinaryPNGredraws only,no sourcephoto pixels. */
+import{printedArtwork}from'../../modeling/artwork.js';
+const strip=new URL('./reference-redraw-strip.png',import.meta.url).href,input=new URL('./reference-redraw-input.png',import.meta.url).href,next=new URL('./reference-redraw-next.png',import.meta.url).href;
+export function addStickers(host,a){const panels=[];for(const p of printedArtwork(host,{target:a.fpc,url:strip,size:[10,100],position:[0,0,.3],depth:.06,artworkKind:'reference-redraw',name:'A035 actualstrip arrow + D minus silk'})??[]){a.flex.surface(p);panels.push(p);}for(const b of a.ends){const p=printedArtwork(host,{target:b.pcb,url:b.input?input:next,size:[10,13.5],position:[0,b.sign*56.75,-.7],face:'back',rotation:b.input?Math.PI:0,depth:.08,artworkKind:'reference-redraw',name:`A035 ${b.input?'whiteinput':'blackNEXT'} ownB arrow S+G PCBsilk`});if(p)panels.push(...p);}return panels;}

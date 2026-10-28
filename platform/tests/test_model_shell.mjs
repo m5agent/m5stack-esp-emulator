@@ -27,8 +27,14 @@ const vendorPath = 'platform/web/vendor/m5stack-models/';
 const manifest = JSON.parse(await readFile(resolve(root, vendorPath + 'vendor-manifest.json'), 'utf8'));
 const products = JSON.parse(await readFile(resolve(root, vendorPath + 'catalog/products.json'), 'utf8')).products;
 const assetPaths = Object.keys(manifest.runtime_assets.files);
-assert.deepEqual(manifest.controllers.slice().sort(), catalog.devices.map(device => device.id).sort());
-const modelCases = [...catalog.devices.map(device => ({kind: 'controller', id: device.id})), ...manifest.units.map(id => ({kind: 'unit', id}))]
+const runtimeControllers = catalog.devices.map(device => device.id);
+assert.ok(runtimeControllers.every(id => manifest.controllers.includes(id)), 'A runtime controller lost its visual model');
+// A visual catalog entry is independently browsable; it does not admit a new
+// firmware/device profile into the Device Service catalog.
+const controllerDevices = manifest.controllers.map(id => catalog.devices.find(device => device.id === id) ||
+  {id, name: products.find(product => product.id === id)?.name || id, hardware: {}, visual_only: true});
+const modelCases = [...controllerDevices.map(device => ({kind: 'controller', id: device.id})), ...manifest.units.map(id => ({kind: 'unit', id})),
+  ...[...manifest.controllers, ...manifest.units].map(id => ({kind: 'preview', id}))]
   .map(test => ({...test, key: `${test.kind}:${test.id}`, configuration: 'default', options: {}}));
 const full = settings.cases.length === 0;
 const selected = full ? modelCases : settings.cases.filter(key => !['assets', 'interactions', 'interfaces'].includes(key)).map(key => {
@@ -70,14 +76,14 @@ const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch({executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']});
 const integrationFiles = ['platform/web/model-shell.js', 'platform/web/device-shell-factory.js', 'platform/web/unit-annotations.js',
-  'platform/web/unit-assembly-layout.js', 'platform/web/sessions.js', 'platform/web/sessions.html', 'platform/tools/sync_visual_models.py',
+  'platform/web/unit-assembly-layout.js', 'platform/tools/sync_visual_models.py',
   'platform/tests/test_model_shell.mjs', 'platform/tests/model_shell_probe_helpers.mjs', vendorPath + 'vendor-manifest.json', vendorPath + 'catalog/products.json'];
 const fingerprints = async () => Object.fromEntries(await Promise.all(integrationFiles.map(async name =>
   [name, createHash('sha256').update(await readFile(resolve(root, name))).digest('hex')])));
 const report = {status: 'FAIL', category: 'browser-visual-integration', captured_at: new Date().toISOString(),
   guest_validation: 'NOT RUN', hardware_validation: 'NOT RUN', browser_version: browser.version(), source_commit: manifest.source_commit,
   scope: full ? 'complete-default-models-and-all-assets' : 'explicit-cases', settings,
-  integration_sha256: await fingerprints(), controllers: [], units: [], interface_census: [], runtime_assets: [], contexts: [],
+  integration_sha256: await fingerprints(), controllers: [], units: [], previews: [], interface_census: [], runtime_assets: [], contexts: [],
   catalog_configurations: products.filter(product => product.configurations?.length).map(product => ({id: product.id,
     default: 'constructor options {} tested separately; no configuration alias inferred', configurations: product.configurations.map(config =>
       ({id: config.id, options: config.options, status: selected.some(test => test.id === product.id && test.configuration === config.id) ? 'SELECTED' : 'NOT RUN'}))})),
@@ -165,7 +171,7 @@ try {
   for (const [index, test] of controllerCases.entries()) {
     if (index % settings.batchSize === 0) await openPage(`controllers-${Math.floor(index / settings.batchSize)}`);
     activeLabel = test.key;
-    const device = catalog.devices.find(device => device.id === test.id);
+    const device = controllerDevices.find(device => device.id === test.id);
     const result = await evaluate(async ({device, options, expectedMinimum}) => {
       window.modelProbe.disposeShell();
       const { createDeviceShell } = await import('/platform/web/device-shell-factory.js');
@@ -195,6 +201,11 @@ try {
         await shell.setImage(blob, 8);
         frame.pngPixel = display.getPixel(rotated ? display.width - 1 : 0, 0);
         frame.pngSequence = shell.frameSeq;
+        const littleEndian = new Uint8Array(width * height * 2);
+        littleEndian.set([0x00, 0xf8, 0xe0, 0x07, 0x1f, 0x00]);
+        shell.setFrameLE(littleEndian, width, height, 9);
+        frame.littleEndianPixels = [0, 1, 2].map(x => display.getPixel(rotated ? display.width - 1 : x, rotated ? x : 0));
+        frame.littleEndianSequence = shell.frameSeq;
         if (display.touchEnabled) { display.touch('start', 12, 34, 1); display.touch('end', 12, 34, 1); }
       }
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
@@ -205,7 +216,7 @@ try {
       const artwork = await window.modelProbe.artwork(shell.model, expectedMinimum);
       await window.modelProbe.rendered(shell);
       return {
-        id: device.id, source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
+        id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
         frame, controls, touches, resets, ownership, outputs, artwork, outputEcho: raw.length - before,
       };
@@ -215,6 +226,8 @@ try {
       assert.deepEqual(result.frame.pixel, [255, 0, 0], `${device.id} RGB565 mapping`);
       assert.deepEqual(result.frame.pngPixel, [2, 130, 203], `${device.id} PNG mapping`);
       assert.equal(result.frame.sequence, 7); assert.equal(result.frame.pngSequence, 8);
+      assert.deepEqual(result.frame.littleEndianPixels, [[255, 0, 0], [0, 255, 0], [0, 0, 255]], `${device.id} RGB565LE mapping`);
+      assert.equal(result.frame.littleEndianSequence, 9);
     }
     assert.equal(result.outputEcho, 0, `${device.id} output echoed as input`);
     if (device.hardware.display?.touch) {
@@ -233,6 +246,38 @@ try {
     result.screenshots.push(await screenshot(filename + '-back'));
     result.disposal = await evaluate(() => window.modelProbe.disposeShell());
     console.log(`MODEL_CONTROLLER_PASS ${test.key} artwork=${result.artwork.layers}`);
+  }
+  const previewCases = selected.filter(test => test.kind === 'preview');
+  for (const [index, test] of previewCases.entries()) {
+    if (index % settings.batchSize === 0) await openPage(`previews-${Math.floor(index / settings.batchSize)}`);
+    activeLabel = test.key;
+    const result = await evaluate(async ({test, expectedMinimum}) => {
+      window.modelProbe.disposeShell();
+      const {createVisualModelShell} = await import('/platform/web/model-shell.js');
+      const shell = window.testShell = await createVisualModelShell(document.querySelector('#host'), test.id, {modelOptions: test.options});
+      const runtimeEvents = [], inputs = [];
+      for (const type of ['control', 'touch', 'reset', 'unit-input']) shell.on(type, event => runtimeEvents.push({type, event}));
+      shell.on('model-input', event => inputs.push(event));
+      const button = shell.model.list('button')[0];
+      if (button) {button.press('standalone-preview'); button.release('standalone-preview');}
+      for (const display of shell.model.list('display')) if (display.touchEnabled) {
+        display.touch('start', 1, 1, 1); display.touch('end', 1, 1, 1);
+      }
+      const ownership = window.modelProbe.ownership(shell, shell.model);
+      const artwork = await window.modelProbe.artwork(shell.model, expectedMinimum);
+      const outputs = window.modelProbe.outputs(shell, shell.model);
+      shell.resetView();
+      await window.modelProbe.rendered(shell);
+      return {id: test.id, category: shell.root.dataset.modelCategory, visualOnly: shell.root.dataset.visualOnly,
+        standalone: !shell.model.parentHost && !shell.model.attachedTo, ownership, artwork, outputs,
+        inputs: inputs.map(({id, kind, action}) => ({id, kind, action})), runtimeEvents, ports: shell.listPorts()};
+    }, {test, expectedMinimum: expectedArtwork(test)});
+    assert.equal(result.visualOnly, 'true'); assert.equal(result.standalone, true);
+    assert.deepEqual(result.runtimeEvents, [], `${test.key} acquired a runtime input route`);
+    assert.equal(result.category, products.find(product => product.id === test.id).category);
+    result.disposal = await evaluate(() => window.modelProbe.disposeShell());
+    report.previews.push(result);
+    console.log(`MODEL_PREVIEW_PASS ${test.key} artwork=${result.artwork.layers}`);
   }
   if (full || settings.cases.includes('interactions')) {
     await openPage('legacy-input-readback-interactions');
@@ -414,7 +459,8 @@ try {
   assert.deepEqual(errors, []); assert.deepEqual(missing, []);
   assert.deepEqual(await fingerprints(), report.integration_sha256, 'Integration source changed during browser run');
   assert.deepEqual(await assetFingerprints(), report.runtime_asset_sha256, 'PNG source changed during browser run');
-  if (full) {assert.equal(report.controllers.length, manifest.controllers.length); assert.equal(report.units.length, manifest.units.length);}
+  if (full) {assert.equal(report.controllers.length, manifest.controllers.length); assert.equal(report.units.length, manifest.units.length);
+    assert.equal(report.previews.length, manifest.controllers.length + manifest.units.length);}
   for (const entry of report.catalog_configurations) for (const config of entry.configurations) {
     if (config.status === 'SELECTED') config.status = 'PASS';
   }
@@ -427,5 +473,5 @@ try {
 }
 report.page_errors = errors; report.missing_imports = missing;
 await writeFile(`${output}/report.json`, JSON.stringify(report, null, 2) + '\n');
-console.log(`${report.status} browser shells=${report.controllers.length} units=${report.units.length} assets=${report.runtime_assets.length}; ${output}/report.json`);
+console.log(`${report.status} browser shells=${report.controllers.length} units=${report.units.length} previews=${report.previews.length} assets=${report.runtime_assets.length}; ${output}/report.json`);
 if (report.status !== 'PASS') {console.error(report.error || report.cleanup_error); process.exitCode = 1;}

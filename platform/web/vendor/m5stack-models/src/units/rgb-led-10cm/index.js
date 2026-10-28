@@ -1,0 +1,6 @@
+/** MIT; exactA03510cm15LED flexiblevisualassembly. */
+import{Device,Module}from'../../core/index.js';import{buildGroveModuleAssembly}from'../../modeling/grove-cable.js';import{buildRGBLED}from'./assembly.js';import{spec}from'./dimensions.js';
+export const defaults={bendDeg:0};export const configurationSchema={bendDeg:{type:'number',min:-120,max:120,default:0,meaning:'Visualneutral-axis circulararc totalangle;notmaterial/ratedbendlimit'},artwork:{type:'boolean',default:true,meaning:'Onlyprintedink;allthickFPC/liner/packages/boards retained'}};export const configurations=[{id:'straight',name:'15灯直条',options:{bendDeg:0}},{id:'arc',name:'15灯平滑弯曲',options:{bendDeg:90}},{id:'reverse',name:'15灯反向柔性弯曲',options:{bendDeg:-60}}];
+export class Model extends Device{static meta={id:'m5stack.unit.rgb-led-10cm',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,nominalMm:null,nominalStripMm:[10,100],keymap:{}};build(options={}){buildRGBLED(this,options);}}
+export class GroveModule extends Module{static meta={id:'m5stack.unit.rgb-led-10cm.grove',name:spec.name,sku:spec.sku,connector:'grove'};build(options={}){buildGroveModuleAssembly(this,h=>buildRGBLED(h,options),options);}}
+export{spec};export default Model;

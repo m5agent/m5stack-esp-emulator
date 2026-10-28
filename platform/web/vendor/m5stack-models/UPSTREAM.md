@@ -2,9 +2,9 @@
 
 Source: https://github.com/yuyun2000/m5stack-models
 
-Commit: `3681a6482aff96501d44659ba5a1603246f1fe1f`
+Commit: `c48940c3aad3f2e8e9b8906b82071a88f2a3de1e`
 
-Copied from Git objects with explicit file/hash allowlists. Local changes and private research are never copied. Reviewed public guide/provenance texts preserve their source bytes and close relative links in the bundled guides. `vendor-manifest.json` records each source file and the reviewed guide closure. The unchanged upstream `source-manifest.json` records provenance; its `sourceCommit` is a historical preparation baseline, not this snapshot Git pin.
+Copied from Git objects with explicit file/hash allowlists. Local changes and private research are never copied. Reviewed public guide/provenance texts remain pinned separately at `3681a6482aff96501d44659ba5a1603246f1fe1f` and preserve their source bytes and close relative links in the bundled guides. `vendor-manifest.json` records each source file and the reviewed guide closure. The unchanged upstream `source-manifest.json` records provenance; its `sourceCommit` is a historical preparation baseline, not this snapshot Git pin.
 
 Preserve `LICENSE`, `THIRD_PARTY_NOTICES.md` and `licenses/` when redistributing. Reviewed product sticker PNGs, including source-vector rasters and authorized reference redraws, retain the provider-permission notice and per-file hashes. Artwork and marks retain their original rights and are not relicensed as MIT; official remote photos, vectors and generators are not bundled. All models are visual shells: firmware, controller, bus and sensor evidence come from this project's Device Service.
 

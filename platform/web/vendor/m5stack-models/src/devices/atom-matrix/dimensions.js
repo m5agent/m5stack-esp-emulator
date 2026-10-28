@@ -1,0 +1,5 @@
+/** MIT. C008-B original,MPU6886. Historical14mm and own source13.8mm are separate documentary dimensions. */
+export const defaults={artwork:true};
+export const configurations=[{id:'complete',name:'原 Atom Matrix C008-B',options:{}}];
+export const configurationSchema={artwork:{type:'boolean',default:true,meaning:'Printed ink only;all physical native shell,PCB,receiver,contacts,lenses and support remain'}};
+export const spec={id:'atom-matrix',name:'Atom Matrix original',sku:'C008-B',size:[24,24,13.8],nominalMm:[24,24,13.8],historicalNominalMm:[24,24,14],frame:'+X right,+Y top,+Z front',soc:'ESP32-PICO-D4',imu:'MPU6886 passive physical package only',ledPackage:'25 WS2812C2020',main:{position:[0,0,6.25],travelMm:.14},reset:{position:[-11.005,4.5,-2.7],travelMm:.14,sourceHingeZ:1.7,sourceFreeZ:9.465272903442383},grove:{position:[0,-12,-4],pins:['GND','5V','G26','G32']},usb:{position:[0,-12,.85]},headers:[{id:'ext-5p',family:'m5.atom.ext-5p',x:7.57,y:-2.635,count:5,pins:['G33','G23','G19','G22','3V3']},{id:'ext-4p',family:'m5.atom.ext-4p',x:-7.57,y:-3.905,count:4,pins:['GND','5V','G25','G21']}],defaults,configurations,configurationSchema};

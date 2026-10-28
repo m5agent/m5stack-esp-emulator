@@ -24,6 +24,14 @@ const CONTROL_MAPS = {
 
 const RUNTIME_KEYS = { power: 'p', key1: 'a', key2: 'b', key3: 'c', button: 'a' };
 
+// These two upstream Component-based indicators reject color changes instead
+// of exposing Led.fixedColor. Their pinned source permits on/brightness only.
+const FIXED_BLUE_STATUS_HOSTS = new Set(['m5stack.unit.timercamera-f', 'm5stack.unit.timercamera-f.grove',
+  'm5stack.unit.timercamera-x', 'm5stack.unit.timercamera-x.grove']);
+const fixedColorIndicator = led => led.fixedColor !== undefined || led.meta.fixedColor !== undefined
+  || [led.meta.colorMode, led.meta.color].some(value => String(value || '').startsWith('fixed-'))
+  || (led.id === 'status' && FIXED_BLUE_STATUS_HOSTS.has(led.host?.meta?.id));
+
 const QCODE = {
   Enter: 'ret', Space: 'spc', Escape: 'esc', Backspace: 'backspace', Tab: 'tab',
   ShiftLeft: 'shift', ShiftRight: 'shift_r', ControlLeft: 'ctrl', ControlRight: 'ctrl_r',
@@ -217,6 +225,8 @@ export class ModelDeviceShell {
   handleInput(event) {
     if (this.feedbackDepth || this.disposed || event.source === 'runtime-readback') return;
     this.emit('model-input', event);
+    // Standalone catalog previews have no guest or electrical input route.
+    if (this.device.visual_only) return;
     if (event.id.includes('/')) {
       this.emit('unit-input', event);
       return;
@@ -316,8 +326,9 @@ export class ModelDeviceShell {
     }
   }
 
-  setFrame(pixels, width, height, sequence = this.frameSeq + 1) {
+  setFrame(pixels, width, height, sequence = this.frameSeq + 1, {byteOrder = 'big'} = {}) {
     if (!this.display || this.disposed) return false;
+    if (!['big', 'little'].includes(byteOrder)) throw new TypeError('Unknown RGB565 byte order');
     const rotated = this.display.meta.nativeRasterRotation === 90 && width === this.display.height && height === this.display.width;
     if (!rotated && (width !== this.display.width || height !== this.display.height)) {
       this.showOverlay('Framebuffer mismatch', `收到 ${width}×${height}，面板为 ${this.display.width}×${this.display.height}`);
@@ -334,10 +345,14 @@ export class ModelDeviceShell {
         bytes[to] = source[from]; bytes[to + 1] = source[from + 1];
       }
     }
-    this.display.writeRGB565(bytes, { x: 0, y: 0, w: this.display.width, h: this.display.height }, { swapBytes: true });
+    this.display.writeRGB565(bytes, { x: 0, y: 0, w: this.display.width, h: this.display.height }, { swapBytes: byteOrder === 'big' });
     this.frameSeq = sequence;
     this.hideOverlay();
     return true;
+  }
+
+  setFrameLE(pixels, width, height, sequence = this.frameSeq + 1) {
+    return this.setFrame(pixels, width, height, sequence, {byteOrder: 'little'});
   }
 
   async setImage(image, sequence = this.frameSeq + 1, commitGuard = () => true) {
@@ -427,7 +442,7 @@ export class ModelDeviceShell {
           // Zero emission is the neutral appearance of unknown output, not an
           // electrical off observation. Keep that distinction on the component.
           if (command.known === false) {
-            led.set({color: 0, brightness: 0});
+            led.set(fixedColorIndicator(led) ? {brightness: 0} : {color: 0, brightness: 0});
             led.runtimeKnown = led.object3d.userData.runtimeKnown = false;
             return {known: false};
           }
@@ -516,6 +531,12 @@ export class ModelDeviceShell {
 
   frameDataUrl() { return this.viewer.screenshot(); }
 
+  resetView() {
+    if (this.disposed) return;
+    this.viewer.setView('front', {duration: 0});
+    this.viewer.fit({padding: 1.15, duration: 0});
+  }
+
   dispose() {
     if (this.disposed) return;
     this.cancelCameraAnimation();
@@ -534,3 +555,16 @@ export class ModelDeviceShell {
 }
 
 export const createModelShell = (host, device, options) => ModelDeviceShell.create(host, device, options);
+
+// Both controllers and Units are real independent catalog models. Browsing one
+// does not manufacture a host, firmware profile, attachment or runtime binding.
+export async function createVisualModelShell(host, id, options = {}) {
+  const metadata = MODEL_METADATA[id];
+  if (!metadata || ![...MODEL_DEVICES, ...UNIT_MODELS].includes(id)) throw new Error(`Unknown visual model: ${id}`);
+  const device = {id, name: metadata.name || id, category: metadata.category,
+    sku: metadata.sku, hardware: {}, visual_only: true};
+  const shell = await ModelDeviceShell.create(host, device, {...options, live: true});
+  shell.root.dataset.modelCategory = metadata.category;
+  shell.root.dataset.visualOnly = 'true';
+  return shell;
+}

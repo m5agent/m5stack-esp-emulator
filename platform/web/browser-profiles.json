@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "scope": "Browser execution profiles; these do not admit native Device Service devices or Unit protocols.",
+  "source": {
+    "repository": "https://github.com/zhuzhe1983/esp-online-tester",
+    "commit": "3cd3db3b7202e9fc559328c7247c11134c0437f9",
+    "official_docs": "https://docs.m5stack.com/en/core/PaperS3",
+    "checked_at": "2026-10-28"
+  },
+  "devices": [
+    {
+      "id": "papers3",
+      "name": "PaperS3",
+      "sku": "C139",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "path": null,
+      "browser_only": true,
+      "hardware": {
+        "soc": "ESP32-S3R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "width": 540,
+          "height": 960,
+          "type": "e-paper-mono",
+          "driver": "ET047TC1",
+          "shape": "rect",
+          "diagonal_in": 4.7,
+          "touch": true
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270"
+        ]
+      },
+      "shell": {
+        "preset": "paper",
+        "accent": "#0282cb",
+        "screen_scale": 0.44,
+        "body_theme": "paper-white"
+      },
+      "runtime": {
+        "execution": "browser-wasm",
+        "status": "experimental",
+        "chip": "esp32s3"
+      },
+      "browser": {
+        "board": "papers3",
+        "status": "experimental",
+        "description": "浏览器运行 · 黑白显示与单点触摸",
+        "limitations": [
+          "RTC、TF、音频、物理电源键未接入。",
+          "16 级灰阶与联网未验证；仅数字黑白端点。",
+          "任意固件兼容性及硬件行为未验证。"
+        ],
+        "reference": {
+          "name": "官方出厂演示 v0.5",
+          "url": "https://m5burner-cdn.m5stack.com/firmware/16287f6984f8ec7fe8058a6c3497b3b4.bin",
+          "sha256": "d6733a0ca378f95335fa5fba4d4d992fb1dd97c17557b20e9aebfca08ba6d624",
+          "source": "https://github.com/m5stack/M5PaperS3-UserDemo",
+          "validation": "browser-virtual-2026-10-28-official-demo-display-input-pause-stop",
+          "evidence": "docs/evidence/2026-10-28-public-simulator/summary.json"
+        }
+      }
+    },
+    {
+      "id": "stopwatch",
+      "browser": {
+        "board": "stopwatch",
+        "status": "experimental",
+        "description": "浏览器运行 · 显示、按键与触摸",
+        "limitations": [
+          "RTC、音频与物理电源键未接入。",
+          "Unit 原驱动和完整 UIFlow2 API 未在此浏览器内核验证。",
+          "任意固件兼容性及硬件行为未验证。"
+        ],
+        "reference": {
+          "name": "官方 User Demo v0.5",
+          "url": "https://m5burner-cdn.m5stack.com/firmware/6ea670900726398df06ab72c2915db3e.bin",
+          "sha256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe",
+          "source": "https://github.com/m5stack/M5StopWatch-UserDemo/releases/tag/V0.5",
+          "validation": "browser-virtual-2026-10-28-official-demo-display-input-pause-stop",
+          "evidence": "docs/evidence/2026-10-28-public-simulator/summary.json"
+        }
+      }
+    }
+  ]
+}

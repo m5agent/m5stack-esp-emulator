@@ -29,6 +29,15 @@ following components, patches, assets, and references retain their own terms.
 `platform/runtime/wasm/` contains the esp-emulator WebAssembly runtime and its
 Apache-2.0 license. See `platform/runtime/wasm/LICENSE`.
 
+The independent browser backend uses the MIT-licensed `esp32sim` fork
+[zhuzhe1983/esp-online-tester](https://github.com/zhuzhe1983/esp-online-tester)
+at `3cd3db3b7202e9fc559328c7247c11134c0437f9`, derived from
+[mikroverk/esp32sim](https://github.com/mikroverk/esp32sim). The unchanged
+Worker/JavaScript glue, license and source hashes are in
+`platform/web/vendor/esp32sim/`. `bootstrap_browser_runtime.py` builds the
+WASM from pinned source and preserves source notices in the export;
+the compiled WASM is not committed to source Git.
+
 ## Unit drivers, fixtures and visual assets
 
 - Selected UIFlow2 Unit drivers under `tests/units/` retain their original MIT
@@ -53,17 +62,21 @@ Apache-2.0 license. See `platform/runtime/wasm/LICENSE`.
   These are synthetic calibration inputs, not physical calibration records.
 - `platform/web/vendor/m5stack-models/` is imported from the MIT-licensed
   `yuyun2000/m5stack-models` commit
-  `3681a6482aff96501d44659ba5a1603246f1fe1f`; retain its `LICENSE`,
+  `c48940c3aad3f2e8e9b8906b82071a88f2a3de1e`; retain its `LICENSE`,
   `THIRD_PARTY_NOTICES.md` and source manifests. Three.js and the imported
   BufferGeometryUtils addon retain their upstream MIT terms and notices.
+  Imported guides retain their separately recorded older source pin.
 
 ## Firmware and ROM images
 
 Official UIFlow2 firmware, third-party demo firmware, and Espressif ROM images
-are not redistributed by this repository. `platform/tools/fetch_firmware.py`
+are not committed to this repository's source Git. `platform/tools/fetch_firmware.py`
 downloads firmware from M5Stack's public firmware CDN into an ignored local
 cache. QEMU/Espressif ROM files must be obtained from their upstream
-distributions.
+distributions. The optional browser-site export includes only the reviewed
+ESP32-S3 ROM from Espressif's `esp-rom-elfs` release `20260528`, with its
+Apache-2.0 license and a SHA-bound source receipt. The bootstrap script checks
+both the release archive and extracted ROM. It does not package firmware.
 
 ## Product names and reference images
 

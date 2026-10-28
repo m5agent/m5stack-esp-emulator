@@ -138,6 +138,11 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence、Backlog、文档新鲜度表和全量 Markdown 清单生成并校验项目快照；分别标记权威页与委派文档的旧复核日期 | CI、交接、文档维护 |
 | `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
+| `platform/tools/build_public_site.py` | 显式白名单导出 Pages 静态资源、项目子路径、站点配置及纯视觉目录；不自动部署 | 公众入口与 URL/下载契约测试；架构边界见[浏览器调研](browser-runtime-feasibility.md) |
+| `platform/tools/bootstrap_browser_runtime.py` | 固定 esp32sim 源码与 lockfile 构建 WASM，校验 ROM 来源、许可和 SHA，生成可审计 runtime manifest | `test_bootstrap_browser_runtime.py`；构建产物仅存 ignored cache / 静态导出 |
+| `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径 | `test_public_config.mjs`、`test_public_workbench_browser.mjs` |
+| `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
+| `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs` |
 
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、

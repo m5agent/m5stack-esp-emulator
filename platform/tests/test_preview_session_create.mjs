@@ -165,6 +165,7 @@ try {
   await test('unknown-network-create-retry-reuses-exact-key-body-despite-ui-edits', async () => {
     await setup({dropOnce: true}); await choosePreview(); await page.click('#createBtn'); await waitUnknown();
     const record = await pending(); assert.equal(record.previewId, undefined); assert.equal(scenario.allocations, 1);
+    await page.locator('#leaseSettings > summary').click();
     await page.fill('#ttlInput', '1200'); await page.selectOption('#deviceSelect', 'tab5');
     await page.click('#createBtn'); await page.waitForFunction(() => document.querySelector('#previewCreateStatus').textContent.includes('preparing'));
     assert.equal(scenario.posts.length, 2); assert.equal(scenario.posts[0].key, scenario.posts[1].key); assert.equal(scenario.posts[0].raw, scenario.posts[1].raw);

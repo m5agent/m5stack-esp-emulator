@@ -33,8 +33,9 @@
 
 - Unit 登记：`34` 款；主机接线登记：`14` 款。
 - Runtime profile 状态：`implemented` 34。
-- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `3681a6482aff96501d44659ba5a1603246f1fe1f`；包含 `14` 款主机、`113` 款 Unit。视觉库存不构成控制器或电气验证。
-- 仅视觉、尚无内部协议契约：`4relay`，`8angle`，`ac-measure`，`accel`，`acssr`，`adc-v11`，`ain4-20ma`，`ameter`，`asr`，`audioplayer`，`bldc-driver`，`bytebutton`，`byteswitch`，`cams3-5mp`，`can`，`co2`，`dac2`，`dcssr`，`dds`，`dlight`，`dmx`，`earth`，`env-pro`，`extencoder`，`extio2`，`fader`，`fingerprint2`，`gesture`，`gps-sma`，`gps-v11`，`hall`，`hbridge-v11`，`ina226-10a`，`kmeter-iso-v11`，`laser-rx`，`laser-tx`，`lcd`，`lora-e220-920`，`mic`，`midi`，`mini-bps-v11`，`mini-can`，`mini-imu`，`mini-pdm`，`mini-scales`，`mini-tof-90`，`mq`，`ncir2`，`oled`，`op180`，`op90`，`pahub-v21`，`pbhub-v11`，`poesp32`，`puzzle`，`qrcode`，`rca`，`reflective-ir`，`rf433r`，`rf433t`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`rs485-iso`，`rtc`，`step16`，`synth`，`thermal2`，`timerpwr`，`tmos-pir`，`tof4m`，`tube-pressure`，`uhf-rfid`，`unit-id`，`uwb`，`vibrator`，`vmeter`，`watering`，`weight-i2c`；这些型号不计 runtime 准入，也不能创建功能附件。
+- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `c48940c3aad3f2e8e9b8906b82071a88f2a3de1e`；包含 `17` 款主机、`184` 款 Unit。视觉库存不构成控制器或电气验证。
+- 仅视觉主机：`atom-lite`，`atom-matrix`，`atoms3-lite`；这些型号没有设备运行登记，不能创建 Device Service 会话。
+- 仅视觉、尚无内部协议契约：`4relay`，`8angle`，`8servos2-chain`，`8servos2-i2c`，`ac-measure`，`accel`，`acssr`，`adc`，`adc-v11`，`ain4-20ma`，`ameter`，`asr`，`audioplayer`，`bldc-driver`，`bmm350`，`bps`，`bytebutton`，`byteswitch`，`c6l`，`cams3-5mp`，`can`，`cardkb-original`，`cardkb2`，`cat1-cn`，`catm`，`catm-gnss`，`chainbus`，`co2`，`co2l`，`dac`，`dac2`，`dcssr`，`dds`，`dlight`，`dmx`，`dof10`，`dof6`，`dof9`，`earth`，`env`，`env-ii`，`env-iv`，`env-pro`，`esp32cam`，`extencoder`，`extio`，`extio2`，`fader`，`finger`，`fingerprint2`，`gateway-h2`，`gesture`，`glass`，`glass2`，`gps`，`gps-sma`，`gps-v11`，`grove-to-grove`，`hall`，`hbridge`，`hbridge-v11`，`hex`，`ina226-10a`，`ina226-1a`，`joystick`，`kmeter-iso-v11`，`laser-rx`，`laser-tx`，`lcd`，`lora-e220-433`，`lora-e220-920`，`lorawan-as923`，`lorawan-cn470`，`lorawan-eu868`，`lorawan-us915`，`m5-bit`，`m5camera`，`m5camera-x`，`mic`，`midi`，`mini-bps-v11`，`mini-can`，`mini-imu`，`mini-imu-pro`，`mini-oled`，`mini-pdm`，`mini-proto`，`mini-scales`，`mini-tof-90`，`mq`，`nbiot-cn`，`nbiot2`，`ncir2`，`neco`，`neohex`，`oled`，`op180`，`op90`，`pahub-v20`，`pahub-v21`，`pbhub`，`pbhub-v11`，`poe-cam-w`，`poe-cam-w-v11`，`poe-p4`，`poesp32`，`proto`，`puzzle`，`qrcode`，`rca`，`reflective-ir`，`rf433r`，`rf433t`，`rfid`，`rgb-led-10cm`，`rgb-led-strip-50cm`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`rs485-iso`，`rtc`，`scales`，`ssr`，`step16`，`synth`，`thermal2`，`timercamera`，`timercamera-f`，`timercamera-x`，`timerpwr`，`tmos-pir`，`tof4m`，`tube-pressure`，`typec-to-grove`，`uhf-rfid`，`ultrasonic-io`，`unit-396`，`unit-id`，`unitv-m12`，`unitv-ov7740`，`unitv2`，`unitv2-m12`，`unitv2-usb`，`uwb`，`vibrator`，`vmeter`，`watering`，`weight`，`weight-i2c`，`zigbee`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
 
 准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
@@ -89,12 +90,13 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
+| `UI-02` | 进行中 | 更多stock/unified原生路径就绪/输入验收，POST丢失创建收据后的幂等恢复，Pages部署审阅；browser官方演示与模型当前结果转证据页 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`57` 个 Python 模块，`43290` 行；规模最大的模块如下。
+- `platform/tools`：`59` 个 Python 模块，`43861` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -107,14 +109,14 @@
 
 - `tests/`：`126` 个可执行 Python 测试文件，分布在 `57` 个目录；`221` 个 evidence JSON。
 - `patches/`：`14` 个补丁组，`123` 个 patch 文件。
-- 文档：`369` 个 Markdown 页面；除本生成页外共 `34296` 行。
+- 文档：`373` 个 Markdown 页面；除本生成页外共 `34619` 行。
 
 ## 文档与测试
 
-- 平台测试：`1344` 项。
-- Docs 新鲜度登记：`58` 行；其中非历史页 `49` 行，历史固定页 `9` 行。
-- 文档职责分布：待办 `3`，契约 `7`，证据/差异 `1`，历史固定 `9`，实现/设计 `8`，参考 `26`，工作流/导航 `4`。
-- 全量文档盘点：`369` 个 Markdown 页面；职责分布：权威/专题页 `58`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `17`，平台说明 `9`，仓内历史记录 `5`，测试/用例说明 `154`，未登记 docs 页面 `1`，第三方来源说明 `102`。
+- 平台测试：`1355` 项。
+- Docs 新鲜度登记：`61` 行；其中非历史页 `52` 行，历史固定页 `9` 行。
+- 文档职责分布：待办 `3`，契约 `7`，证据/差异 `2`，历史固定 `9`，实现/设计 `9`，参考 `27`，工作流/导航 `4`。
+- 全量文档盘点：`373` 个 Markdown 页面；职责分布：权威/专题页 `61`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `17`，平台说明 `9`，仓内历史记录 `5`，测试/用例说明 `154`，未登记 docs 页面 `1`，第三方来源说明 `103`。
 - 复核日期早于当前事实日期的非历史页：[engineering-handoff.md](engineering-handoff.md) `2026-10-26`，[workstreams.md](workstreams.md) `2026-10-26`，[project-snapshot.md](project-snapshot.md) `2026-10-26`，[project-status.md](project-status.md) `2026-10-27`，[project-backlog.md](project-backlog.md) `2026-10-27`，[code-map.md](code-map.md) `2026-10-27`，[evidence-retention.md](evidence-retention.md) `2026-10-27`，[plans/2026-10-27-source-pr-cleanup.md](plans/2026-10-27-source-pr-cleanup.md) `2026-10-27`，[device-service-api.md](device-service-api.md) `2026-10-27`，[unit-agent-api.md](unit-agent-api.md) `2026-10-27`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[runtime-model-gap-register.md](runtime-model-gap-register.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[plans/2026-10-25-unit-runtime-integration.md](plans/2026-10-25-unit-runtime-integration.md) `2026-10-27`，[unit-integration-host-issues.md](unit-integration-host-issues.md) `2026-10-27`，[plans/2026-10-26-aiflow-live-preview-api.md](plans/2026-10-26-aiflow-live-preview-api.md) `2026-10-27`，[plans/2026-10-27-preview-run-control.md](plans/2026-10-27-preview-run-control.md) `2026-10-27`，[plans/2026-10-27-preview-web-consumer.md](plans/2026-10-27-preview-web-consumer.md) `2026-10-27`，[plans/2026-10-27-preview-controls-and-2relay.md](plans/2026-10-27-preview-controls-and-2relay.md) `2026-10-27`，[plans/2026-10-27-binary-checkpoint-and-unit-protocols.md](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) `2026-10-27`，[plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md](plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md) `2026-10-27`，[plans/2026-10-27-public-main-mpy-runtime.md](plans/2026-10-27-public-main-mpy-runtime.md) `2026-10-27`，[plans/2026-10-27-flashlight-route-history.md](plans/2026-10-27-flashlight-route-history.md) `2026-10-27`，[plans/2026-10-27-flashlight-cold-pad-observation.md](plans/2026-10-27-flashlight-cold-pad-observation.md) `2026-10-27`，[plans/2026-10-27-core2-startup-issues.md](plans/2026-10-27-core2-startup-issues.md) `2026-10-27`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`
@@ -124,7 +126,6 @@
   - [patches/qemu-core2-openmac-wifi/README.md](../patches/qemu-core2-openmac-wifi/README.md) `2026-10-26`
   - [patches/qemu-esp32c6-uiflow2-adapters/README.md](../patches/qemu-esp32c6-uiflow2-adapters/README.md) `2026-10-26`
   - [patches/qemu-multi-board-uiflow2/README.md](../patches/qemu-multi-board-uiflow2/README.md) `2026-10-26`
-  - [platform/README.md](../platform/README.md) `2026-10-26`
   - [platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md](../platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md) `2026-10-26`
   - [platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md](../platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md) `2026-10-26`
   - [tests/README.md](../tests/README.md) `2026-10-26`

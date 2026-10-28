@@ -1,0 +1,4 @@
+import {printedArtwork} from '../../modeling/artwork.js';
+import {spec} from './dimensions.js';
+const back=new URL('./artwork/back.png',import.meta.url).href,qc=new URL('./artwork/qc.png',import.meta.url).href;
+export function addStickers(host){const s=host.envAssembly.shell;return[...(printedArtwork(host,{target:s.backFilm,url:back,size:spec.labels.back.size,position:spec.labels.back.position,face:'back',depth:.07,name:'Original U001 exact shop6 ENV SENSOR PortA rear-film accurate reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:s.qcFilm,url:qc,size:spec.labels.qc.size,position:spec.labels.qc.position,face:'back',depth:.07,name:'Original U001 shop6 circular Q.C PASS physical print only,not an actual certification',artworkKind:'reference-redraw'})??[])];}

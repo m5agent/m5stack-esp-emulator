@@ -61,6 +61,14 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
+用户当前优先公众模拟器页面、最新模型与 GitHub Pages 分享入口；执行安排见
+[公众入口计划](plans/2026-10-28-public-simulator.md)。按最新要求先完成
+[纯浏览器执行调研](browser-runtime-feasibility.md)，已在独立 worktree 实现
+browser backend、公众首页与模型更新，限定官方固件的当前结果见
+[公众入口证据](evidence/2026-10-28-public-simulator/README.md)。剩余上线门禁为
+更多原生固件/路径验收、创建请求丢失收据后的幂等恢复及部署审阅；不把现有 native
+架构当成必须依赖服务的产品约束，也不转授完整 Unit/任意固件支持。
+
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
 hash-pinned 候选修正及三设备虚拟结果，见
@@ -148,6 +156,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
+| `UI-02` | 进行中 | 更多stock/unified原生路径就绪/输入验收，POST丢失创建收据后的幂等恢复，Pages部署审阅；browser官方演示与模型当前结果转证据页 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 

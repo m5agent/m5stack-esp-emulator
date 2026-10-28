@@ -1,72 +1,264 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>M5Stack Simulated Devices</title>
-  <link rel="stylesheet" href="/platform/web/app.css">
-  <link rel="stylesheet" href="/platform/web/device-shell.css">
-  <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
-  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
-  <link rel="stylesheet" href="/platform/web/m5-brand.css">
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "/platform/web/vendor/three/three.module.js",
-        "three/addons/": "/platform/web/vendor/three/addons/"
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="选择 M5Stack 设备，在浏览器中加载固件、观察屏幕与串口，也可连接独立仿真服务。" />
+    <title>M5Stack Simulator · 在浏览器中运行固件</title>
+    <link rel="stylesheet" href="/platform/web/m5-tokens.css" />
+    <link rel="stylesheet" href="/platform/web/device-shell.css" />
+    <link rel="stylesheet" href="/platform/web/three-device-viewer.css" />
+    <link rel="stylesheet" href="/platform/web/unit-panel.css" />
+    <link rel="stylesheet" href="/platform/web/public.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/platform/web/vendor/three/three.module.js",
+          "three/addons/": "/platform/web/vendor/three/addons/"
+        }
       }
-    }
-  </script>
-</head>
-<body>
-  <header class="brandbar">
-    <div class="brand-mark"><img src="/platform/web/m5stack-logo.png" alt="M5Stack"></div>
-    <div>
-      <div class="brand-title">M5Stack Simulated Devices</div>
-      <div class="brand-sub">M5Stack firmware lab · device-center ready profiles</div>
-    </div>
-    <div class="brand-actions">
-      <a class="btn ghost" href="/platform/web/sessions.html">Live sessions</a>
-      <a class="btn ghost" href="/platform/web/firmware.html">WebBurner</a>
-      <a class="btn ghost" href="/products/README.md" hidden>Docs</a>
-      <span class="status-chip boot-capable" id="catalogChip">loading</span>
-    </div>
-  </header>
-
-  <main class="gallery-layout">
-    <nav class="panel gallery-nav">
-      <input class="nav-search" id="search" placeholder="搜索型号、芯片、SKU…" autocomplete="off">
-      <div id="deviceNav"></div>
-    </nav>
-
-    <section class="panel gallery-stage">
-      <div class="stage-toolbar">
+    </script>
+  </head>
+  <body class="public-page">
+    <a class="skip-link" href="#workbench">跳到模拟器</a>
+    <header class="public-header">
+      <a class="public-brand" href="#" aria-label="M5Stack Simulator 首页"
+        ><img
+          data-asset="platform/web/m5stack-logo.png"
+          src="/platform/web/m5stack-logo.png"
+          alt="M5Stack"
+          width="42"
+          height="42"
+        /><span
+          ><strong>M5STACK <span>SIMULATOR</span></strong
+          ><small>BUILD. RUN. EXPLORE.</small></span
+        ></a
+      >
+      <nav aria-label="主导航">
+        <!-- Native service endpoints /platform/web/sessions.html and
+             /platform/web/firmware.html open only on the selected service. -->
+        <a data-service-console="platform/web/sessions.html" href="#serviceConnection">设备会话</a
+        ><a data-service-console="platform/web/firmware.html" href="#serviceConnection">WebBurner</a
+        ><a href="https://github.com/m5agent/m5stack-esp-emulator" target="_blank" rel="noreferrer"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main id="workbench" class="public-main" tabindex="-1">
+      <div class="intro-row">
         <div>
-          <div class="stage-title" id="stageTitle">选择模拟设备</div>
-          <div class="stage-sub" id="stageSub">按芯片架构分组</div>
+          <p class="eyebrow">YOUR FIRMWARE. YOUR DEVICE.</p>
+          <h1>先在浏览器里，运行一次。</h1>
+          <p class="intro-copy">选择设备，加载固件，观察屏幕与输入的变化。</p>
         </div>
-        <div class="stage-actions">
-          <div class="view-toggle" id="viewToggle">
-            <button type="button" data-view="photo" class="active">实物图</button>
-            <button type="button" data-view="shell">结构图</button>
+        <span class="catalog-count" id="catalogChip">正在读取设备…</span>
+      </div>
+      <div class="public-message" id="errorBanner" role="alert" hidden></div>
+      <div class="public-message" id="launchNotice" role="status" hidden></div>
+      <div class="workbench-grid">
+        <details class="device-library surface" id="deviceLibrary" open>
+          <summary><span>选择设备</span><span class="library-total" id="deviceCount"></span></summary>
+          <div class="library-content">
+            <label class="sr-only" for="search">搜索设备名称、芯片或 SKU</label
+            ><input
+              id="search"
+              class="public-field device-search"
+              type="search"
+              placeholder="搜索设备 / 芯片…"
+              autocomplete="off"
+            />
+            <div class="library-filter" role="group" aria-label="设备筛选">
+              <button type="button" data-device-filter="all" aria-pressed="true">全部</button
+              ><button type="button" data-device-filter="browser" aria-pressed="false">浏览器可运行</button>
+            </div>
+            <p class="sr-only" id="deviceResults" role="status"></p>
+            <div id="deviceNav" class="device-list" aria-label="设备列表"></div>
           </div>
-          <a class="btn primary" id="openBtn" hidden>打开模拟页面</a>
-        </div>
+        </details>
+        <section class="simulator-stage surface" aria-labelledby="stageTitle">
+          <div class="stage-heading">
+            <div>
+              <p class="eyebrow" id="stageSub">M5STACK DEVICE</p>
+              <h2 id="stageTitle">正在加载设备</h2>
+            </div>
+            <div class="stage-tools" role="group" aria-label="设备视图" id="viewToggle">
+              <button type="button" data-view="shell" aria-pressed="true">3D</button
+              ><button type="button" data-view="photo" aria-pressed="false">实物</button
+              ><button type="button" id="resetViewBtn" aria-label="复位模型视角" title="复位模型视角">↺</button>
+            </div>
+          </div>
+          <div class="device-stage" id="deviceMount" aria-label="设备交互预览">
+            <p class="stage-loading">正在准备 3D 模型…</p>
+          </div>
+          <section class="raw-frame-panel" id="rawFramePanel" aria-labelledby="rawFrameTitle" hidden>
+            <h3 id="rawFrameTitle">原始屏幕帧</h3>
+            <canvas id="rawFrameCanvas" tabindex="0" aria-label="StopWatch 原始固件屏幕，支持触摸"></canvas>
+            <p>完整 468 × 466 帧 · 3D 面板映射待验证</p>
+          </section>
+          <div class="stage-status-bar">
+            <span id="runtimeStatus" role="status" aria-live="polite"><i aria-hidden="true"></i>模型预览</span
+            ><span id="frameStatus">尚未运行固件</span
+            ><button type="button" class="text-button" id="pauseBtn" hidden>暂停</button
+            ><button type="button" class="text-button" id="stopBtn" hidden>停止</button>
+          </div>
+          <div id="runtimeUnitPanel"></div>
+          <details class="console-drawer" id="serialDrawer">
+            <summary><span>串口输出</span><span id="serialCount">0 B</span></summary>
+            <div class="console-content">
+              <pre id="serialOutput" tabindex="0" aria-label="串口日志">运行固件后，串口输出会显示在这里。</pre>
+              <form id="serialForm">
+                <label class="sr-only" for="serialInput">发送串口文本</label
+                ><input
+                  class="public-field"
+                  id="serialInput"
+                  placeholder="发送文本到设备…"
+                  autocomplete="off"
+                  disabled
+                /><button class="secondary-button" id="serialSendBtn" type="submit" disabled>发送</button>
+              </form>
+            </div>
+          </details>
+        </section>
+        <aside class="firmware-setup surface" aria-labelledby="firmwareHeading">
+          <p class="eyebrow">LOAD & RUN</p>
+          <h2 id="firmwareHeading">加载固件</h2>
+          <fieldset class="source-picker">
+            <legend class="sr-only">选择固件来源</legend>
+            <label><input type="radio" name="firmwareSource" value="reference" checked /><span>参考固件</span></label
+            ><label><input type="radio" name="firmwareSource" value="url" /><span>链接</span></label
+            ><label><input type="radio" name="firmwareSource" value="local" /><span>本地文件</span></label>
+          </fieldset>
+          <div id="referenceFields" class="firmware-source-fields">
+            <div class="reference-firmware">
+              <strong id="referenceTitle">正在读取…</strong><span id="referenceDescription"></span>
+            </div>
+          </div>
+          <div id="urlFields" class="firmware-source-fields" hidden>
+            <label class="public-label" for="firmwareUrl">公开固件地址</label
+            ><input
+              class="public-field"
+              id="firmwareUrl"
+              type="url"
+              inputmode="url"
+              maxlength="8192"
+              placeholder="https://…/firmware.bin"
+              spellcheck="false"
+            />
+            <p class="field-help">使用 HTTPS 二进制直链，需允许跨域下载。</p>
+          </div>
+          <div id="localFields" class="firmware-source-fields" hidden>
+            <label class="file-drop" for="firmwareFile"
+              ><span aria-hidden="true">↑</span><strong id="localFileName">选择 .bin 固件</strong
+              ><small>文件只在本次运行中使用</small
+              ><input id="firmwareFile" type="file" accept=".bin,application/octet-stream"
+            /></label>
+          </div>
+          <details class="plain-details advanced-options">
+            <summary>校验与运行选项</summary>
+            <label class="public-label" for="firmwareSha">SHA-256（可选）</label
+            ><input
+              class="public-field mono"
+              id="firmwareSha"
+              maxlength="64"
+              placeholder="64 位十六进制摘要"
+              autocomplete="off"
+              spellcheck="false"
+            /><label class="public-label" for="runtimeMode">运行方式</label
+            ><select class="public-field" id="runtimeMode">
+              <option value="auto">自动选择</option>
+              <option value="browser">浏览器本地运行</option>
+              <option value="service">连接仿真服务</option>
+              <option value="model">仅浏览模型</option>
+            </select>
+          </details>
+          <button class="primary-button" id="startBtn" type="button" disabled>
+            开始运行 <span aria-hidden="true">→</span>
+          </button>
+          <div class="run-progress" id="runProgress" role="status" hidden></div>
+          <button class="text-button cancel-loading" id="cancelLoadBtn" type="button" hidden>取消加载</button>
+          <section class="execution-summary" aria-labelledby="capabilityTitle">
+            <h3 id="capabilityTitle">正在确认运行方式</h3>
+            <p id="capabilityText">模型预览与固件运行分别标注。</p>
+            <button class="text-button" id="openServiceBtn" type="button" hidden>连接仿真服务 →</button>
+          </section>
+          <button class="share-button" id="shareBtn" type="button">
+            <span aria-hidden="true">↗</span> 复制分享链接
+          </button>
+          <p class="field-help" id="shareStatus" role="status"></p>
+          <details class="plain-details service-connection" id="serviceConnection">
+            <summary>仿真服务连接</summary>
+            <p class="field-help">设备服务提供原生板级运行能力。连接到你有权使用的独立服务。</p>
+            <label class="public-label" for="serviceUrl">服务地址</label
+            ><input
+              class="public-field"
+              id="serviceUrl"
+              type="url"
+              placeholder="https://…"
+              autocomplete="off"
+              spellcheck="false"
+            /><label class="public-label" for="serviceToken">访问 Token（可选）</label
+            ><input
+              class="public-field"
+              id="serviceToken"
+              type="password"
+              autocomplete="off"
+              placeholder="只保存在当前页面内存中"
+            /><button class="secondary-button" id="connectServiceBtn" type="button">连接服务</button>
+            <p class="field-help" id="serviceStatus" role="status"></p>
+            <div id="unitConnectionPicker"></div>
+          </details>
+          <details class="plain-details technical-details">
+            <summary>设备信息与模拟边界</summary>
+            <div id="deviceDetails"></div>
+            <p>虚拟设备结果不等同于实物的电气、射频、光学或机械表现。</p>
+          </details>
+        </aside>
+        <details class="unit-explorer surface" id="unitExplorer">
+          <summary><span>添加 Unit，探索更多交互</span><span id="unitCount">Unit 模型</span></summary>
+          <div class="unit-explorer-body">
+            <div class="unit-library">
+              <label class="sr-only" for="unitSearch">搜索 Unit 名称、型号或接口</label
+              ><input
+                class="public-field"
+                id="unitSearch"
+                type="search"
+                placeholder="搜索 Unit / 型号…"
+                autocomplete="off"
+              />
+              <div class="library-filter" role="group" aria-label="Unit 筛选">
+                <button type="button" data-unit-filter="all" aria-pressed="true">全部模型</button
+                ><button type="button" data-unit-filter="runtime" aria-pressed="false">本机可运行</button>
+              </div>
+              <p class="unit-result-count" id="unitResults" role="status"></p>
+              <div class="unit-list" id="unitList"></div>
+            </div>
+            <section class="unit-preview" aria-labelledby="unitTitle">
+              <div class="unit-preview-heading">
+                <h3 id="unitTitle">选择一个 Unit</h3>
+                <span id="unitCapability">独立模型预览</span>
+              </div>
+              <div class="unit-model-mount" id="unitModelMount">
+                <p class="field-help">在左侧搜索或选择外设，查看结构与交互。</p>
+              </div>
+              <p class="field-help" id="unitPreviewNote">模型浏览不向固件注入数据。可运行外设在服务连接中配置。</p>
+              <details class="plain-details" id="unitDetails" hidden>
+                <summary>查看规格与模型说明</summary>
+                <div id="unitDetailBody"></div>
+              </details>
+            </section>
+          </div>
+        </details>
       </div>
-      <div class="stage-device" id="deviceMount"></div>
-    </section>
-
-    <aside class="panel inspector">
-      <h2 id="detailName">设备目录</h2>
-      <div class="inspector-sub" id="detailSub">选择一个型号查看 UIFlow2 与运行时状态。</div>
-      <div id="detailBody">
-        <div class="notice">YAML/JSON profiles are shared by the simulator and the future device center.</div>
-      </div>
-    </aside>
-  </main>
-
-  <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>SIMULATED DEVICE PLATFORM</span><span>© 2026 M5Stack</span></div></footer>
-
-  <script type="module" src="/platform/web/gallery.js?v=20261026h"></script>
-</body>
+    </main>
+    <footer class="public-footer">
+      <span>M5STACK SIMULATOR</span>
+      <p>
+        开源设备仿真与模型工作台 ·
+        <a href="https://github.com/m5agent/m5stack-esp-emulator" target="_blank" rel="noreferrer">项目与许可</a>
+      </p>
+      <span>© 2026 M5Stack</span>
+    </footer>
+    <noscript><p class="public-message">此模拟器需要 JavaScript。请启用后刷新页面。</p></noscript>
+    <script type="module" src="/platform/web/public.js"></script>
+  </body>
 </html>

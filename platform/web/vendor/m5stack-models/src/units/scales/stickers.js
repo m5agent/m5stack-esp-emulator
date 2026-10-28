@@ -1,0 +1,2 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';const back=new URL('./reference-redraw-back.png',import.meta.url).href;
+export function addStickers(host){return printedArtwork(host,{target:host.scalesAssembly.film,url:back,size:spec.labels.back.size,position:spec.labels.back.position,face:'back',rotation:spec.labels.back.rotation,depth:.12,name:'Scales exact U108 rear diagram reference redraw',artworkKind:'reference-redraw'})??[];}

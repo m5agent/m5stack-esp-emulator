@@ -1,5 +1,5 @@
 import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
-import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261027p';
+import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261028a';
 import { createProgramPanel } from './program-panel.js?v=20261027p';
 import { createPreviewClient } from './preview-client.js?v=20261027p';
 import { Sha256 } from './sha256.js';
@@ -586,36 +586,42 @@ function createSessionCard(session, allowThree) {
       <div class="session-title-row">
         <span class="session-title" data-field="title">${escapeHtml(device.name || session.device_id)}</span>
         <span class="status-chip" data-field="state">${escapeHtml(session.state)}</span>
-        <span class="session-id" data-field="session-id">${escapeHtml(session.session_id)}</span>
       </div>
-      <div class="session-meta">
-        <span data-field="device-id">${escapeHtml(session.device_id)}</span>
-        <span data-field="firmware-source">${escapeHtml(session.firmware_source || 'firmware')}</span>
-        <span data-field="firmware-sha">${escapeHtml((session.firmware_sha256 || '').slice(0, 12))}</span>
-        <span data-field="serial-bytes">${escapeHtml(session.serial_bytes || 0)} bytes</span>
-        <span data-field="flash">flash 未确认</span>
-        <span data-field="last-frame">frame 未记录</span>
-      </div>
-      <div class="session-warning" data-field="warning" hidden></div>
-      <div class="session-runtime-note" data-field="preview" role="status" hidden></div>
-      <div class="session-runtime" data-field="runtime" hidden>
-        <span><small>Battery</small><strong data-runtime="battery">—</strong></span>
-        <span><small>Power</small><strong data-runtime="power">—</strong></span>
-        <span><small>Audio PA</small><strong data-runtime="audio">—</strong></span>
-        <span><small>PMIC inputs</small><strong data-runtime="pmic-inputs">—</strong></span>
-        <span><small>Accel</small><strong data-runtime="accel">—</strong></span>
-        <span><small>Gyro</small><strong data-runtime="gyro">—</strong></span>
-      </div>
-      <div class="session-runtime-note" data-field="runtime-note" hidden></div>
-      <div data-unit-panel></div>
-      <div data-program-panel></div>
-      <div class="session-actions">
+      <div class="session-actions" aria-label="会话操作">
         <button class="btn" data-action="wait" type="button">等待运行</button>
         <button class="btn" data-action="renew" type="button">续期</button>
         <button class="btn" data-action="reset" type="button">复位</button>
         <button class="btn" data-action="stop" type="button">停止</button>
       </div>
-      <pre class="session-serial" data-field="serial">等待串口输出…</pre>
+      <div class="session-warning" data-field="warning" hidden></div>
+      <div class="session-runtime-note" data-field="preview" role="status" hidden></div>
+      <div data-unit-panel></div>
+      <div data-program-panel></div>
+      <details class="session-disclosure session-diagnostics">
+        <summary>运行详情与固件信息</summary>
+        <p class="session-id" data-field="session-id">${escapeHtml(session.session_id)}</p>
+        <div class="session-meta">
+          <span data-field="device-id">${escapeHtml(session.device_id)}</span>
+          <span data-field="firmware-source">${escapeHtml(session.firmware_source || 'firmware')}</span>
+          <span data-field="firmware-sha">${escapeHtml((session.firmware_sha256 || '').slice(0, 12))}</span>
+          <span data-field="serial-bytes">${escapeHtml(session.serial_bytes || 0)} bytes</span>
+          <span data-field="flash">flash 未确认</span>
+          <span data-field="last-frame">frame 未记录</span>
+        </div>
+        <div class="session-runtime" data-field="runtime" hidden>
+          <span><small>Battery</small><strong data-runtime="battery">—</strong></span>
+          <span><small>Power</small><strong data-runtime="power">—</strong></span>
+          <span><small>Audio PA</small><strong data-runtime="audio">—</strong></span>
+          <span><small>PMIC inputs</small><strong data-runtime="pmic-inputs">—</strong></span>
+          <span><small>Accel</small><strong data-runtime="accel">—</strong></span>
+          <span><small>Gyro</small><strong data-runtime="gyro">—</strong></span>
+        </div>
+        <div class="session-runtime-note" data-field="runtime-note" hidden></div>
+      </details>
+      <details class="session-disclosure session-console">
+        <summary>串口输出</summary>
+        <pre class="session-serial" data-field="serial" tabindex="0" aria-label="串口输出">等待串口输出…</pre>
+      </details>
     </div>`;
   const visualNode = card.querySelector('.session-visual');
   state.visuals.set(
@@ -1244,6 +1250,7 @@ $('sessionList').addEventListener('click', event => {
 
 async function init() {
   $('tokenInput').value = state.token;
+  if ($('serviceSettings')) $('serviceSettings').open = !state.token;
   $('reviewDashboardLink').href =
     `${location.protocol}//${location.hostname}:8790/`;
   try {

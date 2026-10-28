@@ -67,6 +67,19 @@ try {
   assert.deepEqual(posts, [{id: 'button1', values: {pressed: true}}, {id: 'button1', values: {pressed: false}}]);
   assert.equal(await page.evaluate(() => window.commands.at(-1).pressed), false);
   assert.equal(await page.locator('#unitModelSelect option[value="pir"]').isDisabled(), true, 'unimplemented Unit cannot be selected');
+  assert.equal(await page.locator('[data-unit-raw]').getAttribute('open'), null, 'raw controller fields are collapsed by default');
+  assert.match(await page.locator('[data-unit-summary]').textContent(), /false/, 'compact readout uses observed state');
+  assert.equal(await button.isVisible(), true, 'the main Unit control remains visible');
+  await page.locator('[data-unit-raw] > summary').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-unit-values] dd').first().isVisible(), true, 'raw values are keyboard accessible');
+  await page.keyboard.press('Enter');
+  await page.getByRole('searchbox', {name: '搜索 Unit', exact: true}).fill('pir');
+  assert.equal(await page.locator('#unitModelSelect option').count(), 2, 'search narrows options without removing the empty choice');
+  assert.equal(await page.locator('#unitModelSelect option[value="pir"]').isDisabled(), true, 'search never enables a model-only Unit');
+  assert.match(await page.locator('.unit-picker-results').textContent(), /1 个匹配 · 0 个可运行/);
+  assert.equal(await page.locator('#unitModelSelect optgroup').getAttribute('label'), '仅模型 · 运行时未接入');
+  await page.getByRole('searchbox', {name: '搜索 Unit', exact: true}).fill('');
   await button.hover();
   await page.mouse.down();
   await page.waitForFunction(() => window.pressed === true);
@@ -520,6 +533,11 @@ try {
   await page.getByRole('combobox', {name: 'HUB · Grove 1', exact: true}).selectOption('env-iii');
   await page.getByRole('combobox', {name: 'HUB · Grove 2', exact: true}).selectOption('encoder');
   await page.getByRole('combobox', {name: 'HUB · Grove 3', exact: true}).selectOption('cardkb');
+  await page.getByRole('searchbox', {name: '搜索 Unit', exact: true}).fill('env');
+  assert.equal(await page.locator('#unitModelSelect').inputValue(), 'hub', 'filtering keeps the parent selection');
+  assert.equal(await page.getByRole('combobox', {name: 'HUB · Grove 2', exact: true}).inputValue(), 'encoder', 'filtering keeps nested selections');
+  assert.equal(await page.locator('.unit-picker-port > .unit-details:not([hidden])').getAttribute('open'), null, 'long interface and support notes start collapsed');
+  await page.getByRole('searchbox', {name: '搜索 Unit', exact: true}).fill('');
   assert.deepEqual(await page.evaluate(() => window.picker.attachments()), [
     {id: 'external1', unit_id: 'hub', port_id: 'port-a'},
     {id: 'external1-1', parent_id: 'external1', unit_id: 'env-iii', port_id: 'grove-1'},

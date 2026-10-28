@@ -54,6 +54,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
    board/WiFi/BLE/evidence 的产品验收边界。
 9. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
    模拟器能力不足”的缺口、证据、边界和关闭条件。
+10. [公众模拟器计划](plans/2026-10-28-public-simulator.md)与[纯浏览器调研](browser-runtime-feasibility.md)：Pages 入口、浏览器与原生后端的分界和对照实验。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
 `project-status.md` 为准；`project-backlog.md` 不描述完成状态，日期较早的
@@ -106,9 +107,12 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-27` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Core2 TIMG WDT-mask、stateful SSI、handoff、WDT liveness 和 LVGL/SPI flush wait 的逐项证据仍转验证台账 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-27` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-27` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-27` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-28` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [GitHub issues #2–#10 顺序复测](evidence/2026-10-27-issues-2-10/README.md) | 历史证据 | `2026-10-27` | 固定最终 runtime、session、固件、串口/QOM/帧/evidence 哈希；#2/#3 失败保持 open，#4–#10 的限定虚拟设备结论不转授物理硬件 |
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
+| [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
+| [公众模拟器计划](plans/2026-10-28-public-simulator.md) | 进行中计划 | `2026-10-28` | 公众首页、Unit信息层级、新模型、URL分享、静态导出与部署前门禁 |
+| [公众入口证据](evidence/2026-10-28-public-simulator/README.md) | 当前浏览器证据 | `2026-10-28` | exact WASM/ROM/固件绑定、真实串口/帧/输入/暂停停止；模型与原生桥接分别验证，未部署 |
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |
 | [UIFlow2 双主机审计与修复](evidence/2026-10-27-uiflow2-api-sweep/README.md) / [计划](plans/2026-10-27-uiflow2-complete-api-sweep.md) | 当前审计 | `2026-10-28` | UI/硬件/系统/HTTP 逐项状态、原厂与 SDK 候选分 lane；最终完整矩阵 68/68，模型/配置/可选外设及 stock 失败仍保留 |
 | [StopWatch / StickS3 / Core2 UIFlow2 三设备复测](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md) | 当前三设备证据 | `2026-10-28` | system、协议、M5UI 和 shared SDK 候选；requests2、BLE UUID32、Modbus transform/async 与 M5UI 缺陷有候选修复，其余模型/固件边界显式保留 |

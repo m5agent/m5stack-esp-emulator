@@ -1,0 +1,2 @@
+import{printedArtwork}from'../../modeling/artwork.js';const back=new URL('./reference-redraw-back.png',import.meta.url).href;
+export function addStickers(host){return printedArtwork(host,{target:host.unit396Assembly.labels.back,url:back,size:[16,12.3],position:[0,7.15,-3.88],face:'back',depth:.12,name:'Unit3.96 own U020 back number/color mapping reference redraw',artworkKind:'reference-redraw'})??[];}

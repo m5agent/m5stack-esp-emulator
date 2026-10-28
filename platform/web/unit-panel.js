@@ -9,12 +9,42 @@ const text = value => typeof value === 'object' ? JSON.stringify(value) : String
 const pressField = (field, schema) => schema.type === 'boolean' && (field === 'pressed' || field.endsWith('-pressed'));
 const pressArray = (field, schema) => schema.type === 'array' && schema.items?.type === 'boolean' && ['keys', 'pressed'].includes(field);
 const rgbValue = value => Number.isInteger(value) && value >= 0 && value <= 0xFFFFFF;
+let pickerSequence = 0;
 
 function element(tag, className, content) {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (content !== undefined) node.textContent = content;
   return node;
+}
+
+function disclosure(title, className = 'unit-details') {
+  const node = element('details', className);
+  node.append(element('summary', '', title));
+  return node;
+}
+
+function readoutSource(definition, field) {
+  return Object.hasOwn(definition?.inputs || {}, field) ? '模拟输入'
+    : Object.hasOwn(definition?.outputs || {}, field) ? '固件输出观测' : '控制器状态';
+}
+
+// Keep a small, labelled view of actual readback above the complete raw fields.
+// This is presentation only: unavailable state must never reuse a previous value.
+function summarizeReadback(unit, definition) {
+  const list = element('dl', 'unit-summary-values');
+  if (unit.available !== true || Object.keys(unit.errors || {}).length) return list;
+  const fields = Object.entries(unit.properties || {}).filter(([, value]) =>
+    typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value));
+  fields.sort(([a], [b]) => Number(Object.hasOwn(definition?.outputs || {}, b)) - Number(Object.hasOwn(definition?.outputs || {}, a)));
+  for (const [field, value] of fields.slice(0, 3)) {
+    const schema = definition?.outputs?.[field] || definition?.inputs?.[field];
+    const label = element('dt', '', schema?.label || field);
+    label.append(element('small', 'unit-summary-source', readoutSource(definition, field)));
+    const observed = element('dd', '', `${text(value)}${schema?.unit ? ` ${schema.unit === 'degC' ? '°C' : schema.unit}` : ''}`);
+    list.append(label, observed);
+  }
+  return list;
 }
 
 function observedValue(field, value) {
@@ -169,6 +199,7 @@ class UnitPanel {
       this.states.set(attachment.id, unavailable);
       const card = this.cards.get(attachment.id);
       card?.querySelector('[data-unit-values]')?.replaceChildren();
+      card?.querySelector('[data-unit-summary]')?.replaceChildren();
       for (const control of card?.querySelectorAll('[data-input-field]') || []) {
         if (control.type === 'checkbox') control.checked = false;
         else control.value = '';
@@ -392,20 +423,28 @@ class UnitPanel {
       if (!definition) continue;
       const card = element('section', 'unit-card');
       card.dataset.unitId = attachment.id;
-      card.append(element('h4', '', `${definition.name} · ${attachment.parent_id ? `${attachment.parent_id}/` : ''}${attachment.port_id}`));
+      const heading = element('div', 'unit-card-heading');
+      heading.append(element('h4', '', definition.name), element('span', 'unit-port-label', `${attachment.parent_id ? `${attachment.parent_id}/` : ''}${attachment.port_id}`));
+      card.append(heading);
       const status = element('div', 'unit-note', '等待模型状态…');
       status.dataset.unitNote = '';
       status.setAttribute('aria-live', 'polite');
       card.append(status);
+      const summary = element('div', 'unit-readback-summary');
+      summary.dataset.unitSummary = '';
+      card.append(summary);
+      const notes = disclosure('使用说明与模拟边界');
+      const noteBody = element('div', 'unit-details-body');
+      notes.append(noteBody);
       if (arrayLedFeedback(attachment)) {
         const mapping = element('p', 'unit-note');
         mapping.dataset.unitLedMapping = '';
         mapping.setAttribute('aria-live', 'polite');
         mapping.hidden = true;
-        card.append(mapping);
+        noteBody.append(mapping);
       }
-      if (attachment.unit_id === 'fan') card.append(element('p', 'unit-note', '动画表示 PWM 驱动活动；转速与机电过程未建模。'));
-      if (attachment.unit_id === 'flashlight') card.append(element('p', 'unit-note', 'Flash 显示相对档位，Torch 仅表示持续点亮；不代表实际光度。'));
+      if (attachment.unit_id === 'fan') noteBody.append(element('p', 'unit-note', '动画表示 PWM 驱动活动；转速与机电过程未建模。'));
+      if (attachment.unit_id === 'flashlight') noteBody.append(element('p', 'unit-note', 'Flash 显示相对档位，Torch 仅表示持续点亮；不代表实际光度。'));
       if (attachment.unit_id === 'buzzer') {
         const controls = element('div', 'unit-audio-controls');
         const toggle = element('button', 'btn', '启用声音试听');
@@ -429,14 +468,15 @@ class UnitPanel {
         });
         this.audio.set(attachment.id, audio);
         controls.append(toggle, status);
-        card.append(controls, element('p', 'unit-note', '电气 PWM 波形试听（带限、低音量），不代表实物音色或声压。'));
+        card.append(controls);
+        noteBody.append(element('p', 'unit-note', '电气 PWM 波形试听（带限、低音量），不代表实物音色或声压。'));
       }
       for (const [field, schema] of Object.entries(definition.inputs || {})) {
         if (!definition.runtime?.inputs?.[field] || schema.readOnly) continue;
         if (schema.creation_only || definition.runtime.inputs[field].creation_only) {
           const note = element('p', 'unit-note', `${schema.label || field}：创建时固定，运行中只读；当前值以控制器读回为准。`);
           note.dataset.unitCreationOnly = field;
-          card.append(note);
+          noteBody.append(note);
           continue;
         }
         const row = element('div', 'unit-control');
@@ -487,7 +527,11 @@ class UnitPanel {
       }
       const output = element('dl', 'unit-values');
       output.dataset.unitValues = '';
-      card.append(output);
+      const raw = disclosure('全部读数与原始字段');
+      raw.dataset.unitRaw = '';
+      raw.append(element('p', 'unit-note', '以下数值来自当前会话的控制器读回。模拟输入与固件输出分别标注。'), output);
+      card.append(raw);
+      if (noteBody.childElementCount) card.append(notes);
       this.cards.set(attachment.id, card);
       this.container.append(card);
     }
@@ -755,11 +799,13 @@ class UnitPanel {
       this.states.set(unit.id, unit);
       const card = this.cards.get(unit.id);
       if (!card) continue;
+      card.dataset.unitAvailable = String(unit.available === true && !Object.keys(unit.errors || {}).length);
       this.note(unit.id, !unit.available ? `状态不完整：${Object.values(unit.errors || {}).join('; ')}` : payload.source === 'persisted' ? '已停止 · 最后模型状态' : '实时模型状态');
+      const definition = this.definitions.get(unit.unit_id);
+      card.querySelector('[data-unit-summary]')?.replaceChildren(summarizeReadback(unit, definition));
       const output = card.querySelector('[data-unit-values]');
       output.replaceChildren();
       for (const [field, value] of Object.entries(unit.properties || {})) {
-        const definition = this.definitions.get(unit.unit_id);
         const direction = Object.hasOwn(definition?.inputs || {}, field) ? '输入 fixture' : Object.hasOwn(definition?.outputs || {}, field) ? '固件输出观测' : '控制器状态';
         const label = element('dt', '', field);
         label.append(element('small', 'unit-value-source', direction));
@@ -826,6 +872,7 @@ class UnitPanel {
       for (const [id, unit] of this.states) {
         const unavailable = {...unit, available: false, errors: {...unit.errors, transport: error.message}};
         this.states.set(id, unavailable);
+        this.cards.get(id)?.querySelector('[data-unit-summary]')?.replaceChildren();
         this.paint(unavailable);
         this.note(id, `状态请求失败：${error.message}`);
       }
@@ -889,19 +936,56 @@ export async function createUnitPicker(container, {api, deviceId}) {
         if (generation !== this.generation) return;
         const host = inventory.hosts.find(host => host.device_id === id);
         const ports = host?.ports.filter(port => port.wiring_status === 'confirmed' && port.physical_presence === 'main-device') || [];
-        container.replaceChildren(element('label', 'field-label', '连接 Unit'));
+        container.classList.add('unit-picker');
+        container.replaceChildren(element('h3', 'unit-picker-heading', '连接 Unit'));
         const ready = unit => ['implemented', 'validated'].includes(unit.runtime?.status) && unit.runtime.hosts?.includes(id);
+        const hasRuntime = unit => ['implemented', 'validated'].includes(unit.runtime?.status);
+        const search = element('input', 'field unit-picker-search');
+        search.type = 'search';
+        search.placeholder = '搜索名称、型号或接口…';
+        search.id = `unit-search-${++pickerSequence}`;
+        search.autocomplete = 'off';
+        const searchLabel = element('label', 'field-label', '搜索 Unit');
+        searchLabel.htmlFor = search.id;
+        const results = element('p', 'unit-picker-results');
+        results.id = `${search.id}-results`;
+        results.setAttribute('role', 'status');
+        search.setAttribute('aria-describedby', results.id);
+        if (ports.length) container.append(searchLabel, search, results);
+        const selects = [];
+        const matches = unit => `${unit.name} ${unit.id} ${unit.sku || ''} ${unit.interface?.bus || ''}`.toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase());
+        const fillSelect = (select, i2cOnly) => {
+          const selected = select.value;
+          select.replaceChildren(new Option('不连接 Unit', ''));
+          const groups = new Map([
+            ['ready', element('optgroup')], ['other-host', element('optgroup')], ['model', element('optgroup')],
+          ]);
+          groups.get('ready').label = '可运行 · 当前设备';
+          groups.get('other-host').label = '本机暂不可运行';
+          groups.get('model').label = '仅模型 · 运行时未接入';
+          for (const unit of inventory.units) {
+            if (i2cOnly && unit.interface?.bus !== 'i2c' || !matches(unit) && unit.id !== selected) continue;
+            const enabled = ready(unit);
+            const availability = enabled ? '' : hasRuntime(unit) ? '（本机未接入）' : '（仅模型）';
+            const option = new Option(`${unit.name}${availability}`, unit.id);
+            option.disabled = !enabled;
+            option.dataset.unitAvailability = enabled ? 'runnable' : hasRuntime(unit) ? 'unsupported-host' : 'model-only';
+            groups.get(enabled ? 'ready' : hasRuntime(unit) ? 'other-host' : 'model').append(option);
+          }
+          for (const group of groups.values()) if (group.childElementCount) select.append(group);
+          select.value = selected;
+        };
+        const filter = () => {
+          for (const {select, i2cOnly} of selects) fillSelect(select, i2cOnly);
+          const matched = inventory.units.filter(matches);
+          results.textContent = `${matched.length} 个匹配 · ${matched.filter(ready).length} 个可运行${search.value.trim() ? ' · 已选 Unit 保留' : ''}`;
+        };
+        search.addEventListener('input', filter);
         const makeSelect = (label, i2cOnly = false) => {
           const select = element('select', 'field');
           select.setAttribute('aria-label', label);
-          select.append(new Option('不连接 Unit', ''));
-          for (const unit of inventory.units) {
-            if (i2cOnly && unit.interface.bus !== 'i2c') continue;
-            const enabled = ready(unit);
-            const option = new Option(`${unit.name}${enabled ? '' : '（暂未支持）'}`, unit.id);
-            option.disabled = !enabled;
-            select.append(option);
-          }
+          selects.push({select, i2cOnly});
+          fillSelect(select, i2cOnly);
           return select;
         };
         const makeCreationFixture = (select, context, changed) => {
@@ -926,7 +1010,9 @@ export async function createUnitPicker(container, {api, deviceId}) {
                 input.addEventListener('change', changed);
                 controls.set(field, input);
                 label.append(input);
-                node.append(label, element('p', 'unit-note', schema.description || '创建时固定，运行中只读。'));
+                const help = disclosure('创建配置说明');
+                help.append(element('p', 'unit-note', schema.description || '创建时固定，运行中只读。'));
+                node.append(label, help);
               }
             },
             values() { return Object.fromEntries([...controls].map(([field, input]) => [field, input.checked])); },
@@ -937,6 +1023,11 @@ export async function createUnitPicker(container, {api, deviceId}) {
           row.append(element('label', 'field-label', port.label));
           const select = makeSelect(`Unit · ${port.label}`);
           if (index === 0) select.id = 'unitModelSelect';
+          const selectedInfo = element('div', 'unit-picker-selection');
+          selectedInfo.hidden = true;
+          const selectedDetails = disclosure('接口与支持边界');
+          selectedDetails.hidden = true;
+          let describedUnit;
           const fixture = makeCreationFixture(select, port.label, () => update());
           const children = element('div', 'unit-hub-children');
           children.hidden = true;
@@ -957,6 +1048,27 @@ export async function createUnitPicker(container, {api, deviceId}) {
             fixture.refresh();
             childFixtures.forEach(fixture => fixture.refresh());
             children.hidden = select.value !== 'hub';
+            const unit = inventory.units.find(unit => unit.id === select.value);
+            if (describedUnit !== unit?.id) {
+              describedUnit = unit?.id;
+              selectedInfo.replaceChildren();
+              selectedDetails.replaceChildren(element('summary', '', '接口与支持边界'));
+              selectedInfo.hidden = selectedDetails.hidden = !unit;
+              selectedDetails.open = false;
+              if (unit) {
+                selectedInfo.append(element('span', 'unit-capability', '可运行'), element('span', 'unit-interface', (unit.interface?.bus || '').toUpperCase()));
+                const body = element('div', 'unit-details-body');
+                for (const message of [...new Set([unit.runtime?.blocker, unit.protocol?.summary, ...(unit.limitations || [])].filter(Boolean))]) body.append(element('p', 'unit-note', message));
+                if (unit.official_docs && /^https?:\/\//.test(unit.official_docs)) {
+                  const link = element('a', 'unit-doc-link', '查看官方文档');
+                  link.href = unit.official_docs;
+                  link.target = '_blank';
+                  link.rel = 'noreferrer';
+                  body.append(link);
+                }
+                selectedDetails.append(body);
+              }
+            }
             const instance = `external${index + 1}`;
             const initial = fixture.values();
             this.selections[index] = select.value ? [
@@ -969,9 +1081,10 @@ export async function createUnitPicker(container, {api, deviceId}) {
             ] : [];
           };
           select.addEventListener('change', update);
-          row.append(select, fixture.node, children);
+          row.append(select, selectedInfo, fixture.node, children, selectedDetails);
           container.append(row);
         }
+        filter();
         if (!ports.length) container.append(element('p', 'unit-note', '此设备暂无已确认接线的主机接口。'));
         this.readyDeviceId = id;
       } catch (error) {

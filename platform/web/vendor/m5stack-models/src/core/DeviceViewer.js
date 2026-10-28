@@ -361,8 +361,18 @@ export class DeviceViewer extends EventEmitter {
     for (const hit of hits) {
       if (!effectivelyVisible(hit.object)) continue;
       let o = hit.object, component = null;
-      for (; o; o = o.parent) if (o.userData.component) { component = o.userData.component; break; }
+      for (; o; o = o.parent) {
+        const candidate = o.userData.component;
+        if (!candidate) continue;
+        const registration = o.userData.componentHit;
+        const filter = registration?.component === candidate ? registration.filter : null;
+        if (filter && !filter(hit)) continue;
+        component = candidate;
+        break;
+      }
       const device = [...this.devices].find((d) => isDescendant(hit.object, d.root)) ?? null;
+      // A rejected region remains a physical surface. Resolve its ancestors,
+      // then return this first visible hit rather than picking through a shell.
       return { component, intersection: hit, device };
     }
     return null;
