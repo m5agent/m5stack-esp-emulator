@@ -1467,6 +1467,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "M5SW_GDMA_TRACE",
             "M5SW_GPSPI_TRACE",
             "M5SW_LCD_TRACE",
+            "M5SW_RMT_TRACE",
             "M5SW_SPI_XFER_TRACE",
         )}
         for key in traces:
@@ -1481,6 +1482,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
             result = self.service.create_session({"device_id": "cores3", "runtime_env": traces})
         session = self.service.get_session(result["session_id"])
         self.assertEqual(session.runtime_env, traces)
+
+    def test_rmt_file_fixtures_are_allowlisted_for_trusted_local_runs(self):
+        runtime_env = {
+            "M5SW_RMT_TX_FILE": "/private/tmp/owned-ir-capture.rmt",
+            "M5SW_RMT_RX_FILE": "/private/tmp/owned-ir-source.rmt",
+            "M5SW_RMT_TRACE": "1",
+        }
+        with mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session({
+                "device_id": "sticks3",
+                "runtime_env": runtime_env,
+            })
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(session.runtime_env, runtime_env)
 
     def test_storage_fixture_is_bound_to_a_modeled_sd_card(self):
         artifact = self.service.upload_artifact(b"\x00" * 512)
@@ -1729,8 +1744,31 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
         self.assertEqual(unified["profile"], "uiflow2-sticks3-unified")
+        self.assertTrue(unified["http_fixture"])
         self.assertEqual(unified["ble_linger_seconds"], 20)
         self.assertEqual(unified["ble_reconnect_cycles"], 1)
+        no_fixture = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "uiflow2-sticks3-unified",
+                "http_fixture": False,
+            },
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertFalse(no_fixture["http_fixture"])
+        session = object.__new__(DeviceSession)
+        session.network_config = no_fixture
+        self.assertFalse(session._requires_http_fixture())
+        with self.assertRaises(ServiceError) as invalid_fixture:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-unified",
+                    "http_fixture": "no",
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(invalid_fixture.exception.code, "invalid_network")
         long_link = device_service_module.parse_qemu_ble_execution(
             self.service.specs["sticks3"],
             {
@@ -1846,6 +1884,36 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(secured["wifi_auth"], "wpa2-psk")
         self.assertEqual(secured["wifi_password"], "mypassword")
+
+        no_fixture = device_service_module.parse_qemu_wifi_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "uiflow2-sticks3-wifi",
+                "http_fixture": False,
+            },
+        )
+        self.assertFalse(no_fixture["http_fixture"])
+        session = object.__new__(DeviceSession)
+        session.network_config = no_fixture
+        self.assertFalse(session._requires_http_fixture())
+        session.network_config = {
+            **no_fixture,
+            "http_fixture": True,
+        }
+        self.assertTrue(session._requires_http_fixture())
+
+        with self.assertRaises(ServiceError) as invalid_fixture:
+            device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-wifi",
+                    "http_fixture": "no",
+                },
+            )
+        self.assertEqual(
+            invalid_fixture.exception.code,
+            "invalid_network",
+        )
 
         with self.assertRaises(ServiceError) as unsupported:
             device_service_module.parse_qemu_wifi_execution(

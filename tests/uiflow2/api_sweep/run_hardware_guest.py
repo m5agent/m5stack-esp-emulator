@@ -14,6 +14,9 @@ import time
 import run_guest
 
 
+MAX_HOST_ACTION_DELAY_SECONDS = 30
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", required=True)
@@ -42,6 +45,23 @@ def main():
         session_id = None
         observed = ""
 
+        def wait_running(self):
+            """Wait until the service publishes runnable state after a marker."""
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                current = super().json(f"sessions/{self.session_id}")
+                if current["state"] == "running":
+                    return
+                if current["state"] in {"failed", "stopped"}:
+                    raise RuntimeError(
+                        "session ended before marker action: "
+                        + str(current.get("error"))
+                    )
+                time.sleep(0.05)
+            raise RuntimeError(
+                "session did not reach running before marker action"
+            )
+
         def json(self, path, method="GET", payload=None, **kwargs):
             if path == "sessions" and method == "POST":
                 payload = dict(payload)
@@ -60,11 +80,15 @@ def main():
                     if marker not in self.observed:
                         continue
                     pending = schedule.pop(marker)
+                    self.wait_running()
                     for action in pending:
                         if "sleep_seconds" in action:
                             delay = float(action["sleep_seconds"])
-                            if not 0 <= delay <= 10:
-                                raise ValueError("host action delay must be 0..10 seconds")
+                            if not 0 <= delay <= MAX_HOST_ACTION_DELAY_SECONDS:
+                                raise ValueError(
+                                    "host action delay must be 0.."
+                                    f"{MAX_HOST_ACTION_DELAY_SECONDS} seconds"
+                                )
                             time.sleep(delay)
                             continue
                         endpoint = "sessions/" + self.session_id + "/" + action["endpoint"].lstrip("/")

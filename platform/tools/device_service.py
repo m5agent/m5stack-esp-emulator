@@ -203,6 +203,9 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
     "M5SW_I2S_TRACE",
+    "M5SW_RMT_RX_FILE",
+    "M5SW_RMT_TX_FILE",
+    "M5SW_RMT_TRACE",
     "M5SW_INPUT_TRACE",
     "M5SW_FT_TRACE",
     "M5SW_I2C_TRACE",
@@ -221,6 +224,7 @@ BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_INPUT_TRACE",
     "M5SW_I2C_TRACE",
     "M5SW_LCD_TRACE",
+    "M5SW_RMT_TRACE",
     "M5SW_SPI_XFER_TRACE",
 })
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
@@ -743,8 +747,12 @@ def parse_dns_cname_records(
 def require_allowlist_http_fixture(
     profile: str,
     policy: NetworkPolicy,
+    *,
+    http_fixture: bool = True,
 ) -> None:
-    if policy.egress != "allowlist" or profile in UNIFIED_HTTP_PORTS:
+    if policy.egress != "allowlist" or (
+        http_fixture and profile in UNIFIED_HTTP_PORTS
+    ):
         return
     controlled_names = policy.allowed_hosts or policy.allowed_domains
     if controlled_names and policy.dns == "controlled":
@@ -1437,6 +1445,13 @@ def parse_qemu_wifi_execution(
             f"unsupported qemu-wifi profile: {profile!r}",
             400,
         )
+    http_fixture = value.get("http_fixture", True)
+    if not isinstance(http_fixture, bool):
+        raise ServiceError(
+            "invalid_network",
+            "network.http_fixture must be a boolean",
+            400,
+        )
     net_mode = value.get("net_mode", "user")
     if net_mode != "user":
         raise ServiceError(
@@ -1467,13 +1482,21 @@ def parse_qemu_wifi_execution(
         )
     policy = parse_network_policy(
         value.get("policy"),
-        implicit_endpoints=implicit_allowlist_endpoints(profile),
+        implicit_endpoints=(
+            implicit_allowlist_endpoints(profile)
+            if http_fixture
+            else ()
+        ),
     )
     cname_records = parse_dns_cname_records(
         value.get("cname_records"),
         policy,
     )
-    require_allowlist_http_fixture(profile, policy)
+    require_allowlist_http_fixture(
+        profile,
+        policy,
+        http_fixture=http_fixture,
+    )
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
         value.get("capture_pcap"),
@@ -1490,6 +1513,7 @@ def parse_qemu_wifi_execution(
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
+        "http_fixture": http_fixture,
         "policy": policy.evidence(),
         "cname_records": cname_records,
     }
@@ -1571,6 +1595,13 @@ def parse_qemu_ble_execution(
             f"unsupported {runtime} profile: {profile!r}",
             400,
         )
+    http_fixture = value.get("http_fixture", True)
+    if not isinstance(http_fixture, bool):
+        raise ServiceError(
+            "invalid_network",
+            "network.http_fixture must be a boolean",
+            400,
+        )
     expected_markers = value.get("expected_markers", [])
     if (
         not isinstance(expected_markers, list)
@@ -1624,13 +1655,21 @@ def parse_qemu_ble_execution(
         )
     policy = parse_network_policy(
         value.get("policy"),
-        implicit_endpoints=implicit_allowlist_endpoints(profile),
+        implicit_endpoints=(
+            implicit_allowlist_endpoints(profile)
+            if http_fixture
+            else ()
+        ),
     )
     cname_records = parse_dns_cname_records(
         value.get("cname_records"),
         policy,
     )
-    require_allowlist_http_fixture(profile, policy)
+    require_allowlist_http_fixture(
+        profile,
+        policy,
+        http_fixture=http_fixture,
+    )
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
         value.get("capture_pcap"),
@@ -1730,6 +1769,7 @@ def parse_qemu_ble_execution(
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
+        "http_fixture": http_fixture,
         "ble_linger_seconds": float(ble_linger_seconds),
         "ble_reconnect_cycles": reconnect_cycles,
         "ble_reconnect_delay_seconds": float(reconnect_delay),
@@ -3513,7 +3553,13 @@ class DeviceSession:
 
     def _requires_http_fixture(self) -> bool:
         profile = self.network_config.get("profile")
-        return profile in UNIFIED_PROFILES or profile == STICKS3_WIFI_PROFILE
+        return (
+            self.network_config.get("http_fixture", True)
+            and (
+                profile in UNIFIED_PROFILES
+                or profile == STICKS3_WIFI_PROFILE
+            )
+        )
 
     def _requires_hci_probe(self) -> bool:
         profile = self.network_config.get("profile")
@@ -5886,8 +5932,7 @@ class DeviceSession:
             self._launch_hci_probe()
         elif hci_gatt:
             ble_probe_command, ble_probe_env = self._hci_probe_command()
-        http_profile = unified or profile == STICKS3_WIFI_PROFILE
-        if http_profile and not isolated:
+        if self._requires_http_fixture() and not isolated:
             if profile == CORE2_NATIVE_HCI_PROFILE:
                 guestfwd_http_command = (
                     self._configure_guestfwd_http_fixture()

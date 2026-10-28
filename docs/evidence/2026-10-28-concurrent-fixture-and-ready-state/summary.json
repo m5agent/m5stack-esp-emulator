@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime": {
+    "qemu_sha256": "6ff2aca091909ea078e5b9805b420cb04c11e3f9928b52c2fac199e33e45b2ef"
+  },
+  "devices": {
+    "stopwatch": {
+      "firmware_sha256": "99d6482befe094de47bf68ce43618d3868bd62fb1fc72f0b55c0d0c2ea4e7f8d",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "protocols": {"sockets": {"PASS": 23}, "mqtt": {"PASS": 42}, "network": {"PASS": 14}, "ezdata": {"PASS": 17}},
+      "audio": {"player": {"PASS": 15}, "recorder": {"PASS": 12}},
+      "draw_pixel_stock": "FAIL"
+    },
+    "sticks3": {
+      "firmware_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "protocols": {"sockets": {"PASS": 23}, "mqtt": {"PASS": 42}, "network": {"PASS": 14}, "ezdata": {"PASS": 17}},
+      "audio": {"player": {"PASS": 15}, "recorder": {"PASS": 12}},
+      "btn_a_hold_callback": "PASS",
+      "draw_pixel_stock": "FRAME_PASS",
+      "m5ui": "NOT_EXPORTED"
+    },
+    "core2": {
+      "firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "system_runtime": {"PASS": 50, "STATE_PASS": 1},
+      "shared_corrections": {"PASS": 7},
+      "protocols": {"sockets": {"PASS": 23}, "mqtt": {"PASS": 42}, "network": {"PASS": 14}, "ezdata": {"PASS": 17}},
+      "audio": "NOT_EXPORTED",
+      "pwr_hold_callback": "PASS",
+      "touch": "PASS",
+      "draw_pixel_stock": "FRAME_PASS",
+      "sequential_cases": {
+        "core2-peripherals": {"status": "PASS", "nonblack_pixels": 6612, "green_marker": true},
+        "core2-imu": {"status": "PASS", "nonblack_pixels": 3766},
+        "core2-axp192": {"status": "PASS", "nonblack_pixels": 3917}
+      }
+    }
+  },
+  "runner_fixes": {
+    "http_fixture_disable": "PASS: concurrent StickS3 sockets 23/23, network 14/14, and two qemu-unified ESP-NOW loopback sessions",
+    "ready_to_running_race": "PASS: concurrent marker action no longer gets a first-key 409",
+    "host_action_delay_seconds": 30,
+    "core2_first_wait_seconds": 18
+  },
+  "stock_boundaries": {
+    "http": {"PASS": 15, "FAIL": 1, "failure": "requests2.urlencode"},
+    "modbus": {"PASS": 42, "ERROR": 8, "failure": "Loop.sock_recv"},
+    "m5ui": {
+      "stopwatch": {"draw_triangle": "FAIL", "image_set_scale": "FAIL", "spinbox_integer_step": "FAIL", "spinbox_decimal_step": "STATE_PASS"},
+      "core2": {"draw_triangle": "FAIL", "image_set_scale": "FAIL", "spinbox_integer_step": "FAIL", "spinbox_decimal_step": "STATE_PASS"},
+      "sticks3": "NOT_EXPORTED"
+    }
+  },
+  "checks": {
+    "device_api": {"operations": 81, "cases": 95, "positive_operations": 13, "boundary_operations": 70, "status": "PASS"},
+    "platform_tests": {"run": 1364, "status": "PASS", "skipped": 1},
+    "generated": ["runtime_coverage", "peripheral_catalog", "qemu_profiles", "project_snapshot"]
+  },
+  "remaining": [
+    "RUNTIME-03 legacy Core2 normal-WDT, startup UI, setup/REPL and complete application frame",
+    "external and encrypted ESP-NOW peer, RF/timing and cross-device fabric",
+    "Core2 complete documented M5UI matrix",
+    "all physical hardware validation"
+  ]
+}

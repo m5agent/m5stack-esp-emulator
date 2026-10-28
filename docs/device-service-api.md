@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-27`.
+Last reviewed: `2026-10-28`.
 
 Status: local MVP with unified-device runtime contract `1.48.0` and bounded
 storage retention implemented on `2026-10-24`.
@@ -1499,6 +1499,13 @@ StickS3 application that needs the board framebuffer, input and public
 internet without an external BLE controller. This lane starts the QEMU
 `misc.esp32s3.wifi` NIC and does not start the HCI/Bumble peer.
 
+Set `network.http_fixture=false` when a `qemu-wifi` or `qemu-unified` guest
+owns all HTTP peers itself and does not need the profile's fixed `10.0.2.2`
+controlled endpoint. This omits only that listener; the board, WiFi NIC,
+serial, framebuffer, QOM and pcap path remain unchanged. The option lets
+independent or concurrent radio sessions avoid competing for the
+profile-assigned host port.
+
 ESP32-S3 `qemu-wifi/generic-observe` accepts `wifi_auth=open` or
 `wifi_auth=wpa2-psk`. WPA2-PSK validates the SSID/password, completes the
 RSN four-way exchange, installs PTK/GTK and supplies hardware-decrypted CCMP
@@ -2051,11 +2058,12 @@ object when creating a session:
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
 `M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
-`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_INPUT_TRACE`,
+`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_RMT_TX_FILE`,
+`M5SW_RMT_RX_FILE`, `M5SW_RMT_TRACE`, `M5SW_INPUT_TRACE`,
 `M5SW_FT_TRACE`, `M5SW_I2C_TRACE`, `M5SW_CAMERA_TRACE`,
 `M5SW_GDMA_TRACE`, `M5SW_GPSPI_TRACE`, `M5SW_LCD_TRACE`, and
 `M5SW_SPI_XFER_TRACE` are accepted.
-The camera/GDMA/GP-SPI trace keys accept only the
+The camera/GDMA/GP-SPI/RMT trace keys accept only the
 string `"1"`; omit them to disable tracing. They enable existing controller
 diagnostics in the session's retained QEMU stderr and do not accept paths.
 This is a

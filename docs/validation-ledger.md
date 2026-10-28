@@ -541,3 +541,33 @@ pixels / `2` colors，SHA256 `55249d07…`。这关闭面板控制器路由子�
 [机器摘要](evidence/2026-10-28-core2-dual-spi-panel-routing/summary.json)、
 [`0068`](../patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch)
 和 [`contract`](../platform/tests/test_core2_dual_spi_panel_patch.py)。
+
+## 2026-10-28：三设备 UIFlow2 并发复测与 runner 竞态修复
+
+StopWatch、StickS3、Core2 官方 UIFlow2 `v2.5.3` 在同一最新 QEMU
+`6ff2aca0…` 上以三设备并发、设备内串行复测。三台 system runtime 均为
+`50 PASS + 1 STATE_PASS`，shared corrections 均 `7/7`；sockets `23/23`、
+MQTT `42/42`、network `14/14`、EzData `17/17`。StopWatch/StickS3 audio
+player `15/15`、recorder `12/12`，Core2 `audio` 模块 `NOT_EXPORTED`。
+
+并发暴露了两个测试基础设施问题并已修复：多个 `qemu-wifi` 会话竞争固定
+HTTP fixture 端口；串口 READY 可能早于 session 发布 `running`，使首个
+marker action 得到 `409`。新增 `network.http_fixture=false`，并让
+`run_hardware_guest` 在 marker action 前等待 `running`，Core2 bounded
+drive 的等待上限由 10 秒放宽到 30 秒。修复后 StickS3 sockets/network 两
+会话并发仍 `23/23`、`14/14`；BtnA/WAS_HOLD attach/input/remove PASS。
+
+Core2 `core2-peripherals`、`core2-imu`、`core2-axp192` 顺序复测均为
+PASS，frame 分别 `6612`、`3766`、`3917` nonblack pixels，peripherals
+成功标记为绿色。此前并发批处理中的黑帧/缺 marker 保留为失败 control，
+不作为 UIFlow2 API 回归。
+
+Stock 边界继续复现：HTTP `requests2.urlencode` 失败；Modbus TCP 八个
+async 方法缺少 `Loop.sock_recv`；StopWatch/Core2 M5UI 的 triangle、
+image scale 和 integer spinbox step 失败；StopWatch standalone
+`Display.drawPixel` 依赖既有 `0024` 候选修复。Device Service API sweep
+`81` operations、`95` cases、`13` positive + `70` boundary PASS；
+platform `1364` 项 `OK`、`1` skip。全部为 virtual-device validation，
+物理硬件、RF、声学、光学和电气为 `NOT RUN`。见
+[并发与竞态证据](evidence/2026-10-28-concurrent-fixture-and-ready-state/README.md)
+和[机器摘要](evidence/2026-10-28-concurrent-fixture-and-ready-state/summary.json)。

@@ -240,7 +240,7 @@ def run(args):
             wifi_profile={"sticks3":"uiflow2-sticks3-wifi","core2":"core2-openmac"}.get(device,"generic-observe")
             arguments=SimpleNamespace(api=args.api,token_file=args.token_file,device=device,runtime="qemu-unified" if radio else "qemu" if plain else "qemu-wifi",
                        timeout=args.timeout,source=source_path,out_dir=output,done_marker="PROTOCOL_GROUP_DONE "+args.group,
-                       network=None if plain else {"profile":wifi_profile,"capture_pcap":True,"attempts":1,
+                       network=None if plain else {"profile":wifi_profile,"http_fixture":False,"capture_pcap":True,"attempts":1,
                                 "expected_markers":["PROTOCOL_GROUP_DONE "+args.group]})
             arguments.runtime_env=runtime_env
             arguments.uart_repl_bootstrap=args.uart_repl_bootstrap

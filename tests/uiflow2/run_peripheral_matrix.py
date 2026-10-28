@@ -1927,7 +1927,7 @@ CASES = [
         "vfs_size": "0x7DF000",
         "flash_size": "0x1000000",
         "expected_size": "320x240",
-        "wait": "8",
+        "wait": "18",
         "inputs": ["touch:160,183"],
         "qom_set_boot": [
             ("/machine/ina3221-40", "bus1-mv", "4800"),

@@ -3862,8 +3862,9 @@ components:
           description: >
             Trusted-local runtime overrides for the QEMU process. Only
             M5SW_CORE2_PMIC, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
-            M5SW_I2S_RX_PCM_FILE, M5SW_I2S_TRACE, M5SW_CAMERA_TRACE and
-            M5SW_GDMA_TRACE are accepted. Camera/GDMA traces accept only
+            M5SW_I2S_RX_PCM_FILE, M5SW_I2S_TRACE, M5SW_RMT_TX_FILE,
+            M5SW_RMT_RX_FILE, M5SW_RMT_TRACE, M5SW_CAMERA_TRACE and
+            M5SW_GDMA_TRACE are accepted. Camera/GDMA/RMT traces accept only
             the string "1"; omit them to disable. They enable retained
             controller stderr diagnostics, not arbitrary output paths.
             Plain runtime=qemu on cores3/cardputer-adv enables DMA completion
@@ -4069,6 +4070,15 @@ components:
             rejects true because esp-emu user networking exposes no pcap path.
             Stopping the session writes network.pcap.json with flow, DNS, DHCP,
             ARP and payload hashes but no raw payloads.
+        http_fixture:
+          type: boolean
+          default: true
+          description: >
+            Start the profile's fixed controlled HTTP listener. Set false when
+            the qemu-wifi or qemu-unified guest uses its own peers and
+            independent radio sessions must avoid competing for the
+            profile-assigned host port. This does not disable the WiFi NIC,
+            framebuffer, serial, QOM or pcap.
         cname_records:
           type: object
           maxProperties: 64
