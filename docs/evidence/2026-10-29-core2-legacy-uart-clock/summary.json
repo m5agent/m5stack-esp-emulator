@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "qemu_sha256": "f0eb5f6c26f82ce99d6dad4006fcd0748991ba1a8d1ce780092d57d01d8e798e",
+    "patch": "0070-esp32-uart-tx-virtual-clock.patch",
+    "patch_sha256": "43e7771613dd4a1dbcb66056961ed8c6bfa496d6128b019b4113e5e9e989ea40"
+  },
+  "wdt_off_80s": {
+    "runtime": "qemu-wifi",
+    "icount_shift": "5",
+    "banner_done_ns": 2772445000,
+    "board_name_ns": 54995475000,
+    "api_key_ns": 55001658000,
+    "boot_py_start_ns": 77109223000,
+    "boot_py_done_ns": 77615129000,
+    "cpu0_pc": "0x4008798e",
+    "cpu1_pc": "0x40095b31",
+    "ssi_transactions": 104061,
+    "ssi_rx_bytes": 3219821,
+    "crosscore_writes": 432918,
+    "cache_sync_calls": 218396,
+    "changed_pages": 5911,
+    "frame": "NOT CAPTURED"
+  },
+  "normal_wdt": {
+    "shift5": {
+      "stage0_timeout_ns": 7252822559,
+      "stage1_timeout_ns": 17252822560,
+      "first_reset_ns": 17252907520
+    },
+    "shift2": {
+      "stage0_timeout_ns": 5560898769,
+      "stage1_timeout_ns": 15560898771,
+      "first_reset_ns": 15560923931,
+      "tg1_timeouts": 0,
+      "board_name_reached": false
+    }
+  },
+  "classification": "BOOT_WORK_EXCEEDS_TG0_STAGE1_DEADLINE",
+  "remaining": [
+    "Find a guest/controller model defect that changes the pre-boot work budget",
+    "Obtain matching legacy source/ELF/MAP for higher-confidence attribution",
+    "Reach startup UI, setup/REPL and a nonblank frame under normal WDT"
+  ]
+}

@@ -61,6 +61,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch",
     "patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch",
     "patches/qemu-m5stack-peripherals/0069-esp32-timg-wdt-feed-unprotected.patch",
+    "patches/qemu-m5stack-peripherals/0070-esp32-uart-tx-virtual-clock.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

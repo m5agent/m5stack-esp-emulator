@@ -620,3 +620,23 @@ startup、外部/加密 ESP-NOW、显式 HCI BLE、未准入 RTU/PPP、完整 M5
 物理硬件、RF、声学、光学和电气为 `NOT RUN`。见
 [证据](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)
 和[机器摘要](evidence/2026-10-28-three-board-uiflow2-latest-runtime/summary.json)。
+
+## 2026-10-29：Core2 legacy UART 与虚拟时钟对齐
+
+新增 `0070-esp32-uart-tx-virtual-clock.patch`，在默认关闭的
+`M5SW_UART_TRACE` 输出中加入 virtual time，并让
+`run_pause_sweep.py` 将逐字节输出重组为带起止时间的串口行。QEMU
+`f0eb5f6c…` 上 WDT-off 80 秒诊断中，MicroPython banner 于 `2.7724 s`
+完成，BOARD NAME/APIKEY 于 `54.995/55.002 s`，用户 boot.py start/done
+于 `77.109/77.615 s`；80 秒状态点两核分别位于 `0x4008798e/0x40095b31`，
+SSI 已执行 `104,061` transactions，cross-core writes `432,918`。
+
+同固件 normal WDT 仍在 `17.2529 s` 触发 TG0 stage-1 reset，早于 BOARD
+NAME；显式 `shift=2` 在更长墙钟窗口中仍于 `15.5609 s` reset，serial
+仍未到 BOARD NAME，TG1 `0` timeout。这说明 lowering accelerator does not
+change the watchdog gate and cannot be used as a product fix. `RUNTIME-03`
+保持 `OPEN`；下一项是找出造成 pre-boot work budget 膨胀的 guest/controller
+模型缺陷或取得 matching legacy source。全部为 virtual-device validation，
+物理硬件和电气行为为 `NOT RUN`。见
+[证据](evidence/2026-10-29-core2-legacy-uart-clock/README.md) 和
+[机器摘要](evidence/2026-10-29-core2-legacy-uart-clock/summary.json)。

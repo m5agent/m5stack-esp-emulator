@@ -35,6 +35,9 @@ TRACE_PATTERN = re.compile(
     r"a=(?P<a>[0-9a-fA-F]+) b=(?P<b>[0-9a-fA-F]+) "
     r"c=(?P<c>[0-9a-fA-F]+) d=(?P<d>[0-9a-fA-F]+)$"
 )
+UART_TRACE_PATTERN = re.compile(
+    r"^\[uart-tx\] now=(?P<now>\d+) (?P<byte>[0-9a-fA-F]{2})$"
+)
 
 
 class Api:
@@ -162,6 +165,41 @@ def parse_trace(text: str) -> list[dict[str, Any]]:
             }
         )
     return events
+
+
+def parse_uart_tx_lines(
+    text: str,
+    limit: int = 512,
+) -> list[dict[str, Any]]:
+    """Reconstruct guest UART lines on the same virtual-time axis as traces."""
+    rows: list[dict[str, Any]] = []
+    current = bytearray()
+    start_ns: int | None = None
+    for raw_line in text.splitlines():
+        match = UART_TRACE_PATTERN.match(raw_line)
+        if not match:
+            continue
+        now_ns = int(match.group("now"))
+        byte = int(match.group("byte"), 16)
+        if start_ns is None:
+            start_ns = now_ns
+        if byte == 0x0A:
+            rows.append(
+                {
+                    "start_ns": start_ns,
+                    "end_ns": now_ns,
+                    "text": current.rstrip(b"\r").decode(
+                        errors="replace"
+                    ),
+                }
+            )
+            current = bytearray()
+            start_ns = None
+            if len(rows) >= limit:
+                break
+        elif len(current) < 4096:
+            current.append(byte)
+    return rows
 
 
 def snapshot_at_pause(
@@ -490,6 +528,7 @@ def run_target(
                 "qemu_stderr_sha256": sha256_bytes(stderr.encode()),
                 "serial_bytes": len(serial.encode()),
                 "serial_sha256": sha256_bytes(serial.encode()),
+                "uart_tx_lines": parse_uart_tx_lines(stderr),
             }
         )
         return snapshot

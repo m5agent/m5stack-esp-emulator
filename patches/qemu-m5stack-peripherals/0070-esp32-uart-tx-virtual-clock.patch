@@ -1,0 +1,15 @@
+diff --git a/hw/char/esp32_uart.c b/hw/char/esp32_uart.c
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -164,7 +164,10 @@ static void uart_write(void *opaque, hwaddr addr,
+             uint8_t byte = value & 0xff;
+             fifo8_push(&s->tx_fifo, byte);
+             if (getenv("M5SW_UART_TRACE")) {
+-                fprintf(stderr, "[uart-tx] %02x\n", byte);
++                fprintf(
++                    stderr, "[uart-tx] now=%" PRId64 " %02x\n",
++                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), byte
++                );
+             }
+             if (s->tx_byte_cb) {
+                 s->tx_byte_cb(s->tx_byte_opaque, byte);

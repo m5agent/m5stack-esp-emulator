@@ -450,6 +450,11 @@ unlock key. This separates the hardware feed register semantics from
 protected configuration registers and does not disable the watchdog or
 change reset timing.
 
+`0070-esp32-uart-tx-virtual-clock.patch` adds the QEMU virtual timestamp to
+the existing opt-in `M5SW_UART_TRACE` transmit log. The trace remains disabled
+by default and changes no UART data path or guest instruction; it aligns boot
+markers, watchdog transitions and handoff traces on one virtual-time axis.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

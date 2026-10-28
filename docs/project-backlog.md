@@ -97,8 +97,11 @@ binary 重绑；stock HTTP/Modbus/TLS 的原始失败继续保留。见
 [最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
-normal-WDT reset 继续保留，见[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)和
-[最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
+  normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
+  晚于 stage-1 deadline，而降低 icount shift 仍不消除 reset，见
+  [UART clock 证据](evidence/2026-10-29-core2-legacy-uart-clock/README.md)。
+  下一项必须定位改变 pre-boot guest/controller 工作量的模型缺陷或取得
+  matching legacy source。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -140,9 +143,9 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 1. `RUNTIME-03`：pending SPI remap、high-priority DPORT handoff 和 classic
    RMT 已验证。`0065` 以 `5/5` 首启动关闭调度诱导 deadlock；`0066` 让
-   legacy Serial 从 Neopixel `OSError` 前进到 `APIKEY`。WDT-off 68 秒仍为
-   黑帧，normal WDT 仍 reset。下一步从 `APIKEY` 后的首个未完成路径定位
-   display completion、setup/REPL 和 watchdog 关系。
+   WDT-off legacy Serial 从 Neopixel `OSError` 前进到 `APIKEY`，但 normal
+   WDT 在 BOARD/APIKEY 之前 reset。下一步先解释 pre-boot guest/controller
+   工作预算和 watchdog deadline，不能把 accelerator override 作为修复。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
