@@ -21,7 +21,7 @@
 | 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
 | --- | --- | --- | --- |
 | 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
-| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset 与约 44 秒后的 LVGL double-buffer flush wait；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从虚拟容量外推物理等价 |
+| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset、`APIKEY` 后黑帧与 LVGL completion；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从 RMT 初始化或虚拟容量外推物理等价 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
 | 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
@@ -58,22 +58,20 @@
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
   物理 PSRAM/cache timing 尚未覆盖；
-- C6 Zigbee/802.15.4、Core2 legacy UIFlow 后初始化 TG0/TG1 WDT 和 Core2
-  for AWS ATECC608 仍是明确的 `runtime_model_gap`；Core2 共享 I2C routing、
-  最小 probe 的 `CCOMPARE == CCOUNT` equal-deadline timer 和 TIMG
-  `INT_ENA.WDT` mask 语义已分别修复。
-  Timer 修复让 `CORE2_FLASH_IPC_READ_START`/partition-read probe 通过首启动
-  门禁；WDT mask 修复后同一 legacy firmware 仍 reset PC `0`、黑帧并以
-  TG0 watchdog reset 循环。`0036` 的 stateful SSI 批量路径与原逐字节
-  路径匹配，并通过 UIFlow2 Core2 外设组，但 normal-WDT legacy 仍失败；
-  WDT 关闭后的 45/120 秒对照显示 Flash/SSI 工作约在 44 秒结束，随后 CPU1
-  稳定停在 LVGL `lv_refr_vdb_flush` 的双缓冲 `flushing` wait，仍无
-  setup/REPL 或应用帧。`0064` 已修复 pending SPI source 在 INTMATRIX
-  remap 时不重算的通用缺陷，独立 guest callback probe 通过；
-  最新 legacy runtime 仍在 display completion 前 reset/停止。当前未闭合物
-  是 legacy display-driver 到达条件和 reset 前启动 phase，不是通用 SPI
-  IRQ level。不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
-  “Flash 扫描没有终点”作为当前结论。运行比例和 evidence 只查验证台账；
+- C6 Zigbee/802.15.4、Core2 legacy UIFlow normal-WDT/`APIKEY` 后黑帧和
+  Core2 for AWS ATECC608 仍是明确的 `runtime_model_gap`。Core2 shared I2C、
+  `CCOMPARE == CCOUNT` equal-deadline timer、TIMG WDT mask、pending SPI
+  remap、high-priority DPORT IRQ 协作和 classic RMT 已作为独立模型缺口修复
+  或验证。
+  `0065` 证明旧固定双 PC deadlock 来自大 TCG slice 让 sender 抢在 peer
+  handler 观察共享 flag 前开始下一轮；handler `memw` 后与 sender `retw`
+  路径协作让出后，五轮首启动不再固定旧双 PC。`0066` 补 classic RMT
+  `mem_size`、RMTMEM、threshold、`TX_END` 和 INTMATRIX，Neopixel translator
+  错误消失，legacy Serial 到达 `APIKEY`。normal-WDT 仍在
+  `17.249530334 s` 以 `TG0WDT_SYS_RESET` 重启，WDT-off 68 秒仍为 302-byte
+  黑帧。当前未闭合物是 `APIKEY` 后 display completion、setup/REPL、
+  watchdog 和非空应用帧，而不是 RMT 初始化或通用 SPI IRQ level。运行比例
+  和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -95,16 +93,18 @@
 
 最近这一轮只改变调查边界，不改变产品结论：
 
-- shared I2C、equal-deadline timer、TIMG WDT mask 和 stateful SSI 已是可重放
-  的修复或验证控制；它们都没有让 legacy 固件完成启动；
+- shared I2C、equal-deadline timer、TIMG WDT mask、stateful SSI、pending
+  SPI remap、high-priority DPORT IRQ 协作和 classic RMT 已是可重放的修复
+  或验证控制；它们仍没有让 legacy 固件完成正常启动；
 - state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 已逐项
   排除当前配置下的 UART storm、永久 handoff deadlock、TG1 feed 停止和
   “Flash 扫描永不结束”；late state 的 CPU1 `0x40100049` 已由 BIN-bound
   反汇编绑定到 LVGL `lv_refr_vdb_flush`；
-- `0064` 已证明 pending SPI `TRANS_DONE` 能通过 guest ISR/queue
-  completion 返回；当前最窄的下一步是解释最新 legacy runtime 为何尚未
-  到达 display `flush_cb`，并让 completion callback 调用
-  `lv_disp_flush_ready`；matching ELF/MAP 可并行提高符号置信度；
+- `0065` 关闭 scheduler-induced DPORT handoff deadlock，`0066` 让 legacy
+  Serial 越过 Neopixel RMT 初始化并到达 `APIKEY`；当前最窄的下一步是定位
+  `APIKEY` 后首个未完成 guest/controller 路径，并让 display completion、
+  `lv_disp_flush_ready`、setup/REPL 和非空帧可观测；matching ELF/MAP 可
+  并行提高符号置信度；
 - 当前事实只在[项目当前状态](project-status.md)，详细证据只在
   [验证证据台账](validation-ledger.md)；本页不再复制逐次运行时间线。
 
@@ -253,7 +253,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | `0064` 已修复 pending SPI source remap 和 guest callback；下一项解释最新 legacy runtime 为何在 display `flush_cb` 前 reset/停止。同版本 ELF/MAP 可并行取得 | legacy LVGL double-buffer completion、`0x40174884`、`lv_disp_flush_ready` 和同 SHA 非空应用帧仍 OPEN；独立 SPI PASS 不外推 |
+| `RUNTIME-03` | 保持 `0065` DPORT IRQ 协作与 `0066` classic RMT 回归；从最终 `APIKEY` 状态定位下一个未完成路径。同版本 ELF/MAP 可并行取得 | normal-WDT reset、LVGL completion、`lv_disp_flush_ready`、setup/REPL 和同 SHA 非空应用帧仍 OPEN；RMT 初始化或独立 SPI PASS 不外推 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

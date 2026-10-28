@@ -48,6 +48,8 @@ Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.
 
 当前阶段仍是 `PILOT`。`UI-02`按最新澄清优先复用现有C/QEMU，Rust两款演示保留为研究原型且暂不发布；[C/QEMU研究](qemu-wasm-port-research.md)已取得完整WASM构建和Chromium CLI/QMP结果，256MiB初始内存仅验CLI，无固件QMP退出码0及Worker自然关闭已验，guest/LVGL/Unit/性能未验。公众入口已实现独立 browser backend，PaperS3 / StopWatch 官方演示的显示、输入、暂停与停止已验；公众页面、固定模型、CoreS3受控原生示例及创建响应丢失后的同key/body恢复已有本地证据。停止网络等待有界且须明确lease释放；尚未部署，见[公众入口证据](evidence/2026-10-28-public-simulator/README.md)。[浏览器调研](browser-runtime-feasibility.md)说明架构与体积；更多native固件路径、完整Unit和硬件不继承本轮结果。`API-01` 的双主机接口审计、QEMU 0051–0061 与 SDK 候选修正见[本轮证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)；最终 runtime 完整矩阵 68/68、零自动重试，stock 失败/配置/模型/可选外设边界继续保留，不能称全接口功能 PASS。2026-10-28 又在 StopWatch、StickS3、Core2 的当前 v2.5.3 镜像上完成三设备复测：system runtime、sockets、MQTT、network、EzData 和候选 HTTP/Modbus 路径稳定，确认并修复 requests2、BLE UUID32、Modbus transform/async、M5UI Canvas/Image/Spinbox 共享缺陷；随后分别重建三台候选 application，QRCode.setText 从旧文本 oracle 失败转为新文本 PASS，TLS epoch 从证书过期转为三台各 5/5 mTLS HTTPS PASS。`Display.drawPixel` 定位为 framebuffer panel 缺少 Python transaction，而非 CO5300 单像素限制；候选三台通过 standalone 奇偶像素、相邻像素保留和显式嵌套事务。三台 Mic `record`/`recordWavFile` 与 Speaker raw、WAV/file 已在最终 QEMU 完成数据面验证；`0062` 修复 ESP32-S3 固定两秒/128 描述符后停止 DMA completion。Core2 A/B/C 经 FT5x06 触控条、PWR 经 AXP2101 事件，四例 `WAS_HOLD` 与 remove 均通过最终 runtime；`0063` 首版曾吞掉 `key:p`，现已修复并由 `test_core2_touch_buttons_patch` 锁定。物理触控、声学、PMIC 电气和真机仍 `NOT RUN`，ESP-NOW payload 保留模型边界，见[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)、[音频证据](evidence/2026-10-28-three-board-audio/README.md)、[Core2 输入证据](evidence/2026-10-28-core2-touch-buttons/README.md)、[QR/TLS 候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)和[drawPixel 证据](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md)。Core2 UIFlow2 公开最小首帧/WLAN 及 SPI DMA 双消费撕裂已修复，离线 MAC/MMIO/DMA/IRQ、Widgets、字形与显式 WiFi 分别验证；[本轮证据](evidence/2026-10-27-core2-startup/README.md)不关闭旧 UIFlow1 LVGL7 `RUNTIME-03`，原始私有完整应用及物理硬件也不继承通过。
 
+最终 runtime `20266732…` 的三设备并发回归中，system runtime 各为 `50 PASS + 1 STATE_PASS`，候选共享修复各 `7/7`，设备组 StopWatch `6/6`、StickS3 `5/5`、Core2 `6/6`，17 个组 case 全部首轮 PASS 且无 retry。Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由 `0066` 补 classic RMT 并移除 Neopixel translator 初始化错误；Serial 已到 `APIKEY`，但 normal-WDT reset 和 302-byte 黑帧仍开放，见[本轮协作 IRQ/RMT 证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)。
+
 ## 本轮目标盘点
 
 | 目标 | 已经落地 | 当前缺口 | 结论 |
@@ -88,6 +90,10 @@ harness 缺陷撤销。
 stage-1 触发 system reset，reset CPU PC `0` 并保持黑帧。因此
 `RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy 应用初始化、
 TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
+
+后续 high-priority IRQ 诊断确认，早期固定 CPU0 `0x400843…` / CPU1 `0x400864…` 双等待是单线程 TCG slice 造成的调度 artifact：发送端会在 peer handler 观察共享 start/end flags 前开始下一轮。旧 setter trace 在 reset 前记录约 `4,376` 次 completed handoff；`0065` 进一步在 handler `memw` 发布 start 后和 sender `retw` 返回 end 路径时协作让出，五轮首启动均在约 `5 s` 越过旧固定双 PC。
+
+另一个独立失败来自 classic ESP32 RMT 未实现：`conf0.mem_size=0` 会让 Neopixel translator 分配 0-byte buffer 并报 `OSError`。`0066` 补寄存器、RMTMEM、threshold、`TX_END` 与 INTMATRIX source 47 后，同一固件到达 `BOARD NAME`/`APIKEY`，WDT-off 68 秒仍为黑帧。
 
 继续对照后又确认两个独立模型事实：
 
@@ -340,7 +346,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace、三次 WDT liveness、45/120 秒 late-state 和 BIN-bound LVGL wait 定位已验证；`0064` 修复 pending SPI level 在 interrupt-matrix remap 时不重算的通用缺陷，独立 guest SPI probe 从 pre-fix timeout 变为 fixed PASS | 保持 `0064` 回归，解释最新 legacy runtime 为何在 display `flush_cb` 前停止或 watchdog reset；随后证明 `0x40174884` 调用 `lv_disp_flush_ready()`，再验证 normal-WDT setup/REPL/非空帧 | 临时 `blk_pread`、关闭 WDT、accelerator、独立 SPI probe PASS、SPI IRQ level=1 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；LVGL callback 未完成前不能把 `0x40100049` 再称为未知对象 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、exact-time state sweep 和 LVGL wait 定位已验证；`0065` 五轮关闭调度诱导双 PC deadlock，`0066` 越过 Neopixel RMT 初始化错误并到达 `APIKEY` | 保持 `0065/0066` 回归，定位 `APIKEY` 之后首个未完成路径；随后证明 display completion、`lv_disp_flush_ready()`、normal-WDT setup/REPL 和非空帧 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组或 accelerator 都不能继承为 legacy PASS |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -357,7 +363,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask、stateful SSI、TG0 stage-1/TG1-live 和 45/120 秒 late-state 已验证；CPU1 `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush` 双缓冲 wait，display flush callback 已执行但 completion/`lv_disp_flush_ready` 未观测；PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；Serial 到达 `APIKEY`。normal-WDT TG0 stage-1 reset、display completion/`lv_disp_flush_ready`、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -392,22 +398,14 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学、机械、
    电气或真机安全 PASS。
-2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，最小
-   probe 暴露的 `CCOMPARE == CCOUNT` timer deadline，以及 `0035` 的
-   masked WDT interrupt 语义也已修复；`0036` 又验证了保留 m25p80 状态的
-   SSI 批量数据面，但同一 legacy 固件仍会在 PMIC/RTC 初始化后由 TG0
-   stage-1 触发 system reset，并保持黑帧、reset CPU PC 为 `0`。不能用 I2C ACK、
-   probe/UIFlow2 PASS、旧 REPL 观察、关闭 WDT、accelerator 或 host 假值
-   当作 legacy 启动 PASS。当前证据显示 flash-operation/cross-core flags
-   会反复完成；`0037` 已把 controller batch、两核 PC 与 watchdog feed
-   放到同一虚拟时间轴。`0039/0040` 证明 CPU1 持续执行且 handoff 在 reset
-   前完成约 4,376 次；三次 WDT liveness 又证明 TG1 持续 feed 到 TG0
-   stage-1 reset 前数毫秒，历史 800 ms gap 未复现。WDT-off 45/120 秒
-   对照又把后续失败收敛到约 44 秒后的 LVGL 双缓冲 flush wait；
-   BIN-bound 映射确认 display `flush_cb` 已执行。`0064` 修复 pending SPI source 在
-   interrupt-matrix 映射写回时不重算的通用缺陷，ESP-IDF SPI3 probe 由 callback
-   timeout 变为 fixed PASS；但最新 legacy runtime 仍未到达 completion，
-   60 秒 PC trace 未命中 flush/callback 地址并在约 `15.53 s` reset；下一步回到 display-driver 到达条件和 reset 前启动 phase，独立 SPI PASS 不扩大为 legacy PASS。
+2. **Core2 启动兼容性**：`0065` 已关闭旧固定双 PC 的 high-priority
+   DPORT handoff 调度死锁；`0066` 已补 classic RMT 并关闭 Neopixel
+   translator 初始化错误。最终 WDT-off 控制到达 `APIKEY`，但 68 秒帧仍为
+   302-byte、0 个非黑像素；normal-WDT 仍在 `17.249530334 s` 由 TG0
+   stage-1 触发 `TG0WDT_SYS_RESET`，display completion、setup/REPL 与非空
+   应用帧继续 `OPEN`。不能把
+   I2C ACK、RMT 初始化、probe/UIFlow2 PASS、关闭 WDT、accelerator 或 host
+   假值当作 legacy 启动 PASS。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

@@ -1,0 +1,239 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Wed, 28 Oct 2026 00:00:00 +0800
+Subject: [PATCH] target/xtensa: yield during high priority IRQ handoffs
+
+Single-threaded TCG with icount assigns each vCPU a large instruction
+budget between switches. The classic ESP32 DPORT handoff uses a
+high-priority interrupt on the other CPU and shared SRAM start/end
+flags. The sender can clear the previous completion flags and start the
+next transfer before the peer handler observes them, leaving each CPU
+waiting on a different flag.
+
+Track active Xtensa level-4/5 handlers and cooperatively yield when the
+handler publishes its start flag or the sender returns from the end
+path. Keep the state active when a nested level-5 handler returns to
+level 4, and clear it only when leaving level 4 or resetting the CPU.
+Normal instruction slices, guest instructions and virtual time are
+unchanged. This models the hardware inter-core ordering points without
+disabling interrupts or bypassing the DPORT protocol.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ accel/tcg/tcg-accel-ops-icount.c | 28 ++++++++++++++++++++++++++++
+ include/sysemu/cpu-timers.h       |  8 ++++++++
+ stubs/icount.c                    | 10 ++++++++++
+ target/xtensa/cpu.c               |  2 ++
+ target/xtensa/exc_helper.c        |  4 ++++
+ target/xtensa/helper.h            |  2 ++
+ target/xtensa/op_helper.c         | 16 ++++++++++++++++
+ target/xtensa/translate.c         |  4 ++++
+ 8 files changed, 74 insertions(+)
+
+diff --git a/accel/tcg/tcg-accel-ops-icount.c b/accel/tcg/tcg-accel-ops-icount.c
+index 9e1ae66..fcbb280 100644
+--- a/accel/tcg/tcg-accel-ops-icount.c
++++ b/accel/tcg/tcg-accel-ops-icount.c
+@@ -34,6 +34,34 @@
+ #include "tcg-accel-ops-icount.h"
+ #include "tcg-accel-ops-rr.h"
+ 
++static unsigned icount_high_priority_irq_cpus;
++
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++    unsigned mask = 1U << cpu_index;
++
++    if (!icount_enabled()) {
++        return;
++    }
++    if (active) {
++        icount_high_priority_irq_cpus |= mask;
++    } else {
++        icount_high_priority_irq_cpus &= ~mask;
++    }
++}
++
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++    if (icount_enabled() && icount_high_priority_irq_cpus) {
++        cpu_exit(cpu);
++    }
++}
++
++bool icount_high_priority_irq_active(void)
++{
++    return icount_enabled() && icount_high_priority_irq_cpus != 0;
++}
++
+ static int64_t icount_get_limit(void)
+ {
+     int64_t deadline;
+diff --git a/include/sysemu/cpu-timers.h b/include/sysemu/cpu-timers.h
+index 7bfa960..ec16be2 100644
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -68,6 +68,14 @@ bool icount_configure(QemuOpts *opts, Error **errp);
+ /* used by tcg vcpu thread to calc icount budget */
+ int64_t icount_round(int64_t count);
+ 
++/*
++ * Fine-grained round-robin scheduling is required while an Xtensa
++ * high-priority interrupt handler waits on state produced by another vCPU.
++ */
++void icount_note_high_priority_irq(int cpu_index, bool active);
++void icount_yield_for_high_priority_irq(CPUState *cpu);
++bool icount_high_priority_irq_active(void);
++
+ /* if the CPUs are idle, start accounting real time to virtual clock. */
+ void icount_start_warp_timer(void);
+ void icount_account_warp_timer(void);
+diff --git a/stubs/icount.c b/stubs/icount.c
+index 9f9a59f..c063730 100644
+--- a/stubs/icount.c
++++ b/stubs/icount.c
+@@ -18,6 +18,16 @@ int64_t icount_get_raw(void)
+     abort();
+     return 0;
+ }
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++}
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++}
++bool icount_high_priority_irq_active(void)
++{
++    return false;
++}
+ void icount_start_warp_timer(void)
+ {
+     abort();
+diff --git a/target/xtensa/cpu.c b/target/xtensa/cpu.c
+index 6f9039a..f9f0b6c 100644
+--- a/target/xtensa/cpu.c
++++ b/target/xtensa/cpu.c
+@@ -36,7 +36,8 @@
+ #include "migration/vmstate.h"
+ #include "hw/qdev-clock.h"
++#include "sysemu/cpu-timers.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "exec/memory.h"
+ #endif
+ 
+ 
+@@ -105,6 +106,7 @@ static void xtensa_cpu_reset_hold(Object *obj, ResetType type)
+         xcc->parent_phases.hold(obj, type);
+     }
+ 
++    icount_note_high_priority_irq(cs->cpu_index, false);
+     env->pc = env->config->exception_vector[EXC_RESET0 + env->static_vectors];
+     env->sregs[LITBASE] &= ~1;
+ #ifndef CONFIG_USER_ONLY
+diff --git a/target/xtensa/exc_helper.c b/target/xtensa/exc_helper.c
+index ca629f0..5e43616 100644
+--- a/target/xtensa/exc_helper.c
++++ b/target/xtensa/exc_helper.c
+@@ -34,6 +34,7 @@
+ #include "qemu/atomic.h"
+ #include "exec/exec-all.h"
+ #include "hw/xtensa/xtensa_irq_diag.h"
++#include "sysemu/cpu-timers.h"
+ 
+ void HELPER(exception)(CPUXtensaState *env, uint32_t excp)
+ {
+@@ -236,6 +237,9 @@ void xtensa_cpu_do_interrupt(CPUState *cs)
+         xtensa_irq_diag_note_wdt_entry(
+             cs->cpu_index, env->pending_irq_level
+         );
++        if (env->pending_irq_level >= 4) {
++            icount_note_high_priority_irq(cs->cpu_index, true);
++        }
+         qemu_log_mask(CPU_LOG_INT,
+                       "%s(EXC_IRQ) level = %d, cintlevel = %d, "
+                       "pc = %08x, a0 = %08x, ps = %08x, "
+diff --git a/target/xtensa/helper.h b/target/xtensa/helper.h
+index ad291c8..4ae1cfe 100644
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -30,6 +30,8 @@
+ DEF_HELPER_3(check_atomctl, void, env, i32, i32)
+ DEF_HELPER_7(s32c1i_trace, void, env, i32, i32, i32, i32, i32, i32)
+ DEF_HELPER_4(check_exclusive, void, env, i32, i32, i32)
++DEF_HELPER_1(high_priority_irq_return, void, env)
++DEF_HELPER_2(high_priority_irq_yield, void, env, i32)
+ DEF_HELPER_3(exception_return_trace, void, env, i32, i32)
+ DEF_HELPER_2(wsr_memctl, void, env, i32)
+ 
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+index 028d4e0..9566282 100644
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -34,6 +34,7 @@
+ #include "qemu/atomic.h"
+ #include "qemu/timer.h"
+ #include "hw/xtensa/xtensa_irq_diag.h"
++#include "sysemu/cpu-timers.h"
+ 
+ #ifndef CONFIG_USER_ONLY
+ 
+@@ -315,6 +316,22 @@ void HELPER(s32c1i_trace)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
+     fflush(stderr);
+ }
+ 
++void HELPER(high_priority_irq_return)(CPUXtensaState *env)
++{
++    if (xtensa_get_cintlevel(env) == 4) {
++        icount_note_high_priority_irq(env_cpu(env)->cpu_index, false);
++    }
++}
++
++void HELPER(high_priority_irq_yield)(CPUXtensaState *env, uint32_t handler_only)
++{
++    if (!icount_high_priority_irq_active()
++        || (handler_only && xtensa_get_cintlevel(env) < 4)) {
++        return;
++    }
++    icount_yield_for_high_priority_irq(env_cpu(env));
++}
++
+ void HELPER(exception_return_trace)(CPUXtensaState *env, uint32_t pc,
+                                     uint32_t kind)
+ {
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+index b511e86..e8b35a1 100644
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1863,5 +1863,6 @@ static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
+     tcg_gen_mb(TCG_BAR_SC | TCG_MO_ALL);
+ }
+ 
+@@ -2093,6 +2094,7 @@ static void translate_retw(DisasContext *dc, const OpcodeArg arg[],
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }
+@@ -2106,6 +2108,7 @@ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     if (getenv("M5SW_XTENSA_IRQ_TRACE")
+         || getenv("M5SW_XTENSA_IRQ_RING")) {
+         gen_helper_exception_return_trace(
+@@ -2118,6 +2121,7 @@ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     if (getenv("M5SW_XTENSA_IRQ_TRACE")
+         || getenv("M5SW_XTENSA_IRQ_RING")) {
+         gen_helper_exception_return_trace(
+-- 
+2.51.0

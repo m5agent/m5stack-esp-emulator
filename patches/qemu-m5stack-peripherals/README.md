@@ -401,6 +401,29 @@ fixes the generic SPI/INTMATRIX completion defect but does not close legacy
 UIFlow `RUNTIME-03`; its retained runtime still resets or fails to reach the
 display flush callback.
 
+`0065-xtensa-high-priority-irq-cooperative-yield.patch` tracks active Xtensa
+level-4/5 handlers and yields at the DPORT handoff ordering points. The classic
+ESP32 protocol uses a high-priority interrupt on the peer CPU plus shared SRAM
+start/end flags. Large single-thread TCG slices let one CPU clear the previous
+completion flags and start another transfer before the handler observed them,
+leaving CPU0 waiting for `start` and CPU1 waiting for `end`. The handler yields
+after publishing its start flag in `memw`, and the sender yields when the end
+path returns through `retw`. A level-5 handler returning to level 4 keeps the
+state active; leaving level 4 through RFI/RFE or reset clears it. Guest
+instructions, virtual time and interrupt levels are unchanged. The state
+machine is active only when TCG icount is enabled; non-icount accelerators do
+not gain forced yields. Five independent retries pass with the cooperative
+path. This closes the scheduler-induced deadlock, not the remaining legacy
+watchdog and application issues.
+
+`0066-esp32-classic-rmt-legacy.patch` replaces the previous unimplemented
+classic ESP32 RMT region with an eight-channel register and RMTMEM model.
+It implements the legacy IDF driver's memory-size readback, memory-mode TX,
+threshold refill, TX_END interrupt and bounded symbol capture. Without the
+model, `conf0.mem_size` read as zero and UIFlow1's Neopixel translator
+allocated a zero-byte buffer. This is a functional-controller model, not a
+GPIO waveform, electrical or physical-timing claim.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

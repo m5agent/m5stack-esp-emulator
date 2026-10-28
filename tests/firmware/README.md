@@ -343,8 +343,36 @@ firmware is pre-fix `FAIL` and fixed `3/3 PASS`. Legacy UIFlow still does not
 reach the display completion or a non-empty frame, so this does not close
 `RUNTIME-03`.
 
-WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
-hash. The reusable summarizer and evidence are in
+`0065-xtensa-high-priority-irq-cooperative-yield.patch` supersedes the earlier
+"permanent handoff deadlock not proven" wording. The fixed double wait was
+reproducible under single-thread TCG: a large icount slice let the sender clear
+the previous completion flags and start the next DPORT handoff before the peer
+level-4 handler observed it. The patch tracks active level-4/5 handlers, yields
+after the handler publishes its start flag with `memw`, and yields when the
+sender returns through `retw`; RFI and reset clear the active state. Five
+independent first attempts reached the same early-state boundary at about
+`5 s`, with no fixed old CPU0/CPU1 wait. Guest instructions, virtual time and
+IRQ levels are unchanged.
+
+`0066-esp32-classic-rmt-legacy.patch` replaces the unimplemented
+`0x3ff56000` RMT region with eight channels, registers, 2 KiB RMTMEM,
+`conf0.mem_size`, memory-mode TX, threshold refill, `TX_END`, INTMATRIX source
+47 and bounded symbol capture. Without it, Neopixel initialization read
+`mem_size=0`, reported `RMT translator buffer create fail`, and raised
+`OSError: Error initializing Neopixel interface`. The fixed trace captures four
+channel-7 transmissions of 49 symbols, and the same legacy Serial reaches
+`BOARD NAME`/`APIKEY`.
+
+The final runtime still reproduces `TG0WDT_SYS_RESET`: stage-0 timeout at
+`7.249439902 s`, stage-1 at `17.249439902 s`, and first reset at
+`17.249530334 s`. The WDT-off 68-second state reaches `APIKEY` but captures a
+302-byte black 320x240 PNG. These results keep `RUNTIME-03` open for the
+post-`APIKEY` display/application path.
+
+Earlier WDT-disabled `sample=1024` and trace-off controls produced the same
+banner-only serial hash before the classic RMT model existed; those snapshots
+remain historical and do not describe the final `APIKEY` state. The reusable
+summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC
 symbolization is retained as separate metadata so rerunning the summarizer does
 not silently reintroduce it.

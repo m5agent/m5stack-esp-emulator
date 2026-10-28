@@ -48,7 +48,7 @@ eFuse 或生产 key。
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、QIO/stateful SSI 和 pending SPI/INTMATRIX remap 已修复/验证；独立 guest SPI probe 已从 timeout 变为 PASS，但最新 legacy runtime 仍在 display flush 前停止或 reset | probe/UIFlow2 PASS、独立 SPI probe PASS、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff 和 classic RMT 已修复/验证；legacy Serial 已到 `APIKEY`，但 normal WDT 仍 reset，WDT-off 仍是黑帧 | probe/UIFlow2 PASS、RMT 初始化、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -86,6 +86,12 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 完成回调、hold 状态与 remove 验证；首版分支吞掉 `key:p` 的路由问题已修复，
 见[Core2 输入证据](evidence/2026-10-28-core2-touch-buttons/README.md)。
 仍需关闭 ESP-NOW controller TX/RX/IRQ 和所有 28 类 Core2 文档方法矩阵。
+最终 runtime 的三设备并发回归为 system runtime 各 `51` 项零失败、共享候选
+修复各 `7/7`、设备组 StopWatch `6/6`、StickS3 `5/5`、Core2 `6/6`，全部
+首轮 PASS 且无 retry。Core2 legacy 另由 `0065` 关闭 high-priority DPORT
+handoff 调度死锁，由 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；
+`APIKEY` 后黑帧和 normal-WDT reset 继续保留，见
+[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -125,12 +131,11 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 主线其余 P0 继续按以下顺序推进，已有修复和诊断不扩大为 legacy 应用启动：
 
-1. `RUNTIME-03`：timer、WDT mask、stateful SSI、统一 handoff timeline、
-   WDT liveness 和 pending SPI source remap 已验证。`0064` 让独立
-   ESP-IDF SPI3 probe 从 callback timeout 变为 fixed PASS；
-   最新 legacy runtime 仍未到达 display completion，60 秒 PC trace 在
-   约 `15.53 s` reset 前没有命中 flush/callback。下一步解释
-   display-driver 到达条件和 reset 前启动 phase。
+1. `RUNTIME-03`：pending SPI remap、high-priority DPORT handoff 和 classic
+   RMT 已验证。`0065` 以 `5/5` 首启动关闭调度诱导 deadlock；`0066` 让
+   legacy Serial 从 Neopixel `OSError` 前进到 `APIKEY`。WDT-off 68 秒仍为
+   黑帧，normal WDT 仍 reset。下一步从 `APIKEY` 后的首个未完成路径定位
+   display completion、setup/REPL 和 watchdog 关系。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -153,7 +158,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0064` 已修复 pending SPI source 在 interrupt-matrix remap 后不投递的通用缺陷，独立 guest probe PASS。legacy `0x40100049` 仍绑定 LVGL 双缓冲 wait，但最新 runtime 在 display completion 前 reset/停止。下一项解释 display-driver 到达条件和 reset 前启动 phase；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness、SPI remap 与 LVGL flush completion 保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT 并让 legacy Serial 到达 `APIKEY`。WDT-off 68 秒仍为 302-byte 黑帧，normal WDT 仍 TG0 stage-1 reset；下一项定位 `APIKEY` 后 display completion / setup 路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；DPORT 协作、classic RMT、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -176,8 +181,8 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 ### RUNTIME-03
 
 已满足的前置基线：shared I2C、equal-deadline timer、WDT mask、stateful
-SSI、handoff timeline/state sweep/setter trace、三次 WDT liveness 和
-WDT-off 45/120 秒 late-state 捕获均可重放。
+SSI、handoff timeline/state sweep/setter trace、三次 WDT liveness、
+pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
 
 上述结果都没有把 legacy 固件变成产品 PASS。精确时间线、哈希和检查数只在
 [验证证据台账](validation-ledger.md)；缺口语义见
@@ -196,6 +201,12 @@ WDT-off 45/120 秒 late-state 捕获均可重放。
   独立 Core2 ESP-IDF probe 在同一固件/ELF 上由 callback timeout 变为
   fixed PASS；最新 legacy runtime 仍没有到达 display completion，
   60 秒 PC trace 在约 `15.53 s` reset 前未命中 flush/callback；
+- `0065` 证明旧固定双 PC 死锁由大 TCG slice 让 sender 抢先清共享 flag
+  引起；level-4/5 handler 在 `memw` 发布 start 后、sender 在 `retw` end
+  路径协作让出，五轮首启动均到 `5 s` 边界且不再固定旧双 PC；
+- `0066` 补 classic ESP32 RMT 寄存器、RMTMEM、threshold、`TX_END` 和
+  INTMATRIX source 47；同一 legacy 固件不再报 Neopixel translator
+  `OSError`，Serial 到达 `APIKEY`，WDT-off 68 秒帧仍为 `0` 个非黑像素；
 - 当前 local UIFlow2 ELF 与该 BIN 字节仍不一致，因此函数命名全部来自
   BIN 指令/结构匹配，不声明 ELF 符号等价；
   `Core2FactoryTest` 在 I2C 修复后仍未重跑。
@@ -214,7 +225,10 @@ WDT-off 45/120 秒 late-state 捕获均可重放。
 4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase
    放回同一条启动时间线，解释 reset 与 late state 的关系；
 5. 保持同一 public SHA 的 AXP2101/AXP192 A/B 对照，并重跑
-   `Core2FactoryTest` 与 Core2 UIFlow2 设备组，防止 shared bus 回归。
+   `Core2FactoryTest` 与 Core2 UIFlow2 设备组，防止 shared bus 回归；
+6. 保持 `0065` 的 IRQ enter/return/reset active-state 与 `memw`/`retw`
+   协作边界，保持 `0066` 的 RMT controller memory-TX 契约；从最终
+   `APIKEY` 状态定位下一个未完成 guest/controller 路径。
 
 验收：
 
@@ -223,7 +237,7 @@ WDT-off 45/120 秒 late-state 捕获均可重放。
   出现非空应用帧并稳定运行；不得依赖 `M5SW_DISABLE_WDT`、bulk-read
   bypass、accelerator override 或 retry；
 - legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
-  UIFlow2 外设组回归保持 PASS；
+  UIFlow2 外设组回归保持 PASS；`0065`/`0066` 契约继续可重放；
 - BIN-bound trace 能解释 display flush callback、SPI completion 和
   LVGL `flushing` 清零关系；normal-WDT TG0 stage-1 reset 与 late phase
   分开记录；matching ELF/MAP 若取得则只能提高符号置信度，不能替代运行证据。
