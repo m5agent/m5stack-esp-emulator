@@ -140,7 +140,9 @@ blocker instead of spending more time on host-side workarounds.
 ## Virtual-device functional-test routing
 
 - General firmware functional tests, including uploaded UIFlow2 images, must
-  use the Device Service at `/api/v1` on port `8787`: upload/compose firmware,
+  use a dedicated Device Service at `/api/v1` with a separate port, state
+  directory and control token. Port `8787` belongs to the user's testing
+  service: do not use, stop or restart it for agent tests. Upload/compose firmware,
   create a visible session, collect serial/frame/state/input/QOM evidence, and
   stop it with `purge=0` so metadata, logs and the last frame remain in history.
   Request the evidence ZIP before stop. The full mutable virtual Flash is

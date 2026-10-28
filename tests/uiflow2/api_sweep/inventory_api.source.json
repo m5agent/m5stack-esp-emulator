@@ -1,0 +1,2298 @@
+{
+  "schema_version": 1,
+  "scope": "Every documented Device Service HTTP operation; positive functionality and rejection-only coverage are distinct.",
+  "contract": "docs/device-service.openapi.yaml",
+  "contract_version": "1.48.0",
+  "contract_sha256": "eafee6bc02e65457b0c6378e6d36c758890ba059ab52d4892b616ef7c7ca9252",
+  "validation_category": "virtual-device and live HTTP; hardware NOT RUN",
+  "operation_id_format": "METHOD /OpenAPI/path/{parameter}",
+  "operations": [
+    {
+      "operation_id": "POST /previews",
+      "method": "POST",
+      "path": "/previews",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /previews",
+      "method": "GET",
+      "path": "/previews",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "GET /previews"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /previews/{preview_id}",
+      "method": "GET",
+      "path": "/previews/{preview_id}",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "GET /previews/{preview_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /previews/{preview_id}/runs",
+      "method": "POST",
+      "path": "/previews/{preview_id}/runs",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews/{preview_id}/runs missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /previews/{preview_id}/runs/{run_id}",
+      "method": "GET",
+      "path": "/previews/{preview_id}/runs/{run_id}",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "GET /previews/{preview_id}/runs/{run_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /previews/{preview_id}/runs/{run_id}/cancel",
+      "method": "POST",
+      "path": "/previews/{preview_id}/runs/{run_id}/cancel",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews/{preview_id}/runs/{run_id}/cancel missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /previews/{preview_id}/renew",
+      "method": "POST",
+      "path": "/previews/{preview_id}/renew",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews/{preview_id}/renew missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /previews/{preview_id}/close",
+      "method": "POST",
+      "path": "/previews/{preview_id}/close",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews/{preview_id}/close missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /previews/{preview_id}/input",
+      "method": "POST",
+      "path": "/previews/{preview_id}/input",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "POST /previews/{preview_id}/input missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /previews/{preview_id}/runs/{run_id}/frame.png",
+      "method": "GET",
+      "path": "/previews/{preview_id}/runs/{run_id}/frame.png",
+      "phase": "visible-preview",
+      "required_fixtures": [
+        "authenticated-preview",
+        "immutable-checkpoint",
+        "running-guest"
+      ],
+      "case_ids": [
+        "GET /previews/{preview_id}/runs/{run_id}/frame.png missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /program-revisions",
+      "method": "POST",
+      "path": "/program-revisions",
+      "phase": "checkpoint-store",
+      "required_fixtures": [
+        "utf8-and-binary-package"
+      ],
+      "case_ids": [
+        "POST /program-revisions invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /program-revisions/{revision_id}",
+      "method": "GET",
+      "path": "/program-revisions/{revision_id}",
+      "phase": "checkpoint-store",
+      "required_fixtures": [
+        "utf8-and-binary-package"
+      ],
+      "case_ids": [
+        "GET /program-revisions/{revision_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /program-revisions/{revision_id}/files",
+      "method": "GET",
+      "path": "/program-revisions/{revision_id}/files",
+      "phase": "checkpoint-store",
+      "required_fixtures": [
+        "utf8-and-binary-package"
+      ],
+      "case_ids": [
+        "GET /program-revisions/{revision_id}/files missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/program",
+      "method": "GET",
+      "path": "/sessions/{session_id}/program",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/program missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/program",
+      "method": "POST",
+      "path": "/sessions/{session_id}/program",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/program missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /units",
+      "method": "GET",
+      "path": "/units",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /units",
+        "GET /units cores3",
+        "GET /units cardputer-adv",
+        "GET /units unknown-host"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/{unit_id}",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /units/{unit_id} missing-resource",
+        "GET /units/{unit_id} env-iii",
+        "GET /units/{unit_id} hub",
+        "GET /units/{unit_id} ncir",
+        "GET /units/{unit_id} pir",
+        "GET /units/{unit_id} relay",
+        "GET /units/{unit_id} encoder"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/units",
+      "method": "GET",
+      "path": "/sessions/{session_id}/units",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/units missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/unit-input",
+      "method": "POST",
+      "path": "/sessions/{session_id}/unit-input",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/unit-input missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /health",
+      "method": "GET",
+      "path": "/health",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /health",
+        "GET /health public-health"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /devices",
+      "method": "GET",
+      "path": "/devices",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /devices",
+        "GET /devices missing-auth"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /devices/{device_id}",
+      "method": "GET",
+      "path": "/devices/{device_id}",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /devices/{device_id} missing-resource",
+        "GET /devices/{device_id} cores3",
+        "GET /devices/{device_id} cardputer-adv"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /capacity",
+      "method": "GET",
+      "path": "/capacity",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /capacity"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /worker",
+      "method": "GET",
+      "path": "/worker",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /worker"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /worker/drain",
+      "method": "POST",
+      "path": "/worker/drain",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /worker/resume",
+      "method": "POST",
+      "path": "/worker/resume",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /workers",
+      "method": "GET",
+      "path": "/workers",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "GET /workers"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /workers",
+      "method": "POST",
+      "path": "/workers",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /workers invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /workers/{worker_id}/heartbeat",
+      "method": "POST",
+      "path": "/workers/{worker_id}/heartbeat",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /workers/{worker_id}/heartbeat unauthenticated-worker"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /workers/{worker_id}/drain",
+      "method": "POST",
+      "path": "/workers/{worker_id}/drain",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /workers/{worker_id}/drain unauthenticated-worker"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /workers/{worker_id}/stop",
+      "method": "POST",
+      "path": "/workers/{worker_id}/stop",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /workers/{worker_id}/stop unauthenticated-worker"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /workers/{worker_id}/results",
+      "method": "POST",
+      "path": "/workers/{worker_id}/results",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /workers/{worker_id}/results unauthenticated-worker"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /jobs",
+      "method": "GET",
+      "path": "/jobs",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "GET /jobs",
+        "GET /jobs invalid-status",
+        "GET /jobs invalid-limit",
+        "GET /jobs noninteger-limit"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /jobs",
+      "method": "POST",
+      "path": "/jobs",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /jobs invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /jobs/claim",
+      "method": "POST",
+      "path": "/jobs/claim",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /jobs/claim invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /jobs/{job_id}",
+      "method": "GET",
+      "path": "/jobs/{job_id}",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "GET /jobs/{job_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /jobs/{job_id}/heartbeat",
+      "method": "POST",
+      "path": "/jobs/{job_id}/heartbeat",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /jobs/{job_id}/heartbeat missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /jobs/{job_id}/result",
+      "method": "POST",
+      "path": "/jobs/{job_id}/result",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /jobs/{job_id}/result missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /jobs/{job_id}/cancel",
+      "method": "POST",
+      "path": "/jobs/{job_id}/cancel",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "POST /jobs/{job_id}/cancel missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /storage",
+      "method": "GET",
+      "path": "/storage",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /storage"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /storage/prune",
+      "method": "POST",
+      "path": "/storage/prune",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /artifact-uploads",
+      "method": "POST",
+      "path": "/artifact-uploads",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "POST /artifact-uploads invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /artifact-uploads/{upload_id}",
+      "method": "GET",
+      "path": "/artifact-uploads/{upload_id}",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "GET /artifact-uploads/{upload_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "DELETE /artifact-uploads/{upload_id}",
+      "method": "DELETE",
+      "path": "/artifact-uploads/{upload_id}",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "DELETE /artifact-uploads/{upload_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /artifact-uploads/{upload_id}/chunks",
+      "method": "POST",
+      "path": "/artifact-uploads/{upload_id}/chunks",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "POST /artifact-uploads/{upload_id}/chunks missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /artifact-uploads/{upload_id}/complete",
+      "method": "POST",
+      "path": "/artifact-uploads/{upload_id}/complete",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "POST /artifact-uploads/{upload_id}/complete missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /artifacts",
+      "method": "GET",
+      "path": "/artifacts",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "GET /artifacts"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /artifacts",
+      "method": "POST",
+      "path": "/artifacts",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "POST /artifacts empty-body"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /artifacts/{artifact_id}",
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "GET /artifacts/{artifact_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "DELETE /artifacts/{artifact_id}",
+      "method": "DELETE",
+      "path": "/artifacts/{artifact_id}",
+      "phase": "artifact-upload",
+      "required_fixtures": [
+        "owned-small-artifact"
+      ],
+      "case_ids": [
+        "DELETE /artifacts/{artifact_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /firmware/import",
+      "method": "POST",
+      "path": "/firmware/import",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "POST /firmware/import invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /firmware",
+      "method": "POST",
+      "path": "/firmware",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "POST /firmware invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /firmware/uiflow",
+      "method": "POST",
+      "path": "/firmware/uiflow",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "POST /firmware/uiflow invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /firmware/{firmware_id}",
+      "method": "GET",
+      "path": "/firmware/{firmware_id}",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "GET /firmware/{firmware_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /firmware/analyze",
+      "method": "POST",
+      "path": "/firmware/analyze",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "POST /firmware/analyze invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /firmware/{firmware_id}/analysis",
+      "method": "GET",
+      "path": "/firmware/{firmware_id}/analysis",
+      "phase": "firmware-intake",
+      "required_fixtures": [
+        "exact-compatible-reference",
+        "source-package",
+        "firmware-manifest"
+      ],
+      "case_ids": [
+        "GET /firmware/{firmware_id}/analysis missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions",
+      "method": "GET",
+      "path": "/sessions",
+      "phase": "catalog-and-health",
+      "required_fixtures": [],
+      "case_ids": [
+        "GET /sessions",
+        "GET /sessions active-only"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions",
+      "method": "POST",
+      "path": "/sessions",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions invalid-admission"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "DELETE /sessions",
+      "method": "DELETE",
+      "path": "/sessions",
+      "phase": "isolated-control-plane",
+      "required_fixtures": [
+        "disposable-service-state"
+      ],
+      "case_ids": [
+        "DELETE /sessions invalid-bulk-state"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}",
+      "method": "GET",
+      "path": "/sessions/{session_id}",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "DELETE /sessions/{session_id}",
+      "method": "DELETE",
+      "path": "/sessions/{session_id}",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "DELETE /sessions/{session_id} missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/events",
+      "method": "GET",
+      "path": "/sessions/{session_id}/events",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/events missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/network",
+      "method": "GET",
+      "path": "/sessions/{session_id}/network",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "unified-network-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/network missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/network-fault",
+      "method": "POST",
+      "path": "/sessions/{session_id}/network-fault",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "unified-network-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/network-fault missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/device-state",
+      "method": "GET",
+      "path": "/sessions/{session_id}/device-state",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/device-state missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/evidence",
+      "method": "GET",
+      "path": "/sessions/{session_id}/evidence",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/evidence missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/qom/list",
+      "method": "GET",
+      "path": "/sessions/{session_id}/qom/list",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/qom/list missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/qom-snapshot",
+      "method": "POST",
+      "path": "/sessions/{session_id}/qom-snapshot",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/qom-snapshot missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/qom/diff",
+      "method": "GET",
+      "path": "/sessions/{session_id}/qom/diff",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/qom/diff missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/flash",
+      "method": "GET",
+      "path": "/sessions/{session_id}/flash",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "explicit-flash-retention"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/flash missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/flash-snapshot",
+      "method": "POST",
+      "path": "/sessions/{session_id}/flash-snapshot",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "explicit-flash-retention"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/flash-snapshot missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/flash/diff",
+      "method": "GET",
+      "path": "/sessions/{session_id}/flash/diff",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session",
+        "explicit-flash-retention"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/flash/diff missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/wait",
+      "method": "POST",
+      "path": "/sessions/{session_id}/wait",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/wait missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/serial",
+      "method": "GET",
+      "path": "/sessions/{session_id}/serial",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/serial missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/logs",
+      "method": "GET",
+      "path": "/sessions/{session_id}/logs",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/logs missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/frame.png",
+      "method": "GET",
+      "path": "/sessions/{session_id}/frame.png",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/frame.png missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/input",
+      "method": "POST",
+      "path": "/sessions/{session_id}/input",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/input missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/qom",
+      "method": "POST",
+      "path": "/sessions/{session_id}/qom",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/qom missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "GET /sessions/{session_id}/qom",
+      "method": "GET",
+      "path": "/sessions/{session_id}/qom",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "GET /sessions/{session_id}/qom missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/reset",
+      "method": "POST",
+      "path": "/sessions/{session_id}/reset",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/reset missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    },
+    {
+      "operation_id": "POST /sessions/{session_id}/renew",
+      "method": "POST",
+      "path": "/sessions/{session_id}/renew",
+      "phase": "visible-session",
+      "required_fixtures": [
+        "owned-visible-test-session"
+      ],
+      "case_ids": [
+        "POST /sessions/{session_id}/renew missing-resource"
+      ],
+      "positive_status": "NOT RUN"
+    }
+  ],
+  "safe_cases": [
+    {
+      "case_id": "POST /previews invalid-admission",
+      "operation_id": "POST /previews",
+      "method": "POST",
+      "path": "/previews",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /previews",
+      "operation_id": "GET /previews",
+      "method": "GET",
+      "path": "/previews",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /previews/{preview_id} missing-resource",
+      "operation_id": "GET /previews/{preview_id}",
+      "method": "GET",
+      "path": "/previews/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /previews/{preview_id}/runs missing-resource",
+      "operation_id": "POST /previews/{preview_id}/runs",
+      "method": "POST",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/runs",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /previews/{preview_id}/runs/{run_id} missing-resource",
+      "operation_id": "GET /previews/{preview_id}/runs/{run_id}",
+      "method": "GET",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/runs/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /previews/{preview_id}/runs/{run_id}/cancel missing-resource",
+      "operation_id": "POST /previews/{preview_id}/runs/{run_id}/cancel",
+      "method": "POST",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/runs/ffffffffffffffffffffffffffffffff/cancel",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /previews/{preview_id}/renew missing-resource",
+      "operation_id": "POST /previews/{preview_id}/renew",
+      "method": "POST",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/renew",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /previews/{preview_id}/close missing-resource",
+      "operation_id": "POST /previews/{preview_id}/close",
+      "method": "POST",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/close",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /previews/{preview_id}/input missing-resource",
+      "operation_id": "POST /previews/{preview_id}/input",
+      "method": "POST",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/input",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /previews/{preview_id}/runs/{run_id}/frame.png missing-resource",
+      "operation_id": "GET /previews/{preview_id}/runs/{run_id}/frame.png",
+      "method": "GET",
+      "path": "/previews/ffffffffffffffffffffffffffffffff/runs/ffffffffffffffffffffffffffffffff/frame.png",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /program-revisions invalid-admission",
+      "operation_id": "POST /program-revisions",
+      "method": "POST",
+      "path": "/program-revisions",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /program-revisions/{revision_id} missing-resource",
+      "operation_id": "GET /program-revisions/{revision_id}",
+      "method": "GET",
+      "path": "/program-revisions/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /program-revisions/{revision_id}/files missing-resource",
+      "operation_id": "GET /program-revisions/{revision_id}/files",
+      "method": "GET",
+      "path": "/program-revisions/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/files",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/program missing-resource",
+      "operation_id": "GET /sessions/{session_id}/program",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/program",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/program missing-resource",
+      "operation_id": "POST /sessions/{session_id}/program",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/program",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /units",
+      "operation_id": "GET /units",
+      "method": "GET",
+      "path": "/units",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} missing-resource",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/api-sweep-absent",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/units missing-resource",
+      "operation_id": "GET /sessions/{session_id}/units",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/units",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/unit-input missing-resource",
+      "operation_id": "POST /sessions/{session_id}/unit-input",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/unit-input",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /health",
+      "operation_id": "GET /health",
+      "method": "GET",
+      "path": "/health",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /devices",
+      "operation_id": "GET /devices",
+      "method": "GET",
+      "path": "/devices",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /devices/{device_id} missing-resource",
+      "operation_id": "GET /devices/{device_id}",
+      "method": "GET",
+      "path": "/devices/api-sweep-absent",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /capacity",
+      "operation_id": "GET /capacity",
+      "method": "GET",
+      "path": "/capacity",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /worker",
+      "operation_id": "GET /worker",
+      "method": "GET",
+      "path": "/worker",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /workers",
+      "operation_id": "GET /workers",
+      "method": "GET",
+      "path": "/workers",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "POST /workers invalid-admission",
+      "operation_id": "POST /workers",
+      "method": "POST",
+      "path": "/workers",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /workers/{worker_id}/heartbeat unauthenticated-worker",
+      "operation_id": "POST /workers/{worker_id}/heartbeat",
+      "method": "POST",
+      "path": "/workers/api-sweep-absent/heartbeat",
+      "coverage": "rejection-only",
+      "expected_status": [
+        401
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /workers/{worker_id}/drain unauthenticated-worker",
+      "operation_id": "POST /workers/{worker_id}/drain",
+      "method": "POST",
+      "path": "/workers/api-sweep-absent/drain",
+      "coverage": "rejection-only",
+      "expected_status": [
+        401
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /workers/{worker_id}/stop unauthenticated-worker",
+      "operation_id": "POST /workers/{worker_id}/stop",
+      "method": "POST",
+      "path": "/workers/api-sweep-absent/stop",
+      "coverage": "rejection-only",
+      "expected_status": [
+        401
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /workers/{worker_id}/results unauthenticated-worker",
+      "operation_id": "POST /workers/{worker_id}/results",
+      "method": "POST",
+      "path": "/workers/api-sweep-absent/results",
+      "coverage": "rejection-only",
+      "expected_status": [
+        401
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /jobs",
+      "operation_id": "GET /jobs",
+      "method": "GET",
+      "path": "/jobs",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "POST /jobs invalid-admission",
+      "operation_id": "POST /jobs",
+      "method": "POST",
+      "path": "/jobs",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /jobs/claim invalid-admission",
+      "operation_id": "POST /jobs/claim",
+      "method": "POST",
+      "path": "/jobs/claim",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /jobs/{job_id} missing-resource",
+      "operation_id": "GET /jobs/{job_id}",
+      "method": "GET",
+      "path": "/jobs/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /jobs/{job_id}/heartbeat missing-resource",
+      "operation_id": "POST /jobs/{job_id}/heartbeat",
+      "method": "POST",
+      "path": "/jobs/ffffffffffffffffffffffffffffffff/heartbeat",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /jobs/{job_id}/result missing-resource",
+      "operation_id": "POST /jobs/{job_id}/result",
+      "method": "POST",
+      "path": "/jobs/ffffffffffffffffffffffffffffffff/result",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /jobs/{job_id}/cancel missing-resource",
+      "operation_id": "POST /jobs/{job_id}/cancel",
+      "method": "POST",
+      "path": "/jobs/ffffffffffffffffffffffffffffffff/cancel",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /storage",
+      "operation_id": "GET /storage",
+      "method": "GET",
+      "path": "/storage",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "POST /artifact-uploads invalid-admission",
+      "operation_id": "POST /artifact-uploads",
+      "method": "POST",
+      "path": "/artifact-uploads",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /artifact-uploads/{upload_id} missing-resource",
+      "operation_id": "GET /artifact-uploads/{upload_id}",
+      "method": "GET",
+      "path": "/artifact-uploads/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "DELETE /artifact-uploads/{upload_id} missing-resource",
+      "operation_id": "DELETE /artifact-uploads/{upload_id}",
+      "method": "DELETE",
+      "path": "/artifact-uploads/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ]
+    },
+    {
+      "case_id": "POST /artifact-uploads/{upload_id}/chunks missing-resource",
+      "operation_id": "POST /artifact-uploads/{upload_id}/chunks",
+      "method": "POST",
+      "path": "/artifact-uploads/ffffffffffffffffffffffffffffffff/chunks",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {},
+      "headers": {
+        "X-Chunk-Offset": "0",
+        "X-Chunk-SHA256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "case_id": "POST /artifact-uploads/{upload_id}/complete missing-resource",
+      "operation_id": "POST /artifact-uploads/{upload_id}/complete",
+      "method": "POST",
+      "path": "/artifact-uploads/ffffffffffffffffffffffffffffffff/complete",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /artifacts",
+      "operation_id": "GET /artifacts",
+      "method": "GET",
+      "path": "/artifacts",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "POST /artifacts empty-body",
+      "operation_id": "POST /artifacts",
+      "method": "POST",
+      "path": "/artifacts",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "error_codes": [
+        "empty_body"
+      ]
+    },
+    {
+      "case_id": "GET /artifacts/{artifact_id} missing-resource",
+      "operation_id": "GET /artifacts/{artifact_id}",
+      "method": "GET",
+      "path": "/artifacts/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "DELETE /artifacts/{artifact_id} missing-resource",
+      "operation_id": "DELETE /artifacts/{artifact_id}",
+      "method": "DELETE",
+      "path": "/artifacts/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ]
+    },
+    {
+      "case_id": "POST /firmware/import invalid-admission",
+      "operation_id": "POST /firmware/import",
+      "method": "POST",
+      "path": "/firmware/import",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /firmware invalid-admission",
+      "operation_id": "POST /firmware",
+      "method": "POST",
+      "path": "/firmware",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /firmware/uiflow invalid-admission",
+      "operation_id": "POST /firmware/uiflow",
+      "method": "POST",
+      "path": "/firmware/uiflow",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /firmware/{firmware_id} missing-resource",
+      "operation_id": "GET /firmware/{firmware_id}",
+      "method": "GET",
+      "path": "/firmware/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /firmware/analyze invalid-admission",
+      "operation_id": "POST /firmware/analyze",
+      "method": "POST",
+      "path": "/firmware/analyze",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /firmware/{firmware_id}/analysis missing-resource",
+      "operation_id": "GET /firmware/{firmware_id}/analysis",
+      "method": "GET",
+      "path": "/firmware/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/analysis",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions",
+      "operation_id": "GET /sessions",
+      "method": "GET",
+      "path": "/sessions",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "POST /sessions invalid-admission",
+      "operation_id": "POST /sessions",
+      "method": "POST",
+      "path": "/sessions",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {
+        "device_id": "api-sweep-absent"
+      }
+    },
+    {
+      "case_id": "DELETE /sessions invalid-bulk-state",
+      "operation_id": "DELETE /sessions",
+      "method": "DELETE",
+      "path": "/sessions?state=running",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "error_codes": [
+        "invalid_state"
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id} missing-resource",
+      "operation_id": "GET /sessions/{session_id}",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "DELETE /sessions/{session_id} missing-resource",
+      "operation_id": "DELETE /sessions/{session_id}",
+      "method": "DELETE",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/events missing-resource",
+      "operation_id": "GET /sessions/{session_id}/events",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/events",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/network missing-resource",
+      "operation_id": "GET /sessions/{session_id}/network",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/network",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/network-fault missing-resource",
+      "operation_id": "POST /sessions/{session_id}/network-fault",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/network-fault",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/device-state missing-resource",
+      "operation_id": "GET /sessions/{session_id}/device-state",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/device-state",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/evidence missing-resource",
+      "operation_id": "GET /sessions/{session_id}/evidence",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/evidence",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/qom/list missing-resource",
+      "operation_id": "GET /sessions/{session_id}/qom/list",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/qom/list",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/qom-snapshot missing-resource",
+      "operation_id": "POST /sessions/{session_id}/qom-snapshot",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/qom-snapshot",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/qom/diff missing-resource",
+      "operation_id": "GET /sessions/{session_id}/qom/diff",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/qom/diff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/flash missing-resource",
+      "operation_id": "GET /sessions/{session_id}/flash",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/flash",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/flash-snapshot missing-resource",
+      "operation_id": "POST /sessions/{session_id}/flash-snapshot",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/flash-snapshot",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/flash/diff missing-resource",
+      "operation_id": "GET /sessions/{session_id}/flash/diff",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/flash/diff",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/wait missing-resource",
+      "operation_id": "POST /sessions/{session_id}/wait",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/wait",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/serial missing-resource",
+      "operation_id": "GET /sessions/{session_id}/serial",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/serial",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/logs missing-resource",
+      "operation_id": "GET /sessions/{session_id}/logs",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/logs",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/frame.png missing-resource",
+      "operation_id": "GET /sessions/{session_id}/frame.png",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/frame.png",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/input missing-resource",
+      "operation_id": "POST /sessions/{session_id}/input",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/input",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/qom missing-resource",
+      "operation_id": "POST /sessions/{session_id}/qom",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/qom",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /sessions/{session_id}/qom missing-resource",
+      "operation_id": "GET /sessions/{session_id}/qom",
+      "method": "GET",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/qom",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ]
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/reset missing-resource",
+      "operation_id": "POST /sessions/{session_id}/reset",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/reset",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "POST /sessions/{session_id}/renew missing-resource",
+      "operation_id": "POST /sessions/{session_id}/renew",
+      "method": "POST",
+      "path": "/sessions/ffffffffffffffffffffffffffffffff/renew",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400,
+        401,
+        404,
+        409
+      ],
+      "payload": {}
+    },
+    {
+      "case_id": "GET /devices/{device_id} cores3",
+      "operation_id": "GET /devices/{device_id}",
+      "method": "GET",
+      "path": "/devices/cores3",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units cores3",
+      "operation_id": "GET /units",
+      "method": "GET",
+      "path": "/units?device_id=cores3",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /devices/{device_id} cardputer-adv",
+      "operation_id": "GET /devices/{device_id}",
+      "method": "GET",
+      "path": "/devices/cardputer-adv",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units cardputer-adv",
+      "operation_id": "GET /units",
+      "method": "GET",
+      "path": "/units?device_id=cardputer-adv",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} env-iii",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/env-iii",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} hub",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/hub",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} ncir",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/ncir",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} pir",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/pir",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} relay",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/relay",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /units/{unit_id} encoder",
+      "operation_id": "GET /units/{unit_id}",
+      "method": "GET",
+      "path": "/units/encoder",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /devices missing-auth",
+      "operation_id": "GET /devices",
+      "method": "GET",
+      "path": "/devices",
+      "coverage": "rejection-only",
+      "expected_status": [
+        401
+      ],
+      "authenticated": false,
+      "error_codes": [
+        "unauthorized"
+      ]
+    },
+    {
+      "case_id": "GET /units unknown-host",
+      "operation_id": "GET /units",
+      "method": "GET",
+      "path": "/units?device_id=api-sweep-absent",
+      "coverage": "rejection-only",
+      "expected_status": [
+        404
+      ],
+      "error_codes": [
+        "unknown_device"
+      ]
+    },
+    {
+      "case_id": "GET /jobs invalid-status",
+      "operation_id": "GET /jobs",
+      "method": "GET",
+      "path": "/jobs?status=banana",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "error_codes": [
+        "invalid_job_status"
+      ]
+    },
+    {
+      "case_id": "GET /jobs invalid-limit",
+      "operation_id": "GET /jobs",
+      "method": "GET",
+      "path": "/jobs?limit=-1",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "error_codes": [
+        "invalid_job_limit"
+      ]
+    },
+    {
+      "case_id": "GET /jobs noninteger-limit",
+      "operation_id": "GET /jobs",
+      "method": "GET",
+      "path": "/jobs?limit=abc",
+      "coverage": "rejection-only",
+      "expected_status": [
+        400
+      ],
+      "error_codes": [
+        "invalid_request"
+      ]
+    },
+    {
+      "case_id": "GET /sessions active-only",
+      "operation_id": "GET /sessions",
+      "method": "GET",
+      "path": "/sessions?include_stopped=0",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ]
+    },
+    {
+      "case_id": "GET /health public-health",
+      "operation_id": "GET /health",
+      "method": "GET",
+      "path": "/health",
+      "coverage": "positive-read",
+      "expected_status": [
+        200
+      ],
+      "authenticated": false
+    }
+  ],
+  "joint_unit_fixtures": {
+    "sensors": {
+      "units": [
+        "hub",
+        "env-iii",
+        "ncir"
+      ],
+      "inputs": [
+        {
+          "env": {
+            "temperature-c": 31.5,
+            "humidity-pct": 67,
+            "pressure-pa": 98765
+          },
+          "ncir": {
+            "ambient-c": 17.3,
+            "object-c": 37.1
+          }
+        },
+        {
+          "env": {
+            "temperature-c": 18.2,
+            "humidity-pct": 42,
+            "pressure-pa": 102345
+          },
+          "ncir": {
+            "ambient-c": 31.5,
+            "object-c": 53.2
+          }
+        }
+      ],
+      "guest_apis": [
+        "machine.I2C.scan",
+        "ENVUnit.read_temperature",
+        "ENVUnit.read_humidity",
+        "ENVUnit.read_pressure",
+        "NCIRUnit.get_ambient_temperature",
+        "NCIRUnit.get_object_temperature"
+      ],
+      "oracles": [
+        "exact I2C address set",
+        "new serial after cursor",
+        "numeric tolerance",
+        "controller transaction/read/write counters",
+        "same-run framebuffer"
+      ]
+    },
+    "controls": {
+      "units": [
+        "encoder"
+      ],
+      "inputs": [
+        {
+          "counter": -12345,
+          "pressed": true
+        },
+        {
+          "counter": 32767,
+          "pressed": false
+        }
+      ],
+      "guest_apis": [
+        "EncoderUnit.get_rotary_value",
+        "EncoderUnit.get_button_status",
+        "EncoderUnit.set_color"
+      ],
+      "outputs": [
+        "led-colors"
+      ],
+      "oracles": [
+        "guest input values",
+        "QOM original I2C data plane",
+        "guest output LED bytes",
+        "same-run framebuffer"
+      ]
+    }
+  },
+  "positive_phase_plans": {
+    "visible-preview": "Create visible Preview; poll ready; run immutable checkpoint twice in the same PID; validate application READY, input, cancel/recovery, Run-bound frame, renew, ZIP-before-close and retained history.",
+    "checkpoint-store": "Store exact complete checkpoint; retry bytes under alternate encoding; verify immutable ID, metadata, full file bytes and error cases.",
+    "visible-session": "Exercise this operation only on an owned visible guest; bind outputs to firmware/PID/execution and capture evidence ZIP before stop purge=0.",
+    "catalog-and-health": "Read actual configured service metadata; distinguish supported, backend-ready, host admission and current runtime capabilities.",
+    "isolated-control-plane": "Use a separately bound service/state directory; exercise worker HMAC, job lease fencing, retention, and drain/resume without affecting shared sessions.",
+    "artifact-upload": "Upload exact bytes, retry and read metadata; test chunk resume/hash mismatch and delete only the artifact allocated by this sweep.",
+    "firmware-intake": "Compose uploaded/source firmware with exact source and normalized flash hashes, then execute it through visible Device Service sessions."
+  }
+}

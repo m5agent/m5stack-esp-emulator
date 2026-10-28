@@ -1,0 +1,46 @@
+--- a/m5stack/libs/m5ui/canvas.py
++++ b/m5stack/libs/m5ui/canvas.py
+@@ -485,12 +485,14 @@
+ 
+         self._triangle_dsc.bg_color = lv.color_hex(bg_c)
+         self._triangle_dsc.bg_opa = bg_opa
+-        self._triangle_dsc.p[0].x = x1
+-        self._triangle_dsc.p[0].y = y1
+-        self._triangle_dsc.p[1].x = x2
+-        self._triangle_dsc.p[1].y = y2
+-        self._triangle_dsc.p[2].x = x3
+-        self._triangle_dsc.p[2].y = y3
++        points = self._triangle_dsc.p
++        points[0].x = x1
++        points[0].y = y1
++        points[1].x = x2
++        points[1].y = y2
++        points[2].x = x3
++        points[2].y = y3
++        self._triangle_dsc.p = points
+ 
+         lv.draw_triangle(self._layer, self._triangle_dsc)
+         self._commit_layer()
+--- a/m5stack/libs/m5ui/image.py
++++ b/m5stack/libs/m5ui/image.py
+@@ -103,7 +103,7 @@
+             super().set_scale_x(int(scale * 256))
+             super().set_scale_y(int(scale_y * 256))
+         else:
+-            super().set_scale(scale * 256)
++            super().set_scale(int(scale * 256))
+ 
+     def set_style_radius(self, radius: int, part: int) -> None:
+         if radius < 0:
+--- a/m5stack/libs/m5ui/spinbox.py
++++ b/m5stack/libs/m5ui/spinbox.py
+@@ -443,9 +443,6 @@
+                 spinbox0.set_step(1)
+                 spinbox0.set_step(0.1)
+         """
+-        if self._digit_count - self._sep_pos == 0:
+-            warnings.warn(f"No decimal places, step {step} converted to {int(step * 10)}.")
+-            step = int(step * 10)
+         self._spinbox.set_step(self.value2raw(step, self._digit_count, self._sep_pos))
+ 
+     @staticmethod

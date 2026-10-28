@@ -1,0 +1,22 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -784,14 +784,14 @@
+     "%s_obj_t *" % module_prefix: "mp_to_lv",
+     "uint8_t": "(uint8_t)mp_obj_get_int",
+     "uint16_t": "(uint16_t)mp_obj_get_int",
+-    "uint32_t": "(uint32_t)mp_obj_get_int",
++    "uint32_t": "(uint32_t)mp_obj_get_int_truncated",
+     "uint64_t": "(uint64_t)mp_obj_get_ull",
+-    "unsigned": "(unsigned)mp_obj_get_int",
+-    "unsigned int": "(unsigned int)mp_obj_get_int",
++    "unsigned": "(unsigned)mp_obj_get_int_truncated",
++    "unsigned int": "(unsigned int)mp_obj_get_int_truncated",
+     "unsigned char": "(unsigned char)mp_obj_get_int",
+     "unsigned short": "(unsigned short)mp_obj_get_int",
+-    "unsigned long": "(unsigned long)mp_obj_get_int",
+-    "unsigned long int": "(unsigned long int)mp_obj_get_int",
++    "unsigned long": "(unsigned long)mp_obj_get_int_truncated",
++    "unsigned long int": "(unsigned long int)mp_obj_get_int_truncated",
+     "unsigned long long": "(unsigned long long)mp_obj_get_ull",
+     "unsigned long long int": "(unsigned long long int)mp_obj_get_ull",
+     "int8_t": "(int8_t)mp_obj_get_int",

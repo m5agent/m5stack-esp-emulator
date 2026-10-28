@@ -1,0 +1,38 @@
+{
+  "CAMERA_PHASE_SCENE_READY": [
+    {
+      "endpoint": "qom",
+      "payload": {
+        "path": "/machine/m5-lcd-cam",
+        "property": "auto-increment",
+        "value": false
+      }
+    },
+    {
+      "endpoint": "qom",
+      "payload": {
+        "path": "/machine/m5-lcd-cam",
+        "property": "frame-seed",
+        "value": 0
+      }
+    }
+  ],
+  "CAMERA_INTERFACES_SCENE_READY": [
+    {
+      "endpoint": "qom",
+      "payload": {
+        "path": "/machine/m5-lcd-cam",
+        "property": "auto-increment",
+        "value": false
+      }
+    },
+    {
+      "endpoint": "qom",
+      "payload": {
+        "path": "/machine/m5-lcd-cam",
+        "property": "frame-seed",
+        "value": 0
+      }
+    }
+  ]
+}

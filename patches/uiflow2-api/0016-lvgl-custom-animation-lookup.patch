@@ -1,0 +1,43 @@
+diff --git a/m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/lv_anim.c b/m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/lv_anim.c
+--- a/m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/lv_anim.c
++++ b/m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/lv_anim.c
+@@ -480,12 +480,37 @@
+ 
+ bool lv_anim_custom_delete(lv_anim_t * a, lv_anim_custom_exec_cb_t exec_cb)
+ {
+-    return lv_anim_delete(a ? a->var : NULL, (lv_anim_exec_xcb_t)exec_cb);
++    void * var = a ? a->var : NULL;
++    bool deleted = false;
++    lv_anim_t * current = lv_ll_get_head(anim_ll_p);
++    while(current) {
++        bool matches = (var == NULL || current->var == var) &&
++                       (exec_cb == NULL || current->custom_exec_cb == exec_cb);
++        if(matches) {
++            remove_anim(current);
++            anim_mark_list_change();
++            deleted = true;
++            /* Deletion callbacks can change the rest of the list. */
++            current = lv_ll_get_head(anim_ll_p);
++        }
++        else {
++            current = lv_ll_get_next(anim_ll_p, current);
++        }
++    }
++    return deleted;
+ }
+ 
+ lv_anim_t * lv_anim_custom_get(lv_anim_t * a, lv_anim_custom_exec_cb_t exec_cb)
+ {
+-    return lv_anim_get(a ? a->var : NULL, (lv_anim_exec_xcb_t)exec_cb);
++    void * var = a ? a->var : NULL;
++    lv_anim_t * current;
++    LV_LL_READ(anim_ll_p, current) {
++        if(current->var == var &&
++           (exec_cb == NULL || current->custom_exec_cb == exec_cb)) {
++            return current;
++        }
++    }
++    return NULL;
+ }
+ 
+ uint32_t lv_anim_resolve_speed(uint32_t speed_or_time, int32_t start, int32_t end)

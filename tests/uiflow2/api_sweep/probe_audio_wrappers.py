@@ -1,0 +1,98 @@
+"""Original frozen audio wrappers; caller supplies ordinary service audio fixture."""
+
+PLAYER='''import M5,audio,math,struct,os
+M5.begin()
+M5.Speaker.end();M5.Mic.end()
+states=[]
+player=audio.Player(lambda state:states.append(dict(state)))
+check("audio.Player.set_vol",lambda:player.set_vol(35),lambda value:player.get_vol()==35,"volume setter is independently read back by get_vol")
+check("audio.Player.get_vol",player.get_vol,lambda value:value==35,"readback preserves configured volume")
+player.vol(42)
+check("audio.Player.vol",player.vol,lambda value:value==42 and player.get_vol()==42,"combined volume setter/getter roundtrip")
+check("audio.Player.info",lambda:str(audio.Player.info()),lambda value:"stream" in value,"native player static function reports supported stream/codec metadata")
+def pcm(frequency,seconds):
+ data=bytearray(16000*seconds*2)
+ for index in range(16000*seconds):struct.pack_into("<h",data,index*2,int(8000*math.sin(2*math.pi*frequency*index/16000)))
+ return data
+data=pcm(660,1)
+def raw():
+ result=player.play_raw(data,sample=16000,bits=16,stereo=False,sync=True)
+ print("AUDIO_WRAPPER_STATE raw "+json.dumps(player.get_state()))
+ return result
+check("audio.Player.play_raw",raw,lambda value:player.get_state()["status"]==player.STATUS_FINISHED,"synchronous original decoder reaches FINISHED; output PCM still requires independent waveform oracle")
+def tone():
+ result=player.play_tone(880,1,volume=42,sync=True)
+ print("AUDIO_WRAPPER_STATE tone "+json.dumps(player.get_state()))
+ return result
+check("audio.Player.play_tone",tone,lambda value:player.get_state()["status"]==player.STATUS_FINISHED,"original tone pipeline reaches FINISHED; output PCM still requires independent waveform oracle")
+data=pcm(990,3)
+header=struct.pack("<4sI4s4sIHHIIHH4sI",b"RIFF",36+len(data),b"WAVE",b"fmt ",16,1,1,16000,32000,2,16,b"data",len(data))
+with open("/flash/wrapper.wav","wb") as handle:handle.write(header);handle.write(data)
+print("AUDIO_FILE_PLAY_RETURN",player.play("file://flash/wrapper.wav",sync=False))
+deadline=time.ticks_add(time.ticks_ms(),5000)
+while not player.is_playing() and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+file_started=player.is_playing()
+check("audio.Player.is_playing",lambda:file_started,lambda value:value,"actual file decoder enters RUNNING")
+check("audio.Player.get_state",player.get_state,lambda value:value["status"]==player.STATUS_RUNNING,"native lifecycle state matches running file decoder")
+time.sleep_ms(1200)
+before=player.pos()
+time.sleep_ms(100)
+check("audio.Player.pos",player.pos,lambda value:isinstance(value,int) and value>=before and value>0,"file decoder byte position advances during playback")
+check("audio.Player.time",player.time,lambda value:isinstance(value,int) and value>=0,"file decoder media clock is available during actual playback")
+player.pause()
+deadline=time.ticks_add(time.ticks_ms(),1500)
+while player.get_state()["status"]!=player.STATUS_PAUSED and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+check("audio.Player.pause",player.get_state,lambda value:value["status"]==player.STATUS_PAUSED and not player.is_playing(),"active file playback transitions to PAUSED")
+player.resume();time.sleep_ms(600)
+check("audio.Player.resume",player.get_state,lambda value:value["status"]==player.STATUS_RUNNING and player.is_playing(),"paused file playback transitions back to RUNNING")
+player.stop()
+deadline=time.ticks_add(time.ticks_ms(),3000)
+while player.is_playing() and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+check("audio.Player.stop",player.is_playing,lambda value:value is False,"actual file playback stops and is_playing clears")
+emit("audio.Player.play","PASS" if file_started else "FAIL",file_started,"original WAV file decoder must start; output PCM requires independent waveform oracle")
+emit("audio.Player","PASS" if file_started else "FAIL",file_started,"native constructor and supplied state callback must execute original file pipeline")
+print("AUDIO_WRAPPER_CALLBACKS "+json.dumps(states))
+os.remove("/flash/wrapper.wav")
+'''
+
+RECORDER='''import M5,audio,struct,os,binascii,math
+M5.begin()
+M5.Speaker.end();M5.Mic.end()
+recorder=audio.Recorder(sample=16000,bits=16,stereo=False)
+recorder.config(sample=8000,bits=16,stereo=False)
+buf=recorder.create_pcm_buf(1)
+check("audio.Recorder.config",lambda:len(buf),lambda value:value==16000,"new PCM allocation reflects actual configured sample rate, width and channels")
+check("audio.Recorder.create_pcm_buf",lambda:len(buf),lambda value:value==16000,"one-second 8kHz mono s16 buffer has exactly 16000 bytes")
+def record_into():
+ result=recorder.record_into(buf,sync=True)
+ values=struct.unpack("<"+"h"*(len(buf)//2),buf)
+ require(any(values),"original recorder returned only zero samples")
+ print("AUDIO_WRAPPER_PCM "+binascii.b2a_base64(buf).decode().strip())
+ return result
+check("audio.Recorder.record_into",record_into,lambda value:value is True and not recorder.is_running(),"original RX pipeline fills caller buffer and stops; fixture spectrum requires independent oracle")
+emit("audio.Recorder","PASS",True,"native recorder constructor configures and fills actual PCM buffer")
+check("audio.Recorder.rms",recorder.rms,lambda value:isinstance(value,float) and math.isfinite(value) and -96<value<0,"original RMS computes finite non-silent level from real RX samples")
+check("audio.Recorder.volume",recorder.volume,lambda value:isinstance(value,int) and 0<value<=100,"original volume estimator observes non-silent RX fixture")
+recorder.record("file://flash/wrapper-record.wav",3,sync=False)
+time.sleep_ms(100)
+check("audio.Recorder.is_running",recorder.is_running,lambda value:value is True,"active file recording exposes running pipeline")
+def is_recording():return recorder.is_recording()
+check("audio.Recorder.is_recording",is_recording,lambda value:value is True,"active unpaused recording state")
+recorder.pause();time.sleep_ms(100)
+check("audio.Recorder.pause",recorder.is_running,lambda value:value is True,"pause retains recording pipeline; is_recording aliases is_running and cannot certify sample progression")
+recorder.resume();time.sleep_ms(100)
+check("audio.Recorder.resume",recorder.is_recording,lambda value:value is True,"resume restores active recording")
+recorder.stop()
+check("audio.Recorder.stop",recorder.is_running,lambda value:value is False,"stop releases actual recording pipeline")
+def file_result(marker="AUDIO_WRAPPER_WAV"):
+ with open("/flash/wrapper-record.wav","rb") as handle:data=handle.read()
+ require(data[:4]==b"RIFF" and data[8:12]==b"WAVE" and len(data)>44,"recorded WAV is empty or malformed")
+ print(marker+" "+binascii.b2a_base64(data).decode().strip())
+ return len(data)
+file_result("AUDIO_WRAPPER_LIFECYCLE_WAV")
+os.remove("/flash/wrapper-record.wav")
+recorder.record("file://flash/wrapper-record.wav",1,sync=True)
+check("audio.Recorder.record",file_result,lambda value:value>44,"original file recorder writes a real WAV header and nonempty sample bytes")
+try:os.remove("/flash/wrapper-record.wav")
+except OSError:pass
+'''

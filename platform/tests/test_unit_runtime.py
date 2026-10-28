@@ -42,6 +42,33 @@ class UnitRuntimeContractTests(unittest.TestCase):
             }])
         self.assertEqual(caught.exception.code, "runtime_model_gap")
 
+    def test_host_filtered_inventory_exposes_actual_port_admission(self):
+        cores3 = {unit["id"]: unit for unit in self.registry.inventory("cores3")["units"]}
+        env = cores3["env-iii"]["host_admission"]
+        self.assertTrue(env["admitted"])
+        self.assertEqual(env["port_ids"], ["port-a"])
+        ports = {port["port_id"]: port for port in env["ports"]}
+        self.assertEqual(ports["port-b"]["error"]["code"], "unit_port_not_supported")
+        self.assertIn("accessory", ports["port-c"]["error"]["message"])
+        self.assertEqual(cores3["8servos"]["host_admission"]["port_ids"], ["port-a", "port-b"])
+        cardputer = self.registry.inventory("cardputer-adv")
+        for unit in cardputer["units"]:
+            with self.subTest(unit=unit["id"]):
+                self.assertFalse(unit["host_admission"]["admitted"])
+                self.assertEqual(unit["host_admission"]["port_ids"], [])
+                self.assertEqual(unit["host_admission"]["ports"][0]["error"]["code"], "runtime_model_gap")
+        self.assertNotIn("host_admission", self.registry.inventory()["units"][0])
+        self.assertNotIn("host_admission", self.registry.unit("env-iii"))
+
+    def test_host_admission_does_not_promote_planned_runtime(self):
+        self.registry.profiles["env-iii"]["status"] = "planned"
+        self.registry.profiles["env-iii"]["blocker"] = "missing controller"
+        env = next(unit for unit in self.registry.inventory("cores3")["units"] if unit["id"] == "env-iii")
+        self.assertFalse(env["host_admission"]["admitted"])
+        self.assertEqual(env["host_admission"]["ports"][0]["error"], {
+            "code": "runtime_model_gap", "message": "missing controller",
+        })
+
     def test_scroll_physical_source_is_distinct_from_read_only_logical_counter(self):
         unit = self.registry.unit("scroll")
         self.assertEqual(unit["interface"]["address_7bit"], [0x40])

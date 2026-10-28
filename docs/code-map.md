@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-27`
+日期：`2026-10-28`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -25,6 +25,7 @@ FlashLight的EN边沿/虚拟定时器在`0045-unit-flashlight-aw3641.patch`；`0
 | 还有什么没做 | [项目 Backlog](project-backlog.md) |
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
 | 外部 Agent 如何提交 Python、配置 Unit 和取证 | [UIFlow 源码到 Unit 会话](unit-agent-api.md) |
+| UIFlow2 双主机接口、SDK 候选修正与实际行为审计 | `tests/uiflow2/api_sweep/`、`patches/uiflow2-api/` 与 [审计证据](evidence/2026-10-27-uiflow2-api-sweep/README.md) |
 | 单 lease 设备验收标准 | [统一设备运行时契约](unified-device-runtime.md) |
 | 固件如何规范化和拒绝 | [固件清单与 WebBurner 导入](firmware-manifest.md) |
 | 已知模拟器运行时缺口和关闭条件 | [运行时模型缺口登记](runtime-model-gap-register.md) |

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py",
+  "preimage_sha256": "0955b8d04c7700a900937d113359f28ee608c6552f117794bc9bc73c48217220",
+  "candidate_sha256": "6ec03e340d0aeb2556470950d88f26a9175551780d376706fb6e4a413d0c74e7",
+  "status": "candidate_firmware_correction_not_reference_firmware",
+  "contract": "Object application user_data is rooted separately from the native user_data slot used for Python wrapper identity and deletion invalidation; event/group/screen object getters keep exact object identity.",
+  "stack_preimage_sha256": "deab44a974c1f1335bffbc168bad7413a422502e4bd6d97d4b546dbe31a09cb4",
+  "stack_candidate_sha256": "34fca1d1875567a25c95fc7f35d494a7a40807a46574b7f057fcad547045a470"
+}

@@ -1,0 +1,21 @@
+--- a/m5stack/components/M5Unified/mpy_m5gfx.cpp
++++ b/m5stack/components/M5Unified/mpy_m5gfx.cpp
+@@ -1113,9 +1113,17 @@
+     mp_buffer_info_t bufinfo;
+     mp_get_buffer_raise(args[ARG_buf].u_obj, &bufinfo, MP_BUFFER_READ);
+ 
++    // The public len parameter and official examples count bytes. Validate
++    // before opening a display transaction; writePixels counts RGB565 pixels.
++    const mp_int_t byte_count = args[ARG_len].u_int;
++    if (args[ARG_w].u_int <= 0 || args[ARG_h].u_int <= 0 || byte_count < 0
++        || byte_count % sizeof(uint16_t) != 0 || (size_t)byte_count > bufinfo.len
++        || (uint64_t)byte_count > (uint64_t)args[ARG_w].u_int * args[ARG_h].u_int * sizeof(uint16_t)) {
++        mp_raise_ValueError(MP_ERROR_TEXT("raw image length must fit the buffer and RGB565 window"));
++    }
+     gfx->startWrite();
+     gfx->setAddrWindow(args[ARG_x].u_int, args[ARG_y].u_int, args[ARG_w].u_int, args[ARG_h].u_int);
+-    gfx->writePixels((const uint16_t *)bufinfo.buf, args[ARG_len].u_int, args[ARG_swap].u_bool);
++    gfx->writePixels((const uint16_t *)bufinfo.buf, (size_t)byte_count / sizeof(uint16_t), args[ARG_swap].u_bool);
+     gfx->endWrite();
+ 
+     return mp_const_none;

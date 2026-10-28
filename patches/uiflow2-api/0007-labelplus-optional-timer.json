@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/libs/label_plus.py",
+  "status": "candidate_python_source_correction_not_reference_firmware",
+  "preimage_sha256": "a384f9fc578e2fbc63844a4e4e17fe8f5b6f04c198cdcfeb450d89e7b5f25e30",
+  "candidate_sha256": "e0e8c75c40b94be1885d24f9be14507f17450a728d568b0e5fffd72b3898c732",
+  "contract": "explicit update/key selection and deinit work with automatic updates disabled or zero period; timer start/stop only touches an existing SoftTimer"
+}

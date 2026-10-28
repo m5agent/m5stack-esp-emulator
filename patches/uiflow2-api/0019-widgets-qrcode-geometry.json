@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/components/M5Unified/mpy_m5widgets.cpp",
+  "preimage_sha256": "d82e660b862ecd6c0f68d911f06c37c5447d63f579c8de457b8177ba1e18fd7e",
+  "candidate_sha256": "bf8adaf8719a6b5c6871bf48cfef2b183b02bb21d65ced5196906d2129e46fd2",
+  "stack_preimage_sha256": "8f1fcf750218311405b996f5eee389fd3e42e59d28d8e85151d7c8addaf68888",
+  "stack_candidate_sha256": "12c4e054fd4ddf0b12fdce51c5ce527d15063518bf9912fac4b2b439ebbf9571",
+  "method_fixture_sha256": "8d275d31940939c28f91f4c3073fe2fd95413f4e73b90d2640afbc887ecaa2aa",
+  "method_fixture_candidate_sha256": "19f91994688f2441cb3168df2e2f09104610fac70387b2d05d46bb5deebcc84e",
+  "problem": "Widgets.QRCode.setCursor and setSize redraw at the new geometry without erasing the old QR area, leaving stale black and white pixels.",
+  "correction": "Erase using the old position and width before changing coordinates or width, then redraw. setVersion retains its unchanged geometry.",
+  "validation": "Pinned native method old-region sequence regression and matching SDK preimage/candidate framebuffer QR decoding with independent old-exclusive-region checks on CoreS3; hardware NOT RUN."
+}

@@ -1,0 +1,45 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -674,6 +674,9 @@
+ 
+ @memoize
+ def is_static_member(func, obj_type=base_obj_type):
++    # Menu title helpers take menu_page, not an instance of menu.
++    if func.name in ("lv_menu_set_page_title", "lv_menu_set_page_title_static"):
++        return True
+     first_arg = get_first_arg(func)
+     # print("/* %s : get_first_arg = %s */" % (get_name(func), first_arg))
+     if first_arg:
+@@ -3257,13 +3260,26 @@
+         if len(obj_names) > 0 and obj_name == base_obj_name
+         else []
+     )
+-    members = [
+-        "{{ MP_ROM_QSTR(MP_QSTR_{method_name}), MP_ROM_PTR(&mp_{method}_mpobj) }}".format(
+-            method=method.name,
+-            method_name=sanitize(method_name_from_func_name(method.name)),
++    members = []
++    for method in get_methods(obj_name):
++        member_obj = "mp_%s_mpobj" % method.name
++        # A widget namespace also exposes helpers whose first argument is a
++        # different resource (for example scale_section_t). Keep the canonical
++        # struct instance method bound and emit a separate static alias here.
++        foreign_resource = get_first_arg_type(method) != base_obj_type
++        foreign_parent = (method.name == "lv_calendar_header_dropdown_set_year_list"
++                          and obj_name != "calendar")
++        if not is_static_member(method, base_obj_type) and (foreign_resource or foreign_parent):
++            static_name = "%s_%s_namespace" % (method.name, obj_name)
++            wrapper = func_prototypes[gen.visit(function_prototype(method))].name
++            emit_func_obj(static_name, wrapper, len(method.type.args.params), method.name, True)
++            member_obj = "mp_%s_mpobj" % static_name
++        members.append(
++            "{{ MP_ROM_QSTR(MP_QSTR_{method_name}), MP_ROM_PTR(&{member_obj}) }}".format(
++                member_obj=member_obj,
++                method_name=sanitize(method_name_from_func_name(method.name)),
++            )
+         )
+-        for method in get_methods(obj_name)
+-    ]
+     obj_metadata[obj_name]["members"].update(
+         {
+             method_name_from_func_name(method.name): func_metadata[method.name]

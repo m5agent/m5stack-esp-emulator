@@ -29,6 +29,9 @@ except Exception as exc:
 
 d.setCursor(6, 36)
 d.print("status=%s" % status)
+from hardware import UART
+_evidence_uart = UART(0, baudrate=115200, tx=43, rx=44)
+_evidence_uart.write("CORES3_AUDIO_DRAW_COMPLETE " + status + "\n")
 
 while True:
     M5.update()

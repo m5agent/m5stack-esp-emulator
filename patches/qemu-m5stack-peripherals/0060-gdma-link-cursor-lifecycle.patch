@@ -1,0 +1,106 @@
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 932707a..ae68ad2 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -136,6 +136,14 @@ static void esp_gdma_reset_fifo(DmaConfigState* s)
+ #endif
+     /* Set the FIFO empty bit to 1, full bit to 0, and number of bytes of data to 0 */
+     s->status = R_GDMA_INFIFO_STATUS_FIFO_EMPTY_MASK;
++    /* CONF0 resets the channel FSM as well as its FIFO. Cached descriptors
++     * must not survive a guest freeing/replacing the previous DMA ring.
++     */
++    s->current_desc_addr = 0;
++    s->state = 0;
++    s->desc_addr = 0;
++    s->bfr_desc_addr = 0;
++    s->bfr_bfr_desc_addr = 0;
+ }
+ 
+ 
+@@ -969,8 +977,15 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+ 
+     /* We will only support a subset of GDMA registers for now. To add support for more registers,
+      * the following snippet can be update */
+-    uint32_t start_mask = 0;
+-    uint32_t restart_mask = 0;
++    const uint32_t start_mask = dir == ESP_GDMA_IN_IDX
++                               ? R_GDMA_IN_LINK_START_MASK
++                               : R_GDMA_OUT_LINK_START_MASK;
++    const uint32_t restart_mask = dir == ESP_GDMA_IN_IDX
++                                 ? R_GDMA_IN_LINK_RESTART_MASK
++                                 : R_GDMA_OUT_LINK_RESTART_MASK;
++    const uint32_t stop_mask = dir == ESP_GDMA_IN_IDX
++                              ? R_GDMA_IN_LINK_STOP_MASK
++                              : R_GDMA_OUT_LINK_STOP_MASK;
+ 
+     switch(reg) {
+ 
+@@ -982,6 +997,7 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+                 FIELD_EX32(s->conf0, GDMA_IN_CONF0, RST) != 0)
+             {
+                 esp_gdma_reset_fifo(s);
++                s->link &= ~(start_mask | restart_mask);
+             }
+             /* Update the register before going further */
+             s->conf0 = value;
+@@ -993,13 +1009,28 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+             }
+             break;
+ 
+-        case GDMA_LINK_REG:
++        case GDMA_LINK_REG: {
++            const uint32_t running = s->link & (start_mask | restart_mask);
+             s->link = value;
+-            /* For IN and OUT, the START bit is not at the same offset, so we need to test both separately */
+-            start_mask   = (dir == ESP_GDMA_IN_IDX) ? R_GDMA_IN_LINK_START_MASK   : R_GDMA_OUT_LINK_START_MASK;
+-            restart_mask = (dir == ESP_GDMA_IN_IDX) ? R_GDMA_IN_LINK_RESTART_MASK : R_GDMA_OUT_LINK_RESTART_MASK;
+-
+-            /* Check if any of the previous two bits has just been enabled */
++            if (value & stop_mask) {
++                s->link &= ~(start_mask | restart_mask | stop_mask);
++                break;
++            }
++            if (!(value & (start_mask | restart_mask))) {
++                /* Updating the programmed head does not rewind a running FSM.
++                 * A later START mounts that head; RESTART keeps its next node.
++                 */
++                s->link |= running;
++                break;
++            }
++            if (value & start_mask) {
++                const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
++                const uint32_t head = high | (value & R_GDMA_IN_LINK_ADDR_MASK);
++                esp_gdma_push_descriptor(state, chan, dir, head);
++            }
++            /* RESTART deliberately preserves the cached next descriptor.
++             * IDF uses it to append/resume a link, rather than start at ADDR.
++             */
+             if ((value & start_mask) || (value & restart_mask))
+             {
+                 esp_gdma_check_and_start_mem_transfer(state, chan);
+@@ -1019,6 +1050,7 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+                 }
+             }
+             break;
++        }
+ 
+         case GDMA_CONF1_REG:
+             s->conf1 = value;
+@@ -1114,7 +1146,16 @@ uint64_t esp_gdma_read_chan_register(ESPGdmaState* state, uint32_t dir, uint32_t
+         case GDMA_CONF1_REG:            return s->conf1;
+         case GDMA_FIFO_ST_REG:          return s->status;
+         case GDMA_POP_REG:              return s->push_pop;
+-        case GDMA_LINK_REG:             return s->link;
++        case GDMA_LINK_REG: {
++            /* START/RESTART/STOP are self-clearing command bits. Internal
++             * running markers remain private, so guest RMW operations cannot
++             * accidentally replay an earlier START instead of RESTART.
++             */
++            const uint32_t commands = dir == ESP_GDMA_IN_IDX
++                ? R_GDMA_IN_LINK_START_MASK | R_GDMA_IN_LINK_RESTART_MASK | R_GDMA_IN_LINK_STOP_MASK
++                : R_GDMA_OUT_LINK_START_MASK | R_GDMA_OUT_LINK_RESTART_MASK | R_GDMA_OUT_LINK_STOP_MASK;
++            return s->link & ~commands;
++        }
+         case GDMA_STATE_REG:            return s->state;
+         case GDMA_SUC_EOF_DESC_REG:     return s->suc_eof_desc_addr;
+         case GDMA_ERR_EOF_DESC_REG:     return s->err_eof_desc_addr;

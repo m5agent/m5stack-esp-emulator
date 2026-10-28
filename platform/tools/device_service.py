@@ -202,8 +202,14 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
     "M5SW_I2S_TRACE",
+    "M5SW_CAMERA_TRACE",
+    "M5SW_GDMA_TRACE",
+    "M5SW_GPSPI_TRACE",
+    "M5SW_SPI_XFER_TRACE",
 }
+BOOLEAN_RUNTIME_TRACES = frozenset({"M5SW_CAMERA_TRACE", "M5SW_GDMA_TRACE", "M5SW_GPSPI_TRACE", "M5SW_SPI_XFER_TRACE"})
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
+PLAIN_QEMU_AUDIO_DEVICES = frozenset({"cores3", "cardputer-adv"})
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 UNIFIED_HTTP_GUESTFWD = (
@@ -1655,6 +1661,13 @@ def parse_qemu_ble_execution(
             "network.ble_post_pass_continuity must be a boolean",
             400,
         )
+    ble_peer_role=value.get("ble_peer_role","central")
+    if not isinstance(ble_peer_role,str) or ble_peer_role not in {"central","peripheral"}:
+        raise ServiceError("invalid_network","network.ble_peer_role must be central or peripheral",400)
+    if ble_peer_role=="peripheral" and spec.id not in {"cores3","cardputer-adv"}:
+        raise ServiceError("invalid_network","peripheral BLE peer is admitted only for CoreS3 and Cardputer-ADV",400)
+    if ble_peer_role=="peripheral" and (reconnect_cycles!=1 or post_pass_continuity):
+        raise ServiceError("invalid_network","peripheral BLE peer supports one exchange and no post-pass continuity",400)
     if post_pass_continuity and (
         profile
         not in {
@@ -1700,6 +1713,7 @@ def parse_qemu_ble_execution(
         "ble_reconnect_cycles": reconnect_cycles,
         "ble_reconnect_delay_seconds": float(reconnect_delay),
         "ble_post_pass_continuity": post_pass_continuity,
+        "ble_peer_role":ble_peer_role,
         "policy": policy.evidence(),
         "cname_records": cname_records,
         "elf_artifact_id": elf_artifact_id,
@@ -1941,11 +1955,12 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             rom = None
             efuse = None
             c6_firmware = None
-            flash_emulator = (
-                ROOT / ".work/bin/esp-emu"
-                if backend.get("esp_emu_chip")
-                else None
-            )
+            flash_emulator = None
+            if backend.get("esp_emu_chip"):
+                configured_emulator = os.environ.get("M5_SERVICE_ESP_EMU", "").strip()
+                flash_emulator = Path(configured_emulator) if configured_emulator else ROOT / ".work/bin/esp-emu"
+                if not flash_emulator.is_absolute():
+                    flash_emulator = ROOT / flash_emulator
             network_chip = backend.get("esp_emu_chip")
             network_console = row.get("network_console", "auto")
             network_status = (
@@ -2682,10 +2697,10 @@ class FirmwareStore:
             allowed = {"kind", "device_id", "files", "expected_base_sha256", "base_firmware_id"}
             if set(payload) - allowed:
                 raise ServiceError("invalid_uiflow_request", "unknown UIFlow source fields", 400)
-            if device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}:
+            if device_id not in LIVE_PROGRAM_DEVICES:
                 raise ServiceError(
                     "unsupported_uiflow_device",
-                    "UIFlow source intake currently supports CoreS3, AtomS3R, StickS3 and StopWatch",
+                    "UIFlow source intake requires an admitted UIFlow2 QEMU device",
                     409,
                 )
             base_manifest = base_provenance = None
@@ -3113,12 +3128,6 @@ def default_flash_preparer(
         )
     matrix_backend = json.loads(MATRIX.read_text())["backends"][spec.backend]
     if "esp_emu_chip" in matrix_backend:
-        emulator = Path(
-            os.environ.get(
-                "M5_SERVICE_ESP_EMU",
-                str(spec.flash_emulator or ROOT / ".work/bin/esp-emu"),
-            )
-        )
         return flash_with_esp_emu(
             chip=matrix_backend["esp_emu_chip"],
             image=image,
@@ -3126,7 +3135,7 @@ def default_flash_preparer(
             out_dir=out_dir,
             env=env,
             timeout=600,
-            emulator=emulator,
+            emulator=spec.flash_emulator,
         )
     return flash_with_qemu(
         chip=matrix_backend["qemu_esptool_chip"],
@@ -4544,10 +4553,16 @@ class DeviceSession:
                 f"serial:{marker}": marker in serial
                 for marker in serial_markers
             }
+            ble_peer_role = self.network_config.get("ble_peer_role", "central")
+            peer_markers = (
+                "BLE_PERIPHERAL_CONNECTED", "BLE_PERIPHERAL_SUBSCRIBED",
+                "BLE_PERIPHERAL_WRITE", "BLE_PERIPHERAL_NOTIFICATION_SENT",
+                "BLE_PERIPHERAL_PASS",
+            ) if ble_peer_role == "peripheral" else CORE2_HCI_PROBE_MARKERS
             checks.update(
                 {
                     f"peer:{marker}": marker in probe_log
-                    for marker in CORE2_HCI_PROBE_MARKERS
+                    for marker in peer_markers
                 }
             )
             checks["http:controlled_request"] = (
@@ -4603,6 +4618,7 @@ class DeviceSession:
                     ),
                     "ble_controller": "Bumble",
                     "ble_peer": "external Bumble peer",
+                    "ble_peer_role": ble_peer_role,
                     "http_fixture": "controlled local endpoint",
                 },
                 "checks": checks,
@@ -5097,10 +5113,11 @@ class DeviceSession:
                 if self.hci_probe_log.is_file()
                 else ""
             )
-            if "BLE_BUMBLE_PASS" in text:
+            pass_marker="BLE_PERIPHERAL_PASS" if self.network_config.get("ble_peer_role")=="peripheral" else "BLE_BUMBLE_PASS"
+            if pass_marker in text:
                 self._record_event("ble_peer_pass")
                 return
-            if "BLE_BUMBLE_FAIL" in text or "BLE_BUMBLE_ERROR" in text:
+            if "BLE_BUMBLE_FAIL" in text or "BLE_BUMBLE_ERROR" in text or "BLE_PERIPHERAL_FAIL" in text:
                 raise ServiceError(
                     "ble_peer_failed",
                     "external BLE peer did not complete the GATT exchange",
@@ -5153,7 +5170,7 @@ class DeviceSession:
             filter(
                 None,
                 [
-                    str(ROOT / ".work/py"),
+                    str(os.environ.get("M5_PYTHON_DEPS") or ROOT / ".work/py"),
                     env.get("PYTHONPATH", ""),
                 ],
             )
@@ -5166,6 +5183,8 @@ class DeviceSession:
         command = [
             sys.executable,
             str(BLE_PROBE),
+            "--role",
+            self.network_config.get("ble_peer_role","central"),
             "--port",
             str(self.hci_port),
             "--name-prefix",
@@ -5525,7 +5544,7 @@ class DeviceSession:
                 )
         self._record_event("stackchan_peripheral_inputs_prepared")
 
-    def _prepare_core2_peripheral_inputs(self) -> None:
+    def _prepare_microphone_tone(self, label: str, event: str, *, channels: int = 1) -> None:
         result = subprocess.run(
             [
                 sys.executable,
@@ -5539,6 +5558,8 @@ class DeviceSession:
                 "1",
                 "--amplitude",
                 "12000",
+                "--channels",
+                str(channels),
             ],
             cwd=ROOT,
             text=True,
@@ -5548,9 +5569,35 @@ class DeviceSession:
         )
         if result.returncode != 0:
             raise RuntimeError(
-                "Core2 fixture generation failed: " + result.stdout.strip()
+                label + " fixture generation failed: " + result.stdout.strip()
             )
-        self._record_event("core2_peripheral_inputs_prepared")
+        self._record_event(event)
+
+    def _prepare_core2_peripheral_inputs(self) -> None:
+        self._prepare_microphone_tone("Core2", "core2_peripheral_inputs_prepared")
+
+    def _plain_qemu_audio_enabled(self) -> bool:
+        return self.runtime == "qemu" and self.spec.id in PLAIN_QEMU_AUDIO_DEVICES
+
+    def _plain_qemu_audio_environment(self, env: dict[str, str]) -> None:
+        if not self._plain_qemu_audio_enabled():
+            return
+        # Do not inherit another session's output/input paths from the server
+        # shell. Existing explicit diagnostic runtime_env overrides are kept.
+        defaults = {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": str(self.speaker_pcm),
+            "M5SW_I2S_RX_PCM_FILE": str(self.microphone_source_pcm),
+        }
+        for key, value in defaults.items():
+            env[key] = self.runtime_env.get(key, value)
+
+    def _qemu_storage_environment(self, env: dict[str, str]) -> None:
+        # The SPI SD model opens this path itself; -drive if=sd only feeds the
+        # SoC SDMMC model. Never inherit an unrelated host/session disk path.
+        env.pop("M5SW_SPI_SD_IMAGE", None)
+        if self.storage_config:
+            env["M5SW_SPI_SD_IMAGE"] = str(self.sd_card_image)
 
     def _apply_profile_qom(
         self,
@@ -5814,6 +5861,11 @@ class DeviceSession:
             CORE2_NATIVE_HCI_PROFILE,
         }:
             self._prepare_core2_peripheral_inputs()
+        elif self._plain_qemu_audio_enabled():
+            self._prepare_microphone_tone(
+                self.spec.id, "plain_qemu_audio_inputs_prepared",
+                channels=2 if self.spec.id == "cores3" else 1,
+            )
         if native_vhci:
             self.gdb_port = free_tcp_port()
         command = [
@@ -5985,6 +6037,8 @@ class DeviceSession:
         env = os.environ.copy()
         env.update(self.spec.env)
         env.update(self.runtime_env)
+        self._plain_qemu_audio_environment(env)
+        self._qemu_storage_environment(env)
         # Never inherit another session's external wiring from the host shell.
         env.pop("M5_UNIT_CONFIG", None)
         if self.units:
@@ -7757,6 +7811,7 @@ class DeviceSession:
             (
                 self.network_config.get("profile") in UNIFIED_PROFILES
                 or self.network_config.get("profile") == NESSO_UNIFIED_PROFILE
+                or self._plain_qemu_audio_enabled()
             )
             and self.speaker_pcm.is_file()
         ):
@@ -7768,7 +7823,7 @@ class DeviceSession:
                 "sha256": hashlib.sha256(pcm).hexdigest(),
             }
         profile = self.network_config.get("profile")
-        if profile in {
+        if self._plain_qemu_audio_enabled() or profile in {
             STACKCHAN_UNIFIED_PROFILE,
             CORE2_UNIFIED_PROFILE,
             CORE2_NATIVE_VHCI_PROFILE,
@@ -7777,6 +7832,25 @@ class DeviceSession:
             data_entries = [
                 ("audio/microphone-source.pcm", self.microphone_source_pcm),
             ]
+            if self._plain_qemu_audio_enabled():
+                overridden = "M5SW_I2S_RX_PCM_FILE" in self.runtime_env
+                manifest["audio_fixture"] = {
+                    "source_kind": "explicit-diagnostic-override" if overridden else "generated-deterministic-tone",
+                    "input_override": overridden,
+                }
+                if overridden:
+                    # An unused generated fixture is not evidence of the
+                    # explicitly supplied diagnostic source; never copy an
+                    # arbitrary caller-selected host file into the bundle.
+                    data_entries = []
+                else:
+                    manifest["audio_fixture"].update({
+                        "sample_rate_hz": 16000,
+                        "channels": 2 if self.spec.id == "cores3" else 1,
+                        "sample_format": "s16le",
+                        "frequency_hz": 440,
+                        "duration_seconds": 1,
+                    })
             if profile == STACKCHAN_UNIFIED_PROFILE:
                 data_entries.extend(
                     (
@@ -10315,6 +10389,7 @@ class DeviceService:
                 if key not in ALLOWED_RUNTIME_ENV
                 or not isinstance(value, str)
                 or "\x00" in value
+                or (key in BOOLEAN_RUNTIME_TRACES and value != "1")
             ]
             if invalid_env:
                 raise ServiceError(

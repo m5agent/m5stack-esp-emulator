@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.46.0` and bounded
+Status: local MVP with unified-device runtime contract `1.48.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -12,7 +12,8 @@ live Run requests execute programs in that running device; they do not repeat
 firmware initialization.
 
 UIFlow2 live programming can use `program_mode="uiflow-live"` at session
-creation on admitted S3 reference devices. It initializes the guest UART REPL
+creation on admitted S3 reference devices (CoreS3, AtomS3R, StickS3, StopWatch
+and Cardputer-ADV). It initializes the guest UART REPL
 route once, then `POST /sessions/{id}/program` interrupts and executes each new complete
 Python source checkpoint or complete file package inside that same guest, without reflashing
 or resetting the VM. `GET /sessions/{id}/program` returns execution and immutable
@@ -170,7 +171,7 @@ recovery. Other targets, individual byte/chunk boundaries and restart recovery
 do not inherit those results.
 The existing synchronous `/sessions/{id}/program` remains available for unmanaged
 sessions. Preview uses a visible managed UIFlow QEMU session on CoreS3, AtomS3R,
-StickS3 or StopWatch, initialized once. Subsequent Runs reference complete public
+StickS3, StopWatch or Cardputer-ADV, initialized once. Subsequent Runs reference complete public
 checkpoints and use the same UART REPL/VM rather than reflashing firmware.
 
 Every Preview route requires a configured and verified control Bearer token;
@@ -344,6 +345,13 @@ another host's validation. `runtime.guest_validation` binds a recorded device,
 firmware, runtime and Web report; additional hosts have separate
 `runtime.host_validation` records. Unsupported combinations fail with
 `409 runtime_model_gap`.
+
+When `device_id` is supplied, each Unit also returns `host_admission` for
+standalone/default-initial `runtime=qemu` placement: `admitted`, admitted
+`port_ids`, and each port's structured rejection reason. This avoids treating
+an inventory entry as an attachable Unit. Requested initial values and HUB
+topologies still undergo full validation at session creation. Cardputer-ADV
+programming admission does not grant it another board's Unit support.
 
 Scroll records bounded same-guest program evidence under
 `runtime.program_validation[device_id]`, with the explicit
@@ -1801,6 +1809,19 @@ This profile proves a functional open virtual AP on one fixed channel and an
 HCI-offload BLE controller. It does not claim WPA2/WPA3, native S3 RF/PHY,
 RF-range/security behavior or a native ESP32-S3 Bluetooth controller model.
 
+`network.ble_peer_role` defaults to `central`, preserving the existing
+external scan/connect/NUS observer. The `peripheral` fixture is admitted for
+CoreS3 and Cardputer-ADV: the session-owned Bumble peer advertises `M5-API`,
+registers a real Nordic UART Service, requires the guest to enable the TX
+notification CCCD, verifies the exact profile payload written by the guest,
+and sends `ACK:` plus those bytes through ATT. This role supports one exchange
+and rejects reconnect cycles above one or post-pass continuity. Its own
+advertising, connection, subscription, write and notification markers are
+retained in the same evidence ZIP; they do not pretend to be central-role
+observations. Guest reception remains a separate serial oracle. The peer
+uses the service interpreter and `M5_PYTHON_DEPS` (fallback `.work/py`), plus
+the inherited Python path; dependencies must match that interpreter.
+
 CoreS3 uses the same one-guest contract:
 
 ```json
@@ -1999,7 +2020,16 @@ not guarantee that the application reached its first frame or a serial marker.
 For application-level readiness, provide `ready_marker` in the create request
 or call `/wait`, then inspect serial and/or `/frame.png`.
 
-Audio data-plane tests can provide a narrow, trusted-local `runtime_env`
+Plain `runtime=qemu` on CoreS3 and Cardputer-ADV enables the emulated I2S DMA
+completion path and session-owned speaker PCM capture by default. A generated
+one-second 440 Hz microphone fixture uses 16 kHz signed 16-bit little-endian
+PCM: mono on Cardputer-ADV and two identical interleaved channels on CoreS3,
+matching each board's native microphone input. It is an explicit virtual input source, with bytes/hash and provenance in
+the evidence ZIP; it is not an acoustic measurement. Only these two plain
+profiles receive this default. Playback completion still requires guest and
+controller observations; source preparation alone is not a functional PASS.
+
+Audio data-plane tests can additionally provide a narrow, trusted-local `runtime_env`
 object when creating a session:
 
 ```json
@@ -2017,8 +2047,16 @@ object when creating a session:
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
 `M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
-`M5SW_I2S_RX_PCM_FILE`, and `M5SW_I2S_TRACE` are accepted. This is a
+`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_CAMERA_TRACE`, and
+`M5SW_GDMA_TRACE`, `M5SW_GPSPI_TRACE`, and `M5SW_SPI_XFER_TRACE` are accepted.
+The camera/GDMA/GP-SPI trace keys accept only the
+string `"1"`; omit them to disable tracing. They enable existing controller
+diagnostics in the session's retained QEMU stderr and do not accept paths.
+This is a
 trusted-workstation control surface; do not expose it to untrusted tenants.
+Explicit diagnostic microphone overrides are labeled separately with unknown
+format until independently verified. Their arbitrary host files are not copied
+into the evidence ZIP as if they were the generated fixture.
 
 Devices whose `features.storage` is true accept a content-addressed raw SD
 image through `storage.sd_image_artifact_id` in the session request:

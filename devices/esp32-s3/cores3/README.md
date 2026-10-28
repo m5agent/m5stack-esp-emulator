@@ -20,7 +20,7 @@
 | 重量 | 37.8 g |
 | 显示 | 320×240 ips，2"，ILI9342C / ILI9342E，触摸 |
 | 控制 | Touch, PWR |
-| 外设 | camera:gc0308, imu:bmi270, magnetometer:bmm150, rtc:bm8563, light-proximity:ltr553, io-expander:aw9523, usb-host:max3421e, microphone, speaker |
+| 外设 | camera:gc0308, imu:bmi270, magnetometer:bmm150, rtc:bm8563, light-proximity:ltr553, io-expander:aw9523, usb-host:max3421e, storage:sd-spi, microphone, speaker |
 
 ## 模拟状态
 

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/lv_anim.c",
+  "preimage_sha256": "9b301653dfdc566cb5b62f16e4bf616d48b6a68a8f2a82b64775acc7670ad7c2",
+  "candidate_sha256": "670984106559cb501365b2831d92df299b2b4bbae2c8b99b809bc2ec1665463a",
+  "problem": "Custom animation lookup and deletion compare exec_cb although custom callbacks are stored in custom_exec_cb.",
+  "correction": "Match custom_exec_cb and preserve variable filtering, NULL wildcard behavior, and deletion-callback list mutation safety.",
+  "validation": "Actual source C negative/positive regression and matching preimage/candidate visible native callback test; hardware NOT RUN."
+}

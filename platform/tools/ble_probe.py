@@ -173,6 +173,12 @@ async def observe(args: argparse.Namespace) -> int:
         link=link,
         public_address="00:11:22:33:44:55",
     )
+    if args.role=="peripheral":
+        # This fixture exercises legacy GAP scanning. Bumble chooses report
+        # event shape from this advertised feature bit, rather than from the
+        # guest's legacy HCI scan command; disable its extended capability so
+        # the original legacy-only guest receives standard legacy reports.
+        emu_controller.le_features &= ~hci.LeFeatureMask.LE_EXTENDED_ADVERTISING
     install_controller_compatibility(Controller, hci)
     install_controller_command_compatibility(Controller, hci)
 
@@ -214,6 +220,12 @@ async def observe(args: argparse.Namespace) -> int:
     phone = Device(name="Network Lane Observer", host=phone_host)
     await phone.power_on()
 
+    if args.role == "peripheral":
+        try:
+            return await serve_peripheral(phone, args)
+        finally:
+            await emu_transport.close()
+
     advertisements: asyncio.Queue[Any] = asyncio.Queue()
 
     def on_advertisement(advertisement: Any) -> None:
@@ -246,6 +258,11 @@ async def observe(args: argparse.Namespace) -> int:
         connection = await phone.connect(advertisement.address, timeout=10)
         emit("BLE_BUMBLE_CONNECTED")
         peer = Peer(connection)
+        if args.subscribe and args.expect_notification_prefix is not None:
+            expected_size=len(args.expect_notification_prefix.encode())+len(args.payload.encode())
+            if expected_size>20:
+                mtu=await peer.request_mtu(max(23,expected_size+3))
+                emit("BLE_BUMBLE_MTU",str(mtu))
         await peer.discover_services()
 
         target_service = None
@@ -386,9 +403,112 @@ async def observe(args: argparse.Namespace) -> int:
                 emit("BLE_BUMBLE_DISCONNECT_ERROR", repr(error))
 
 
+async def serve_peripheral(device: Any, args: argparse.Namespace) -> int:
+    """Owned NUS GATT peer; all values cross the normal HCI/ATT data plane."""
+    from bumble.core import UUID
+    from bumble.gatt import Characteristic, CharacteristicValue, Service
+
+    completed=asyncio.Event()
+    connections=[]
+    active_connections=set()
+    subscribed_bearers=set()
+    received=[]
+    notification_sent=False
+    expected=args.payload.encode("utf-8")
+    notification=b"ACK:"+expected
+
+    def bearer_connection(bearer: Any) -> Any:
+        # Legacy ATT uses the connection itself; EATT uses its L2CAP bearer.
+        return getattr(bearer,"connection",bearer)
+
+    def subscribed_writer(bearer: Any) -> bool:
+        return bearer in subscribed_bearers and bearer_connection(bearer) in active_connections
+
+    def on_connection(connection: Any) -> None:
+        connections.append(connection)
+        active_connections.add(connection)
+        emit("BLE_PERIPHERAL_CONNECTED")
+
+        def on_disconnection(_reason: Any) -> None:
+            active_connections.discard(connection)
+            subscribed_bearers.difference_update(
+                bearer for bearer in tuple(subscribed_bearers)
+                if bearer_connection(bearer) is connection
+            )
+            emit("BLE_PERIPHERAL_DISCONNECTED")
+
+        connection.on("disconnection",on_disconnection)
+
+    def on_subscription(bearer: Any, notify: bool, indicate: bool) -> None:
+        if notify and bearer_connection(bearer) in active_connections:
+            subscribed_bearers.add(bearer)
+            emit("BLE_PERIPHERAL_SUBSCRIBED")
+        else:
+            subscribed_bearers.discard(bearer)
+
+    async def on_write(bearer: Any, value: bytes) -> None:
+        nonlocal notification_sent
+        received.append(bytes(value))
+        emit("BLE_PERIPHERAL_WRITE",bytes(value).hex())
+        if value!=expected:
+            emit("BLE_PERIPHERAL_WRITE_MISMATCH")
+            completed.set()
+            return
+        if not subscribed_writer(bearer):
+            emit("BLE_PERIPHERAL_NO_CCCD","client did not enable notification CCCD")
+            completed.set()
+            return
+        await device.notify_subscriber(bearer,tx,notification)
+        # Sending may yield while the writer unsubscribes or disconnects.
+        # Bumble silently skips a notification when its CCCD is no longer set.
+        if not subscribed_writer(bearer):
+            emit("BLE_PERIPHERAL_NO_CCCD","writer subscription ended during notification")
+            completed.set()
+            return
+        notification_sent=True
+        emit("BLE_PERIPHERAL_NOTIFICATION_SENT",notification.hex())
+        completed.set()
+
+    def on_read(_connection: Any) -> bytes:
+        value=received[-1]if received else b""
+        emit("BLE_PERIPHERAL_READ",value.hex())
+        return value
+
+    tx=Characteristic(args.tx_uuid,Characteristic.NOTIFY|Characteristic.READ,"READABLE",notification)
+    tx.on(tx.EVENT_SUBSCRIPTION,on_subscription)
+    rx=Characteristic(args.rx_uuid,Characteristic.WRITE|Characteristic.READ,"READABLE,WRITEABLE",
+                      CharacteristicValue(read=on_read,write=on_write))
+    device.add_service(Service(args.service_uuid,[tx,rx]))
+    device.on("connection",on_connection)
+    name=b"M5-API"
+    advertising=b"\x02\x01\x06"+bytes([len(name)+1,9])+name+b"\x11\x07"+UUID(args.service_uuid).to_pdu_bytes()
+    await device.start_advertising(advertising_data=advertising,auto_restart=True)
+    emit("BLE_PROBE_READY",f"port={args.port} role=peripheral name=M5-API")
+    emit("BLE_PERIPHERAL_ADVERTISING",args.service_uuid)
+    try:
+        await asyncio.wait_for(completed.wait(),args.timeout)
+        if received!=[expected] or not notification_sent:
+            if args.linger>0:await asyncio.sleep(args.linger)
+            emit("BLE_PERIPHERAL_FAIL","payload mismatch or missing guest notification subscription")
+            return 1
+        emit("BLE_PERIPHERAL_PASS")
+        if args.linger>0:await asyncio.sleep(args.linger)
+        return 0
+    except asyncio.TimeoutError:
+        emit("BLE_PERIPHERAL_FAIL","guest did not complete NUS write/notification exchange")
+        return 1
+    finally:
+        await device.stop_advertising()
+        for connection in connections:
+            if device.connections.get(connection.handle) is not connection:continue
+            try:await connection.disconnect()
+            except Exception as error:emit("BLE_PERIPHERAL_DISCONNECT_ERROR",type(error).__name__)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=9544)
+    parser.add_argument("--role",choices=("central","peripheral"),default="central")
     parser.add_argument("--name-prefix", default="M5-NETWORK-LANE")
     parser.add_argument("--payload", default="M5_LANE")
     parser.add_argument("--service-uuid", default=NUS_SERVICE_UUID)
@@ -430,6 +550,8 @@ def main() -> int:
         help="bounded wait for the post-pass continuity trigger",
     )
     args = parser.parse_args()
+    if args.role=="peripheral" and (args.reconnect_cycles!=1 or args.post_pass_trigger is not None):
+        parser.error("peripheral role supports one exchange and no post-pass continuity trigger")
     if (
         args.reconnect_cycles < 1
         or args.reconnect_cycles > MAX_BLE_RECONNECT_CYCLES

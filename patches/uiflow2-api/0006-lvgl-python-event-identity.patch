@@ -1,0 +1,121 @@
+--- a/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
++++ b/m5stack/cmodules/lv_binding_micropython/gen/gen_mpy.py
+@@ -3029,7 +3029,53 @@
+             if arg.name:
+                 arg_metadata["name"] = arg.name
+             func_metadata[func.name]["args"].append(arg_metadata)
+-            return "void *{arg_name} = mp_lv_callback(mp_args[{i}], &{callback_name}_callback, MP_QSTR_{callback_name}, {full_user_data}, {containing_struct}, (mp_lv_get_user_data){user_data_getter}, (mp_lv_set_user_data){user_data_setter});".format(
++            # Python event callbacks are stored on individual descriptors.  The
++            # generic generator chooses a different trampoline for each remove
++            # function, so a native callback-pointer comparison cannot identify
++            # the Python callback registered by lv_obj_add_event_cb.
++            event_prefix = ""
++            event_suffix = ""
++            if func.name in ("lv_obj_add_event_cb", "lv_display_add_event_cb", "lv_indev_add_event_cb"):
++                event_prefix = "if (mp_obj_is_callable(mp_args[1])) user_data = MP_OBJ_TO_PTR(mp_obj_new_dict(0));\n    "
++                event_suffix = "\n    if (mp_obj_is_callable(mp_args[1])) mp_obj_dict_store(MP_OBJ_FROM_PTR(user_data), mp_obj_new_str(\"_mp_event_user_data\", 19), mp_args[3]);"
++            elif func.name in ("lv_obj_remove_event_cb", "lv_obj_remove_event_cb_with_user_data", "lv_display_remove_event_cb_with_user_data", "lv_indev_remove_event_cb_with_user_data"):
++                with_data = func.name.endswith("_with_user_data")
++                event_prefix = """
++    if (mp_obj_is_callable(mp_args[1])%s) {
++        lv_obj_t *event_obj = mp_to_lv(mp_args[0]);
++        uint32_t event_removed = 0;
++        for (uint32_t event_i = 0; event_i < lv_obj_get_event_count(event_obj);) {
++            lv_event_dsc_t *event_dsc = lv_obj_get_event_dsc(event_obj, event_i);
++            bool event_match = false;
++            if (lv_event_dsc_get_cb(event_dsc) == lv_obj_add_event_cb_event_cb_callback) {
++                mp_obj_t event_dict = MP_OBJ_FROM_PTR(lv_event_dsc_get_user_data(event_dsc));
++                mp_map_t *event_map = mp_obj_dict_get_map(event_dict);
++                mp_map_elem_t *event_cb_entry = mp_map_lookup(event_map, MP_OBJ_NEW_QSTR(MP_QSTR_lv_obj_add_event_cb_event_cb), MP_MAP_LOOKUP);
++                mp_map_elem_t *event_data_entry = mp_map_lookup(event_map, mp_obj_new_str("_mp_event_user_data", 19), MP_MAP_LOOKUP);
++                event_match = event_cb_entry && (mp_args[1] == mp_const_none || event_cb_entry->value == mp_args[1])%s;
++            }
++            if (event_match) {
++                lv_obj_remove_event(event_obj, event_i);
++                event_removed++;
++                %s
++            } else event_i++;
++        }
++        return %s;
++    }
++    """ % (
++                    " || mp_args[1] == mp_const_none" if with_data else "",
++                    " && event_data_entry && event_data_entry->value == mp_args[2]" if with_data else "",
++                    "" if with_data else "break;",
++                    "mp_obj_new_int_from_uint(event_removed)" if with_data else "convert_to_bool(event_removed != 0)",
++                )
++                event_owner = func.name.split("_remove_event_cb")[0]
++                event_converter = mp_to_lv[get_type(args[0].type, remove_quals=True)]
++                event_prefix = event_prefix.replace("lv_obj_", event_owner + "_").replace(
++                    "mp_to_lv(mp_args[0])", event_converter + "(mp_args[0])"
++                )
++                if event_owner == "lv_display":
++                    event_prefix = event_prefix.replace("lv_display_remove_event(", "lv_display_delete_event(")
++            return event_prefix + ("void *{arg_name} = mp_lv_callback(mp_args[{i}], &{callback_name}_callback, MP_QSTR_{callback_name}, {full_user_data}, {containing_struct}, (mp_lv_get_user_data){user_data_getter}, (mp_lv_set_user_data){user_data_setter});").format(
+                 i=index,
+                 arg_name=fixed_arg.name,
+                 callback_name=sanitize(callback_name),
+@@ -3039,7 +3085,7 @@
+                 else "NULL",
+                 user_data_getter=user_data_getter.name if user_data_getter else "NULL",
+                 user_data_setter=user_data_setter.name if user_data_setter else "NULL",
+-            )
++            ) + event_suffix
+         except MissingConversionException as exp:
+             gen_func_error(arg, exp)
+             callback_name = "NULL"
+@@ -3108,9 +3154,12 @@
+     else:
+         param_count = len(args)
+ 
++    # User-data getters unwrap the descriptor's private callback envelope.
++    # Their conversion must not be shared with unrelated void-pointer getters.
++    event_data_getter = func.name in ("lv_event_get_user_data", "lv_event_dsc_get_user_data")
+     # If func prototype matches an already generated func, reuse it and only emit func obj that points to it.
+     prototype_str = gen.visit(function_prototype(func))
+-    if prototype_str in func_prototypes:
++    if not event_data_getter and prototype_str in func_prototypes:
+         original_func = func_prototypes[prototype_str]
+         if generated_funcs[original_func.name] == True:
+             print("/* Reusing %s for %s */" % (original_func.name, func.name))
+@@ -3127,7 +3176,8 @@
+             func_metadata[func.name]["args"] = func_metadata[original_func.name]["args"]
+             generated_funcs[func.name] = True  # completed generating the function
+             return
+-    func_prototypes[prototype_str] = func
++    if not event_data_getter:
++        func_prototypes[prototype_str] = func
+ 
+     # user_data argument must be handled first, if it exists
+     try:
+@@ -3171,6 +3221,14 @@
+             type=lv_to_mp[return_type], cast=cast
+         )
+         func_metadata[func.name]["return_type"] = lv_mp_type[return_type]
++    build_post_result = ""
++    if event_data_getter:
++        build_post_result = """
++    if (_res && mp_obj_is_type(MP_OBJ_FROM_PTR(_res), &mp_type_dict)) {
++        mp_map_elem_t *event_original = mp_map_lookup(mp_obj_dict_get_map(MP_OBJ_FROM_PTR(_res)), mp_obj_new_str("_mp_event_user_data", 19), MP_MAP_LOOKUP);
++        if (event_original) _res = mp_to_ptr(event_original->value);
++    }
++    """
+     print(
+         """
+ /*
+@@ -3182,6 +3240,7 @@
+ {{
+     {build_args}
+     {build_result}(({func_ptr})lv_func_ptr)({send_args});
++    {build_post_result}
+     return {build_return_value};
+ }}
+ 
+@@ -3207,6 +3266,7 @@
+                 ]
+             ),
+             build_result=build_result,
++            build_post_result=build_post_result,
+             build_return_value=build_return_value,
+         )
+     )

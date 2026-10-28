@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "UI_AUDIT_PARTIAL",
+  "sdk_declaration_source_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "declaration_binding_sha256": "e31f966b9b264e41fd2511c98b6279740ae7aa6058090c5ebe8c255da46f4830",
+  "selected_join": {
+    "path": ".work/api-sweep/ui-native-selected-20261028-r1.json",
+    "sha256": "696dde865fe7c3b87bc2b39a01fbe48812c8b66fd42d289214eff0b26f6727f0"
+  },
+  "selected_run_roots": [
+    ".work/api-sweep/cores3-lvgl-core-gen68",
+    ".work/api-sweep/cores3-lvgl-containers-modules-r2",
+    ".work/api-sweep/cores3-lvgl-descriptors-gen70",
+    ".work/api-sweep/cores3-lvgl-devices-modules-r2",
+    ".work/api-sweep/cores3-lvgl-draw-pipeline-isolated-gen4-r4",
+    ".work/api-sweep/cores3-lvgl-draw-tasks-isolated-gen4-r3",
+    ".work/api-sweep/cores3-lvgl-files-events-gen70-r2",
+    ".work/api-sweep/cores3-lvgl-globals-gen68-r2",
+    ".work/api-sweep/cores3-lvgl-masks-isolated-gen3-r2",
+    ".work/api-sweep/cores3-lvgl-resources-gen70",
+    ".work/api-sweep/cores3-lvgl-schedulers-isolated-r3",
+    ".work/api-sweep/cores3-lvgl-lifecycle-r2",
+    ".work/api-sweep/cores3-lvgl-additional-final-r5",
+    ".work/api-sweep/cores3-lvgl-decoder-libraries-isolated-gen4-r1",
+    ".work/api-sweep/cores3-lvgl-decoders-isolated-gen3-r2",
+    ".work/api-sweep/cores3-cache-entry-alloc-stock-r1",
+    ".work/api-sweep/cores3-cache-entry-alloc-sdk-preimage-r1",
+    ".work/api-sweep/cores3-cache-entry-alloc-sdk-candidate-r1",
+    ".work/api-sweep/lvgl-all-image-aliases-resilient-stock-r1",
+    ".work/api-sweep/lvgl-all-image-aliases-resilient-candidate-r1",
+    ".work/api-sweep/lvgl-image-core-stock-isolated-r1",
+    ".work/api-sweep/stock-object-core-confirmation-isolated-r1",
+    ".work/api-sweep/cores3-ui-gen66/native-styles",
+    ".work/api-sweep/cores3-ui-gen67/native-objects-r2",
+    ".work/api-sweep/cores3-ui-gen68/native-widgets-r2",
+    ".work/api-sweep/cores3-ui-isolated-gen1/native-widgets-more-r7",
+    ".work/api-sweep/cores3-ui-isolated-gen1/native-objects-more-r2",
+    ".work/api-sweep/cores3-lvgl-stock-widgets-final-r1",
+    ".work/api-sweep/cores3-lvgl-ui-helpers-final-r6",
+    ".work/api-sweep/lvgl-corrections-preimage-r3",
+    ".work/api-sweep/lvgl-corrections-candidate-r3",
+    ".work/api-sweep/lvgl-files-preimage-gen70-r2",
+    ".work/api-sweep/lvgl-files-candidate-r1",
+    ".work/api-sweep/lvgl-menu-unsigned-preimage-isolated-r1",
+    ".work/api-sweep/lvgl-menu-unsigned-candidate-isolated-r1",
+    ".work/api-sweep/lvgl-subclasses-preimage-r1",
+    ".work/api-sweep/lvgl-subclasses-candidate-r1",
+    ".work/api-sweep/lvgl-widgets-more-preimage-isolated-r8",
+    ".work/api-sweep/lvgl-widgets-more-candidate-isolated-r8",
+    ".work/api-sweep/lvgl-widget-extras-candidate-isolated-r9",
+    ".work/api-sweep/lvgl-final-stack-candidate-isolated-r12",
+    ".work/api-sweep/lvgl-obj-final-candidate-isolated-r3",
+    ".work/api-sweep/lvgl-userdata-lifecycle-preimage-isolated-final-r3",
+    ".work/api-sweep/lvgl-userdata-lifecycle-candidate-isolated-final-r1",
+    ".work/api-sweep/lvgl-observer-cleanup-stock-r2",
+    ".work/api-sweep/lvgl-observer-cleanup-preimage-r2",
+    ".work/api-sweep/lvgl-observer-cleanup-candidate-r2",
+    ".work/api-sweep/cores3-obj-namespace-stock-gen5-r2",
+    ".work/api-sweep/cores3-event-mark-deleted-stock-gen5-r1",
+    ".work/api-sweep/cores3-lvgl-led-color-stock-gen5-r1"
+  ],
+  "selection_exclusions": [
+    {
+      "api": "lvgl.label.set_text",
+      "run": ".work/api-sweep/cores3-ui-gen68/native-widgets-r2",
+      "report_sha256": "6d8e837d7cb4e3ce89349fff86498480faa32bac0e2dd3036a14ff0141e883a8",
+      "frame_sha256": "6a28fd02d413926d80d5369cdba0140a843274131b5a53265463d429bed9178e",
+      "execution_id": "3575496c96ed48fea9a4a674fa060d5a",
+      "implementation_lane": "reference-frozen-implementation",
+      "original_status": "ORACLE_MISMATCH",
+      "observation_kind": "frame",
+      "reason": "Old list fixture raised TypeError before cleanup, leaving a white list behind the final near-white label; the OCR contrast precondition was invalid.",
+      "original_observation_sha256": "5e616164f49c685e15d4774a9a0c724336c4a1431fe15cbfa9ba564a4a6691fc"
+    },
+    {
+      "api": "lvgl.qrcode.set_dark_color",
+      "run": ".work/api-sweep/lvgl-widgets-more-preimage-isolated-r8",
+      "report_sha256": "54d279d7ba42960d7777e7189b76810ed09c6f2b82832909c50fa77eee361255",
+      "frame_sha256": "6494e2d06998afa660e76689ba5e3558f8818874cfcc73ae1870e8ce87d32cf1",
+      "execution_id": "b8edd8bc21324b089c45f8fd01c0f516",
+      "implementation_lane": "matching-sdk-preimage",
+      "original_status": "FRAME_PASS",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "3148b2e3a89a348d5666c212907f581727cd6c34c87b7ec893c0160443833e6e"
+    },
+    {
+      "api": "lvgl.qrcode.set_dark_color",
+      "run": ".work/api-sweep/lvgl-widgets-more-candidate-isolated-r8",
+      "report_sha256": "c006fedc1d4202bd1483486b79a94d7c9d77cd35283606ef80eaf0dcbc905e61",
+      "frame_sha256": "a23b60ab9f9db16c2c7f00a1dcd19978e0d02d3e084eb6bacf89e269054bb9db",
+      "execution_id": "80d4a8a47f5145d8a14857e4fa741b3d",
+      "implementation_lane": "candidate-firmware",
+      "original_status": "FRAME_PASS",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "69ee02a2d946bd2ab67828ec8868f2746b6b75efd1cc4261682aac85362bffc7"
+    },
+    {
+      "api": "lvgl.qrcode.set_light_color",
+      "run": ".work/api-sweep/lvgl-widgets-more-preimage-isolated-r8",
+      "report_sha256": "54d279d7ba42960d7777e7189b76810ed09c6f2b82832909c50fa77eee361255",
+      "frame_sha256": "6494e2d06998afa660e76689ba5e3558f8818874cfcc73ae1870e8ce87d32cf1",
+      "execution_id": "b8edd8bc21324b089c45f8fd01c0f516",
+      "implementation_lane": "matching-sdk-preimage",
+      "original_status": "FRAME_PASS",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "1b82b01b38cb76668539a0308df2d8e85ba9bc58e968237e65580431eeaad4e0"
+    },
+    {
+      "api": "lvgl.qrcode.set_light_color",
+      "run": ".work/api-sweep/lvgl-widgets-more-candidate-isolated-r8",
+      "report_sha256": "c006fedc1d4202bd1483486b79a94d7c9d77cd35283606ef80eaf0dcbc905e61",
+      "frame_sha256": "a23b60ab9f9db16c2c7f00a1dcd19978e0d02d3e084eb6bacf89e269054bb9db",
+      "execution_id": "80d4a8a47f5145d8a14857e4fa741b3d",
+      "implementation_lane": "candidate-firmware",
+      "original_status": "FRAME_PASS",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "8ff506f7bc8296ff2e154389b8cc1f77f04ab4e2e63b3c21ad99d71075372080"
+    },
+    {
+      "api": "lvgl.qrcode.update",
+      "run": ".work/api-sweep/lvgl-widgets-more-preimage-isolated-r8",
+      "report_sha256": "54d279d7ba42960d7777e7189b76810ed09c6f2b82832909c50fa77eee361255",
+      "frame_sha256": "6494e2d06998afa660e76689ba5e3558f8818874cfcc73ae1870e8ce87d32cf1",
+      "execution_id": "b8edd8bc21324b089c45f8fd01c0f516",
+      "implementation_lane": "matching-sdk-preimage",
+      "original_status": "ORACLE_MISMATCH",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "ddc121d70de21eeb31f6a7697c06a39c8d605e93dd4841438bc6cba3eef2c758"
+    },
+    {
+      "api": "lvgl.qrcode.update",
+      "run": ".work/api-sweep/lvgl-widgets-more-candidate-isolated-r8",
+      "report_sha256": "c006fedc1d4202bd1483486b79a94d7c9d77cd35283606ef80eaf0dcbc905e61",
+      "frame_sha256": "a23b60ab9f9db16c2c7f00a1dcd19978e0d02d3e084eb6bacf89e269054bb9db",
+      "execution_id": "80d4a8a47f5145d8a14857e4fa741b3d",
+      "implementation_lane": "candidate-firmware",
+      "original_status": "ORACLE_MISMATCH",
+      "observation_kind": "frame",
+      "reason": "Later keyboard fixture raised TypeError before cleanup and occluded the earlier QR. The final full-page frame cannot establish QR decode or exclusive QR color-region results.",
+      "original_observation_sha256": "76b09137dd454051103ec7c8b4729ace2263d280d9370c075fbf506de1c6fe76"
+    }
+  ],
+  "selected_root_report_hashes_sha256": "39e3cfddc28594590db52869c8595cbfd5fbe28a5893c69e78ed82dfcc870824",
+  "denominators": {
+    "core": 667,
+    "objects": 890,
+    "module": 288
+  },
+  "own_and_module_method_denominator": 1845,
+  "counts": {
+    "cores3": {
+      "reference-frozen-implementation": {
+        "explicitly_observed_own_methods": 1845,
+        "methods_with_STATE_PASS": 1751,
+        "methods_with_CALL_OK": 31,
+        "methods_with_FAIL": 25,
+        "methods_with_UNSUPPORTED_BINDING": 23,
+        "methods_with_BLOCKED_MODEL": 21,
+        "methods_with_BLOCKED_BUILD_CONFIG": 3,
+        "methods_with_FRAME_PASS": 8,
+        "NOT_RUN": 0
+      },
+      "matching-sdk-preimage": {
+        "explicitly_observed_own_methods": 313,
+        "methods_with_STATE_PASS": 270,
+        "methods_with_FAIL": 27,
+        "methods_with_CALL_OK": 21,
+        "methods_with_BLOCKED_MODEL": 4,
+        "NOT_RUN": 1532
+      },
+      "candidate-firmware": {
+        "explicitly_observed_own_methods": 371,
+        "methods_with_STATE_PASS": 339,
+        "methods_with_CALL_OK": 28,
+        "methods_with_BLOCKED_MODEL": 4,
+        "NOT_RUN": 1474
+      },
+      "candidate-source-override": {
+        "NOT_RUN": 1845
+      }
+    },
+    "cardputer-adv": {
+      "reference-frozen-implementation": {
+        "NOT_RUN": 1845
+      },
+      "matching-sdk-preimage": {
+        "NOT_RUN": 1845
+      },
+      "candidate-firmware": {
+        "NOT_RUN": 1845
+      },
+      "candidate-source-override": {
+        "NOT_RUN": 1845
+      }
+    }
+  },
+  "group_counts": {
+    "core": {
+      "cores3": {
+        "reference-frozen-implementation": {
+          "observed": 667,
+          "NOT_RUN": 0,
+          "statuses_nonexclusive": {
+            "FAIL": 11,
+            "STATE_PASS": 651,
+            "UNSUPPORTED_BINDING": 4,
+            "CALL_OK": 3,
+            "BLOCKED_MODEL": 2
+          }
+        },
+        "matching-sdk-preimage": {
+          "observed": 52,
+          "NOT_RUN": 615,
+          "statuses_nonexclusive": {
+            "FAIL": 14,
+            "STATE_PASS": 42
+          }
+        },
+        "candidate-firmware": {
+          "observed": 58,
+          "NOT_RUN": 609,
+          "statuses_nonexclusive": {
+            "STATE_PASS": 57,
+            "CALL_OK": 1
+          }
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {}
+        }
+      },
+      "cardputer-adv": {
+        "reference-frozen-implementation": {
+          "observed": 0,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {}
+        },
+        "matching-sdk-preimage": {
+          "observed": 0,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-firmware": {
+          "observed": 0,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {}
+        }
+      }
+    },
+    "objects": {
+      "cores3": {
+        "reference-frozen-implementation": {
+          "observed": 890,
+          "NOT_RUN": 0,
+          "statuses_nonexclusive": {
+            "STATE_PASS": 853,
+            "CALL_OK": 10,
+            "FRAME_PASS": 8,
+            "UNSUPPORTED_BINDING": 19,
+            "FAIL": 9,
+            "BLOCKED_BUILD_CONFIG": 3
+          }
+        },
+        "matching-sdk-preimage": {
+          "observed": 223,
+          "NOT_RUN": 667,
+          "statuses_nonexclusive": {
+            "STATE_PASS": 210,
+            "CALL_OK": 5,
+            "FAIL": 10
+          }
+        },
+        "candidate-firmware": {
+          "observed": 269,
+          "NOT_RUN": 621,
+          "statuses_nonexclusive": {
+            "STATE_PASS": 258,
+            "CALL_OK": 11
+          }
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 890,
+          "statuses_nonexclusive": {}
+        }
+      },
+      "cardputer-adv": {
+        "reference-frozen-implementation": {
+          "observed": 0,
+          "NOT_RUN": 890,
+          "statuses_nonexclusive": {}
+        },
+        "matching-sdk-preimage": {
+          "observed": 0,
+          "NOT_RUN": 890,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-firmware": {
+          "observed": 0,
+          "NOT_RUN": 890,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 890,
+          "statuses_nonexclusive": {}
+        }
+      }
+    },
+    "module": {
+      "cores3": {
+        "reference-frozen-implementation": {
+          "observed": 288,
+          "NOT_RUN": 0,
+          "statuses_nonexclusive": {
+            "CALL_OK": 18,
+            "STATE_PASS": 247,
+            "FAIL": 5,
+            "BLOCKED_MODEL": 19
+          }
+        },
+        "matching-sdk-preimage": {
+          "observed": 38,
+          "NOT_RUN": 250,
+          "statuses_nonexclusive": {
+            "CALL_OK": 16,
+            "STATE_PASS": 18,
+            "FAIL": 3,
+            "BLOCKED_MODEL": 4
+          }
+        },
+        "candidate-firmware": {
+          "observed": 44,
+          "NOT_RUN": 244,
+          "statuses_nonexclusive": {
+            "CALL_OK": 16,
+            "STATE_PASS": 24,
+            "BLOCKED_MODEL": 4
+          }
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 288,
+          "statuses_nonexclusive": {}
+        }
+      },
+      "cardputer-adv": {
+        "reference-frozen-implementation": {
+          "observed": 0,
+          "NOT_RUN": 288,
+          "statuses_nonexclusive": {}
+        },
+        "matching-sdk-preimage": {
+          "observed": 0,
+          "NOT_RUN": 288,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-firmware": {
+          "observed": 0,
+          "NOT_RUN": 288,
+          "statuses_nonexclusive": {}
+        },
+        "candidate-source-override": {
+          "observed": 0,
+          "NOT_RUN": 288,
+          "statuses_nonexclusive": {}
+        }
+      }
+    }
+  },
+  "tables": [
+    {
+      "path": "docs/evidence/2026-10-27-uiflow2-api-sweep/native-core-status.json",
+      "sha256": "794493aa0f81e531fe001b0b07dad2e8a0ce1d71bab6f3e8935fc8851755da2f",
+      "bytes": 32926
+    },
+    {
+      "path": "docs/evidence/2026-10-27-uiflow2-api-sweep/native-objects-status.json",
+      "sha256": "c8205a2d54532f4f200762fec0799fdf74fc06d4efff2904bf59a40ec3077e03",
+      "bytes": 44073
+    },
+    {
+      "path": "docs/evidence/2026-10-27-uiflow2-api-sweep/native-module-status.json",
+      "sha256": "22233b6b841c9d08f78106360bc10019bb34c1a02a5ad110b98175c48dd590a1",
+      "bytes": 20426
+    }
+  ],
+  "decode_schema": {
+    "payload": "Each native-*-status.json decodes to {schema,results:{fully.qualified.api:{implementation_owner,observations:[...]}}}.",
+    "observation": "Each observation contains device_id, implementation_lane, evidence_id, result and optional execution/frame identity. result retains status, argument_domain, oracle, error and paired-getter provenance when present.",
+    "receipts": "evidence_id is a zero-based index into ui-summary.json receipts decoded JSON array.",
+    "default": "For every declared API, device and lane without an observation, the exact state is NOT_RUN. Counts are nonexclusive across observed domains and do not sum to a functional PASS total.",
+    "decode_python": "data=json.loads(zlib.decompress(base64.b64decode(document[\"payload\"])))"
+  },
+  "receipts": {
+    "encoding": "zlib+base64; base64-decode, zlib.decompress, then parse UTF-8 JSON",
+    "decoded_sha256": "08710af9ca87ef02aa56e350a00b635b9b0f1341a71c783096d344e450a96911",
+    "decoded_bytes": 76371,
+    "payload": "eNrtfeuSnDeO5bvod6ubF4AE+u/uvMFuxEZsbDhAEnRrWpa0VXL39Ez0u+9ByhfZylRWVmqypJ1qu20rKyuT/AjgnEOCwP/+jxfD7v27+79Y4fbizy9yLbRzWXWtxVXLpm7qe3PtW6enkbKJN69tSdHRxiplri1llZlLoxd/eDFfu7358d2LP//Hi/n2h3f25tXbN/ffvXu1vvv+7RvHy//8w4ttr177+u7+vb33797d+b3f/c3Xiz+/v/vR//DiL6/u37+9+8enP7j78c37Vz/4Rx/24fX3fvfDqzf2+sMHYhr4/Xfv8Hv4quV/ezX9u1f4EIwHn1gxRry2/A1ejhG+9vf+xu/vY8R3/u7t3fvvfprDhxG8ef/L9/t7e/UGA9939oN/8ioG+8pef/Lyv7969+G1f370xb8+8eVbdrLGY1OhYnkLq6+e1JjXqJyb9iJp7ZoqF/YSLxAT1VKzYzb71d0Pf7c7/+61vflp9vOvL/fd23/3Nx//+Jfv5DL7yJJ8TZ+uon0Lja2m1pOTTLOqK7OnPtzmzCPh62bTkbvWNOJD4wn8+ond1SzXkW2VpsrNhqbSdt2cSq1J2OqyVpYNsfiaLvjq1HZulXz2F3/46dHjs/7497d3f/2TvXv18v7v7u/+9GHVXr7+2/evX8Z/v/ze3zT504f3//Ff79+++eW3fx2Q7TV2tZnnZM2Yq3TatfosZAmj0LladvbqsG3CFC2vyq2RuWfx/eLj1YaxHqzj59X742FJ4Tv/eB8/gOGX8ocX7+z9Xx4+/N981h9efDl7+OdPi/PHd2++/2iQ3PXSIf76MR+N7+qVxvg+OMof3//b+48GWKWlfOkQP/qkj8bYRve6pY29fe3Re9U2knKnkpwZ66+VPbeR3dOalclrxjyIx8qpy4t//vPXYDMQWRCMfvnwslKVugbPMKldW0l5DPxmGyJYhEmJEA41MyuG0bGeeFaUeBpn3xF+7hFtEBU/BCXLhUfhYsU6CdNwfHhLlmGjqVhY4v3bH+8+jhmw4wZrxizIxQgmkvZswqkuSazWbHd84LS1RHLuheIfgqXhlFKz+EhEyh/x1F/8y//6l//2P//Hv/z3w2sfouZPweoZG54aGxrMZvLA82QEpsp7FluI1Uv7ROhOuxSedWmhvvDAGYueEM8TInfuMI3HYMNQuAtPX0CEtNa2sE8FGuCV2Se1rrZaCiNLjlHMnWqj1TMjbLWZnxIb3hye6t39yx/erh8Rs1/elTMwwUoNgJYSAHB3wUB9U1tDR8AEvCw8s+ZmPdNuLpvnbLnaAkwmwMtlMEFCDwxwx2ZyCjGutpKrEePYaG8LHllLqleM9jiOgP4Ua4icbYA3NIVxTLaM5yyrjkXNLalkMKQ6WwVKV4TIXGQ2gMCo+7M4UnMfssh3773VZrX0nTXXVmXM2qUmEIGELwfoU9qwS0TXXnffmzDd/XsccanWFTbMUmG8fcxwSm1axsCTnkdwBGBoNS2CeeCdtQicuiOq02gVOOb4j0RS4m9EgtXr2F0bEKWUOprnZxz5NnBES0kwikaejOD0XnZD8PYMujNznrppVIEX5jFh3Lns0h1sLAmcctX0GBxZaYdLI9QMgx0tMCFpQBax3AVGbEsXqFfNBE4LBtPB1gb4D0YInpvsUxxB4II/ULUkVjf5WJtBbfAFc6r2lIrvVkcvlbjmjciew6VIwcPw/vpQHFl+P+9evYN53AfL7OkMhtRZSmcHvUuICCvJ2ImWlzUNYcAKuFfVBDueYPPwuEAX8MVwrqll8UUYklpuD4pzn87iFH5cbR0n8KOm8siRHsWOq5f/FHZorfWRAz0OG+JWENpL6gZwUJ9Qbhg5rNsh6AqEmw2ouppmTg56hWeplNbIa0gWROrPwYa2LANRUBGiK8Q5GP/G544ORYKvhcYdXiaeBNyrggMwCM4EIhksTYAtv4eNOgDJISABZdAteRAn9uVUZAwpx2CjLGB022KapTrXDRMpvYf7rrIBEZAvheqaae5tbW/oMchq2w4PWM2fYeMbkR8gZFDGS1YfNRdNlUF7Oh5yByuyWcHcxHdwI/ael4HFrAFRDWVdXOgxsKHZbCxIkMZzZOnZtTmYFyxntpUrjJ8gvN07/Gu3zGDvyu6wM4AGl6eEjVjNC7RHAvTtlYM4rkWQVXBh2ZlpIzbMRqX1vYAnBRxwFcI7Vgl/g9O1nPgy3CiZ+gOD3CfTOCk8rrWPq4Hjk6HeFjmyQlQ9dqjHsaMCbcEjwLEh1Io643GtJiVDFC3ooJIaniuCNWi7gGCVpAN/KLW1FLO5qeRIAAArBn+0AubAg4FiZSA+kwzLdAQ7VsKXghKq7oxQXji13iGpY69KNfkafRc4MwBEkm5fXBoUBz68gypae8aOb0Ry9N3dxs4VXmbg9lCX3DQtH+CUuWrwEyde08UY0mDNzdzTpqlQ3Y+SHAO63JfCuDPEa0p91katwHxhzIg5cP/mlOMogKB23cF14BDbdE+gx3hC7Lizv7989+qdv8ajffnq/u1rLPgKkkkv7+gMjsQeb608gBAV+qMaxPqgmhEiWlBBjHQAVSceb4EMA2UcPQFNaHJKltdFOBK72g+LeJ+f0kkxcq3dXIspnx/2bfGFciP5EsM+jjWbqcuIfV1LGD3BYDTOEhq4OkOWDzgKHvquoGGqMyAD7uOtZds8ad12e4vxxQpJ3avQxtjWqEUN/5bW+ED8Pjkm2TNB+3glA0O0nmxAmaW6wCpTw1oxJjVKF91bpbQ1AmDxC9K5z1WesebbwBpeccSVQrMOGb1xKeDMNLcmOGOPbYpY9r14kU7IBl2a3RZRMR3rUTpluzJWTAAxIGEwzcqzCKyGzUF9IFXAYlKRzLERRqnEZvcC86EGcd7nE2PNe7v/6/3v40Q9d6Y+l5Zi8OkKCp9Fkudtq/jsnbdoYpD7ycJeBljp7gzy70oVon+6pcuAplJ7eOg7MZ9TKHO1xXwJlDkx5ttCTOm5Xf+cj+OLrhzqpWreCL86dukmlgcJ1K1OUu8JgdgXgfxDADBY2YCu2WBtRO22WsaMdauJVs7UMOhIGZF4tnrgGEfwhSdvrcslw/7LgjyJI/vcaVucKJY868Qsh3YwMrYOHODCoKFOHaKZn/Hl28CXWSWPhIVEpIeFGaxIMwIc7aSUaQl0aQIjsa6ieOPwPEYzZ1hPrXs8Cl+kO6ACSgXSv8NVho1WEgwSLMXh+aPXZDXB0Df8ai2xadYyXml11f10+HKI7C/9b1iUn7bJz2+FIRDjG4vGXnbPkQXjG/G29c0JKgD+XXaZQIS8DHSvekVIppoytwJDlwuPUOrDJMzxmZzClKut5EpMOT7a26IJdGW6YrDHYcRXV922VbOBdSnBFCxpAnoQtMgCvxBhtj10sQ+w/d2WeYK8AavnftPjFOjXmUeIVXyoQ6SAUcwJ8YKv27uPIzCCKJ044QOrJxgDzBv2Mwt0MEGdiMHNdzZgYmSw2eFDuQOpoM0wyf58Cv+NwMgQ5aUNdBMCM/JGXEZtXbC47NpnajCukrVHrlXJayRwJKjWMAEZWh8DIzbFEE5hJbDg+JBVG41lm6B5wZDy0lVtl0hnRAxSjM3Anrp0uADlJ9wS+/7122Gv7z/keZ5HEHxxyy14O8S9+Kw8oD2guMA3JwY3bEXiVp2h1OCZ8O++8AQm8GSUCzfBUntgatQnkzgFHlfbxpXg8clAb3wE39sjH+iJU5RSB0K155WBF2rDK4JXzQItshoCqzEkQ5pduxvwQmlUWA20BPWuJd80AVjFBDgT2IVfpwRYMRORKhMxN6VjyqMujLnDkHk1hO2EQe+Rx8YDpwXQgICCPK9xkqKQrGtyUSjaga8R+nAw8wwZXz9kLEsIwmSw0RlXGVobIzbzE8gJLzAfeFWekpdE5qHUPmXFjlTPCHZgz4+BjAqPyRsEB4QbvLx1fHHvkM6H7d8uK1YU+lyBGiLLoGVriSg0ak4u6ekg44dPNifqAzKAQe8qhpciuRcRAo4b28ZZYs9gqEiBCIOcl5XymjTNc7yYUx0gbG6XAAcY7MOOi0/M5BR6XG0mV6LHieHeFkMqpPI1oz2xh5XEwSYoZ0GEN/yxjKzQFZAFtKYAPlYaRGNgjLGVKK4VgDOsLsjZ9lkkAdwMmVivPmF0jt8cA05XJ8xt4pl0BHSmVRPvCZvr1WN77HBnpdvc9skeFlSKTtkQRkCHjgCcMpCVIaNHQtw/Jj42Bpqa9Q21CnnTc+x5+gEqIq8AHInabKkXYHSXA4WEXFVhSDA4wjOSfBtIUgbnDc9zRgTPLdssDsIyYbFNdwdpEc8d2jq3Ha/vCvHJhj/Bgoo/ag+rRgACSIzEw/roSURLaROrr4VYXGxqm32ORUF1mg5QsJxLIp45P2EKMP7r4CcPSwBeAAOLU0NaOW5mrTJKR7SAPp8JEgS6fiaQspRBPiuUSGHmuQYxfAAa/rJzkUYPy1b9/RxOgcfVlnElePx+nDdO4WqgNI8a53G8yOTkFvm9VZpqTb2WXBDuQJ9A7vvqZftoBkNJCpHtzYhtRiq4cCe+6WZVGqOYYZ1HalSw5CB9ToN8T3gi2xG8IG4LruoGPrG9QqOywdoVbMnAKjKQDO681OrckCFrQNyIr94htrbq85n6t4IX7AwekbBm4LwdvjbiiiqIwgp7ynVHpvdcqo5AseNidW5lWqFcCTL2MXgRBx0E2kSImyBPffhsGy7uKbVUnR36otmWuMamS/akLIVldYZFqD/hZtX9/ItHYufdR7zy7HF6pATg61hry5vW7talyKJceM4ho0HaU1xjjzMDXtLibDoPE9apXOtlW1alP0x6nJjKSfS41k6uRI8Tw70tiEjVes1oj0MJYHgHYTKQImiOTSDpIx5pWqtxTnu3pQWiWzcioOSJ2OzZimWXaWo3hRKpMFUsOQY2aCywPVKIyx5XnartdQRKtHaO7ebRijph3LFh2wxGEod7y3oGeSppyiCF8t4kcPUdh5wlJeDpM5R8G1BisaOiBEUM4qMVFDONbnl1h5WykuShBDpESfH4e/eic8+F8FBH0Q8y4OIKJzZ4ellQxNMggnecjifYtSt0BzQJj9YrBEkhSgQkISw9hHCoWlD4/nRQ8vrV9vkPLM/5rStPBYIcjK1O3W06vlTi1oBE2omM1VomBAYuXZLCgJ3KSh4ok3rmcuGpeXngqflvJnAKNq62iSth4zeDvC1YxEXry8d4qtCJl8iOCHjtLaWa8sxaaW5hmnhQDSET0QyDblB4dZYFOU7B2D3XcdvdKeggaMapOQqu7FJtmAVNEHdAih8759iz6ugjjvLEBixGFnwUKDEHnLf2xqaTK35Z1fDoazMuDnsvG6qD0jNEfCMZVkYLAWmBPAhQHxxRCREN1tWdJvhGQSSwOGcg2KAURA8bYERh9Bu0+FEZVpDmbE6cW2uAi+ZgqilkB4HwgMcIt44oZK3BQIf7Shv/ytCxMHXjpyt0Ymu9eg+DssijiX/e8dlqWFBNlTPY4YwKQQMz7ArdDy8GFqTRiDjuwkB7zXA3mHOkSoIVErhfuWyHKuWH1XE6No+T2VXXWsiVRU6OjfXGJU6SZHn0WE/sVnWhVuLsApGOS/UlRlBwEjKjF2eGRyxGbIvsvATNsONwecJc4A4uN83QbbnGGOGZM1Mm+GIxYEDcJEyTtR3Dj6apI3THXRbmeRhBhU23nCF7oFQgTXLOkNWwdOBQmpAWgkhfoEHWnM/48Y3gR1w+gFGMhXgwqWrcuDDpcQ7XwSt1lm7eg2oizq8JErGJbLvD1gc96rYhSE+H2RnYx2w6J4ipaFVwkSUtsuptV7gLg8Jm0FcmeBUMf7ZZ6166nvKm+ny7/A4Ec9zZ3Sv/JKE/n4GT6fjOEaUSOXjYgueAhhl4WSSg1EkG1S5jFGoGqS7VuxaEtzpg49L0ojNzPJIHXrE+O6uT4HKt+Vx9kf3s0G99lp7kS438OPLAQdRySx1uAlnOGFiaFImHQHUIi2mMMMlky3vKzWxijguYUVoPSLkp8ozlRRDCMeZNXFgkz51KWqG/eR47V6fRnOcCCaiIBKIQTysO2uAg2hRmBWHlQVvmITUs71GrNIqiSbERXJ+R59tAHmmSR+yMjqwgTyWui9U6tIBq79rzDs4yN8FWeNU9V2QExh4MDHBo10edk0gHnABEPKddgvbKZMaKz4XBrAQz3xSF/ob40CkwCOoldldFm7Ty5MhzcZLW6mBshuGvSSM2qXU4uH+VKhzsudfBFcuwpw3jNROoXOHIYAEGVR2X7XQhUFwS/C5I1LraWr4M0Dx5rha4EF854OOwAjW/EOSNN4OdIcCaMuSiQt4WEBbMJ6cU464wp7QFlGwZ/AnxGDxt6k03xIaBNvI08A0nUrK88oiyz00KNNax43dtpUCRddgRZGZa1XVDY8adfaDXZNg7SEnfljnVEJoahGaXSMMBNV3PsPKNXGlvvEeqA2IBwYBgWCAOAwGh5Lj0xAoVbonFuYN/t+Z99QrT2LQgNNKjzkxECyAiSsfOlEHal840eJW+WoHHqLJZtypgxIz3gRKtnKO6tvlCiPIngZVp8y/+Eqtx94+X9vr12/nywzzPaphcIdl0rYyQMDMcZcJdOUHJ5c0TXHMd0p0okmUjcz7X1UEWB01uCS5+kYbp5ayG+cxETt5iv9ZIHo8mnxntjZVK0nbFYI+jCCRgHKGD6XeQjDwasdWuUeYsTslB0UPpIxADmjUyqn1Cs4DGr57A3v2m4qQLwnCbIBLUCdwh7qCmDLdte2q1YzcOd8U8avbN4E7w67hTNHJbVEFKgGEShStBSvDg8AtFZp6HqnuiG3qtPfLkHXgMsIMVkJXOSTDnSXAzOGGKQ39i2qN08DrDs922SdqqldPcBapvPKPIpSgCftwGc5DlHE0lYKBRnA3qYVqL228MI4mnjAfeS/IMCwfLthY5e1LaERSZcCDo/Xev3uDr4Vlv1qsVz+UYoFCD+7YWxemSDQ4B4rD8EVUAF+ytM1wprrzCqWBWBIo/MZpUopBXtvm1AMr660ss1qsf7Hs/jyvOziBw8F6rVtp2AaOTsvcayag2zVGniykKhVfGhBeVEZcwE83SbFyIK48Jfr+bzyl4udp6vii8/G7QN0cZvX7Mp87wS7eofpClabKeIlEYUZfWHojCSapFmx4tzBAINjkrcKc1aP4J3XvbKlxx4M6Mh9loU4kzIQTnqKFFAKBW9asBGyi7LJDUE3PBc0rVsejW4lAwSKsJ8+5zR7sVaW0u2XjI4Ln49sYu/RlsLr6r2GrtiALDDn2XmmyzqPGJFR2w2Qo3g/kOz4Y42CUP+CFhFYADWP+VrwSbyBTUw1ULUOI5F03IecRaiPOap0RtJy8lblU3HiBLubqB2UUh1TZs2pMc5x+PGb9M9DzadOIxWpxMsGOEAFfgj8M7RzWwQMuHeNJXXOfIwONqvqOV1MoqCCWXbowRPS4K/mZGJ28xXmtAjz/if8Cob3vYL7V8iUGfOPWfcXgV2bXk3oGBwzT3BnSYKlhkiMc9aUPZAJM2Z7yypo0CUgbFWe22Zy8bWmBxjoQOis3SUeIArg8ezeVojeGnQZznTbKbI44nmBX420QQ6FEe1FJs4w6sA9HyUXvHO1OPKuprbPAmjd3WaFqh63FZY1mjTkRk0g6Ez7gmlUGI20CsioINnEHsaUHaaIPJteobpgqyES3bsOZ8W03zIR3o9euXHziovX4Fk72Pq2yvXr/C6jx0s6zk1LSv5nDEZTmKZtChzgpXg5iHzyg8ZwyyCMerOAiXlIIliKIXYhdWfsynY9/DZ3QSZq61mkfImoeP+sa3H5k/cy3o4aM+UV9YqEbiPUEkTkTdglCI4H+40BIZlGpQEz6mQzoqlSmio3fyRUACSMsb1390t1VbntNJdlxw37MXM6MGoXOsD0rWsbAANje1KZNkMbinQwZF3vVaKnpo60CdATIFS5aEaIguoISUR96dTzRB+fAhAD9yTDoRr5w4slZ8YvZgf3H9ajTIdu0z9z0S9E7JK9pA7mecubgPio/NnLxtTwYTbRpcCWYM/dBXjkTilleHoPToNdqj/RNoIZ59haZv40plA4GyEUd7nmtZpCVu0ehdGmW5iS3uZJesu7KvTLW5L7U1EKXbLrytfmWQc4G6Gbyj8KPiCbMndmidyjwMfzsYK0aTAmhXwtPpA3QKCq+D++W9IAZHvTBtuV0BOw9SOFcb0n8G9JxXOf958BPXUr/QyI9DUGxFHhIoSuUERICKqXnkPfEH6Rr7akMVfI4JiMPbqxXABsLqANpXvikEAYvdAX+5k0GrFDxnxHn8alQKrVy/Ggh6ljq3hiA8UKpxXTdHRS7qw3lGgheIFNcVeZQE8kKRpppSFizDSoj+8MMpvsbjShAv2/DP7ZIisMb+xdJWJi12SsaTp3NUukhSCIwafL/0aCghNEBBnkLqfIgUh/7gH6b36y3rc1hjihlInNnA4zooP2QITDnHTXV4V1eVqG2xAyeoDCaw1TqiOGN0aJd24WXKXD8f9z47k1P4crWVPBZfPjvaG1+vbO2awZ7o6IhQyal2xDOsfaKBGF/N16ICSbghgmEiVuryJnntyV5q610ltA30440bAUuNonzaYKVRKLJqVJunUoEMTvXoVXx8YqNKiNJbsAZZ0lisIF2gVrRST6Bb7qVhQDxcOfPciAhVbXt7ruryrdyTSXHtFmRgRqc2rLbWGm2jY4NKQTqjVCCsO2oCwScR38AvoshpgrmzpUeVIO4uUXoQYWdHR40UVb9AfCs4jjrEShzRWUQr9qjM2rX1tCsl3ml4WkcayhO4cxPQl9UlGFJrs8WpTtSKKdkLRSyrcf8d4U9Hhngit+gjNZZIT5+DkQ/TeTv+1ef7DzFivn0Tk7K4UXcBnvQo0AEg6aJRpVtHAemkuMEcPedTYjBSBg0bc0mDu3IVa1HS1RhoMi8rSFyghk4GvQumdPKCzLV2cwJYMgL6lxj3UYi52kxO9kwBF6AvMewTOcyraPNDoxTua2WHStkARIH5CM0JhPMVF15no4SVkJC7Q/aKiIn33LbkJNZ7Q8BueHIYgKWssRGB0O4/9fz5pHixNq6jwNNBTGZtWoAtQKttGreScx2xboE5sScb/Yl1B/QauEqvD28B+WWC8bbX90ei8e9f/jkc//71g6MeXvzn0b2d6LScWpRt8NpHH0D/aKdZpzFY9rIeu6e7zc0l6ngiboAjjNnjL3F5wBnzj68O1bLbn97AAP8WnOcfiCbnetP21oG2BxZQZIPdcNsjRWpwKNFou9eGNRhHHgneNMAEEMnaGrwkHTjJJ9HrV6vEF/xf/+HHF6fNVHRGS/K5e7TlASeoHlm4sYNpzpF3fLhEIVGYeGSLOCKTJdoCp8kfbORjM907amPsWrsSTR4ahcHxSKXttuiQL33MpuKJ+t13eH5+d3DfF39u7dm2fm9b/Wfb+hD1HtD7OEtUW66IWDWCHVCw+YxytalYbGJIRIiK4LxhUJM4QkmJuzCiWOFK19qX9dpAJkvcUKUGUwYPiey2SBhxmFhsvBWWOmo0dAtSCnPzkcHQMRjLn2zdWEhH0Y2RQh8vCKvYuJsOt0hKeoF99Wf7+r19yc/29fdX63t/iH1BMbjUfmi453XCbGp0vNigWsBuSdAutQybycsC2EF1ZUKMyJRDPZlca19fukcASRS64Bx9wyhH78twky05Q8sXXhfYlzzb18f29fHFsvx7O/sh6NtdPxfMcvU9hIpNxVJClE/o976ppjQGfhTJWKorLp2Flc2orNc3ZA575Nhca2xfvJZfSU4MtF8aiQ4Z4a9tDB9BOJdSLjC2/GxrZ23tZ8z8YGvnAhsBgDSt0kDJo7VNgR7o2/O0rlshBBcETHQeXZtmRB78JR0qSKDBEUX+P7e1G20w/WydPxvvz9swH73ll+ptHx7w8+7UQ3rGw4rF4IYJvufmNhwrNyFF5xolganhZ8USdYE82VDqcWc22YKqL/aoKi6WOI1oEl8AsLwsCkISaYegnn1DW3toUxC6OcAfuoIeTC5xbQlW2v1IFRfgAJyiAdmn8GD8qsD0IE4oDkYwTISQYTIsLRsK8X4oyKfRxbzRng+vOXyY2s9I9VOhp3O7UrVFPSdon9nqoV1F3cURIGbD3L0uTb5ps82ixsAuV55cORpmQ/+ny0rVl/rQmsPHp3K6R/yVdnJqN4p7vWa8R3ehrjaHk4fnVLldM9zju094QlO31PjyKcmYhvXSWlpxSaJGKkacJNUQYmvh1Wq99bmpyB5Nym2TgyUO7nNsNw2SWsRi5Ba/dTCEI7tPw0aNpvACIAOmU/SJKxz9sqY3LTRBsvH0S1SQzQ1Ee9mEQCi9aLTksuejjm+lJFgDS8tjR4EFEgbBi3QKWFlZYHcwWRhr6yWiHmUw9BQ5npN4wyfzfFzrrDKGQgTMPha4EU0wRCsIUdGmVsDSoiZpbL0OxVflyPFoXJMM+IJafsKqwyCnf/HX76LSxk/xoZ1T2GUsAKSrGkAz6g+vCakLjVtLFAKDyxpoM7R3S47HsECrEyC29ZwR++iy3KzywJKSx+ZxuurXlRZyZTGWY2O9cf5VSaSPHutx/Egl0ALWjlFEod/VtO06W9oUDRxmMqs9mt9MPPoV5bFGJwTj6NCZcs03xY9tHM2GqgI9CN8ubBhM6dQTUJCOXWc044VfgkrhjAmEYUM6QiLKkqxx5oRVGhI1GcLShzAxrGixgwO0MZ/vzn8j3Xp3ryOL9FDULe8NslyKRnP16M0snn0gzEcqz274742/EPJ9CJYmz3Rl0u8sFoRLNTYrV7OeIe+jygqo1hpzxc03GMSIOqZBUHrqzZuQbkQDkJkjugSaPO5AgmtWMEyQ57UcpAYcCtPZ6dD6qTeBv3pmkZUQ9jiaBmsxo302+QqreOczxPj9R9eez3VByaExakeMi4YgsgUuu7VUU9g5dxBiPODYRrBFetjacDawtw4TV/d5Wd4VvurzyUGnJnGyce+1ZnJKizTtjxvpcRVy7eKfTLcqnxEhnx3nCfiALQti3RbouuwI8L1HF6mhiOhRGquA4YMlI87bTHtmkGWCvMJAefjQmzY9qU1MI/9eW6dUuyYuKxpRyxhAETkCH9HFaOa2G++4gTxG0sYpziDBpypof5QdR9SGD3tiQGPcVQKQRIn/3eiRBbzSqHuvGnRAgI6aMgF58U3A4uiKvaBIvdIiiOrGUYoMYtpsWpus87BD/Qwfl91NBDPZfcF6U5SPPRT6EDxPmBrCGVjx7MIZ5lznHksNdCVMbeneYMhlXwkfPOVwXy3a73QhGDX4QItd4wyfSTX6BoGK5W5z9jnxs9bAJReD+kCgpCeGj48y+8/hh8bl96UCnTxrATXfbWQDKyww9yge3OHH2QZkvFf4J4E67RbFyxBXpl6Yt6s1PTza/WYWJ68jXmsoXwRAfjPUWyNIyY8c6Inr7WOvHfcbWkc4A3xEGxxQ4lZWKRUREMQec8GwecdukDjkHQR6xi913+O2fbNmoWzmkE1G+H0FjQdbiI6JEM+jfDUQ8qxAbg0hu9QlNRojNdtR+JaG+XajuIpAUceGCCqzJtDPyNDbDi7UETLAorE6ciWENAbFdi4w6FrmghmbM9RIlrTiOhEk9YxSDLPGbgN+7D0v10ieJDhbe4LrH4f4/SvJPPRpfUAbLdaK/3vuAExOcWowejxRJ+trj4jBVL0OY7aWJyQIOL5I3eChK+tlCNKIPx/tTk3iFIBcbSaPvfRxaqC33cPqierjxnniqodHdemEoJpBjhGWBx+oUhXxkYii/9gGjShxAuJtjR5tGq2qAhm50k3RAxJzRFmGIdEzLYrkgPQsOKfptnwoQfRJw/cClZLwgdWj9F5rtWgOqerUR5HY5NzZGjX4AiDJBUPrmBvNHHns+XHoYRDJoCy9V9fa4zoAcDkAOEeLcGALVj4anfboPg/umhikAkYBmppjP+0ZPS5GD9hq0TF5dVklJdhv3nm1KSVK+w5Qo1kn19S8F6z12Bw3rLE62ZKueSV6OCEgFWkTah4xtPhwuHldO3eGHDHBIpfYzO0CPElRSHDbyHF80pLs/mToccH19Lyhkwk2zcUltoC21G6IDQKhoBMKZMCDraWoXKS2UtRJ3nGjUBOGeaH0aJIeEucedBH9auO4DjOe8Mp5/1wNs1NDPI4UCOBxmKV1cxRfX2vv6QeDHxXSum1t0EUSvadUWvRa1wjRA+wJMpXzTZGiRIWyueoc2uGa+OtQg7VURGbQuPzVIMWzzrg1UlDcDO0jg+lkNyldI+tpp8hLAZkckZMiBTCM5yywu9wn6ONaCNWhKOnaraoyOSdo4AlKlZZPxByFa9uEOrfIPYpCCDDAoTWuYNPcHZaIENoJjnHkmrn0nhEHwI0QqviwZ2INxuGHNBuJigmR5gXR3BtMfCF8z9iyJTXo/0RnkeIHf/Pjyx/f3L/6Pqb3C7N8+OXAHJ3cQcBTRayINKyU87C6GEFj17D71DJcKgE18k4Y/8wGQjoQWXLiCzv3Zj6DHA+Yzykkudp4Tm1fpXNx+gGDPr6Rda11nLwWmM9tZD1gyMehZsDu1aKlXOzSqnk4gO06KBMCO0OmplUyFUyHMh65tx6NCgqCfe8+btvWJEWHdoYxDML4iuQ4pNkI5/iwcrStiYN3RP7hgGpRioM9gCfCPdA0jvC1QG+5ps3AIklCbJg24L5OrIl/KAJ5OdTw4YRRvUXd7bHiZKRW8lWilTagB2oO4af2tqHy21gJDwFouGE3alrtGWouLmMywWUqDBUGMmuhJYdKcB1SOqe1I61zGAA+yo7O2Tk0IjX1wZwXTP1KqFH4eC9GK8taUQVDYVUjeK/naJSlg/fGiwxPs7ELvCLPBU5XozxTO3IqknfrDWwEcYIq2EhusWkbqYQ0EEDwr5JAEhEGwZwlzaYgYpgoPrFq+unqx8Oh5ldW+nCs8drgfHFtcsLGI4mAWssc5facU6EMrqpmkelreJ9j9DXD9lexvStfqFJq10ti4PEJnaxvcq35nAIb0MrrR30Uba42kJO5W6r5+jGf6H9SYRQVsNKrQQAq4mGF9WSPImwdlDvqdtUawiMajjQQ8jaER0gEdrst3DQoQNCjuJ1J5JWDacT9qmjWCK3Uvxq4eVY2N++iFVbVNtXIdqiOZ+mxm09lgplyHGpg3fHTzjSB+tDqu6UCLZJgQWpXF25MHTxo2e5W02rZpXuI+WpNaE+4DLgaj9mjE8iG+MlWQJV6NBjFLx7ZA4uzFqXcFsJzqqlBcpPkyjBNnwWWhPcp3uPNeo/2RJ7KaLDtagVW1c/Czf2PY762+/uPN8zPVwd2BLcBSl0xrYZ4y4OHjIoxRK3tXPtY0X8vb8Q19gJvtsECpWBtrpQvVDP5TNw7MYeTXbSuNZJToFL0cQM9iiNXr/wpHGmf6fT7uVEeR47YfVoIcZsbrY74qyLQJ6Pm3hD0ZeeWU7flKpoUAoV9TrDrMiJVjm67J+a6rTeSIXXFVRwFKkzBOh9K2bVjJX+Lsm9YeRz38KE7WI3q/gk0EkEdwqwovLzJ4agwWhfs3hZC+dyziBxq4j2fnnwL2b8wpY1InWcH999p5wzDcIbrw263gOdaV23cW1QG1LhPBwCH81mOjqJXIkcBMUlL2ONU1yVMGyCSZjSlS2no9gy4wJuTgUx5g3FwlMbojbf3euTsfce5dufcoqiFQNooJWk5g4oqfGONBSZKFr1vMuCqx5ZTAuvRvgtVo0uQ44IjFIqtr773yLN4npBfBcRoN3gUEDKBFva4LWIIdh0eORXBIoPpLZeW5rzsFkmi0h4c6x50jnK1mZzCDmDp40Z6FDyuXvyTuVvKjxvmiVZYLfp7ACByGytjeeOuvU+QJBvRVKCoRq4GzSjROVoCndiYVUk9+JT4bU9UKoHCMcL6zJQgoaP5NoibH/JF5vhq0ONZd9waPTzu9mL9csNqdqzmXEr4e/iaMO6uY+21uno45WgSLW1aD51pY+Z97dl77OXAdrh4IgUPn5qVwWzh3Rm0MbhOHiWajo/oZboHeGWLviYz9sKPtcKC1xB4e2oIYratteS9RW1qYyhuli0SdyAIhjpjzwBRMLlMGPNBi5/f5vpNwZUjG+NyBkcY5P3QoDVO2luKdNrugI4osi6RTpkQencZcb5dEJonw9DxFvfacuGLuvlmpnOpteencwpRrjadE4gCPdmuHfNRbLnaNE72iEdkKtcO+cQlExJJCt0H5WeyEO3MevR6aYlTnYDAFs0VskYX7CV1g29BWjlDoO+ooHvT4xRxjCF6PNRCA+E7bqDKhm6eKdDvCM50gsBitxKXyLkXydAzCfAXrQ9n1L7funIC1uHncSskOhGILUSHbpjy43AGMjnaSse+sVKxFPWvJCrVkIJ3AKxN8SK8r1nGM5ocaXagTZi7RQ+HZ5y5FGeydWneogrG8qg3nSakP3xr49mnyLtCNBkgodCGPDuXzNDibWdYEKz9apxJqVH3KA/JtQyNbS7vFgE1gwKDR1SJJpw2p0Vl0B0MGeSi4i0ry5HGJFbqiF7BCvscuc0yo9SS5RV7BNoFTpIO+SjQBCPaNm5RL3FMSyNuiF2GM8e2xM8BDZynbcTivKhEvn3GJDGlAfaGOA2XB/TAp4C/taUWt5HdNlx7TAzS22V7XdxaviACHp/PKaS52nhOI029etBHoeZq6zgJNXEuffWYT2BNw/Jb3D7XaEvIuuArOuAnfcJP9gYxKT1NKHzosQEkGICOgneX2NBpN8WaSO03MeoAFuIlBvOGAiNwpaiAsJ6x5r8s1liBEgZ7G22JUoVq1ei6OqnmkA99ItTTasOjMrUtHVwlOodEa1T8ka/NJ96JqjG+GUxYUt9dQYZ1IgK3rVHEAQ6vtZEzCBoEgCOqRUcoxAJl0yM7Ypoc5gPB0Ct8R9ZYnGsH9Yuwt6NSE2J2JAVA2ZccTuBxwYV7pHH+VKD9PNa89H97f2f3R2OGnr2ZAo7vlGugjQ0bkY9ZIdQn5DpFp4k0OAoBdESBkWg2sxLJl+DaeZcL08SYHqRqPj+hU2hztfmcPGUp5fpRH981u9ZATiaKscr1Yz4ON9EdOTq0S7AuICNbyMQe3UcLrEJX6lHyzSYhgs5NqYKrQAs1yoV63zeFGwq6VOpsMzZ5Bw/wxDo2URwiUT5WfmVqo9jry60O2Pvq0ZYgpwJM7VlnVSWoYF+x12FljRZ7X81Tg5jjfeh++Nxz8VuAm1SiHwaIkgwseK2deYP4ESgqZ01d46Z3j+as0e69iEdtbq9sBmnfr80U24poVdZ28ULRp1RgoqXGFce4kZA9WkBEx/UWKf8gGdHxOzZS8b6e+nyS6ytRlwlLPf96PNnn3D1IhIs+FMPAPBKotGjeDq1TKcNRbXs0XuwLNr02aKLNvtQaqKI5eRkXNvlFwDl3D+PsfE6CzbXG8/jrLWfHfOMKX2Dc7eoxn+hTQgK2H0mUUWgiq8A4EL5Nyx7BVGL/jnqboG1p49lGKkBcSF2RSdvbbZXNtCyNs0VDGALFGICE2jvoUpR99WNZYpCPHSsO+9nRABrLsjDBDN/PhCXpA6KNZI9KYCkbQSEaYo8tUX+gpFWfoebbgJoetfQjPyXlOS2BPIzU22aRuEO7YXVzsE/XQ6pILk1rFI5QnvgV2ddCTY8EI5AzXqZaeufwc2jbOK+cu0B3Q9lOYI92fD8Y0mqNdrO4f55kPQXUvB3/+lPYOBYw6tnOWK1E03gJUV6Erfaoi7qL4kHE1WX8pJa9chb8F3PcOoPIw4D7KD1ftIWmomdC9rm5nMKYq63msRhzbsC3BRgYbLpuvCcuV7ZKydV6MxotDSj9XlL0d7bcIzt5AUQkXhgESlKj5VTUmVwzLUdsvim49DhhHHGexUKkCpCwqCEBuJOwgWNNsFyKugMjDQoNMFIZQoaUEjcqsJSY0cZAO6YDSefR/ltLEgj+6D3wnArwbYCLWIe3VUU4WAVifBQwIdktR76eEUVEY9UE/jTIooA5ol2KshMIHVT8SnABemSFOS8sNaJoAl0fKrUs9Tij2LAwIExcQnSsuoApywbLQeR139vKE4DLj3jOmI+9/KWDwpGj3Z+K0J6Dmlooel7PBj8HYwuOZrlVKZHW00YUy4w0o+oYde4FYVzzKNLG7ruA6F24gXbuhv5lUzuFPFeb1GOR57Lh3/hef8v6JUd/Ir3ZJ+L1trjCWjUXw8iBNjIG/lD3mMCq6BcTTQzjQizeHXdMycHuVt39psWNozLxjK5mrUe5mgEMAb+aEp+S+tEENV/GbTQwT6bhsLNCIDarrUXRDaNA6UHtR+/SYpBTYYeABaoZywhC+sji+KI9LneP3LHq3WlFOl+tcS2Xa8P/rFYzi05KMI2WvcadAisedSmi5uczKl1anXLELk7mscrasmG/BQHfEP2auI3Vgf7QvmbN1iFnbDdprgIJ2pOWaw9zUsAOBG5cfQehad15R9fI7ClLXKooLQ4KVlIYt1DJ5hYN+LjAC1r9SlDpCJ19YBcWTLHuFVo+ah1r1EUH++MVOUcNDLQvhoRYQG2Klu3RG67Gc4gbmbFTfmHhGL48Mn5ubicrWV5rVF8Qlz43/tsCk/C5CzYXDv9E6jSYu4pDEEVP4xnVXqBWCkkkDAJE6mTvDZw/Wm5HSb8EJlCGUMM/Kt8WmQZ+EJ3VOryaooOPgTvF818NzGzoV4NMzw3EvilYa0KxU5ZBCpJAJOcCBwVf01QPkl6iHyh8I9VtsBqsYuFDP48NplyaPqbny0jz4Gm7teHEUcqeDQFwbgfC8VxRglbjIvISWYrIB6oYF+KiPxVYzpNs3x1M4e7lT0vzU4Oos4UyZZJ71BRxPK+xZyRYGRTGYl4FkZ0yDek6a4WvANKA5s7uYySEeeOLYEtbPruvdGoWpwDqavN4/JbdqaHe+DSo1f7YkZ7oFgZVAwyY0eJIRjSgFGmiGqcW1rhIdHEnPNQ4jDeEa00UDSyLgw6s/fl0gzlL7phR5IPkbSxK1AFetkb20SSPTrmnuUAjIbm4bqiCVer0MfFy+eQMCFHaqov7rHRoewdhjFi9iJYBCI/ADqaHb5agMzXyB4hhy5hNTzSSwd5TGqBlWCkszwoYg+tnCybU46O/sm26Z9j5T4GdNvPKA+Snx31xcHgYxEi1JBhjWj3ay4mVuMcVZxzccovr46PO1GHG1x4gIaAVGD+sTuqsDh9JGZQkMjZTIXgLRlHiZCVPb6YQ1ilTULqmcS2DvwYE+vVm+dnO8bD/uiYr0Mh2XRjg0pEhFWkiNuQgld4Q6oOwUpI5KSNSwJ/MI0PwQhDKF8bLjydyEoeutZcvhkMfj/bWUETXPNoTZdIyBEdUnStzRBKZwconQnxcg5M4QoRJwAf6gPknwTQ8tHVRoIlDQNlN0YiivHTQjRyXbH2q54RPbaBVh4TqrwaNphfEDhdILiqVW5y0MbOA0yKA+E67QWbqKHFxeIhO7qNXfKvarOXQoekZjW54+RQB0QkSeFGUNYEsqVxA1RHwhyKQrCoyIVJ4gIytQ89UUPQoAzZ7J7m2cRnEzoTeIViHtyG7W44j0LglLxPKOUebVqU92dcMvY+QtqLmM1RTnfJVoNFHV9XPNg/A40NYrm3W1GaqUfc5552kMiP4xIB3WZ3SLq3AEa3v2RhvV4q7nJdpItZLA/xvZnLyzum1FvPF8Og3w70xIHGt14z2RI5cKrUmWEOaBlwKyg4NCv0Rdxgsp0kj+mnEJmHvBxWFRx9ik4XjFvdtEamBN+XoGwNF0QA0s2fZ0PMrr6hY8NUg0vO23DeFSIh6UWxkhHXAUb2shgXZyREgGgIOJO6YFBVfYPvdF0OYl06Ahdig4fGYbbkdx/j40CLgzZQRomd0dwXr7nitM8JGZHDGgX9Ng7REv/WdCG/beyV9klbMkSr1Bl96/w4c8Ketl+/9DZ+HoZrgAEuZW19pR4U5q86E13hrZJ4FidvR8XxTrtKNSJcXjzt4o9m+MNGhyLmuwZ+byikcutpOHt+Q+XPDvS0OcUl8zWhPFZAekUGZPRoX7eJd4vjcEUhLGTJmy9FrNupdRge9khFKgfZ79ii8g7fcFIdKU4j3ZN7ZyQ4fCiCK7DzQqL3TERyKXFGL3Yxe4pZ5dOYYmMmsipemrhHbvFlEpYqNKP5T+xzMCApQNak949B/BWUUiQU1Ogfs7oUaqDglNUGMjIpjeUV5YePVIu1/0I4WvouMo06Wr7EfhUOICNIL4hYUUEeI0EIdEVrL5M2rN0MEm9PdtfcMnwHrS2tBYFuPrNYnwSH/G1bi5Q9299eXy2PN1m+CzLn0hiaRPAsNVCpUTrRsKDUcJPBmHVo6d4CRWE8S5SDlsBvDJXKnEZ3GRcV4tH6Gtj90OieF0bUG83hAOjvmW7fN4atHfKrmW9o1K8IkNwRMs8wrrvCPMUBgXAD3BuyKJLBJHkSuTgN1SculJ70tMs0V3d9KdUKs5zUi22/j/1h9n3DcY8i0haNkD767DJNeCRa+64zfLxSXcvvhloNmWiBWxYuaxeLBWcrc9IxM/xUK+fAufYb+2HE5Ddxnb3C0XnXnSitrbXnPrUILdlYQZCBddok7dR3Bpz8GmQTGGJviphAIbkJRcTMyLX2MlTPiWhzuVljrKBiPjTiH6ExhOa3okRqjq3DKUSNL0wLOSWHxaCetOg1uUrOUNkHqaDg+SoZXM9geppuidll/ADIdNmJexybk29dv7y5CpS4TcNsX4iGecZSORPxb8AVpWbdvhIpVJHau4YUt90PLB6M6ZHaEoMtQiT5TuOchUzlZtOdaQzmFSJ9JXX/IeI+i0dX2cDKnrupVoz2BRFDEFXFzYrAS1cqDnYCr0a5FGoK9pZmaG8NfKuAJr2fyaH6gIxKtb6uRKsL1TJmiDwY+TaGCU92x9RzX6ORoCl2emoEp0NkYP7445bJh3oahGVMWMJgGS1mZU8+Hwhcevbzjulp64F7d//l/ojRF1g=="
+  },
+  "comparisons": {
+    "lvgl-userdata-lifecycle-comparison-r1.json": {
+      "path": ".work/api-sweep/lvgl-userdata-lifecycle-comparison-r1.json",
+      "sha256": "d731a6d883be6700bb846f3fb934a30953b48b4ede8d0b3099df99713fe8aa6a"
+    },
+    "lvgl-image-aliases-comparison-r1.json": {
+      "path": ".work/api-sweep/lvgl-image-aliases-comparison-r1.json",
+      "sha256": "cabadb05f9c5ce51313c4bfed43e8bad0859c94d0f0e3d29efb3e40b39c0cd6f"
+    },
+    "lvgl-observer-cleanup-comparison-r2.json": {
+      "path": ".work/api-sweep/lvgl-observer-cleanup-comparison-r2.json",
+      "sha256": "d2c8edea6c16d6066ffaf8d36d34675a1b459ca4484ecdcc0ff60f852c817494",
+      "status": "CANDIDATE_PASS",
+      "checks_total": 27,
+      "checks_passed": 27
+    }
+  },
+  "boundaries": [
+    "1845 explicitly observed CoreS3 stock method slots include FAIL, unsupported binding, build-disabled features, CALL_OK, partial domains and oracle mismatches. This is not full compatibility or full functional PASS.",
+    "Selected current recipes replace superseded erroneous fixtures. All historical raw records remain outside Git. Observer r1 count-only shared-subject results and object-namespace r1 destructor diagnosis are excluded.",
+    "Candidate firmware includes explicitly recorded SDK patch stacks. Matching SDK preimage and reference-frozen observations remain separate; no candidate PASS is assigned to stock.",
+    "Other devices have no inherited LVGL native-method coverage. Cardputer-ADV native declarations remain NOT_RUN in this table.",
+    "Cold native state/byte oracles do not establish physical rendering or hardware behavior. Frame observations and their hashes remain separate from native state.",
+    "Older selected program-session reports may lack locally retained serial/evidence ZIP/cleanup records. Per-receipt completeness flags preserve this gap; a reported STATE_PASS does not fill missing execution evidence.",
+    "No firmware/ROM, raw traces, credentials, private endpoints or private absolute paths are published."
+  ],
+  "redaction": "Only relative repository or ignored evidence references, hashes, API contracts, status and execution identities are retained."
+}

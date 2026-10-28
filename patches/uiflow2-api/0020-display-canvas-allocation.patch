@@ -1,0 +1,23 @@
+--- a/m5stack/components/M5Unified/mpy_m5gfx.cpp
++++ b/m5stack/components/M5Unified/mpy_m5gfx.cpp
+@@ -1305,13 +1305,19 @@
+     // The first parameter is the GFX object, parse from second parameter.
+     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+ 
++    if (args[ARG_w].u_int < 1 || args[ARG_h].u_int < 1) {
++        mp_raise_ValueError(MP_ERROR_TEXT("canvas dimensions must be positive"));
++    }
+     auto gfx = getGfx(&pos_args[0]);
+     auto canvas = new M5Canvas(gfx);
+     canvas->setPsram((bool)args[ARG_psram].u_bool);
+     if (args[ARG_bpp].u_int != -1) {
+         canvas->setColorDepth(args[ARG_bpp].u_int);
+     }
+-    canvas->createSprite(args[ARG_w].u_int, args[ARG_h].u_int);
++    if (!canvas->createSprite(args[ARG_w].u_int, args[ARG_h].u_int)) {
++        delete canvas;
++        mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("canvas allocation failed"));
++    }
+     gfx_obj_t *res = mp_obj_malloc_with_finaliser(gfx_obj_t, &mp_gfxcanvas_type);
+     res->base.type = &mp_gfxcanvas_type;
+     res->gfx = canvas;

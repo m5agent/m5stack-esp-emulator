@@ -1,0 +1,13 @@
+diff --git a/hw/m5stopwatch/m5cores3.c b/hw/m5stopwatch/m5cores3.c
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -95,7 +95,8 @@
+     qdev_prop_set_bit(panel, "touch", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+-    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
++    /* The panel is on SPI2, matching M5GFX and the shared M-Bus wiring. */
++    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
+     esp32s3_gpspi_set_dc_pin(spi, 35);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 3);
+     /*

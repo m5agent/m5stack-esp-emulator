@@ -1,0 +1,29 @@
+From: Codex <codex@openai.com>
+Subject: [PATCH] m5-i2s: consume RX PCM only after descriptor transfer
+
+A guest RX descriptor is often smaller than the 4096-byte host staging
+buffer. Advancing by the staging length discarded untransferred samples
+on every DMA completion and changed the recorded tone's frequency. Keep
+the source cursor at the number of bytes actually copied, including zero
+on a failed/no-progress transfer and wrapping only at source EOF.
+
+diff --git a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+index b3105de6..051ee1ed 100644
+--- a/hw/m5stopwatch/m5_i2s.c
++++ b/hw/m5stopwatch/m5_i2s.c
+@@ -252,9 +252,14 @@ static void i2s_rx_timer(void *opaque)
+     }
+     chunk = MIN(available, sizeof(buffer));
+     memcpy(buffer, s->rx_pcm + s->rx_pcm_pos, chunk);
+-    s->rx_pcm_pos = (s->rx_pcm_pos + chunk) % s->rx_pcm_size;
+     sent = esp_gdma_complete_in_descriptor(
+         s->gdma, s->rx_dma_channel, buffer, chunk);
++    /* The descriptor can be shorter than the staging buffer, or fail before
++     * accepting any bytes. Consume only the bytes actually written to RAM so
++     * the next descriptor continues this PCM stream without dropping samples.
++     * At source EOF the next callback resumes from byte zero.
++     */
++    s->rx_pcm_pos = (s->rx_pcm_pos + sent) % s->rx_pcm_size;
+     if (s->trace) {
+         fprintf(stderr, "[i2s%d] rx dma inject chan=%u bytes=%u\n",
+                 s->port, s->rx_dma_channel, sent);

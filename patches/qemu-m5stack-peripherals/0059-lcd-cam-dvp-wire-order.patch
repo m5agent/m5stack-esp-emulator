@@ -1,0 +1,80 @@
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index d3a23b7..aaaed74 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -9,6 +9,7 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/timer.h"
++#include "qemu/log.h"
+ #include "hw/dma/esp_gdma.h"
+ #include "hw/irq.h"
+ #include "hw/sysbus.h"
+@@ -22,6 +23,9 @@
+ #define R_INT_ST     0x6c
+ #define R_INT_CLR    0x70
+ #define CAM_UPDATE   (1u << 4)
++#define CAM_BIT_ORDER (1u << 6)
++#define CAM_2BYTE_EN  (1u << 24)
++#define CAM_CONV_ENABLE (1u << 31)
+ #define CAM_START    (1u << 29)
+ #define CAM_RESET    (1u << 30)
+ #define CAM_AFIFO_RST (1u << 31)
+@@ -82,20 +86,30 @@ static uint16_t camera_pattern_pixel(M5LcdCamState *s, uint32_t pixel)
+ static void lcd_cam_fill_frame(M5LcdCamState *s, uint8_t *data, uint32_t len)
+ {
+     uint32_t frame_bytes = MAX(2u, s->width * s->height * 2);
+-    if (s->frame_data && s->frame_data_size >= frame_bytes) {
+-        for (uint32_t i = 0; i < len; i++) {
+-            data[i] = s->frame_data[(s->frame_offset + i) % frame_bytes];
+-        }
+-        s->frame_offset = (s->frame_offset + len) % frame_bytes;
+-        return;
+-    }
+-    for (uint32_t i = 0; i < len; i += 2) {
++    bool injected = s->frame_data && s->frame_data_size >= frame_bytes;
++    bool reverse_bits = s->regs[R_CAM_CTRL / 4] & CAM_BIT_ORDER;
++
++    /* GC0308 RGB565 uses an 8-bit DVP bus: high byte, then low byte.
++     * With CAM_2BYTE_EN=0, CAM_BYTE_ORDER has no effect. CAM_BIT_ORDER
++     * reverses the bits within each incoming bus byte before DMA receives it.
++     * A raw fixture supplies those chronological wire bytes, unchanged when
++     * the supported controller configuration requests no bit reversal.
++     */
++    for (uint32_t i = 0; i < len; i++) {
+         uint32_t offset = (s->frame_offset + i) % frame_bytes;
+-        uint16_t pixel = camera_pattern_pixel(s, offset / 2);
+-        data[i] = pixel & 0xff;
+-        if (i + 1 < len) {
+-            data[i + 1] = pixel >> 8;
++        uint8_t sample;
++        if (injected) {
++            sample = s->frame_data[offset];
++        } else {
++            uint16_t pixel = camera_pattern_pixel(s, offset / 2);
++            sample = (offset & 1) ? pixel & 0xff : pixel >> 8;
++        }
++        if (reverse_bits) {
++            sample = ((sample & 0x55) << 1) | ((sample >> 1) & 0x55);
++            sample = ((sample & 0x33) << 2) | ((sample >> 2) & 0x33);
++            sample = (sample << 4) | (sample >> 4);
+         }
++        data[i] = sample;
+     }
+     s->frame_offset = (s->frame_offset + len) % frame_bytes;
+ }
+@@ -113,6 +127,14 @@ static void lcd_cam_capture(M5LcdCamState *s)
+     if (!s->started) {
+         return;
+     }
++    if ((s->regs[R_CAM_CTRL1 / 4] & CAM_2BYTE_EN)
++        || (s->regs[R_CAM_RGB / 4] & CAM_CONV_ENABLE)) {
++        qemu_log_mask(LOG_GUEST_ERROR,
++                      "m5-lcd-cam: unsupported camera input/conversion mode "
++                      "ctrl1=%08x rgb=%08x; no synthetic RGB565 DMA frame\n",
++                      s->regs[R_CAM_CTRL1 / 4], s->regs[R_CAM_RGB / 4]);
++        return;
++    }
+     if (!(s->int_ena & CAM_VSYNC_INT)) {
+         timer_mod(s->capture_timer,
+                   qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);

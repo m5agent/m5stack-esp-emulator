@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "lvgl_commit": "9c043167685fc08fbcd30ddf2c285ea1089be82d",
+  "path": "m5stack/cmodules/lv_binding_micropython/lvgl/src/misc/cache/lv_cache_entry.c",
+  "preimage_sha256": "b936460d587d5aaa35876a8f9cc11ee5d2b4313d85e25be8bb8eb9af717f3cba",
+  "candidate_sha256": "5e45146a7da0d67551918d01a883836c9d1e417cae645a920bb3154e31a5ed87",
+  "problem": "lv_cache_entry_alloc initializes metadata at the payload base but returns a trailing metadata pointer, corrupting payload bytes and leaving returned fields uninitialized.",
+  "correction": "Initialize and return the trailing metadata header, preserving the zeroed payload and allocation-base deletion contract.",
+  "validation": "Pinned complete upstream C source before/after with allocator boundary, zero/payload, reference lifecycle, and failure checks; matching SDK candidate virtual-device A/B; hardware NOT RUN."
+}

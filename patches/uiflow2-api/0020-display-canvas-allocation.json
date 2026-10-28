@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/m5stack/uiflow-micropython",
+  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "path": "m5stack/components/M5Unified/mpy_m5gfx.cpp",
+  "status": "candidate_firmware_correction_not_reference_firmware",
+  "preimage_sha256": "b13f252dbfd05eaa9135169acb13c65766af7529973debdc45690e4e9ae853f7",
+  "candidate_sha256": "a03e93050b195ddc256dfe18d3162dd445fb9b72d426d7cba9c00a4628db82c3",
+  "method_fixture_sha256": "32911de330f852b5a30da5396653ea1147ddf63258b8200b9d3608e2b6ecc29f",
+  "method_fixture_candidate_sha256": "7444697c777e577da7a6eb30867090375cd45764845afba8cdc6f15bca641fce",
+  "contract": "Reject zero/negative dimensions before allocation; if M5Canvas.createSprite returns null, delete the native canvas and raise MemoryError before publishing a Python wrapper.",
+  "scope": "Pinned ESP32 MicroPython mp_int_t and LGFX createSprite dimensions are int32_t. Does not change successful allocation, color depth, PSRAM preference, or DMA allocation policy."
+}

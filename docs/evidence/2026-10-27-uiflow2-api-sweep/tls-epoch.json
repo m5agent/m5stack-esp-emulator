@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "source_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "patch": "patches/uiflow2-api/0010-mbedtls-epoch.patch",
+  "claim": "CoreS3 source-matched preimage fails valid-2026 TLS certificate validation; corrected application performs five CERT_REQUIRED mutual-TLS HTTPS cases. Frozen stock failures remain separate. No Cardputer candidate claim.",
+  "certificate_comparison": "Each run generates a new disposable certificate/key with the same validity policy; certificate bytes are not identical across runs.",
+  "build": {
+    "base_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "candidate_full_flash_sha256": "1171602ce20e6aa0417f6146a89419d59e702a3c82dada5e9cd67bd2413f2a84",
+    "candidate_app_sha256": "12575c27edc77d1baf05e51fc13ae5f73af5f84381b6f0d58edb57f47aca6bc0",
+    "candidate_elf_sha256": "9b74db7ba8d14641acdb932d0991a6ef27957b837ce9387b55b8c23bdfabeea6",
+    "outside_application_unchanged": true,
+    "original_source_unchanged": true,
+    "original_library_unchanged": true
+  },
+  "runs": [
+    {
+      "run": "protocol-tls-clock-gen70-r4/cores3",
+      "device_id": "cores3",
+      "firmware_lane": "stock-frozen",
+      "session_id": "a4c7ef3a700e4a759719764e6a3e64a3",
+      "firmware_sha256": "5bd37dd293f081e621b5944e9ac6933541da5a8f663eddef7c2e982cd3941981",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "source_sha256": "8941d8f6b181098ad428bf3e6a0b594a334d6ab16c6bcb5effba9272d249cfe1",
+      "evidence_sha256": "3a75e8d2b058a08b7eb576161f5249eec67006ffbdfe085aeb8f1c65de73659b",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "protocol_report_sha256": "14fad0b40fce23328aec5f3aff36f264ade73a6e723391074cfa70ee1ccbb002",
+      "cases": [
+        {
+          "api": "ssl.SSLContext.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        },
+        {
+          "api": "ssl.SSLContext",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_verify_locations",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_cert_chain",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        }
+      ],
+      "rtc_year": 2026,
+      "certificate": {
+        "sha256": "fa6e91120656a6bab4178ced007a15c5bd27916b6279bfe909e02b50a0b63ee3",
+        "not_valid_before": "2020-01-01T00:00:00+00:00",
+        "not_valid_after": "2035-01-01T00:00:00+00:00",
+        "server_name": "m5-api.test"
+      },
+      "stopped_pid_gone": true
+    },
+    {
+      "run": "protocol-tls-clock-gen70-r4/cardputer-adv",
+      "device_id": "cardputer-adv",
+      "firmware_lane": "stock-frozen",
+      "session_id": "5693ea4e117448ce8251307c74a7db5d",
+      "firmware_sha256": "cd5e6bfd542b25761176f3ba757b5bb45b9bd660d3dbf7295a872a888d0b1198",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "source_sha256": "b2ed7f0595fb7a2b2bbe82f07bac0c2a9d5008f85879eb5cf72cbc5dfe75d9e2",
+      "evidence_sha256": "80849b642bd1d3e4d3f1f71f5924a353d5e913a13454464b8a0dcdc379904fd6",
+      "frame_sha256": "877179afb0021d9147cc66ae65f30cb7c621cab992faa597c2a8eb9d8f5c99b6",
+      "protocol_report_sha256": "852d0ecb5b55d289615ab859bfee34b5b067860bc9384e1d416d3ea5009b15b1",
+      "cases": [
+        {
+          "api": "ssl.SSLContext.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        },
+        {
+          "api": "ssl.SSLContext",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_verify_locations",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_cert_chain",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        }
+      ],
+      "rtc_year": 2026,
+      "certificate": {
+        "sha256": "fa6e91120656a6bab4178ced007a15c5bd27916b6279bfe909e02b50a0b63ee3",
+        "not_valid_before": "2020-01-01T00:00:00+00:00",
+        "not_valid_after": "2035-01-01T00:00:00+00:00",
+        "server_name": "m5-api.test"
+      },
+      "stopped_pid_gone": true
+    },
+    {
+      "run": "protocol-tls-matching-preimage-gen70-r1/cores3",
+      "device_id": "cores3",
+      "firmware_lane": "caller-pinned-candidate",
+      "session_id": "5036b4c75dde4e2192dc03c4ccaa0db5",
+      "firmware_sha256": "0fb3f4e2413a873bac583ee4250d37dffd7b53f1c90cbe1854605e567932fdca",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "source_sha256": "973dff686061cefd9280435a697f13ee2034eb69c8db8360eede4f05f809b826",
+      "evidence_sha256": "15f73936664208c1ba22273036f6dbf2192a3bb944136b8a88c5a4e8e312c637",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "protocol_report_sha256": "f9428aae7c92322d924e3001d8e00d4da2aff96a928344c12a844d87e2122b9a",
+      "cases": [
+        {
+          "api": "ssl.SSLContext.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        },
+        {
+          "api": "ssl.SSLContext",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_verify_locations",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_cert_chain",
+          "status": "STATE_PASS"
+        },
+        {
+          "api": "ssl.wrap_socket",
+          "status": "ERROR",
+          "error": "ValueError('\\nThe certificate validity has expired\\n',)"
+        }
+      ],
+      "rtc_year": 2026,
+      "certificate": {
+        "sha256": "14a3d1ed954fa340602b5ff1b3f992025d9611bd3bd1f8a52904671487aaab1e",
+        "not_valid_before": "2020-01-01T00:00:00+00:00",
+        "not_valid_after": "2035-01-01T00:00:00+00:00",
+        "server_name": "m5-api.test"
+      },
+      "stopped_pid_gone": true
+    },
+    {
+      "run": "protocol-tls-candidate-gen70-r1/cores3",
+      "device_id": "cores3",
+      "firmware_lane": "caller-pinned-candidate",
+      "session_id": "752988d47b4145ef957f952b0fc80f7d",
+      "firmware_sha256": "c1c6089acd85ae75e76cd00771e30eb0ace0f0a0de632c96c7165d913ca11e6e",
+      "runtime_binary_sha256": "9618b26496333eacd80f8e2b7db5a2bf33be2cf639dd38d95463c8c6a2d58638",
+      "source_sha256": "1e0d8e2a7ce4ae9eefcdad0be3d6cb18413a716b6c3ec3176a4fe61a6a9cd680",
+      "evidence_sha256": "2950cd5a12831239ad23ffe29a4868570cc2ab1e28b64cb818f089d7d72c4169",
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "protocol_report_sha256": "306ba79cff55c3cd6f8598593b5e2215fc51abfc3e7544d40ac53a9e0fd134f7",
+      "cases": [
+        {
+          "api": "ssl.SSLContext.wrap_socket",
+          "status": "PASS"
+        },
+        {
+          "api": "ssl.SSLContext",
+          "status": "PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_verify_locations",
+          "status": "PASS"
+        },
+        {
+          "api": "ssl.SSLContext.load_cert_chain",
+          "status": "PASS"
+        },
+        {
+          "api": "ssl.wrap_socket",
+          "status": "PASS"
+        }
+      ],
+      "rtc_year": 2026,
+      "certificate": {
+        "sha256": "375d94f73916813ff8696a549a3911652a6168ab90e3ceafdb37dbaef12840bc",
+        "not_valid_before": "2020-01-01T00:00:00+00:00",
+        "not_valid_after": "2035-01-01T00:00:00+00:00",
+        "server_name": "m5-api.test"
+      },
+      "stopped_pid_gone": true
+    }
+  ]
+}

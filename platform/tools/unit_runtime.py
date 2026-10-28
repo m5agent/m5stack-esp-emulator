@@ -145,9 +145,30 @@ class UnitRegistry:
     def inventory(self, device_id: str | None = None) -> dict:
         if device_id is not None and device_id not in self.hosts:
             raise UnitError("unknown_device", f"unknown host: {device_id}", 404)
+        units = [self.unit(unit_id) for unit_id in self.units]
+        if device_id is not None:
+            for unit in units:
+                ports = []
+                for port in self.hosts[device_id]["ports"]:
+                    admission = {"port_id": port["id"], "admitted": False}
+                    try:
+                        self.attachments(device_id, "qemu", [{
+                            "id": "discovery", "unit_id": unit["id"], "port_id": port["id"],
+                        }])
+                        admission["admitted"] = True
+                    except UnitError as error:
+                        admission["error"] = {"code": error.code, "message": error.message}
+                    ports.append(admission)
+                unit["host_admission"] = {
+                    "device_id": device_id, "runtime": "qemu",
+                    "admitted": any(port["admitted"] for port in ports),
+                    "port_ids": [port["port_id"] for port in ports if port["admitted"]],
+                    "ports": ports,
+                    "scope": "default attachment configuration only; not backend readiness or functional validation",
+                }
         return {
             "schema_version": 1,
-            "units": [self.unit(unit_id) for unit_id in self.units],
+            "units": units,
             "hosts": copy.deepcopy(
                 [self.hosts[device_id]] if device_id else list(self.hosts.values())
             ),

@@ -182,6 +182,40 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV SD"},
     },
     {
+        "id": "cores3-sd",
+        "expected_status": "PASS",
+        "reason": (
+            "The board-wired CoreS3 SPI SD path uses the official M5Unified "
+            "pin table; native SDCard writes and reads a sector and an "
+            "independent host oracle checks the retained raw image."
+        ),
+        "checks": [
+            {"name": "sdspi_init", "status": "PASS"},
+            {"name": "sdspi_write_block", "status": "PASS"},
+            {"name": "sdspi_readback", "status": "PASS"},
+            {"name": "sd_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_sd",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "22",
+        "inputs": [],
+        "qom": [],
+        "allow_static_frame": True,
+        "sd_image": True,
+        "env": {"M5SW_SPI_SD_IMAGE": "{out_dir}/sd.img"},
+        "disk": {"image": "{out_dir}/sd.img", "sector": 100},
+        "pre_input_marker": "CORES3_SD_READY",
+        "post_input_marker": "CORES3_SD_DRAW_COMPLETE",
+        "serial_expect": ["CORES3_SD_RW_PASS", "CORES3_SD_DRAW_COMPLETE"],
+        "frame_color": {"x": 4, "y": 4, "label": "CoreS3 SD"},
+    },
+    {
         "id": "cardputer-adv-imu",
         "expected_status": "PASS",
         "reason": (
@@ -519,7 +553,9 @@ CASES = [
         "expected_size": "320x240",
         "efuse_pkg_version": "0",
         "wait": "6",
-        "inputs": ["touch:160,183", "key:p"],
+        "inputs": ["longpress:160,183,2.5", "key:p"],
+        "pre_input_marker": "CORES3_PERIPHERAL_INPUT_READY",
+        "post_input_marker": "CORES3_PERIPHERAL_DRAW_COMPLETE",
         "serial_expect": [
             "CORES3_IMU_TYPE 6",
             "CORES3_POWER 87 4000 1",
@@ -712,6 +748,7 @@ CASES = [
         "expected_size": "320x240",
         "efuse_pkg_version": "0",
         "wait": "4",
+        "pre_input_marker": "CORES3_AUDIO_DRAW_COMPLETE ok",
         "inputs": ["key:a"],
         "qom": [],
         "allow_static_frame": True,
@@ -1774,6 +1811,8 @@ CASES = [
         "wait": "18",
         "inputs": ["longpress:220,190,1.5", "key:p"],
         "post_input_wait": 3.0,
+        "pre_input_marker": "CORE2_PERIPHERAL_INPUT_READY",
+        "post_input_marker": "CORE2_PERIPHERAL_DRAW_COMPLETE",
         "qom": [],
         "efuse_driver": "none",
         "memory": "0",
@@ -2012,6 +2051,8 @@ CASES = [
         "machine": "m5core2",
         "base": "platform/.cache/firmware/core2/uiflow2.bin",
         "files_dir": "tests/uiflow2/core2_imu",
+        "pre_input_marker": "CORE2_IMU_SAMPLE_READY",
+        "post_input_marker": "CORE2_IMU_DRAW_COMPLETE ok",
         "vfs_offset": "0x820000",
         "vfs_size": "0x7DF000",
         "flash_size": "0x1000000",
@@ -2507,6 +2548,9 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
     if "memory" in case:
         command.extend(["--memory", case["memory"]])
+    for name in ("pre_input_marker", "post_input_marker"):
+        if case.get(name):
+            command.extend(["--" + name.replace("_", "-"), case[name]])
     if case.get("deterministic"):
         command.append("--deterministic")
     for input_spec in case["inputs"]:

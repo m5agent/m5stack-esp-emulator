@@ -261,6 +261,116 @@ streams in UIFlow2 LVGL flushes. Descriptor owner/writeback, DMA interrupt/error
 status, receive DMA and continuation across USR commands retain their existing
 model boundaries; the patch does not establish physical display timing.
 
+`0051-cardputer-adv-internal-i2c-pullups.patch` adds the ADV board's passive
+pull-ups on GPIO8/9. M5GFX's pull-down identification can then distinguish its
+internal I2C wiring from the original Cardputer. Open-drain peripheral ACK and
+master low remain visible through the GPIO controller; this is not an electrical
+threshold or physical-board measurement.
+
+`0052-cores3-panel-spi2-gdma.patch` connects CoreS3's panel to GDMA SPI2, matching
+M5GFX's SPI2 host and the shared M-Bus controller. FIFO drawing could previously
+work while LVGL image flushes searched for a SPI3 DMA channel and delivered no
+descriptor bytes. It changes board wiring only, without a fallback channel or
+host-generated pixels.
+
+`0053-s3-watchdog-immediate-config.patch` gives ESP32-S3 its documented MWDT
+immediate register updates. Its HAL does not write the newer chips'
+`CONF_UPDATE_EN`; requiring that bit left stage modes and the prescaler
+inactive. The generic latched mode remains unchanged. Register protection and
+a zero-prescaler host-crash guard have C regressions. Actual watchdog expiry
+can now trigger the guest panic/reset path; successful warm boot after that
+reset remains a separate validation gate.
+
+`0054-i2s-rx-consume-transferred-pcm.patch` advances the RX source cursor by
+actual GDMA-transferred bytes. Short descriptors previously discarded the
+untransferred portion of a 4096-byte pre-read, introducing phase jumps and a
+wrong captured frequency. The source is consumed only after real DMA progress.
+
+`0055-lcd-cam-frame-dma-chunks.patch` fills a camera half-buffer across its
+actual GDMA descriptors, preserving partial progress and pending EOF
+acknowledgement. A stopped or unready capture must not consume the source or
+publish a frame. C logic regression and visible camera-stream validation are
+distinct gates; this is not optical or physical-camera evidence.
+
+`0056-spi-sd-multiblock-transfers.patch` adds CMD18/CMD25 multi-sector data
+tokens, stop handling and ACMD22/23 to the real SPI-backed SD model. It advances
+only after transferred blocks, rejects absent/out-of-range backing storage,
+and keeps writes in the session-owned disk. Both selected boards have native
+block/FAT/remount and independent host file-byte oracles; those fixtures do
+not establish arbitrary cards, all SD commands or physical bus timing.
+
+`0057-gc0308-sccb-register-pages.patch` replaces GC0308's generic single
+register bank with its SCCB page-zero/page-one state. Page-one register `0x00`
+is writable independently of page-zero's `0x9b` product ID; `0xfe` bit 7 resets
+the stored state and bit 0 selects the page. This preserves detection when the
+official camera wrapper rebuilds the pipeline for `camera.framesize()` or a
+later `camera.init()`. It does not implement image-processing register effects.
+The fixed source is Espressif's
+[`esp32-camera` commit `b817e9b`](https://github.com/espressif/esp32-camera/tree/b817e9b81041980608d1a3d3e0b08d86e3666382):
+[`gc0308_regs.h`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/sensors/private_include/gc0308_regs.h)
+defines the reset/page bits,
+[`gc0308_settings.h`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/sensors/private_include/gc0308_settings.h#L179)
+writes page-one register zero to `0xf5`, and
+[`gc0308.c`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/sensors/gc0308.c#L414)
+selects page zero before reading the product ID. The offline C regression
+replays actual helper bytes and keeps the old generic bank as a negative
+control; `probe_gc0308_sccb.py` is the separate visible guest lifecycle probe.
+
+`0058-gpspi-dma-transfer-chunks.patch` preserves the GDMA descriptor byte
+cursor when M5GFX splits one Canvas buffer across multiple SPI transactions.
+Previously every USR transaction reread the chain head, duplicating the upper
+image in the lower half. The later `0061` supersedes this patch's provisional
+START callback with per-channel generations and actual active-channel checks;
+the patches must be applied in the documented bootstrap order.
+
+`0059-lcd-cam-dvp-wire-order.patch` supplies GC0308 RGB565 as chronological
+high-byte-first samples on the supported eight-bit DVP bus. It applies
+`CAM_BIT_ORDER` to each bus byte and ignores the sixteen-bit-only
+`CAM_BYTE_ORDER` field in this lane. Sixteen-bit input and enabled YUV/RGB
+conversion are unimplemented: they produce `LOG_GUEST_ERROR` and no synthetic
+RGB565 DMA frame. Raw file fixtures remain caller-provided wire bytes. The
+register contract is Espressif's `lcd_cam_reg.h`; the pinned camera driver
+sets `swap_data=0`, eight-bit input and converter bypass, and its native
+JPG/BMP converters consume high-byte-first RGB565. The C regression checks
+bit order, odd transfer boundaries, the complete scene and rejected modes.
+Historical little-endian raw hashes establish only the old model's contents;
+they do not establish correct sensor byte order or image colors.
+The register source is pinned to ESP-IDF
+[`7355072/lcd_cam_reg.h`](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/soc/esp32s3/register/soc/lcd_cam_reg.h).
+The corresponding camera path is
+[`b817e9b/ll_cam.c`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/target/esp32s3/ll_cam.c),
+[`to_bmp.c`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/conversions/to_bmp.c)
+and [`to_jpg.cpp`](https://github.com/espressif/esp32-camera/blob/b817e9b81041980608d1a3d3e0b08d86e3666382/conversions/to_jpg.cpp).
+
+`0060-gdma-link-cursor-lifecycle.patch` mounts the programmed descriptor head
+on a new `START`, resets cached cursor/FSM state on channel reset, and stops
+peripheral delivery on `STOP`. `RESTART` preserves the next descriptor rather
+than rewinding to the programmed head. Self-clearing command bits are hidden
+from guest register reads so read/modify/write cannot replay an old `START`.
+An address-only update preserves the active cursor. The offline regression
+replays the actual register, descriptor and memory-to-memory C functions
+against independent RAM sentinels, including new-ring writes and restart
+continuation. These source checks are separate from visible camera lifecycle
+and full shared-controller matrix validation.
+The `RESTART` continuation and self-clearing register semantics come from the
+same pinned ESP-IDF
+[`gdma_ll.h`](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/hal/esp32s3/include/hal/gdma_ll.h)
+and [`gdma_reg.h`](https://github.com/espressif/esp-idf/blob/735507283d5b2f9fb363a1901172dbd9e847945d/components/soc/esp32s3/register/soc/gdma_reg.h).
+
+`0061-gpspi-gdma-channel-lifecycle.patch` checks the actual running GDMA
+channel before every GP-SPI DMA pull. Private byte cursors are kept per channel,
+so slave/peripheral/channel selection does not reuse another channel's offset.
+A GDMA transfer generation changes only on a new `START` or reset. It survives
+whole-controller reset before incrementing, preventing an old GP-SPI cursor
+from matching a newly reset chain. `STOP` denies descriptor and payload reads;
+`RESTART` preserves the paused descriptor and byte offset. The former global
+GP-SPI START/RESTART callback is removed, so unrelated transfers do not rewind
+an active split transfer. The combined C regression replays the actual GDMA
+register/reset logic and GP-SPI transfer functions against independent RAM,
+including `START 128 → pull 64 → STOP/reset → pull 64`, legal resume, two
+channels/slaves and the complete 64800-byte Canvas split. These checks do not
+replace the separate visible guest or shared-controller matrix gates.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

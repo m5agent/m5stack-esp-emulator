@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "TARGETED_GEOMETRY_PATCH_VERIFIED",
+  "scope": "CoreS3 QR relocation, shrinking and unchanged-geometry version4 only. Stock and matching SDK ghost failures remain separate. Candidate stacks 0014 and 0019; this guest never calls setText.",
+  "matching_preimage_identity": "The complete HCI-transport SDK cache is bound to its own original application/full-flash SHA; it is distinct from the historical 7ce5ca SDK build.",
+  "build_receipt": ".work/api-sweep/qrcode-geometry-candidate-build-cores3-r4/receipt.json",
+  "build_receipt_sha256": "9a51ea2c1f182fa2f14c7e7ae994a93ac6179946c23eaf8afde939abd73ef754",
+  "compiled_source_sha256": "12c4e054fd4ddf0b12fdce51c5ce527d15063518bf9912fac4b2b439ebbf9571",
+  "patch_stack": [
+    "0014-widgets-qrcode-text",
+    "0019-widgets-qrcode-geometry"
+  ],
+  "lanes": {
+    "stock": {
+      "status": "EXECUTED",
+      "device_id": "cores3",
+      "session_id": "695dd92d5db44832881973529d008d6d",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "source_sha256": "89f4f381d0b3cb2aaf349157b540b829e15a8abb45fe339c3e7c5727747de6bb",
+      "firmware_sha256": "215ab2d1a96e17590bff32b3c3801b7f1b42422513ec9d1182c2ebecf1b13763",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "681aef97205d8cd15d7ae94068b917b0ae8743839eb7958be7410aa2a3164f08",
+      "evidence_sha256": "8206c15a51159b942bfec710bb3cfa640801874320677dea35bbcffecfc115c3",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/qrcode-geometry-stock-gen5-r1/report.json",
+      "report_sha256": "5660a7c0298a4dc55e195b735749f80d2f62bdd8a43cf90368d2cf834727f3fb",
+      "zip_crc_valid": true,
+      "firmware_hash_matches": true,
+      "results": [
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "MOVE-QR",
+            "box": [
+              80,
+              20,
+              160,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "MOVE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-old-exclusive",
+          "oracle": {
+            "box": [
+              10,
+              30,
+              70,
+              90
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 3600
+          },
+          "status": "FAIL",
+          "matching_pixels": 0,
+          "minimum": 3600,
+          "maximum": 3600,
+          "box": [
+            10,
+            30,
+            70,
+            90
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "SIZE-QR",
+            "box": [
+              180,
+              20,
+              260,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "SIZE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-old-exclusive",
+          "oracle": {
+            "box": [
+              190,
+              90,
+              290,
+              130
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 4000
+          },
+          "status": "FAIL",
+          "matching_pixels": 0,
+          "minimum": 4000,
+          "maximum": 4000,
+          "box": [
+            190,
+            90,
+            290,
+            130
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setVersion",
+          "argument_domain": "version4-same-geometry",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "VERSION-QR",
+            "box": [
+              80,
+              130,
+              160,
+              210
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "VERSION-QR"
+          ]
+        }
+      ],
+      "counts": {
+        "FRAME_PASS": 3,
+        "FAIL": 2
+      }
+    },
+    "preimage": {
+      "status": "EXECUTED",
+      "device_id": "cores3",
+      "session_id": "46a51132ac1047aead8fe1f302a3887b",
+      "base_sha256": "8a319c22dc59760ae71a5adadc6e3e204d25ea6b0ccd7bea2aec2c085c01551c",
+      "source_sha256": "89f4f381d0b3cb2aaf349157b540b829e15a8abb45fe339c3e7c5727747de6bb",
+      "firmware_sha256": "12025a03e4c43dc406e4a34dc74a5b197678311d319c17309b1d8b047c1d3d31",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "681aef97205d8cd15d7ae94068b917b0ae8743839eb7958be7410aa2a3164f08",
+      "evidence_sha256": "b5c58c2f3acfb1cd1396a1b29f65dfc2f8e1f5ef0ea4bc387b787d8782ebd9e9",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/qrcode-geometry-sdk-preimage-gen5-r1/report.json",
+      "report_sha256": "9a304f127bd08da00fbec336140b644f4b7358e8ff36b30b947b5d498b4e1d03",
+      "zip_crc_valid": true,
+      "firmware_hash_matches": true,
+      "results": [
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "MOVE-QR",
+            "box": [
+              80,
+              20,
+              160,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "MOVE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-old-exclusive",
+          "oracle": {
+            "box": [
+              10,
+              30,
+              70,
+              90
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 3600
+          },
+          "status": "FAIL",
+          "matching_pixels": 0,
+          "minimum": 3600,
+          "maximum": 3600,
+          "box": [
+            10,
+            30,
+            70,
+            90
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "SIZE-QR",
+            "box": [
+              180,
+              20,
+              260,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "SIZE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-old-exclusive",
+          "oracle": {
+            "box": [
+              190,
+              90,
+              290,
+              130
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 4000
+          },
+          "status": "FAIL",
+          "matching_pixels": 0,
+          "minimum": 4000,
+          "maximum": 4000,
+          "box": [
+            190,
+            90,
+            290,
+            130
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setVersion",
+          "argument_domain": "version4-same-geometry",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "VERSION-QR",
+            "box": [
+              80,
+              130,
+              160,
+              210
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "VERSION-QR"
+          ]
+        }
+      ],
+      "counts": {
+        "FRAME_PASS": 3,
+        "FAIL": 2
+      }
+    },
+    "candidate": {
+      "status": "EXECUTED",
+      "device_id": "cores3",
+      "session_id": "9fd8e13753f84c8083f6067e386ecb58",
+      "base_sha256": "ba2ceba337f994b237bb5e72f9eff821a7d6cbbc1dde7e53609fe856027c1ee5",
+      "source_sha256": "89f4f381d0b3cb2aaf349157b540b829e15a8abb45fe339c3e7c5727747de6bb",
+      "firmware_sha256": "2e475f56edccce20f0e040356abeef19ecffab3b2ede84622274e7099b8b46e0",
+      "runtime_binary_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "frame_sha256": "75184168e3ca01261fb7f95b97d8db22975211511e0e95b6c904045774112e78",
+      "evidence_sha256": "2e127f777d3efa325a6f64c1c329075b5238fa79dba30fe4d939eec181435560",
+      "cleanup": {
+        "terminal_state": "stopped",
+        "runtime_pid_gone": true,
+        "failed_state_preserved": true,
+        "history_preserved": true,
+        "companions_pid_gone": {},
+        "companions_lifecycle": {},
+        "companions_cleanup_complete": true
+      },
+      "report": ".work/api-sweep/qrcode-geometry-candidate-gen5-r1/report.json",
+      "report_sha256": "46626f125c8453e4eb4690fb55658d7c39f833e39798bbdd518a3cdc963d251e",
+      "zip_crc_valid": true,
+      "firmware_hash_matches": true,
+      "results": [
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "MOVE-QR",
+            "box": [
+              80,
+              20,
+              160,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "MOVE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setCursor",
+          "argument_domain": "disjoint-move-old-exclusive",
+          "oracle": {
+            "box": [
+              10,
+              30,
+              70,
+              90
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 3600
+          },
+          "status": "FRAME_PASS",
+          "matching_pixels": 3600,
+          "minimum": 3600,
+          "maximum": 3600,
+          "box": [
+            10,
+            30,
+            70,
+            90
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-new-QR",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "SIZE-QR",
+            "box": [
+              180,
+              20,
+              260,
+              100
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "SIZE-QR"
+          ]
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setSize",
+          "argument_domain": "shrink-old-exclusive",
+          "oracle": {
+            "box": [
+              190,
+              90,
+              290,
+              130
+            ],
+            "kind": "color_region",
+            "rgb": 725012,
+            "minimum": 4000
+          },
+          "status": "FRAME_PASS",
+          "matching_pixels": 4000,
+          "minimum": 4000,
+          "maximum": 4000,
+          "box": [
+            190,
+            90,
+            290,
+            130
+          ],
+          "rgb": 725012
+        },
+        {
+          "tolerance": 8,
+          "api_target": "M5.Widgets.QRCode",
+          "method": "setVersion",
+          "argument_domain": "version4-same-geometry",
+          "oracle": {
+            "kind": "qr_decode",
+            "text": "VERSION-QR",
+            "box": [
+              80,
+              130,
+              160,
+              210
+            ]
+          },
+          "status": "FRAME_PASS",
+          "decoded": [
+            "VERSION-QR"
+          ]
+        }
+      ],
+      "counts": {
+        "FRAME_PASS": 5
+      }
+    }
+  }
+}

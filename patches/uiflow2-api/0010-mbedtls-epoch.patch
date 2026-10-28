@@ -1,0 +1,14 @@
+--- a/m5stack/main.c
++++ b/m5stack/main.c
+@@ -115,7 +115,11 @@
+     struct timeval tv;
+     gettimeofday(&tv, NULL);
+ 
++    #if MICROPY_EPOCH_IS_1970
++    return tv.tv_sec;
++    #else
+     return tv.tv_sec + TIMEUTILS_SECONDS_1970_TO_2000;
++    #endif
+ }
+ #endif
+ 

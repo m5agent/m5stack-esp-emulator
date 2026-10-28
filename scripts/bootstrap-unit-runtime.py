@@ -42,6 +42,17 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0048-unit-servos8-joystick2-nfc.patch",
     "patches/qemu-m5stack-peripherals/0049-core2-offline-wifi-controller.patch",
     "patches/qemu-m5stack-peripherals/0050-esp32-spi-panel-dma-transaction.patch",
+    "patches/qemu-m5stack-peripherals/0051-cardputer-adv-internal-i2c-pullups.patch",
+    "patches/qemu-m5stack-peripherals/0052-cores3-panel-spi2-gdma.patch",
+    "patches/qemu-m5stack-peripherals/0053-s3-watchdog-immediate-config.patch",
+    "patches/qemu-m5stack-peripherals/0054-i2s-rx-consume-transferred-pcm.patch",
+    "patches/qemu-m5stack-peripherals/0055-lcd-cam-frame-dma-chunks.patch",
+    "patches/qemu-m5stack-peripherals/0056-spi-sd-multiblock-transfers.patch",
+    "patches/qemu-m5stack-peripherals/0057-gc0308-sccb-register-pages.patch",
+    "patches/qemu-m5stack-peripherals/0058-gpspi-dma-transfer-chunks.patch",
+    "patches/qemu-m5stack-peripherals/0059-lcd-cam-dvp-wire-order.patch",
+    "patches/qemu-m5stack-peripherals/0060-gdma-link-cursor-lifecycle.patch",
+    "patches/qemu-m5stack-peripherals/0061-gpspi-gdma-channel-lifecycle.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

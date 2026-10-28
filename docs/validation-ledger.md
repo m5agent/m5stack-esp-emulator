@@ -293,3 +293,16 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
    `PASS`/`PARTIAL`/`FAIL` 字段。
 4. 新证据按日期和主题追加，不改写旧失败；若结论被推翻，在当前状态页更新，
    在历史页说明取代关系。
+
+## 2026-10-28：UIFlow2 双主机接口审计与修复
+
+最终运行时 `cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2`，
+28补丁/112文件exact-upstream正向/反向/往返回放通过；完整外设矩阵
+68/68 PASS、自动重试0。Core2 IMU改用真实绘制完成marker后本轮通过，
+保留前轮67/68失败收据。摄像头raw/重初始化/JPEG/BMP、Cardputer Canvas
+以及两板SD/FAT、Mic PCM/WAV均有最终runtime可见session数据面收据。
+SDK0001–0020独立候选与stock/matching结果分lane；0017 observer修正版
+三lane对照27/27证据检查，0018 allocator含28 C cases/version与30 native契约。
+逐项接口分母、失败/阻塞、固件/runtime/serial/frame/ZIP哈希及复现入口见
+[本轮证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)。原私有应用、旧
+UIFlow1 LVGL7、未选外设和物理硬件不继承通过；API-01继续保留剩余项。

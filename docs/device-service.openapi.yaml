@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.46.0
+  version: 1.48.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -658,6 +658,10 @@ paths:
             model_status/blocker are compatibility aliases. research_snapshot
             preserves historical protocol research, not current capability.
             Host admission does not inherit another host's validation.
+            With device_id, every Unit also contains host_admission for
+            standalone/default-initial runtime=qemu placement, including
+            admitted, port_ids and per-port structured rejection reasons.
+            Topology and requested initial values are revalidated at creation.
           content:
             application/json:
               schema:
@@ -2175,6 +2179,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "400":
+          $ref: "#/components/responses/Error"
 components:
   securitySchemes:
     bearerAuth:
@@ -3239,7 +3245,7 @@ components:
       properties:
         device_id:
           type: string
-          enum: [cores3, atoms3r, sticks3, stopwatch]
+          enum: [cores3, atoms3r, sticks3, stopwatch, cardputer-adv]
         files:
           $ref: "#/components/schemas/UIFlowSourceFiles"
         base_firmware_id:
@@ -3259,7 +3265,7 @@ components:
       properties:
         device_id:
           type: string
-          enum: [cores3, atoms3r, sticks3, stopwatch]
+          enum: [cores3, atoms3r, sticks3, stopwatch, cardputer-adv]
         kind:
           const: uiflow
         files:
@@ -3778,7 +3784,7 @@ components:
           type: string
           enum: [uiflow-live]
           description: >
-            Initialize the admitted cores3/atoms3r/sticks3/stopwatch cached UIFlow2
+            Initialize the admitted cores3/atoms3r/sticks3/stopwatch/cardputer-adv cached UIFlow2
             base once (cached reference by default) with a guest UART REPL bootstrap, then opt into
             program_transport=uart-repl. Only runtime=qemu is admitted. Omit
             firmware_id and uiflow_source_sha256; explicit bases use base_firmware_id
@@ -3816,7 +3822,7 @@ components:
           enum: [uart-repl]
           description: >
             Opt into a bidirectional guest UART console. Admitted only for runtime
-            qemu on cores3, atoms3r, sticks3 or stopwatch using reference or
+            qemu on cores3, atoms3r, sticks3, stopwatch or cardputer-adv using reference or
             composed UIFlow2 firmware. This setting does not install a guest REPL
             route; an appropriate boot.py/native UART REPL remains required.
             Actual same-guest firmware execution must be verified per profile.
@@ -3856,11 +3862,26 @@ components:
           description: >
             Trusted-local runtime overrides for the QEMU process. Only
             M5SW_CORE2_PMIC, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
-            M5SW_I2S_RX_PCM_FILE and M5SW_I2S_TRACE are accepted.
+            M5SW_I2S_RX_PCM_FILE, M5SW_I2S_TRACE, M5SW_CAMERA_TRACE and
+            M5SW_GDMA_TRACE are accepted. Camera/GDMA traces accept only
+            the string "1"; omit them to disable. They enable retained
+            controller stderr diagnostics, not arbitrary output paths.
+            Plain runtime=qemu on cores3/cardputer-adv enables DMA completion
+            and session-owned speaker capture by default, with an explicit
+            generated microphone fixture (440 Hz, 16 kHz s16le, one second;
+            mono on Cardputer-ADV, two identical interleaved channels on CoreS3).
+            Evidence includes the owned PCM and fixture provenance. Diagnostic
+            overrides remain explicit; arbitrary override files are not archived.
           properties:
             M5SW_CORE2_PMIC:
               type: string
               enum: [axp192, axp2101]
+            M5SW_CAMERA_TRACE:
+              type: string
+              enum: ['1']
+            M5SW_GDMA_TRACE:
+              type: string
+              enum: ['1']
           additionalProperties:
             type: string
         runtime:
@@ -4062,6 +4083,18 @@ components:
           additionalProperties:
             type: string
             pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+        ble_peer_role:
+          type: string
+          enum: [central, peripheral]
+          default: central
+          description: >
+            Session-owned Bumble peer role. Central preserves the existing
+            scan/connect/NUS write/notification observer. Peripheral is admitted
+            for CoreS3 and Cardputer-ADV, advertises M5-API with a real NUS GATT
+            service, verifies the profile payload written by the guest and
+            sends ACK only after the guest enables the notification CCCD.
+            It supports one exchange and no post-pass continuity trigger.
+            This is virtual controller/ATT evidence, not physical Bluetooth RF.
         ble_linger_seconds:
           type: number
           minimum: 0
