@@ -33,6 +33,7 @@ STUBS = r"""
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define QEMU_CLOCK_VIRTUAL 0
 enum { A_TIMG_WDTFEED = 0x60 };
@@ -60,10 +61,6 @@ static void esp32_timg_handoff_trace(
 ) {
     (void)s; (void)event; (void)a; (void)b; (void)c; (void)d;
 }
-static void fprintf(void *stream, const char *text, ...) {
-    (void)stream; (void)text;
-}
-static void *stderr;
 static void esp32_timg_wdt_feed(void *wdt) {
     (void)wdt;
     ++feeds;
