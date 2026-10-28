@@ -77,7 +77,12 @@
           "sha256": "323b07bb6cc8def50de4c69111a3a4d27cafc5ce3d6ee39120bcd6bfa271a22b",
           "region_sha256": "d0359278a07c33170db3c74412f4f4bd6979e173a6ccc093a19096cdd501c677"
         }
-      ]
+      ],
+      "serial": {
+        "bytes": 25960,
+        "sha256": "a77a0f1e01946c4fc37f2677449e97e8753e1bfce8b01528a0e46b2c600f7ba1",
+        "scope": "Captured from the same Worker guest; byte count is not an application readiness oracle."
+      }
     },
     {
       "device": "stopwatch",
@@ -113,7 +118,12 @@
           "sha256": "5ee9432a402d0a6a4ae80798e21f45ca6c3ccec0b91440a1a8895f152543330f",
           "region_sha256": "ceac6138aa095db19e04de3d0f668318a5b6c75c20d70a9f118be416b4ad3c2e"
         }
-      ]
+      ],
+      "serial": {
+        "bytes": 23816,
+        "sha256": "7b2b648887a424c3faa79984794292b55664d5182d496bd04f3dabbde9e68f93",
+        "scope": "Captured from the same Worker guest; byte count is not an application readiness oracle."
+      }
     }
   ],
   "scope": "Exact firmware and rebuilt WASM only; not arbitrary firmware, complete Unit protocols or physical hardware.",
@@ -373,16 +383,18 @@
   },
   "platform_suite": {
     "status": "PASS",
-    "tests": 1355,
-    "skipped": 4,
-    "elapsed_seconds": 104.832,
+    "tests": 1363,
+    "skipped": 6,
+    "elapsed_seconds": 97.121,
     "python": "3.12.14",
     "skip_reasons": [
       "optional pinned local compiler unavailable",
-      "three candidate tests require pinned UIFlow source checkout"
+      "five candidate tests require pinned UIFlow source checkout"
     ],
-    "raw_log": "ignored local archive; not source Git",
-    "source_scope": "Previous complete suite before final session-create recovery and navigation changes; retained as historical evidence, not final-source full-suite acceptance."
+    "source_commit": "e339bb64180b3de344deab63db387b44f67a50f7",
+    "source_scope": "Complete platform suite after final product code and origin/main integration; final evidence prose updated afterward.",
+    "raw_log_sha256": "78dab51e52824d513d84b4ad35cffc95335521de9df6c6c22f2fb36ba5e554d2",
+    "raw_log": "ignored local archive; not source Git"
   },
   "public_cdn_downloads": [
     {
@@ -483,7 +495,8 @@
     "date": "2026-10-28",
     "category": "virtual-device-session-create-response-loss",
     "status": "PASS",
-    "scenario": "Real homepage upload; first session POST returns a real allocation but its browser response is aborted after QEMU PID launch; automatic stop replays identical JSON/key and cleans up the same guest.",
+    "source_commit": "e339bb64180b3de344deab63db387b44f67a50f7",
+    "scenario": "Final merged homepage upload; first session POST returns a real allocation but its browser response is aborted after QEMU PID launch; automatic stop replays identical JSON/key and cleans up the same guest.",
     "device_id": "cores3",
     "runtime": "qemu",
     "runtime_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
@@ -508,22 +521,22 @@
       false,
       true
     ],
-    "same_create_body_sha256": "3cb4ff30ab0884664278d45a5a5d465892fc9f0f63208541f25047a3ad833c74",
+    "same_create_body_sha256": "f0a7d9021800f14b29956fc33245745767884fa3a546b3d6df78be3bb691ecf7",
     "evidence": {
-      "zip_sha256": "e2df07684832e49ec606570e80439f1508b5cf56831b8879e1842b191cb61bff",
+      "zip_sha256": "ff6151f4305c49c61ffc4a924519ea034055e2cc4b2226aee2fb5fd8f0517fa7",
       "verified_files": 7
     },
     "source_sha256": {
       "platform/tests/test_public_session_recovery_service.mjs": "0ce22cdd26fb0143922928fc27ba812bffb08d16fb8c91c4714ed379ce2ba522",
       "platform/web/public.js": "f6fc9d55e04515bdecb4d43da170ef78287a89aa46ecdf07b27646a88005cb4e",
       "platform/web/public-service.js": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158",
-      "platform/web/public-session-controller.js": "08c141ac82d92eea1e78ed5afc9658d85b3238bebe1c388a88209215fab53851",
-      "platform/tools/device_service.py": "3dbbf7576d7289ebaa283594491a1187cabc37a2c7fee09b5f25e6840be62ae8",
+      "platform/web/public-session-controller.js": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba",
+      "platform/tools/device_service.py": "f9e7d9570221a3b500e69db8228ee9b2860b04a45302f0230c41f78cc16ce95b",
       "platform/tools/serve.py": "6533e5ce996f92eb843c68f0a276f15df59df046e2c2f5398925fc8fa2559eab"
     },
     "source_hashes_still_current": true,
-    "receipt_sha256": "8a0adccb6b1f3871f3eb002ae5519582590d94fc07e354e314383276dada7fa6",
-    "history_sha256": "ac6045f8b340a187238ec8f7b602d14e4a28560b1bd1de8b9f7097e171cbe3bc",
+    "receipt_sha256": "722d359100962e22c7591b2335db97ce9f58ca84a8555bcdd81e2cac4bee61ea",
+    "history_sha256": "b0769292e658ca3ec3f2614922eb47613cd7e8455c0af08367777c2002bc046d",
     "screenshot_sha256": "7604c053dfe29157194979a7aa86392c6e6612b4836ed7a3089e1bbdaebf1e34",
     "application_display": "NOT RUN",
     "application_input": "NOT RUN",
@@ -533,16 +546,63 @@
       "port_8829_released": true,
       "active_sessions_before_service_stop": 0,
       "user_service_accessed": false,
-      "scope": "only this test owned service"
+      "scope": "only this final test owned service"
     },
     "boundaries": [
       "No key-only read API exists; recovery POST may allocate if the first request never arrived.",
       "Current client uses ttl_seconds=600; replay does not renew the lease.",
       "The idempotency mapping is capped at 4096 entries and has no standalone TTL; purged/pruned session history can remove deduplication protection.",
-      "This verifies one interrupted-response lifecycle on this firmware/runtime; not cross-restart, long-disconnection, or unrelated firmware acceptance."
+      "This verifies one interrupted-response lifecycle on the final merged firmware/runtime binding; not cross-restart, long-disconnection, or unrelated firmware acceptance."
     ],
     "reproduction": "node --experimental-default-type=module platform/tests/test_public_session_recovery_service.mjs --execute --service http://127.0.0.1:8829 --token-file <private-token-file> --firmware <public-cores3-uiflow2.bin> --python <python3.12> --out <ignored-output>",
-    "summary_sha256": "1ab47528211d85aec19275c6e8fb1a69a3c36289aa57048f3607bb077bdf3dfe",
-    "report_location": "ignored local archive; .work/public-native-recovery/run-r1/receipt.json"
+    "earlier_runs": [
+      {
+        "status": "PASS",
+        "scope": "Earlier pre-review-fix response-loss run; retained history, not final merged source acceptance",
+        "summary_sha256": "1ab47528211d85aec19275c6e8fb1a69a3c36289aa57048f3607bb077bdf3dfe",
+        "receipt_sha256": "8a0adccb6b1f3871f3eb002ae5519582590d94fc07e354e314383276dada7fa6",
+        "evidence_zip_sha256": "e2df07684832e49ec606570e80439f1508b5cf56831b8879e1842b191cb61bff",
+        "controller_source_sha256": "08c141ac82d92eea1e78ed5afc9658d85b3238bebe1c388a88209215fab53851"
+      }
+    ],
+    "summary_sha256": "afb1c0b693d9d1c8a38fe1f56b211ea8c059bd6670065709e9445b1825fd895c",
+    "report_location": "ignored local archive; .work/public-native-recovery-final/run-r1/receipt.json",
+    "stop_semantics": {
+      "per_request_timeout_ms": 10000,
+      "timeout_behavior": "Retain owned session identity and allow stop retry; clear stale inputQueues after bounded input cleanup.",
+      "terminal_acceptance": "stopped/failed, no stop_pending, and worker.lease_active is explicitly false; omitted lease_active is not accepted."
+    }
+  },
+  "integrated_origin_main": "0d4f53a32e67c830c4c01e756f9f034f596eb345",
+  "final_recovery_source_commit": "e339bb64180b3de344deab63db387b44f67a50f7",
+  "platform_suite_earlier_run": {
+    "status": "PASS",
+    "tests": 1355,
+    "skipped": 4,
+    "elapsed_seconds": 104.832,
+    "python": "3.12.14",
+    "skip_reasons": [
+      "optional pinned local compiler unavailable",
+      "three candidate tests require pinned UIFlow source checkout"
+    ],
+    "raw_log": "ignored local archive; not source Git",
+    "source_scope": "Previous complete suite before final session-create recovery and navigation changes; retained as historical evidence, not final-source full-suite acceptance."
+  },
+  "final_stop_contracts": {
+    "status": "PASS",
+    "coverage": [
+      "same-key/body replay",
+      "ambiguous and definite rejection handling",
+      "creation timeout and late response fencing",
+      "ZIP timeout still sends DELETE",
+      "DELETE/status timeout retains identity for retry",
+      "unknown lease fields rejected",
+      "hung old inputs cannot poison the next guest"
+    ],
+    "source_sha256": {
+      "platform/web/public-session-controller.js": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba",
+      "platform/tests/test_public_session_controller.mjs": "093790ecf9cb9b43b00baf2c973a2d866bb82386dfa2b46af435b6437fa71e21",
+      "platform/tests/test_public_service_idempotency.mjs": "4ecef9e207e1c3aafe71e164f2f2c5bf852b02dec5839f27b8916bd5425a8238"
+    }
   }
 }

@@ -18,7 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
-| `UI-02` / 公众工作台与独立browser backend | 固定源码双archive/target重建相同WASM，PaperS3/StopWatch官方演示在Chromium真实Worker的启动/帧/输入/暂停/停止通过，无仿真API；首页13组含实际PaperS3 URL直开、四档布局与DOM触摸通过；模型完整独立第三轮17主机/184附着/201预览/423PNG通过。平台1355项、4可选依赖skip及四生成器通过。独立服务CoreS3 plain源绑定示例触摸计数0→1、ZIP-before-stop、历史与清理通过；stock输入、unified READY、创建收据丢失恢复、硬件及部署不继承 | [本轮范围与复现](evidence/2026-10-28-public-simulator/README.md)、[哈希与逐层状态](evidence/2026-10-28-public-simulator/summary.json)、[架构调研](browser-runtime-feasibility.md) |
+| `UI-02` / 公众工作台与独立browser backend | 固定源码双archive/target重建相同WASM，PaperS3/StopWatch官方演示在Chromium真实Worker启动/帧/输入/暂停/停止通过，无仿真API；最终首页17组含实际PaperS3 URL直开、四档布局与DOM触摸，默认16契约通过；模型独立完整第三轮17主机/184附着/201预览/423PNG通过。合并origin/main@0d4f53a3后平台1363项、6可选依赖skip及四生成器通过，1902导出资源大小/SHA核验。独立CoreS3 plain源示例触摸计数0→1；最终merged真实创建首响应丢失后同key/body恢复单guest、ZIP-before-stop、明确leasefalse/历史/PID清理通过；有界停止及未知租约另有故障契约。stock输入、unified READY、完整原生矩阵、硬件和部署不继承 | [本轮范围与复现](evidence/2026-10-28-public-simulator/README.md)、[哈希与逐层状态](evidence/2026-10-28-public-simulator/summary.json)、[架构调研](browser-runtime-feasibility.md) |
 
 ## 2026-10-27
 

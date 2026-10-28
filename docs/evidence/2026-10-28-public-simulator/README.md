@@ -1,7 +1,8 @@
 # 公众模拟器：浏览器执行与页面验证
 
 日期：2026-10-28。源码基线 `2740fd767478a6599ce4d5533cb5d1b345730222`；
-本轮修改在 `codex/public-simulator-workbench`。哈希与逐设备检查点见
+本轮修改在 `codex/public-simulator-workbench`，随后集成`origin/main@0d4f53a3`；
+最终创建恢复复验的源码commit为`e339bb64`，完整commit与哈希见summary。逐设备检查点见
 [summary.json](summary.json)，架构对照见[浏览器调研](../../browser-runtime-feasibility.md)。
 
 ## 已复现的浏览器执行
@@ -71,9 +72,10 @@ compositor取证问题；补充与默认布局检查相同的150ms绘制等待�
 先做定向回归，再完成独立全量第三轮，没有拼接各轮为完整PASS。以上是浏览器模型
 集成证据，不证明外设控制器协议、电气接线、可选产品配置或固件兼容性。
 
-上一轮平台单次1355项通过、4项可选固定编译器/源码依赖跳过；四生成器、Node契约、
-UTF-8/JSON/隐私路径与凭据检查当轮通过。这是最终创建恢复/导航修改前的历史整轮，
-不作为最终源码全集通过声明。源码范围不包含ROM/WASM/固件/ZIP/依赖目录。
+合并最新主线并冻结产品源码后，最终平台单次1363项通过、6项可选固定编译器/
+UIFlow源码依赖跳过（97.121秒）；Node停止故障契约和首页16组通过。四生成器、
+固定模型来源、导出1902资源的大小/SHA及范围检查通过；原1355/4skip整轮保留历史。
+源码范围不包含ROM/WASM/固件/ZIP/依赖目录，最终原始日志SHA见summary。
 
 ## 可选原生桥：受控CoreS3示例
 
@@ -106,6 +108,10 @@ key重放。两次POST的`idempotent_replay`依次为false/true，只新增一�
 终态lease释放、active sessions为0、实际guest PID退出，自建服务关闭并释放端口。
 源码、输入/规范固件、QEMU与ROM、ZIP及完整receipt的SHA绑定见summary。
 这轮证明短时丢响应的真实创建/恢复/停止生命周期，没有执行应用显示或输入验收。
+最终合并版本的独立回归通过；先前r1的摘要、receipt与ZIP SHA保留为历史，未覆盖
+原始日志。控制器对停止时ZIP、DELETE、状态和输入等待分别设置10秒上限，超时
+保留session身份允许重试；仅明确`worker.lease_active === false`才接受停止完成，
+并在有界输入清理后清除旧悬挂队列。
 
 创建恢复使用完整原始body与相同`idempotency_key`重放POST；不能修改Unit配置后
 沿用同一key。服务持久化key/body摘要与session映射，最多4096条，映射本身没有
