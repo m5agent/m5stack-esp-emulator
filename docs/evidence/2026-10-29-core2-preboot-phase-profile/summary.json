@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "lane": "Device Service /api/v1",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "pc_sample_ns": 50000000,
+    "uart_trace": true,
+    "qemu_sha256": "fccfa931c032f8cae6b90e97ba5f98b1770fbf6856446c4db5f7950241e1fe90"
+  },
+  "wdt_off_80s": {
+    "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+    "qemu_stderr_sha256": "8e12e54a4a4e74cef831720c9ee305f549a6547321e3891ed9a1939fc84de780",
+    "banner_done_ns": 2772446815,
+    "board_name_ns": 54992441664,
+    "api_key_ns": 54997104352,
+    "boot_start_ns": 77862289309,
+    "boot_done_ns": 78371275324,
+    "ssi_transactions": 103058,
+    "ssi_rx_bytes": 3181984,
+    "ssi_last_command": "0xBB",
+    "ssi_last_payload_bytes": 64,
+    "cache_sync_calls": 215836,
+    "changed_pages": 5911,
+    "crosscore_writes": 428205
+  },
+  "pc_profile": {
+    "samples": 1599,
+    "cpu0_idle_pc": "0x4026306e",
+    "cpu0_idle_samples": 496,
+    "cpu0_handoff_cluster": "0x40087980..0x4008798e",
+    "cpu0_handoff_samples": 965,
+    "cpu1_top_pc": "0x4008723c",
+    "cpu1_top_samples": 214
+  },
+  "normal_wdt": {
+    "stage0_timeout_ns": 7253606591,
+    "stage1_timeout_ns": 17253606622,
+    "first_reset_ns": 17253685886,
+    "tg1_feed_count": 14998,
+    "tg1_max_feed_interval_ns": 3926684,
+    "tg1_timeout_count": 0,
+    "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE"
+  },
+  "discarded_scheduler_controls": [
+    {
+      "name": "immediate-yield-all-high-priority-sites",
+      "qemu_sha256": "7203bfe1fda9b28ebb5ddba45649618120f2b9f9aed76984a4d4623295c4d3c5",
+      "result": "Host overhead increased; no MicroPython banner within the 30-second wall-clock control"
+    },
+    {
+      "name": "immediate-yield-cpu1-once",
+      "qemu_sha256": "bd94be5d3c9ad45ea189a133e97be938cc14bc3711980fd19b35846a69735564",
+      "result": "TG1 stayed live, but stage0 still occurred and BOARD/APIKEY remained beyond the reset budget"
+    },
+    {
+      "name": "exit-current-tb-on-crosscore-write",
+      "qemu_sha256": "dc4ad0871945038b3124345dc0ac63c8d3999efb2aca3d9c629fb1cb2a1206e0",
+      "result": "Virtual-time progress slowed further"
+    },
+    {
+      "name": "exit-current-tb-on-spi-trans-done",
+      "qemu_sha256": "fb9c482ab3d9a61a83982815a85c23f00d44eb9dec1dbe2fb70fc887ba7e3bc8",
+      "result": "Virtual-time progress slowed further"
+    }
+  ],
+  "tooling": {
+    "runner": "tests/firmware/core2_handoff_trace/run_pause_sweep.py",
+    "new_options": [
+      "--pc-sample-ns",
+      "--uart-trace"
+    ],
+    "new_snapshot_fields": [
+      "phase_profile",
+      "uart_tx_lines"
+    ],
+    "contract": "platform/tests/test_core2_uart_clock.py"
+  },
+  "next_actions": [
+    "Determine whether the 64-byte read cadence is the guest driver path or a missing larger controller/DMA transaction",
+    "Measure SPI completion-to-next-command virtual latency without scheduler overrides",
+    "Obtain matching UIFlow_Core2 v1.15.4 ELF/MAP or keep all PC names BIN-bound"
+  ],
+  "limits": [
+    "PC sampling perturbs host scheduling and is diagnostic only",
+    "No matching ELF or MAP is available",
+    "Physical Flash, cache, PSRAM, RF, electrical and hardware timing are NOT RUN"
+  ]
+}

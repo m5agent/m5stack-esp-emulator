@@ -17,6 +17,25 @@ every virtual millisecond. The PC sampler is off by default because
 high-frequency sampling perturbs scheduling; use it as a separate diagnostic
 control.
 
+The pause runner can now bind PC sampling and UART virtual timestamps into the
+same artifact without relying on an undocumented inherited environment:
+
+```bash
+python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
+  --image path/to/normalized-core2.bin \
+  --qemu path/to/qemu-system-xtensa \
+  --pause-seconds 80 --disable-wdt --runtime qemu-wifi \
+  --pc-sample-ns 50000000 --uart-trace \
+  --timeout-seconds 300 \
+  --out-dir /tmp/core2-phase-profile
+```
+
+Each snapshot records `phase_profile` with sampled PC clusters and sampled SSI
+`CMD_READ`/64-byte-read counts. `uart_tx_lines` reconstructs guest lines with
+start/end virtual times. These fields are diagnostic controls; a sampled PC
+cluster is not a matching ELF symbol, and UART timing does not change the
+watchdog or product acceptance result.
+
 Run the same flash image with:
 
 ```bash

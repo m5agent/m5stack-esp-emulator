@@ -662,6 +662,30 @@ change the watchdog gate and cannot be used as a product fix. `RUNTIME-03`
 [证据](evidence/2026-10-29-cardputer-adv-imu/README.md) 和
 [机器摘要](evidence/2026-10-29-cardputer-adv-imu/summary.json)。
 
+## 2026-10-29：Core2 legacy pre-boot phase profile
+
+`run_pause_sweep.py` 新增显式 `--pc-sample-ns`、`--uart-trace` 和
+`phase_profile`，修复此前 UART parser 未实际启用 trace、外部 PC
+sampling 仍被记录为 `NOT RUN` 的工具缺口。公开
+`UIFlow_Core2 v1.15.4` 在 QEMU `fccfa931…`、`qemu-wifi`、
+`icount shift=5` 的 80 秒 WDT-off 诊断中记录 banner `2.7724 s`、
+BOARD NAME `54.9924 s`、APIKEY `54.9971 s`、boot.py start/done
+`77.8622/78.3712 s`。1,599 个 50 ms PC 样本中，CPU0 的
+`0x4026306e` waiti 形态 31.0%，`0x40087980..8e` handoff 簇 60.4%；
+SSI 共 103,058 transactions、3,181,984 RX bytes，最后 command
+`0xBB` 的 payload 为 64 bytes。
+
+同固件 normal-WDT 仍在 `7.2536 s` stage-0、`17.2536 s` stage-1 reset；
+TG1 在 reset 前 14,998 次 feed、最大间隔 3.927 ms、0 timeout。
+“所有 high-priority memw/retw 立即切核”“仅 CPU1 首次立即切核”
+“cross-core 写时退出 TB”“SPI TRANS_DONE 时退出 TB”四类负控均执行后
+丢弃，均未改善 BOARD/APIKEY 或 normal-WDT 启动预算。`RUNTIME-03`
+保持 `OPEN`；下一项是区分 guest 64-byte read cadence 与缺失的
+controller/DMA bulk path。全部为 virtual-device validation；物理
+Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
+[phase profile 证据](evidence/2026-10-29-core2-preboot-phase-profile/README.md)
+和[机器摘要](evidence/2026-10-29-core2-preboot-phase-profile/summary.json)。
+
 ## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
 
 原仓库已启用 GitHub Actions Pages 来源，并在 main 提交

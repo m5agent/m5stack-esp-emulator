@@ -16,6 +16,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,7 @@ TRACE_PATTERN = re.compile(
 UART_TRACE_PATTERN = re.compile(
     r"^\[uart-tx\] now=(?P<now>\d+) (?P<byte>[0-9a-fA-F]{2})$"
 )
+SSI_READ_COMMANDS = frozenset({0x03, 0x0B, 0xBB})
 
 
 class Api:
@@ -200,6 +202,58 @@ def parse_uart_tx_lines(
         elif len(current) < 4096:
             current.append(byte)
     return rows
+
+
+def summarize_phase_profile(
+    text: str,
+    *,
+    top_limit: int = 8,
+) -> dict[str, Any]:
+    """Summarize opt-in PC sampling and sampled SSI command phases."""
+    events = parse_trace(text)
+    samples = [
+        event
+        for event in events
+        if event["component"] == "cpu" and event["event"] == "sample"
+    ]
+    ssi_commands = [
+        event
+        for event in events
+        if event["component"] == "ssi"
+        and event["event"] == "transaction-begin"
+    ]
+    cpu0 = Counter(int(event["a"], 16) for event in samples)
+    cpu1 = Counter(int(event["b"], 16) for event in samples)
+
+    def top(counter: Counter[int]) -> list[dict[str, Any]]:
+        return [
+            {"pc": f"0x{pc:08x}", "samples": count}
+            for pc, count in counter.most_common(top_limit)
+        ]
+
+    return {
+        "pc_samples": len(samples),
+        "sample_window_ns": (
+            {
+                "first": samples[0]["now_ns"],
+                "last": samples[-1]["now_ns"],
+            }
+            if samples
+            else None
+        ),
+        "cpu0_top_pcs": top(cpu0),
+        "cpu1_top_pcs": top(cpu1),
+        "ssi_transaction_events": len(ssi_commands),
+        "ssi_read_events": sum(
+            int(event["a"], 10) in SSI_READ_COMMANDS
+            for event in ssi_commands
+        ),
+        "ssi_read64_events": sum(
+            int(event["a"], 10) in SSI_READ_COMMANDS
+            and int(event["d"], 10) == 64
+            for event in ssi_commands
+        ),
+    }
 
 
 def snapshot_at_pause(
@@ -366,6 +420,8 @@ def run_target(
     tolerance_ns: int,
     disable_wdt: bool,
     capture_frame: bool,
+    pc_sample_ns: int | None,
+    uart_trace: bool,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"pause-{target_ns}-attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -394,6 +450,14 @@ def run_target(
         env["M5SW_DISABLE_WDT"] = "1"
     else:
         env.pop("M5SW_DISABLE_WDT", None)
+    if pc_sample_ns is not None:
+        env["M5SW_ESP32_HANDOFF_PC_SAMPLE_NS"] = str(pc_sample_ns)
+    else:
+        env.pop("M5SW_ESP32_HANDOFF_PC_SAMPLE_NS", None)
+    if uart_trace:
+        env["M5SW_UART_TRACE"] = "1"
+    else:
+        env.pop("M5SW_UART_TRACE", None)
     service_log = (run_dir / "device-service.log").open("wb")
     process = subprocess.Popen(
         [
@@ -529,6 +593,7 @@ def run_target(
                 "serial_bytes": len(serial.encode()),
                 "serial_sha256": sha256_bytes(serial.encode()),
                 "uart_tx_lines": parse_uart_tx_lines(stderr),
+                "phase_profile": summarize_phase_profile(stderr),
             }
         )
         return snapshot
@@ -573,6 +638,16 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=1)
     parser.add_argument("--disable-wdt", action="store_true")
     parser.add_argument(
+        "--pc-sample-ns",
+        type=int,
+        help="sample both guest PCs at this virtual-time interval",
+    )
+    parser.add_argument(
+        "--uart-trace",
+        action="store_true",
+        help="record UART TX bytes with virtual timestamps",
+    )
+    parser.add_argument(
         "--capture-frame",
         action="store_true",
         help="capture the current PNG before stopping the lease",
@@ -595,6 +670,10 @@ def main() -> int:
         parser.error(f"QEMU does not exist: {args.qemu}")
     if args.attempts < 1 or args.attempts > 10:
         parser.error("--attempts must be from 1 to 10")
+    if args.pc_sample_ns is not None and not (
+        1_000_000 <= args.pc_sample_ns <= 1_000_000_000
+    ):
+        parser.error("--pc-sample-ns must be from 1000000 to 1000000000")
     image_sha256 = sha256_file(args.image)
     if image_sha256 != args.expected_image_sha256.lower():
         parser.error(
@@ -621,6 +700,8 @@ def main() -> int:
                     int(args.pause_tolerance_ms * 1_000_000),
                     args.disable_wdt,
                     args.capture_frame,
+                    args.pc_sample_ns,
+                    args.uart_trace,
                 )
                 snapshots.append(snapshot)
                 print(
@@ -670,7 +751,8 @@ def main() -> int:
             "machine": "m5core2",
             "qemu_binary_sha256": sha256_file(args.qemu),
             "trace_sample": 1024,
-            "pc_sampling": "NOT RUN",
+            "pc_sampling_ns": args.pc_sample_ns,
+            "uart_trace": args.uart_trace,
             "runtime": args.runtime,
             "icount_shift": args.icount_shift,
             "pause_action": (

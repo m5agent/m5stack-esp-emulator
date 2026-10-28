@@ -50,7 +50,6 @@ Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.
 最终 runtime `78555183…` 的三设备 system、shared、17 个设备组和通信/音频/候选接口均重绑 PASS 且无 retry；Device Service API 的 81 operations/95 cases 也 PASS。stock HTTP、Modbus async 和 TLS epoch 缺陷继续保留，固定候选分别在相同 runtime 通过 2/2、50/50 和三台各 5/5，见[最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。`0070` UART virtual-clock trace 进一步证明 legacy Core2 的 BOARD/APIKEY 发生在 normal-WDT 后，shift=2 仍 reset，不能把 accelerator override 当修复；`RUNTIME-03` 保持 OPEN。
 Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp32_wifi` NIC；改用 UIFlow 自带 packer 与 `/api/v1` 的 `runtime=qemu-wifi` 后，120 秒诊断已执行注入的 `CORE2_LEGACY_VFS_BOOT`。随后 `0068` 修复 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 的共享 panel routing，legacy `m5stack`/`lcd` probe 从 0 变为 1422 nonblack pixels；`0069` 修正 protected `WDTPROTECT` 下合法 `WDTFEED` 被丢弃的模型错误，但同固件 60 秒正常 WDT 仍在 `17.2529 s` 触发 TG0 stage-1 reset。原厂 startup UI、setup/REPL 和应用帧仍未完成，`RUNTIME-03` 保持 `OPEN`。
 旧无 NIC 黑帧不再单独作为显示完成路径结论，见[协作 IRQ/RMT 证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)、[VFS/WiFi fixture 校正](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、[dual-SPI panel routing](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)和[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)。
-
 ## 本轮目标盘点
 
 | 目标 | 已经落地 | 当前缺口 | 结论 |
@@ -347,7 +346,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、exact-time state sweep、LVGL wait 和 UART virtual-clock 定位已验证；`0065` 五轮关闭调度诱导双 PC deadlock，`0066` 越过 Neopixel RMT 初始化错误 | 保持 `0065/0066` 回归，解释 pre-BOARD/APIKEY guest/controller 工作预算为何超过 normal-WDT deadline；随后证明 setup/REPL、startup UI、display completion 和非空帧 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组或 accelerator 都不能继承为 legacy PASS |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、exact-time state sweep、LVGL wait、UART virtual-clock 和 pre-boot phase profile 已验证；`0065` 五轮关闭调度诱导双 PC deadlock，`0066` 越过 Neopixel RMT 初始化错误 | 保持 `0065/0066` 回归，解释约十万次 64-byte read-class SSI cadence 和 pre-BOARD/APIKEY 工作预算；随后证明 setup/REPL、startup UI、display completion 和非空帧 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、立即切核或 accelerator 都不能继承为 legacy PASS |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
