@@ -640,3 +640,25 @@ change the watchdog gate and cannot be used as a product fix. `RUNTIME-03`
 物理硬件和电气行为为 `NOT RUN`。见
 [证据](evidence/2026-10-29-core2-legacy-uart-clock/README.md) 和
 [机器摘要](evidence/2026-10-29-core2-legacy-uart-clock/summary.json)。
+
+## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
+
+原仓库已启用 GitHub Actions Pages 来源，并在 main 提交
+`8e47c6ba83c042398d767a8d56ff47c16b927181` 手动运行
+`publish=true`、前缀 `/m5stack-esp-emulator/`。固定源码 C/QEMU 构建、
+LittleFS 组合、静态导出和 Actions 内真实 CoreS3 guest 验收完成；
+构建 `13m53s`，部署 `14s`。正式地址
+<https://m5agent.github.io/m5stack-esp-emulator/> 返回 HTTP 200，
+公开 manifest 声明 `1922` 个资产、`service_url` 为空且
+`firmware_bundled=false`。
+
+部署后从正式 HTTPS 地址独立执行同一真实 C/QEMU 验收器，21 项检查全部
+PASS：共享内存、实际 RGB 帧、触摸正反例、PIR 双向状态、QMP 暂停/继续、
+四档布局、停止/重开、Worker/iframe 清理、无服务/本机模拟器请求及无 JavaScript
+错误。公开报告 SHA256 为
+`3251b33ef5fb76340a48f8cbd3e780ee3b9ce86caf613f176b58a90ffa6bee33`；
+运行时/固件身份、Actions 链接与边界见
+[正式部署证据](evidence/2026-10-29-github-pages-production/README.md)
+和[机器摘要](evidence/2026-10-29-github-pages-production/summary.json)。
+结论限定为 browser virtual-device validation；默认墙钟调度、长期稳定性、
+网络、音频、其它设备/固件/Unit、Flash 持久化和物理硬件仍 `NOT RUN`。

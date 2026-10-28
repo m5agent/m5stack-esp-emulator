@@ -69,7 +69,7 @@ browser backend、公众首页与模型更新，限定官方固件的当前结�
 最终合并检查已通过；按用户澄清优先复用定制C/QEMU，Rust两款演示保留为
 研究原型且暂不发布。WASM构建与无固件控制前置见
 [C/QEMU实验](qemu-wasm-port-research.md)；继续CoreS3真实
-LVGL/输入/Unit及实际guest停止重开已完成限定fixture，主CPU jump栈恢复已有修正；后续处理默认时钟下LVGL队列/未覆盖异常路径，公众浏览器离线 profile、资源生命周期和测试 fork Pages 已取得限定准入，原仓库部署由管理员执行；其它范围按[本轮证据](evidence/2026-10-28-qemu-wasm-pages/README.md)保留。
+LVGL/输入/Unit及实际guest停止重开已完成限定fixture，主CPU jump栈恢复已有修正；后续处理默认时钟下LVGL队列/未覆盖异常路径，公众浏览器离线 profile、资源生命周期和正式 GitHub Pages 已取得限定准入；正式 HTTPS 地址已独立复验，其它范围按[本轮证据](evidence/2026-10-29-github-pages-production/README.md)保留。
 
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
