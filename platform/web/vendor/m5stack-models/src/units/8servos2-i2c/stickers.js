@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';
+const front=new URL('./artwork/front.png',import.meta.url).href,back=new URL('./artwork/back.png',import.meta.url).href,selector=new URL('./artwork/selector-scale.png',import.meta.url).href;
+export function addStickers(host){const a=host.eightServos2Assembly,out=[];for(const[face,url,target]of[['front',front,a.labels.front],['back',back,a.labels.back],['selector',selector,a.rotary.scale]])out.push(...(printedArtwork(host,{target,url,size:spec.labels[face].size,position:spec.labels[face].position,face:face==='back'?'back':'front',depth:.12,artworkKind:face==='selector'?'official-photo-code-redraw':'source-vector-raster',name:'U222 exact own '+face+' print'})??[]));return out;}

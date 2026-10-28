@@ -15,6 +15,10 @@
   "scripts": {
     "dev": "npm run catalog && vite demo --config vite.config.js --host 127.0.0.1 --port 5188 --strictPort",
     "check": "node scripts/check.mjs && node scripts/check-details.mjs",
+    "check:demo": "node scripts/check-demo-product-details.mjs && node scripts/check-demo-selection.mjs && node scripts/check-demo-lifecycle.mjs && node scripts/check-demo-framebuffers.mjs",
+    "check:controllers": "node scripts/check-controller-dynamics.mjs",
+    "check:connections": "node scripts/check-host-grove-assembly.mjs",
+    "check:input-picking": "node scripts/check-viewer-hit-filters.mjs && node scripts/check-native-controller-picking.mjs",
     "catalog": "node scripts/catalog.mjs",
     "build": "npm run catalog && vite build demo --config vite.config.js --outDir ../dist --emptyOutDir --base ./"
   },

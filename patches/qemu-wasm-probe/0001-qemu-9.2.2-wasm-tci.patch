@@ -1,0 +1,886 @@
+diff --git a/backends/meson.build b/backends/meson.build
+index da714b9..9b88d22 100644
+--- a/backends/meson.build
++++ b/backends/meson.build
+@@ -12,8 +12,10 @@ system_ss.add([files(
+ 
+ if host_os != 'windows'
+   system_ss.add(files('rng-random.c'))
+-  system_ss.add(files('hostmem-file.c'))
+-  system_ss.add([files('hostmem-shm.c'), rt])
++  if host_os != 'emscripten'
++    system_ss.add(files('hostmem-file.c'))
++    system_ss.add([files('hostmem-shm.c'), rt])
++  endif
+ endif
+ if host_os == 'linux'
+   system_ss.add(files('hostmem-memfd.c'))
+diff --git a/block/file-posix.c b/block/file-posix.c
+index 90fa543..6dfd53f 100644
+--- a/block/file-posix.c
++++ b/block/file-posix.c
+@@ -110,6 +110,10 @@
+ #include <sys/diskslice.h>
+ #endif
+ 
++#ifdef EMSCRIPTEN
++#include <sys/ioctl.h>
++#endif
++
+ /* OS X does not have O_DSYNC */
+ #ifndef O_DSYNC
+ #ifdef O_SYNC
+@@ -2003,8 +2007,11 @@ static int handle_aiocb_write_zeroes_unmap(void *opaque)
+ }
+ 
+ #ifndef HAVE_COPY_FILE_RANGE
+-static off_t copy_file_range(int in_fd, off_t *in_off, int out_fd,
+-                             off_t *out_off, size_t len, unsigned int flags)
++#ifndef EMSCRIPTEN
++static
++#endif
++ssize_t copy_file_range(int in_fd, off_t *in_off, int out_fd,
++                        off_t *out_off, size_t len, unsigned int flags)
+ {
+ #ifdef __NR_copy_file_range
+     return syscall(__NR_copy_file_range, in_fd, in_off, out_fd,
+diff --git a/configs/meson/emscripten.txt b/configs/meson/emscripten.txt
+new file mode 100644
+index 0000000..4230e88
+--- /dev/null
++++ b/configs/meson/emscripten.txt
+@@ -0,0 +1,8 @@
++[built-in options]
++c_args = ['-pthread']
++cpp_args = ['-pthread']
++objc_args = ['-pthread']
++# -sPROXY_TO_PTHREAD link time flag always requires -pthread even during
++# configuration so explicitly add the flag here.
++c_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sTOTAL_MEMORY=2GB','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS']
++cpp_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sTOTAL_MEMORY=2GB','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS']
+diff --git a/configure b/configure
+index 1833637..c2ea505 100755
+--- a/configure
++++ b/configure
+@@ -360,6 +360,10 @@ elif check_define __NetBSD__; then
+   host_os=netbsd
+ elif check_define __APPLE__; then
+   host_os=darwin
++elif check_define EMSCRIPTEN ; then
++  host_os=emscripten
++  cpu=wasm32
++  cross_compile="yes"
+ else
+   # This is a fatal error, but don't report it yet, because we
+   # might be going to just print the --help text, or it might
+@@ -520,6 +524,10 @@ case "$cpu" in
+     linux_arch=x86
+     CPU_CFLAGS="-mx32"
+     ;;
++  wasm32)
++    CPU_CFLAGS="-m32"
++    ;;
++
+   x86_64|amd64)
+     cpu="x86_64"
+     host_arch=x86_64
+diff --git a/hw/core/loader.c b/hw/core/loader.c
+index 31593a1..a385e37 100644
+--- a/hw/core/loader.c
++++ b/hw/core/loader.c
+@@ -1429,7 +1429,7 @@ typedef struct RomSec {
+  * work, but this way saves a little work later by avoiding
+  * dealing with "gaps" of 0 length.
+  */
+-static gint sort_secs(gconstpointer a, gconstpointer b)
++static gint sort_secs(gconstpointer a, gconstpointer b, gpointer d)
+ {
+     RomSec *ra = (RomSec *) a;
+     RomSec *rb = (RomSec *) b;
+@@ -1482,7 +1482,7 @@ RomGap rom_find_largest_gap_between(hwaddr base, size_t size)
+     /* sentinel */
+     secs = add_romsec_to_list(secs, base + size, 1);
+ 
+-    secs = g_list_sort(secs, sort_secs);
++    secs = g_list_sort_with_data(secs, sort_secs, NULL);
+ 
+     for (it = g_list_first(secs); it; it = g_list_next(it)) {
+         cand = (RomSec *) it->data;
+diff --git a/include/glib-compat.h b/include/glib-compat.h
+index 86be439..4c59d0d 100644
+--- a/include/glib-compat.h
++++ b/include/glib-compat.h
+@@ -36,6 +36,15 @@
+ #include <pwd.h>
+ #endif
+ 
++/*
++ * These functions perform function pointer casts which can cause function call
++ * failure on Emscripten. Use g_slist_sort_with_data and g_list_sort_with_data
++ * instead of these functions.
++ */
++#if defined(EMSCRIPTEN)
++#pragma GCC poison g_slist_sort g_list_sort
++#endif
++
+ /*
+  * Note that because of the GLIB_VERSION_MAX_ALLOWED constant above, allowing
+  * use of functions from newer GLib via this compat header needs a little
+diff --git a/include/qemu/cacheflush.h b/include/qemu/cacheflush.h
+index ae20bcd..76eb55d 100644
+--- a/include/qemu/cacheflush.h
++++ b/include/qemu/cacheflush.h
+@@ -26,6 +26,13 @@ static inline void flush_idcache_range(uintptr_t rx, uintptr_t rw, size_t len)
+     /* icache is coherent and does not require flushing. */
+ }
+ 
++#elif defined(EMSCRIPTEN)
++
++static inline void flush_idcache_range(uintptr_t rx, uintptr_t rw, size_t len)
++{
++    /* Wasm doesn't have executable region of memory. */
++}
++
+ #else
+ 
+ void flush_idcache_range(uintptr_t rx, uintptr_t rw, size_t len);
+diff --git a/include/qemu/osdep.h b/include/qemu/osdep.h
+index fdff07f..1d5ccde 100644
+--- a/include/qemu/osdep.h
++++ b/include/qemu/osdep.h
+@@ -8,7 +8,7 @@
+  * To avoid getting into possible circular include dependencies, this
+  * file should not include any other QEMU headers, with the exceptions
+  * of config-host.h, config-target.h, qemu/compiler.h,
+- * sysemu/os-posix.h, sysemu/os-win32.h, glib-compat.h and
++ * sysemu/os-posix.h, sysemu/os-win32.h, sysemu/os-wasm.h, glib-compat.h and
+  * qemu/typedefs.h, all of which are doing a similar job to this file
+  * and are under similar constraints.
+  *
+@@ -164,10 +164,14 @@ QEMU_EXTERN_C int daemon(int, int);
+ #include "sysemu/os-win32.h"
+ #endif
+ 
+-#ifdef CONFIG_POSIX
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ #include "sysemu/os-posix.h"
+ #endif
+ 
++#if defined(EMSCRIPTEN)
++#include "sysemu/os-wasm.h"
++#endif
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+diff --git a/include/sysemu/os-wasm.h b/include/sysemu/os-wasm.h
+new file mode 100644
+index 0000000..d3e0724
+--- /dev/null
++++ b/include/sysemu/os-wasm.h
+@@ -0,0 +1,104 @@
++/* SPDX-License-Identifier: MIT */
++/*
++ * posix specific declarations forked from os-posix.h, removing functions not
++ * working on Emscripten
++ *
++ * Copyright (c) 2003-2008 Fabrice Bellard
++ * Copyright (c) 2010 Jes Sorensen <Jes.Sorensen@redhat.com>
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to deal
++ * in the Software without restriction, including without limitation the rights
++ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++ * copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++ * THE SOFTWARE.
++ */
++
++#ifndef QEMU_OS_WASM_H
++#define QEMU_OS_WASM_H
++
++#include <sys/mman.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <netinet/tcp.h>
++#include <arpa/inet.h>
++#include <netdb.h>
++#include <sys/un.h>
++
++#ifdef CONFIG_SYSMACROS
++#include <sys/sysmacros.h>
++#endif
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++void os_set_line_buffering(void);
++void os_setup_early_signal_handling(void);
++void os_set_proc_name(const char *s);
++void os_setup_signal_handling(void);
++void os_setup_limits(void);
++void os_setup_post(void);
++int os_mlock(void);
++static inline int os_set_daemonize(bool d)
++{
++    return -1;
++};
++bool is_daemonized(void);
++static inline void os_daemonize(void) {}
++
++/**
++ * qemu_alloc_stack:
++ * @sz: pointer to a size_t holding the requested usable stack size
++ *
++ * Allocate memory that can be used as a stack, for instance for
++ * coroutines. If the memory cannot be allocated, this function
++ * will abort (like g_malloc()). This function also inserts an
++ * additional guard page to catch a potential stack overflow.
++ * Note that the memory required for the guard page and alignment
++ * and minimal stack size restrictions will increase the value of sz.
++ *
++ * The allocated stack must be freed with qemu_free_stack().
++ *
++ * Returns: pointer to (the lowest address of) the stack memory.
++ */
++void *qemu_alloc_stack(size_t *sz);
++
++/**
++ * qemu_free_stack:
++ * @stack: stack to free
++ * @sz: size of stack in bytes
++ *
++ * Free a stack allocated via qemu_alloc_stack(). Note that sz must
++ * be exactly the adjusted stack size returned by qemu_alloc_stack.
++ */
++void qemu_free_stack(void *stack, size_t sz);
++
++/* POSIX and Mingw32 differ in the name of the stdio lock functions.  */
++
++static inline void qemu_flockfile(FILE *f)
++{
++    flockfile(f);
++}
++
++static inline void qemu_funlockfile(FILE *f)
++{
++    funlockfile(f);
++}
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+diff --git a/meson.build b/meson.build
+index 8746152..c8013ae 100644
+--- a/meson.build
++++ b/meson.build
+@@ -45,9 +45,9 @@ genh = []
+ qapi_trace_events = []
+ 
+ bsd_oses = ['gnu/kfreebsd', 'freebsd', 'netbsd', 'openbsd', 'dragonfly', 'darwin']
+-supported_oses = ['windows', 'freebsd', 'netbsd', 'openbsd', 'darwin', 'sunos', 'linux']
++supported_oses = ['windows', 'freebsd', 'netbsd', 'openbsd', 'darwin', 'sunos', 'linux', 'emscripten']
+ supported_cpus = ['ppc', 'ppc64', 's390x', 'riscv32', 'riscv64', 'x86', 'x86_64',
+-  'arm', 'aarch64', 'loongarch64', 'mips', 'mips64', 'sparc64']
++  'arm', 'aarch64', 'loongarch64', 'mips', 'mips64', 'sparc64', 'wasm32']
+ 
+ cpu = host_machine.cpu_family()
+ 
+@@ -324,6 +324,8 @@ foreach lang : all_languages
+       # endif
+       #endif''')
+     # ok
++  elif compiler.get_id() == 'emscripten'
++    # ok
+   else
+     error('You either need GCC v7.4 or Clang v10.0 (or XCode Clang v15.0) to compile QEMU')
+   endif
+@@ -441,7 +443,10 @@ endif
+ # instead, we can't add -no-pie because it overrides -shared: the linker then
+ # tries to build an executable instead of a shared library and fails.  So
+ # don't add -no-pie anywhere and cross fingers. :(
+-if not get_option('b_pie')
++#
++# Emscripten doesn't support -no-pie but meson can't catch the compiler
++# warning. So explicitly omit the flag for Emscripten.
++if not get_option('b_pie') and host_os != 'emscripten'
+   qemu_common_flags += cc.get_supported_arguments('-fno-pie', '-no-pie')
+ endif
+ 
+@@ -485,6 +490,8 @@ ucontext_probe = '''
+ supported_backends = []
+ if host_os == 'windows'
+   supported_backends += ['windows']
++elif host_os == 'emscripten'
++  supported_backends += ['wasm']
+ else
+   if host_os != 'darwin' and cc.links(ucontext_probe)
+     supported_backends += ['ucontext']
+@@ -870,6 +877,10 @@ if get_option('tcg').allowed()
+     if not get_option('tcg_interpreter')
+       error('Unsupported CPU @0@, try --enable-tcg-interpreter'.format(cpu))
+     endif
++  elif host_arch == 'wasm32'
++    if not get_option('tcg_interpreter')
++      error('WebAssembly host requires --enable-tcg-interpreter')
++    endif
+   elif get_option('tcg_interpreter')
+     warning('Use of the TCG interpreter is not recommended on this host')
+     warning('architecture. There is a native TCG execution backend available')
+@@ -1817,9 +1828,10 @@ if not gnutls_crypto.found()
+     # as it "spreads unnecessary dependencies" which in
+     # turn breaks static builds...
+     if gcrypt.found() and get_option('prefer_static')
++      gpg_error_dirs = host_os == 'emscripten' ? [gcrypt.get_variable(pkgconfig: 'libdir')] : []
+       gcrypt = declare_dependency(dependencies:
+         [gcrypt,
+-         cc.find_library('gpg-error', required: true)],
++         cc.find_library('gpg-error', dirs: gpg_error_dirs, required: true)],
+         version: gcrypt.version())
+     endif
+     crypto_sm4 = gcrypt
+@@ -2927,7 +2939,9 @@ config_host_data.set('CONFIG_ATOMIC64', cc.links('''
+     return 0;
+   }''', args: qemu_isa_flags))
+ 
+-has_int128_type = cc.compiles('''
++# has_int128_type is set to false on Emscripten to avoid errors by libffi
++# during runtime.
++has_int128_type = host_os != 'emscripten' and cc.compiles('''
+   __int128_t a;
+   __uint128_t b;
+   int main(void) { b = a; }''')
+@@ -3752,6 +3766,8 @@ if have_block
+   # os-win32.c does not
+   if host_os == 'windows'
+     system_ss.add(files('os-win32.c'))
++  elif host_os == 'emscripten'
++    blockdev_ss.add(files('os-wasm.c'))
+   else
+     blockdev_ss.add(files('os-posix.c'))
+   endif
+@@ -4436,7 +4452,11 @@ subdir('scripts')
+ subdir('tools')
+ subdir('pc-bios')
+ subdir('docs')
+-subdir('tests')
++# Tests are disabled on emscripten because they rely on host features that aren't
++# supported by emscripten (e.g. fork and unix socket).
++if host_os != 'emscripten'
++  subdir('tests')
++endif
+ if gtk.found()
+   subdir('po')
+ endif
+diff --git a/meson_options.txt b/meson_options.txt
+index 5eeaf3e..bf19334 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -34,7 +34,7 @@ option('fuzzing_engine', type : 'string', value : '',
+ option('trace_file', type: 'string', value: 'trace',
+        description: 'Trace file prefix for simple backend')
+ option('coroutine_backend', type: 'combo',
+-       choices: ['ucontext', 'sigaltstack', 'windows', 'auto'],
++       choices: ['ucontext', 'sigaltstack', 'windows', 'wasm', 'auto'],
+        value: 'auto', description: 'coroutine backend to use')
+ 
+ # Everything else can be set via --enable/--disable-* option
+diff --git a/os-wasm.c b/os-wasm.c
+new file mode 100644
+index 0000000..f703642
+--- /dev/null
++++ b/os-wasm.c
+@@ -0,0 +1,97 @@
++/* SPDX-License-Identifier: MIT */
++/*
++ * os-wasm.c
++ * Forked from os-posix.c, removing functions not working on Emscripten
++ *
++ * Copyright (c) 2003-2008 Fabrice Bellard
++ * Copyright (c) 2010 Red Hat, Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to deal
++ * in the Software without restriction, including without limitation the rights
++ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++ * copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++ * THE SOFTWARE.
++ */
++
++#include "qemu/osdep.h"
++#include <sys/resource.h>
++#include <sys/wait.h>
++#include <pwd.h>
++#include <grp.h>
++#include <libgen.h>
++
++#include "qemu/error-report.h"
++#include "qemu/log.h"
++#include "sysemu/runstate.h"
++#include "qemu/cutils.h"
++
++void os_setup_post(void){}
++void os_set_line_buffering(void)
++{
++    setvbuf(stdout, NULL, _IOLBF, 0);
++}
++void os_setup_early_signal_handling(void)
++{
++    struct sigaction act;
++    sigfillset(&act.sa_mask);
++    act.sa_flags = 0;
++    act.sa_handler = SIG_IGN;
++    sigaction(SIGPIPE, &act, NULL);
++}
++void os_set_proc_name(const char *s)
++{
++    error_report("Change of process name not supported by your OS");
++    exit(1);
++}
++static void termsig_handler(int signal, siginfo_t *info, void *c)
++{
++    qemu_system_killed(info->si_signo, info->si_pid);
++}
++
++void os_setup_signal_handling(void)
++{
++    struct sigaction act;
++
++    memset(&act, 0, sizeof(act));
++    act.sa_sigaction = termsig_handler;
++    act.sa_flags = SA_SIGINFO;
++    sigaction(SIGINT,  &act, NULL);
++    sigaction(SIGHUP,  &act, NULL);
++    sigaction(SIGTERM, &act, NULL);
++}
++void os_setup_limits(void)
++{
++    struct rlimit nofile;
++
++    if (getrlimit(RLIMIT_NOFILE, &nofile) < 0) {
++        warn_report("unable to query NOFILE limit: %s", strerror(errno));
++        return;
++    }
++
++    if (nofile.rlim_cur == nofile.rlim_max) {
++        return;
++    }
++
++    nofile.rlim_cur = nofile.rlim_max;
++
++    if (setrlimit(RLIMIT_NOFILE, &nofile) < 0) {
++        warn_report("unable to set NOFILE limit: %s", strerror(errno));
++        return;
++    }
++}
++int os_mlock(void)
++{
++    return -ENOSYS;
++}
+diff --git a/qemu-options.hx b/qemu-options.hx
+index dacc979..f0e8ba1 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -4764,7 +4764,7 @@ SRST
+     Start right away with a saved state (``loadvm`` in monitor)
+ ERST
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(EMSCRIPTEN)
+ DEF("daemonize", 0, QEMU_OPTION_daemonize, \
+     "-daemonize      daemonize QEMU after initializing\n", QEMU_ARCH_ALL)
+ #endif
+@@ -4969,7 +4969,7 @@ SRST
+     ``-nodefaults`` option will disable all those default devices.
+ ERST
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(EMSCRIPTEN)
+ DEF("runas", HAS_ARG, QEMU_OPTION_runas, \
+     "-runas user     change to user id user just before starting the VM\n" \
+     "                user can be numeric uid:gid instead\n",
+@@ -5143,7 +5143,7 @@ HXCOMM Internal use
+ DEF("qtest", HAS_ARG, QEMU_OPTION_qtest, "", QEMU_ARCH_ALL)
+ DEF("qtest-log", HAS_ARG, QEMU_OPTION_qtest_log, "", QEMU_ARCH_ALL)
+ 
+-#ifdef CONFIG_POSIX
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ DEF("run-with", HAS_ARG, QEMU_OPTION_run_with,
+     "-run-with [async-teardown=on|off][,chroot=dir][user=username|uid:gid]\n"
+     "                Set miscellaneous QEMU process lifecycle options:\n"
+diff --git a/qom/object.c b/qom/object.c
+index 9edc06d..aaedb75 100644
+--- a/qom/object.c
++++ b/qom/object.c
+@@ -1197,7 +1197,7 @@ GSList *object_class_get_list(const char *implements_type,
+     return list;
+ }
+ 
+-static gint object_class_cmp(gconstpointer a, gconstpointer b)
++static gint object_class_cmp(gconstpointer a, gconstpointer b, gpointer d)
+ {
+     return strcasecmp(object_class_get_name((ObjectClass *)a),
+                       object_class_get_name((ObjectClass *)b));
+@@ -1206,8 +1206,9 @@ static gint object_class_cmp(gconstpointer a, gconstpointer b)
+ GSList *object_class_get_list_sorted(const char *implements_type,
+                                      bool include_abstract)
+ {
+-    return g_slist_sort(object_class_get_list(implements_type, include_abstract),
+-                        object_class_cmp);
++    return g_slist_sort_with_data(
++        object_class_get_list(implements_type, include_abstract),
++        object_class_cmp, NULL);
+ }
+ 
+ Object *object_ref(void *objptr)
+diff --git a/scripts/meson-buildoptions.sh b/scripts/meson-buildoptions.sh
+index a8066aa..0362ed4 100644
+--- a/scripts/meson-buildoptions.sh
++++ b/scripts/meson-buildoptions.sh
+@@ -80,7 +80,7 @@ meson_options_help() {
+   printf "%s\n" '  --tls-priority=VALUE     Default TLS protocol/cipher priority string'
+   printf "%s\n" '                           [NORMAL]'
+   printf "%s\n" '  --with-coroutine=CHOICE  coroutine backend to use (choices:'
+-  printf "%s\n" '                           auto/sigaltstack/ucontext/windows)'
++  printf "%s\n" '                           auto/sigaltstack/ucontext/windows/wasm)'
+   printf "%s\n" '  --with-pkgversion=VALUE  use specified string as sub-version of the'
+   printf "%s\n" '                           package'
+   printf "%s\n" '  --with-suffix=VALUE      Suffix for QEMU data/modules/config directories'
+diff --git a/system/memory.c b/system/memory.c
+index 85f6834..3958314 100644
+--- a/system/memory.c
++++ b/system/memory.c
+@@ -1636,7 +1636,7 @@ bool memory_region_init_resizeable_ram(MemoryRegion *mr,
+     return true;
+ }
+ 
+-#ifdef CONFIG_POSIX
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ bool memory_region_init_ram_from_file(MemoryRegion *mr,
+                                       Object *owner,
+                                       const char *name,
+diff --git a/system/physmem.c b/system/physmem.c
+index 7538906..addd5d0 100644
+--- a/system/physmem.c
++++ b/system/physmem.c
+@@ -1235,7 +1235,7 @@ long qemu_maxrampagesize(void)
+     return pagesize;
+ }
+ 
+-#ifdef CONFIG_POSIX
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ static int64_t get_file_size(int fd)
+ {
+     int64_t size;
+@@ -1941,7 +1941,7 @@ out_free:
+     }
+ }
+ 
+-#ifdef CONFIG_POSIX
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ RAMBlock *qemu_ram_alloc_from_fd(ram_addr_t size, MemoryRegion *mr,
+                                  uint32_t ram_flags, int fd, off_t offset,
+                                  Error **errp)
+@@ -2130,7 +2130,7 @@ static void reclaim_ramblock(RAMBlock *block)
+         ;
+     } else if (xen_enabled()) {
+         xen_invalidate_map_cache_entry(block->host);
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(EMSCRIPTEN)
+     } else if (block->fd >= 0) {
+         qemu_ram_munmap(block->fd, block->host, block->max_length);
+         close(block->fd);
+diff --git a/system/vl.c b/system/vl.c
+index 2f855d8..b80cc51 100644
+--- a/system/vl.c
++++ b/system/vl.c
+@@ -759,7 +759,7 @@ static QemuOptsList qemu_smp_opts = {
+     },
+ };
+ 
+-#if defined(CONFIG_POSIX)
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+ static QemuOptsList qemu_run_with_opts = {
+     .name = "run-with",
+     .head = QTAILQ_HEAD_INITIALIZER(qemu_run_with_opts.head),
+@@ -1524,7 +1524,7 @@ static int debugcon_parse(const char *devname)
+     return 0;
+ }
+ 
+-static gint machine_class_cmp(gconstpointer a, gconstpointer b)
++static gint machine_class_cmp(gconstpointer a, gconstpointer b, gpointer d)
+ {
+     const MachineClass *mc1 = a, *mc2 = b;
+     int res;
+@@ -1574,7 +1574,7 @@ static void machine_help_func(const QDict *qdict)
+     }
+ 
+     printf("Supported machines are:\n");
+-    machines = g_slist_sort(machines, machine_class_cmp);
++    machines = g_slist_sort_with_data(machines, machine_class_cmp, NULL);
+     for (el = machines; el; el = el->next) {
+         MachineClass *mc = el->data;
+         if (mc->alias) {
+@@ -3584,7 +3584,7 @@ void qemu_init(int argc, char **argv)
+             case QEMU_OPTION_nouserconfig:
+                 /* Nothing to be parsed here. Especially, do not error out below. */
+                 break;
+-#if defined(CONFIG_POSIX)
++#if defined(CONFIG_POSIX) && !defined(EMSCRIPTEN)
+             case QEMU_OPTION_runas:
+                 warn_report("-runas is deprecated, use '-run-with user=...' instead");
+                 if (!os_set_runas(optarg)) {
+diff --git a/util/cacheflush.c b/util/cacheflush.c
+index a089061..b3cddb6 100644
+--- a/util/cacheflush.c
++++ b/util/cacheflush.c
+@@ -229,6 +229,10 @@ static void __attribute__((constructor)) init_cache_info(void)
+ 
+ /* Caches are coherent and do not require flushing; symbol inline. */
+ 
++#elif defined(EMSCRIPTEN)
++
++/* Wasm doesn't have executable region of memory. */
++
+ #elif defined(__aarch64__) && !defined(CONFIG_WIN32)
+ /*
+  * For Windows, we use generic implementation of flush_idcache_range, that
+diff --git a/util/coroutine-wasm.c b/util/coroutine-wasm.c
+new file mode 100644
+index 0000000..cb1ec92
+--- /dev/null
++++ b/util/coroutine-wasm.c
+@@ -0,0 +1,127 @@
++/*
++ * emscripten fiber coroutine initialization code
++ * based on coroutine-ucontext.c
++ *
++ * Copyright (C) 2006  Anthony Liguori <anthony@codemonkey.ws>
++ * Copyright (C) 2011  Kevin Wolf <kwolf@redhat.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.0 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "qemu/osdep.h"
++#include "qemu/coroutine_int.h"
++#include "qemu/coroutine-tls.h"
++
++#include <emscripten/fiber.h>
++
++typedef struct {
++    Coroutine base;
++    void *stack;
++    size_t stack_size;
++
++    void *asyncify_stack;
++    size_t asyncify_stack_size;
++
++    CoroutineAction action;
++
++    emscripten_fiber_t fiber;
++} CoroutineEmscripten;
++
++/**
++ * Per-thread coroutine bookkeeping
++ */
++QEMU_DEFINE_STATIC_CO_TLS(Coroutine *, current);
++QEMU_DEFINE_STATIC_CO_TLS(CoroutineEmscripten *, leader);
++size_t leader_asyncify_stack_size = COROUTINE_STACK_SIZE;
++
++static void coroutine_trampoline(void *co_)
++{
++    Coroutine *co = co_;
++
++    while (true) {
++        co->entry(co->entry_arg);
++        qemu_coroutine_switch(co, co->caller, COROUTINE_TERMINATE);
++    }
++}
++
++Coroutine *qemu_coroutine_new(void)
++{
++    CoroutineEmscripten *co;
++
++    co = g_malloc0(sizeof(*co));
++
++    co->stack_size = COROUTINE_STACK_SIZE;
++    co->stack = qemu_alloc_stack(&co->stack_size);
++
++    co->asyncify_stack_size = COROUTINE_STACK_SIZE;
++    co->asyncify_stack = g_malloc0(co->asyncify_stack_size);
++    emscripten_fiber_init(&co->fiber, coroutine_trampoline, &co->base,
++                          co->stack, co->stack_size, co->asyncify_stack,
++                          co->asyncify_stack_size);
++
++    return &co->base;
++}
++
++void qemu_coroutine_delete(Coroutine *co_)
++{
++    CoroutineEmscripten *co = DO_UPCAST(CoroutineEmscripten, base, co_);
++
++    qemu_free_stack(co->stack, co->stack_size);
++    g_free(co->asyncify_stack);
++    g_free(co);
++}
++
++CoroutineAction qemu_coroutine_switch(Coroutine *from_, Coroutine *to_,
++                      CoroutineAction action)
++{
++    CoroutineEmscripten *from = DO_UPCAST(CoroutineEmscripten, base, from_);
++    CoroutineEmscripten *to = DO_UPCAST(CoroutineEmscripten, base, to_);
++
++    set_current(to_);
++    to->action = action;
++    emscripten_fiber_swap(&from->fiber, &to->fiber);
++    return from->action;
++}
++
++Coroutine *qemu_coroutine_self(void)
++{
++    Coroutine *self = get_current();
++
++    if (!self) {
++        CoroutineEmscripten *leaderp = get_leader();
++        if (!leaderp) {
++            leaderp = g_malloc0(sizeof(*leaderp));
++            leaderp->asyncify_stack = g_malloc0(leader_asyncify_stack_size);
++            leaderp->asyncify_stack_size = leader_asyncify_stack_size;
++            emscripten_fiber_init_from_current_context(
++                &leaderp->fiber,
++                leaderp->asyncify_stack,
++                leaderp->asyncify_stack_size);
++            leaderp->stack = leaderp->fiber.stack_limit;
++            leaderp->stack_size =
++                leaderp->fiber.stack_base - leaderp->fiber.stack_limit;
++            set_leader(leaderp);
++        }
++        self = &leaderp->base;
++        set_current(self);
++    }
++    return self;
++}
++
++bool qemu_in_coroutine(void)
++{
++    Coroutine *self = get_current();
++
++    return self && self->caller;
++}
+diff --git a/util/meson.build b/util/meson.build
+index 5d8bef9..e107fbf 100644
+--- a/util/meson.build
++++ b/util/meson.build
+@@ -11,7 +11,9 @@ if host_os != 'windows'
+   endif
+   util_ss.add(files('compatfd.c'))
+   util_ss.add(files('event_notifier-posix.c'))
+-  util_ss.add(files('mmap-alloc.c'))
++  if host_os != 'emscripten'
++    util_ss.add(files('mmap-alloc.c'))
++  endif
+   freebsd_dep = []
+   if host_os == 'freebsd'
+     freebsd_dep = util
+diff --git a/util/oslib-posix.c b/util/oslib-posix.c
+index 11b35e4..e1c43fa 100644
+--- a/util/oslib-posix.c
++++ b/util/oslib-posix.c
+@@ -58,6 +58,7 @@
+ #include <lwp.h>
+ #endif
+ 
++#include "qemu/memalign.h"
+ #include "qemu/mmap-alloc.h"
+ 
+ #define MAX_MEM_PREALLOC_THREAD_COUNT 16
+@@ -195,11 +196,21 @@ void *qemu_anon_ram_alloc(size_t size, uint64_t *alignment, bool shared,
+     const uint32_t qemu_map_flags = (shared ? QEMU_MAP_SHARED : 0) |
+                                     (noreserve ? QEMU_MAP_NORESERVE : 0);
+     size_t align = QEMU_VMALLOC_ALIGN;
++#ifndef EMSCRIPTEN
+     void *ptr = qemu_ram_mmap(-1, size, align, qemu_map_flags, 0);
+ 
+     if (ptr == MAP_FAILED) {
+         return NULL;
+     }
++#else
++    /*
++     * qemu_ram_mmap is not implemented for Emscripten. Use qemu_memalign
++     * for the anonymous allocation. noreserve is ignored as there is no swap
++     * space on Emscripten, and shared is ignored as there is no other
++     * processes on Emscripten.
++     */
++    void *ptr = qemu_memalign(align, size);
++#endif
+ 
+     if (alignment) {
+         *alignment = align;
+@@ -212,7 +223,16 @@ void *qemu_anon_ram_alloc(size_t size, uint64_t *alignment, bool shared,
+ void qemu_anon_ram_free(void *ptr, size_t size)
+ {
+     trace_qemu_anon_ram_free(ptr, size);
++#ifndef EMSCRIPTEN
+     qemu_ram_munmap(-1, ptr, size);
++#else
++    /*
++     * qemu_ram_munmap is not implemented for Emscripten and qemu_memalign
++     * was used for the allocation. Use the corresponding freeing function
++     * here.
++     */
++    qemu_vfree(ptr);
++#endif
+ }
+ 
+ void qemu_socket_set_block(int fd)
+@@ -573,7 +593,15 @@ bool qemu_prealloc_mem(int fd, char *area, size_t sz, int max_threads,
+ {
+     static gsize initialized;
+     int ret;
++#ifndef EMSCRIPTEN
+     size_t hpagesize = qemu_fd_getpagesize(fd);
++#else
++    /*
++     * mmap-alloc.c is excluded from Emscripten build, so qemu_fd_getpagesize
++     * is unavailable. Fallback to the lower level implementation.
++     */
++    size_t hpagesize = qemu_real_host_page_size();
++#endif
+     size_t numpages = DIV_ROUND_UP(sz, hpagesize);
+     bool use_madv_populate_write;
+     struct sigaction act;

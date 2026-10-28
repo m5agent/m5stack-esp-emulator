@@ -1,0 +1,16 @@
+--- a/system/main.c
++++ b/system/main.c
+@@ -45,5 +45,13 @@
+ int main(int argc, char **argv)
+ {
+     qemu_init(argc, argv);
++#ifdef __EMSCRIPTEN__
++    /* Emscripten proxy-main may retain suspended fibers after normal cleanup.
++     * Complete the process-exit path explicitly, as returning from main would
++     * do on a native host, so atexit handlers and worker teardown can run.
++     */
++    exit(qemu_main());
++#else
+     return qemu_main();
++#endif
+ }

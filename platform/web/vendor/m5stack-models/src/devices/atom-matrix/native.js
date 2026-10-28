@@ -1,0 +1,5 @@
+/** MIT loader for complete original C008-B source halves. Official source license in native-data.js. */
+import {THREE,materials} from './geometry.js';
+import {nativeParts,nativeSource} from './native-data.js';
+function array(encoded,Type){const binary=atob(encoded),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));return new Type(bytes.buffer);}
+export function nativeShell(host){const result={};for(const p of nativeParts){const g=new THREE.BufferGeometry();for(const [name,Type,size]of[['position',Float32Array,3],['normal',Float32Array,3],['sourceFaceIndex',Uint16Array,1],['sourceAttributeWord',Uint16Array,1]])g.setAttribute(name,new THREE.BufferAttribute(array(p.arrays[name],Type),size));g.setIndex(new THREE.BufferAttribute(array(p.arrays.index,Uint16Array),1));g.computeBoundingBox();g.computeBoundingSphere();const o=new THREE.Mesh(g,materials.plastic(0x8d9192,{roughness:.76}));o.name='Original Atom Matrix complete native '+p.id+' shell';o.position.fromArray(p.translation);o.userData={source:'official-structure',nativePart:p.id,sourceFaceCount:p.triangles};host.body.add(o);result[p.id]=o;}return {parts:result,source:nativeSource,records:nativeParts};}

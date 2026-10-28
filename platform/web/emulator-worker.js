@@ -96,7 +96,7 @@ onmessage = async event => {
   const message = event.data;
   if (message.type === 'init') {
     try {
-      const module = await import('/platform/runtime/wasm/esp_emu.js?v=20261020b');
+      const module = await import(new URL('../runtime/wasm/esp_emu.js', import.meta.url).href);
       await module.default();
       emu = new module.WasmEmulator(message.chip);
       emu.load_default_rom();

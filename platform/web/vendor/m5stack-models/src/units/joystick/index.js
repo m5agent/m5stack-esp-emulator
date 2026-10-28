@@ -1,0 +1,5 @@
+/** MIT; originalMEGA328PU024,nosiblingmodelgeometry. */
+import{Device,Module}from'../../core/index.js';import{buildGroveModuleAssembly}from'../../modeling/grove-cable.js';import{buildJoystick}from'./assembly.js';import{spec}from'./dimensions.js';export const defaults={xDeg:0,yDeg:0};export const configurationSchema={xDeg:{type:'number',min:-16,max:16,default:0},yDeg:{type:'number',min:-16,max:16,default:0},artwork:{type:'boolean',default:true,meaning:'Inkonly;actualfilm/M5/case/cup/cap/shaftretained'}};export const configurations=[{id:'neutral',name:'原Joystick回中',options:{xDeg:0,yDeg:0}},{id:'tilted',name:'原Joystick双轴倾斜',options:{xDeg:10,yDeg:-8}}];
+export class Model extends Device{static meta={id:'m5stack.unit.joystick',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,nominalMm:spec.nominalMm,keymap:{Space:'press'}};build(options={}){buildJoystick(this,options);}}
+export class GroveModule extends Module{static meta={id:'m5stack.unit.joystick.grove',name:spec.name,sku:spec.sku,connector:'grove'};build(options={}){buildGroveModuleAssembly(this,h=>buildJoystick(h,options),options);}}
+export{spec};export default Model;

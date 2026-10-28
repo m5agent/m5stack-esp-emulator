@@ -1,0 +1,4 @@
+import {printedArtwork} from '../../modeling/artwork.js';
+import {spec} from './dimensions.js';
+const front=new URL('./artwork/front.png',import.meta.url).href,back=new URL('./artwork/back.png',import.meta.url).href;
+export function addStickers(host){const s=host.gpsAssembly.shell;return[...(printedArtwork(host,{target:s.frontFilm,url:front,size:spec.labels.front.size,position:spec.labels.front.position,depth:.07,name:'Original U032 own06 GPS location graphic accurate ordinary reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:s.backFilm,url:back,size:spec.labels.back.size,position:spec.labels.back.position,face:'back',depth:.07,name:'Original U032 own02 AT6558 MAX2659 PortC rear accurate ordinary reference redraw',artworkKind:'reference-redraw'})??[])];}

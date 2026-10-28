@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';
+const front=new URL('./artwork/front.png',import.meta.url).href,back=new URL('./artwork/back.png',import.meta.url).href;
+export function addStickers(host){const s=host.bpsAssembly.shell;return[...(printedArtwork(host,{target:s.frontFilm,url:front,size:spec.labels.front.size,position:spec.labels.front.position,depth:.07,name:'Original U090 own07/08 blue BPS round-film reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target:s.backFilm,url:back,size:spec.labels.back.size,position:spec.labels.back.position,face:'back',depth:.07,name:'Original U090 own02 PORT.A.I2C rear-film reference redraw',artworkKind:'reference-redraw'})??[])];}

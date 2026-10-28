@@ -2,7 +2,7 @@
 
 Status: implemented routing rule, reviewed `2026-10-25`.
 
-Last reviewed: `2026-10-26`. Current capability and open tasks live in the
+Last reviewed: `2026-10-28`. Current capability and open tasks live in the
 [project status](project-status.md) and [project backlog](project-backlog.md).
 
 This document separates two workflows that previously shared the same Agent
@@ -10,12 +10,19 @@ context:
 
 | User intent | Entry point | Persistent result |
 | --- | --- | --- |
-| Test firmware functions or a UIFlow2 image | Device Service on `8787` | Live/history session with frame, serial, state and evidence |
+| Test firmware functions or a UIFlow2 image | Dedicated agent Device Service, separate port/state/token | Live/history session with frame, serial, state and evidence |
+| Explicitly test browser-WASM execution | Exported static site / authorized Pages URL | Browser-local session, source/runtime/firmware SHA, serial/frame/input and cleanup evidence |
 | Review, approve, reject or publish an M5Burner pending version | Firmware review control plane on `8790` | Review job and linked Device Service history |
 
 A functional test is not a firmware review request. The review control plane
 may call the Device Service when a review needs execution, but it is not the
 general virtual-device entry point.
+
+The user's service on `8787` is reserved: do not use, stop or restart it for
+agent tests. Browser-WASM acceptance has no remote lease or `/api/v1` session;
+it executes the guest entirely in the browser. Follow the same-guest evidence
+rules, preserve the exact exported artifact and keep browser results distinct
+from native/service and physical hardware results. See [Pages deployment](pages-deployment.md).
 
 ## Required device-service flow
 

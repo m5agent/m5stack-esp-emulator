@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test_ui.mjs",
+    "test": "node test_public_workbench_browser.mjs",
+    "test:legacy": "node test_ui.mjs",
     "test:models": "node test_model_shell.mjs",
     "test:units": "node test_sha256.mjs && node test_firmware_upload.mjs",
-    "test:contracts": "cd ../.. && node platform/tests/test_sha256.mjs && node platform/tests/test_firmware_upload.mjs && node platform/tests/test_unit_visual_mappings.mjs && node platform/tests/test_frontend_recovery.mjs && node platform/tests/test_unit_annotation_contract.mjs && node platform/tests/test_unit_annotation_bridge.mjs && node platform/tests/test_unit_audio.mjs && node platform/tests/test_preview_client.mjs"
+    "test:contracts": "cd ../.. && node platform/tests/test_sha256.mjs && node platform/tests/test_firmware_upload.mjs && node platform/tests/test_unit_visual_mappings.mjs && node platform/tests/test_frontend_recovery.mjs && node platform/tests/test_unit_annotation_contract.mjs && node platform/tests/test_unit_annotation_bridge.mjs && node platform/tests/test_unit_audio.mjs && node platform/tests/test_preview_client.mjs && node platform/tests/test_public_coi.mjs && node platform/tests/test_public_qemu_runtime.mjs && node platform/tests/test_public_qemu_instance.mjs && node platform/tests/test_public_qemu_entry.mjs && node platform/tests/test_public_qemu_artifacts.mjs"
   },
   "dependencies": {
     "playwright": "^1.64.1"

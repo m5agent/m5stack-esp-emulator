@@ -1,0 +1,2 @@
+/** MITcode; ownoriginal02rearfilmordinaryPNGredraw only. */
+import{printedArtwork}from'../../modeling/artwork.js';const back=new URL('./reference-redraw-back.png',import.meta.url).href;export function addStickers(host,film){return printedArtwork(host,{target:film,url:back,size:[16,28],position:[0,7,-3.855],face:'back',depth:.08,artworkKind:'reference-redraw',name:'OriginalU024 JOYSTICK M328 axislegend rearfilm'})??[];}

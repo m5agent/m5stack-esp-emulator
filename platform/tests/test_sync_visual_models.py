@@ -104,7 +104,8 @@ class VisualSnapshotImportTests(unittest.TestCase):
             self.fail(f"unexpected Git operation: {arguments}")
 
         with mock.patch.object(sync, "git", side_effect=git_objects), \
-                mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {}):
+                mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {}), \
+                mock.patch.object(sync, "REVIEWED_RUNTIME_LICENSES", {}):
             files = sync.snapshot(Path("/does-not-exist"), commit)
         self.assertNotIn("docs/research/private.txt", files)
         self.assertNotIn("raw-cad.stl", files)
@@ -212,14 +213,16 @@ class VisualSnapshotImportTests(unittest.TestCase):
         manifest = json.loads((sync.DESTINATION / "vendor-manifest.json").read_text())
         files = {name: (sync.DESTINATION / name).read_bytes() for name in manifest["files"]}
         sync.reviewed_runtime_assets(manifest["source_commit"], list(files), files)
-        sync.reviewed_guide_texts(manifest["source_commit"], list(files), files)
+        sync.reviewed_guide_texts(manifest["documentation_source_commit"], list(files), files)
         self.assertEqual(sync.guide_resource_closure(files), manifest["documentation_closure"])
         self.assertEqual(set(manifest["reviewed_guide_texts"]), set(sync.REVIEWED_GUIDE_FILES))
         self.assertIn("historical preparation baseline", manifest["source_manifest_scope"])
         for name, entry in manifest["reviewed_guide_texts"].items():
             self.assertEqual(entry["sha256"], hashlib.sha256(files[name]).hexdigest())
-            self.assertIn(manifest["source_commit"], entry["source_url"])
+            self.assertIn(manifest["documentation_source_commit"], entry["source_url"])
         self.assertEqual(sync.resource_closure(files), manifest["resource_closure"])
+        runtime_devices = {item["id"] for item in json.loads(sync.RUNTIME_DEVICE_CATALOG.read_text())["devices"]}
+        self.assertEqual(set(manifest["visual_only_controllers"]), set(manifest["controllers"]) - runtime_devices)
         self.assertEqual(set(manifest["runtime_assets"]["files"]), set(sync.REVIEWED_RUNTIME_PNGS))
         for name, entry in manifest["runtime_assets"]["files"].items():
             self.assertEqual(entry["sha256"], hashlib.sha256(files[name]).hexdigest())

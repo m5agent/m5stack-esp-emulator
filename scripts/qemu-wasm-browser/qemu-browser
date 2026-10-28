@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "${M5_WASM_NODE:-node}" "$(dirname "$0")/qemu-browser.mjs" "$@"

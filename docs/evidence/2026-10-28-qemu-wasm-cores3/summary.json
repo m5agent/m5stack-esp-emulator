@@ -1,0 +1,383 @@
+{
+  "schema_version": 2,
+  "date": "2026-10-28",
+  "scope": "CoreS3 real C/QEMU browser CPU, pinned UIFlow2 LVGL/touch/PIR, explicit slow virtual clock; two dedicated Device Service sessions",
+  "overall": "PARTIAL",
+  "virtual_device_fixture": "PASS for vm-div8 only",
+  "default_wallclock": "PARTIAL: r11 second guest schedule queue full",
+  "hardware": "NOT RUN",
+  "public_deployment": "NOT RUN",
+  "main_base": "805925d8336fac28652d5bddfa1df0ec4b1606b8",
+  "main_merge": "0f003ea161fccbf1882d3babbfdfe19ec52105c7",
+  "qemu_base": "40edccac415693c5130f91c01d84176ae6008566",
+  "source": {
+    "native_baseline_layers": 31,
+    "native_baseline_last": "0064-esp32-intmatrix-pending-irq-remap.patch",
+    "latest_main_context_ports": {
+      "0065-xtensa-high-priority-irq-cooperative-yield.patch": "f03b988372c17147f1b5f8c2fa2dc46366df362626d69b48febe45d48ab35560",
+      "0066-esp32-classic-rmt-legacy.patch": "c88b1a85d7c00ae05aef995c3613a28684f011d0d13f0fbe845184136f4882d7"
+    },
+    "context_port": "0011 reproduces new nonempty code lines in all 12 files; not 33 native patches applying unchanged. Optional diagnostic context was not imported.",
+    "qemu_patch_order": [
+      "0001",
+      "0004",
+      "0005",
+      "0006",
+      "0009",
+      "0010(v2)",
+      "0008(optional diagnostics, used)",
+      "0011",
+      "0012"
+    ],
+    "excluded_historical_patch": "0007 (2MiB stacks, not a repair)",
+    "source_manifest_sha256": "21e926d09074c201f2c9a808dc80eb0a4d2e63240d25a36fd3849dd1605d4f93",
+    "source_prepare_receipt_sha256": "d2d0db25956fdb0445968dfba3010adb28b844fe09d1cbcef60bf2431d75e9bd",
+    "build_receipt_sha256": "a3998e077c7a7e1cff86b66e6bb076a4a82cb3107aed115acb48721d8b5bfe64",
+    "full_replay_receipt_sha256": "56477c1679052a5004582e272bece6684bb59ca93ac7ccfeff726422fbecab3c",
+    "independent_replay": "PASS: own Git root; 31 pinned native layers; native 114-file baseline exact; final 10864 source content files match candidate, excluding Git/generated Python caches; unchanged dependency sources retained",
+    "final_source_delta_receipt_sha256": "83627974997f9113aeed7e17b669237ddc8a73416b735b92480dcba7bc1bd611",
+    "build_scope": "Incremental final build: recompiled monitor/qmp.c only. Prior full-source replay and all inherited objects/library/link inputs remain hash-bound; not a fresh all-object rebuild.",
+    "scope": "Native bootstrap/patches untouched. Newly compiled high-priority IRQ TCG helper calls may have host overhead; no icount means no forced cooperative yield. Classic ESP32 RMT guest is not validated by CoreS3."
+  },
+  "firmware": {
+    "raw_base": {
+      "size": 16121856,
+      "sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+    },
+    "normalized_base": {
+      "size": 16777216,
+      "padding": "0xff",
+      "sha256": "ddad233fb05925421de7a2aad1b0c18ce0e947d5820b318eaca2b1e82464ac73"
+    },
+    "composed_firmware": {
+      "size": 16777216,
+      "sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f"
+    },
+    "rom": {
+      "name": "esp32s3_rev0_rom.bin",
+      "size": 393216,
+      "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+    },
+    "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+    "source_sha256": "cd8cf040b91a824111aba8eead93ffaec8a1ae2969d1fde1a740fd27f3385f60",
+    "files": {
+      "boot.py": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33",
+      "main.py": "7672397edc3bff5256015c5d857fa3b4c53cba814bac6a982fb7eeb521cef3cb"
+    }
+  },
+  "runtime": {
+    "engine": "browser-wasm",
+    "browser": "156.0.8078.73",
+    "wasm_sha256": "42f903858b9fd4464d1cac58c94c2ed4723ff9e8fe23ea1be6c6add90ac59955",
+    "wasm_bytes": 24014519,
+    "javascript_sha256": "2f5f1a98367f6b15f617702811f9012d3674fd5075eb568275f8d9509c8682eb",
+    "scheduling": "Default dual guest CPU MTTCG/TB chain, no accelerator or icount override",
+    "c_stacks": "64KiB main/default pthread, STACK_OVERFLOW_CHECK=2; explicit final link options, not 0007",
+    "qmp_context": "Emscripten stdio only: existing default main-loop context; in-band QMP unchanged, OOB not offered, actual C startup marker present in each guest; no periodic QMP/keepalive",
+    "clock_profile": "vm-div8",
+    "virtual_clock_divisor": 8,
+    "default_divisor": 1,
+    "clock_semantics": "VM virtual elapsed time and guest WDT expiration are both slowed relative to wall time; host monotonic/cpu_get_ticks unchanged. Not real CPU frequency or physical timing. REALTIME radio paths not admitted.",
+    "clock_probe": {
+      "first": {
+        "kind": "heartbeat",
+        "seq": 6,
+        "clicks": 0,
+        "pir": 0,
+        "guest_ms": 8889,
+        "fixture": "cores3-wasm-lvgl-pir-v1"
+      },
+      "second": {
+        "kind": "heartbeat",
+        "seq": 7,
+        "clicks": 0,
+        "pir": 0,
+        "guest_ms": 10895,
+        "fixture": "cores3-wasm-lvgl-pir-v1"
+      },
+      "host_observed_delta_seconds": 16.0810882919468,
+      "guest_delta_ms": 2006,
+      "observed_wall_to_guest_ratio": 8.016494661987437,
+      "scope": "Two fresh post-resume heartbeats. Includes serial forwarding and polling latency. Not precise clock rate, real CPU frequency, or performance SLA. VM clock freeze not directly sampled."
+    },
+    "pause_probe_scope": "Actual QMP stop/paused/cont/running, retained per-read serial sequence/host timestamps during a 2-second pause and fresh post-resume heartbeat; direct VM-clock freeze was NOT MEASURED",
+    "memory": {
+      "initial_bytes": 268435456,
+      "maximum_bytes": 2147483648,
+      "growth": true,
+      "c_heap_observation": "256MiB in bounded boot stack diagnostics; not peak",
+      "active_rss_samples": [
+        {
+          "session_role": "boot.png",
+          "wrapper_rss_kib": 123264,
+          "owned_descendant_count": 7,
+          "owned_descendant_rss_kib_sum": 928672,
+          "scope": "one ps RSS sample while active; shared pages can repeat; not PSS or peak"
+        },
+        {
+          "session_role": "reopen-boot.png",
+          "wrapper_rss_kib": 117136,
+          "owned_descendant_count": 7,
+          "owned_descendant_rss_kib_sum": 953728,
+          "scope": "one ps RSS sample while active; shared pages can repeat; not PSS or peak"
+        }
+      ],
+      "scope": "Each process-tree sample can repeat shared pages. Not PSS or peak memory."
+    }
+  },
+  "execution": {
+    "checks": {
+      "actual_c_clock_profile": true,
+      "actual_c_qmp_main_context": true,
+      "ready_serial": true,
+      "complete_browser_frame_boot.png": true,
+      "lvgl_background": true,
+      "lvgl_button": true,
+      "lvgl_title": true,
+      "qmp_inband_capabilities": true,
+      "two_guest_cpus": true,
+      "qmp_paused": true,
+      "paused_no_new_application_serial": true,
+      "qmp_resumed": true,
+      "fresh_heartbeat_after_resume": true,
+      "negative_touch_no_click": true,
+      "complete_browser_frame_click-1.png": true,
+      "click_1_serial": true,
+      "click_1_counter_frame": true,
+      "click_1_button_frame": true,
+      "complete_browser_frame_click-2.png": true,
+      "click_2_serial": true,
+      "click_2_counter_frame": true,
+      "click_2_button_frame": true,
+      "pir_0_guest_and_gpio": true,
+      "complete_browser_frame_pir-0.png": true,
+      "pir_1_guest_and_gpio": true,
+      "complete_browser_frame_pir-1.png": true,
+      "pir_motion_frame": true,
+      "pir_2_guest_and_gpio": true,
+      "complete_browser_frame_pir-2.png": true,
+      "pir_clear_frame_restored": true,
+      "independent_counter_retained": true,
+      "complete_browser_frame_frame-sample.png": true,
+      "first_guest_no_traceback_or_reset": true,
+      "first_guest_clean_after_evidence": true,
+      "lease_released": true,
+      "flash_released": true,
+      "browser_wrapper_pid_gone": true,
+      "history_frame_retained": true,
+      "history_serial_retained": true,
+      "first_retained_serial_clean": true,
+      "complete_browser_frame_reopen-boot.png": true,
+      "reopen_fresh_counter_pir": true,
+      "reopen_touch_works": true,
+      "complete_browser_frame_reopen-click-1.png": true,
+      "reopen_pir_0_guest_and_gpio": true,
+      "reopen_pir_1_guest_and_gpio": true,
+      "reopen_pir_2_guest_and_gpio": true,
+      "reopened_guest_no_traceback_or_reset": true,
+      "reopened_guest_clean_after_evidence": true,
+      "reopen_lease_released": true,
+      "reopen_flash_released": true,
+      "reopen_history_retained": true,
+      "reopened_retained_serial_clean": true,
+      "actual_browser_runtime_exit_zero_0": true,
+      "actual_browser_workers_naturally_closed_0": true,
+      "actual_browser_runtime_exit_zero_1": true,
+      "actual_browser_workers_naturally_closed_1": true,
+      "owned_service_exited": true
+    },
+    "check_count": 58,
+    "session_count": 2,
+    "same_firmware_two_fresh_sessions": true,
+    "strict_guest_error_gate": "No Traceback, RuntimeError, schedule queue full, MemoryError, Guru Meditation or unexpected reset in both ZIP/retained serials",
+    "complete_frames": "Full RGB matches independent native fixture references; each guest actual PPM export hashes independently audited. Not atomicity of arbitrary captures.",
+    "stack_diagnostics": [
+      {
+        "session_role": "first",
+        "bounded_actual_Flash_groups": 64,
+        "phase_counts": {
+          "mmu_entry": 64,
+          "before_blk_pread": 64,
+          "after_blk_pread": 64,
+          "mmu_exit": 64
+        },
+        "unique_SP": [
+          54126064
+        ],
+        "entry_delta": 0,
+        "before_after_blk_SP_equal": true,
+        "stack_bounds_bytes": 65536
+      },
+      {
+        "session_role": "reopen",
+        "bounded_actual_Flash_groups": 64,
+        "phase_counts": {
+          "mmu_entry": 64,
+          "before_blk_pread": 64,
+          "after_blk_pread": 64,
+          "mmu_exit": 64
+        },
+        "unique_SP": [
+          54126064
+        ],
+        "entry_delta": 0,
+        "before_after_blk_SP_equal": true,
+        "stack_bounds_bytes": 65536
+      }
+    ],
+    "worker_cleanup": [
+      {
+        "created": 5,
+        "closed": 5,
+        "before_browser_close": 0,
+        "runtime_exit_code": 0,
+        "browser_pid_gone": true
+      },
+      {
+        "created": 5,
+        "closed": 5,
+        "before_browser_close": 0,
+        "runtime_exit_code": 0,
+        "browser_pid_gone": true
+      }
+    ],
+    "evidence": {
+      "first_zip_sha256": "923ef6de8f7c10accf7e68adf5eae4fc3061828926a3cea341baf1c9a2a2a023",
+      "reopened_zip_sha256": "a1e3a5b01589efd9047bccc61cb5d766c5e3f61a901311e3285f143bd22f0311",
+      "zip_before_stop": true,
+      "raw_report_sha256": "4c623587d54e88e330955a48c059428de7d7214261f42adcc244b7449ec38e75",
+      "independent_audit_sha256": "827449624af8c9072268f091dfd9600ddd3500fa5afa9e421b39cb362385f616",
+      "independent_audit_status": "PASS_SCOPED_RESEARCH",
+      "session_identifiers": "Omitted from source summary; exact guest/session/lease and process bindings remain in local ZIP/history."
+    }
+  },
+  "timings": {
+    "first_create_to_ready_seconds": 78.27742262510583,
+    "reopen_create_response_to_ready_seconds": 72.88526829192415,
+    "startup_scope": "Different starting points; first includes virtual Flash preparation. Not isolated boot performance or a native/browser speed ratio.",
+    "frame_capture_http_seconds": {
+      "samples": 36,
+      "min": 0.03592420811764896,
+      "median": 0.05425618740264326,
+      "max": 0.1324221659451723,
+      "scope": "QMP/export/PNG/API latency, not guest FPS"
+    }
+  },
+  "controls": {
+    "platform_tests_after_main805_merge": {
+      "run": 1371,
+      "skipped": 8,
+      "status": "PASS"
+    },
+    "fiber_sjlj": {
+      "status": "PASS",
+      "report_sha256": "86953874900da8b9274a931d90fc967515076bcd0413ccd0201c389ca6f59653",
+      "build_receipt_sha256": "6c2ced87232729f352e0dcdbc64f8e06346f083d6e15d20f67802233ffc8ed24",
+      "scope": "No QEMU/guest: baseline Fiber+SjLj direct/FFI 2000 mismatches/1998 drifting entries; compatibility 2MiB and 64KiB zero drift, explicit libc exit0, all Workers naturally closed. Current source/build/assets verified."
+    },
+    "vm_clock_parser_arithmetic": {
+      "cases": 24,
+      "status": "PASS",
+      "report_sha256": "0d49881cc5b46a452d549250fc77efd55fd9e3494cbedf64467f61e555f5147e",
+      "scope": "Actual C parser and VM clock arithmetic, including signed-wrap negative controls and pause/resume continuity; not direct live-clock measurement"
+    },
+    "no_firmware_transport": {
+      "status": "PASS",
+      "report_sha256": "5fb59c35b2254722b0de5e0c9c07b1b36feb1d369aa9123ea56c99ad90a1bc35",
+      "cases": [
+        "qmp",
+        "pipe",
+        "cancel",
+        "reconnect",
+        "disconnect"
+      ],
+      "immediate_reconnect_rounds": 20,
+      "abrupt_disconnect_rounds": 20,
+      "scope": "QMP/pipe-HMP/cancel/reconnect/real socket errors and old-response identity isolation; each exit0/4 natural Workers/owned PID and socket cleanup; separate from guest validation"
+    },
+    "idle_no_firmware": {
+      "status": "PASS",
+      "report_sha256": "9f98adb834621716017c948eb455af3de7c9baed64e0047a87b5d657a10b3d5d",
+      "scope": "70.006958s with no QMP requests between initial and final query-status; real socket and wrapper remain, post-idle query/quit and natural cleanup pass"
+    },
+    "earlier_vm_div8_r14": {
+      "status": "PASS_SCOPED_RESEARCH",
+      "checks": 51,
+      "wasm_sha256": "08c0db58a241b47737e3f2e5ecc51b5eb78a6bd41bdde87cd59548ab649e45a8",
+      "audit_sha256": "c83e415a3e9363fa320dd76bcd8e2405b9997e8f793c0413abe3a50486c28e95",
+      "scope": "Older clock parser with literal8; does not replace final signed-parser/latest-main run"
+    },
+    "failed_controls": {
+      "r11_wallclock": "PARTIAL: one real queue full in second guest despite later interactions",
+      "r12_single_icount_auto": "READY not reached within 120s; bounded stop succeeded",
+      "r13_single_icount_shift8": "Boot/interactions completed but queue full remains; strict gate FAIL",
+      "historical_big_stack": "2MiB delayed overflow; same MMU-entry SP descent remained. Not final profile",
+      "r10_reopen_qmp_disappearance": "UNKNOWN original cause, retained failed run; not attributed to parallel tests",
+      "r15_latest_main_reopen": "FAIL: first guest fully passed; reopened guest QMP timeout. Short observation did not prove socket deletion or guest halt.",
+      "r16_instrumented_reopen": "FAIL: socket stayed present for 40.0378s, guest heartbeat and default main loop progressed; independent QMP context stopped calling fd0 poll, original screendump unread. Exact GLib/watch mechanism not established.",
+      "r16_audit_sha256": "724a9d3991af1fe13bd672f1ce6e74695d258db7c96eb7da9c52f0bd4378e8a0"
+    },
+    "native_reference": {
+      "status": "PASS",
+      "runtime_sha256": "cc21773f0ad91fa589447d3badb1eb681b74170cd8b749153f37ad23cebc70c2",
+      "scope": "Same fixture, independent native28-layer through0061; pixel reference only, not latest-main regression or transferable browser result"
+    },
+    "extra_cold_sessions": {
+      "status": "PASS_SCOPED_COLD_START_SMOKE",
+      "count": 3,
+      "checks_per_session": 14,
+      "ready_host_seconds": [
+        86.29233687510714,
+        62.40029362519272,
+        63.587708625011146
+      ],
+      "zip_sha256": [
+        "18b54dcab33e6e14b935b9d5d54794e85c98234d4a05365808f522374e13fd72",
+        "39b907aa4b8c3aca2127f51fe00864bf36ca9d7359dc1c793a15bd001bf57ed8",
+        "cb60a7d1d85ede1c07a7b707ca2e7756fde45690590d4b676e278adbc30f76c7"
+      ],
+      "workers": [
+        {
+          "created": 5,
+          "closed": 5
+        },
+        {
+          "created": 5,
+          "closed": 5
+        },
+        {
+          "created": 5,
+          "closed": 5
+        }
+      ],
+      "report_sha256": "8e82ed84519ce9c756b319c180be16b94abd38ec884c1b2eca1a2f751203c4b8",
+      "independent_audit_sha256": "609e8ecb7bfd5404978573242bc5cef4a87f57608ffe79c333f6a7d42a197db6",
+      "scope": "Each additional fresh guest: complete boot RGB/PIR initial QOM and guest state/ZIP/history/lease/Flash/natural cleanup. These three smokes do not repeat injected touch/PIR tests or establish long-duration stability."
+    }
+  },
+  "adapter_source_sha256": {
+    "scripts/qemu-wasm-browser/browser.mjs": "79877de7d93776cea7c277ee3b0d9a344523ec640a3819951557bed4bf1417ad",
+    "scripts/qemu-wasm-browser/page.js": "351f0e81c104a6566e9ed9e0fd032cde6d3358aa3cb91d96475945e09b00e59b",
+    "scripts/qemu-wasm-browser/qemu-browser": "9f13e2c91bf0fb05003f663be702c0106f0381f8c4b6522c1cc0b7d584367ac8",
+    "scripts/qemu-wasm-browser/qemu-browser.mjs": "3422c3292dc7c97fa2070fe4a1c85bbd392f3d3d26cb50ca85a07dd76e8cde00",
+    "scripts/qemu-wasm-browser/selftest.py": "1c2e7e398cb1e05f557d6222b2ce0a97b93d40f2d9db5ea2f6a4899ea5039a60"
+  },
+  "open_boundaries": [
+    "Default wallclock LVGL callback pressure and long-duration behavior remain open; vm-div8 is an explicit offline profile, not a timing-neutral repair.",
+    "Only main cpu_exec_setjmp is repaired; cpu_exec_step_atomic setjmp and other SDK/configuration paths are unverified.",
+    "Service native tools still prepare virtual Flash; public interactive browser/Pages COI/SW and persistent MEMFS Flash/eFuse/SD are not integrated.",
+    "Radio REALTIME/virtual mixed timing, network/audio, other firmware/devices, classic ESP32 RMT guest and other browsers are not admitted.",
+    "Underlying GLib/watch failure in the avoided independent QMP context is not established. The selected Emscripten stdio host configuration has no OOB support.",
+    "Full native peripheral matrix and physical hardware were NOT RUN; research patches are outside native bootstrap."
+  ],
+  "patches": {
+    "0005-wasm-lowmem-host-exports.patch": "d6cd4dd014bc71481c408087901a19a05642bde3193aef30222008f8ab684e6f",
+    "0006-esp-sha-typed-compress-callbacks.patch": "8d0e381d390d5b020f4de5e24e55faab64714d671a19c2e78b374f45f3c87398",
+    "0007-wasm-explicit-thread-stacks.patch": "baf3689ab1421b4cba31fc648b95cec2441f87bb973361ff4c583cb3557d2926",
+    "0008-qemu-cstack-diagnostics.patch": "ca2c1d175c797d1fe024d205c93cb1ce24c9a6298f75d3b2daa55c971103e841",
+    "0009-wasm-restore-cpu-jump-stack.patch": "11b254fee3abc057bcc88c5ec1ab9170a751b5f099a7e6afe8edd9394aabe1bd",
+    "0010-wasm-explicit-vm-clock-rate.patch": "d796444f05ed7db60191488ca6c3c71f6e251fb333633b2effb0a084183e9c8c",
+    "0011-wasm-main805-native-context-compat.patch": "5cf4e6dcca85442d58b00b9200f3b68a7ea8e566d12a782a1e838409d4a51f67",
+    "0012-wasm-stdio-qmp-main-loop.patch": "a1947cb20f7475d3b7154119dac79514899b5aca12729f76d1f371f7aece982f"
+  }
+}

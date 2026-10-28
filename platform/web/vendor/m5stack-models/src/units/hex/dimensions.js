@@ -1,0 +1,15 @@
+/** Original A045/SK6812 only. No imported native CAD or A045-B geometry. */
+export const defaults={};
+export const configurations=[{id:'complete',name:'原版 HEX · 37灯完整灯板',options:{}}];
+export const configurationSchema={};
+export const spec={id:'hex',name:'Unit HEX',sku:'A045',part:'SK6812',size:[36,31.2,6.95],nominalMm:[36,31.2,7],vendorTableOrderMm:[31.2,36,7],modelingRoute:'own-dimensional-parametric',defaults,configurations,configurationSchema,
+ drawing:{xMm:36,yMm:31.2,totalDepthMm:6.95,PCBThicknessMm:1,pitchXmm:5,pitchYmm:4.33,socketWidthMm:12,mouthInsetFromPointMm:4.1,powerMouthInsetFromEdgeMm:.4},
+ pcb:{rearZ:-.5,frontZ:.5,vertices:[[-18,0],[-9,-15.6],[9,-15.6],[18,0],[9,15.6],[-9,15.6]],edgeBoreRadiusMm:.32,edgeCopperRadiusMm:.5},
+ package:{widthMm:3.5,baseDepthMm:.18,lipDepthMm:.5,windowRadiusMm:1.45,topZ:1.2,source:'Original own visible larger SK6812 outline;package3.5mm width and0.7mm front projection reconstructed from own multiview,not a datasheet or the A045-B2020 package.'},
+ ports:{grove:{position:[13.9,0,-3.125],face:'right',role:'IN',pins:['GND','VCC','DATA','unlabelled']},out:{position:[-13.9,0,-3.125],face:'left',role:'OUT',pins:['GND','VCC','DATA','unlabelled']},power:{position:[0,-15.2,-3.125],face:'bottom',role:'PWR',pins:['GND','VCC','unlabelled','unlabelled']}},
+ socket:{widthMm:12,depthMm:7.8,heightMm:5.25,contactPitchMm:2,tailLocalY:-9.8,source:'Own rear multiview/photograph confirms three white4contact HY2.0 carriers;internal walls,bends,tail installation/PCB drills and rear height allocation inferred appearance geometry.'},
+ codeFilm:{size:[9.7,9.7],position:[0,-.95,-.53],thicknessMm:.06,source:'Visible original individual code film;blank physical carrier only,QR and0005 deliberately omitted.'},
+ limitations:['No native/source-face retention claim;not NeoHEX A045-B geometry,2020 LED,ears or diffuser.','Source table31.2x36x7 preserves its dimension order/rounding;drawing model axes36x31.2x6.95. Hidden placements and unprovided package/contact dimensions are reconstructed.','Edge-bore size/placement,internal socket depths/metal retention,PCB drill locations and package resin/die are appearance estimates,not manufacturing fit.','Each actual LED accepts external color/on/brightness only;no protocol,cascade,power limit,rainbow,framebuffer,sensor or firmware.','Four physical PWR contacts are confirmed;only GND/VCC documentary labels are established,no extra electrical pin function is invented.']};
+export const pixels=[];let number=1;for(const[row,count]of[4,5,6,7,6,5,4].entries())for(let col=0;col<count;col++)pixels.push({number:number++,row,col,x:(col-(count-1)/2)*5,y:(3-row)*4.33});
+export const edgeBores=[];for(let i=0;i<6;i++){const a=spec.pcb.vertices[i],b=spec.pcb.vertices[(i+1)%6],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);for(const t of[2/9,.5,7/9])edgeBores.push([a[0]+dx*t-dy/len*.55,a[1]+dy*t+dx/len*.55]);}
+export const leadDrills=[...[-3,-1,1,3].flatMap(y=>[[4.1,y],[-4.1,y]]),...[-3,-1,1,3].map(x=>[x,-5.4])];

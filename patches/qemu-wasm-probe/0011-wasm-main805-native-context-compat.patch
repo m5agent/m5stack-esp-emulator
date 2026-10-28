@@ -1,0 +1,564 @@
+Subject: [WASM research] rebase main 805925d8 native additions onto native31
+
+Context-only research port of the following frozen mainline patches:
+0065-xtensa-high-priority-irq-cooperative-yield.patch
+  SHA256 f03b988372c17147f1b5f8c2fa2dc46366df362626d69b48febe45d48ab35560
+0066-esp32-classic-rmt-legacy.patch
+  SHA256 c88b1a85d7c00ae05aef995c3613a28684f011d0d13f0fbe845184136f4882d7
+
+The native31 browser source omits optional S32C1I/handoff/IRQ diagnostic
+context and contains a longer Unit list in hw/xtensa/meson.build. Re-anchor
+the same added C logic at the matching include, exception-entry, helper and
+return sites, and the RMT source next to m5_rmt.c. Diagnostic code is not
+imported. This is not an assertion that native31 plus 0065/0066 applies
+unmodified as 33 layers. Original patches and bootstrap remain unchanged.
+Apply after the native31 and WASM 0001/0004/0005/0006/0009/0010 sequence;
+0008 is optional. The explicit 64 KiB stack flags belong to the build.
+
+The original icount_enabled guards remain: no forced cooperative yields
+when icount is disabled. Added TCG helper calls may still have host cost.
+The classic RMT data path is unchanged from 0066. No RF, electrical,
+real-frequency or hardware-timing equivalence is established.
+
+--- a/accel/tcg/tcg-accel-ops-icount.c
++++ b/accel/tcg/tcg-accel-ops-icount.c
+@@ -33,6 +33,34 @@
+ #include "tcg-accel-ops.h"
+ #include "tcg-accel-ops-icount.h"
+ #include "tcg-accel-ops-rr.h"
++
++static unsigned icount_high_priority_irq_cpus;
++
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++    unsigned mask = 1U << cpu_index;
++
++    if (!icount_enabled()) {
++        return;
++    }
++    if (active) {
++        icount_high_priority_irq_cpus |= mask;
++    } else {
++        icount_high_priority_irq_cpus &= ~mask;
++    }
++}
++
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++    if (icount_enabled() && icount_high_priority_irq_cpus) {
++        cpu_exit(cpu);
++    }
++}
++
++bool icount_high_priority_irq_active(void)
++{
++    return icount_enabled() && icount_high_priority_irq_cpus != 0;
++}
+ 
+ static int64_t icount_get_limit(void)
+ {
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -68,6 +68,14 @@
+ /* used by tcg vcpu thread to calc icount budget */
+ int64_t icount_round(int64_t count);
+ 
++/*
++ * Fine-grained round-robin scheduling is required while an Xtensa
++ * high-priority interrupt handler waits on state produced by another vCPU.
++ */
++void icount_note_high_priority_irq(int cpu_index, bool active);
++void icount_yield_for_high_priority_irq(CPUState *cpu);
++bool icount_high_priority_irq_active(void);
++
+ /* if the CPUs are idle, start accounting real time to virtual clock. */
+ void icount_start_warp_timer(void);
+ void icount_account_warp_timer(void);
+--- a/stubs/icount.c
++++ b/stubs/icount.c
+@@ -18,6 +18,16 @@
+     abort();
+     return 0;
+ }
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++}
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++}
++bool icount_high_priority_irq_active(void)
++{
++    return false;
++}
+ void icount_start_warp_timer(void)
+ {
+     abort();
+--- a/target/xtensa/cpu.c
++++ b/target/xtensa/cpu.c
+@@ -35,6 +35,7 @@
+ #include "qemu/module.h"
+ #include "migration/vmstate.h"
+ #include "hw/qdev-clock.h"
++#include "sysemu/cpu-timers.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "exec/memory.h"
+ #endif
+@@ -105,6 +106,7 @@
+         xcc->parent_phases.hold(obj, type);
+     }
+ 
++    icount_note_high_priority_irq(cs->cpu_index, false);
+     env->pc = env->config->exception_vector[EXC_RESET0 + env->static_vectors];
+     env->sregs[LITBASE] &= ~1;
+ #ifndef CONFIG_USER_ONLY
+--- a/target/xtensa/exc_helper.c
++++ b/target/xtensa/exc_helper.c
+@@ -33,6 +33,7 @@
+ #include "qemu/host-utils.h"
+ #include "qemu/atomic.h"
+ #include "exec/exec-all.h"
++#include "sysemu/cpu-timers.h"
+ 
+ void HELPER(exception)(CPUXtensaState *env, uint32_t excp)
+ {
+@@ -216,6 +217,9 @@
+     CPUXtensaState *env = cpu_env(cs);
+ 
+     if (cs->exception_index == EXC_IRQ) {
++        if (env->pending_irq_level >= 4) {
++            icount_note_high_priority_irq(cs->cpu_index, true);
++        }
+         qemu_log_mask(CPU_LOG_INT,
+                       "%s(EXC_IRQ) level = %d, cintlevel = %d, "
+                       "pc = %08x, a0 = %08x, ps = %08x, "
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -28,6 +28,8 @@
+ DEF_HELPER_2(intclear, void, env, i32)
+ DEF_HELPER_3(check_atomctl, void, env, i32, i32)
+ DEF_HELPER_4(check_exclusive, void, env, i32, i32, i32)
++DEF_HELPER_1(high_priority_irq_return, void, env)
++DEF_HELPER_2(high_priority_irq_yield, void, env, i32)
+ DEF_HELPER_2(wsr_memctl, void, env, i32)
+ 
+ DEF_HELPER_2(itlb_hit_test, void, env, i32)
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -33,6 +33,7 @@
+ #include "exec/exec-all.h"
+ #include "qemu/atomic.h"
+ #include "qemu/timer.h"
++#include "sysemu/cpu-timers.h"
+ 
+ #ifndef CONFIG_USER_ONLY
+ 
+@@ -209,6 +210,22 @@
+     }
+ }
+ 
++void HELPER(high_priority_irq_return)(CPUXtensaState *env)
++{
++    if (xtensa_get_cintlevel(env) == 4) {
++        icount_note_high_priority_irq(env_cpu(env)->cpu_index, false);
++    }
++}
++
++void HELPER(high_priority_irq_yield)(CPUXtensaState *env, uint32_t handler_only)
++{
++    if (!icount_high_priority_irq_active()
++        || (handler_only && xtensa_get_cintlevel(env) < 4)) {
++        return;
++    }
++    icount_yield_for_high_priority_irq(env_cpu(env));
++}
++
+ void HELPER(wsr_memctl)(CPUXtensaState *env, uint32_t v)
+ {
+     if (xtensa_option_enabled(env->config, XTENSA_OPTION_ICACHE)) {
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1820,6 +1820,7 @@
+ static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
+     tcg_gen_mb(TCG_BAR_SC | TCG_MO_ALL);
+ }
+ 
+@@ -2050,6 +2051,7 @@
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }
+@@ -2063,6 +2065,7 @@
+ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_EXCM);
+     gen_jump(dc, cpu_SR[EPC1]);
+ }
+@@ -2070,6 +2073,7 @@
+ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_mov_i32(cpu_SR[PS], cpu_SR[EPS2 + arg[0].imm - 2]);
+     gen_jump(dc, cpu_SR[EPC1 + arg[0].imm - 1]);
+ }
+--- /dev/null
++++ b/hw/m5stopwatch/m5_rmt_classic.c
+@@ -0,0 +1,318 @@
++/*
++ * ESP32 classic RMT register and memory model.
++ *
++ * This models the legacy IDF RMT driver data path used by UIFlow1 Neopixel
++ * initialization: memory-mode writes, TX threshold refill, TX completion IRQ
++ * and bounded symbol capture. It does not model GPIO waveform timing.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/irq.h"
++#include "hw/misc/esp32_reg.h"
++#include "hw/sysbus.h"
++#include "hw/xtensa/esp32_intc.h"
++#include "m5stopwatch.h"
++
++#define TYPE_M5_RMT_CLASSIC "m5.rmt-classic"
++
++#define RMT_CLASSIC_MEM_OFFSET   0x800
++#define RMT_CLASSIC_MEM_SIZE     0x800
++#define RMT_CLASSIC_CHANNELS     8
++#define RMT_CLASSIC_SYMBOLS_CH   64
++
++#define RMT_CLASSIC_CH0CONF0     0x020
++#define RMT_CLASSIC_CH0CONF1     0x024
++#define RMT_CLASSIC_STATUS_CH0   0x060
++#define RMT_CLASSIC_INT_RAW      0x0a0
++#define RMT_CLASSIC_INT_ST       0x0a4
++#define RMT_CLASSIC_INT_ENA      0x0a8
++#define RMT_CLASSIC_INT_CLR      0x0ac
++#define RMT_CLASSIC_TX_LIM_CH0   0x0d0
++#define RMT_CLASSIC_APB_CONF     0x0f0
++#define RMT_CLASSIC_DATE         0x0fc
++
++#define RMT_CLASSIC_STATUS_EMPTY (1U << 29)
++#define RMT_CLASSIC_TX_START     (1U << 0)
++#define RMT_CLASSIC_MEM_SIZE_SHIFT 24
++#define RMT_CLASSIC_MEM_SIZE_MASK  0x0f
++#define RMT_CLASSIC_TX_THRESHOLD_BIT(channel) (24 + (channel))
++
++typedef struct M5ClassicRmtState {
++    SysBusDevice parent_obj;
++    MemoryRegion mmio;
++    MemoryRegion mem;
++    qemu_irq irq;
++    uint32_t regs[RMT_CLASSIC_MEM_OFFSET / sizeof(uint32_t)];
++    uint32_t symbols[RMT_CLASSIC_MEM_SIZE / sizeof(uint32_t)];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    uint32_t active_mask;
++    QEMUTimer *tx_timer;
++    FILE *tx_file;
++    bool trace;
++} M5ClassicRmtState;
++
++OBJECT_DECLARE_SIMPLE_TYPE(M5ClassicRmtState, M5_RMT_CLASSIC)
++
++static uint32_t classic_rmt_conf0(M5ClassicRmtState *s, unsigned channel)
++{
++    return s->regs[(RMT_CLASSIC_CH0CONF0
++                    + channel * 2 * sizeof(uint32_t)) / sizeof(uint32_t)];
++}
++
++static uint32_t classic_rmt_conf1(M5ClassicRmtState *s, unsigned channel)
++{
++    return s->regs[(RMT_CLASSIC_CH0CONF1
++                    + channel * 2 * sizeof(uint32_t)) / sizeof(uint32_t)];
++}
++
++static void classic_rmt_set_conf1(M5ClassicRmtState *s, unsigned channel,
++                                  uint32_t value)
++{
++    s->regs[(RMT_CLASSIC_CH0CONF1
++             + channel * 2 * sizeof(uint32_t)) / sizeof(uint32_t)] = value;
++}
++
++static void classic_rmt_update_irq(M5ClassicRmtState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static unsigned classic_rmt_valid_symbols(M5ClassicRmtState *s,
++                                          unsigned channel,
++                                          unsigned capacity)
++{
++    unsigned base = channel * RMT_CLASSIC_SYMBOLS_CH;
++    unsigned count;
++
++    for (count = 0; count < capacity; count++) {
++        uint32_t symbol = s->symbols[base + count];
++
++        if ((symbol & 0x7fff) == 0
++            && ((symbol >> 16) & 0x7fff) == 0) {
++            break;
++        }
++    }
++    return count;
++}
++
++static void classic_rmt_capture_tx(M5ClassicRmtState *s, unsigned channel,
++                                   unsigned count)
++{
++    const char *path;
++
++    if (!s->tx_file) {
++        path = getenv("M5SW_RMT_TX_FILE");
++        if (path) {
++            s->tx_file = fopen(path, "wb");
++        }
++    }
++    if (s->tx_file && count) {
++        fwrite(&s->symbols[channel * RMT_CLASSIC_SYMBOLS_CH],
++               sizeof(uint32_t), count, s->tx_file);
++        fflush(s->tx_file);
++    }
++    if (s->trace) {
++        fprintf(stderr, "[rmt-classic] tx channel=%u symbols=%u\n",
++                channel, count);
++    }
++}
++
++static void classic_rmt_tx_timer(void *opaque)
++{
++    M5ClassicRmtState *s = opaque;
++    uint32_t active = s->active_mask;
++    bool reschedule = false;
++
++    for (unsigned channel = 0; channel < RMT_CLASSIC_CHANNELS; channel++) {
++        uint32_t conf0;
++        uint32_t capacity;
++        uint32_t threshold_bit;
++        unsigned count;
++
++        if (!(active & BIT(channel))) {
++            continue;
++        }
++        conf0 = classic_rmt_conf0(s, channel);
++        capacity = MAX(
++            (conf0 >> RMT_CLASSIC_MEM_SIZE_SHIFT)
++            & RMT_CLASSIC_MEM_SIZE_MASK,
++            1U
++        ) * RMT_CLASSIC_SYMBOLS_CH;
++        count = classic_rmt_valid_symbols(s, channel, capacity);
++        threshold_bit = RMT_CLASSIC_TX_THRESHOLD_BIT(channel);
++
++        if (count == capacity && (s->int_ena & BIT(threshold_bit))) {
++            s->int_raw |= BIT(threshold_bit);
++            reschedule = true;
++        } else {
++            classic_rmt_capture_tx(s, channel, count);
++            s->int_raw |= BIT(channel * 3);
++            s->active_mask &= ~BIT(channel);
++            s->regs[(RMT_CLASSIC_STATUS_CH0
++                     + channel * sizeof(uint32_t)) / sizeof(uint32_t)] =
++                RMT_CLASSIC_STATUS_EMPTY;
++        }
++    }
++    classic_rmt_update_irq(s);
++    if (reschedule) {
++        timer_mod(s->tx_timer,
++                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++    }
++}
++
++static uint64_t classic_rmt_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5ClassicRmtState *s = opaque;
++
++    if (addr == RMT_CLASSIC_INT_RAW) {
++        return s->int_raw;
++    }
++    if (addr == RMT_CLASSIC_INT_ST) {
++        return s->int_raw & s->int_ena;
++    }
++    if (addr == RMT_CLASSIC_INT_ENA) {
++        return s->int_ena;
++    }
++    if (addr >= RMT_CLASSIC_STATUS_CH0
++        && addr < RMT_CLASSIC_STATUS_CH0
++                   + RMT_CLASSIC_CHANNELS * sizeof(uint32_t)) {
++        return RMT_CLASSIC_STATUS_EMPTY;
++    }
++    if (addr == RMT_CLASSIC_DATE) {
++        return 0x16042000;
++    }
++    return addr < RMT_CLASSIC_MEM_OFFSET
++        ? s->regs[addr / sizeof(uint32_t)] : 0;
++}
++
++static void classic_rmt_write(void *opaque, hwaddr addr, uint64_t value,
++                              unsigned size)
++{
++    M5ClassicRmtState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[rmt-classic] wr %03x <- %08x\n",
++                (unsigned)addr, v);
++    }
++    if (addr == RMT_CLASSIC_INT_ENA) {
++        s->int_ena = v;
++        classic_rmt_update_irq(s);
++        return;
++    }
++    if (addr == RMT_CLASSIC_INT_CLR) {
++        s->int_raw &= ~v;
++        classic_rmt_update_irq(s);
++        return;
++    }
++    if (addr >= RMT_CLASSIC_CH0CONF1
++        && addr < RMT_CLASSIC_CH0CONF1
++                   + RMT_CLASSIC_CHANNELS * 2 * sizeof(uint32_t)
++        && ((addr - RMT_CLASSIC_CH0CONF1) % 8) == 0) {
++        unsigned channel = (addr - RMT_CLASSIC_CH0CONF1) / 8;
++        bool was_started = classic_rmt_conf1(s, channel)
++            & RMT_CLASSIC_TX_START;
++
++        classic_rmt_set_conf1(s, channel, v & ~RMT_CLASSIC_TX_START);
++        if (!was_started && (v & RMT_CLASSIC_TX_START)) {
++            s->active_mask |= BIT(channel);
++            timer_mod(s->tx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++        }
++        return;
++    }
++    if (addr < RMT_CLASSIC_MEM_OFFSET) {
++        s->regs[addr / sizeof(uint32_t)] = v;
++    }
++}
++
++static const MemoryRegionOps classic_rmt_ops = {
++    .read = classic_rmt_read,
++    .write = classic_rmt_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void classic_rmt_reset_hold(Object *obj, ResetType type)
++{
++    M5ClassicRmtState *s = M5_RMT_CLASSIC(obj);
++
++    memset(s->regs, 0, sizeof(s->regs));
++    memset(s->symbols, 0, sizeof(s->symbols));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->active_mask = 0;
++    timer_del(s->tx_timer);
++    qemu_irq_lower(s->irq);
++}
++
++static void classic_rmt_init(Object *obj)
++{
++    M5ClassicRmtState *s = M5_RMT_CLASSIC(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    memory_region_init_io(
++        &s->mmio, obj, &classic_rmt_ops, s, TYPE_M5_RMT_CLASSIC,
++        RMT_CLASSIC_MEM_OFFSET
++    );
++    memory_region_init_ram_ptr(
++        &s->mem, obj, TYPE_M5_RMT_CLASSIC ".mem",
++        RMT_CLASSIC_MEM_SIZE, s->symbols
++    );
++    sysbus_init_mmio(sbd, &s->mmio);
++    sysbus_init_mmio(sbd, &s->mem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_RMT_TRACE") != NULL;
++    s->tx_timer = timer_new_ms(
++        QEMU_CLOCK_VIRTUAL, classic_rmt_tx_timer, s
++    );
++}
++
++static void classic_rmt_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    ResettableClass *rc = RESETTABLE_CLASS(klass);
++
++    rc->phases.hold = classic_rmt_reset_hold;
++    dc->desc = "ESP32 classic RMT data-path model";
++}
++
++static const TypeInfo classic_rmt_info = {
++    .name = TYPE_M5_RMT_CLASSIC,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5ClassicRmtState),
++    .instance_init = classic_rmt_init,
++    .class_init = classic_rmt_class_init,
++};
++
++static void classic_rmt_register(void)
++{
++    type_register_static(&classic_rmt_info);
++}
++type_init(classic_rmt_register)
++
++void esp32_classic_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix)
++{
++    DeviceState *dev = qdev_new(TYPE_M5_RMT_CLASSIC);
++
++    object_property_add_child(qdev_get_machine(), "rmt-classic", OBJECT(dev));
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1
++    );
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE + RMT_CLASSIC_MEM_OFFSET,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 1), 1
++    );
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(dev), 0,
++        qdev_get_gpio_in(intmatrix, ETS_RMT_INTR_SOURCE)
++    );
++}
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -99,6 +99,7 @@
+                        struct ESPGdmaState *gdma);
+ void m5_esp32_i2s_board_init(MemoryRegion *sys_mem, BusState *periph_bus,
+                              DeviceState *intmatrix);
++void esp32_classic_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix);
+ void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix);
+ void esp32s3_gpspi_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+                           Co5300State *co, M5SpiPanelState *spi,
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -671,8 +671,7 @@
+         sys_mem, "esp32.slchost", DR_REG_SLCHOST_BASE, 0x1000, 0);
+     esp32_soc_add_unimp_device(
+         sys_mem, "esp32.apbctrl", DR_REG_APB_CTRL_BASE, 0x1000, 0);
+-    esp32_soc_add_unimp_device(
+-        sys_mem, "esp32.rmt", DR_REG_RMT_BASE, 0x1000, 0);
++    esp32_classic_rmt_init(sys_mem, intmatrix_dev);
+     esp32_soc_add_unimp_device(
+         sys_mem, "esp32.pcnt", DR_REG_PCNT_BASE, 0x1000, 0);
+     esp32_soc_add_unimp_device(
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -11,6 +11,7 @@
+   '../m5stopwatch/m5_unit_i2c_controls.c',
+   '../m5stopwatch/m5_can_peer.c',
+   '../m5stopwatch/m5_rmt.c',
++  '../m5stopwatch/m5_rmt_classic.c',
+   '../m5stopwatch/m5_scs_servo.c',
+   '../m5stopwatch/m5_st25r3916_spi.c',
+   '../m5stopwatch/m5_cc1101_spi.c',

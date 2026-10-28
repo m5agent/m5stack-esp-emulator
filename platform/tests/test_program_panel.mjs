@@ -309,11 +309,22 @@ try {
       assert.deepEqual(creationPosts[1].units, [{id: 'external1', unit_id: 'pir', port_id: 'port-a'}]);
       assert.equal(creationPosts[1].firmware_id, undefined); assert.equal(creationPosts[1].uiflow_source_sha256, undefined);
       const card = livePage.locator('[data-session-id="page-session-2"]');
+      assert.equal(await card.locator('.session-diagnostics').getAttribute('open'), null, 'runtime metadata starts collapsed');
+      assert.equal(await card.locator('.session-console').getAttribute('open'), null, 'serial output starts collapsed');
+      assert.equal(await card.locator('[data-action="stop"]').isVisible(), true, 'session controls remain visible');
+      await card.locator('.session-console > summary').focus(); await livePage.keyboard.press('Enter');
+      assert.equal(await card.locator('[data-field="serial"]').isVisible(), true, 'serial details open from keyboard');
+      await livePage.keyboard.press('Enter');
       await card.locator('[data-program-source]').fill('print("actual page route")\n');
       await card.locator('[data-program-run]').click();
       await livePage.waitForFunction(() => document.querySelector('[data-session-id="page-session-2"] [data-program-state]').textContent === '已完成');
       assert.deepEqual(programPosts.at(-1), {id: 'page-session-2', source: 'print("actual page route")\n', expected_execution_id: null});
       assert.equal(await livePage.locator('#errorBanner').isHidden(), true);
+      for (const width of [1440, 1024, 768, 390]) {
+        await livePage.setViewportSize({width, height: 1000});
+        assert.equal(await livePage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `sessions page does not overflow at ${width}`);
+      }
+      await livePage.setViewportSize({width: 1440, height: 1000});
       await livePage.screenshot({path: `${output}/sessions-program.png`, fullPage: true});
       await card.locator('[data-action="stop"]').click();
       await livePage.waitForFunction(() => document.querySelector('[data-session-id="page-session-2"] [data-program-source]').disabled);

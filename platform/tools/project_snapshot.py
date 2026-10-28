@@ -415,7 +415,16 @@ def summarize_units(device_ids: set[str]) -> dict:
         "Unit catalog references a missing visual model: "
         + ",".join(sorted(set(unit_visual_ids) - visual_units)),
     )
-    require(visual_hosts <= device_ids, "visual vendor contains unknown hosts")
+    visual_only_values = vendor.get("visual_only_controllers", [])
+    require(isinstance(visual_only_values, list), "visual-only controllers must be an ID list")
+    visual_only_hosts = identifiers([{"id": value} for value in visual_only_values], "id", "visual-only controllers")
+    expected_visual_only = visual_hosts - device_ids
+    require(
+        visual_only_hosts == expected_visual_only,
+        "visual vendor contains unknown hosts or an invalid visual-only declaration: undeclared="
+        + ",".join(sorted(expected_visual_only - visual_only_hosts))
+        + "; not_visual_only=" + ",".join(sorted(visual_only_hosts - expected_visual_only)),
+    )
     commit = vendor.get("source_commit")
     require(isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit) is not None, "visual source_commit must be an exact Git SHA")
     require(isinstance(vendor.get("source_repository"), str) and bool(vendor["source_repository"]), "visual source repository is missing")
@@ -429,6 +438,7 @@ def summarize_units(device_ids: set[str]) -> dict:
             for host in sorted(host_ids)
         ],
         "visual_source": {"repository": vendor["source_repository"], "commit": commit, "hosts": len(visual_hosts), "units": len(visual_units),
+                          "visual_only_controllers": sorted(visual_only_hosts),
                           "visual_only_units": sorted(visual_units - set(unit_visual_ids)), "scope": vendor.get("scope", "visual-only")},
         "admission_boundary": "Admission counts only implemented/validated profiles and their declared hosts with confirmed main-device wiring. Admission is not same-device firmware, Web, physical or hardware validation; planned/partial/unsupported profiles are not admitted and implemented is not promoted to validated.",
     }
@@ -595,6 +605,7 @@ def render_markdown(snapshot: dict) -> str:
         f"- Unit 登记：`{units['registered']}` 款；主机接线登记：`{units['registered_hosts']}` 款。",
         "- Runtime profile 状态：" + "，".join(f"`{status}` {count}" for status, count in units["runtime_status"].items()) + "。",
         f"- 固定视觉源：[{visual['repository']}]({visual['repository']})，commit `{visual['commit']}`；包含 `{visual['hosts']}` 款主机、`{visual['units']}` 款 Unit。视觉库存不构成控制器或电气验证。",
+        "- 仅视觉主机：" + ("，".join(f"`{host_id}`" for host_id in visual["visual_only_controllers"]) or "无") + "；这些型号没有设备运行登记，不能创建 Device Service 会话。",
         "- 仅视觉、尚无内部协议契约：" + ("，".join(f"`{unit_id}`" for unit_id in visual["visual_only_units"]) or "无") + "；这些型号不计 runtime 准入，也不能创建功能附件。",
         "- 数据源：" + "，".join(f"[`{name}`](../{path})" for name, path in units["sources"].items()) + "。",
         "",

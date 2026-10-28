@@ -76,6 +76,36 @@ class DocsCurrentStateContractTests(DocsContractBase):
             with self.assertRaisesRegex(ValueError, "missing visual model: pir"):
                 project_snapshot.collect()
 
+    def test_visual_only_controllers_are_explicit_and_never_runtime_hosts(self) -> None:
+        load_json = project_snapshot.load_json
+        devices = {device["id"] for device in load_json(project_snapshot.SOURCE_DEVICES)["devices"]}
+        vendor = load_json(project_snapshot.VISUAL_VENDOR)
+        expected = set(vendor["controllers"]) - devices
+        self.assertEqual(set(vendor["visual_only_controllers"]), expected)
+        self.assertEqual(expected, {"atom-lite", "atom-matrix", "atoms3-lite"})
+        units = project_snapshot.summarize_units(devices)
+        self.assertEqual(set(units["visual_source"]["visual_only_controllers"]), expected)
+        self.assertFalse(expected & {host["device_id"] for host in units["hosts"]})
+
+        mutations = (
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": []}, "unknown hosts"),
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "controllers": [*value["controllers"], "unknown-host"]}, "unknown hosts"),
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "unknown-host"]}, "invalid visual-only declaration"),
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "cores3"]}, "invalid visual-only declaration"),
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "atom-lite"]}, "duplicate IDs"),
+            (project_snapshot.UNIT_HOSTS, lambda value: {**value, "hosts": [*value["hosts"], {"device_id": "atom-lite", "ports": []}]}, "registry contains unknown devices"),
+            (project_snapshot.UNIT_PROFILES, lambda value: {**value, "units": {**value["units"], "pir": {**value["units"]["pir"], "hosts": ["atom-lite"]}}}, "references an unknown host"),
+        )
+        for target, mutate, message in mutations:
+            with self.subTest(target=target, message=message):
+                def changed(path):
+                    value = load_json(path)
+                    return mutate(value) if path == target else value
+
+                with mock.patch.object(project_snapshot, "load_json", side_effect=changed):
+                    with self.assertRaisesRegex(ValueError, message):
+                        project_snapshot.summarize_units(devices)
+
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()
         for heading in (

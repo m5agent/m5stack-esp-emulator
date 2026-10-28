@@ -1,0 +1,7 @@
+/** MIT; exact A093 500mm/30x5050 appearance,not A035 geometry. */
+export const INPUT_FAMILY='m5.a093.3p-input';
+export const OUTPUT_FAMILY='m5.a093.3p-output';
+export const defaults={bendDeg:0,adapter:true};
+export const configurationSchema={adapter:{type:'boolean',default:true,meaning:'Supplied detachable100mm Grove-plug/black3P three-wire adapter;no body Grove receptacle'},bendDeg:{type:'number',min:-120,max:120,default:0,meaning:'External circular-arc display angle,not a material/minimum-radius limit'},artwork:{type:'boolean',default:true,meaning:'Only safe PCB ink;all substrates/coating/pads/packages/terminals remain'}};
+export const configurations=[{id:'complete',name:'A093 0.5米30灯完整直条与三线转接',options:{}},{id:'arc',name:'A093 连续90度展示弯曲',options:{bendDeg:90}},{id:'reverse',name:'A093 反向60度展示弯曲',options:{bendDeg:-60}}];
+export const spec={id:'rgb-led-strip-50cm',name:'Unit RGB LED Strip 0.5m / 30LED',sku:'A093',size:[699,12,23],nominalMm:null,nominalStripMm:[500,10],ledCount:30,pitchMm:500/30,packageMm:[5,5],inferred:{fpcMm:.3,adhesiveMm:.12,coatingTopMm:2.6,packageHeightMm:1.5,pigtailMm:30,contactPitchMm:2.5},adapter:{vendorNominalLengthMm:100,displayWireCenterlineMm:100,wireCount:3,plugCount:2,sourcePlug:'male4-position Grove;3 populated contacts,NC empty',targetPlug:'actual male3P complementary strip input',faceDistanceRangeMm:[45,112]},constructionRoute:'own-A093-photo-parametric',scope:'500x10/30count documented;all Z/ends/contacts/bend/assembly fit inferred. No electrical/bitstream/current/waterproof simulation.'};

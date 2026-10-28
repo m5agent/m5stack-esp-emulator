@@ -1,0 +1,4 @@
+/** MIT. Exact-role supplied flat compliance plus independently redrawn own PH rear. */
+import {printedFilm} from '../../modeling/artwork.js';
+import {spec} from './dimensions.js';
+export function addStickers(host){const b=spec.labels.bottom,c=spec.labels.compliance;return[printedFilm(host,{url:new URL('./artwork/bottom.png',import.meta.url).href,size:b.size,position:b.position,face:'back',holes:[{w:b.holeRadius*2,h:b.holeRadius*2,r:b.holeRadius,cx:0,cy:-2.8}],name:'C008 own PH2.0-4P bottom reference redraw;actual M2 aperture retained',artworkKind:'reference-redraw'}),printedFilm(host,{url:new URL('./artwork/compliance.png',import.meta.url).href,size:c.size,position:[c.position[0],11.845,c.position[2]],face:'top',name:'C008 supplied flat470x164 compliance;original raster aspect retained',artworkKind:'official-raster'})];}

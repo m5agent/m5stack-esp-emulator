@@ -1,0 +1,4 @@
+// Own U158 mechanical drawing and ZJY-2856KLBAG01 panel, not U158-B geometry.
+export const spec={name:'Unit Glass',sku:'U158',size:[42.04,53,6],nominalMm:[53,42,6],geometrySource:'own-dimensioned-parametric-no-CAD',drawingEnvelopeMm:[42,53,6],mountingHolesMm:[[-16,-23.5],[16,-23.5]],retainingHolesMm:[[-18.5,-3],[18.5,-3],[-18.5,-17],[18.5,-17]],window:{size:[37,19],center:[0,14.5],topInset:2.5},pcb:{thickness:.6,rearZ:2.2,frontZ:2.8},glass:{baseSize:[42.04,27.22,.7],basePosition:[0,12.39,1.15],capSize:[42.04,21.04,.55],capPosition:[0,15.48,1.775]},display:{id:'screen',resolution:[128,56],size:[35.05,15.32],position:[0,15.34,2.058],rearZ:.792,pitchMm:.274,dotMm:.254},grove:{position:[0,-19.5,-.25],face:'bottom'},buttonTravelMm:.14};
+export const configurations=[{id:'assembled',name:'完整透明 OLED 装配',options:{}}];
+export const defaults={};export const configurationSchema={};

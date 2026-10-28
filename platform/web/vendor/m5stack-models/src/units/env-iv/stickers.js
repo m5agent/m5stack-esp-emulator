@@ -1,0 +1,2 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';const back=new URL('./artwork/back.png',import.meta.url).href;
+export function addStickers(host){const target=host.envIVAssembly.rear?.film;return target?(printedArtwork(host,{target,url:back,size:spec.label.size,position:spec.label.position,face:'back',depth:.12,artworkKind:'source-vector-raster',name:'ENV-IV exactown U001-D originalrearfilm'})??[]):[];}

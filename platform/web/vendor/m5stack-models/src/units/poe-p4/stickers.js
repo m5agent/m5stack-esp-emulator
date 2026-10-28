@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';import{spec}from'./dimensions.js';
+const urls={front:new URL('./source-vector-front.png',import.meta.url).href,back:new URL('./source-vector-back.png',import.meta.url).href,hat:new URL('./source-vector-hat.png',import.meta.url).href,side:new URL('./source-vector-side.png',import.meta.url).href};
+export function addStickers(host){const labels=host.poeP4Assembly.labels;return Object.entries(spec.labels).flatMap(([id,l])=>printedArtwork(host,{target:labels[id],url:urls[id],size:l.size,position:l.position,face:l.face,rotation:l.rotation??0,depth:.08,name:`PoE-P4 exact-model ${id} original label raster`,artworkKind:'source-vector-raster'})??[]);}

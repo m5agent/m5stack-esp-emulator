@@ -1,10 +1,32 @@
 import { chromium } from 'playwright';
 
-const base = process.env.M5_SIM_BASE || 'http://127.0.0.1:8787';
-const inventoryResponse = await fetch(`${base}/api/v1/devices`);
-if (!inventoryResponse.ok) throw new Error(`device inventory failed: ${inventoryResponse.status}`);
-const inventory = await inventoryResponse.json();
+const configuredBase = process.env.M5_SIM_BASE?.trim();
+if (!configuredBase) throw new Error('M5_SIM_BASE must explicitly identify a dedicated test Device Service.');
+const serviceUrl = new URL(configuredBase);
+if (!['http:', 'https:'].includes(serviceUrl.protocol) || serviceUrl.username || serviceUrl.password
+    || serviceUrl.search || serviceUrl.hash || serviceUrl.pathname !== '/') {
+  throw new Error('M5_SIM_BASE must be an HTTP(S) service origin without credentials, path, query or fragment.');
+}
+if (serviceUrl.port === '8787') throw new Error('Port 8787 belongs to the user and cannot be used by this test.');
+const base = serviceUrl.origin;
+async function json(path) {
+  const response = await fetch(`${base}${path}`);
+  if (!response.ok) throw new Error(`test inventory ${path} failed: ${response.status}`);
+  return response.json();
+}
+const [inventory, catalog, visual, profiles] = await Promise.all([
+  json('/api/v1/devices'),
+  json('/devices/catalog.json'),
+  json('/platform/web/vendor/m5stack-models/catalog/products.json'),
+  json('/platform/web/browser-profiles.json'),
+]);
 const creatableDeviceIds = inventory.devices.filter(device => device.creatable).map(device => device.device_id).sort();
+const publicDeviceIds = [...new Set([
+  ...catalog.devices.map(device => device.id),
+  ...visual.products.filter(product => product.category === 'controller').map(product => product.id),
+  ...profiles.devices.map(device => device.id),
+])].sort();
+const publicUnitCount = visual.products.filter(product => product.category === 'unit').length;
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
 const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -12,16 +34,20 @@ const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 
 try {
-await page.goto(`${base}/platform/web/`, { waitUntil: 'networkidle' });
-await page.waitForFunction(() => document.querySelectorAll('.device-card').length > 0);
-const cards = await page.$$eval('.device-card', items => items.map(item => item.innerText));
-if (cards.length !== 14) throw new Error(`expected 14 devices, got ${cards.length}`);
-const catalogChip = await page.locator('#catalogChip').textContent();
-if (!catalogChip.includes('13/14 peripheral-complete')) {
-  throw new Error(`catalog completeness chip failed: ${catalogChip}`);
+await page.goto(`${base}/platform/web/?device=cores3&autostart=0`, { waitUntil: 'networkidle' });
+await page.waitForFunction(() => document.querySelector('#deviceMount')?.dataset.deviceId === 'cores3');
+const cards = await page.$$eval('#deviceNav [data-device-id]', items => items.map(item => item.innerText));
+const renderedDeviceIds = await page.$$eval('#deviceNav [data-device-id]', items => items.map(item => item.dataset.deviceId).sort());
+if (JSON.stringify(renderedDeviceIds) !== JSON.stringify(publicDeviceIds) || cards.some(label => !label.trim())) {
+  throw new Error(`public device list failed: ${JSON.stringify(renderedDeviceIds)}`);
 }
-const peripheralBadges = await page.$$eval('.peripheral-badge', items => items.length);
-if (peripheralBadges !== 14) throw new Error(`expected 14 peripheral badges, got ${peripheralBadges}`);
+const catalogChip = await page.locator('#catalogChip').textContent();
+if (catalogChip !== `${publicDeviceIds.length} DEVICES / ${publicUnitCount} UNITS`) {
+  throw new Error(`public catalog count failed: ${catalogChip}`);
+}
+if (await page.locator('#deviceMount [data-model-source="m5stack-models"]').count() !== 1) {
+  throw new Error('public homepage did not mount the selected device model');
+}
 
 await page.goto(`${base}/platform/web/firmware.html`, { waitUntil: 'networkidle' });
 await page.waitForFunction(count => window.m5Firmware?.getState && document.querySelectorAll('#deviceSelect option').length === count, creatableDeviceIds.length);

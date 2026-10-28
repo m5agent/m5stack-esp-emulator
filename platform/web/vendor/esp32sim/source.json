@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/zhuzhe1983/esp-online-tester",
+  "upstream": "https://github.com/mikroverk/esp32sim",
+  "commit": "3cd3db3b7202e9fc559328c7247c11134c0437f9",
+  "license": "MIT",
+  "scope": "WASM worker, pacing and block JIT glue only; no firmware or ROM",
+  "files": {
+    "worker.js": {
+      "source_path": "web/wasm/worker.js",
+      "sha256": "eb26ea86778dfcb7edb15f75787643c9b9796c43905d57968c80cdea27b49dc9",
+      "bytes": 20284
+    },
+    "jit.mjs": {
+      "source_path": "web/wasm/jit.mjs",
+      "sha256": "a759ae4a3d1ca6ddd91259ede39e34ebda45ff7ccb9c4ceeff0d1423f44ac294",
+      "bytes": 1793
+    },
+    "pacing.mjs": {
+      "source_path": "web/wasm/pacing.mjs",
+      "sha256": "be891e5cd99e47791f4fdafb9d1cabb0f42ed09b8f1758d890884f41dc83d6cf",
+      "bytes": 1016
+    },
+    "experiments.mjs": {
+      "source_path": "web/wasm/experiments.mjs",
+      "sha256": "4270ca7e858b1612db07e8e084134c82329fa1e6ea38658b5b1eab21b99e955e",
+      "bytes": 4093
+    },
+    "LICENSE": {
+      "source_path": "LICENSE",
+      "sha256": "9de2fd8155bb09da4f50be6e5eb0688bfbcc4808e9a94f7713145a321d52a396",
+      "bytes": 1150
+    }
+  }
+}

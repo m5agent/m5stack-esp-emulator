@@ -1,0 +1,29 @@
+--- a/accel/tcg/cpu-exec.c
++++ b/accel/tcg/cpu-exec.c
+@@ -1029,10 +1029,26 @@
+     return ret;
+ }
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++#include <emscripten/stack.h>
++
++/* SDK Asyncify Fiber + SjLj compatibility experiment; not a guest-state fix. */
++EM_JS(void, m5_cpu_exec_restore_cstack, (uintptr_t saved_sp), {
++    stackRestore(saved_sp);
++});
++#endif
++
+ static int cpu_exec_setjmp(CPUState *cpu, SyncClocks *sc)
+ {
++#ifdef __EMSCRIPTEN__
++    const uintptr_t m5_saved_sp = emscripten_stack_get_current();
++#endif
+     /* Prepare setjmp context for exception handling. */
+     if (unlikely(sigsetjmp(cpu->jmp_env, 0) != 0)) {
++#ifdef __EMSCRIPTEN__
++        m5_cpu_exec_restore_cstack(m5_saved_sp);
++#endif
+         cpu_exec_longjmp_cleanup(cpu);
+     }
+ 

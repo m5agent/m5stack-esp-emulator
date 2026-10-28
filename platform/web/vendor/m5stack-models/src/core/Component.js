@@ -17,10 +17,13 @@ import { disposeObject } from './geometry.js';
  *
  * Subclasses override the pointer hooks to become interactive. Any mesh that
  * should receive pointer events must be registered with `this.hit(mesh)`.
+ * A shared physical surface may use `this.hit(mesh, intersection => boolean)`
+ * to accept only its actual interactive region without changing geometry.
  */
 export class Component extends EventEmitter {
   /** Short type name used in input events and `host.get(id, kind)`. */
   static kind = 'component';
+  #hitTargets = new Set();
 
   constructor({ id, label, position, rotation, quaternion, meta = {} } = {}) {
     super();
@@ -58,9 +61,15 @@ export class Component extends EventEmitter {
     return 'pointer';
   }
 
-  /** Register a mesh as a pointer target for this component. */
-  hit(mesh) {
+  /** Register an Object3D target, optionally filtering its real intersections. */
+  hit(mesh, filter = null) {
+    if (!mesh?.isObject3D) throw new TypeError('A hit target must be a Three.js Object3D');
+    if (filter !== null && typeof filter !== 'function') throw new TypeError('A hit filter must be a function or null');
     mesh.userData.component = this;
+    // Retain the owner with the predicate: legacy callers such as Port assign
+    // userData.component directly and must not inherit another owner's filter.
+    mesh.userData.componentHit = { component: this, filter };
+    this.#hitTargets.add(mesh);
     return mesh;
   }
 
@@ -128,6 +137,14 @@ export class Component extends EventEmitter {
   }
 
   dispose() {
+    // A native shell can be owned by the host, outside this.object3d. Release
+    // our input registration without disposing that physical surface or
+    // clearing a newer component's registration on the same target.
+    for (const target of this.#hitTargets) {
+      if (target.userData.component === this) delete target.userData.component;
+      if (target.userData.componentHit?.component === this) delete target.userData.componentHit;
+    }
+    this.#hitTargets.clear();
     this.unmount();
     disposeObject(this.object3d);
     this.removeAllListeners();

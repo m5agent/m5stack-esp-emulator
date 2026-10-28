@@ -1,0 +1,126 @@
+--- a/hw/misc/esp32s3_cache.c
++++ b/hw/misc/esp32s3_cache.c
+@@ -82,8 +82,34 @@
+ }
+ 
+ 
++
++#include <emscripten/stack.h>
++#include <emscripten/heap.h>
++#include <pthread.h>
++
++/* Diagnostic only: invalid MMU writes do not consume this budget. */
++static __thread unsigned m5_cache_logs;
++static __thread unsigned m5_cache_write_id;
++
++static void m5_cache_stack_log(const char *phase, uintptr_t sp,
++                               unsigned write_id, hwaddr reg_addr,
++                               uint32_t value)
++{
++    if (m5_cache_logs >= 256) {
++        return;
++    }
++    m5_cache_logs++;
++    fprintf(stderr,
++            "M5_CSTACK_CACHE tid=%p log=%u write=%u phase=%s sp=%p "
++            "reg=0x%" PRIx64 " value=0x%08x heap=%zu stack_base=%p stack_end=%p\n",
++            (void *)pthread_self(), m5_cache_logs, write_id, phase,
++            (void *)sp, (uint64_t)reg_addr, value, emscripten_get_heap_size(),
++            (void *)emscripten_stack_get_base(), (void *)emscripten_stack_get_end());
++}
++
+ static inline void esp32s3_write_mmu_value(ESP32S3CacheState *s, hwaddr reg_addr, uint32_t value)
+ {
++    unsigned m5_write_id = ++m5_cache_write_id;
+     ESP32S3XtsAesClass *xts_aes_class = ESP32S3_XTS_AES_GET_CLASS(s->xts_aes);
+     /* Make the assumption that the address is aligned on sizeof(uint32_t) */
+     const uint32_t index = reg_addr / sizeof(uint32_t);
+@@ -92,6 +118,13 @@
+     const ESP32S3MMUEntry former = s->mmu[index];
+     /* Always keep reserved as 0 */
+     e.reserved = 0;
++    bool m5_trace_this = former.val != e.val && !e.invalid &&
++        e.type == ESP32S3_MMU_TYPE_FLASH && s->flash_blk != NULL;
++    if (m5_trace_this) {
++        m5_cache_stack_log("mmu_entry", emscripten_stack_get_current(),
++                           m5_write_id, reg_addr, value);
++    }
++
+ #if CACHE_DEBUG
+     info_report("[CACHE] esp32s3_write_mmu_value 0x%lx = %08x, index=%d", reg_addr, value, index);
+ #endif
+@@ -106,7 +139,11 @@
+         if (!e.invalid) {
+             if (e.type == ESP32S3_MMU_TYPE_FLASH && s->flash_blk != NULL) {
+                 uint8_t* cache_data = ((uint8_t*) memory_region_get_ram_ptr(&s->flash_mr)) + physical_address;
++                m5_cache_stack_log("before_blk_pread", emscripten_stack_get_current(),
++                                   m5_write_id, reg_addr, value);
+                 blk_pread(s->flash_blk, physical_address, ESP32S3_PAGE_SIZE, cache_data, 0);
++                m5_cache_stack_log("after_blk_pread", emscripten_stack_get_current(),
++                                   m5_write_id, reg_addr, value);
+ 
+                 if (xts_aes_class->is_flash_enc_enabled(s->xts_aes)) {
+                     xts_aes_class->decrypt(s->xts_aes, physical_address, cache_data, ESP32S3_PAGE_SIZE);
+@@ -114,6 +151,10 @@
+             }
+         }
+         s->mmu[index].val = e.val;
++    }
++    if (m5_trace_this) {
++        m5_cache_stack_log("mmu_exit", emscripten_stack_get_current(),
++                           m5_write_id, reg_addr, value);
+     }
+ }
+ 
+--- a/util/coroutine-wasm.c
++++ b/util/coroutine-wasm.c
+@@ -82,15 +82,49 @@
+     g_free(co);
+ }
+ 
++
++#include <emscripten/stack.h>
++#include <emscripten/heap.h>
++#include <pthread.h>
++
++static __thread unsigned m5_swap_logs;
++static __thread unsigned m5_swap_id;
++
++static void m5_swap_stack_log(const char *phase, uintptr_t sp,
++                              unsigned swap_id, CoroutineEmscripten *from,
++                              CoroutineEmscripten *to, CoroutineAction action)
++{
++    if (m5_swap_logs >= 256) {
++        return;
++    }
++    m5_swap_logs++;
++    fprintf(stderr,
++            "M5_CSTACK_SWAP tid=%p log=%u swap=%u phase=%s sp=%p "
++            "from=%p to=%p action=%d from_saved_sp=%p to_saved_sp=%p "
++            "from_base=%p from_limit=%p to_base=%p to_limit=%p "
++            "heap=%zu stack_base=%p stack_end=%p\n",
++            (void *)pthread_self(), m5_swap_logs, swap_id, phase, (void *)sp,
++            (void *)from, (void *)to, action,
++            from->fiber.stack_ptr, to->fiber.stack_ptr,
++            from->fiber.stack_base, from->fiber.stack_limit,
++            to->fiber.stack_base, to->fiber.stack_limit, emscripten_get_heap_size(),
++            (void *)emscripten_stack_get_base(), (void *)emscripten_stack_get_end());
++}
++
+ CoroutineAction qemu_coroutine_switch(Coroutine *from_, Coroutine *to_,
+                       CoroutineAction action)
+ {
++    unsigned m5_this_swap = ++m5_swap_id;
+     CoroutineEmscripten *from = DO_UPCAST(CoroutineEmscripten, base, from_);
+     CoroutineEmscripten *to = DO_UPCAST(CoroutineEmscripten, base, to_);
+ 
+     set_current(to_);
+     to->action = action;
++    m5_swap_stack_log("before_swap", emscripten_stack_get_current(),
++                      m5_this_swap, from, to, action);
+     emscripten_fiber_swap(&from->fiber, &to->fiber);
++    m5_swap_stack_log("after_swap", emscripten_stack_get_current(),
++                      m5_this_swap, from, to, action);
+     return from->action;
+ }
+ 
