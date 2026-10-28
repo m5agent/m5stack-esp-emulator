@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "device_id": "core2",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+  "runtime_binary_sha256": "03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419",
+  "patch": "patches/qemu-m5stack-peripherals/0063-core2-touch-buttons.patch",
+  "results": [
+    {
+      "button": "BtnA",
+      "input": "key:a",
+      "path": "FT5x06 left touch-band button",
+      "session_id": "acf00a9a021b422cbf146bd9028beeb6",
+      "firmware_sha256": "2870ad6dd2d3035ba72b01e85f0f5cd3849cf9bf27b02cfa02bf8e8e17c78773",
+      "coordinates": [53, 260],
+      "callback_type": "WAS_HOLD",
+      "events": [2],
+      "events_after_remove": 1,
+      "status": "PASS"
+    },
+    {
+      "button": "BtnB",
+      "input": "key:b",
+      "path": "FT5x06 middle touch-band button",
+      "session_id": "c9d6d6d63ae543d59220309a575bca9b",
+      "firmware_sha256": "3f695a26b0664222a605f150d749aabe3dfa1e14075898b36db0e51838ac1ffd",
+      "coordinates": [160, 260],
+      "callback_type": "WAS_HOLD",
+      "events": [2],
+      "events_after_remove": 1,
+      "status": "PASS"
+    },
+    {
+      "button": "BtnC",
+      "input": "key:c",
+      "path": "FT5x06 right touch-band button",
+      "session_id": "b7e83b010d684ea98d43030291506d46",
+      "firmware_sha256": "d5164dad38a37f2670beb998a84dc39812c99bc1375ae9f73be9ebde94e7130e",
+      "coordinates": [266, 260],
+      "callback_type": "WAS_HOLD",
+      "events": [2],
+      "events_after_remove": 1,
+      "status": "PASS"
+    },
+    {
+      "button": "BtnPWR",
+      "input": "key:p",
+      "path": "AXP2101 IRQ_STATUS1(0x49) power-key event",
+      "session_id": "48db772a52334eeb8a80711b2db233a3",
+      "firmware_sha256": "0d64d250e742407e7591fe3fde26537ac140a532819c144808ad81382ed70725",
+      "callback_type": "WAS_HOLD",
+      "events": [2],
+      "events_after_remove": 1,
+      "status": "PASS"
+    }
+  ],
+  "root_cause": "The initial touch_buttons branch consumed every key code, including key:p, before the AXP2101 power-key switch arm.",
+  "cleanup": {
+    "evidence_zip_before_stop": true,
+    "purge": 0,
+    "runtime_pid_gone": true,
+    "history_preserved": true
+  }
+}

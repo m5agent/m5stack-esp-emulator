@@ -1,0 +1,54 @@
+{
+  "BUTTON_CALLBACK_READY": [
+    {
+      "sleep_seconds": 1.0
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "down",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "sleep_seconds": 1.2
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "up",
+        "settle_seconds": 0.1
+      }
+    }
+  ],
+  "BUTTON_CALLBACK_REMOVED_READY": [
+    {
+      "sleep_seconds": 1.0
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "down",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "sleep_seconds": 1.2
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "b",
+        "action": "up",
+        "settle_seconds": 0.1
+      }
+    }
+  ]
+}

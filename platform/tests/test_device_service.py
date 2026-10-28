@@ -1087,6 +1087,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
                         "profile": "core2-openmac", "nic": "misc.esp32_wifi",
                     }
                 with mock.patch.object(
+                    session, "_prepare_microphone_tone"
+                ), mock.patch.object(
                     device_service_module, "core2_radio_qemu_path",
                     return_value=session.spec.qemu,
                 ), mock.patch.object(

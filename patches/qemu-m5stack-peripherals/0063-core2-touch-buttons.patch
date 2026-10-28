@@ -1,0 +1,58 @@
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -59,6 +59,7 @@
+     bool immediate_update;
+     bool keyboard;
+     bool plc_keys;
++    bool touch_buttons;
+     bool infer_command;
+     uint32_t infer_params_left;
+     uint32_t pending_pixel_bytes;
+@@ -585,6 +586,27 @@
+             }
+             break;
+         }
++        if (s->touch_buttons
++            && (q == Q_KEY_CODE_A || q == Q_KEY_CODE_B || q == Q_KEY_CODE_C)) {
++            int x;
++
++            if (q == Q_KEY_CODE_A) {
++                x = s->vis_w / 6;
++            } else if (q == Q_KEY_CODE_B) {
++                x = s->vis_w / 2;
++            } else {
++                x = s->vis_w * 5 / 6;
++            }
++            /*
++             * Keep the press in the panel's synchronized pointer state:
++             * QEMU invokes input_sync immediately after each key event.
++             * Core2's raw touch band extends past the 240-pixel glass.
++             */
++            s->mouse_btn = down;
++            s->mouse_x = x;
++            s->mouse_y = s->vis_h + 20;
++            break;
++        }
+         switch (q) {
+         case Q_KEY_CODE_A: case Q_KEY_CODE_LEFT: case Q_KEY_CODE_1:
+             esp32_gpio_set_input(s->key_a_pin, !down);
+@@ -681,6 +702,7 @@
+     DEFINE_PROP_BOOL("immediate-update", M5SpiPanelState, immediate_update, false),
+     DEFINE_PROP_BOOL("keyboard", M5SpiPanelState, keyboard, false),
+     DEFINE_PROP_BOOL("plc-keys", M5SpiPanelState, plc_keys, false),
++    DEFINE_PROP_BOOL("touch-buttons", M5SpiPanelState, touch_buttons, false),
+     DEFINE_PROP_BOOL("infer-command", M5SpiPanelState, infer_command, false),
+     DEFINE_PROP_BOOL("invert", M5SpiPanelState, physical_invert, true),
+     DEFINE_PROP_END_OF_LIST(),
+diff --git a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -73,6 +73,7 @@
+     qdev_prop_set_uint32(panel, "read-id", 0x000000e3);
+     qdev_prop_set_bit(panel, "apply-madctl", false);
+     qdev_prop_set_bit(panel, "touch", true);
++    qdev_prop_set_bit(panel, "touch-buttons", true);
+     qdev_prop_set_uint32(panel, "touch-int-pin", 39);
+     qdev_prop_set_bit(panel, "immediate-update", true);
+     qdev_prop_set_bit(panel, "invert", true);

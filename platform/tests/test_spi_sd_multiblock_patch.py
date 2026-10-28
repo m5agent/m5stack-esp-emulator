@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import unittest
 
+import test_unit_flashlight_cold_pad_patch as cold
 from test_unit_flashlight_cold_pad_patch import ROOT, bootstrap_stack
 
 PATCH = "patches/qemu-m5stack-peripherals/0056-spi-sd-multiblock-transfers.patch"
@@ -85,6 +86,8 @@ class SpiSdMultiBlockPatchTests(unittest.TestCase):
             subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True)
             for patch in bootstrap_stack():
                 if patch != PATCH:
+                    if SOURCE not in cold.patch_paths(patch):
+                        continue
                     subprocess.run(["git", "apply", "--include=" + SOURCE, str(ROOT / patch)], cwd=root, check=True, capture_output=True)
             before = (root / SOURCE).read_text()
             subprocess.run(["git", "apply", str(ROOT / PATCH)], cwd=root, check=True, capture_output=True)

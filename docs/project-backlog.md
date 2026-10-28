@@ -69,8 +69,13 @@ QRCode.setText 与 TLS epoch 已完成三台 matching preimage→candidate 固�
 见[候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。
 `Display.drawPixel` 的 framebuffer transaction 已在三台候选固件验证，见
 [drawPixel 证据](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md)。
-仍需关闭 WAV/mic 数据面、ESP-NOW controller TX/RX/IRQ、Core2 稳定按键输入和
-所有 28 类 Core2 文档方法矩阵。
+三台 Mic、Speaker raw/WAV、`playWavFile` 和 `playWav → playWavFile`
+数据面已在最新 QEMU 上通过，并修复 ESP32-S3 DMA completion 的固定时间窗
+缺陷，见[三设备音频证据](evidence/2026-10-28-three-board-audio/README.md)。
+Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 runtime
+完成回调、hold 状态与 remove 验证；首版分支吞掉 `key:p` 的路由问题已修复，
+见[Core2 输入证据](evidence/2026-10-28-core2-touch-buttons/README.md)。
+仍需关闭 ESP-NOW controller TX/RX/IRQ 和所有 28 类 Core2 文档方法矩阵。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API

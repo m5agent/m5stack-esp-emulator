@@ -319,9 +319,11 @@ MQTT `42/42`、network `14/14`、EasySocket `57 PASS + 1 N/A`、EzData
 确认并固定为候选补丁的 shared defects：BLE 32-bit UUID 的
 `struct.unpack("<d")`、Modbus TCP→RTU 的非法默认构造、Modbus async
 `Loop.sock_recv`，以及 M5UI Canvas/Image/Spinbox Python 绑定问题。
-StopWatch/Core2 的同 VM stock→candidate 对照、ESP-NOW 控制面、TLS epoch、
-QRCode.setText、WAV/mic、StopWatch drawPixel trace 和 Core2 按键边界见
-[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
+StopWatch/Core2 的同 VM stock→candidate 对照、ESP-NOW 控制面和 WAV/mic
+基线见[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
+Core2 按键在该轮只保留形状检查，最终 A/B/C/PWR 结论由后续
+[Core2 触控/电源键证据](evidence/2026-10-28-core2-touch-buttons/README.md)
+取代。
 
 ## 2026-10-28：QRCode.setText 与 TLS epoch 三设备候选固件
 
@@ -350,3 +352,47 @@ framebuffer path 对照退役该判断。StopWatch 使用 `Panel_AMOLED_Framebuf
 三台候选均 `FRAME_PASS`。所有候选只改变 application partition；真机与长期
 framebuffer DMA soak 为 `NOT RUN`。见
 [drawPixel 证据](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md)。
+
+## 2026-10-28：StopWatch / StickS3 / Core2 音频数据面
+
+三台当前 v2.5.3 镜像在独立可见 Device Service 中完成 Mic 与 Speaker
+数据面验证。同一 440 Hz、16 kHz、mono s16le、32,000-byte 输入夹具下，
+三台 `Mic.record` 均产生非静音 PCM 且录音状态从 1 返回 0；
+`Mic.recordWavFile` 均生成合法 32,044-byte mono s16 16 kHz WAV。最终
+`03d74d53…` runtime 上，抗裁剪自相关 oracle 测得 StopWatch 440.088 Hz、
+StickS3 440.088 Hz、Core2 443.792 Hz（0.86% 误差，门限 5%）。
+
+Speaker raw/WAV/file 路径按板级原生输出格式解码：StopWatch 44.1 kHz
+stereo、StickS3 22.05 kHz stereo、Core2 48 kHz mono。修复前
+StopWatch/StickS3 的 `playWavFile` 在完整一秒 WAV 上阻塞，而 1/2/4 个
+512-byte 分块可完成；trace 显示固件已排队到 chunk 15，但 QEMU 在
+`TX_START + 2s` 或 128 个描述符后停止 DMA completion。`0062` 将持续
+DMA completion 与 PCM evidence capture 窗口分开。新 runtime
+`feb143e4c4f8140a8946356db39968a606861fb4b40b86f7bb50ea85603f5da2`
+下，三台 raw/WAV 以及 StopWatch/StickS3 的完整 `playWavFile` 与
+`playWav → playWavFile` 均到达 guest done marker，独立频谱主频为
+659–662 Hz。最终六个 Mic/Speaker 会话并发复测也全部通过。全部为
+virtual-device validation；物理声学、声压和真机为
+`NOT RUN`。见[三设备音频证据](evidence/2026-10-28-three-board-audio/README.md)。
+
+最终
+`03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419`
+runtime 重绑三台 Mic、WAV/file 与 raw 路径。三台 Mic 和 Speaker 六会话
+并发时 StopWatch Mic 在 guest READY 前超时，单独重跑通过；其余 5 个会话
+一次完成，三台 raw 另行并发全部通过。第一次 Core2 并发 WAV 被旧矩形 DFT
+误报为 395 Hz；同一 32,000-byte 裁剪 PCM 的自相关主频为 443.792 Hz，
+单会话重复为 443.758 Hz。测试 oracle 已改为有界归一化自相关和抛物线插值，
+并增加裁剪波形回归，避免把相位相关的泄漏峰当固件音频故障。
+
+## 2026-10-28：Core2 UIFlow2 A/B/C/PWR 回调
+
+最终 runtime
+`03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419`
+在四个独立可见 session 中分别注入 `key:a/b/c/p`。A/B/C 经 FT5x06
+触控条得到 `(53,260)`、`(160,260)`、`(266,260)`；PWR 经 AXP2101
+`IRQ_STATUS1(0x49)`。四例 `WAS_HOLD` 回调均收到 `[2]`，remove 后没有
+新事件，pressed/holding/released 状态及 cleanup 均通过。首版 `0063`
+在 `touch_buttons` 分支无条件提前 `break`，同时吞掉 `key:p`；现只让
+A/B/C 走触控条，P 继续到电源键事件路径。该结果是 virtual-device
+validation，物理触控压力和 PMIC 电气为 `NOT RUN`，见
+[Core2 触控/电源键证据](evidence/2026-10-28-core2-touch-buttons/README.md)。

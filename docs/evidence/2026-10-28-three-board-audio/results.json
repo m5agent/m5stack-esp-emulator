@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "final_runtime_binary_sha256": "03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419",
+  "audio_fix_runtime": {
+    "runtime_binary_sha256": "feb143e4c4f8140a8946356db39968a606861fb4b40b86f7bb50ea85603f5da2",
+    "concurrency": {
+      "sessions": 6,
+      "devices": ["stopwatch", "sticks3", "core2"],
+      "mic_and_speaker_sessions_per_device": 2,
+      "status": "PASS"
+    }
+  },
+  "final_runtime": {
+    "mic": {
+      "stopwatch": {
+        "status": "PASS",
+        "session_id": "0f4c3a935b164e4199641b686b3c4748",
+        "readiness_retry": true,
+        "record_frequency_hz": 440.069613,
+        "record_wav_frequency_hz": 440.088208,
+        "relative_error": 0.0002,
+        "recording_states": [1, 0]
+      },
+      "sticks3": {
+        "status": "PASS",
+        "session_id": "a63d2607b915467a9ead685a75e12c8a",
+        "record_frequency_hz": 440.069613,
+        "record_wav_frequency_hz": 440.088208,
+        "relative_error": 0.0002,
+        "recording_states": [1, 0]
+      },
+      "core2": {
+        "status": "PASS",
+        "session_id": "5782e171b5c949e6b68af47f759133e8",
+        "record_frequency_hz": 443.828971,
+        "record_wav_frequency_hz": 443.791521,
+        "relative_error": 0.008617,
+        "recording_states": [1, 0],
+        "repeat_session_id": "5ed0f68e51b64a1784440edd19c193aa",
+        "repeat_record_wav_frequency_hz": 443.758266
+      }
+    },
+    "speaker_wav_file": {
+      "stopwatch": {
+        "status": "PASS",
+        "session_id": "809f5a5c688d458c9b1d5c96986b4c92",
+        "sample_rate_hz": 44100,
+        "channels": 2,
+        "dominant_frequency_hz": 662.146
+      },
+      "sticks3": {
+        "status": "PASS",
+        "session_id": "9817bee24bce4b14b8934d2544895f09",
+        "sample_rate_hz": 22050,
+        "channels": 2,
+        "dominant_frequency_hz": 659.454
+      },
+      "core2": {
+        "status": "PASS",
+        "session_id": "d661c75afad440fc908650650542393c",
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "dominant_frequency_hz": 662.109
+      }
+    },
+    "speaker_raw": {
+      "stopwatch": {
+        "status": "PASS",
+        "session_id": "d57ca131e2d24a6793925fa5a5c5b857",
+        "sample_rate_hz": 44100,
+        "channels": 2,
+        "dominant_frequency_hz": 662.146
+      },
+      "sticks3": {
+        "status": "PASS",
+        "session_id": "37ef6c12dfd04c4eb54e7df24998421e",
+        "sample_rate_hz": 22050,
+        "channels": 2,
+        "dominant_frequency_hz": 659.454
+      },
+      "core2": {
+        "status": "PASS",
+        "session_id": "134f0df29b6d4a31bde7ffd4d24863b7",
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "dominant_frequency_hz": 662.109
+      }
+    },
+    "oracle_correction": "Core2 clipped PDM WAV is evaluated by bounded normalized autocorrelation with parabolic interpolation; the previous rectangular DFT reported phase-dependent 395/425 Hz peaks."
+  }
+}
