@@ -80,25 +80,25 @@ UIFlow2/Unit 验证主要属于另一套定制 C/QEMU，控制器实现不会自
 [`f8b2f64e2336a28bf0d50b6ef8a7d8c013e9bcf3`](https://github.com/qemu/qemu/tree/f8b2f64e2336a28bf0d50b6ef8a7d8c013e9bcf3)。
 其 `tests/docker/dockerfiles/emsdk-wasm32-cross.docker` 固定 Emscripten 3.1.50、
 libffi 3.4.7、GLib 2.84.0 和 pixman 0.44.2；基础配置仍涉及 pthread、Asyncify
-和共享内存。现有定制 QEMU 9.2.2 尚无 Emscripten 构建/执行收据，需要跨版本
-适配和本项目 Xtensa、控制器及板级回归；不能据此报速度倍数或承诺功能等价。
-用户随后决定工作量较大就先不做，本轮已停止移植实验；未安装 SDK、构建或
-执行 QEMU/WASM。当前原生构建不等于浏览器理论上不可行，移植留作后续项。
+和共享内存。用户进一步澄清 Rust 项目只用于参考，要求探索既有 C/QEMU。
+后续已用隔离 Emscripten 3.1.50 打通当前定制 QEMU 9.2.2 的真实构建/链接，
+并在 Chromium 执行完整 WASM 的版本、板型列表和无固件 QMP 请求。保留当前
+完整板级/Unit 补丁；256 MiB 初始配置的 CLI 及修正后的无固件 QMP quit 均
+退出码 0，四个 Worker 自然关闭。尚未执行 guest 固件，不能报速度倍数或
+承诺功能等价。见
+[C/QEMU 实验](qemu-wasm-port-research.md)及其分层证据。此前“停止且未构建”
+只描述用户再次澄清前的历史状态，不再是当前结论。
 
 本仓库当前 12 款 QEMU 配置是 `native-qemu`，Tab5 是 native esp-emu，
 CardputerZero 是独立 Linux。现有浏览器 worker 的帧读取只识别
 `m5emu-shared-v1`；其 GPIO/UART/内存 API 没有直接接入本项目原生 QEMU 的
 SPI/I2C/GDMA、Unit/QOM 和板级屏幕模型。不能把旧 native 验收直接转授 WASM。
 
-建议把浏览器运行时设为独立、可动态准入的 backend，而非强制所有公众用户
-连接服务，也非一次替换已有 QEMU：
-
-1. 优先以 PaperS3 / StopWatch 验证 `esp32sim` 的原始固件、冷启动、画面、
-   输入、错误接线负控与资源占用。PaperS3 不能误当 PaperMono。
-2. 对达到验收的组合提供 Pages URL 直开；未接入的设备明确展示模型与能力边界。
-3. 保留 QEMU 路径承接已验证的 CoreS3/LVGL、原 UIFlow2 Unit 与网络/证据流程。
-4. 若要求浏览器覆盖同等范围，逐一移植板级控制器和验证用例。C/QEMU patch
-   不能直接贴进 Rust WASM；源码许可和依赖需单独审阅。
+当前按用户要求优先复用 C/QEMU：完成浏览器宿主适配后，再验 CoreS3 的真实
+UIFlow2/LVGL、输入及一个原 Unit 数据面，并测量性能。采用同一套 C 模型无需
+将每种控制器重写成 Rust，但每个设备/固件的原生证据仍须在浏览器重新验证。
+PaperS3 / StopWatch 的 `esp32sim` 结果保留为参考原型，暂不发布该替代方案。
+Pages 仅对实际验收组合准入；原生后端与独立 Linux/P4 边界继续保留。
 
 初始调查只覆盖源码、公开历史收据、线上二进制校验及静态编译；访问对方网页
 时自动化通道失败，访问尝试没有算启动 PASS。后续使用本仓库自己的 Chromium

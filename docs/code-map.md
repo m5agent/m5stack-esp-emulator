@@ -144,6 +144,10 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
 | `platform/web/public-service.js`、`public-session-controller.js` | 可选服务桥接、owned session 输入/帧/串口、证据与保留历史停止、失败重试 | `test_public_session_controller.mjs`、`test_public_service_idempotency.mjs`；opt-in真实丢收据回归 `test_public_session_recovery_service.mjs` |
 
+`patches/qemu-wasm-probe/`保存未接入产品的C/QEMU宿主回移及依赖适配；
+[研究说明](qemu-wasm-port-research.md)记录固定源码、完整构建、浏览器CLI/QMP
+证据及无固件退出修正，不属于现有native bootstrap或browser固件准入。
+
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、
 `run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行

@@ -1,0 +1,7 @@
+--- /dev/null
++++ b/src/syscfg/lock-obj-pub.wasm32-unknown-emscripten.h
+@@ -0,0 +1,4 @@
++## lock-obj-pub.wasm32-unknown-emscripten.h
++## Generated from Emscripten target pthread ABI.
++typedef struct { long _vers; union { volatile char _priv[24]; long _x_align; long *_xp_align; } u; } gpgrt_lock_t;
++#define GPGRT_LOCK_INITIALIZER {1,{{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}}}

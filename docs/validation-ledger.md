@@ -18,6 +18,7 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| `UI-02` / 现有C/QEMU到WASM | 固定QEMU9.2.2和完整30层板级/Unit补丁，真实依赖、编译/链接及Chromium版本/板型枚举通过；同对象256MiB初始配置CLI退出码0。无固件QMP capabilities/query-status/quit已验；初版退出未回调保留，经显式process-exit修正后三case均exit0、四Worker在强制清理前自然关闭。未跑guest/LVGL/触摸/Unit/性能；未发布 | [研究与复现](qemu-wasm-port-research.md)、[分层摘要](evidence/2026-10-28-qemu-wasm-build/summary.json)、[未接产品的研究补丁](../patches/qemu-wasm-probe/README.md) |
 | `UI-02` / 公众工作台与独立browser backend | 固定源码双archive/target重建相同WASM，PaperS3/StopWatch官方演示在Chromium真实Worker启动/帧/输入/暂停/停止通过，无仿真API；最终首页17组含实际PaperS3 URL直开、四档布局与DOM触摸，默认16契约通过；模型独立完整第三轮17主机/184附着/201预览/423PNG通过。合并origin/main@0d4f53a3后平台1363项、6可选依赖skip及四生成器通过，1902导出资源大小/SHA核验。独立CoreS3 plain源示例触摸计数0→1；最终merged真实创建首响应丢失后同key/body恢复单guest、ZIP-before-stop、明确leasefalse/历史/PID清理通过；有界停止及未知租约另有故障契约。stock输入、unified READY、完整原生矩阵、硬件和部署不继承 | [本轮范围与复现](evidence/2026-10-28-public-simulator/README.md)、[哈希与逐层状态](evidence/2026-10-28-public-simulator/summary.json)、[架构调研](browser-runtime-feasibility.md) |
 
 ## 2026-10-27

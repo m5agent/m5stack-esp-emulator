@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "category": "C-QEMU-WASM-source-build-and-browser-host-control-research",
+  "source_repo_base": "71be6879edd4bcba52d5b113eef031c920b2d3c9",
+  "qemu": {
+    "url": "https://github.com/espressif/qemu.git",
+    "commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "version": "9.2.2",
+    "head": "40edccac415693c5130f91c01d84176ae6008566"
+  },
+  "upstream_wasm_reference": "qemu/qemu@f8b2f64e2336a28bf0d50b6ef8a7d8c013e9bcf3",
+  "source_delta_sha256": "d2326148de167f6330864dbd32457cc700cf0d5678901c03e09269ede4a9c5c8",
+  "board_unit_source": {
+    "patch_count": 30,
+    "file_count": 112,
+    "unchanged_file_count": 111,
+    "only_shared_file": "meson.build",
+    "compiled_patch_c_objects": 74,
+    "compiled_board_directory_objects": 37,
+    "note": "Four patch C sources are BCM/ARM branches outside the Xtensa target; not all 112 files are link inputs."
+  },
+  "toolchain": {
+    "emsdk": "3.1.50",
+    "emsdk_commit": "e2627e265d940db5ea58dffa63e490375bfc92e5",
+    "emscripten_commit": "047b82506d6b471873300a5e4d1e690420b582d0",
+    "meson": "1.5.0",
+    "ninja": "1.13.2",
+    "jobs": 3
+  },
+  "patches": {
+    "0003-libgcrypt-1.11.0-wasm-entropy.patch": {
+      "bytes": 318,
+      "sha256": "145c9456482eb66b673c440a74f78c83365c8d0e0cc4523fc8fd568aa273b8f7"
+    },
+    "0004-qemu-wasm-process-exit.patch": {
+      "bytes": 459,
+      "sha256": "4c267ad29a02335f796b4ee1714c4896ad233fe14fbfe0654dce5189fec5330d"
+    },
+    "0001-qemu-9.2.2-wasm-tci.patch": {
+      "bytes": 30062,
+      "sha256": "6754272ea00e1c19b6f7786bd16b95a9eb75bb28be1d60dd5bed7c8e6f55f279"
+    },
+    "0002-libgpg-error-1.51-wasm-lock.patch": {
+      "bytes": 387,
+      "sha256": "42ee85a06dba9eecffdc307b8948264eb6342e4edfb4e6b75bcd392e27f2baa6"
+    }
+  },
+  "dependency_archives": {
+    "pkgconf": {
+      "archive": "pkgconf-2.4.3.tar.xz",
+      "sha256": "51203d99ed573fa7344bf07ca626f10c7cc094e0846ac4aa0023bd0c83c25a41",
+      "build_status": "PASS"
+    },
+    "zlib": {
+      "archive": "zlib-1.3.1.tar.gz",
+      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "build_status": "PASS"
+    },
+    "ffi": {
+      "archive": "libffi-3.4.7.tar.gz",
+      "sha256": "138607dee268bdecf374adf9144c00e839e38541f75f24a1fcf18b78fda48b2d",
+      "build_status": "PASS"
+    },
+    "pixman": {
+      "archive": "pixman-0.44.2.tar.gz",
+      "sha256": "6349061ce1a338ab6952b92194d1b0377472244208d47ff25bef86fc71973466",
+      "build_status": "PASS"
+    },
+    "glib": {
+      "archive": "glib-2.84.0.tar.xz",
+      "sha256": "f8823600cb85425e2815cfad82ea20fdaa538482ab74e7293d58b3f64a5aff6a",
+      "build_status": "PASS"
+    },
+    "libgpg-error": {
+      "archive": "libgpg-error-1.51.tar.bz2",
+      "sha256": "be0f1b2db6b93eed55369cdf79f19f72750c8c7c39fc20b577e724545427e6b2",
+      "version": "1.51"
+    },
+    "libgcrypt": {
+      "archive": "libgcrypt-1.11.0.tar.bz2",
+      "sha256": "09120c9867ce7f2081d6aaa1775386b98c2f2f246135761aae47d81f58685b9c",
+      "version": "1.11.0"
+    },
+    "pcre2_10.44-2_patch.zip": {
+      "bytes": 3644,
+      "sha256": "4336d422ee9043847e5e10dbbbd01940d4c9e5027f31ccdc33a7898a1ca94009"
+    },
+    "pcre2-10.44.tar.bz2": {
+      "bytes": 1928086,
+      "sha256": "d34f02e113cf7193a1ebf2770d3ac527088d485d4e047ed10e5d217c6ef5de96"
+    }
+  },
+  "original_artifacts": {
+    "qemu-system-xtensa.js": {
+      "bytes": 355634,
+      "sha256": "37295974836d6276edaa51542fba475d089186e993df1d3c2fe84e420db8ac6a",
+      "local_gzip_bytes": 89419
+    },
+    "qemu-system-xtensa.wasm": {
+      "bytes": 23234041,
+      "sha256": "ea27e1ac6313d4ee5625c8767ba5fea64cdaebe628812bbe5836472f52d6b319",
+      "local_gzip_bytes": 8352993
+    },
+    "qemu-system-xtensa.worker.js": {
+      "bytes": 6597,
+      "sha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+      "local_gzip_bytes": 2733
+    }
+  },
+  "low_memory_artifacts": {
+    "qemu-system-xtensa.js": {
+      "bytes": 250325,
+      "sha256": "173845ddc89f99a4407f4651481297496db87cbe78be37a0a104a440f67bacdf",
+      "local_gzip_bytes": 59314
+    },
+    "qemu-system-xtensa.wasm": {
+      "bytes": 23236884,
+      "sha256": "9127e92d00a92b0b2475bad085a38f4682243f4e4f2baca0049c92b9ccf4ebdf",
+      "local_gzip_bytes": 8353476
+    },
+    "qemu-system-xtensa.worker.js": {
+      "bytes": 6597,
+      "sha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+      "local_gzip_bytes": 2733
+    }
+  },
+  "browser": "156.0.8078.73",
+  "checks": {
+    "full_qemu_compile_link": "PASS",
+    "browser_version_and_machine_enumeration": "PASS",
+    "browser_true_pthread_mutex_join": "PASS",
+    "real_libffi_pointer_i32_i64": "PASS (Node and browser)",
+    "real_crypto_known_answers_and_threads": "PASS (Node library only)",
+    "lower_initial_memory_cli": "PASS (256 MiB, versions and machines exit 0)",
+    "qmp_capabilities_and_query_status": "PASS (machine none, no firmware)",
+    "qmp_quit_ack_and_shutdown_event": "PASS",
+    "qmp_normal_runtime_exit": "PASS (final explicit C process-exit + EXIT_RUNTIME=1; no firmware)",
+    "guest_firmware": "NOT RUN",
+    "LVGL_frame_touch_Unit": "NOT RUN",
+    "TCI_performance_and_browser_RSS": "NOT RUN",
+    "clean_CI_rebuild": "NOT RUN",
+    "Pages_Safari_Firefox_hardware": "NOT RUN",
+    "final_browser_three_cases_natural_worker_release": "PASS (version/machines/none-QMP each exit=0 and 4 created/4 naturally closed, zero workers before harness cleanup)"
+  },
+  "memory": {
+    "original_initial_and_max_bytes": 2147483648,
+    "lower_initial_bytes": 268435456,
+    "lower_max_bytes": 2147483648,
+    "lower_allow_growth": true,
+    "meaning": "Shared linear memory configuration, not browser RSS, peak firmware demand or multiple per-worker copies"
+  },
+  "qmp_machine_none_arguments": [
+    "-machine",
+    "none",
+    "-nodefaults",
+    "-display",
+    "none",
+    "-qmp",
+    "stdio",
+    "-monitor",
+    "none",
+    "-serial",
+    "none",
+    "-S"
+  ],
+  "host_syscall_warnings": [
+    "prlimit64",
+    "mprotect",
+    "pipe2",
+    "madvise"
+  ],
+  "raw_report_fingerprints": {
+    "qemu-configure-r3.json": {
+      "bytes": 1801,
+      "sha256": "dd846bb8294cc5a6031a8bb9e5f95448dc078d6c0bafa3b4c07e70c09ee1cbec"
+    },
+    "qemu-compile-r2.json": {
+      "bytes": 410,
+      "sha256": "6f7c9f27476778f851bdccb811dcf837c28ea627fad37f0995b7a8950348fe24"
+    },
+    "qemu-lowmem-link.json": {
+      "bytes": 35016,
+      "sha256": "ad94dfb95e625f8ea6ff6cf09f1a5122b568bf2fcb888d0ff8a632c159e3ed4c"
+    },
+    "artifact-audit/receipt.json": {
+      "bytes": 26377,
+      "sha256": "cbe4a0599bab85f24d42e2d0d390779584660f720348a10da618669ebd416c48"
+    },
+    "coi-probe/summary.json": {
+      "bytes": 4639,
+      "sha256": "7f481d4f99c97a3647fdca9d374adbaa1aa571ba75bc0ce4aebe7858edba9225"
+    },
+    "coi-probe/report.json": {
+      "bytes": 7850,
+      "sha256": "fa75ff311f563e4a5944a6dd907abdc2eb86f62878e36f11dbe388f8eea96e42"
+    },
+    "coi-probe/pthread-probe/summary.json": {
+      "bytes": 4282,
+      "sha256": "21a9a0606035eca9765d588946958fabfca85dfeb151f9d051cbda8b8b236688"
+    },
+    "coi-probe/pthread-probe/report.json": {
+      "bytes": 8399,
+      "sha256": "bff318cf0e09e6746be9f05463b383d4c8d6efe3379fa0684174cf401e042fb6"
+    },
+    "coi-probe/qemu-cli/report-r1.json": {
+      "bytes": 9961,
+      "sha256": "a6791a3b0e7b32089dbaf4fbf3a7c69b61c929f81ad433f57f3665432a0c7408"
+    },
+    "coi-probe/qemu-cli/report-r2.json": {
+      "bytes": 9471,
+      "sha256": "265eb8a4d0dfb0f9b864bbd79b2506da1c4e11512bcc2d57b1695cd60f6f8d5b"
+    },
+    "coi-probe/qemu-cli/report-lowmem-r1.json": {
+      "bytes": 13673,
+      "sha256": "cfdb07c75138de32cdd2e52ad27b1b513d3f86823d73a0184728dde6173410a1"
+    },
+    "platform-tests-final.log": {
+      "bytes": 36177,
+      "sha256": "ca05e8698f6de552b6dac48f4a39e1b26ddf6179232ad35a2e445fba7f2692ba"
+    },
+    "platform-tests-final-r2.log": {
+      "bytes": 10499,
+      "sha256": "c89ba4d9ca7b01b026b8fcc8c05173043ff9d018eb10bb86f87e9e84d5fb8361"
+    },
+    "docs-final.log": {
+      "bytes": 148,
+      "sha256": "897c57c4ffcc5b5191ba37e6f93c4fafb14c395deed7ad19e2495eb69caf2a89"
+    },
+    "main-exit/build-receipt.json": {
+      "bytes": 741,
+      "sha256": "7e05eaa2972781824929e5aa649755fd6cd7a5130c4c60dfa9be0a37da10a95e"
+    },
+    "main-exit/patch-receipt.json": {
+      "bytes": 2196,
+      "sha256": "521672c35741b9c4c570803b82e897e9307868a17fe011aee381dfc6eb73ed7a"
+    },
+    "coi-probe/qemu-cli/report-main-exit-r1.json": {
+      "bytes": 14350,
+      "sha256": "f4f70b5ce97d3a70b5b519ae1ad9dbb79f06ac8dce66b703b6f598e94bc79300"
+    },
+    "coi-probe/qemu-cli/report-main-exit-r2.json": {
+      "bytes": 15514,
+      "sha256": "b48e281ae2aa9846943ac6942725c35568ea759b2fae2fe06cbe4cff2f35de68"
+    },
+    "coi-probe/qemu-cli/run.mjs": {
+      "bytes": 6344,
+      "sha256": "6d6a2bd2583f0ee96a8658d508a5033d93316a37ebc2f01437bff3b5805473a6"
+    },
+    "coi-probe/qemu-cli/site/project/index.html": {
+      "bytes": 2302,
+      "sha256": "2d82c7da4680fdd1ed1abff943b6aeb1f129fba859863ba131a07c6ee7a411c3"
+    },
+    "docs-final-r2.log": {
+      "bytes": 148,
+      "sha256": "33ebf8c21a73d55d7fe2fd8791e4c2dcaecee4871772f040c35a16ca8c143abf"
+    }
+  },
+  "cleanup": {
+    "own_browsers_contexts_workers_static_servers": "closed",
+    "own_SW_registrations": "unregistered",
+    "user_testing_service": "not accessed",
+    "final_QEMU_workers": "Naturally closed before fallback; 4/4 in each of three fresh contexts"
+  },
+  "publication": "NOT RUN",
+  "notes": [
+    "No guest firmware, ROM or Flash loaded in this investigation.",
+    "No native or Rust guest evidence is inherited.",
+    "Source patch is experimental and is not wired to product bootstrap or public browser backend.",
+    "Raw evidence, binaries and toolchains are excluded from source Git.",
+    "Initial no-exit failure and copied-source instrumentation remain historical; final process-exit run is a new independently recorded whole browser run."
+  ],
+  "repository_validation": {
+    "platform_unittest": {
+      "tests_run": 1363,
+      "outcome": "OK",
+      "skipped": 8,
+      "seconds": 91.662
+    },
+    "docs_unittest": {
+      "tests_run": 49,
+      "outcome": "OK",
+      "skipped": 0,
+      "seconds": 4.427
+    },
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "first_platform_attempt": "FAIL retained; omitted local littlefs dependency path plus two documentation contract failures, all corrected in final attempt",
+    "native_functional_matrix": "NOT RUN; experimental patch not wired into native runtime or product build"
+  },
+  "final_main_exit_artifacts": {
+    "qemu-system-xtensa.js": {
+      "bytes": 250325,
+      "sha256": "173845ddc89f99a4407f4651481297496db87cbe78be37a0a104a440f67bacdf",
+      "local_gzip_bytes": 59314
+    },
+    "qemu-system-xtensa.wasm": {
+      "bytes": 23236856,
+      "sha256": "b0c5adf98b158d095fd61b81dd5c72463e0dd8e8197d2cc2edd24a579b99b9ad",
+      "local_gzip_bytes": 8353464
+    },
+    "qemu-system-xtensa.worker.js": {
+      "bytes": 6597,
+      "sha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+      "local_gzip_bytes": 2733
+    }
+  },
+  "final_source_files": {
+    "backends/meson.build": "22154b09fdad91dfd7e63f7bad020a4c4511ce9efc9ac2082ece6334325016c3",
+    "block/file-posix.c": "70de6adf72e2ae2dfc8ca625a5d011101cc35d293e12118601a32aa890243032",
+    "configs/meson/emscripten.txt": "6a60ac5616d94b29eeaf21c1a506f283c714d2415d531bd1035826ead2e22c5f",
+    "configure": "280cf08437be445152624551550d1d8939bc518547bcd3d4523d10ae9317cab2",
+    "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
+    "include/glib-compat.h": "620b8868a3ce5fda543fc65f46c8257beb84587d4bdc29cdd345eac81961ae9c",
+    "include/qemu/cacheflush.h": "55c1b4adb31e6433f734b2431800d648ce1283ae300a10b6a6828eae992d0a40",
+    "include/qemu/osdep.h": "86dff28366bd4667bf7d188f64bfe0c72135935044b16c0d21d94c39d74ccf2b",
+    "include/sysemu/os-wasm.h": "d76f0a6e8fc5199742fbe31a8dd386363ad0f2a89b2c7977a61ce1954be39a41",
+    "meson.build": "8856b48c88f77e0ed880ffeec1368b2cf05782e1041e2f21176d1493e8c1737a",
+    "meson_options.txt": "0e6045ff1c9ce85d0f1ea13c3ad808b546e15f99dea018b92af31de66323620b",
+    "os-wasm.c": "721f1aeeb383459f8f30a054f8637424e19e0deea79962ec4e299de6af148c25",
+    "qemu-options.hx": "f15252064fd72cf059eca237224abd429a8e6f298ff92ffb35ddaba30a318b46",
+    "qom/object.c": "c6d542bbc99d0b16b822de69d78300d019ba317a56585c389e4edecae3f728f2",
+    "scripts/meson-buildoptions.sh": "96fcc4c7802da597f29545c2d84aecf5cd6f0d6f16fa366c49ca2a9ed7209018",
+    "system/memory.c": "172a5e3737f3f0c9da8ed83beb4a20e3fea66e0f90ed946fa74d4a745f67d810",
+    "system/physmem.c": "541d5d87760c582df637336d26684126b80aaafdfd873f4f876446eb9859b4a0",
+    "system/vl.c": "192a2c6babb47cc3a5b9925303a1076c42583680eac1a3e9b91859f5d861a013",
+    "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
+    "util/coroutine-wasm.c": "b1fb5058ad88ebe61f9fc2c54ef5dd772e7c38219e5b648575eca6e6495d9a50",
+    "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
+    "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
+    "system/main.c": "a5b9d2eeb0069f518f813dc74a2149f37d7b18f56b10a5369d81f49ced344f7c"
+  },
+  "final_source_revision_sha256": "93c5c9e0e88cb15fe34942747b67e80a4041494cf394f0d5845e343799ca32ac",
+  "initial_cleanup_diagnostic": {
+    "status": "PARTIAL",
+    "method": "copied main.c/runstate.c instrumentation, original sources/objects unchanged",
+    "markers_seen": [
+      "M5_WASM_CLEANUP main-before-init",
+      "M5_WASM_CLEANUP main-after-init",
+      "M5_WASM_CLEANUP default-main-before-loop",
+      "M5_WASM_CLEANUP main-loop-enter",
+      "M5_WASM_CLEANUP shutdown-notify-before",
+      "M5_WASM_CLEANUP shutdown-notify-after",
+      "M5_WASM_CLEANUP main-loop-return",
+      "M5_WASM_CLEANUP default-main-after-loop",
+      "M5_WASM_CLEANUP default-main-before-cleanup",
+      "M5_WASM_CLEANUP cleanup-enter",
+      "M5_WASM_CLEANUP gdb-before",
+      "M5_WASM_CLEANUP gdb-after",
+      "M5_WASM_CLEANUP migration-before",
+      "M5_WASM_CLEANUP migration-after",
+      "M5_WASM_CLEANUP exports-before",
+      "M5_WASM_CLEANUP exports-after",
+      "M5_WASM_CLEANUP vm-shutdown-before",
+      "M5_WASM_CLEANUP vm-shutdown-after",
+      "M5_WASM_CLEANUP replay-before",
+      "M5_WASM_CLEANUP replay-after",
+      "M5_WASM_CLEANUP block-drain-before",
+      "M5_WASM_CLEANUP block-drain-after",
+      "M5_WASM_CLEANUP jobs-before",
+      "M5_WASM_CLEANUP jobs-after",
+      "M5_WASM_CLEANUP block-close-before",
+      "M5_WASM_CLEANUP block-close-after",
+      "M5_WASM_CLEANUP tpm-before",
+      "M5_WASM_CLEANUP tpm-after",
+      "M5_WASM_CLEANUP network-before",
+      "M5_WASM_CLEANUP network-after",
+      "M5_WASM_CLEANUP audio-before",
+      "M5_WASM_CLEANUP audio-after",
+      "M5_WASM_CLEANUP monitor-before",
+      "M5_WASM_CLEANUP monitor-after",
+      "M5_WASM_CLEANUP chardev-before",
+      "M5_WASM_CLEANUP chardev-after",
+      "M5_WASM_CLEANUP user-creatable-before",
+      "M5_WASM_CLEANUP user-creatable-after",
+      "M5_WASM_CLEANUP cleanup-return",
+      "M5_WASM_CLEANUP default-main-after-cleanup",
+      "M5_WASM_CLEANUP main-return"
+    ],
+    "interpretation": "QEMU shutdown notifiers, main loop, cleanup stages and main return completed; no atexit or runtime onExit callback observed. SDK proxy-main keepalive path is under investigation.",
+    "raw_report": {
+      "bytes": 7690,
+      "sha256": "f4c4752b6518345d65bc81791dbbbc4949a590ad8043c56109963a0a2ef815c3"
+    },
+    "resolved_in": "0004-qemu-wasm-process-exit.patch; original failure retained"
+  },
+  "browser_case_results": {
+    "version": {
+      "status": "PASS",
+      "exitCode": 0,
+      "initial_memory_bytes": 268435456,
+      "workers_created": 4,
+      "workers_naturally_closed": 4,
+      "workers_before_harness_cleanup": 0,
+      "page_errors": []
+    },
+    "machines": {
+      "status": "PASS",
+      "exitCode": 0,
+      "initial_memory_bytes": 268435456,
+      "workers_created": 4,
+      "workers_naturally_closed": 4,
+      "workers_before_harness_cleanup": 0,
+      "page_errors": []
+    },
+    "monitor": {
+      "status": "PASS",
+      "exitCode": 0,
+      "initial_memory_bytes": 268435456,
+      "workers_created": 4,
+      "workers_naturally_closed": 4,
+      "workers_before_harness_cleanup": 0,
+      "page_errors": []
+    }
+  },
+  "coi_serviceworker": {
+    "repository": "https://github.com/gzuidhof/coi-serviceworker",
+    "commit": "7b1d2a092d0d2dd2b7270b6f12f13605de26f214",
+    "license": "MIT",
+    "unmodified_source_sha256": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+    "scope": "same-origin project subpath",
+    "coep": "require-corp",
+    "coepCredentialless": false,
+    "coepDegrade": false,
+    "application_reload_hook": "Wait for navigator.serviceWorker.ready and active controllerchange before one reload; first-visit default immediate-reload race retained as failed attempt.",
+    "needs_secure_context": true,
+    "server_isolation_headers": false,
+    "actual_Pages_deployment": "NOT RUN",
+    "product_SW_integration": "NOT RUN"
+  }
+}

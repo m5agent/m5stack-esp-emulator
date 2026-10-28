@@ -1,0 +1,11 @@
+--- a/random/rndgetentropy.c
++++ b/random/rndgetentropy.c
+@@ -81,7 +81,7 @@
+       do
+         {
+           _gcry_pre_syscall ();
+-#ifdef GRND_RANDOM
++#if defined(GRND_RANDOM) && !defined(__EMSCRIPTEN__)
+           if (fips_mode ())
+             {
+               /* DRBG chaining defined in SP 800-90A (rev 1) specify

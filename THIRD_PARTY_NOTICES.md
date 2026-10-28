@@ -9,7 +9,16 @@ following components, patches, assets, and references retain their own terms.
   key reference for the StopWatch QEMU path. Its project code is MIT-licensed;
   its QEMU patches and QEMU binaries are GPL-2.0-or-later.
 - [espressif/qemu](https://github.com/espressif/qemu) is the QEMU source base.
-  QEMU patches in this repository remain GPL-2.0-or-later.
+  QEMU as a whole is GPL-2.0; source files and patch portions retain their
+  respective headers, with the upstream GPL-2.0-or-later default for files
+  without a header.
+- `patches/qemu-wasm-probe/` is an experimental backport from official QEMU
+  v10.1.0 to the pinned 9.2.2 source, outside the product build. Imported
+  `os-wasm` and `coroutine-wasm` retain their MIT and LGPL-2.0-or-later
+  source headers. The libgpg-error 1.51/libgcrypt 1.11.0 compatibility patches
+  retain LGPL-2.1-or-later terms. Exact sources, order and hashes are recorded
+  in that directory and the linked research summary. No dependency archives,
+  SDK or compiled QEMU/WASM are included in source Git.
 - [espressif/esp-emulator](https://github.com/espressif/esp-emulator) provides
   the RISC-V emulator and download/control interfaces. Its license is
   Apache-2.0.
