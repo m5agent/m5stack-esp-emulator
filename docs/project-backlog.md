@@ -69,7 +69,7 @@ browser backend、公众首页与模型更新，限定官方固件的当前结�
 最终合并检查已通过；按用户澄清优先复用定制C/QEMU，Rust两款演示保留为
 研究原型且暂不发布。WASM构建与无固件控制前置见
 [C/QEMU实验](qemu-wasm-port-research.md)；继续CoreS3真实
-LVGL/输入/Unit、实际guest停止重开与性能验收，再确认Pages公开范围及URL验收。
+LVGL/输入/Unit及实际guest停止重开已完成限定fixture，主CPU jump栈恢复已有修正；后续处理默认时钟下LVGL队列/未覆盖异常路径，接入公众浏览器离线profile与资源生命周期，再完成Pages公开范围/URL验收。当前仍属研究路径，见[CoreS3证据](evidence/2026-10-28-qemu-wasm-cores3/README.md)。
 
 `API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
@@ -172,7 +172,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UI-02` | 进行中 | C/QEMU的CoreS3固件/LVGL/输入/Unit、实际guest停止重开及性能验收；Rust演示仅作研究原型，随后确认Pages公开范围和URL验收 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
+| `UI-02` | 进行中 | C/QEMU默认时钟LVGL队列、未覆盖异常路径及长期稳定性；接入已限定验证的离线浏览器profile/资源与停止生命周期，随后确认Pages公开范围和URL验收；Rust演示仅作研究原型 | 各后端按设备/固件准入；丢失响应后能恢复owned session并安全停止；静态构建不含凭据/固件/raw；用户审阅后再部署 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 

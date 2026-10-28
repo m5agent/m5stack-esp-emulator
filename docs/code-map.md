@@ -147,6 +147,12 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 `patches/qemu-wasm-probe/`保存未接入产品的C/QEMU宿主回移及依赖适配；
 [研究说明](qemu-wasm-port-research.md)记录固定源码、完整构建、浏览器CLI/QMP
 证据及无固件退出修正，不属于现有native bootstrap或browser固件准入。
+`scripts/qemu-wasm-browser/`提供研究用可见session传输；
+`tests/browser-qemu/cores3_lvgl_pir/`固定真实固件fixture。
+[CoreS3证据](evidence/2026-10-28-qemu-wasm-cores3/README.md)分别记录浏览器CPU、
+LVGL/触摸/PIR与停止重开；`0009`修主CPU jump的C栈恢复，`0010`提供显式离线慢时钟，`0012`将浏览器stdio QMP绑定已有main-loop context（无OOB）；默认wallclock/LVGL队列与其它异常路径仍开放。
+独立Fiber/SjLj最小C对照见`tests/browser-qemu/fiber_sjlj/`，固定guest源码见
+`tests/browser-qemu/cores3_lvgl_pir/`；均为显式opt-in，不纳普通CI执行。
 
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、

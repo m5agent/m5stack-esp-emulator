@@ -1,0 +1,10 @@
+--- a/configs/meson/emscripten.txt
++++ b/configs/meson/emscripten.txt
+@@ -4,5 +4,5 @@
+ objc_args = ['-pthread']
+ # -sPROXY_TO_PTHREAD link time flag always requires -pthread even during
+ # configuration so explicitly add the flag here.
+-c_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sINITIAL_MEMORY=256MB','-sMAXIMUM_MEMORY=2GB','-sALLOW_MEMORY_GROWTH=1','-sEXIT_RUNTIME=1','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS,ENV,callMain']
+-cpp_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sINITIAL_MEMORY=256MB','-sMAXIMUM_MEMORY=2GB','-sALLOW_MEMORY_GROWTH=1','-sEXIT_RUNTIME=1','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS,ENV,callMain']
++c_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sINITIAL_MEMORY=256MB','-sMAXIMUM_MEMORY=2GB','-sALLOW_MEMORY_GROWTH=1','-sEXIT_RUNTIME=1','-sSTACK_SIZE=2MB','-sDEFAULT_PTHREAD_STACK_SIZE=2MB','-sSTACK_OVERFLOW_CHECK=2','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS,ENV,callMain']
++cpp_link_args = ['-pthread','-sASYNCIFY=1','-sPROXY_TO_PTHREAD=1','-sFORCE_FILESYSTEM','-sALLOW_TABLE_GROWTH','-sINITIAL_MEMORY=256MB','-sMAXIMUM_MEMORY=2GB','-sALLOW_MEMORY_GROWTH=1','-sEXIT_RUNTIME=1','-sSTACK_SIZE=2MB','-sDEFAULT_PTHREAD_STACK_SIZE=2MB','-sSTACK_OVERFLOW_CHECK=2','-sWASM_BIGINT','-sEXPORT_ES6=1','-sASYNCIFY_IMPORTS=ffi_call_js','-sEXPORTED_RUNTIME_METHODS=addFunction,removeFunction,TTY,FS,ENV,callMain']

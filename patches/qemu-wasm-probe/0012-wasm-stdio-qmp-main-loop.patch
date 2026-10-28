@@ -1,0 +1,76 @@
+Subject: [WASM research] keep browser stdio QMP on the main-loop context
+
+Select the existing non-I/O-thread QMP path for Emscripten stdio only.
+The browser's stdio data and poll callbacks live on the UI thread.  The r16
+negative control kept both guest heartbeats and the QEMU main loop alive,
+but stopped invoking the independent QMP context's stdin poll at about 7 s;
+the later screendump remained unread in the JS queue and never entered its
+QMP handler.  That narrows the observed failure to the independent QMP
+I/O/context path, without establishing the underlying GLib failure cause.
+
+This is an explicit host I/O-thread configuration.  Native builds, other
+chardevs, guest vCPU threads, QMP parsing/dispatch/response, framebuffer
+production and controller data planes retain their existing paths.  The
+stdio greeting no longer offers out-of-band commands because the existing
+QMP implementation ties that capability to use_io_thread; in-band QMP is
+unchanged.  No keepalive, periodic QMP, synthetic values or timing fix is
+introduced.  Two sequential guests and repeated start/frame/cleanup remain
+required runtime acceptance; this patch alone is not validation.
+
+The selected stdio main-context branch emits one startup info marker after
+its handlers are installed, for same-runtime/session evidence binding.
+Apply after 0011 on the same frozen native31 browser source.
+
+--- a/monitor/qmp.c
++++ b/monitor/qmp.c
+@@ -27,6 +27,7 @@
+ #include "chardev/char-io.h"
+ #include "monitor-internal.h"
+ #include "qapi/error.h"
++#include "qemu/error-report.h"
+ #include "qapi/qapi-commands-control.h"
+ #include "qapi/qmp/qdict.h"
+ #include "qapi/qmp/qjson.h"
+@@ -513,6 +514,7 @@
+ void monitor_init_qmp(Chardev *chr, bool pretty, Error **errp)
+ {
+     MonitorQMP *mon = g_new0(MonitorQMP, 1);
++    bool use_io_thread;
+ 
+     if (!qemu_chr_fe_init(&mon->common.chr, chr, errp)) {
+         g_free(mon);
+@@ -521,8 +523,18 @@
+     qemu_chr_fe_set_echo(&mon->common.chr, true);
+ 
+     /* Note: we run QMP monitor in I/O thread when @chr supports that */
+-    monitor_data_init(&mon->common, true, false,
+-                      qemu_chr_has_feature(chr, QEMU_CHAR_FEATURE_GCONTEXT));
++    use_io_thread = qemu_chr_has_feature(chr, QEMU_CHAR_FEATURE_GCONTEXT);
++#ifdef __EMSCRIPTEN__
++    /*
++     * Browser stdio is a main-thread JS input bridge.  Keep its QMP watch on
++     * the existing main-loop context instead of an independent GLib loop.
++     * Other chardevs retain their native I/O-thread selection.
++     */
++    if (object_dynamic_cast(OBJECT(chr), TYPE_CHARDEV_STDIO)) {
++        use_io_thread = false;
++    }
++#endif
++    monitor_data_init(&mon->common, true, false, use_io_thread);
+ 
+     mon->pretty = pretty;
+ 
+@@ -549,5 +561,11 @@
+                                  monitor_qmp_read, monitor_qmp_event,
+                                  NULL, &mon->common, NULL, true);
+         monitor_list_append(&mon->common);
+-    }
+-}
++#ifdef __EMSCRIPTEN__
++        if (object_dynamic_cast(OBJECT(chr), TYPE_CHARDEV_STDIO)) {
++            info_report("M5_WASM_QMP_CONTEXT stdio=1 context=main-loop "
++                        "use_io_thread=0 oob_offered=0");
++        }
++#endif
++    }
++}

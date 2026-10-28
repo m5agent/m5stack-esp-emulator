@@ -50,3 +50,57 @@
 显示、输入和一个Unit数据面，测量性能与停止重开。编译成功不授固件通过；
 未验证设备不得扩大准入。SDK、依赖与原始证据留在ignored目录，不修改全局
 环境或用户的8787。当前不发布两款原型方案，最终公开范围待这一实验结果和用户审阅。
+
+## CoreS3 实际固件阶段
+
+用户要求继续推进并持续同步main。本阶段先合并`origin/main@f3bab9c0`，后续又合并
+`805925d8`（Core2 high-priority IRQ与classic RMT）；只处理开发worktree，主目录的
+未提交文档/LAN预览和用户测试会话原样保留。后续仍在每个交付点fetch并检查
+main新增内容，先整合再验证，不把旧runtime证据称为最新主线结果。
+
+WASM源码在新目录重建，保留原30层补丁并明确补入0064；最新805925d8的
+0065/0066因可选诊断和source-list上下文差异，通过0011在新目录移入相同新增代码，
+不称33层原样apply。冻结的SDK与真实依赖复用，旧实验源与原产物保留。独立分工为最新源/构建、浏览器
+QMP/UART/文件传输适配，以及官方UIFlow2/LVGL+PIR最小fixture。浏览器负责CPU
+执行，服务只保留session、传输和证据，不允许拿native输出补浏览器缺证。
+
+本阶段验收须在独立Device Service端口、state、token和同一可见session内
+完成：固定固件SHA的ROM/应用串口、LVGL帧、触摸计数、Unit独立输入和guest
+读回；记录冷启动、帧采集、线性内存与停止重开。停止前取evidence ZIP，
+`purge=0`保留历史，核实际浏览器Workers和服务拥有的wrapper进程退出。
+若出现TCI、总线或浏览器能力缺口，保留失败轮并按真实边界修复；不绕过
+SoC/controller或关闭guest保护来制造通过。本阶段不发布站点或切换用户服务。
+
+已完成本阶段限定CoreS3 fixture：同一固定Flash在独立native对照与浏览器CPU
+分别执行；浏览器两场新会话已取得LVGL、真实触摸/PIR、两ZIP、历史与
+自然退出证据，详见[阶段证据](../evidence/2026-10-28-qemu-wasm-cores3/README.md)。
+主CPU jump的宿主栈恢复已通过独立Fiber/SjLj最小复现与真实64KiB Flash映射SP观察；
+0007大栈仅为历史对照。默认wallclock的r11因LVGL queue full保留PARTIAL；
+single/icount两组对照也未关闭缺口。显式vm-div8保留两个guest CPU和原WDT，
+虚拟时间与WDT到期相对墙钟一起变慢，离线fixture的完整RGB/触摸/PIR/停止重开
+已通过。新主线补丁须核源码兼容并绑定最终runtime再回归；随后进入公众页面的
+资源/输入/帧/串口/停止接入及部署准入，不扩大设备/固件范围。
+
+
+最终源码候选已包含805925d8的两项context port，并通过完整独立源码重放。
+r15首场完整RGB/输入/PIR/暂停恢复/ZIP/自然退出通过，但第二场READY后QMP
+请求超时，整轮FAIL保留。`wait_qmp`把握手超时笼统报为socket未出现，不能
+据此声称路径被删除；已有观察也不足以证明guest停止。70秒无固件空闲控制
+能恢复，普通EAGAIN不关闭watch。继续用独立诊断候选定位主循环/锁、screendump
+或stdio watch，关闭后再做最终两场回归，不以先前r14替代最新源码验收。
+
+
+r16诊断负控进一步核准40秒观察窗内socket始终存在、guest心跳继续推进，默认
+main-loop也持续运行；QMP专用context从约7秒起不再访问fd0 poll，首screendump
+未入monitor。具体GLib/watch内部机制尚未定。下一项0012明确只对Emscripten的
+stdio QMP改用既有default main-loop context；原生及其它chardev保留原分支，
+双guest CPU/TCI/板级不变。该配置不offered OOB，当前adapter未协商OOB，
+in-band命令保持。须用无诊断最终产物重新完成双场功能与停止重开后再验收。
+
+
+最终0012无额外共享诊断的产物已完成两场完整58检查，含每场两次触摸与PIR
+完整转换、两ZIP、历史/Flash/lease与各5Worker自然退出。另三次cold session
+完成完整boot RGB、Unit初值/QOM、ZIP和清理。独立5项nofirmware（20重连与
+20真实EPIPE/迟回复隔离）及70秒无QMP空闲均通过。上述限定主循环宿主配置
+关闭本轮控制通道验收，不声称已定底层GLib根因或完整长期稳定性；后续继续
+公众浏览器资源/输入/串口/Unit及停止接入、默认时钟调度、持久化和Pages准入。

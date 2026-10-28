@@ -82,4 +82,117 @@ requires the corresponding source/build material and applicable notices.
 The inherited 2 GiB setting is a template, not a measured minimum. The same
 objects were also linked and browser-tested with 256 MiB initial memory,
 2 GiB maximum, memory growth and `EXIT_RUNTIME=1`. The final control/exit test
-additionally uses `0004`. None of these configurations has run guest firmware.
+additionally uses `0004`. That earlier control receipt did not run guest firmware; the later CoreS3 experiment below is separate.
+
+## Later CoreS3 experiment (2026-10-28)
+
+The new source reconstruction follows the bootstrap's 30-layer list and
+**explicitly appends** `0064-esp32-intmatrix-pending-irq-remap.patch` from
+main `f3bab9c0dfcb8a1928fc3f2e064d973a9ac252c9` before `0001`/`0004`.
+The native bootstrap list itself was not changed. This 31-layer stack touches
+114 files; 113 retain their pre-port bytes, with the shared `meson.build`
+receiving host build adaptations. The SHA callback patch below then makes a
+small, declared additional C ABI correction.
+
+For the 64KiB configuration, apply QEMU research patches in this order:
+`0001`, `0004`, `0005`, `0006`, `0009`, `0010`. Do **not** apply historical
+`0007`. Library patches `0002` and `0003` still apply to their own sources.
+Use optional `0008` only for the diagnostic receipt. The latest-main context
+port, when used, is declared separately below and in the execution summary. Each new patch passed
+forward/reverse checks in an independent Git root, including byte-for-byte
+comparison with the C sources used by the candidate objects. Do not run a
+replay under a parent repository and accept a successful `Skipped patch` result.
+
+- `0005` records the 256 MiB initial/2 GiB maximum growth configuration,
+  `EXIT_RUNTIME=1` and exported `ENV`/`callMain` needed by the real board
+  environment. This is host configuration, not a measured guest minimum.
+- `0006` replaces seven forced compressor casts with three exactly typed
+  `void` wrappers around the original int-returning SHA224/256/512 functions.
+  WASM had trapped in `esp_sha_start`; native calling conventions had tolerated
+  the discarded return. The SHA algorithms and controller values are unchanged.
+- `0007` explicitly selects 2 MiB main/default pthread C stacks and overflow
+  checks. This is a historical negative diagnostic: it delayed overflow but did
+  not stop MMU-entry SP descent. It is excluded from the final 64 KiB profile.
+- `0008` adds bounded Flash/fiber stack and heap diagnostics to the WASM source;
+  it does not modify controller state or skip operations. It is opt-in research
+  instrumentation and is not part of the native bootstrap.
+- `0009` saves a const C SP before the main `cpu_exec_setjmp` and restores it
+  through Emscripten `stackRestore` on the nonzero return, before original QEMU
+  cleanup. The SDK 3.1.50 Asyncify Fiber/SjLj interaction reproduces without
+  QEMU in the [C/libffi experiment](../../tests/browser-qemu/fiber_sjlj/README.md).
+  Both 2 MiB and 64 KiB compatibility variants have zero drift and natural
+  runtime exits; real 64 KiB CoreS3 Flash-MMU entries are also flat. The separate
+  `cpu_exec_step_atomic` setjmp is unmodified and unverified.
+- `0010` adds an explicit Emscripten-only VM elapsed-time divisor, default 1.
+  `vm-div8` selects fixed 8 before vCPUs start. The signed parser rejects values
+  outside 1..1024, including negative-wrap inputs; actual C parser/clock
+  arithmetic controls passed 24 cases. Enable offset and clock reads share the
+  scaled source; host monotonic and `cpu_get_ticks` remain unchanged. The guest
+  timers, CCOUNT/CCOMPARE and WDT follow slow virtual time. **WDT expiration is
+  also later in wall time**; this is not original physical timing. Combining a
+  divisor greater than 1 with icount fails. REALTIME radio pacing is outside
+  this offline profile.
+
+Default wallclock r11 remains PARTIAL because the second guest raised a real
+LVGL `schedule queue full`; auto and fixed-shift single/icount controls did not
+close it. The explicit slow-clock profile is a separate bounded result, not a
+claim that the original timing problem was repaired.
+
+The exact CoreS3 fixture, actual Chromium runtime, complete RGB frame matching,
+two evidence ZIPs and natural six-Worker exits are summarized in the
+[CoreS3 evidence](../../docs/evidence/2026-10-28-qemu-wasm-cores3/README.md).
+They establish a bounded virtual-device path, not other devices, hardware,
+public browser admission, persistent Flash or Pages deployment.
+
+## Latest main context port (805925d8)
+
+The project worktree merges `805925d8` in `0f003ea1`. Its native `0065` and
+`0066` patches are **not applied unchanged** to the frozen 31-layer research
+source: their context includes optional Xtensa diagnostic hooks and a different
+board source-list layout. `0011-wasm-main805-native-context-compat.patch`
+places the original new high-priority IRQ/cooperative-yield and classic RMT
+code at the corresponding function points. It adds no replacement controller
+behavior. Native bootstrap and native patches are untouched.
+
+Pinned originals:
+
+- `0065-xtensa-high-priority-irq-cooperative-yield.patch`:
+  `f03b988372c17147f1b5f8c2fa2dc46366df362626d69b48febe45d48ab35560`
+- `0066-esp32-classic-rmt-legacy.patch`:
+  `c88b1a85d7c00ae05aef995c3613a28684f011d0d13f0fbe845184136f4882d7`
+
+The source preparation receipt compares added nonempty code lines in all
+12 affected files with the originals; the comparison passes. The final build
+recompiles 14 objects, including all ten dependencies of changed `helper.h`
+and the new RMT object. This is **31 baseline layers plus two explicit context
+ports**, not a claim of 33 original patches applying without changes.
+The measured diagnostic sequence is `0001 → 0004 → 0005 → 0006 → 0009 →
+0010 → 0008 → 0011`; `0008` is optional instrumentation. New high-priority IRQ
+TCG helper calls may add host overhead even when icount is disabled; classic
+ESP32 RMT guest behavior is not validated by the CoreS3 fixture. Set the actual final link options explicitly to
+`-sSTACK_SIZE=64KB -sDEFAULT_PTHREAD_STACK_SIZE=64KB -sSTACK_OVERFLOW_CHECK=2`;
+these are not supplied by `0005`, and applying `0007` would select the wrong
+stack size. Exact source/build/runtime fingerprints and execution limits are
+in the CoreS3 summary.
+
+
+## Browser stdio QMP context
+
+`0012-wasm-stdio-qmp-main-loop.patch` selects the existing default main-loop
+QMP context for Emscripten **stdio only**. Apply it after `0011`; native and
+other chardevs keep the original selection. Both guest vCPU threads, original
+QMP parsing/dispatch/response, C controllers and framebuffer producer remain.
+
+The r16 negative control proves a narrower failure: guest heartbeats and the
+QEMU main loop continue, the UNIX socket stays present for the full 40-second
+observation, but the independent QMP context stops calling fd0's poll callback.
+The first screendump stays unread in the JavaScript queue. This does not prove
+the underlying GLib/watch mechanism; `0012` is an explicit host I/O-thread
+configuration that avoids that path. It adds no periodic QMP or keepalive.
+
+This branch no longer offers QMP OOB; the transport never negotiated OOB and
+ordinary in-band commands retain their original implementation. The actual
+branch logs `M5_WASM_QMP_CONTEXT stdio=1 context=main-loop use_io_thread=0
+oob_offered=0` once after installing handlers. Runtime acceptance requires
+fresh guest interactions, evidence, stop/reopen and separate idle/reconnect
+controls; patch application alone is not PASS.

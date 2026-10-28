@@ -1,0 +1,79 @@
+--- a/system/cpu-timers.c
++++ b/system/cpu-timers.c
+@@ -39,6 +39,38 @@
+ 
+ /* clock and ticks */
+ 
++#ifdef __EMSCRIPTEN__
++/* Explicit research profile. Set once before vCPUs exist; never changed live. */
++static unsigned m5_wasm_virtual_clock_divisor = 1;
++
++static void m5_wasm_virtual_clock_init(void)
++{
++    const char *value = getenv("M5_WASM_VM_CLOCK_DIVISOR");
++    int parsed = 1;
++
++    if (value && (qemu_strtoi(value, NULL, 10, &parsed) < 0 ||
++                  parsed < 1 || parsed > 1024)) {
++        error_report("M5_WASM_VM_CLOCK_DIVISOR must be an integer from 1 to 1024");
++        exit(EXIT_FAILURE);
++    }
++    m5_wasm_virtual_clock_divisor = parsed;
++    if (m5_wasm_virtual_clock_divisor != 1) {
++        info_report("M5_WASM_SLOW_CLOCK divisor=%u; explicit virtual-time research profile",
++                    m5_wasm_virtual_clock_divisor);
++    }
++}
++#endif
++
++/* Only the VM elapsed-time host source is scaled; host monotonic is intact. */
++static inline int64_t m5_vm_elapsed_host_clock(void)
++{
++#ifdef __EMSCRIPTEN__
++    return get_clock() / m5_wasm_virtual_clock_divisor;
++#else
++    return get_clock();
++#endif
++}
++
+ static int64_t cpu_get_ticks_locked(void)
+ {
+     int64_t ticks = timers_state.cpu_ticks_offset;
+@@ -76,7 +108,7 @@
+ 
+     time = timers_state.cpu_clock_offset;
+     if (timers_state.cpu_ticks_enabled) {
+-        time += get_clock();
++        time += m5_vm_elapsed_host_clock();
+     }
+ 
+     return time;
+@@ -105,11 +137,17 @@
+  */
+ void cpu_enable_ticks(void)
+ {
++#ifdef __EMSCRIPTEN__
++    if (m5_wasm_virtual_clock_divisor != 1 && icount_enabled()) {
++        error_report("M5_WASM_VM_CLOCK_DIVISOR > 1 cannot be combined with icount");
++        exit(EXIT_FAILURE);
++    }
++#endif
+     seqlock_write_lock(&timers_state.vm_clock_seqlock,
+                        &timers_state.vm_clock_lock);
+     if (!timers_state.cpu_ticks_enabled) {
+         timers_state.cpu_ticks_offset -= cpu_get_host_ticks();
+-        timers_state.cpu_clock_offset -= get_clock();
++        timers_state.cpu_clock_offset -= m5_vm_elapsed_host_clock();
+         timers_state.cpu_ticks_enabled = 1;
+     }
+     seqlock_write_unlock(&timers_state.vm_clock_seqlock,
+@@ -268,6 +306,9 @@
+ /* initialize timers state and the cpu throttle for convenience */
+ void cpu_timers_init(void)
+ {
++#ifdef __EMSCRIPTEN__
++    m5_wasm_virtual_clock_init();
++#endif
+     seqlock_init(&timers_state.vm_clock_seqlock);
+     qemu_spin_init(&timers_state.vm_clock_lock);
+     vmstate_register(NULL, 0, &vmstate_timers, &timers_state);

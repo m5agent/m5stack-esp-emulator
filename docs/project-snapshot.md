@@ -90,7 +90,7 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UI-02` | 进行中 | C/QEMU的CoreS3固件/LVGL/输入/Unit、实际guest停止重开及性能验收；Rust演示仅作研究原型，随后确认Pages公开范围和URL验收 |
+| `UI-02` | 进行中 | C/QEMU默认时钟LVGL队列、未覆盖异常路径及长期稳定性；接入已限定验证的离线浏览器profile/资源与停止生命周期，随后确认Pages公开范围和URL验收；Rust演示仅作研究原型 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight冷route的有效pad来源/连续低观察生命周期、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
@@ -108,8 +108,8 @@
 | `firmware_filesystems.py` | 1469 |
 
 - `tests/`：`127` 个可执行 Python 测试文件，分布在 `58` 个目录；`223` 个 evidence JSON。
-- `patches/`：`15` 个补丁组，`139` 个 patch 文件。
-- 文档：`387` 个 Markdown 页面；除本生成页外共 `36264` 行。
+- `patches/`：`15` 个补丁组，`141` 个 patch 文件。
+- 文档：`387` 个 Markdown 页面；除本生成页外共 `36614` 行。
 
 ## 文档与测试
 
