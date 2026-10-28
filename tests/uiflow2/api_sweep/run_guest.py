@@ -30,6 +30,13 @@ def save(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def session_ready_timeout(args):
+    timeout = getattr(args, "ready_timeout", 60)
+    if isinstance(timeout, bool) or not isinstance(timeout, int) or timeout <= 0:
+        raise ValueError("ready_timeout must be a positive integer")
+    return timeout
+
+
 def live_boot(device, uart_repl_bootstrap=None, run_main=True):
     """Return a bootstrap matching the base image's actual REPL ownership."""
     native_uart_repl = device == "core2" or uart_repl_bootstrap == "native"
@@ -283,9 +290,14 @@ def run(args):
         ttl_seconds = 3600 if getattr(args, "keep_session", False) else min(
             3600, prepare_timeout + args.timeout + 120
         )
-        session_request = {"device_id": args.device, "firmware_id": firmware["firmware_id"],
-            "runtime": args.runtime, "ttl_seconds": ttl_seconds,
-            "ready_marker": "M5EMU_API_SWEEP_READY", "ready_timeout_seconds": 60}
+        session_request = {
+            "device_id": args.device,
+            "firmware_id": firmware["firmware_id"],
+            "runtime": args.runtime,
+            "ttl_seconds": ttl_seconds,
+            "ready_marker": "M5EMU_API_SWEEP_READY",
+            "ready_timeout_seconds": session_ready_timeout(args),
+        }
         if getattr(args, "program_transport", None) is not None:
             session_request["program_transport"] = args.program_transport
             session_request["uiflow_source_sha256"] = firmware["source"]["metadata"]["source_sha256"]
@@ -459,6 +471,12 @@ if __name__ == "__main__":
     parser.add_argument("--done-marker", required=True)
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--prepare-timeout", type=int, default=600)
+    parser.add_argument(
+        "--ready-timeout",
+        type=int,
+        default=60,
+        help="guest marker budget inside the QEMU session; raise it for concurrent sweeps",
+    )
     parser.add_argument("--program-transport", choices=("uart-repl",))
     parser.add_argument("--uart-repl-bootstrap", choices=("dupterm", "native"),
                         help="guest bootstrap for an explicit UART-REPL-capable base image")

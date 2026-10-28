@@ -378,11 +378,13 @@ virtual-device validation；物理声学、声压和真机为
 最终
 `03d74d53ff8187c4f0a3b22d34c4e898bdd93b61cfc98432dbbeecd1beb12419`
 runtime 重绑三台 Mic、WAV/file 与 raw 路径。三台 Mic 和 Speaker 六会话
-并发时 StopWatch Mic 在 guest READY 前超时，单独重跑通过；其余 5 个会话
-一次完成，三台 raw 另行并发全部通过。第一次 Core2 并发 WAV 被旧矩形 DFT
-误报为 395 Hz；同一 32,000-byte 裁剪 PCM 的自相关主频为 443.792 Hz，
-单会话重复为 443.758 Hz。测试 oracle 已改为有界归一化自相关和抛物线插值，
-并增加裁剪波形回归，避免把相位相关的泄漏峰当固件音频故障。
+首次使用固定 60 秒 guest READY 预算时 StopWatch Mic 在 QEMU 启动前超时；
+runner 增加显式 `--ready-timeout` 后，以 180 秒预算重新并发六个会话，
+Mic/Speaker `6/6` 一次完成，三台 raw 另行并发全部通过。第一次 Core2
+并发 WAV 被旧矩形 DFT 误报为 395 Hz；同一 32,000-byte 裁剪 PCM 的自相关
+主频为 443.828 Hz，单会话重复为 443.758 Hz。测试 oracle 已改为有界归一化
+自相关和抛物线插值，并增加裁剪波形回归，避免把相位相关的泄漏峰当固件音频
+故障。
 
 ## 2026-10-28：Core2 UIFlow2 A/B/C/PWR 回调
 

@@ -109,10 +109,10 @@ Mic 与 Speaker 两类数据面均完成，未出现先前阻塞。
 | StickS3 | 440.070 Hz | 440.088 Hz | 659.454 Hz | 659.454 Hz |
 | Core2 | 443.829 Hz | 443.758 Hz | 662.109 Hz | 662.109 Hz |
 
-最终 runtime 的 3 个 Mic 和 3 个 Speaker 会话并发启动时，StopWatch Mic
-没有在 60 秒内到达 guest READY；该会话在 QEMU 启动前超时。StopWatch Mic
-随后单独重跑通过，另外 5 个并发会话一次完成。三台 raw 会话另行并发，
-全部通过。
+最终 runtime 首次六会话并发仍使用旧的固定 60 秒 guest READY 预算；
+StopWatch Mic 在 QEMU 启动前超时。runner 随后新增显式
+`--ready-timeout`，以 180 秒预算重新并发六个会话，Mic 与 Speaker
+共 `6/6` 一次完成。三台 raw 会话另行并发，全部通过。
 
 Core2 PDM WAV 是非对称强裁剪信号。第一次并发结果被旧
 `verify_mic_recording.py` 的无窗矩形 DFT 报为 395 Hz；同一 WAV 的归一化
@@ -123,12 +123,12 @@ Core2 PDM WAV 是非对称强裁剪信号。第一次并发结果被旧
 
 最终 session：
 
-- StopWatch Mic `0f4c3a935b164e4199641b686b3c4748`
-- StickS3 Mic `a63d2607b915467a9ead685a75e12c8a`
-- Core2 Mic `5782e171b5c949e6b68af47f759133e8`
-- StopWatch WAV/file `809f5a5c688d458c9b1d5c96986b4c92`
-- StickS3 WAV/file `9817bee24bce4b14b8934d2544895f09`
-- Core2 WAV/file `d661c75afad440fc908650650542393c`
+- StopWatch Mic `fec206f66cc94a51933ee037a7ac4020`
+- StickS3 Mic `ba03bd36d5634e4f89aa9f16dbdea7b8`
+- Core2 Mic `cebd923e9ab3461384a406b190cf4e2e`
+- StopWatch WAV/file `88096bee0697459683cbc6f02e60783d`
+- StickS3 WAV/file `2f9bdcfd751c4871b856e3678365421c`
+- Core2 WAV/file `361c5a01e7b543f882df9d7e53d63e2a`
 - StopWatch raw `d57ca131e2d24a6793925fa5a5c5b857`
 - StickS3 raw `37ef6c12dfd04c4eb54e7df24998421e`
 - Core2 raw `134f0df29b6d4a31bde7ffd4d24863b7`

@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--done-marker", required=True)
     parser.add_argument("--timeout", type=int, default=150)
+    parser.add_argument("--prepare-timeout", type=int, default=600)
+    parser.add_argument("--ready-timeout", type=int, default=60)
     parser.add_argument("--drive-json", type=Path, help="mapping from guest marker to API action list")
     parser.add_argument("--runtime-env-json", type=Path, help="explicit local diagnostic runtime environment, sent through /sessions")
     parser.add_argument("--sd-image", type=Path, help="isolated writable raw SD fixture uploaded through the artifact API")
