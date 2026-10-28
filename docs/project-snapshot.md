@@ -69,6 +69,7 @@
 | `RUNTIME-05` | `FIXED` | S3 QEMU AP WPA2-PSK 数据面 |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
 | `RUNTIME-03` | `OPEN` | scheduler/DPORT 与经典 RMT 初始化已修复，legacy WDT/LVGL/应用帧未闭环 |
+| `RUNTIME-06` | `PARTIAL` | ESP-NOW controller loopback 已验证，外部/加密 peer 未建模 |
 | `RUNTIME-04` | `OPEN` | Core2 for AWS ATECC608 未建模 |
 
 ## Backlog Task 板
@@ -77,6 +78,7 @@
 | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT 并让 legacy Serial 到达 `APIKEY`。WDT-off 68 秒仍为 302-byte 黑帧，normal WDT 仍 TG0 stage-1 reset；下一项定位 `APIKEY` 后 display completion / setup 路径 |
+| `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
@@ -100,7 +102,7 @@
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 11789 |
+| `device_service.py` | 11791 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |

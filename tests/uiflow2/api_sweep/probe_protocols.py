@@ -7,7 +7,6 @@ guest firmware driver, native API or emulated controller with host return values
 from __future__ import annotations
 
 import argparse
-import json
 
 
 COMMON = '''import json,time,network,socket
@@ -675,12 +674,34 @@ emit("m5espnow.M5ESPNow.set_add_peer","STATE_PASS",any(row[0]==peer for row in n
 check("m5espnow.M5ESPNow.get_peer_list",lambda:node.get_peer_list(),lambda value:value==["020000000042"],"wrapper list matches independently configured synthetic peer")
 node.set_pmk_encrypt(b"0123456789abcdef")
 emit("m5espnow.M5ESPNow.set_pmk_encrypt","CONFIGURED_UNVERIFIED",True,"fixed non-secret test PMK accepted; encrypted peer delivery requires missing ESPNow controller peer model")
-node.set_irq_callback(lambda obj:None)
-for api,action in (("send_data",lambda:node.send_data(1,b"ESPNOW-OWNED")),("broadcast_data",lambda:node.broadcast_data(b"ESPNOW-OWNED")),("recv_data",lambda:node.recv_data(100))):
- try:action();error=None
+irq_events=[]
+node.set_irq_callback(lambda obj:irq_events.append(True))
+if CONFIG.get("espnow_loopback"):
+ payload=b"ESPNOW-OWNED"
+ error=None
+ try:node.send_data(1,payload)
  except Exception as failure:error=repr(failure)
- emit("m5espnow.M5ESPNow."+api,"BLOCKED_MODEL",None,"QEMU OpenMAC management dispatcher has no vendor-action/ESPNow peer RX route; return/state cannot prove payload delivery",error)
-emit("m5espnow.M5ESPNow.set_irq_callback","BLOCKED_MODEL",None,"no controller-delivered ESPNow packet available to trigger the original registered IRQ")
+ deadline=time.ticks_add(time.ticks_ms(),2000)
+ while not node.any() and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+ received=node.recv_data(1000) if node.any() else (None,None)
+ unicast_ok=(error is None and received[0]==peer and bytes(received[1])==payload)
+ emit("m5espnow.M5ESPNow.send_data","PASS" if unicast_ok else "FAIL",unicast_ok,"sent bytes were delivered through controller DMA and returned by the owned virtual ESP-NOW peer echo",error)
+ emit("m5espnow.M5ESPNow.recv_data","PASS" if unicast_ok else "FAIL",unicast_ok,"original recv_data returned exact peer MAC and payload from controller RX DMA")
+ error=None
+ try:node.broadcast_data(payload)
+ except Exception as failure:error=repr(failure)
+ deadline=time.ticks_add(time.ticks_ms(),2000)
+ while not node.any() and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+ received=node.recv_data(1000) if node.any() else (None,None)
+ broadcast_ok=(error is None and received[0]==peer and bytes(received[1])==payload)
+ emit("m5espnow.M5ESPNow.broadcast_data","PASS" if broadcast_ok else "FAIL",broadcast_ok,"broadcast action frame traversed controller TX DMA and the virtual peer returned exact payload through RX DMA",error)
+ emit("m5espnow.M5ESPNow.set_irq_callback","PASS" if len(irq_events)>=2 else "FAIL",len(irq_events),"original IRQ callback fired for independent controller-delivered unicast and broadcast echoes")
+else:
+ for api,action in (("send_data",lambda:node.send_data(1,b"ESPNOW-OWNED")),("broadcast_data",lambda:node.broadcast_data(b"ESPNOW-OWNED")),("recv_data",lambda:node.recv_data(100))):
+  try:action();error=None
+  except Exception as failure:error=repr(failure)
+  emit("m5espnow.M5ESPNow."+api,"BLOCKED_MODEL",None,"QEMU OpenMAC management dispatcher has no vendor-action/ESPNow peer RX route; return/state cannot prove payload delivery",error)
+ emit("m5espnow.M5ESPNow.set_irq_callback","BLOCKED_MODEL",None,"no controller-delivered ESPNow packet available to trigger the original registered IRQ")
 node.set_delete_peer(1)
 emit("m5espnow.M5ESPNow.set_delete_peer","STATE_PASS",all(row[0]!=peer for row in node.get_peers()),"synthetic unicast peer removed from actual native table")
 node.deinit()
@@ -709,15 +730,31 @@ for prefix,factory in (("espnow.ESPNow",espnow.ESPNow),("espnow.ESPNowBase",espn
  check(prefix+".stats",lambda:list(obj.stats()),lambda value:len(value)==5 and all(type(number)==int for number in value),"five native counters: tx packets/responses/failures, rx packets/drops; no receive delivery inferred")
  obj.set_pmk(b"0123456789abcdef")
  emit(prefix+".set_pmk","CONFIGURED_UNVERIFIED",True,"fixed non-secret test PMK accepted; no encrypted message delivery proof")
- obj.irq(lambda node:None)
- for method in ("send","recvinto","irq")+(("recv","irecv")if prefix=="espnow.ESPNow"else()):
-  try:
-   if method=="send":obj.send(peer,b"ESPNOW-NATIVE",False)
-   elif method=="recvinto":obj.recvinto([None,bytearray(250)],10)
-   elif method in ("recv","irecv"):getattr(obj,method)(10)
-   error=None
+ irq_events=[]
+ obj.irq(lambda node:irq_events.append(True))
+ if CONFIG.get("espnow_loopback"):
+  payload=b"ESPNOW-NATIVE"
+  slot=[None,bytearray(250)]
+  error=None
+  try:obj.send(peer,payload,False)
   except Exception as failure:error=repr(failure)
-  emit(prefix+"."+method,"BLOCKED_MODEL",None,"OpenMAC lacks vendor-action/ESPNow controller peer TX/RX path; no payload or IRQ delivery is inferred",error)
+  deadline=time.ticks_add(time.ticks_ms(),2000)
+  while not obj.any() and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
+  count=obj.recvinto(slot,2000)
+  received=bytes(slot[1][:count]) if count else b""
+  passed=(error is None and count==len(payload) and received==payload and slot[0]==peer)
+  emit(prefix+".send","PASS" if passed else "FAIL",passed,"original send traversed controller TX DMA and reached the owned virtual ESP-NOW peer echo",error)
+  emit(prefix+".recvinto","PASS" if passed else "FAIL",passed,"original recvinto returned exact peer MAC and payload from controller RX DMA")
+  emit(prefix+".irq","PASS" if irq_events else "FAIL",len(irq_events),"original IRQ callback fired after controller-delivered ESP-NOW action frame")
+ else:
+  for method in ("send","recvinto","irq")+(("recv","irecv")if prefix=="espnow.ESPNow"else()):
+   try:
+    if method=="send":obj.send(peer,b"ESPNOW-NATIVE",False)
+    elif method=="recvinto":obj.recvinto([None,bytearray(250)],10)
+    elif method in ("recv","irecv"):getattr(obj,method)(10)
+    error=None
+   except Exception as failure:error=repr(failure)
+   emit(prefix+"."+method,"BLOCKED_MODEL",None,"OpenMAC lacks vendor-action/ESPNow controller peer TX/RX path; no payload or IRQ delivery is inferred",error)
  obj.del_peer(peer)
  emit(prefix+".del_peer","STATE_PASS",obj.peer_count()==(0,0),"synthetic peer actually removed from native ESPNow table")
  obj.active(False)

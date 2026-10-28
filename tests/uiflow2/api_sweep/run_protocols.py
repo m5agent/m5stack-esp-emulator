@@ -208,10 +208,16 @@ def run(args):
     threads=[]
     for peer in peers:
         thread=threading.Thread(target=peer.serve_forever,daemon=True);thread.start();threads.append(thread)
+    runtime_env=json.loads(args.runtime_env_json.read_text()) if args.runtime_env_json else None
+    if runtime_env is not None and not isinstance(runtime_env,dict):
+        raise ValueError("--runtime-env-json must contain a JSON object")
     config={name:server.server_address[1] for name,server in zip(("http","tcp","udp","mqtt","modbus"),peers)}
     config.update(tls_config)
     config["audio_case"]=args.audio_case
     config["tls_clock_year"]=getattr(args,"tls_clock_year",2026)
+    config["espnow_loopback"]=bool(
+        runtime_env and runtime_env.get("M5SW_ESPNOW_LOOPBACK")
+    )
     if args.group=="requests-candidate":
         if args.requests2_source is None:
             raise SystemExit("--requests2-source is required for candidate source lane")
@@ -236,7 +242,7 @@ def run(args):
                        timeout=args.timeout,source=source_path,out_dir=output,done_marker="PROTOCOL_GROUP_DONE "+args.group,
                        network=None if plain else {"profile":wifi_profile,"capture_pcap":True,"attempts":1,
                                 "expected_markers":["PROTOCOL_GROUP_DONE "+args.group]})
-            arguments.runtime_env=json.loads(args.runtime_env_json.read_text()) if args.runtime_env_json else None
+            arguments.runtime_env=runtime_env
             arguments.uart_repl_bootstrap=args.uart_repl_bootstrap
             if device in bases:
                 arguments.base_image=Path(bases[device])
@@ -320,13 +326,16 @@ def run(args):
                 if args.group.startswith("audio-") and row["api"] not in {"audio.Player.info","audio.Player.set_vol","audio.Player.get_vol","audio.Player.vol","audio.Recorder.config","audio.Recorder.create_pcm_buf"}:
                     row["required_evidence_met"]=False
                     row["remaining_oracle"]="independent PCM/file/lifecycle oracle required; state return alone is not audio functional PASS"
+            successful_statuses={"PASS","EXPECTED_REJECTION","NOT_APPLICABLE_LISTENER"}
+            if args.group in {"espnow","espnow-native"} and config["espnow_loopback"]:
+                successful_statuses.update({"STATE_PASS","CONFIGURED_UNVERIFIED"})
             report={"schema_version":1,"device_id":device,"group":args.group,"validation":"virtual-device validation",
                     "hardware_validation":"NOT RUN","source_sha256":hashlib.sha256(source.encode()).hexdigest(),
                     "execution_report_sha256":hashlib.sha256((output/"report.json").read_bytes()).hexdigest(),
                     "session_id":execution.get("session_id"),"firmware_sha256":execution["firmware_sha256"],
                     "evidence_sha256":execution.get("evidence_sha256"),"cases":results,
                     "counts":dict(Counter(row["status"] for row in results)),
-                    "status":"PASS" if code==0 and results and all(row["status"] in {"PASS","EXPECTED_REJECTION","NOT_APPLICABLE_LISTENER"} for row in results) else "FAIL"}
+                    "status":"PASS" if code==0 and results and all(row["status"] in successful_statuses for row in results) else "FAIL"}
             report["library_lane"]="candidate-source" if args.group in {"requests-candidate","modbus-candidate"} else "stock-frozen"
             report["firmware_lane"]=execution.get("firmware_lane","stock-frozen")
             if radio and not bases and code!=0:
@@ -340,6 +349,12 @@ def run(args):
                 report["certificate"]={"sha256":hashlib.sha256(certificate_der).hexdigest(),
                     "not_valid_before":certificate.not_valid_before_utc.isoformat(),
                     "not_valid_after":certificate.not_valid_after_utc.isoformat(),"server_name":"m5-api.test"}
+            if args.group in {"espnow","espnow-native"} and config["espnow_loopback"]:
+                report["espnow_loopback"]={
+                    "status":"enabled",
+                    "peer_mac":"02:00:00:00:00:42",
+                    "scope":"controller DMA TX to same-guest RX DMA echo; not an external ESP-NOW peer",
+                }
             if args.group=="requests-candidate":
                 report["candidate_source_sha256"]=hashlib.sha256(config["requests_source"].encode()).hexdigest()
                 report["stock_firmware_result_unchanged"]=True

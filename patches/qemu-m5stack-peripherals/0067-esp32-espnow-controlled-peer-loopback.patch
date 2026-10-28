@@ -1,0 +1,134 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Wed, 28 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: add opt-in ESP-NOW peer loopback
+
+The OpenMAC management dispatcher drops vendor action frames, so the stock
+ESP-NOW stack can configure peers but cannot prove payload or IRQ delivery.
+
+Add an explicit, default-off test fixture that echoes action frames from the
+controller TX DMA path back through RX DMA with the peer/source addresses
+swapped. Broadcast echoes use the fixed locally-administered fixture peer.
+This exercises the guest ESP-NOW stack instead of synthesizing Python values;
+it does not model an external peer, encrypted delivery, RF, retry or timing.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ hw/misc/esp32_wifi.c   | 33 +++++++++++++++++++++++++++++++++
+ hw/misc/esp32s3_wifi.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+)
+
+diff --git a/hw/misc/esp32_wifi.c b/hw/misc/esp32_wifi.c
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -43,6 +43,38 @@
+     qemu_set_irq(s->irq, 1);
+ }
+ 
++static void esp32_wifi_loopback_espnow(Esp32WifiState *s,
++                                       struct mac80211_frame *frame) {
++    static const uint8_t loopback_peer[6] = { 0x02, 0, 0, 0, 0, 0x42 };
++    struct mac80211_frame *echo;
++    uint8_t source[6];
++    bool broadcast;
++
++    if (!getenv("M5SW_ESPNOW_LOOPBACK") ||
++        frame->frame_control.type != IEEE80211_TYPE_MGT ||
++        frame->frame_control.sub_type != IEEE80211_TYPE_MGT_SUBTYPE_ACTION ||
++        frame->frame_length < IEEE80211_HEADER_SIZE ||
++        frame->frame_length > sizeof(frame->data_and_fcs)) {
++        return;
++    }
++
++    echo = g_malloc0(sizeof(*echo));
++    memcpy(echo, frame, sizeof(*echo));
++    memcpy(source, frame->transmitter_address, sizeof(source));
++    memcpy(echo->receiver_address, source, sizeof(source));
++    broadcast = !memcmp(frame->receiver_address, BROADCAST, 6);
++    memcpy(echo->transmitter_address,
++           broadcast ? loopback_peer : frame->receiver_address,
++           sizeof(echo->transmitter_address));
++    memcpy(echo->address_3, echo->transmitter_address,
++           sizeof(echo->address_3));
++    echo->frame_control.to_ds = 0;
++    echo->frame_control.from_ds = 0;
++    echo->next_frame = NULL;
++    Esp32_sendFrame(s, echo, echo->frame_length, -42);
++    g_free(echo);
++}
++
+ static void esp32_wifi_write(void *opaque, hwaddr addr, uint64_t value, unsigned int size) {
+     Esp32WifiState *s = ESP32_WIFI(opaque);
+     if(DEBUG) printf("esp32_wifi_write %lx=%lx\n",addr, value);
+@@ -68,6 +100,7 @@
+                 frame.frame_length=item.length;
+                 frame.next_frame=0;
+                 Esp32_WLAN_handle_frame(s, &frame);
++                esp32_wifi_loopback_espnow(s, &frame);
+                 set_interrupt(s, 0x80);
+             }
+     }
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -69,6 +69,52 @@
+     return item->address >= 0x3f000000u && item->length <= 2316u;
+ }
+ 
++static void esp32s3_wifi_loopback_espnow(Esp32WifiState *s,
++                                         struct mac80211_frame *frame)
++{
++    static const uint8_t loopback_peer[6] = { 0x02, 0, 0, 0, 0, 0x42 };
++    struct mac80211_frame *echo;
++    uint8_t source[6];
++    bool broadcast;
++
++    if (!getenv("M5SW_ESPNOW_LOOPBACK") ||
++        frame->frame_control.type != IEEE80211_TYPE_MGT ||
++        frame->frame_control.sub_type != IEEE80211_TYPE_MGT_SUBTYPE_ACTION ||
++        frame->frame_length < IEEE80211_HEADER_SIZE ||
++        frame->frame_length > sizeof(frame->data_and_fcs)) {
++        return;
++    }
++
++    echo = g_malloc0(sizeof(*echo));
++    memcpy(echo, frame, sizeof(*echo));
++    memcpy(source, frame->transmitter_address, sizeof(source));
++    memcpy(echo->receiver_address, source, sizeof(source));
++    broadcast = !memcmp(frame->receiver_address, BROADCAST, 6);
++    memcpy(echo->transmitter_address,
++           broadcast ? loopback_peer : frame->receiver_address,
++           sizeof(echo->transmitter_address));
++    memcpy(echo->address_3, echo->transmitter_address,
++           sizeof(echo->address_3));
++    echo->frame_control.to_ds = 0;
++    echo->frame_control.from_ds = 0;
++    echo->next_frame = NULL;
++    if (getenv("M5SW_S3_WIFI_TRACE")) {
++        fprintf(stderr,
++                "[esp32s3-wifi] ESP-NOW loopback len=%u "
++                "dst=%02x:%02x:%02x:%02x:%02x:%02x "
++                "src=%02x:%02x:%02x:%02x:%02x:%02x\n",
++                echo->frame_length,
++                echo->receiver_address[0], echo->receiver_address[1],
++                echo->receiver_address[2], echo->receiver_address[3],
++                echo->receiver_address[4], echo->receiver_address[5],
++                echo->transmitter_address[0], echo->transmitter_address[1],
++                echo->transmitter_address[2], echo->transmitter_address[3],
++                echo->transmitter_address[4], echo->transmitter_address[5]);
++    }
++    Esp32_S3_sendFrame(s, echo, echo->frame_length, -42);
++    g_free(echo);
++}
++
+ static void s3_wifi_receive_frame(Esp32WifiState *s,
+                                   struct mac80211_frame *frame,
+                                   int signal_strength)
+@@ -251,6 +297,7 @@
+                 frame.transmitter_address[4], frame.transmitter_address[5]);
+     }
+     Esp32_WLAN_handle_frame(s, &frame);
++    esp32s3_wifi_loopback_espnow(s, &frame);
+     s3_wifi_set_interrupt(s, S3_DMA_TX_COMPLETE);
+ }
+ 

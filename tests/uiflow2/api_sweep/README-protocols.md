@@ -19,7 +19,12 @@ Groups include `http`, `tls`, `sockets`, `easysocket`, `network`, `mqtt`,
 RTU uses the CoreS3 RS485 Unit on Port A; a peer verifies actual UART TX bytes
 and CRC before injecting a response through the Unit RX FIFO. It is not admitted
 on Cardputer-ADV. An empty ESPNow queue, accepted encryption key or configured
-peer table does not prove ESPNow packet/IRQ delivery.
+peer table does not prove ESPNow packet/IRQ delivery. `espnow` and
+`espnow-native` accept an explicit `M5SW_ESPNOW_LOOPBACK=1` runtime environment:
+the QEMU model echoes management action frames from controller TX DMA back
+through RX DMA, with a fixed synthetic peer for broadcast. This proves the
+stock guest stack and controller data path, not an external peer, encrypted
+payload, cross-device fabric, loss/retry, RF or timing.
 
 The default base is always the device-matrix reference. Stock S3 internal-BT
 firmware cannot inherit a UART H4 test build result. The BLE groups may use

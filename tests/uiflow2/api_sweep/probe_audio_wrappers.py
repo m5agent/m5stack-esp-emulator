@@ -22,6 +22,8 @@ def raw():
 check("audio.Player.play_raw",raw,lambda value:player.get_state()["status"]==player.STATUS_FINISHED,"synchronous original decoder reaches FINISHED; output PCM still requires independent waveform oracle")
 def tone():
  result=player.play_tone(880,1,volume=42,sync=True)
+ deadline=time.ticks_add(time.ticks_ms(),3000)
+ while player.get_state()["status"]!=player.STATUS_FINISHED and time.ticks_diff(deadline,time.ticks_ms())>0:time.sleep_ms(10)
  print("AUDIO_WRAPPER_STATE tone "+json.dumps(player.get_state()))
  return result
 check("audio.Player.play_tone",tone,lambda value:player.get_state()["status"]==player.STATUS_FINISHED,"original tone pipeline reaches FINISHED; output PCM still requires independent waveform oracle")

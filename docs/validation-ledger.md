@@ -469,3 +469,43 @@ StickS3 `5/5`、Core2 `6/6`，17 个 group case 全部 attempt 1 且无 retry。
 全部仅 virtual-device validation，物理硬件/RF/声学/光学/电气为 `NOT RUN`。
 见[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)和
 [机器摘要](evidence/2026-10-28-cooperative-highint-rmt/summary.json)。
+
+## 2026-10-28：ESP-NOW controlled loopback 与三设备接口最终重绑
+
+新增
+`0067-esp32-espnow-controlled-peer-loopback.patch`，SHA256
+`d269334ac039e78a75cc3054c4f6e853865cb16f7489a242c40ddf095a57163b`。
+补丁默认关闭，只在 `M5SW_ESPNOW_LOOPBACK=1` 时把 guest 经正常 TX DMA
+写出的 802.11 management action frame 交换 peer/source 后从正常 RX DMA
+送回；broadcast 使用固定 locally-administered fixture peer
+`02:00:00:00:00:42`。最终 QEMU SHA256 为
+`c3c3140322513de6f3ef724513e2f1272764e6af8a8fdd7c7bfd4448dc17f534`。
+
+三台 StopWatch/StickS3/Core2 上，原厂 `m5espnow` 的
+`send_data`、`broadcast_data`、`recv_data`、`set_irq_callback` 均 PASS，
+结果为 `12 PASS + 5 STATE_PASS + 1 CONFIGURED_UNVERIFIED`；native
+`espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的
+`send`/`recvinto`/`irq` 均 PASS，每台
+`21 PASS + 21 STATE_PASS + 3 CONFIGURED_UNVERIFIED`。该结果证明同 guest
+controller TX/RX DMA 和 IRQ，不证明外部 peer、PMK 加密 payload、跨设备
+fabric、loss/retry、RF 或 timing；保留为 `RUNTIME-06 PARTIAL`。
+
+同一 final runtime 重新绑定三设备 system runtime
+`50 PASS + 1 STATE_PASS`、shared corrections `7/7`，以及 17 个设备组
+case（StopWatch `6/6`、StickS3 `5/5`、Core2 `6/6`），全部 attempt 1、
+无 retry。Sockets `23/23`、MQTT `42/42`、network `14/14`、EzData
+`17/17`、requests2 candidate `2/2`、Modbus async candidate `50/50` 均在三台
+PASS。audio wrapper 的 `play_tone(sync=True)` 旧 probe 在返回瞬间读取状态，
+最小复现显示状态在约 1.5–2 秒后正常从 `RUNNING` 进入 `FINISHED`；probe
+已改为 3 秒有界等待，StopWatch/StickS3 `audio-player 15/15`、
+`audio-recorder 12/12`，Core2 `audio` 模块为 `NOT_EXPORTED`。
+
+TLS candidate firmware 在同一 runtime 上三台各 `5/5`；StopWatch/Core2
+使用 `dupterm`，StickS3 unified native-REPL image 使用 `native` bootstrap。
+stock 边界仍保留：HTTP `15 PASS / 1 FAIL`、Modbus `42 PASS / 8 ERROR`、
+TLS `2 ERROR + 3 STATE_PASS`。全部为 virtual-device validation；
+物理硬件、RF、声学、光学和电气为 `NOT RUN`。见
+[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)、
+[机器摘要](evidence/2026-10-28-espnow-and-three-board-interface-retest/summary.json)、
+[`0067`](../patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch)和
+[`contract`](../platform/tests/test_esp32_espnow_loopback_patch.py)。

@@ -210,6 +210,24 @@ Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` �
 setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
 不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
 
+### RUNTIME-06：ESP-NOW controller loopback 已验证，外部/加密 peer 未建模
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `PARTIAL` |
+| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive 和 IRQ 路径；当前不覆盖外部 peer、PMK 加密、跨设备 fabric 和 RF/timing |
+| 当前模型 | `0067-esp32-espnow-controlled-peer-loopback.patch` 在明确设置 `M5SW_ESPNOW_LOOPBACK=1` 时，只对 802.11 management action frame 做同 guest 回环：guest 经正常 TX DMA 写帧，模型交换 peer/source 后经正常 RX DMA 送回；broadcast 使用固定 locally-administered fixture peer `02:00:00:00:00:42` |
+| 已验证 | 最终 QEMU `c3c3140322513de6f3ef724513e2f1272764e6af8a8fdd7c7bfd4448dc17f534` 上 StopWatch、StickS3、Core2 的 `m5espnow` unicast/broadcast/receive/IRQ PASS；native 三组 API 的 `send`/`recvinto`/`irq` 各 PASS；model patch 默认关闭 |
+| 未覆盖 | 两个独立 guest/外部 peer、PMK 加密 payload、错误 key、丢包/重试、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`最终接口复测`](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)、[`0067 patch`](../patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch)、[`0067 contract`](../platform/tests/test_esp32_espnow_loopback_patch.py) |
+
+关闭条件：
+
+1. 使用两个独立 guest 或可审计外部 peer，完成真实 action-frame 交换；
+2. PMK 加密 payload、错误 key、peer add/update/delete 与 receive/IRQ 生命周期可重放；
+3. loopback、external 和 encrypted lane 分开记录，不能用 loopback 结果替代外部 peer；
+4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
+
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 
 | 字段 | 当前值 |
