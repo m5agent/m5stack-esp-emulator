@@ -92,3 +92,11 @@ Service Worker 首控流程。它实际执行下载/组合、LCD、DOM 触摸正
 暂停/继续、停止/重开与四档宽度；原始报告在 ignored `.work/public-qemu-guest`。
 对已部署站点可设置 `M5_PUBLIC_URL=https://<owner>.github.io/<repository>/`
 复用同一验收器。不得把本地子路径测试写成公开部署测试；实际 URL 和结果写入验证台账。
+
+## 已验证的部署参考
+
+测试 fork 的 [Pages 站点](https://yuyun2000.github.io/m5stack-esp-emulator/) 已由
+[Linux Actions](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40689514606)
+从固定源码构建、完成真实 guest 验收并部署；公开 HTTPS 地址另跑同一验收器通过。
+确切运行时/固件 SHA、检查与限制见[部署证据](evidence/2026-10-28-qemu-wasm-pages/README.md)。
+这不代表原仓库已部署；原仓库管理员仍需执行本页开头的步骤。

@@ -1,9 +1,12 @@
 # Experimental QEMU WASM backport
 
-Research only. These patches are **not** part of the native runtime bootstrap
-or public browser runtime. Build and browser CLI/control evidence does not
-establish firmware, display, input, Unit, networking or hardware compatibility.
-See [the investigation](../../docs/qemu-wasm-port-research.md).
+These patches began as research and remain outside the native runtime bootstrap.
+The public C/QEMU browser build now uses a fixed subset, with exact ordering and
+source hashes in [the build lock](../../scripts/qemu-wasm-build/sources.lock.json).
+The historical CLI/control results below do not establish firmware, display,
+input, Unit, networking or hardware compatibility. Current CoreS3 browser scope
+is recorded in [the Pages evidence](../../docs/evidence/2026-10-28-qemu-wasm-pages/README.md);
+see also [the investigation](../../docs/qemu-wasm-port-research.md).
 
 ## Source and order
 

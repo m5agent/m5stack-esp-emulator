@@ -12,8 +12,9 @@ following components, patches, assets, and references retain their own terms.
   QEMU as a whole is GPL-2.0; source files and patch portions retain their
   respective headers, with the upstream GPL-2.0-or-later default for files
   without a header.
-- `patches/qemu-wasm-probe/` is an experimental backport from official QEMU
-  v10.1.0 to the pinned 9.2.2 source, outside the product build. Imported
+- `patches/qemu-wasm-probe/` backports official QEMU v10.1.0 support to the
+  pinned 9.2.2 source. The native bootstrap does not use it; a fixed subset is
+  used by the optional C/QEMU browser build in `scripts/qemu-wasm-build/`. Imported
   `os-wasm` and `coroutine-wasm` retain their MIT and LGPL-2.0-or-later
   source headers. The libgpg-error 1.51/libgcrypt 1.11.0 compatibility patches
   retain LGPL-2.1-or-later terms. Exact sources, order and hashes are recorded
@@ -82,10 +83,15 @@ Official UIFlow2 firmware, third-party demo firmware, and Espressif ROM images
 are not committed to this repository's source Git. `platform/tools/fetch_firmware.py`
 downloads firmware from M5Stack's public firmware CDN into an ignored local
 cache. QEMU/Espressif ROM files must be obtained from their upstream
-distributions. The optional browser-site export includes only the reviewed
+distributions. The separate Rust research export includes only the reviewed
 ESP32-S3 ROM from Espressif's `esp-rom-elfs` release `20260528`, with its
 Apache-2.0 license and a SHA-bound source receipt. The bootstrap script checks
 both the release archive and extracted ROM. It does not package firmware.
+The C/QEMU Pages export bundles neither ROM nor firmware: the browser fetches
+the exact Espressif QEMU ROM and UIFlow2 base directly from their fixed official
+URLs and verifies their hashes. Public source licenses do not establish
+redistribution permission for those exact prebuilt images. The C/QEMU build
+ships its own linked-library notices and complete corresponding-source archive.
 
 ## Product names and reference images
 

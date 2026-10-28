@@ -34,7 +34,8 @@ platform/
 | `esp-emu 0.50.0` | Tab5 | P4 专用例外：烧录、启动、framebuffer、touch mailbox、RS-485、静态 I2C |
 | Linux ARM64 QEMU | CardputerZero | 独立 Linux 后端，不是 ESP32/UIFlow2 路径 |
 | `esp-emu runtime=network` | 诊断/Provisioning | 网络和 SoftAP 排障 lane，不提供整机板级 PASS |
-| `browser-wasm` / esp32sim | PaperS3、StopWatch 官方演示子集 | Worker 内执行 CPU/控制器；与 native 能力分别准入，见[公众入口证据](../docs/evidence/2026-10-28-public-simulator/README.md) |
+| `qemu-wasm` / C/QEMU | CoreS3 离线 LVGL / 触摸 / Port A PIR | 公众默认浏览器配置，双 CPU/板级控制器与 vm-div8；见[Pages 范围与证据](../docs/evidence/2026-10-28-qemu-wasm-pages/README.md) |
+| `browser-wasm` / esp32sim | PaperS3、StopWatch 官方演示子集 | 独立 Rust 研究原型，默认 Pages 不部署；历史结果见[公众入口证据](../docs/evidence/2026-10-28-public-simulator/README.md) |
 
 QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外设、WiFi、
 受控 HTTP、BLE peer 和 evidence。它们仍是功能级虚拟设备，不是完整 PHY/RF、
