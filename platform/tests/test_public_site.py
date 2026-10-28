@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import re
 import shutil
@@ -12,6 +13,38 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_littlefs_export_requires_source_pin_hashes_and_all_licenses(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            names = ["littlefs.mjs", "littlefs.wasm", "LICENSE.littlefs", "LICENSE.composer",
+                     "LICENSE.emscripten", "LICENSE.musl", "fixture/boot.py", "fixture/main.py", "source.zip"]
+            rows = {}
+            for name in names:
+                path = root / name
+                path.parent.mkdir(exist_ok=True)
+                data = ("reviewed-source-fixture:" + name).encode()
+                path.write_bytes(data)
+                rows[name] = {"path": name, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+            manifest = {"schema_version": 1, "kind": "m5stack-browser-littlefs", "source": {"commit": "6cb4e86540eca0d9ba62500a298385c9d863c8be"},
+                        "build": {"kind": "source-build"}, "firmware_bundled": False, "rom_bundled": False, "assets": rows}
+            def save():
+                (root / "manifest.json").write_text(json.dumps(manifest))
+            save()
+            self.assertEqual(set(public.littlefs_runtime_files(root)), set(names) | {"manifest.json"})
+            license_row = rows.pop("LICENSE.musl")
+            save()
+            with self.assertRaisesRegex(ValueError, "incomplete"):
+                public.littlefs_runtime_files(root)
+            rows["LICENSE.musl"] = license_row
+            (root / "littlefs.wasm").write_bytes(b"tampered")
+            save()
+            with self.assertRaisesRegex(ValueError, "hash or size"):
+                public.littlefs_runtime_files(root)
+            manifest["source"]["commit"] = "0" * 40
+            save()
+            with self.assertRaisesRegex(ValueError, "manifest mismatch"):
+                public.littlefs_runtime_files(root)
+
     def fixture(self, root: Path) -> None:
         files = {
             "platform/web/index.html": '<script type="module" src="/platform/web/public.js"></script>',

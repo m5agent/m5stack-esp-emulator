@@ -391,6 +391,16 @@ summary {
   margin: 0;
   border-top: 1px solid var(--m5-line);
 }
+#browserPirPanel {
+  padding: var(--m5-space-m) var(--m5-space-l);
+  border-top: 1px solid var(--m5-line);
+  font-size: 12px;
+}
+#browserPirPanel label { display: inline-flex; align-items: center; gap: var(--m5-space-s); }
+#browserPirState { margin-left: var(--m5-space-m); color: var(--m5-ink-muted); }
+#browserPirPanel p { margin: var(--m5-space-s) 0 0; color: var(--m5-ink-muted); }
+#browserEvidenceBtn { margin: var(--m5-space-s) var(--m5-space-l); }
+#browserHistoryText { font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .device-stage .three-device-photo-root,
 .device-stage .device-photo-root {
   height: 100%;

@@ -3,6 +3,9 @@ import {downloadFirmware, normalizeFirmwareSha256, DEFAULT_MAX_FIRMWARE_BYTES} f
 import {sha256Blob} from './sha256.js';
 import {PublicDeviceService} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
+import {PublicQemuRuntime, QEMU_BROWSER_PROFILE, browserQemuHistory} from './public-qemu-runtime.js';
+import {composeDemoFirmware} from './public-demo-firmware.js';
+import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
 import {createVisualModelShell} from './model-shell.js';
@@ -52,7 +55,15 @@ function message(id, text = '') {
 function error(error) {
   if (error?.name !== 'AbortError') message('errorBanner', error?.message || String(error));
 }
+function browserProfile(id) {
+  if (state.browserUnavailable) return null;
+  if (state.config.browser_runtime_engine === 'qemu-wasm') return id === 'cores3' ? QEMU_BROWSER_PROFILE : null;
+  return getBrowserProfile(id);
+}
 function reference(device = state.selected) {
+  if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm')
+    return {name:'CoreS3 LVGL + PIR 示例',composed:true,
+      sha256:'78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f'};
   return (
     device?.browser?.reference ||
     (device?.uiflow2?.firmware?.download_url
@@ -75,7 +86,7 @@ function lane(device = state.selected) {
     if (mode === 'browser') return null;
     return serviceReady ? 'service' : null;
   }
-  if (mode !== 'service' && getBrowserProfile(device?.id)) return 'browser';
+  if (mode !== 'service' && browserProfile(device?.id)) return 'browser';
   if (mode !== 'browser' && serviceReady) return 'service';
   return null;
 }
@@ -105,16 +116,20 @@ function status(status, detail) {
   $('runtimeStatus').dataset.status = status;
   if (detail) $('frameStatus').textContent = detail;
   $('serialInput').disabled = $('serialSendBtn').disabled =
-    !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
+    !state.run || state.run.kind !== 'browser' || state.run.controller instanceof PublicQemuRuntime || !['running', 'paused'].includes(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
+  $('nativeScreenBtn').hidden = !(state.run?.kind === 'browser' && state.selected?.id === 'cores3');
+  $('browserPirPanel').hidden = !(state.run?.kind === 'browser' && state.selected?.id === 'cores3');
+  $('browserPir').disabled = status !== 'running';
+  $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
   $('stopBtn').hidden = !state.run;
   $('stopBtn').textContent = state.stopUnconfirmed ? '重试停止' : '停止';
 }
 function updateCapability() {
   const device = state.selected,
     selectedLane = lane(),
-    supported = !!getBrowserProfile(device?.id);
+    supported = !!browserProfile(device?.id);
   $('capabilityTitle').textContent =
     selectedLane === 'browser'
       ? '浏览器本地运行'
@@ -133,6 +148,8 @@ function updateCapability() {
         : selectedLane === 'model'
           ? '可旋转、缩放并探索模型；本模式不执行固件。'
           : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
+  if (selectedLane === 'browser' && device?.id === 'cores3')
+    $('capabilityText').textContent = 'C/QEMU 在浏览器执行 CoreS3。已验证离线 LVGL、触摸和 Port A PIR；虚拟时间为墙钟的 1/8，看门狗也慢放。刷新不保存 Flash。';
   if ($('runtimeMode').value === 'browser' && selectedAttachments().length) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
@@ -148,7 +165,7 @@ function renderDevices() {
   const filtered = state.devices.filter(
     (d) =>
       `${d.name} ${d.id} ${d.sku || ''} ${d.hardware?.soc || d.group_label || ''}`.toLowerCase().includes(query) &&
-      (state.deviceFilter !== 'browser' || getBrowserProfile(d.id)),
+      (state.deviceFilter !== 'browser' || browserProfile(d.id)),
   );
   $('deviceNav').replaceChildren();
   for (const device of filtered) {
@@ -160,8 +177,8 @@ function renderDevices() {
     item.append(
       node(
         'small',
-        getBrowserProfile(device.id) ? 'browser-marker' : '',
-        `${device.sku || device.group_label || 'M5Stack'} · ${getBrowserProfile(device.id) ? '浏览器运行' : device.visual_only ? '仅模型' : '连接服务'}`,
+        browserProfile(device.id) ? 'browser-marker' : '',
+        `${device.sku || device.group_label || 'M5Stack'} · ${browserProfile(device.id) ? '浏览器运行' : device.visual_only ? '仅模型' : '连接服务'}`,
       ),
     );
     item.addEventListener('click', () => void selectDevice(device.id).catch(error));
@@ -286,7 +303,7 @@ async function selectDevice(id) {
   );
   status(
     'model',
-    getBrowserProfile(id) ? '选择固件后即可开始' : row.visual_only ? '此型号目前仅有视觉模型' : '尚未运行固件',
+    browserProfile(id) ? '选择固件后即可开始' : row.visual_only ? '此型号目前仅有视觉模型' : '尚未运行固件',
   );
   $('deviceMount').dataset.deviceId = id;
   if (matchMedia('(max-width: 800px)').matches) $('deviceLibrary').open = false;
@@ -342,6 +359,7 @@ async function stopRun() {
     try {
       await releaseInputs(run);
       await run.controller.stop();
+      if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
       status('stopped', '保留最后显示帧');
@@ -368,6 +386,12 @@ async function firmware(signal, runGeneration) {
     expected = normalizeFirmwareSha256(
       $('firmwareSha').value.trim() || (selectedSource === 'reference' ? ref?.sha256 : null),
     );
+  if (selectedSource === 'reference' && ref?.composed) {
+    const phases = {'load-composer':'加载本地固件组合器','download-base':'下载官方固件基底','verify-base':'校验官方固件','compose':'写入示例源码','verify-result':'校验最终 Flash'};
+    const result = await composeDemoFirmware({signal,onProgress:(p)=>message('runProgress',phases[p.phase]||'正在准备浏览器示例')});
+    if (expected && expected !== result.sha256) throw new Error('示例 SHA-256 与预期不一致。');
+    return {...result,name:result.fileName||'cores3-lvgl-pir.bin',size:result.bytes.byteLength};
+  }
   if (selectedSource !== 'local') {
     const url = selectedSource === 'reference' ? ref?.url : $('firmwareUrl').value.trim();
     if (!url) throw new Error('请先选择一个固件文件或填写公开固件地址。');
@@ -392,7 +416,7 @@ async function firmware(signal, runGeneration) {
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
-  if (state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
+  if (state.selected.id === 'cores3' || state.selected.id === 'stopwatch' && frame.width === 468 && frame.height === 466) {
     const canvas = $('rawFrameCanvas');
     canvas.width = frame.width;
     canvas.height = frame.height;
@@ -406,16 +430,20 @@ function applyBrowserFrame(frame, run) {
       image.data[p + 3] = 255;
     }
     context.putImageData(image, 0, 0);
-    const first = $('rawFramePanel').hidden;
-    $('rawFramePanel').hidden = false;
-    $('deviceMount').classList.add('has-raw-frame');
-    if (first) {
-      state.shell?.viewer?.resize();
-      state.shell?.resetView?.();
+    $('rawFrameDescription').textContent = `完整 ${frame.width} × ${frame.height} 固件帧 · 支持触摸`;
+    if (state.selected.id === 'stopwatch') {
+      const first = $('rawFramePanel').hidden;
+      $('rawFramePanel').hidden = false;
+      $('deviceMount').classList.add('has-raw-frame');
+      if (first) {
+        state.shell?.viewer?.resize();
+        state.shell?.resetView?.();
+      }
+      $('frameStatus').textContent = `原始屏幕帧 ${frame.width} × ${frame.height} · 帧 ${frame.sequence}`;
+      canvas.dataset.frameSequence = frame.sequence;
+      return;
     }
-    $('frameStatus').textContent = `原始屏幕帧 468 × 466 · 帧 ${frame.sequence}`;
     canvas.dataset.frameSequence = frame.sequence;
-    return;
   }
   let applied;
   if (state.shell.setFrameLE) applied = state.shell.setFrameLE(frame.pixels, frame.width, frame.height, frame.sequence);
@@ -478,7 +506,8 @@ async function startRun() {
       },
     };
     if (kind === 'browser') {
-      run.controller = new PublicBrowserRuntime({
+      const BrowserRuntime = state.selected.id === 'cores3' ? PublicQemuRuntime : PublicBrowserRuntime;
+      run.controller = new BrowserRuntime({
         ...callbacks,
         root,
         onFrame: (frame) => applyBrowserFrame(frame, run),
@@ -486,6 +515,11 @@ async function startRun() {
           if (active(run)) status(value.status);
         },
       });
+      if (state.selected.id === 'cores3') {
+        state.lastBrowserController = run.controller;
+        $('browserPir').checked = false;
+        $('browserPirState').textContent = 'QOM: CLEAR';
+      }
       state.run = run;
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
@@ -745,6 +779,16 @@ async function init() {
     json(assetUrl('platform/web/site-config.json'), {}),
   ]);
   state.config = config;
+  if (config.browser_runtime_engine === 'qemu-wasm') {
+    try {
+      const isolation = await ensurePublicIsolation({root});
+      if (isolation.reloading) return;
+    } catch (cause) {
+      state.browserUnavailable = true;
+      error(new Error(`${cause.message} 仍可浏览模型或连接 HTTPS 仿真服务。`));
+    }
+    renderBrowserHistory();
+  }
   const rows = new Map(catalog.devices.map((d) => [d.id, {...d}]));
   for (const model of visual.products.filter((m) => m.category === 'controller'))
     if (!rows.has(model.id))
@@ -766,7 +810,7 @@ async function init() {
   $('catalogChip').textContent = `${state.devices.length} DEVICES / ${state.units.length} UNITS`;
   let launch;
   const params = new URLSearchParams(location.search);
-  if (!params.has('device')) params.set('device', config.browser_board_execution ? 'stopwatch' : 'cores3');
+  if (!params.has('device')) params.set('device', config.browser_runtime_engine === 'qemu-wasm' ? 'cores3' : config.browser_board_execution ? 'stopwatch' : 'cores3');
   try {
     launch = parseLaunchConfig(params.toString(), state.devices);
   } catch (cause) {
@@ -788,12 +832,18 @@ async function init() {
     $('stageTitle').textContent = '请选择设备';
     $('deviceMount').replaceChildren(node('p', 'stage-loading', '链接中的设备无法确认，请从设备列表选择。'));
   }
-  if ($('serviceUrl').value && launch.device && (launch.mode === 'service' || !getBrowserProfile(launch.device.id)))
+  if ($('serviceUrl').value && launch.device && (launch.mode === 'service' || !browserProfile(launch.device.id)))
     await connectService();
-  if (launch.firmware && launch.autostart && launch.device) {
+  const sharedReference = launch.device?.id === 'cores3' && reference()?.composed && launch.sha256 === reference().sha256;
+  if ((launch.firmware || sharedReference) && launch.autostart && launch.device) {
     if (lane()) await startRun();
     else message('launchNotice', '已读取链接中的设备与固件。此设备需要仿真服务，连接后点击开始运行。');
   }
+}
+function renderBrowserHistory() {
+  const rows = browserQemuHistory();
+  $('browserHistory').hidden = rows.length === 0;
+  $('browserHistoryText').textContent = rows.map(row=>`${row.stopped_at} · CoreS3 · ${row.receipt.firmwareSha256.slice(0,12)} · ${row.cleanup.gracefulExit ? '正常退出' : '已释放浏览器容器'}`).join('\n');
 }
 $('search').addEventListener('input', renderDevices);
 $('unitSearch').addEventListener('input', renderUnits);
@@ -867,6 +917,24 @@ $('serialForm').addEventListener('submit', async (event) => {
   } catch (cause) {
     error(cause);
   }
+});
+$('browserPir').addEventListener('change', async (event) => {
+  const run = state.run;
+  if (!active(run) || state.selected.id !== 'cores3') return;
+  try { const receipt = await run.controller.input({type:'pir',motion:event.target.checked});
+    $('browserPirState').textContent = receipt.result.motion ? 'QOM: MOTION' : 'QOM: CLEAR';
+  } catch (cause) { error(cause); }
+});
+$('nativeScreenBtn').addEventListener('click',()=>{
+  $('rawFramePanel').hidden=!$('rawFramePanel').hidden;
+  $('nativeScreenBtn').textContent=$('rawFramePanel').hidden?'平面触屏':'收起平面触屏';
+});
+$('browserEvidenceBtn').addEventListener('click', () => {
+  const controller = state.lastBrowserController;
+  if (!controller?.receipt) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(controller.evidence(),null,2)],{type:'application/json'}));
+  const link = document.createElement('a');link.href=url;link.download=`cores3-${controller.sessionId}.json`;link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 $('unitExplorer').addEventListener('toggle', () => {
   if ($('unitExplorer').open && !state.selectedUnit && state.units[0]) void selectUnit(state.units[0].id);

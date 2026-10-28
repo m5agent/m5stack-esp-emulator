@@ -139,6 +139,12 @@ blocker instead of spending more time on host-side workarounds.
 
 ## Virtual-device functional-test routing
 
+- Explicit browser-WASM validation uses the exported static site on an isolated
+  agent-owned port or an authorized Pages URL. Keep a browser-local session ID,
+  source/runtime/firmware hashes, actual serial/frame/controller-input results
+  and iframe/Worker cleanup evidence. It has no Device Service lease; never
+  splice service/native results into a browser PASS. This exception is limited
+  to the browser execution path under test.
 - General firmware functional tests, including uploaded UIFlow2 images, must
   use a dedicated Device Service at `/api/v1` with a separate port, state
   directory and control token. Port `8787` belongs to the user's testing

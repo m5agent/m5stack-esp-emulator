@@ -30,22 +30,41 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: dtolnay/rust-toolchain@1.99.1
-        with:
-          targets: wasm32-unknown-unknown
-      - name: Build pinned browser runtime and obtain reviewed ROM
-        run: python3 platform/tools/bootstrap_browser_runtime.py --fetch-rom
+      - name: Install native source build tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential autoconf automake libtool bison flex ninja-build pkg-config xz-utils
+      - name: Build pinned C/QEMU and complete corresponding source
+        run: python3 platform/tools/bootstrap_qemu_browser_runtime.py --jobs 2
+      - name: Build browser-local demo composer
+        run: python3 scripts/browser-littlefs/build.py --emcc .work/qemu-browser-runtime-build/emsdk/upstream/emscripten/emcc
       - name: Export reviewed browser assets
         env:
           PUBLIC_BASE_PATH: ${{ inputs.base_path }}
           PUBLIC_SERVICE_URL: ${{ inputs.service_url }}
-        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --browser-runtime .work/browser-runtime
+        run: python3 platform/tools/build_public_site.py --output .work/public-site --base-path "$PUBLIC_BASE_PATH" --service-url "$PUBLIC_SERVICE_URL" --qemu-runtime .work/qemu-browser-runtime --littlefs-runtime .work/browser-littlefs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install locked browser acceptance tools
+        run: npm ci --prefix platform/tests && npm exec --prefix platform/tests -- playwright install --with-deps --no-shell chromium
+      - name: Run actual CoreS3 guest in the exported static site
+        env:
+          NODE_PATH: ${{ github.workspace }}/platform/tests/node_modules
+          M5_PUBLIC_SITE: ${{ github.workspace }}/.work/public-site
+          M5_PUBLIC_BASE_PATH: ${{ inputs.base_path }}
+        run: node platform/tests/test_public_qemu_guest.mjs
+      - name: Retain browser acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-qemu-acceptance
+          path: .work/public-qemu-guest
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: public-simulator-site-preview

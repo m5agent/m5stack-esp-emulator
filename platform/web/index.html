@@ -92,16 +92,26 @@
           </div>
           <section class="raw-frame-panel" id="rawFramePanel" aria-labelledby="rawFrameTitle" hidden>
             <h3 id="rawFrameTitle">原始屏幕帧</h3>
-            <canvas id="rawFrameCanvas" tabindex="0" aria-label="StopWatch 原始固件屏幕，支持触摸"></canvas>
-            <p>完整 468 × 466 帧 · 3D 面板映射待验证</p>
+            <canvas id="rawFrameCanvas" tabindex="0" aria-label="原始固件屏幕，支持触摸"></canvas>
+            <p id="rawFrameDescription">来自模拟器的完整屏幕帧</p>
           </section>
           <div class="stage-status-bar">
             <span id="runtimeStatus" role="status" aria-live="polite"><i aria-hidden="true"></i>模型预览</span
             ><span id="frameStatus">尚未运行固件</span
+            ><button type="button" class="text-button" id="nativeScreenBtn" hidden>平面触屏</button
             ><button type="button" class="text-button" id="pauseBtn" hidden>暂停</button
             ><button type="button" class="text-button" id="stopBtn" hidden>停止</button>
           </div>
           <div id="runtimeUnitPanel"></div>
+          <div id="browserPirPanel" class="console-content" hidden>
+            <label><input id="browserPir" type="checkbox" disabled /> Port A · PIR 检测到移动</label>
+            <span id="browserPirState">QOM: CLEAR</span>
+            <p>输入经原生 Unit / GPIO 控制器送入当前固件；屏幕与串口显示客体读回。</p>
+          </div>
+          <button id="browserEvidenceBtn" class="text-button" type="button" hidden>下载本地运行记录</button>
+          <details id="browserHistory" class="console-drawer" hidden>
+            <summary>本机最近的运行记录</summary><pre id="browserHistoryText" class="console-content"></pre>
+          </details>
           <details class="console-drawer" id="serialDrawer">
             <summary><span>串口输出</span><span id="serialCount">0 B</span></summary>
             <div class="console-content">

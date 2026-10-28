@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "kind": "redacted-browser-local-qemu-summary",
+  "date": "2026-10-28",
+  "scope": "CoreS3 offline LVGL/touch/PIR, C/QEMU, cores3-wasm-vm-div8 only",
+  "hardware": "NOT RUN",
+  "local_static": {
+    "status": "PASS",
+    "prefix": "/m5stack-esp-emulator/",
+    "checks": [
+      {
+        "name": "pages-service-worker-shared-memory",
+        "ok": true
+      },
+      {
+        "name": "actual-cores3-lvgl-ready",
+        "ok": true,
+        "details": {
+          "button_center": [
+            160,
+            184
+          ],
+          "seq": 4,
+          "height": 240,
+          "width": 320,
+          "white_gpio": 1,
+          "fixture": "cores3-wasm-lvgl-pir-v1",
+          "kind": "ready",
+          "yellow_gpio": 2
+        }
+      },
+      {
+        "name": "c-qemu-runtime-and-exact-fixture",
+        "ok": true,
+        "details": {
+          "engine": "qemu-wasm",
+          "profile": "cores3-wasm-vm-div8",
+          "clockDivisor": 8,
+          "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+          "javascriptSha256": "dbf7daf8ad75f585a144fccb27979555c161855732ffb9b6798d43ad74ce0b93",
+          "workerSha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+          "wasmSha256": "4e707f78d54fc813840cb3dde4d93786743b3ca35d49f33773229830ce732b87",
+          "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+          "firmwareSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "build": {
+            "all_objects_rebuilt": true,
+            "commands_sha256": "8fe74231971371ee0e97fe3d7a8bfa54daeab655509604f4ea50fb0a5c832d66",
+            "emscripten": "3.1.50",
+            "guest_execution": "NOT RUN by builder",
+            "kind": "source-build",
+            "link_audit": {
+              "argv_sha256": "2e629705818ff387b0e38ed13ab828ac3522d54c26bde8c8b875d469b8e46a9b",
+              "effective": {
+                "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+                "STACK_OVERFLOW_CHECK": "2",
+                "STACK_SIZE": "64KB"
+              },
+              "required_flags": [
+                "-sSTACK_SIZE=64KB",
+                "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+                "-sSTACK_OVERFLOW_CHECK=2"
+              ],
+              "source": "ninja-link-command",
+              "verified": true
+            },
+            "lock_sha256": "8ce864dc2f34f500833a9c064c65d6e494277212befa1b2e8232dc645341d18c",
+            "recipe_sha256": "7afb9b5f9776cc692323ba58d4a6c938de54bc3072adc28ca66dea0de8696334"
+          },
+          "controller": "same-origin-iframe-message-channel",
+          "persistentFlash": false,
+          "memoryBytes": 268435456,
+          "relocatedGlueSha256": "e2b6e90067128cc8ad0709c77c56cd65d8d4ec299ded3ca3d8710a6fd6a656be"
+        }
+      },
+      {
+        "name": "real-frame-pixels",
+        "ok": true
+      },
+      {
+        "name": "negative-touch-does-not-click",
+        "ok": true
+      },
+      {
+        "name": "actual-dom-touch-lvgl-callback",
+        "ok": true
+      },
+      {
+        "name": "pir-qom-readback",
+        "ok": true
+      },
+      {
+        "name": "pir-guest-both-transitions",
+        "ok": true
+      },
+      {
+        "name": "qmp-pause-stops-guest-progress",
+        "ok": true
+      },
+      {
+        "name": "qmp-resume",
+        "ok": true
+      },
+      {
+        "name": "layout-1440",
+        "ok": true
+      },
+      {
+        "name": "layout-1024",
+        "ok": true
+      },
+      {
+        "name": "layout-768",
+        "ok": true
+      },
+      {
+        "name": "layout-390",
+        "ok": true
+      },
+      {
+        "name": "quit-and-container-cleanup",
+        "ok": true,
+        "details": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      },
+      {
+        "name": "no-instance-frame-after-stop",
+        "ok": true
+      },
+      {
+        "name": "local-history-retains-hash",
+        "ok": true
+      },
+      {
+        "name": "fresh-guest-reopen-from-shared-reference",
+        "ok": true
+      },
+      {
+        "name": "reopen-cleanup",
+        "ok": true,
+        "details": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      },
+      {
+        "name": "no-service-or-local-emulator-requests",
+        "ok": true
+      },
+      {
+        "name": "no-javascript-errors",
+        "ok": true,
+        "details": []
+      }
+    ],
+    "sessions": 2,
+    "workers_created": 10,
+    "workers_closed": 10,
+    "raw_report_sha256": "ff7599f14364dec18a3eba01e626b51a3617bef0fd6adbdc3e98b36d63319760",
+    "site_manifest_sha256": "99257471c2c9a1dc67f867ab265ae6ecf786b19ea127aaaf061db39774049130",
+    "runtime_manifest_sha256": "022af511d141f7a6caaca2ff5ce857ad73e2aad2c9eb61485a97df0b6c91e483"
+  },
+  "runtime": {
+    "engine": "qemu-wasm",
+    "profile": "cores3-wasm-vm-div8",
+    "clockDivisor": 8,
+    "sourceCommit": "40edccac415693c5130f91c01d84176ae6008566",
+    "javascriptSha256": "dbf7daf8ad75f585a144fccb27979555c161855732ffb9b6798d43ad74ce0b93",
+    "workerSha256": "0250bf8011a32bc00bdbf1f0f76cd60450bd835390726bc43079b37ac5eaeb00",
+    "wasmSha256": "4e707f78d54fc813840cb3dde4d93786743b3ca35d49f33773229830ce732b87",
+    "romSha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmwareSha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+    "build": {
+      "all_objects_rebuilt": true,
+      "commands_sha256": "8fe74231971371ee0e97fe3d7a8bfa54daeab655509604f4ea50fb0a5c832d66",
+      "emscripten": "3.1.50",
+      "guest_execution": "NOT RUN by builder",
+      "kind": "source-build",
+      "link_audit": {
+        "argv_sha256": "2e629705818ff387b0e38ed13ab828ac3522d54c26bde8c8b875d469b8e46a9b",
+        "effective": {
+          "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+          "STACK_OVERFLOW_CHECK": "2",
+          "STACK_SIZE": "64KB"
+        },
+        "required_flags": [
+          "-sSTACK_SIZE=64KB",
+          "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+          "-sSTACK_OVERFLOW_CHECK=2"
+        ],
+        "source": "ninja-link-command",
+        "verified": true
+      },
+      "lock_sha256": "8ce864dc2f34f500833a9c064c65d6e494277212befa1b2e8232dc645341d18c",
+      "recipe_sha256": "7afb9b5f9776cc692323ba58d4a6c938de54bc3072adc28ca66dea0de8696334"
+    },
+    "controller": "same-origin-iframe-message-channel",
+    "persistentFlash": false,
+    "memoryBytes": 268435456,
+    "relocatedGlueSha256": "e2b6e90067128cc8ad0709c77c56cd65d8d4ec299ded3ca3d8710a6fd6a656be"
+  },
+  "public_deployment": {
+    "status": "NOT RUN",
+    "target": "test fork GitHub Pages; upstream deployment remains administrator-owned"
+  },
+  "redactions": [
+    "local test origin and absolute paths",
+    "raw serial/frame pixels/requests retained outside source Git"
+  ],
+  "limitations": [
+    "vm-div8 slows virtual time and WDT together; default wallclock LVGL queue remains open",
+    "UART output only; browser text input disabled",
+    "network/audio/other devices and Units/Flash persistence not validated",
+    "local v4 source archive includes upstream non-target QEMU iotest sample; final CI packaging excludes opaque test image samples"
+  ]
+}

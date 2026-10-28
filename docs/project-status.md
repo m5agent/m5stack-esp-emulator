@@ -2,8 +2,7 @@
 
 日期：`2026-10-28`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
-本文是当前能力和边界的权威说明。当前未完成工作只在
-[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
+本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
 [验证证据台账](validation-ledger.md)维护，设备/Task 计数由
 [自动项目快照](project-snapshot.md)生成。代码阅读顺序见
 [工程交接总览](engineering-handoff.md)，工作流归属见
@@ -363,6 +362,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 能力 | 当前状态 | 主要边界 |
 | --- | --- | --- |
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
+| 公众 C/QEMU / CoreS3 | 本地限定通过，Pages 待验 | 浏览器本地组合固定示例、LCD/触摸/PIR/暂停/分享重开；虚拟时间和 WDT 为墙钟 1/8，UART 只输出，无 Flash 持久化；其它设备/固件/Unit 不继承。[证据](evidence/2026-10-28-qemu-wasm-pages/README.md) / [部署](pages-deployment.md) |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
 | Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；Serial 到达 `APIKEY`。normal-WDT TG0 stage-1 reset、display completion/`lv_disp_flush_ready`、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
