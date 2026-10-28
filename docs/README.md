@@ -117,6 +117,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [StopWatch / StickS3 / Core2 UIFlow2 音频数据面](evidence/2026-10-28-three-board-audio/README.md) | 当前三设备证据 | `2026-10-28` | 六个并发可见会话验证 Mic `record`/WAV 与 Speaker raw/WAV/file；修复 ESP32-S3 I2S completion 的固定时间窗；物理声学仍 NOT RUN |
 | [Core2 UIFlow2 触控条与电源键回调](evidence/2026-10-28-core2-touch-buttons/README.md) | 当前 Core2 输入证据 | `2026-10-28` | A/B/C 经 FT5x06 触控条、PWR 经 AXP2101 事件；四个回调与 remove 全通过，修复首次触控分支吞掉 `key:p` 的路由错误 |
 | [Core2 pending SPI IRQ remap](evidence/2026-10-28-core2-intmatrix-pending-irq/README.md) | 当前 Core2 中断证据 | `2026-10-28` | `0064` 修复 source level 已高时映射写回不重算的 INTMATRIX 缺陷；同固件/ELF pre-fix timeout、fixed guest callback PASS，Core2 UIFlow2 设备组保持 6/6；legacy `RUNTIME-03` 仍 OPEN |
+| [Core2 协作 IRQ、classic RMT 与三设备回归](evidence/2026-10-28-cooperative-highint-rmt/README.md) | 当前 Core2 运行时 / 三设备证据 | `2026-10-28` | `0065` 五轮关闭 high-priority DPORT handoff 调度死锁；`0066` 补 classic RMT 并越过 Neopixel 初始化错误，legacy 到达 `APIKEY`；normal-WDT reset、黑帧、display completion 和 setup/REPL 仍 OPEN。最终 runtime 三设备 system/候选/设备组并发回归 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |

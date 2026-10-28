@@ -427,3 +427,37 @@ Mic、INA3221、MPU6886 和 AXP192），均 attempt 1、无 retry。
 [`pre-fix control`](../tests/firmware/core2_spi_irq_remap/evidence-2026-10-28-core2-spi-irq-remap-control.json)、
 [`probe`](../tests/firmware/core2_spi_irq_remap/README.md)、
 [`本块说明`](evidence/2026-10-28-core2-intmatrix-pending-irq/README.md)。
+
+## 2026-10-28：Core2 high-priority IRQ、classic RMT 与三设备最终回归
+
+最终 QEMU
+`2026673273b5bced2c2696ac4850a48f5ea47d8e9c80d6ceb2cf15f68c36d29f`
+加入 `0065-xtensa-high-priority-irq-cooperative-yield.patch` 和
+`0066-esp32-classic-rmt-legacy.patch`。`0065` 记录 level-4/5 handler，
+只在 `memw` 发布 DPORT start 后和 sender `retw` end 路径协作让出，不改
+guest 指令、virtual time 或 IRQ level；同一 legacy public firmware 的五轮
+首启动均在 `5.000000002-5.000000031 s` 结束，`5/5 PASS`，旧固定 CPU0/CPU1
+双等待不再复现。
+
+`0066` 替换此前未实现的 classic ESP32 RMT region，模型 8 channel、寄存器、
+2 KiB RMTMEM、`conf0.mem_size`、memory TX、threshold、`TX_END`、INTMATRIX
+source 47 和有界 capture。修复前 `mem_size=0` 导致
+`RMT translator buffer create fail` / Neopixel `OSError`；修复后 debug trace
+捕获四次 channel 7 TX、每次 49 symbols，同一 legacy Serial 到达
+`BOARD NAME`/`APIKEY`。该模型不证明 GPIO waveform、光学或电气时序。
+
+模型修复没有关闭 `RUNTIME-03`。final runtime 的 normal-WDT control 在
+`7.249439902 s` 进入 TG0 stage-0 timeout、`17.249439902 s` 进入 stage-1、
+`17.249530334 s` 首次重启，串口报告 `TG0WDT_SYS_RESET` 和两核 `PC=0x0`。
+WDT-off 68 秒 exact-time 控制到达 `APIKEY`，但 320x240 帧仍为 302-byte、
+`0` 个非黑像素，SHA256
+`57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43`；
+display completion、setup/REPL 与非空应用帧继续 `OPEN`。
+
+同一 final runtime 并发回归 StopWatch、StickS3、Core2 当前 UIFlow2 v2.5.3：
+system runtime 每台 `50 PASS + 1 STATE_PASS`、零 ERROR/FAIL；BLE UUID 与
+Modbus RTU shared candidates 每台 `7/7`；设备组 StopWatch `6/6`、
+StickS3 `5/5`、Core2 `6/6`，17 个 group case 全部 attempt 1 且无 retry。
+全部仅 virtual-device validation，物理硬件/RF/声学/光学/电气为 `NOT RUN`。
+见[本轮证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)和
+[机器摘要](evidence/2026-10-28-cooperative-highint-rmt/summary.json)。

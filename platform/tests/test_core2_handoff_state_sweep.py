@@ -106,7 +106,21 @@ class Core2HandoffStateSweepTests(DocsContractBase):
         self.assertIn("M5SW_ESP32_HANDOFF_PAUSE_NS", runner)
         self.assertIn("M5SW_ESP32_HANDOFF_DUMP_STATE", runner)
         self.assertIn("--attempts", runner)
+        self.assertIn("--capture-frame", runner)
+        self.assertIn('run_dir / "frame.png"', runner)
+        self.assertIn("signal.SIGCONT", runner)
+        self.assertIn("immediately-after-pause-resume", runner)
+        self.assertIn('"frame_capture": args.capture_frame', runner)
+        self.assertIn('"CAPTURED_BLACK"', runner)
+        self.assertIn('"CAPTURED_NONBLANK"', runner)
+        self.assertIn(
+            'env.pop("M5SW_ESP32_HANDOFF_PAUSE_ACTION", None)',
+            runner,
+        )
+        self.assertIn('"ttl_seconds": 3600', runner)
+        self.assertIn('"3600"', runner)
         self.assertIn('choices=("qemu", "qemu-wifi")', runner)
+        compile(runner, str(RUNNER), "exec")
 
 
 if __name__ == "__main__":

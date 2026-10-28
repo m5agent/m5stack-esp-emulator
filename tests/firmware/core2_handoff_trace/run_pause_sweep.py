@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -106,6 +107,15 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def png_metrics(data: bytes) -> dict[str, int]:
+    tools_dir = str(ROOT / "platform/tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    from user_firmware_matrix import png_metrics as metrics
+
+    return metrics(data)
 
 
 def free_port() -> int:
@@ -317,6 +327,7 @@ def run_target(
     timeout: float,
     tolerance_ns: int,
     disable_wdt: bool,
+    capture_frame: bool,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"pause-{target_ns}-attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -333,9 +344,14 @@ def run_target(
             "M5SW_ESP32_HANDOFF_TRACE_SAMPLE": "1024",
             "M5SW_ESP32_HANDOFF_PAUSE_NS": str(target_ns),
             "M5SW_ESP32_HANDOFF_DUMP_STATE": "1",
-            "M5SW_ESP32_HANDOFF_PAUSE_ACTION": "exit",
         }
     )
+    if capture_frame:
+        # Preserve the stopped process so it can be resumed briefly for a QMP
+        # screendump after the exact-time state has been collected.
+        env.pop("M5SW_ESP32_HANDOFF_PAUSE_ACTION", None)
+    else:
+        env["M5SW_ESP32_HANDOFF_PAUSE_ACTION"] = "exit"
     if disable_wdt:
         env["M5SW_DISABLE_WDT"] = "1"
     else:
@@ -355,7 +371,7 @@ def run_target(
             "--max-per-device",
             "1",
             "--session-ttl",
-            "180",
+            "3600",
         ],
         cwd=ROOT,
         env=env,
@@ -388,7 +404,7 @@ def run_target(
             "device_id": "core2",
             "firmware_id": firmware["firmware_id"],
             "runtime": runtime,
-            "ttl_seconds": 180,
+            "ttl_seconds": 3600,
         }
         if runtime == "qemu-wifi":
             session_payload["network"] = {
@@ -431,6 +447,39 @@ def run_target(
             json.dumps(events, indent=2) + "\n"
         )
         snapshot = snapshot_at_pause(stderr, target_ns, tolerance_ns)
+        if capture_frame:
+            # The exact-time marker stops the whole QEMU process with SIGSTOP.
+            # Resume it after collecting register/state evidence so QMP can
+            # service screendump, then stop the lease immediately afterwards.
+            session = api.json(f"/api/v1/sessions/{session_id}")
+            os.kill(int(session["pid"]), signal.SIGCONT)
+            deadline = time.monotonic() + 5
+            while True:
+                state = str(
+                    api.json(f"/api/v1/sessions/{session_id}").get("state")
+                )
+                if state == "running":
+                    break
+                if time.monotonic() >= deadline:
+                    raise RuntimeError(
+                        f"QEMU did not resume for frame capture: state={state}"
+                    )
+                time.sleep(0.1)
+            frame_status, frame, _ = api.request(
+                f"/api/v1/sessions/{session_id}/frame.png",
+                timeout=30,
+            )
+            if frame_status != 200:
+                raise RuntimeError(
+                    f"frame capture returned HTTP {frame_status}"
+                )
+            (run_dir / "frame.png").write_bytes(frame)
+            snapshot["frame"] = {
+                "bytes": len(frame),
+                "sha256": sha256_bytes(frame),
+                "capture_phase": "immediately-after-pause-resume",
+                **png_metrics(frame),
+            }
         snapshot.update(
             {
                 "attempt": attempt,
@@ -485,6 +534,11 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=1)
     parser.add_argument("--disable-wdt", action="store_true")
     parser.add_argument(
+        "--capture-frame",
+        action="store_true",
+        help="capture the current PNG before stopping the lease",
+    )
+    parser.add_argument(
         "--runtime",
         choices=("qemu", "qemu-wifi"),
         default="qemu",
@@ -527,6 +581,7 @@ def main() -> int:
                     args.timeout_seconds,
                     int(args.pause_tolerance_ms * 1_000_000),
                     args.disable_wdt,
+                    args.capture_frame,
                 )
                 snapshots.append(snapshot)
                 print(
@@ -547,6 +602,19 @@ def main() -> int:
                     file=sys.stderr,
                 )
 
+    captured_frames = [
+        snapshot["frame"]
+        for snapshot in snapshots
+        if "frame" in snapshot
+    ]
+    frame_classification = "NOT RUN"
+    if captured_frames:
+        frame_classification = (
+            "CAPTURED_BLACK"
+            if all(row["nonblack_pixels"] == 0 for row in captured_frames)
+            else "CAPTURED_NONBLANK"
+        )
+
     evidence = {
         "schema_version": 1,
         "kind": "core2-handoff-pause-sweep",
@@ -565,10 +633,11 @@ def main() -> int:
             "trace_sample": 1024,
             "pc_sampling": "NOT RUN",
             "runtime": args.runtime,
-            "icount_shift": (
-                args.icount_shift if args.runtime == "qemu-wifi" else None
+            "icount_shift": args.icount_shift,
+            "pause_action": (
+                "sigstop-resume-for-frame" if args.capture_frame else "exit"
             ),
-            "pause_action": "exit",
+            "frame_capture": args.capture_frame,
             "wdt_disabled": args.disable_wdt,
             "attempts_per_target": args.attempts,
             "pause_tolerance_ns": int(
@@ -580,7 +649,7 @@ def main() -> int:
         "classification": {
             "uart_storm": "REJECTED",
             "guest_deadlock": "NOT PROVEN",
-            "application_frame": "NOT RUN",
+            "application_frame": frame_classification,
         },
         "boundaries": [
             "Only virtual-device validation.",

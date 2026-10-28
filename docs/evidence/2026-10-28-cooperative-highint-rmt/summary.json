@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "core2-cooperative-highint-classic-rmt-three-board-regression",
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "final_runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "2026673273b5bced2c2696ac4850a48f5ea47d8e9c80d6ceb2cf15f68c36d29f"
+  },
+  "legacy_core2": {
+    "firmware": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "cooperative_high_priority_irq": {
+      "status": "PASS",
+      "attempts": 5,
+      "failures": 0,
+      "first_pause_target_ns": 5000000000,
+      "observed_pause_ns_min": 5000000002,
+      "observed_pause_ns_max": 5000000031,
+      "qemu_binary_sha256": "2026673273b5bced2c2696ac4850a48f5ea47d8e9c80d6ceb2cf15f68c36d29f"
+    },
+    "classic_rmt": {
+      "status": "INIT_DATA_PLANE_PASS",
+      "channel": 7,
+      "transmissions_observed": 4,
+      "symbols_per_transmission": 49,
+      "serial_reached": [
+        "BOARD NAME: M5STACK-CORE2",
+        "APIKEY"
+      ],
+      "removed_error": "OSError: Error initializing Neopixel interface",
+      "gpio_waveform": "NOT MODELED"
+    },
+    "late_state_68s": {
+      "status": "CAPTURED",
+      "wdt_disabled": true,
+      "cpu0_pc": "0x40087984",
+      "cpu1_pc": "0x40095b31",
+      "serial_bytes": 552,
+      "serial_sha256": "f49a3930425ec6b21b64ca6a378d07ebe20951296dfb402cf9b429a50bf6c47a",
+      "frame": {
+        "width": 320,
+        "height": 240,
+        "bytes": 302,
+        "nonblack_pixels": 0,
+        "unique_colors": 0,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+      },
+      "classification": "BLACK_FRAME"
+    },
+    "normal_wdt_20s": {
+      "status": "RESET_REPRODUCED",
+      "stage0_timeout_ns": 7249439902,
+      "stage1_timeout_ns": 17249439902,
+      "first_reset_ns": 17249530334,
+      "reset_reason": "TG0WDT_SYS_RESET",
+      "guest_reported_cpu0_pc": "0x0",
+      "guest_reported_cpu1_pc": "0x0",
+      "serial_bytes": 1090
+    },
+    "remaining_open": [
+      "normal-WDT first reset",
+      "display completion and lv_disp_flush_ready",
+      "setup/REPL",
+      "nonblank application frame",
+      "matching ELF/MAP"
+    ]
+  },
+  "three_board_uiflow2": {
+    "stopwatch": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1,
+        "ERROR": 0,
+        "FAIL": 0
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "device_group": {
+        "PASS": 6,
+        "FAIL": 0,
+        "retry_used": false
+      }
+    },
+    "sticks3": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1,
+        "ERROR": 0,
+        "FAIL": 0
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "device_group": {
+        "PASS": 5,
+        "FAIL": 0,
+        "retry_used": false
+      }
+    },
+    "core2": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1,
+        "ERROR": 0,
+        "FAIL": 0
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "device_group": {
+        "PASS": 6,
+        "FAIL": 0,
+        "retry_used": false
+      }
+    }
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "The high-priority IRQ cooperative state machine is active only when TCG icount is enabled.",
+    "The 68-second frame is captured immediately after resuming the exact-time SIGSTOP and is not atomic with the register snapshot.",
+    "Classic RMT models controller memory TX and completion, not GPIO waveform or electrical timing.",
+    "UIFlow2 device groups do not close legacy UIFlow, physical hardware, RF, acoustic, optical or electrical validation."
+  ]
+}
