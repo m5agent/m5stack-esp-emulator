@@ -65,7 +65,7 @@ python3 platform/tools/serve.py <isolated-local-port> \
 PYTHONPATH=platform/tools:tests/uiflow2 \
   .work/issue-review-venv/bin/python3.12 \
   tests/uiflow2/api_sweep/run_hardware_guest.py \
-  --api http://127.0.0.1:<isolated-local-port> \
+  --api <isolated-local-service-origin> \
   --device cardputer-adv \
   --source tests/uiflow2/cardputer_adv_peripherals/main.py \
   --runtime-env-json <i2c-trace-runtime-env.json> \
