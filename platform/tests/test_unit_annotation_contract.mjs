@@ -22,13 +22,16 @@ const {annotationReadback, UnitAnnotations} = new Function(
 )();
 const panelClass = panelSource.slice(panelSource.indexOf('class UnitPanel {'),
   panelSource.indexOf('\nexport async function createUnitPanel'));
+const summaryHelpers = panelSource.slice(panelSource.indexOf('function readoutSource('),
+  panelSource.indexOf('\nfunction observedValue('));
+const valueFormatter = panelSource.match(/^const text = .*$/m)[0];
 
 function node() {
   return {dataset: {}, textContent: '', children: [], append(...children) {this.children.push(...children);},
     replaceChildren(...children) {this.children = children;}, querySelectorAll() {return [];}};
 }
 const Panel = new Function('window', 'document', 'copy', 'ACTIVE', 'clearTimeout', 'setTimeout',
-  'visualCommands', 'element', 'observedValue', 'arrayLedFeedback', `${panelClass}\nreturn UnitPanel;`)(
+  'visualCommands', 'element', 'observedValue', 'arrayLedFeedback', `${valueFormatter}\n${summaryHelpers}\n${panelClass}\nreturn UnitPanel;`)(
   {addEventListener() {}, removeEventListener() {}}, {hidden: false}, structuredClone,
   new Set(['booting', 'running']), () => {}, () => 1, () => [], () => node(), () => node(), arrayLedFeedback,
 );

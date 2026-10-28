@@ -20,10 +20,11 @@ MicroPython 和其他完整 Flash 固件。
 - Device Service 提供 lease、虚拟烧录、串口、frame/input/QOM、worker job、
   网络故障、pcap 和 evidence；普通 Agent 功能测试统一走 `/api/v1`，并在
   Live sessions 中保留可观察历史。
-- 公众工作台支持设备/固件 URL 分享、模型与 Unit 搜索，以及独立的浏览器
-  esp32sim 后端。PaperS3 / StopWatch 已验证官方演示的显示和输入子集；
-  其他 native 板级能力仍经 Device Service。Pages 构建与证据见
-  [公众入口计划](docs/plans/2026-10-28-public-simulator.md)，当前尚未部署。
+- 公众工作台支持设备/固件 URL 分享、模型与 Unit 搜索；Pages 默认采用
+  C/QEMU CoreS3 离线 LVGL/触摸/PIR 配置，固件在浏览器本地组合和执行。
+  虚拟时间与 WDT 同时慢放至墙钟的 1/8；其它设备与能力仍需独立准入或 Device Service。
+  Rust 两款演示保留为研究原型。构建、部署和范围见[Pages 指南](docs/pages-deployment.md)
+  与[本轮证据](docs/evidence/2026-10-28-qemu-wasm-pages/README.md)。
 - 外部 Agent 可提交 UIFlow2 Python 源码、在创建 session 时选择兼容 Unit，
   在同一 guest 连续 Run 并通过 Web 双向操作。兼容固件经真实 loader 探针后
   还可运行完整 main.mpy 包；默认 stock 能力与运行时能力分别查询。调用步骤、源码身份

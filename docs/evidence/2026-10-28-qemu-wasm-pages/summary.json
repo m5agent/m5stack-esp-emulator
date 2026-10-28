@@ -229,5 +229,14 @@
     "UART output only; browser text input disabled",
     "network/audio/other devices and Units/Flash persistence not validated",
     "local v4 source archive includes upstream non-target QEMU iotest sample; final CI packaging excludes opaque test image samples"
-  ]
+  ],
+  "platform_checks": {
+    "unittest": "PASS",
+    "tests": 1389,
+    "skipped": 8,
+    "log_sha256": "ace91b17a67b645d88146fd12d4b88c46572a832fb6aa45031e6d0c69715e1de",
+    "docs_contract_tests": 49,
+    "public_workbench_browser_contracts": 16,
+    "source_scope": "PASS"
+  }
 }
