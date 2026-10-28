@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+  "path": "m5stack/components/M5Unified/mpy_m5gfx.cpp",
+  "preimage_sha256": "b13f252dbfd05eaa9135169acb13c65766af7529973debdc45690e4e9ae853f7",
+  "candidate_sha256": "d66d11b7748cf80714f59a0c7943aa2c4bbb15488acedd9d7df69af64e8fbca9",
+  "patch_sha256": "18d55fc29f92bc701e6a9019aebe10d147e662488bbb8276198fc769589895e3",
+  "problem": "Display.drawPixel writes a framebuffer-backed panel without opening a transaction, so auto-display never sees endWrite and a standalone call does not flush.",
+  "correction": "Wrap the Python drawPixel call in a nested-safe startWrite/endWrite transaction; an existing user transaction remains open until its matching endWrite.",
+  "validation": "StopWatch matching preimage misses both standalone pixels; StopWatch, StickS3 and Core2 candidates pass odd/even standalone pixels, framebuffer neighbor preservation and an explicit outer startWrite/endWrite batch."
+}

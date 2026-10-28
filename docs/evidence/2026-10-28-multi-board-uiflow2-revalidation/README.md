@@ -66,8 +66,10 @@ StopWatch 的 `0001` 最终对照在同一个 hash-pinned firmware/runtime 上�
   仍为 `REVIEW`。
 - StickS3 的该固件不导出 `m5ui`/`lvgl`，分类为 `NOT_EXPORTED`。
 - StopWatch 的 `drawPixel` 在无后续 flush 时没有向 CO5300 发出像素数据。
-  trace 显示只发送 CASET/RASET 和 RAMWR 头，原因是单像素窗口宽度为 1，
-  与 `Panel_AMOLED` 的偶数窗口限制冲突。该项仍为固件/绑定缺陷。
+  后续已更正根因：不是 CO5300 单像素窗口限制，而是 Python
+  `gfx_drawPixel()` 没有打开 display transaction，framebuffer panel 的
+  auto-display 从未执行 `endWrite()`；`0024` 候选和相邻像素/嵌套事务证据见
+  [drawPixel 证据](../2026-10-28-stopwatch-drawpixel-transaction/README.md)。
 - StopWatch 与 StickS3 的 PNG/BMP/JPEG/Image 在绝对 `/flash` 路径下通过；
   文档中的相对路径没有绘制。StopWatch `drawRawBuf` 使用像素数而非字节数
   后通过。

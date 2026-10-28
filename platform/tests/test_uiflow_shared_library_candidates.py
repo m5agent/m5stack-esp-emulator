@@ -142,6 +142,33 @@ class SharedLibraryCandidateTests(unittest.TestCase):
                 manifest["candidate_sha256"],
             )
 
+    def test_draw_pixel_candidate_is_transactionally_bound(self):
+        manifest = json.loads(
+            (ROOT / "patches/uiflow2-api/0024-display-draw-pixel-transaction.json").read_text()
+        )
+        source = SOURCE / manifest["path"]
+        self.assertEqual(
+            hashlib.sha256(source.read_bytes()).hexdigest(),
+            manifest["preimage_sha256"],
+        )
+        patch = ROOT / "patches/uiflow2-api/0024-display-draw-pixel-transaction.patch"
+        with tempfile.TemporaryDirectory() as temporary:
+            work = Path(temporary) / manifest["path"]
+            work.parent.mkdir(parents=True)
+            work.write_bytes(source.read_bytes())
+            subprocess.run(
+                ["patch", "-d", temporary, "-p1", "--batch", "--forward", "-i", str(patch)],
+                check=True,
+                capture_output=True,
+            )
+            candidate = work.read_text()
+            self.assertEqual(
+                hashlib.sha256(work.read_bytes()).hexdigest(),
+                manifest["candidate_sha256"],
+            )
+            self.assertIn("gfx->startWrite();\n    gfx->drawPixel", candidate)
+            self.assertIn("gfx->endWrite();\n    return mp_const_none", candidate)
+
 
 if __name__ == "__main__":
     unittest.main()

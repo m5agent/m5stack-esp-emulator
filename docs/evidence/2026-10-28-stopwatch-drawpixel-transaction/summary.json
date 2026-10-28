@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_sha256": "21b7e34cc96560b4c8185131791008ae49fb1c6975a8428e4e344188a8236394",
+  "patch": "0024-display-draw-pixel-transaction",
+  "patch_sha256": "18d55fc29f92bc701e6a9019aebe10d147e662488bbb8276198fc769589895e3",
+  "compiled_source_sha256": "d66d11b7748cf80714f59a0c7943aa2c4bbb15488acedd9d7df69af64e8fbca9",
+  "devices": {
+    "stopwatch": {
+      "preimage_sha256": "790184d2d52c55e0b201727485d9c9c1fe184e6beae8637538097de24386b5d0",
+      "preimage_status": "FAIL",
+      "candidate_sha256": "e13f7217698a7d59a0df9de4ef256f0bb3b6839928282a1220d86300346158ba",
+      "candidate_app_sha256": "67c5a127cab93b61db34158a47d1fee78b127731b5686fabf06c56f0f11bc22d",
+      "candidate_status": "FRAME_PASS",
+      "frame_sha256": "d458f64975504addf6531ed6c2fb38223693cd1db4f661d52d77cd3f38b1c974"
+    },
+    "sticks3": {
+      "candidate_sha256": "2a20c3cf5831467863a868fa9bee35006e497b53f631db582f3045f6d55dccb1",
+      "candidate_app_sha256": "8604e1473f7bbb883af772646bf86abb9d0264d6def637de0d8193128de1721a",
+      "candidate_status": "FRAME_PASS",
+      "frame_sha256": "2696612fa2c1b4ccc866e9a22e76119ba157e6e1dd51fbc5b8e3df36becc3858"
+    },
+    "core2": {
+      "candidate_sha256": "6ab3b5c77b3054d243a25ee5f20fe290aee4c58140c3de6d61d676a2da14c826",
+      "candidate_app_sha256": "40054af95c858fda9f646f60a77328034b9d5c896dda0f33ec4c032f1d9f96e9",
+      "candidate_status": "FRAME_PASS",
+      "frame_sha256": "dd42971e4a2effb5866cebc65fc533399f8b31e8a57ce6389cf4461ca56849b3"
+    }
+  },
+  "oracle": {
+    "standalone_even_pixel": "PASS",
+    "standalone_odd_pixel": "PASS",
+    "nested_explicit_transaction": "PASS",
+    "neighbor_preservation": "PASS"
+  },
+  "limits": [
+    "Incremental application relink, not a cold build",
+    "Physical hardware is NOT RUN",
+    "Long-running framebuffer DMA soak is NOT RUN"
+  ]
+}

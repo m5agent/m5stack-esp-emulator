@@ -31,6 +31,7 @@
 | [0021-ble-advertising-uuid32.patch](0021-ble-advertising-uuid32.patch) | 两个 BLE advertising 解码器不再把 4-byte UUID 当作 8-byte `double`；将原始 4-byte 蓝牙 UUID 交给 `bluetooth.UUID` | StopWatch / StickS3 / Core2 stock 32-bit 失败保留；同 VM 候选源码包在 16/32-bit 向量上通过，见 2026-10-28 三设备证据 |
 | [0022-modbus-transform-frame.patch](0022-modbus-transform-frame.patch) | `ModbusRTUFrame.transform_frame` 用源 TCP frame 的字段直接构造 RTU frame，不再先创建非法 `func_code=0` 对象 | StopWatch / StickS3 / Core2 stock 失败保留；同 VM 候选源码包验证 function-03 request、response 和 exception frame 的精确 RTU bytes/CRC |
 | [0023-modbus-async-socket.patch](0023-modbus-async-socket.patch) | MicroPython 下不再调用不存在的 `asyncio.Loop.sock_recv`，改为有界、可让出执行权的 `select.poll` + socket receive；CPython 路径保留 | StopWatch / StickS3 / Core2 stock 八个 async TCP 方法均报 `sock_recv`；候选须由真实 owned Modbus peer 验证读、写和回读 |
+| [0024-display-draw-pixel-transaction.patch](0024-display-draw-pixel-transaction.patch) | Python `Display.drawPixel` 使用嵌套安全的 `startWrite/endWrite`，让 framebuffer-backed panel 的 auto-display 提交 dirty range | StopWatch preimage 的 standalone 奇/偶像素不出现；StopWatch / StickS3 / Core2 候选通过 standalone、相邻像素保留和用户显式外层事务；真机 NOT RUN |
 
 相邻 JSON 固定官方源码及 preimage / candidate SHA；`0001` 使用多文件
 `files` 清单，`0002` 使用 `source_path` / `postimage_sha256`。含

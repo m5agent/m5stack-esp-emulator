@@ -337,3 +337,16 @@ native bootstrap，避免对 UART0 重复 `os.dupterm`。全部为 virtual-devic
 validation；incremental relink、公网 PKI、证书持久化和真机为 `NOT RUN`。
 哈希、peer、证书和边界见
 [候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。
+
+## 2026-10-28：Display.drawPixel framebuffer transaction
+
+此前 StopWatch `drawPixel` 失败被归因于 CO5300 单像素/偶数窗口限制；本轮
+framebuffer path 对照退役该判断。StopWatch 使用 `Panel_AMOLED_Framebuffer`，
+其 auto-display 只在 `endWrite()` 时提交 dirty range，而 Python
+`gfx_drawPixel()` 原先直接调用 `drawPixel()`，没有打开事务。`0024` 增加嵌套
+安全的 `startWrite()/endWrite()`。同一 StopWatch preimage 中，显式事务红/绿
+像素出现而 standalone 青/白像素缺失；候选即使把显式事务放在 standalone
+调用之前，仍保留四个目标像素并保持奇偶相邻背景。StopWatch、StickS3、Core2
+三台候选均 `FRAME_PASS`。所有候选只改变 application partition；真机与长期
+framebuffer DMA soak 为 `NOT RUN`。见
+[drawPixel 证据](evidence/2026-10-28-stopwatch-drawpixel-transaction/README.md)。
