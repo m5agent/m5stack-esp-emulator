@@ -11,6 +11,7 @@ PATCH = ROOT / "patches/uiflow2-api/0016-lvgl-custom-animation-lookup.patch"
 
 STUBS = r'''
 #include <stdbool.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +86,8 @@ class LvglCustomAnimationPatchTests(unittest.TestCase):
             for label, before in (("preimage", True), ("candidate", False)):
                 path, binary = root / (label + ".c"), root / label
                 path.write_text(STUBS + functions(before) + MAIN)
-                subprocess.run([shutil.which("cc"), "-std=c11", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function", str(path), "-o", str(binary)], check=True, capture_output=True)
+                compile_result = subprocess.run([shutil.which("cc"), "-std=c11", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function", str(path), "-o", str(binary)], capture_output=True)
+                self.assertEqual(compile_result.returncode, 0, compile_result.stderr.decode())
                 for case in range(6):
                     with self.subTest(version=label, case=case):
                         result = subprocess.run([str(binary), str(case)], capture_output=True, timeout=5)

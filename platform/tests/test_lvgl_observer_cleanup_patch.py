@@ -15,6 +15,7 @@ FIXTURE = ROOT / 'platform/tests/fixtures/lvgl_observer_upstream/lv_observer.c'
 STUBS = r'''
 #include <assert.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,7 +99,8 @@ class LvglObserverCleanupPatchTests(unittest.TestCase):
                 text = data.decode()
                 path, binary = root / (label + '.c'), root / label
                 path.write_text(STUBS + '\n'.join(function(text, name) for name in ('lv_subject_deinit', 'lv_observer_remove', 'lv_obj_remove_from_subject', 'unsubscribe_on_delete_cb')) + MAIN)
-                subprocess.run([shutil.which('cc'), '-std=c11', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', str(path), '-o', str(binary)], check=True, capture_output=True)
+                compile_result = subprocess.run([shutil.which('cc'), '-std=c11', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', str(path), '-o', str(binary)], capture_output=True)
+                self.assertEqual(compile_result.returncode, 0, compile_result.stderr.decode())
                 for case in range(6):
                     with self.subTest(version=label, case=case):
                         result = subprocess.run([str(binary), str(case)], capture_output=True, timeout=5)
