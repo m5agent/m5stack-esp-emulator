@@ -65,8 +65,10 @@ eFuse 或生产 key。
 确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
 hash-pinned 候选修正及三设备虚拟结果，见
 [三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
-仍需关闭 StopWatch 单像素 CO5300 路径、QR/TLS 候选固件重建、WAV/mic 数据面、
-ESP-NOW controller TX/RX/IRQ、Core2 稳定按键输入和所有 28 类 Core2 文档方法矩阵。
+QRCode.setText 与 TLS epoch 已完成三台 matching preimage→candidate 固件对照，
+见[候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。
+仍需关闭 StopWatch 单像素 CO5300 路径、WAV/mic 数据面、ESP-NOW
+controller TX/RX/IRQ、Core2 稳定按键输入和所有 28 类 Core2 文档方法矩阵。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API

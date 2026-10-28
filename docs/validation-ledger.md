@@ -322,3 +322,18 @@ MQTT `42/42`、network `14/14`、EasySocket `57 PASS + 1 N/A`、EzData
 StopWatch/Core2 的同 VM stock→candidate 对照、ESP-NOW 控制面、TLS epoch、
 QRCode.setText、WAV/mic、StopWatch drawPixel trace 和 Core2 按键边界见
 [三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
+
+## 2026-10-28：QRCode.setText 与 TLS epoch 三设备候选固件
+
+StopWatch、StickS3、Core2 分别使用匹配 cached build 增量重链接
+`0014-widgets-qrcode-text` 和 `0010-mbedtls-epoch`，只替换 application
+partition；所有 receipt 均确认 application 外字节不变、原始源码和 cached
+library 不变。QR stock/preimage 三台均解码旧文本 `ORACLE_MISMATCH`，候选
+三台均 `FRAME_PASS` 解码新文本。TLS preimage 三台均为
+`2 ERROR + 3 STATE_PASS`，错误为 owned 2020–2035 证书被判过期；候选三台均
+`5/5 PASS`，每台完成两次 TLSv1.2 双向认证 HTTP GET，服务端验证精确客户端
+证书。StickS3 TLS 使用含 native UART REPL 的 `unified` build，并新增显式
+native bootstrap，避免对 UART0 重复 `os.dupterm`。全部为 virtual-device
+validation；incremental relink、公网 PKI、证书持久化和真机为 `NOT RUN`。
+哈希、peer、证书和边界见
+[候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。

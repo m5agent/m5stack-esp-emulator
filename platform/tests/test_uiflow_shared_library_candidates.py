@@ -1,7 +1,10 @@
 """Verify reviewed shared-library corrections against the pinned SDK source."""
 import asyncio
+import hashlib
+import json
 from pathlib import Path
 import socket
+import subprocess
 import sys
 import tempfile
 import types
@@ -114,6 +117,30 @@ class SharedLibraryCandidateTests(unittest.TestCase):
                     peer_socket.close()
             finally:
                 sys.path[:] = previous_path
+
+    def test_tls_epoch_patch_is_rebound_to_the_current_release_source(self):
+        manifest = json.loads(
+            (ROOT / "patches/uiflow2-api/0010-mbedtls-epoch.json").read_text()
+        )
+        source = SOURCE / manifest["path"]
+        self.assertEqual(
+            hashlib.sha256(source.read_bytes()).hexdigest(),
+            manifest["preimage_sha256"],
+        )
+        patch = ROOT / "patches/uiflow2-api/0010-mbedtls-epoch.patch"
+        with tempfile.TemporaryDirectory() as temporary:
+            work = Path(temporary) / manifest["path"]
+            work.parent.mkdir(parents=True)
+            work.write_bytes(source.read_bytes())
+            subprocess.run(
+                ["patch", "-d", temporary, "-p1", "--batch", "--forward", "-i", str(patch)],
+                check=True,
+                capture_output=True,
+            )
+            self.assertEqual(
+                hashlib.sha256(work.read_bytes()).hexdigest(),
+                manifest["candidate_sha256"],
+            )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_sha256": "21b7e34cc96560b4c8185131791008ae49fb1c6975a8428e4e344188a8236394",
+  "qr_code": {
+    "patch": "0014-widgets-qrcode-text",
+    "patch_sha256": "939750d881194639b1eb7888d0848da570c31863ea85aad68345f1d2b897dd8b",
+    "compiled_source_sha256": "8f1fcf750218311405b996f5eee389fd3e42e59d28d8e85151d7c8addaf68888",
+    "devices": {
+      "stopwatch": {
+        "preimage_sha256": "790184d2d52c55e0b201727485d9c9c1fe184e6beae8637538097de24386b5d0",
+        "candidate_base_sha256": "a8e69c2ed39a06d7112713a708bdd2b2c854bc6b0fd3f83407c5023ffcdaebfe",
+        "candidate_app_sha256": "f6bc7a75a726b6d45fb32225bed2673725275a3d8abf18fce4ace028809665a8",
+        "preimage_result": "ORACLE_MISMATCH",
+        "candidate_result": "FRAME_PASS"
+      },
+      "sticks3": {
+        "preimage_sha256": "20b783596e397c5a2931e02a74178c83d14b17af963278259b82a609d3c33b95",
+        "candidate_base_sha256": "a036205decdc090d576306bfc147fc6dc7124e07f5d864957f927efb12ae970b",
+        "candidate_app_sha256": "ebe2a5854e842bf2f5e5b167e599720d22d24b210fbeea2ba2f2a6491b0364ea",
+        "preimage_result": "ORACLE_MISMATCH",
+        "candidate_result": "FRAME_PASS"
+      },
+      "core2": {
+        "preimage_sha256": "f3d37e56477b42741bb0a97095ec49a05a62e43475bab278cde130f909446e4e",
+        "candidate_base_sha256": "42669acc0e04c4da45e8009d0bac70dc67d725acebf91b413a043c22abd2f932",
+        "candidate_app_sha256": "7a42d7b5a55cdb287e6cbf3d573d8160be6368af0c1a90dcb4f322fe7be9c9d5",
+        "preimage_result": "ORACLE_MISMATCH",
+        "candidate_result": "FRAME_PASS"
+      }
+    }
+  },
+  "tls_epoch": {
+    "patch": "0010-mbedtls-epoch",
+    "patch_sha256": "60dfd9321975ae302a66054ef6338e1ee8438063e945ff23c03a0ef235984260",
+    "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+    "preimage_source_sha256": "300f3a6db3ca208b81e9f8ce9017dbf1e13dd60b2edd4d72d47b0941a5f28058",
+    "candidate_source_sha256": "1a7ae81dc2c41da92454e1f807647bf3ca1fc1ebd2c4795ed1e394260503e158",
+    "certificate_not_before": "2020-01-01T00:00:00+00:00",
+    "certificate_not_after": "2035-01-01T00:00:00+00:00",
+    "devices": {
+      "stopwatch": {
+        "preimage_sha256": "790184d2d52c55e0b201727485d9c9c1fe184e6beae8637538097de24386b5d0",
+        "candidate_base_sha256": "edcd9a392f1ff5e5741c8331ae41ea18b915ae50b2ff54c173110c65c532e6a6",
+        "candidate_app_sha256": "81c16e5ab62807ec451f4604ee8c5fe701dba71ebffecce199d6e00d1037d0ae",
+        "preimage_counts": {"ERROR": 2, "STATE_PASS": 3},
+        "candidate_counts": {"PASS": 5},
+        "certificate_sha256": "01fc2054e23f215f5ad5b69b3501921a36679fba6c6ee5a513bddc445787eb70"
+      },
+      "sticks3": {
+        "preimage_sha256": "373092e77e273d580ff7f31d52931778f4aa7a23d04bed285af395bc357077a6",
+        "candidate_base_sha256": "2e8386057fab9d384489651a544e30ce4edaf86586e1f4ce7f588469439af6aa",
+        "candidate_app_sha256": "daaac8750c8e3242e0f973a10ffe588c1b4e011e69f478b31600ad7ceaebc84a",
+        "preimage_counts": {"ERROR": 2, "STATE_PASS": 3},
+        "candidate_counts": {"PASS": 5},
+        "certificate_sha256": "fc7307ffc4ac8cdc32aa5c4d120dbcdee3cda440933b65de485615a5bd528d47"
+      },
+      "core2": {
+        "preimage_sha256": "f3d37e56477b42741bb0a97095ec49a05a62e43475bab278cde130f909446e4e",
+        "candidate_base_sha256": "204def8c601c29b7fa4af83b767c3fd8ced9c6b12815a709c450fb5b80a2e2c6",
+        "candidate_app_sha256": "86a57bde39fc123300a406cbded5be477df93a28786f8f5536f25af4007d65f5",
+        "preimage_counts": {"ERROR": 2, "STATE_PASS": 3},
+        "candidate_counts": {"PASS": 5},
+        "certificate_sha256": "6075693b37b26817e11209fb0c01c0317ab79c3b70cb6b70fd480427bbc59187"
+      }
+    }
+  },
+  "limits": [
+    "Incremental application relink, not a cold build",
+    "Virtual-device validation only",
+    "Physical hardware, public PKI, certificate storage and secure element are NOT RUN",
+    "The stock CDN firmware remains unfixed; the result applies to hash-pinned candidate images"
+  ]
+}

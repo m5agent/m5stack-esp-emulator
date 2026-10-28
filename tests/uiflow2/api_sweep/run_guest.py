@@ -30,6 +30,20 @@ def save(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def live_boot(device, uart_repl_bootstrap=None, run_main=True):
+    """Return a bootstrap matching the base image's actual REPL ownership."""
+    native_uart_repl = device == "core2" or uart_repl_bootstrap == "native"
+    if native_uart_repl:
+        return f"_uiflow_run_main = {run_main!r}\n"
+    return (
+        "from machine import UART\nimport os\n"
+        "_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n"
+        "os.dupterm(_repl_uart, 0)\n"
+        "_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n"
+        f"_uiflow_run_main = {run_main!r}\n"
+    )
+
+
 def serial_pages(api, session_id, offset=0):
     """Drain the byte cursor instead of assuming a requested limit was honored."""
     chunks, pages = [], []
@@ -175,15 +189,11 @@ def run(args):
     # Core2's UART0 duplicate-terminal route returns EPERM on the current
     # UIFlow2 image even though the stock REPL owns that UART. Finite cold
     # probes do not need to replace it; S3 live-program sessions do.
-    boot = '_uiflow_run_main = True\n'
-    if args.device != "core2":
-        boot = (
-            'from machine import UART\nimport os\n'
-            '_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n'
-            'os.dupterm(_repl_uart, 0)\n'
-            '_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n'
-            '_uiflow_run_main = True\n'
-        )
+    boot = live_boot(
+        args.device,
+        getattr(args, "uart_repl_bootstrap", None),
+        run_main=True,
+    )
     main = 'print("M5EMU_API_SWEEP_READY")\n' + source
     (files / "boot.py").write_text(boot, encoding="utf-8")
     (files / "main.py").write_text(main, encoding="utf-8")
@@ -450,6 +460,8 @@ if __name__ == "__main__":
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--prepare-timeout", type=int, default=600)
     parser.add_argument("--program-transport", choices=("uart-repl",))
+    parser.add_argument("--uart-repl-bootstrap", choices=("dupterm", "native"),
+                        help="guest bootstrap for an explicit UART-REPL-capable base image")
     parser.add_argument("--runtime-env-json", type=Path,
                         help="explicit local diagnostic runtime environment, sent through /sessions")
     parser.add_argument("--keep-session", action="store_true",

@@ -112,6 +112,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |
 | [UIFlow2 双主机审计与修复](evidence/2026-10-27-uiflow2-api-sweep/README.md) / [计划](plans/2026-10-27-uiflow2-complete-api-sweep.md) | 当前审计 | `2026-10-28` | UI/硬件/系统/HTTP 逐项状态、原厂与 SDK 候选分 lane；最终完整矩阵 68/68，模型/配置/可选外设及 stock 失败仍保留 |
 | [StopWatch / StickS3 / Core2 UIFlow2 三设备复测](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md) | 当前三设备证据 | `2026-10-28` | system、协议、M5UI 和 shared SDK 候选；requests2、BLE UUID32、Modbus transform/async 与 M5UI 缺陷有候选修复，其余模型/固件边界显式保留 |
+| [QRCode.setText 与 TLS epoch 三设备候选固件](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md) | 当前候选固件证据 | `2026-10-28` | StopWatch/StickS3/Core2 各自完成 stock→candidate 对照；QR 旧文本失败均转为新文本解码 PASS，TLS 证书过期均转为 5/5 mTLS HTTPS PASS；incremental relink、真机和公网 PKI NOT RUN |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |

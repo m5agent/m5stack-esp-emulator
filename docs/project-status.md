@@ -46,7 +46,7 @@ Unit客户端旧请求/队列和装配污染已有[响应隔离](https://github.
 - Tab5、CardputerZero 和视觉外壳仍是可用子集，不能继承 S3/C6/Core2 的
   完整度。
 
-当前阶段仍是 `PILOT`。`API-01` 的双主机接口审计、QEMU 0051–0061 与 SDK 候选修正见[本轮证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)；最终 runtime 完整矩阵 68/68、零自动重试，stock 失败/配置/模型/可选外设边界继续保留，不能称全接口功能 PASS。2026-10-28 又在 StopWatch、StickS3、Core2 的当前 v2.5.3 镜像上完成三设备复测：system runtime、sockets、MQTT、network、EzData 和候选 HTTP/Modbus 路径稳定，确认并修复 requests2、BLE UUID32、Modbus transform/async、M5UI Canvas/Image/Spinbox 共享缺陷；StopWatch drawPixel、QR/TLS 候选固件、WAV/mic、ESP-NOW payload 和 Core2 按键输入仍保留边界，见[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。Core2 UIFlow2 公开最小首帧/WLAN 路径及 SPI DMA 双消费导致的 LVGL 撕裂已修复，离线 MAC/MMIO/DMA/IRQ、Widgets、正常字形与显式 WiFi 分别验证；[本轮证据](evidence/2026-10-27-core2-startup/README.md)不关闭旧 UIFlow1 LVGL7 `RUNTIME-03`，原始私有完整应用及物理硬件也不继承通过。
+当前阶段仍是 `PILOT`。`API-01` 的双主机接口审计、QEMU 0051–0061 与 SDK 候选修正见[本轮证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)；最终 runtime 完整矩阵 68/68、零自动重试，stock 失败/配置/模型/可选外设边界继续保留，不能称全接口功能 PASS。2026-10-28 又在 StopWatch、StickS3、Core2 的当前 v2.5.3 镜像上完成三设备复测：system runtime、sockets、MQTT、network、EzData 和候选 HTTP/Modbus 路径稳定，确认并修复 requests2、BLE UUID32、Modbus transform/async、M5UI Canvas/Image/Spinbox 共享缺陷；随后分别重建三台候选 application，QRCode.setText 从旧文本 oracle 失败转为新文本 PASS，TLS epoch 从证书过期转为三台各 5/5 mTLS HTTPS PASS。StopWatch drawPixel、WAV/mic、ESP-NOW payload 和 Core2 按键输入仍保留边界，见[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)和[QR/TLS 候选固件证据](evidence/2026-10-28-qrcode-tls-candidate-firmware/README.md)。Core2 UIFlow2 公开最小首帧/WLAN 路径及 SPI DMA 双消费导致的 LVGL 撕裂已修复，离线 MAC/MMIO/DMA/IRQ、Widgets、正常字形与显式 WiFi 分别验证；[本轮证据](evidence/2026-10-27-core2-startup/README.md)不关闭旧 UIFlow1 LVGL7 `RUNTIME-03`，原始私有完整应用及物理硬件也不继承通过。
 
 ## 本轮目标盘点
 

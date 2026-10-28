@@ -30,6 +30,15 @@ class ApiSweepDeviceRoutingTests(unittest.TestCase):
             ("cores3", "cardputer-adv", "stopwatch", "sticks3", "core2"),
         )
 
+    def test_native_uart_bases_do_not_duplicate_the_repl_terminal(self):
+        for device in ("stopwatch", "sticks3"):
+            with self.subTest(device=device):
+                bootstrap = self.guest.live_boot(device, "native")
+                self.assertNotIn("os.dupterm", bootstrap)
+                self.assertIn("_uiflow_run_main = True", bootstrap)
+        self.assertIn("os.dupterm", self.guest.live_boot("sticks3", "dupterm"))
+        self.assertIn("os.dupterm", self.guest.live_boot("sticks3"))
+
     def test_ui_geometry_comes_from_device_inventory(self):
         self.assertEqual(self.ui.display_dimensions("stopwatch"), (466, 466))
         self.assertEqual(self.ui.api_dimensions("stopwatch"), (468, 468))

@@ -1,11 +1,13 @@
 {
   "schema_version": 1,
   "upstream": "https://github.com/m5stack/uiflow-micropython",
-  "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
   "path": "m5stack/main.c",
-  "preimage_sha256": "314b464fc0bc339a744f94e944dd98036c53768b1aa42493d9b963c49d6b1240",
-  "candidate_sha256": "48a1ae7869ddaa587a9a861bd60a4d7d95c77454a1ec978a80ff99c0d0762304",
+  "preimage_sha256": "300f3a6db3ca208b81e9f8ce9017dbf1e13dd60b2edd4d72d47b0941a5f28058",
+  "candidate_sha256": "1a7ae81dc2c41da92454e1f807647bf3ca1fc1ebd2c4795ed1e394260503e158",
   "patch_sha256": "60dfd9321975ae302a66054ef6338e1ee8438063e945ff23c03a0ef235984260",
+  "previous_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "rebind_reason": "release/2.5.3 source branch advanced with unrelated main.c m5things startup changes; the reviewed epoch hunk is unchanged",
   "contract": "mbedtls_time uses the Unix epoch; a 1970-epoch port must not add the 1970-to-2000 offset again",
   "status": "candidate_firmware_correction_not_reference_firmware"
 }
