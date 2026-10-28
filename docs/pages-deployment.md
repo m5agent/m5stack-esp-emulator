@@ -80,7 +80,7 @@ python3 platform/tools/build_public_site.py --output .work/public-site \
   --littlefs-runtime .work/browser-littlefs
 
 npm ci --prefix platform/tests
-npm exec --prefix platform/tests -- playwright install --no-shell chromium
+npm exec --prefix platform/tests -- playwright install chromium
 NODE_PATH="$PWD/platform/tests/node_modules" \
 M5_PUBLIC_SITE="$PWD/.work/public-site" \
 M5_PUBLIC_BASE_PATH=/m5stack-esp-emulator/ \
