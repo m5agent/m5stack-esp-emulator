@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "core2-legacy-vfs-wifi-fixture",
+  "validation": "virtual-device validation",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "test_image_sha256": "893d353527e15ddda041a3977c48065325141fe6c4cba7508aa280c80e064d8e"
+  },
+  "vfs": {
+    "offset": "0x520000",
+    "size": "0x6de000",
+    "payload_sha256": "805e1acd12039e235bf2da7f1507275b3e1a83f9f0df0e53098c201b1f09aa7c",
+    "packer": "UIFlow v1.15.4 tools/littlefs/prebuilt/littlefs2"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "lane": "Device Service /api/v1",
+    "runtime": "qemu-wifi",
+    "network_profile": "core2-openmac",
+    "qemu_sha256": "3b56b49a6b8e9444ca6a22e236bad92caf50f24460985fa907c8d32ac689fcd9"
+  },
+  "checks": {
+    "vfs_mount_injected_boot": "PASS",
+    "injected_boot_marker": "PASS",
+    "system_setup": "NOT REACHED",
+    "nonempty_application_frame": "FAIL",
+    "normal_wdt_boot": "FAIL"
+  },
+  "snapshot_120s": {
+    "cpu0_pc": "0x40249c5d",
+    "cpu1_pc": "0x400e1ffd",
+    "serial_bytes": 575,
+    "frame_width": 320,
+    "frame_height": 240,
+    "nonblack_pixels": 0,
+    "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+    "session_id_sha256": "9002382dcb325ff8aa2421594283c1373fc0276a5e09677ad8a91a747e75277c"
+  },
+  "classification": {
+    "runtime_03": "OPEN",
+    "direct_qemu_without_wifi_nic": "NOT A VALID LEGACY BOOT CONTROL"
+  }
+}

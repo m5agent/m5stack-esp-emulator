@@ -501,3 +501,24 @@ TLS `2 ERROR + 3 STATE_PASS`。全部为 virtual-device validation；
 [机器摘要](evidence/2026-10-28-espnow-and-three-board-interface-retest/summary.json)、
 [`0067`](../patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch)和
 [`contract`](../platform/tests/test_esp32_espnow_loopback_patch.py)。
+
+## 2026-10-28：Core2 legacy VFS 与 WiFi fixture 校正
+
+复核发现旧 legacy WDT-off/黑帧诊断同时混入了两个测试 fixture 问题：通用
+LittleFS 镜像被 guest 拒绝后 `/flash` 被重新格式化；直接 QEMU 控制又未传
+`-nic user,model=misc.esp32_wifi,id=wifi0`，因此没有实例化 legacy 启动路径
+访问的 WiFi 设备。前者使注入的 `/flash/boot.py` 从未执行，后者可能让 guest
+在 `0x60033d24` 的 `WIFI_DMA_OUT_STATUS` APB alias 上等待无设备状态。
+
+使用 UIFlow checkout 自带 LittleFS2 packer 重建 `0x6de000` VFS，再经
+`/api/v1` 的 `runtime=qemu-wifi`、`profile=core2-openmac` 执行
+120 秒精确时点检查后，Serial 首次出现 `CORE2_LEGACY_VFS_BOOT`，证明注入的
+VFS 被识别并执行；Serial 为 575 bytes、SHA256
+`f837bbcc8402c299cce8abc1ce0820c3f20b801f4e3b4e3ceceeb6823f7c08b7`。
+此时 CPU0 `0x40249c5d`、CPU1 `0x400e1ffd`，旧 `0x40100049` LVGL 等待未复现；
+但 setup/main marker 和非空帧仍未出现，320x240 帧为 302-byte 纯黑，normal
+WDT 仍出现 `TG0/TG1WDT_SYS_RESET`。因此 `RUNTIME-03` 保持 `OPEN`，此前的
+无 NIC 黑帧不能单独作为 legacy 应用到显示路径的证据。见
+[夹具校正证据](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、
+[机器摘要](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/summary.json)和
+[VFS probe](../tests/firmware/core2_legacy_vfs_probe/README.md)。
