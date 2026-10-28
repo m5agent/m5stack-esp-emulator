@@ -522,3 +522,22 @@ WDT 仍出现 `TG0/TG1WDT_SYS_RESET`。因此 `RUNTIME-03` 保持 `OPEN`，此�
 [夹具校正证据](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、
 [机器摘要](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/summary.json)和
 [VFS probe](../tests/firmware/core2_legacy_vfs_probe/README.md)。
+
+## 2026-10-28：Core2 legacy HSPI/VSPI panel routing
+
+公开 UIFlow `v1.15.4` 的 `display.TFT` 路径选择 classic ESP32 HSPI/SPI2，
+而 `m5core2` 板级模型此前只把 ILI9342 panel sink 接到 VSPI/SPI3。正确
+LittleFS2 VFS + `runtime=qemu-wifi` 的负控中，legacy LCD DMA 在非面板
+控制器记录 `412` 次 `addr=104` 写，面板控制器 `0` 次，最终帧 `0` 非黑像素。
+
+`0068-core2-dual-spi-panel-routing.patch` 将同一个面板对象同时接到 SPI2 和
+SPI3，均使用 DC GPIO15。同一 Device Service `/api/v1` WiFi-backed 会话执行
+原厂 `boot.py` 的 SD 初始化后调用 legacy `m5stack`/`lcd` 绘制，Serial 为
+`652` bytes、SHA256 `8c0dc777…`，120 秒帧为 `320x240`、`1422` nonblack
+pixels / `2` colors，SHA256 `55249d07…`。这关闭面板控制器路由子问题；
+原厂 startup UI 仍没有完成帧，normal-WDT 仍 TG0 reset，因此 `RUNTIME-03`
+保持 `OPEN`。见
+[dual-SPI 证据](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)、
+[机器摘要](evidence/2026-10-28-core2-dual-spi-panel-routing/summary.json)、
+[`0068`](../patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch)
+和 [`contract`](../platform/tests/test_core2_dual_spi_panel_patch.py)。

@@ -1,8 +1,9 @@
 # Core2 legacy VFS probe
 
-This fixture adds a visible `/flash/boot.py` marker before the legacy UIFlow
-system menu starts. It is used to distinguish a missing or reformatted VFS
-from a later system-startup failure.
+This fixture starts from the public UIFlow `v1.15.4` VFS and adds markers to
+the original `/flash/boot.py` and `/flash/main.py`; it does not replace their
+SD-card or `m5stack` initialization logic. It is used to distinguish a
+missing or reformatted VFS from a later application-startup failure.
 
 `boot.py` must be packed with the LittleFS2 implementation from the matching
 UIFlow source tree. A generic newer `mklittlefs` image is rejected by the
@@ -42,12 +43,15 @@ With a correctly recognized VFS, the serial log contains:
 ```text
 BOARD NAME: M5STACK-CORE2
 APIKEY: <redacted-by-test-runner>
-CORE2_LEGACY_VFS_BOOT
+CORE2_LEGACY_ORIGINAL_BOOT_START
+CORE2_LEGACY_ORIGINAL_BOOT_DONE
 ```
 
-Reaching `CORE2_LEGACY_VFS_BOOT` proves that the guest mounted the injected
-VFS and executed its `/flash/boot.py`. It does not prove that the system menu
-or the application framebuffer initialized.
+If startup reaches the application, `CORE2_LEGACY_ORIGINAL_MAIN_START`,
+`CORE2_LEGACY_ORIGINAL_MAIN_IMPORT_DONE` and
+`CORE2_LEGACY_ORIGINAL_MAIN_DRAW_DONE` identify the import and draw phases.
+The `MAIN_IMPORT_DONE` marker is the boundary between Python import/display
+initialization and the original `main.py` drawing sequence.
 
 Use the Device Service `runtime=qemu-wifi` path. A plain `runtime=qemu`
 session omits `misc.esp32_wifi`; legacy UIFlow can then poll the WiFi DMA

@@ -153,7 +153,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续逐项审计中保留的 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT 并让 legacy Serial 到达 `APIKEY`。原生 LittleFS2 VFS + `qemu-wifi` 120 秒已执行注入的 `CORE2_LEGACY_VFS_BOOT`，但 setup/main 和 nonblack frame 仍未出现，normal WDT 仍 reset；下一项从 WiFi-backed 系统菜单初始化定位首个未完成路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染非空应用帧并保持运行；DPORT 协作、classic RMT、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink；legacy `m5stack`/`lcd` probe 已得到 1422 nonblack pixels。但原厂 startup UI 和 normal WDT 仍未完成；下一项定位 startup UI 生命周期与 WDT feed 关系 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -193,7 +193,7 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
   checkout 自带 LittleFS2 packer 后，`qemu-wifi` 120 秒已执行注入的
   `/flash/boot.py` 并输出 `CORE2_LEGACY_VFS_BOOT`，但 setup/main 仍未出现；
 - normal-WDT 在同一 public legacy SHA 上仍触发 TG0/TG1 system reset，
-  没有非空应用帧；
+  没有完成原厂 startup UI；
 - 关闭 WDT 只作为诊断 control 后，120 秒仍为 302-byte 黑帧；该轮 CPU0
   `0x40249c5d`、CPU1 `0x400e1ffd`，旧 CPU1 `0x40100049` LVGL wait
   未复现，后续必须在 matching VFS + WiFi lane 上重新定位；
@@ -212,6 +212,10 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
   INTMATRIX source 47；同一 legacy 固件不再报 Neopixel translator
   `OSError`，Serial 到达 `APIKEY`。该历史 WDT-off 轮未使用 matching VFS
   和 WiFi NIC，因此其黑帧只保留为无网络诊断控制；
+- `0068` 修正 Core2 面板控制器路由：UIFlow2 使用 VSPI/SPI3，而公开
+  legacy `display.TFT` 使用 HSPI/SPI2。SPI3-only 负控的 legacy panel
+  DMA 写入为 `0`，同固件 dual-SPI 后 legacy probe 得到 1422 nonblack
+  pixels；这不代表原厂 startup UI 已完成；
 - 当前 local UIFlow2 ELF 与该 BIN 字节仍不一致，因此函数命名全部来自
   BIN 指令/结构匹配，不声明 ELF 符号等价；
   `Core2FactoryTest` 在 I2C 修复后仍未重跑。

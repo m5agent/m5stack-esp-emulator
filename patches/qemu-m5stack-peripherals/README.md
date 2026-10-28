@@ -434,6 +434,15 @@ broadcast, receive-buffer and IRQ delivery without host-side Python values.
 This is one virtual peer echo, not an external ESP-NOW peer, encrypted message
 delivery, retry/loss behavior, RF, timing or physical-hardware validation.
 
+`0068-core2-dual-spi-panel-routing.patch` attaches the shared ILI9342 panel
+sink to both classic ESP32 HSPI/SPI2 and VSPI/SPI3. UIFlow2 Core2 drives the
+panel through SPI3, while the public legacy UIFlow firmware's `display.TFT`
+path selects HSPI. The old board glue attached only SPI3, so all legacy panel
+DMA writes reached a controller without the panel model. A legacy boot probe
+now produces visible text and a green rectangle from the original
+`m5stack`/`lcd` path. This fixes controller-to-panel routing, not the
+remaining normal-WDT startup failure.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

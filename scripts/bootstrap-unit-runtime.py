@@ -55,6 +55,11 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0061-gpspi-gdma-channel-lifecycle.patch",
     "patches/qemu-m5stack-peripherals/0062-esp32s3-i2s-continuous-dma-completion.patch",
     "patches/qemu-m5stack-peripherals/0063-core2-touch-buttons.patch",
+    "patches/qemu-m5stack-peripherals/0064-esp32-intmatrix-pending-irq-remap.patch",
+    "patches/qemu-m5stack-peripherals/0065-xtensa-high-priority-irq-cooperative-yield.patch",
+    "patches/qemu-m5stack-peripherals/0066-esp32-classic-rmt-legacy.patch",
+    "patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch",
+    "patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",
