@@ -580,3 +580,43 @@ platform `1364` 项 `OK`、`1` skip。全部为 virtual-device validation，
 物理硬件、RF、声学、光学和电气为 `NOT RUN`。见
 [并发与竞态证据](evidence/2026-10-28-concurrent-fixture-and-ready-state/README.md)
 和[机器摘要](evidence/2026-10-28-concurrent-fixture-and-ready-state/summary.json)。
+
+## 2026-10-28：ESP32 TIMG WDTFEED 写保护语义
+
+ESP-IDF v4.4.8 的 `wdt_hal_feed()` 直接调用 `mwdt_ll_feed()`，不会先解锁
+`WDTPROTECT`。旧 QEMU 把 `A_TIMG_WDTFEED` 整体放在保护条件内，导致已锁定
+watchdog 丢弃合法 feed。`0069` 只把 feed 路径移出保护条件，配置寄存器继续
+要求 `TIMG_WDT_WKEY_VALUE`；C 合同和 patch reverse-check 通过。
+
+同一 public legacy Core2 镜像 `4d2d648b…` 在 `runtime=qemu-wifi`、TCG
+`shift=5`、TIMG trace 开启的 60 秒窗口仍显示：TG0 stage-0 timeout
+`7.252822559 s`（masked），stage-1 timeout `17.252822560 s`，首个 reset
+`17.252907520 s`；TG1 在 reset 前完成 `14,993` feeds、最大间隔
+`5.181212 ms`。Serial 只有 MicroPython banner、无 REPL，frame 仅
+`49` nonblack pixels，因此 `0069` 是模型语义修复，不是 `RUNTIME-03`
+startup UI/应用帧的关闭证据。QEMU SHA256
+`78555183…`；全部为 virtual-device validation，物理硬件和 watchdog 电气
+行为 `NOT RUN`。见[证据](evidence/2026-10-28-core2-timg-wdt-feed/README.md)
+和[机器摘要](evidence/2026-10-28-core2-timg-wdt-feed/summary.json)。
+
+## 2026-10-28：最新 runtime 三设备 UIFlow2 接口复测
+
+在包含 `0069` 的 QEMU
+`78555183d53318fc25bc8413300e928d35bbbc1305f9d9648e97a73d34ce63b1`
+上，StopWatch、StickS3、Core2 的设备间并发复测结果为：system runtime
+各 `50 PASS + 1 STATE_PASS`；shared corrections 各 `7/7`；设备组分别为
+`6/6`、`5/5`、`6/6`，17 个 case 首轮通过且无 retry。三台
+socket `23/23`、EasySocket `57 + 1 N/A`、MQTT `42/42`、
+network `14/14`、EzData `17/17`；StopWatch/StickS3 audio player
+`15/15`、recorder `12/12`；三台 ESP-NOW 与 native ESP-NOW loopback
+通过。Device Service API `81` operations、`95` cases 全部 PASS。
+
+冻结 stock 固件仍分别复现 `requests2.urlencode`、Modbus async
+`Loop.sock_recv` 和 mbedTLS epoch 缺陷；同一 runtime 上 hash-pinned
+requests/Modbus 候选分别 `2/2`、`50/50`，TLS candidate 三台各 `5/5`。
+所有可见 session 均保存 evidence 并 `purge=0` 停止。`RUNTIME-03` legacy
+startup、外部/加密 ESP-NOW、显式 HCI BLE、未准入 RTU/PPP、完整 M5UI
+矩阵和全部物理硬件仍为未关闭项。全部为 virtual-device validation；
+物理硬件、RF、声学、光学和电气为 `NOT RUN`。见
+[证据](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)
+和[机器摘要](evidence/2026-10-28-three-board-uiflow2-latest-runtime/summary.json)。

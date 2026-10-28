@@ -443,6 +443,13 @@ now produces visible text and a green rectangle from the original
 `m5stack`/`lcd` path. This fixes controller-to-panel routing, not the
 remaining normal-WDT startup failure.
 
+`0069-esp32-timg-wdt-feed-unprotected.patch` makes `WDTFEED` reset the current
+stage and count regardless of `WDTPROTECT`. ESP-IDF `wdt_hal_feed()` writes
+`mwdt_ll_feed()` directly, while configuration writes still require the
+unlock key. This separates the hardware feed register semantics from
+protected configuration registers and does not disable the watchdog or
+change reset timing.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
