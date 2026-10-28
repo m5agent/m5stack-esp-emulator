@@ -466,6 +466,22 @@ command-length, per-command gap and command-transition tables, each with an
 overflow counter. It applies after `0071`, remains freeze-only, and does not
 change SPI data or scheduling.
 
+`0073-esp32-ssi-command-pc.patch` adds a bounded sparse
+command/CPU/transaction-issuer-PC table and overflow counter. It applies after
+`0072`, emits only at an explicit freeze, and does not change SPI data,
+scheduling, watchdog or accelerator behavior. The recorded PC is a diagnostic
+issuer address: without a matching legacy ELF/MAP, it must be interpreted only
+against the BIN segments or sourced ROM linker symbols.
+
+`0074-esp32-spi-panel-dma-dedup.patch` fixes classic ESP32 panel flushes that
+were consumed first from `DMA_LINK` descriptors and then replayed through the
+64-byte CPU data registers. It skips the duplicate panel sink until the current
+command finishes and adds opt-in RAMWR expected/written byte accounting. On
+Core2 the hash-pinned M5UI candidate moved from `12736` bytes written into a
+`6400`-byte strip to exact delivery and passed both triangle/image frame
+oracles. This is a virtual panel data-plane fix; physical DMA/SPI timing remains
+separate.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

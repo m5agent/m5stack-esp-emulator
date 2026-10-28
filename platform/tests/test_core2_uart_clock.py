@@ -86,6 +86,9 @@ class Core2UartClockTests(unittest.TestCase):
 [esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-gap-overflow a=0 b=0 c=0 d=0
 [esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-transition a=3 b=5 c=1 d=0
 [esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-transition-overflow a=0 b=0 c=0 d=0
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-pc a=3 b=1 c=40093b57 d=2
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-pc a=5 b=1 c=40093c00 d=1
+[esp32-handoff] now=600 cpu=-1 pc=00000000 component=ssi event=freeze-command-pc-overflow a=0 b=0 c=0 d=0
 """
         self.assertEqual(
             runner.summarize_phase_profile(trace),
@@ -134,6 +137,10 @@ class Core2UartClockTests(unittest.TestCase):
                 "ssi_command_transitions": {
                     "0x03->0x05": 1,
                 },
+                "ssi_command_pcs": {
+                    "0x03": {"cpu1:0x40093b57": 2},
+                    "0x05": {"cpu1:0x40093c00": 1},
+                },
             },
         )
 
@@ -152,6 +159,8 @@ class Core2UartClockTests(unittest.TestCase):
                     "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command-gap-overflow a=0 b=0 c=0 d=0",
                     "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command-transition a=187 b=187 c=3 d=0",
                     "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command-transition-overflow a=0 b=0 c=0 d=0",
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command-pc a=187 b=1 c=40093b57 d=3",
+                    "[esp32-handoff] now=1 cpu=-1 pc=00000000 component=ssi event=freeze-command-pc-overflow a=0 b=0 c=0 d=0",
                 )
             )
         )
@@ -170,6 +179,7 @@ class Core2UartClockTests(unittest.TestCase):
                     }
                 },
                 "transitions": {"0xbb->0xbb": 3},
+                "command_pcs": {"0xbb": {"cpu1:0x40093b57": 3}},
                 "command_total": 3,
                 "rx_length_total": 3,
                 "gap_total": 3,
@@ -179,6 +189,8 @@ class Core2UartClockTests(unittest.TestCase):
                 "command_gap_overflow": 0,
                 "transition_total": 3,
                 "transition_overflow": 0,
+                "command_pc_total": 3,
+                "command_pc_overflow": 0,
             },
         )
 
@@ -195,6 +207,7 @@ class Core2UartClockTests(unittest.TestCase):
         self.assertIn("ssi_command_length_histogram", source)
         self.assertIn("ssi_command_gap_profile", source)
         self.assertIn("ssi_command_transitions", source)
+        self.assertIn("ssi_command_pcs", source)
 
 
 if __name__ == "__main__":

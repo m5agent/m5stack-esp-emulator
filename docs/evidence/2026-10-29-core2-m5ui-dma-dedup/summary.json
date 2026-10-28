@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "device_id": "core2",
+  "base_firmware_sha256": "2a91964f4ef1b4823adc4b7b13fa08ddb2166ead3b96c74fe2088a71c4e3ea2a",
+  "candidate_firmware_sha256": "cd9bbacd97884708d2264baf87fa541519000fe674c58867f8371e1adfd785d9",
+  "candidate_source_sha256": "68da5e2ef246ff503ef8001d5c03a2f2bcd392e934de5e42c9bcd9e8a5571895",
+  "runtime": {
+    "runtime": "qemu",
+    "qemu_sha256": "9bf74439ddbe7225a64eb437290043729fb032525756adb834565ec412f8c197"
+  },
+  "patch": {
+    "name": "0074-esp32-spi-panel-dma-dedup.patch",
+    "sha256": "cda59c76952e2f0c9d094e546b998d01636810daeabbfad5f96d07d16d47ad9b"
+  },
+  "before": {
+    "state_results": 4,
+    "frame_results": {
+      "FAIL": 2
+    },
+    "ramwr_window_count": 54,
+    "ramwr_mismatch_count": 49,
+    "strip_expected_bytes": 6400,
+    "strip_written_bytes": 12736,
+    "image_expected_bytes": 2400,
+    "image_written_bytes": 4736,
+    "frame_sha256": "95e81656580416619ad7e1437dfe770f07320575222379cfcbcaebed54608e1c"
+  },
+  "after": {
+    "state_results": 4,
+    "frame_results": {
+      "FRAME_PASS": 2
+    },
+    "ramwr_window_count": 54,
+    "ramwr_mismatch_count": 0,
+    "ramwr_byte_counts": {
+      "6400": 48,
+      "153600": 5,
+      "2400": 1
+    },
+    "frame_sha256": "5a074d2987258112f79cecc800578df7325e6f35c32ceace859b828c8f942403",
+    "frame_observations": [
+      {
+        "point": [75, 100],
+        "actual_rgb": [57, 186, 205],
+        "expected_rgb": [56, 184, 200]
+      },
+      {
+        "point": [202, 57],
+        "actual_rgb": [255, 0, 0],
+        "expected_rgb": [255, 0, 0]
+      },
+      {
+        "point": [221, 57],
+        "actual_rgb": [0, 255, 0],
+        "expected_rgb": [0, 255, 0]
+      },
+      {
+        "point": [202, 76],
+        "actual_rgb": [0, 0, 255],
+        "expected_rgb": [0, 0, 255]
+      },
+      {
+        "point": [221, 76],
+        "actual_rgb": [255, 255, 0],
+        "expected_rgb": [255, 255, 0]
+      }
+    ],
+    "evidence_zip_sha256": "82a1d59ba0fa3f55f37f87ff7c70258abafe915b5cde3662ed79f61cc70a8eae"
+  },
+  "rejected_controls": {
+    "apply_madctl_true": "same striped frame",
+    "rotation_zero": "orientation changed but striping remained",
+    "post_ready_delay": "frame hash unchanged"
+  },
+  "three_board_smoke": {
+    "stopwatch": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "system_evidence_zip_sha256": "59e4f5c31b688b1b919188781eba980be48eded7c03899215e31d78925f383a4",
+      "shared_evidence_zip_sha256": "72b4a612f1fa0c5b5baa3766a375c765b2177a8e2129f4118b0a2e3775ddb51e"
+    },
+    "sticks3": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "system_evidence_zip_sha256": "fb8cd5a7ce0637eedaecbad71cec23e4552be810840c3a5883f5339484745ad5",
+      "shared_evidence_zip_sha256": "531bbf0a5952f4ca5acebc11752b045d5e4c70c384a08116c198acb874901873"
+    },
+    "core2": {
+      "system_runtime": {
+        "PASS": 50,
+        "STATE_PASS": 1
+      },
+      "shared_corrections": {
+        "PASS": 7
+      },
+      "system_evidence_zip_sha256": "74a1e4d82a03efe0befdcf7a9216724bcc057ebf0c5db10230ca4187de63fd34",
+      "shared_evidence_zip_sha256": "a90627030821fde2636de9784ee42be1fdd2373354e04f9c07e4bf6ddbcd0380"
+    }
+  },
+  "root_cause": "panel DMA descriptor consumption followed by duplicate CPU-register panel replay",
+  "closure": {
+    "core2_candidate_m5ui_frame_oracle": "FIXED",
+    "physical_panel_or_dma_timing": "NOT RUN"
+  }
+}

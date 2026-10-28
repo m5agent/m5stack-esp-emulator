@@ -33,10 +33,17 @@ python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
 Each snapshot records `phase_profile` with sampled PC clusters and exact
 controller-side SSI command, RX-length and completion-to-next-command gap
 histograms. `0072` additionally records command-length pairs, per-command gaps
-and command transitions with bounded overflow counters. `uart_tx_lines`
+and command transitions with bounded overflow counters. `0073` adds a bounded
+command/CPU/issuer-PC table; the raw PC is diagnostic and must be mapped against
+the same BIN segment or a sourced ROM linker symbol, not an unrelated ELF.
+`uart_tx_lines`
 reconstructs guest lines with start/end virtual times. These fields are
 diagnostic controls; a sampled PC cluster is not a matching ELF symbol, and
 UART timing does not change the watchdog or product acceptance result.
+
+For concurrent diagnostics, pass a distinct `--service-port` to
+`run_pause_sweep.py` or `run_wdt_liveness.py`; otherwise each runner first
+probes an ephemeral port, which still leaves a bind race with another test.
 
 Run the same flash image with:
 

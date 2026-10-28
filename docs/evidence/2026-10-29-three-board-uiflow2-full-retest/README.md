@@ -151,7 +151,9 @@ group 的源码可编译和 blocker 设备文案。
 
 ## 未关闭项
 
-- Core2 M5UI candidate source 的 frame routing/window oracle；
+- Core2 M5UI candidate source 的 frame routing/window oracle（后续
+  `0074` 已定位 panel DMA/CMD 双消费并关闭 candidate frame oracle，见
+  [M5UI DMA 修复](../2026-10-29-core2-m5ui-dma-dedup/README.md)）；
 - Core2 legacy UIFlow `RUNTIME-03` normal-WDT 启动与应用帧；
 - stock BLE internal-controller GATT、显式 HCI 跨固件兼容和真实 RF；
 - 外部/加密 ESP-NOW、RF/timing 与跨设备 fabric；

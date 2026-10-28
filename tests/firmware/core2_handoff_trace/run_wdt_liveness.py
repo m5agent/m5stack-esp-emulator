@@ -267,10 +267,11 @@ def run_once(
     runtime: str,
     icount_shift: str,
     trace_sample: int,
+    service_port: int | None = None,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
-    port = free_port()
+    port = service_port or free_port()
     api = Api(f"http://127.0.0.1:{port}")
     state_dir = run_dir / "service-state"
     env = os.environ.copy()
@@ -402,6 +403,11 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--trace-sample", type=int, default=1024)
     parser.add_argument(
+        "--service-port",
+        type=int,
+        help="explicit local Device Service port for concurrent diagnostics",
+    )
+    parser.add_argument(
         "--runtime",
         choices=("qemu", "qemu-wifi"),
         default="qemu",
@@ -436,6 +442,8 @@ def main() -> int:
         parser.error("--attempts must be from 1 to 10")
     if not 1 <= args.trace_sample <= 1_000_000:
         parser.error("--trace-sample must be from 1 to 1000000")
+    if args.service_port is not None and not 1024 <= args.service_port <= 65535:
+        parser.error("--service-port must be from 1024 to 65535")
     image_sha256 = sha256_file(args.image)
     if image_sha256 != args.expected_image_sha256.lower():
         parser.error(
@@ -457,6 +465,7 @@ def main() -> int:
                 args.runtime,
                 args.icount_shift,
                 args.trace_sample,
+                args.service_port,
             )
         except Exception as error:
             failures.append({"attempt": attempt, "error": str(error)})

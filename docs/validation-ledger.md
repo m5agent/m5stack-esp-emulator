@@ -755,6 +755,34 @@ virtual-device validation；物理 Flash/cache、RF、电气和硬件时序为
 [证据](evidence/2026-10-29-core2-ssi-command-correlation/README.md) 和
 [机器摘要](evidence/2026-10-29-core2-ssi-command-correlation/summary.json)。
 
+## 2026-10-29：Core2 legacy SSI command issuer PC
+
+新增 `0073-esp32-ssi-command-pc.patch`，在 `0072` 上增加有界稀疏
+command/CPU/issuer-PC 表及 overflow 计数；仅显式 freeze 时输出，不改变
+SPI、调度、watchdog 或 accelerator。冻结后的 QEMU SHA256 为
+`e2efbc67…`，patch SHA256 为 `3655b5b3…`。
+
+同一 public `UIFlow_Core2 v1.15.4` 在 WDT-off、`qemu-wifi`、
+`icount shift=5` 的 80 秒控制中记录 `105,161` transactions。command/
+CPU/PC 表总数同为 `105,161`，overflow 为 `0`。`0x05` 共 `49,972`
+次，其中 `49,961` 次来自 `0x4006222c`，该地址位于 IDF ESP32 ROM
+`esp_rom_spiflash_read_user_cmd=0x400621b0` 与
+`esp_rom_spiflash_read_status=0x4006226c` 之间；`0xBB/64` 共
+`49,783` 次，其中 `49,452` 次来自应用 segment 5 的
+`0x40093b57`（load `0x400924d8`、offset `0x167f`）。没有 matching
+legacy ELF/MAP，因此不能命名精确应用函数。
+
+同一 QEMU SHA 的 normal-WDT 控制在 `7.253606494 s` 触发 stage-0、
+`17.253607230 s` 首次 reset；TG1 reset 前 `14,998` feed、最大间隔
+`3.926687 ms`、最后 feed 距 reset `0.813376 ms`、零 timeout。
+`RUNTIME-03` 保持 `OPEN`。并发诊断另暴露并修正 runner 的
+`free_port() -> serve.py` 端口竞态：`run_wdt_liveness.py` 和
+`run_pause_sweep.py` 现可显式传 `--service-port`。首轮缺 stderr 控制
+保留为失败证据，不参与结论。全部为 virtual-device validation；物理
+Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
+[证据](evidence/2026-10-29-core2-ssi-command-pc/README.md) 和
+[机器摘要](evidence/2026-10-29-core2-ssi-command-pc/summary.json)。
+
 ## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
 
 原仓库已启用 GitHub Actions Pages 来源，并在 main 提交
@@ -808,3 +836,24 @@ program 预算、完整 BLE identity 和 Core2 blocker 文案。平台回归
 stock BLE、外部/加密 ESP-NOW、RF/timing 和物理硬件仍 `NOT RUN`。见
 [证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)
 和[机器摘要](evidence/2026-10-29-three-board-uiflow2-full-retest/summary.json)。
+
+## 2026-10-29：Core2 M5UI panel DMA 双写修复
+
+`0074-esp32-spi-panel-dma-dedup.patch` 修复 classic ESP32 SPI panel 的
+同笔 DMA 双消费：`DMA_LINK` descriptor 已把完整像素写入 panel 后，
+`SPI_CMD` 事务又通过 64-byte CPU data register 及其重复 tail 写入一次。
+`M5SW_PANEL_RAMWR_TRACE` 在修复前测得 48 个 `320x10` RGB565 strip 应写
+`6,400` bytes、实际写 `12,736` bytes，20x60 image window 应写 `2,400`
+、实际写 `4,736`；修复后 54 个 RAMWR window 全部 `written == expected`。
+
+同一 hash-pinned Core2 M5UI candidate 在 frozen QEMU `9bf74439…` 上由
+triangle/image `2 FAIL` 变为 `2 FRAME_PASS`，4 个状态 oracle 继续
+`4/4 PASS`。最终 frame SHA256 为 `5a074d29…`，画面完整且无条带。
+MADCTL=true、rotation=0 和 READY 后延迟重取帧三个控制都未消除修复前
+条带，排除 rotation/oracle/capture timing 解释。同一 QEMU 的三设备
+并发 smoke 中，StopWatch/StickS3/Core2 system runtime 各
+`50 PASS + 1 STATE_PASS`、shared corrections 各 `7/7 PASS`，所有
+session 均取 evidence ZIP 后以 `purge=0` 停止。当前限定为
+virtual-device validation；物理 ILI9342 DMA/SPI timing、电气和真机视觉
+仍 `NOT RUN`。见[证据](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)
+和[机器摘要](evidence/2026-10-29-core2-m5ui-dma-dedup/summary.json)。

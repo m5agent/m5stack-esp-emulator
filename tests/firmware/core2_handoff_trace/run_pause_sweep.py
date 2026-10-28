@@ -272,6 +272,7 @@ def summarize_phase_profile(
         "ssi_command_length_histogram": histograms["command_lengths"],
         "ssi_command_gap_profile": histograms["command_gaps"],
         "ssi_command_transitions": histograms["transitions"],
+        "ssi_command_pcs": histograms["command_pcs"],
     }
 
 
@@ -286,6 +287,8 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
     command_gap_overflow = 0
     transitions: Counter[tuple[int, int]] = Counter()
     transition_overflow = 0
+    command_pcs: dict[int, Counter[tuple[int, int]]] = {}
+    command_pc_overflow = 0
     for event in events:
         if event["component"] != "ssi":
             continue
@@ -315,6 +318,15 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
             )
         elif event["event"] == "freeze-command-transition-overflow":
             transition_overflow += int(event["a"], 10)
+        elif event["event"] == "freeze-command-pc":
+            command = int(event["a"], 10)
+            cpu = int(event["b"], 10)
+            pc = int(event["c"], 16)
+            command_pcs.setdefault(command, Counter())[(cpu, pc)] += int(
+                event["d"], 10
+            )
+        elif event["event"] == "freeze-command-pc-overflow":
+            command_pc_overflow += int(event["a"], 10)
     return {
         "commands": {
             f"0x{command:02x}": count
@@ -351,6 +363,13 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
             f"0x{previous:02x}->0x{command:02x}": count
             for (previous, command), count in sorted(transitions.items())
         },
+        "command_pcs": {
+            f"0x{command:02x}": {
+                f"cpu{cpu}:0x{pc:08x}": count
+                for (cpu, pc), count in sorted(pcs.items())
+            }
+            for command, pcs in sorted(command_pcs.items())
+        },
         "command_total": sum(commands.values()),
         "rx_length_total": sum(rx_lengths.values()),
         "gap_total": sum(gaps.values()),
@@ -362,6 +381,10 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
         "command_gap_overflow": command_gap_overflow,
         "transition_total": sum(transitions.values()),
         "transition_overflow": transition_overflow,
+        "command_pc_total": sum(
+            sum(pcs.values()) for pcs in command_pcs.values()
+        ),
+        "command_pc_overflow": command_pc_overflow,
     }
 
 
@@ -473,6 +496,8 @@ def snapshot_at_pause(
                 "freeze-command-gap-overflow",
                 "freeze-command-transition",
                 "freeze-command-transition-overflow",
+                "freeze-command-pc",
+                "freeze-command-pc-overflow",
             }
         ):
             io[f"{event['component']}:{event['event']}"] = {
@@ -537,6 +562,14 @@ def snapshot_at_pause(
             raise RuntimeError(
                 "SSI transition histogram total does not match transaction gaps"
             )
+        if (
+            histograms["command_pc_total"]
+            + histograms["command_pc_overflow"]
+            != transactions
+        ):
+            raise RuntimeError(
+                "SSI command PC histogram total does not match transactions"
+            )
     snapshot = {
         "pause_target_ns": target_ns,
         "pause_event_ns": pause["now_ns"],
@@ -551,6 +584,7 @@ def snapshot_at_pause(
         "ssi_command_length_histogram": histograms["command_lengths"],
         "ssi_command_gap_profile": histograms["command_gaps"],
         "ssi_command_transitions": histograms["transitions"],
+        "ssi_command_pcs": histograms["command_pcs"],
     }
     if registers:
         snapshot["registers"] = registers
@@ -589,10 +623,11 @@ def run_target(
     capture_frame: bool,
     pc_sample_ns: int | None,
     uart_trace: bool,
+    service_port: int | None = None,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"pause-{target_ns}-attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
-    port = free_port()
+    port = service_port or free_port()
     base_url = f"http://127.0.0.1:{port}"
     api = Api(base_url)
     env = os.environ.copy()
@@ -805,6 +840,11 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=1)
     parser.add_argument("--disable-wdt", action="store_true")
     parser.add_argument(
+        "--service-port",
+        type=int,
+        help="explicit local Device Service port for concurrent diagnostics",
+    )
+    parser.add_argument(
         "--pc-sample-ns",
         type=int,
         help="sample both guest PCs at this virtual-time interval",
@@ -837,6 +877,8 @@ def main() -> int:
         parser.error(f"QEMU does not exist: {args.qemu}")
     if args.attempts < 1 or args.attempts > 10:
         parser.error("--attempts must be from 1 to 10")
+    if args.service_port is not None and not 1024 <= args.service_port <= 65535:
+        parser.error("--service-port must be from 1024 to 65535")
     if args.pc_sample_ns is not None and not (
         1_000_000 <= args.pc_sample_ns <= 1_000_000_000
     ):
@@ -869,6 +911,7 @@ def main() -> int:
                     args.capture_frame,
                     args.pc_sample_ns,
                     args.uart_trace,
+                    args.service_port,
                 )
                 snapshots.append(snapshot)
                 print(

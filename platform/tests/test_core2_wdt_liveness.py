@@ -88,6 +88,13 @@ def synthetic_trace(
 
 
 class Core2WdtLivenessTests(unittest.TestCase):
+    def test_runner_accepts_explicit_port_for_concurrent_services(
+        self,
+    ) -> None:
+        source = RUNNER.read_text()
+        self.assertIn("--service-port", source)
+        self.assertIn("service_port or free_port()", source)
+
     def test_three_runs_distinguish_bootloader_reset_from_tg1_stall(
         self,
     ) -> None:

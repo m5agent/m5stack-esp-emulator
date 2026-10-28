@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 04:34:00 +0800
+Subject: [PATCH] esp32: deduplicate SPI panel DMA transfers
+
+The classic ESP32 SPI model consumes a panel DMA descriptor when DMA_LINK
+is written, then also replays the command transaction through the CPU data
+register path. For large flush strips this wrote the DMA pixels followed by
+64 bytes of register data and a repeated tail pixel, consuming roughly twice
+the RAMWR window.
+
+Track whether the current panel command consumed DMA and skip the duplicate
+CPU-register panel write until that command finishes. Add an opt-in RAMWR
+byte accounting trace so window length and delivered bytes can be compared.
+
+This applies after 0073. It does not alter SPI data outside the deduplicated
+panel sink, scheduling, watchdog or accelerator behavior.
+
+diff --git a/include/hw/ssi/esp32_spi.h b/include/hw/ssi/esp32_spi.h
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -34,6 +34,7 @@ typedef struct Esp32SpiState {
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;
++    bool m5_panel_dma_transferred;
+ } Esp32SpiState;
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel, int dc_pin);
+diff --git a/hw/ssi/esp32_spi.c b/hw/ssi/esp32_spi.c
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -207,6 +207,7 @@ static void esp32_spi_write(void *opaque, hwaddr addr,
+         }
+         if (s->m5_panel && (value & (1u << 29))) {
+             esp32_spi_m5_dma_panel(s, value);
++            s->m5_panel_dma_transferred = true;
+         }
+         break;
+     }
+@@ -459,7 +460,7 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+         esp32_spi_txrx_buffer(
+             s, t->data, t->data_tx_bytes, t->data_rx_bytes);
+     }
+-    if (s->m5_panel) {
++    if (s->m5_panel && !s->m5_panel_dma_transferred) {
+         if (t->data_tx_bytes) {
+             bool command_phase = s->m5_dc_pin >= 0
+                                ? !esp32_gpio_get_line(s->m5_dc_pin)
+@@ -482,6 +483,7 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+             }
+         }
+     }
++    s->m5_panel_dma_transferred = false;
+     esp32_spi_cs_set(s, 1);
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-end",
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -25,6 +25,7 @@
+ #include "m5stopwatch.h"
+ 
+ static unsigned m5_panel_trace_count;
++static uint64_t m5_panel_ramwr_bytes;
+ 
+ static void m5_panel_update(void *opaque);
+ 
+@@ -202,9 +203,21 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+     for (uint32_t i = 0; i < len; i++) {
+         uint8_t b = buf[i];
+         if (command_phase) {
++            if (getenv("M5SW_PANEL_RAMWR_TRACE") && s->cmd == 0x2c) {
++                uint64_t expected =
++                    (uint64_t)(s->xe - s->xs + 1) *
++                    (uint64_t)(s->ye - s->ys + 1) * 2;
++
++                fprintf(stderr,
++                        "[m5panel-ramwr] window=(%u,%u)-(%u,%u)"
++                        " expected=%" PRIu64 " written=%" PRIu64 "\n",
++                        s->xs, s->ys, s->xe, s->ye,
++                        expected, m5_panel_ramwr_bytes);
++            }
+             s->infer_params_left = m5_panel_dcs_param_count(b);
+             s->pending_pixel_bytes = 0;
+             if (b == 0x2c) {
++                m5_panel_ramwr_bytes = 0;
+                 stream_trace_count = 0;
+                 if (getenv("M5SW_PANEL_STREAM_TRACE")) {
+                     fprintf(stderr, "[m5panel-stream-group] %u\n",
+@@ -236,6 +250,9 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+             break;
+         case 0x2C:
+         case 0x3C:
++            if (s->cmd == 0x2c) {
++                m5_panel_ramwr_bytes++;
++            }
+             if (!s->pixel_mode) {
+                 m5_panel_reset_window(s);
+                 s->pixel_mode = true;

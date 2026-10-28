@@ -24,6 +24,13 @@ RUNNER = (
 
 
 class Core2HandoffStateSweepTests(DocsContractBase):
+    def test_runner_accepts_explicit_port_for_concurrent_services(
+        self,
+    ) -> None:
+        source = RUNNER.read_text()
+        self.assertIn("--service-port", source)
+        self.assertIn("service_port or free_port()", source)
+
     def test_exact_time_state_sweep_is_artifact_bound(self) -> None:
         evidence = json.loads(EVIDENCE.read_text())
         self.assertEqual(evidence["kind"], "core2-handoff-pause-sweep")

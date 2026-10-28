@@ -92,7 +92,10 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 和 IRQ；外部 peer、PMK 加密 payload、跨设备 fabric 与 RF/timing 仍由
 `RUNTIME-06` 跟踪。StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
 完整执行；stock 仍保留 Canvas triangle、Image float scale 和 integer
-Spinbox step 三个失败，Core2 candidate 状态修复通过但全屏刷新帧仍未闭环。
+Spinbox step 三个失败。Core2 candidate 的条带随后定位为 panel DMA 与
+CPU data-register 双写，`0074` 修复后状态 `4/4` 和 triangle/image
+`2/2 FRAME_PASS`，见
+[Core2 M5UI DMA 修复](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)。
 最终 `78555183…` runtime 的三设备并发回归为 system runtime 各 `51` 项零失败、
 共享候选修复各 `7/7`、设备组 StopWatch `6/6`、StickS3 `5/5`、Core2
 `6/6`，全部首轮 PASS 且无 retry；sockets/MQTT/network/EzData、audio
@@ -101,9 +104,10 @@ binary 重绑；stock HTTP/Modbus/TLS 的原始失败继续保留。见
 [最新接口复测](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)。
 2026-10-29 的三设备全接口复测进一步确认 system/shared、通信、音频、
 ESP-NOW 和已选外设稳定，并修复 M5UI 设备尺寸/旋转、Core2 程序预算、
-完整 BLE 身份表与 Core2 blocker 文案；stock BLE 仍阻塞，Core2 candidate
-帧条带/坐标问题保留，见
-[全接口证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)。
+完整 BLE 身份表与 Core2 blocker 文案；stock BLE 仍阻塞。Core2 candidate
+帧条带/坐标问题随后由 `0074` 关闭模型根因，见
+[全接口证据](evidence/2026-10-29-three-board-uiflow2-full-retest/README.md)
+和[Core2 M5UI DMA 修复](evidence/2026-10-29-core2-m5ui-dma-dedup/README.md)。
 Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
 `0066` 补 classic RMT 并越过 Neopixel 初始化错误；`APIKEY` 后黑帧和
   normal-WDT reset 继续保留；`0070` 的 virtual UART trace 又证明 BOARD/APIKEY
@@ -116,9 +120,12 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   相邻 command gap 合计 `79.699109375 s`，主要分布在 `1-10 us`、
   `100 us-1 ms` 和 `1-10 ms`。`0072` 进一步确认
   `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环，`82.4%` gap 位于下一次 `0x05`
-  前，平均 `1.3115 ms`。立即切核四类控制均没有改善 normal-WDT 启动
-  预算，已全部丢弃。下一步在 transaction-bound gap 内定位 guest
-  driver/IRQ 路径，或取得 matching legacy source。
+  前，平均 `1.3115 ms`。`0073` 进一步把主要 issuer 绑定到 ROM
+  read-command 区间 `0x4006222c` 与应用 segment 5 `0x40093b57`，
+  `105,161` 个 transaction 均有 PC 记录且 overflow 为 `0`。立即切核
+  四类控制均没有改善 normal-WDT 启动预算，已全部丢弃。下一步结合
+  matching legacy source/ELF/MAP、IRQ delivery 和 cache/MMU 状态解释该
+  路径。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -185,8 +192,8 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `API-01` | 进行中 | 接续 stock SDK/绑定失败、Core2 M5UI 全屏 frame routing/oracle、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
-| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环，`82.4%` gap 位于下一次 status read 前，平均 `1.3115 ms`；四类立即切核控制均无改善，下一项定位 transaction-bound gap 内的 guest driver/IRQ 与 PC 路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071/0072 transaction profile 和最终三设备组保持可重放 |
+| `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
+| `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环，`82.4%` gap 位于下一次 status read 前；`0073` 将主要 issuer 绑定到 ROM `0x4006222c` 和应用 segment 5 `0x40093b57`；下一项结合 matching symbols、IRQ delivery 与 cache/MMU 状态解释该路径 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile 和最终三设备组保持可重放 |
 | `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
@@ -262,8 +269,9 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    `0x40100049` BIN-bound LVGL wait；修正后的 120 秒点未复现该地址，
    不能把旧对象/寄存器结论直接继承为当前第一失败点；
    `0071/0072` 已给出完整 command/RX-length/gap、联合键、per-command gap
-   和 transition 分布；下一步需在 `0x05` 前的 transaction-bound gap 内
-   区分 guest driver、interrupt delivery 与缓存/调度路径；
+   和 transition 分布；`0073` 已绑定主要 issuer PC，下一步结合
+   matching symbols、interrupt delivery 与缓存/MMU/调度状态解释
+   `0x05` 前的 transaction-bound gap；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
    callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
    再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；

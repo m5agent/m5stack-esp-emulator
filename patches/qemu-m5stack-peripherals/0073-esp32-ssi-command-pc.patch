@@ -1,0 +1,120 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 04:10:00 +0800
+Subject: [PATCH] esp32: aggregate SSI command issuer PCs
+
+Record the current guest CPU and PC whenever the controller starts an SSI
+transaction, using a bounded sparse command/CPU/PC table with an overflow
+counter. This is freeze-only diagnostic data and is applied after 0072.
+
+The new table makes the guest command issuer BIN-bound even when no matching
+ELF/MAP is available. It does not change SPI data, scheduling, watchdog or
+accelerator behavior.
+
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -20,6 +20,7 @@
+ #define ESP32_HANDOFF_SSI_PAIR_SLOTS 4096u
+ #define ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS 1024u
+ #define ESP32_HANDOFF_SSI_TRANSITION_SLOTS 1024u
++#define ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS 2048u
+ 
+ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_transactions;
+@@ -55,6 +56,9 @@ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_transition_counts[ESP32_HANDOFF_SSI_TRANSITION_SLOTS];
+     uint64_t ssi_transition_overflow;
+     uint64_t ssi_previous_command;
++    uint64_t ssi_command_pc_keys[ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS];
++    uint64_t ssi_command_pc_counts[ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS];
++    uint64_t ssi_command_pc_overflow;
+     uint64_t crosscore_writes;
+     uint32_t crosscore_levels;
+     uint64_t intmatrix_levels_lo;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -361,6 +361,42 @@ static void esp32_spi_record_transition(uint32_t previous_command,
+     ++esp32_handoff_metrics.ssi_transition_overflow;
+ }
+ 
++static void esp32_spi_record_command_pc(uint32_t command)
++{
++    uint32_t cpu = 3;
++    uint32_t pc = 0;
++    uint64_t encoded;
++    uint32_t slot;
++
++    if (current_cpu) {
++        cpu = current_cpu->cpu_index & 3;
++        if (current_cpu->cc && current_cpu->cc->get_pc) {
++            pc = current_cpu->cc->get_pc(current_cpu);
++        }
++    }
++    encoded = ((uint64_t)command << 34) | ((uint64_t)cpu << 32) | pc;
++    slot = (uint32_t)(encoded * 11400714819323198485ull)
++           & (ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS - 1);
++
++    ++encoded;
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS - 1);
++
++        if (esp32_handoff_metrics.ssi_command_pc_keys[index] == 0) {
++            esp32_handoff_metrics.ssi_command_pc_keys[index] = encoded;
++            ++esp32_handoff_metrics.ssi_command_pc_counts[index];
++            return;
++        }
++        if (esp32_handoff_metrics.ssi_command_pc_keys[index] == encoded) {
++            ++esp32_handoff_metrics.ssi_command_pc_counts[index];
++            return;
++        }
++    }
++    ++esp32_handoff_metrics.ssi_command_pc_overflow;
++}
++
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
+     uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+@@ -399,6 +435,7 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     ++esp32_handoff_metrics.ssi_rx_length_counts[rx_length_bucket];
+     esp32_spi_record_command_pair(command, rx_length_bucket);
+     esp32_handoff_metrics.ssi_previous_command = command;
++    esp32_spi_record_command_pc(command);
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-begin",
+         t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -886,6 +886,31 @@ static void esp32_handoff_pause_dump_state(Esp32DportState *s, uint64_t now_ns)
+             " event=freeze-command-transition-overflow a=%" PRIu64
+             " b=0 c=0 d=0\n",
+             now_ns, esp32_handoff_metrics.ssi_transition_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_SSI_COMMAND_PC_SLOTS; slot++) {
++        uint64_t encoded = esp32_handoff_metrics.ssi_command_pc_keys[slot];
++        uint64_t count = esp32_handoff_metrics.ssi_command_pc_counts[slot];
++
++        if (encoded && count) {
++            uint64_t key = encoded - 1;
++            uint32_t command = key >> 34;
++            uint32_t cpu = (key >> 32) & 3;
++            uint32_t pc = key & 0xffffffffu;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-command-pc a=%u b=%u"
++                    " c=%08" PRIx32 " d=%" PRIu64 "\n",
++                    now_ns, command, cpu, pc, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-command-pc-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_command_pc_overflow);
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=crosscore event=freeze-counters"

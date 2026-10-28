@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "e2efbc675799eac10faaf789fcde2f9b07a09a9f532a08c9277f95426cf41866"
+  },
+  "patch": {
+    "name": "0073-esp32-ssi-command-pc.patch",
+    "sha256": "3655b5b3b22bc7df0b745d1205b0a19619075871b51e1b4472c9f37775710f1e"
+  },
+  "wdt_off_80s": {
+    "pause_target_ns": 80000000000,
+    "pause_event_ns": 80000000030,
+    "pause_delta_ns": 30,
+    "transactions": 105161,
+    "command_pc_total": 105161,
+    "command_pc_overflow": 0,
+    "command_histogram": {
+      "0x00": 5146,
+      "0x01": 2,
+      "0x02": 122,
+      "0x05": 49972,
+      "0x06": 127,
+      "0x20": 3,
+      "0x35": 2,
+      "0x9f": 3,
+      "0xab": 1,
+      "0xbb": 49783
+    },
+    "primary_command_pcs": {
+      "0x05": {
+        "cpu0:0x4006222c": 761,
+        "cpu1:0x4006222c": 49200
+      },
+      "0xbb": {
+        "cpu0:0x40093b57": 425,
+        "cpu1:0x40093b57": 49027
+      }
+    },
+    "cpu_snapshot": {
+      "0": "0x40087984",
+      "1": "0x40095b3b"
+    },
+    "gap_count": 105160,
+    "gap_total_ns": 79699160382,
+    "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+    "qemu_stderr_sha256": "c766bbd7f903a38a0516655d7418ad470a475e89a606b65cae0ce29426cb677d",
+    "evidence_sha256": "8ba94ec22a9cc29d70e4ebd162e842f9dd25dd417abb56729d3cee63a81cedc9"
+  },
+  "normal_wdt": {
+    "stage0_timeout_ns": 7253606494,
+    "stage1_timeout_ns": 17253606494,
+    "first_reset_ns": 17253607230,
+    "tg1_feed_count": 14998,
+    "tg1_max_feed_interval_ns": 3926687,
+    "tg1_last_feed_gap_to_reset_ns": 813376,
+    "tg1_timeout_count": 0,
+    "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+    "serial_sha256": "4c094556d29a964fdbb0eab3f130f0e1f7f8c3998bbb9fbe306c332f42c2a928",
+    "qemu_stderr_sha256": "8895f76e50636b61bcdc791174251301c4f84b3c290ff1407cef660654e6439b",
+    "evidence_sha256": "2e0c91824956dd8e4316b0402dfd357bc27f7a3b92e2f4511bfd0f31d247c5ae"
+  },
+  "pc_binding": {
+    "0x4006222c": {
+      "segment": "esp32-rom",
+      "interval_start_symbol": "esp_rom_spiflash_read_user_cmd",
+      "interval_start": "0x400621b0",
+      "next_symbol": "esp_rom_spiflash_read_status",
+      "next_symbol_address": "0x4006226c"
+    },
+    "0x40093b57": {
+      "segment": 5,
+      "load_address": "0x400924d8",
+      "length": 71804,
+      "file_offset": 5272204,
+      "segment_offset": "0x167f",
+      "function_name": null
+    }
+  },
+  "interpretation": {
+    "transaction_pc_table_complete": true,
+    "instrumentation_changed_wdt_boundary": false,
+    "guest_driver_or_irq_path_closed": false
+  },
+  "runner_correction": {
+    "explicit_service_port": true,
+    "failed_port_race_control_retained": true
+  },
+  "next_actions": [
+    "correlate transaction issuer PCs with IRQ delivery and cache/MMU state",
+    "obtain matching UIFlow_Core2 v1.15.4 source/ELF/MAP",
+    "explain pre-BOARD/APIKEY watchdog budget before claiming startup progress"
+  ]
+}
