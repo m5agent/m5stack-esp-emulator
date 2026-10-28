@@ -72,6 +72,19 @@ Core2 原生配置的 TCG translation cache 上限为 128 MiB
 
 ## 本仓库的实际缺口与建议
 
+本轮只有两款浏览器设备，是 `public-browser-runtime.js` 的接入与验收范围，
+不是浏览器的设备数量上限。当前 browser 使用 Rust esp32sim；此前丰富的
+UIFlow2/Unit 验证主要属于另一套定制 C/QEMU，控制器实现不会自动跨内核共享。
+
+后续只读核查确认，官方 QEMU 10.1.0 已有基础 WASM/TCI 构建路径：
+[`f8b2f64e2336a28bf0d50b6ef8a7d8c013e9bcf3`](https://github.com/qemu/qemu/tree/f8b2f64e2336a28bf0d50b6ef8a7d8c013e9bcf3)。
+其 `tests/docker/dockerfiles/emsdk-wasm32-cross.docker` 固定 Emscripten 3.1.50、
+libffi 3.4.7、GLib 2.84.0 和 pixman 0.44.2；基础配置仍涉及 pthread、Asyncify
+和共享内存。现有定制 QEMU 9.2.2 尚无 Emscripten 构建/执行收据，需要跨版本
+适配和本项目 Xtensa、控制器及板级回归；不能据此报速度倍数或承诺功能等价。
+用户随后决定工作量较大就先不做，本轮已停止移植实验；未安装 SDK、构建或
+执行 QEMU/WASM。当前原生构建不等于浏览器理论上不可行，移植留作后续项。
+
 本仓库当前 12 款 QEMU 配置是 `native-qemu`，Tab5 是 native esp-emu，
 CardputerZero 是独立 Linux。现有浏览器 worker 的帧读取只识别
 `m5emu-shared-v1`；其 GPIO/UART/内存 API 没有直接接入本项目原生 QEMU 的

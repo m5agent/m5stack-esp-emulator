@@ -34,3 +34,11 @@
 - Unit / sessions 信息层级改造、公众首页四档布局、设备/Unit 搜索与失败契约已验证；Pages 子路径导出、URL 下载/取消/SHA、独立 Worker 后端已实现。
 - 用户要求先研究 esp-online-tester 的全浏览器架构；已从固定源码独立重建 browser backend，并在 Chromium 跑通 PaperS3 / StopWatch 官方固件、真实帧、输入和暂停/停止。首页分享直开、实际DOM触摸与四档布局均已通过。CoreS3 plain受控原生示例也已同guest完成输入/帧/evidence/停止；创建收据丢失后以同key/body恢复同guest并安全停止已完成真实回归；独立审查进一步补齐有界停止和明确lease释放。更多stock/unified路径作为后续扩展，不作为两profile browser部署硬门禁。证据和不可继承边界见[纯浏览器调研](../browser-runtime-feasibility.md)。
 - 尚未部署。browser backend 的限定结果不转授已有 native 板级、任意固件或完整 Unit 协议；部署前继续完成本地页面与证据验收。
+
+## QEMU 到 WASM：本轮暂缓
+
+2026-10-28 用户明确表示，移植工作量较大就先不做。本轮停止这条实现，不将它作为当前 Pages 上线门禁。只读调查和固定源码准备已结束，没有安装 Emscripten、构建或执行 QEMU/WASM，也没有扩大浏览器准入表。
+
+现有定制 QEMU 9.2.2 需要补齐 Emscripten 构建、TCI/helper、GLib/libffi、线程/协程和宿主 I/O 接口。官方 QEMU 10.1 已有基础 WASM/TCI 路线，因此不能把当前原生构建状态解释为浏览器理论上不可行；跨版本适配和本项目 Xtensa/板级验证仍是后续工作。
+
+当前继续交付公众工作台、固定版本视觉模型、两款已验证的浏览器官方演示和显式可选 Device Service。未接入的主机/Unit 不继承浏览器固件支持；最终发布仍需审阅和公开 URL 验收。
