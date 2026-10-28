@@ -37,10 +37,11 @@ static void custom2(lv_anim_t*a,int v){(void)a;(void)v;}
 MAIN = r'''
 
 int main(int argc,char **argv){
- assert(argc==2);int key1=1,key2=2;
- lv_anim_t third={.var=&key2,.custom_exec_cb=custom1};
- lv_anim_t second={.var=&key1,.custom_exec_cb=custom2,.next=&third};
- lv_anim_t first={.var=&key1,.custom_exec_cb=custom1,.next=&second};
+ assert(argc==2);static int key1=1,key2=2;
+ static lv_anim_t third,second,first;
+ third=(lv_anim_t){.var=&key2,.custom_exec_cb=custom1};
+ second=(lv_anim_t){.var=&key1,.custom_exec_cb=custom2,.next=&third};
+ first=(lv_anim_t){.var=&key1,.custom_exec_cb=custom1,.next=&second};
  head=&first;
  switch(atoi(argv[1])){
  case 0:assert(lv_anim_custom_get(&first,custom1)==&first);break;
