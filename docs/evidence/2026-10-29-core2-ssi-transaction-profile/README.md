@@ -124,3 +124,6 @@ gap 总数等于 `transaction-1`。
 - 随后定位 guest 在两次 command 之间执行的 driver/IRQ 路径，以及
   normal-WDT 前为什么需要约 55 秒才能到 BOARD/APIKEY；
 - WDT-off、扩大 timeout、accelerator override 和 retry 都不是产品修复。
+
+后续 command-length、per-command gap 和 transition 联合分布见
+[SSI command correlation](../2026-10-29-core2-ssi-command-correlation/README.md)。

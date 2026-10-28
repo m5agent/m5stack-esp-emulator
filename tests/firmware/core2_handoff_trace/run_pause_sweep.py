@@ -269,6 +269,9 @@ def summarize_phase_profile(
         "ssi_command_histogram": histograms["commands"],
         "ssi_rx_length_histogram": histograms["rx_lengths"],
         "ssi_gap_histogram": histograms["gaps"],
+        "ssi_command_length_histogram": histograms["command_lengths"],
+        "ssi_command_gap_profile": histograms["command_gaps"],
+        "ssi_command_transitions": histograms["transitions"],
     }
 
 
@@ -277,6 +280,12 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
     commands: Counter[int] = Counter()
     rx_lengths: Counter[int] = Counter()
     gaps: Counter[int] = Counter()
+    command_lengths: Counter[tuple[int, int]] = Counter()
+    command_gaps: dict[int, dict[str, int]] = {}
+    command_length_overflow = 0
+    command_gap_overflow = 0
+    transitions: Counter[tuple[int, int]] = Counter()
+    transition_overflow = 0
     for event in events:
         if event["component"] != "ssi":
             continue
@@ -286,6 +295,26 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
             rx_lengths[int(event["a"], 10)] += int(event["b"], 10)
         elif event["event"] == "freeze-gap":
             gaps[int(event["a"], 10)] += int(event["b"], 10)
+        elif event["event"] == "freeze-command-length":
+            command_lengths[(int(event["a"], 10), int(event["b"], 10))] += (
+                int(event["c"], 10)
+            )
+        elif event["event"] == "freeze-command-length-overflow":
+            command_length_overflow += int(event["a"], 10)
+        elif event["event"] == "freeze-command-gap":
+            command_gaps[int(event["a"], 10)] = {
+                "count": int(event["b"], 10),
+                "total_gap_ns": int(event["c"], 10),
+                "max_gap_ns": int(event["d"], 10),
+            }
+        elif event["event"] == "freeze-command-gap-overflow":
+            command_gap_overflow += int(event["a"], 10)
+        elif event["event"] == "freeze-command-transition":
+            transitions[(int(event["a"], 10), int(event["b"], 10))] += (
+                int(event["c"], 10)
+            )
+        elif event["event"] == "freeze-command-transition-overflow":
+            transition_overflow += int(event["a"], 10)
     return {
         "commands": {
             f"0x{command:02x}": count
@@ -303,9 +332,36 @@ def summarize_ssi_histograms(events: list[dict[str, Any]]) -> dict[str, Any]:
             SSI_GAP_BUCKET_LABELS[bucket]: count
             for bucket, count in sorted(gaps.items())
         },
+        "command_lengths": {
+            (
+                f"0x{command:02x}/"
+                + (
+                    f"{length}+"
+                    if length == SSI_RX_LENGTH_OVERFLOW_BUCKET
+                    else str(length)
+                )
+            ): count
+            for (command, length), count in sorted(command_lengths.items())
+        },
+        "command_gaps": {
+            f"0x{command:02x}": values
+            for command, values in sorted(command_gaps.items())
+        },
+        "transitions": {
+            f"0x{previous:02x}->0x{command:02x}": count
+            for (previous, command), count in sorted(transitions.items())
+        },
         "command_total": sum(commands.values()),
         "rx_length_total": sum(rx_lengths.values()),
         "gap_total": sum(gaps.values()),
+        "command_length_total": sum(command_lengths.values()),
+        "command_length_overflow": command_length_overflow,
+        "command_gap_total": sum(
+            values["count"] for values in command_gaps.values()
+        ),
+        "command_gap_overflow": command_gap_overflow,
+        "transition_total": sum(transitions.values()),
+        "transition_overflow": transition_overflow,
     }
 
 
@@ -407,7 +463,17 @@ def snapshot_at_pause(
             event["component"] in {"ssi", "crosscore"}
             and event["event"].startswith("freeze-")
             and event["event"]
-            not in {"freeze-command", "freeze-rx-length", "freeze-gap"}
+            not in {
+                "freeze-command",
+                "freeze-rx-length",
+                "freeze-gap",
+                "freeze-command-length",
+                "freeze-command-length-overflow",
+                "freeze-command-gap",
+                "freeze-command-gap-overflow",
+                "freeze-command-transition",
+                "freeze-command-transition-overflow",
+            }
         ):
             io[f"{event['component']}:{event['event']}"] = {
                 "a": int(event["a"], 10),
@@ -447,6 +513,30 @@ def snapshot_at_pause(
             raise RuntimeError(
                 "SSI gap histogram total does not match transaction gaps"
             )
+        if (
+            histograms["command_length_total"]
+            + histograms["command_length_overflow"]
+            != transactions
+        ):
+            raise RuntimeError(
+                "SSI command-length histogram total does not match transactions"
+            )
+        if (
+            histograms["command_gap_total"]
+            + histograms["command_gap_overflow"]
+            != transactions - 1
+        ):
+            raise RuntimeError(
+                "SSI per-command gap total does not match transaction gaps"
+            )
+        if (
+            histograms["transition_total"]
+            + histograms["transition_overflow"]
+            != transactions - 1
+        ):
+            raise RuntimeError(
+                "SSI transition histogram total does not match transaction gaps"
+            )
     snapshot = {
         "pause_target_ns": target_ns,
         "pause_event_ns": pause["now_ns"],
@@ -458,6 +548,9 @@ def snapshot_at_pause(
         "ssi_command_histogram": histograms["commands"],
         "ssi_rx_length_histogram": histograms["rx_lengths"],
         "ssi_gap_histogram": histograms["gaps"],
+        "ssi_command_length_histogram": histograms["command_lengths"],
+        "ssi_command_gap_profile": histograms["command_gaps"],
+        "ssi_command_transitions": histograms["transitions"],
     }
     if registers:
         snapshot["registers"] = registers

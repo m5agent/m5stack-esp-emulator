@@ -721,6 +721,40 @@ Flash/cache、RF、电气和硬件时序为 `NOT RUN`。见
 [证据](evidence/2026-10-29-core2-ssi-transaction-profile/README.md) 和
 [机器摘要](evidence/2026-10-29-core2-ssi-transaction-profile/summary.json)。
 
+## 2026-10-29：Core2 legacy SSI command correlation
+
+新增 `0072-esp32-ssi-command-correlation.patch`，在 `0071` 上增加有界
+command-length、per-command gap 和 command transition 稀疏表；每张表都有
+overflow 计数。QEMU 重建后 SHA256 为 `4aa418e6…`，patch SHA256 为
+`107cc478…`。
+
+同一 public `UIFlow_Core2 v1.15.4` 在 WDT-off、`qemu-wifi`、
+`icount shift=5` 的 80 秒控制中记录 `105,346` transactions 和
+`105,345` 个 gap。联合结果包括 `0x05/1` `50,071`、`0xBB/64`
+`49,882`；主要 transition 为 `0xBB->0x05` `49,582`、
+`0x05->0xBB` `49,600`，确认 status/64-byte read 交替循环。
+command-length、per-command gap 和 transition 总数分别严格等于
+transaction 或 `transaction-1`，overflow 全为 `0`。
+
+按当前 command 归因的 gap：
+
+- `0x05`：`65,670,563,678 ns`，占 `82.398%`，平均
+  `1.3115489 ms`；
+- `0x00`：`13,849,241,407 ns`，占 `17.377%`；
+- `0xBB`：`152,263,360 ns`，占 `0.191%`，平均约 `3.05 us`；
+- 其余 command：`28,533,432 ns`，占 `0.036%`。
+
+因此主要预算位于 64-byte Fast Read 后、下一次 status read 前的 guest
+工作区，而不是 controller 收到 status command 后的单次数据操作。
+normal-WDT 控制仍在 `7.249439872 s` stage-0、
+`17.249440926 s` first reset；TG1 reset 前 `14,999` feed、最大间隔
+`3.926688 ms`、零 timeout，说明 instrumentation 没有改变失败边界。
+具体 guest driver/IRQ 函数尚未定位，`RUNTIME-03` 保持 `OPEN`。全部为
+virtual-device validation；物理 Flash/cache、RF、电气和硬件时序为
+`NOT RUN`。见
+[证据](evidence/2026-10-29-core2-ssi-command-correlation/README.md) 和
+[机器摘要](evidence/2026-10-29-core2-ssi-command-correlation/summary.json)。
+
 ## 2026-10-29：正式 GitHub Pages 部署与公开 CoreS3 验收
 
 原仓库已启用 GitHub Actions Pages 来源，并在 main 提交

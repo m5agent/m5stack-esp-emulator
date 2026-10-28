@@ -32,10 +32,11 @@ python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
 
 Each snapshot records `phase_profile` with sampled PC clusters and exact
 controller-side SSI command, RX-length and completion-to-next-command gap
-histograms. `uart_tx_lines` reconstructs guest lines with start/end virtual
-times. These fields are diagnostic controls; a sampled PC cluster is not a
-matching ELF symbol, and UART timing does not change the watchdog or product
-acceptance result.
+histograms. `0072` additionally records command-length pairs, per-command gaps
+and command transitions with bounded overflow counters. `uart_tx_lines`
+reconstructs guest lines with start/end virtual times. These fields are
+diagnostic controls; a sampled PC cluster is not a matching ELF symbol, and
+UART timing does not change the watchdog or product acceptance result.
 
 Run the same flash image with:
 

@@ -461,6 +461,11 @@ completion-to-next-command gap histograms. The counters are emitted only at an
 explicit freezes and reset with the existing metrics state. They do not alter
 SPI timing, scheduler behaviour, watchdog configuration or transaction data.
 
+`0072-esp32-ssi-command-correlation.patch` adds bounded sparse
+command-length, per-command gap and command-transition tables, each with an
+overflow counter. It applies after `0071`, remains freeze-only, and does not
+change SPI data or scheduling.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

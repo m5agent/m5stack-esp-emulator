@@ -1,0 +1,250 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 03:45:00 +0800
+Subject: [PATCH] esp32: correlate SSI commands with lengths and gaps
+
+Add bounded sparse tables for exact command-length pairs, per-command
+completion-to-next-command gap totals and command transitions. Overflow
+counters prevent the profile from claiming a complete distribution after a
+table fills.
+
+As with 0071, the tables reset with the existing handoff metrics and are
+emitted only at an explicit pause/freeze point. No SPI data, guest scheduling,
+watchdog or accelerator behavior changes.
+
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -17,6 +17,9 @@
+ #define ESP32_HANDOFF_SSI_RX_LENGTH_BUCKETS 257u
+ #define ESP32_HANDOFF_SSI_RX_LENGTH_OVERFLOW_BUCKET 256u
+ #define ESP32_HANDOFF_SSI_GAP_BUCKETS 9u
++#define ESP32_HANDOFF_SSI_PAIR_SLOTS 4096u
++#define ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS 1024u
++#define ESP32_HANDOFF_SSI_TRANSITION_SLOTS 1024u
+ 
+ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_transactions;
+@@ -34,6 +37,24 @@ typedef struct Esp32HandoffMetrics {
+     uint64_t ssi_gap_ns_max;
+     uint64_t ssi_last_end_ns;
+     uint64_t ssi_gap_counts[ESP32_HANDOFF_SSI_GAP_BUCKETS];
++    uint32_t ssi_pair_keys[ESP32_HANDOFF_SSI_PAIR_SLOTS];
++    uint64_t ssi_pair_counts[ESP32_HANDOFF_SSI_PAIR_SLOTS];
++    uint64_t ssi_pair_overflow;
++    uint32_t ssi_command_timing_keys[ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS];
++    uint64_t ssi_command_timing_counts[
++        ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS
++    ];
++    uint64_t ssi_command_timing_gap_ns[
++        ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS
++    ];
++    uint64_t ssi_command_timing_gap_max_ns[
++        ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS
++    ];
++    uint64_t ssi_command_timing_overflow;
++    uint64_t ssi_transition_keys[ESP32_HANDOFF_SSI_TRANSITION_SLOTS];
++    uint64_t ssi_transition_counts[ESP32_HANDOFF_SSI_TRANSITION_SLOTS];
++    uint64_t ssi_transition_overflow;
++    uint64_t ssi_previous_command;
+     uint64_t crosscore_writes;
+     uint32_t crosscore_levels;
+     uint64_t intmatrix_levels_lo;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -276,6 +276,91 @@ static uint32_t esp32_spi_gap_bucket(uint64_t gap_ns)
+     return 8;
+ }
+ 
++static void esp32_spi_record_command_pair(uint32_t command,
++                                          uint32_t rx_length_bucket)
++{
++    uint32_t encoded = ((command << 9) | rx_length_bucket) + 1;
++    uint32_t slot = (encoded * 2654435761u)
++                    & (ESP32_HANDOFF_SSI_PAIR_SLOTS - 1);
++
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_SSI_PAIR_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_SSI_PAIR_SLOTS - 1);
++
++        if (esp32_handoff_metrics.ssi_pair_keys[index] == 0) {
++            esp32_handoff_metrics.ssi_pair_keys[index] = encoded;
++            ++esp32_handoff_metrics.ssi_pair_counts[index];
++            return;
++        }
++        if (esp32_handoff_metrics.ssi_pair_keys[index] == encoded) {
++            ++esp32_handoff_metrics.ssi_pair_counts[index];
++            return;
++        }
++    }
++    ++esp32_handoff_metrics.ssi_pair_overflow;
++}
++
++static void esp32_spi_record_command_gap(uint32_t command, uint64_t gap_ns)
++{
++    uint32_t encoded = command + 1;
++    uint32_t slot = (encoded * 2654435761u)
++                    & (ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS - 1);
++
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS - 1);
++
++        if (esp32_handoff_metrics.ssi_command_timing_keys[index] == 0) {
++            esp32_handoff_metrics.ssi_command_timing_keys[index] = encoded;
++            ++esp32_handoff_metrics.ssi_command_timing_counts[index];
++            esp32_handoff_metrics.ssi_command_timing_gap_ns[index] = gap_ns;
++            esp32_handoff_metrics.ssi_command_timing_gap_max_ns[index] =
++                gap_ns;
++            return;
++        }
++        if (esp32_handoff_metrics.ssi_command_timing_keys[index] ==
++            encoded) {
++            ++esp32_handoff_metrics.ssi_command_timing_counts[index];
++            esp32_handoff_metrics.ssi_command_timing_gap_ns[index] +=
++                gap_ns;
++            esp32_handoff_metrics.ssi_command_timing_gap_max_ns[index] =
++                MAX(esp32_handoff_metrics.ssi_command_timing_gap_max_ns[
++                        index],
++                    gap_ns);
++            return;
++        }
++    }
++    ++esp32_handoff_metrics.ssi_command_timing_overflow;
++}
++
++static void esp32_spi_record_transition(uint32_t previous_command,
++                                        uint32_t command)
++{
++    uint64_t encoded = ((uint64_t)previous_command << 16) | command;
++    uint32_t slot = (uint32_t)(encoded * 11400714819323198485ull)
++                    & (ESP32_HANDOFF_SSI_TRANSITION_SLOTS - 1);
++
++    ++encoded;
++    for (uint32_t probe = 0;
++         probe < ESP32_HANDOFF_SSI_TRANSITION_SLOTS; probe++) {
++        uint32_t index = (slot + probe)
++                         & (ESP32_HANDOFF_SSI_TRANSITION_SLOTS - 1);
++
++        if (esp32_handoff_metrics.ssi_transition_keys[index] == 0) {
++            esp32_handoff_metrics.ssi_transition_keys[index] = encoded;
++            ++esp32_handoff_metrics.ssi_transition_counts[index];
++            return;
++        }
++        if (esp32_handoff_metrics.ssi_transition_keys[index] == encoded) {
++            ++esp32_handoff_metrics.ssi_transition_counts[index];
++            return;
++        }
++    }
++    ++esp32_handoff_metrics.ssi_transition_overflow;
++}
++
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
+     uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+@@ -296,6 +381,11 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+         esp32_handoff_metrics.ssi_gap_ns_max =
+             MAX(esp32_handoff_metrics.ssi_gap_ns_max, gap_ns);
+         ++esp32_handoff_metrics.ssi_gap_counts[gap_bucket];
++        esp32_spi_record_command_gap(command, gap_ns);
++        esp32_spi_record_transition(
++            esp32_handoff_metrics.ssi_previous_command,
++            command
++        );
+     }
+     ++esp32_handoff_metrics.ssi_transactions;
+     esp32_handoff_metrics.ssi_rx_bytes += t->data_rx_bytes;
+@@ -307,6 +397,8 @@ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+     esp32_handoff_metrics.ssi_last_ns = now_ns;
+     ++esp32_handoff_metrics.ssi_command_counts[command];
+     ++esp32_handoff_metrics.ssi_rx_length_counts[rx_length_bucket];
++    esp32_spi_record_command_pair(command, rx_length_bucket);
++    esp32_handoff_metrics.ssi_previous_command = command;
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-begin",
+         t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -811,6 +811,81 @@ static void esp32_handoff_pause_dump_state(Esp32DportState *s, uint64_t now_ns)
+                     now_ns, bucket, count);
+         }
+     }
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_SSI_PAIR_SLOTS; slot++) {
++        uint32_t encoded = esp32_handoff_metrics.ssi_pair_keys[slot];
++        uint64_t count = esp32_handoff_metrics.ssi_pair_counts[slot];
++
++        if (encoded && count) {
++            uint32_t key = encoded - 1;
++            uint32_t command = key >> 9;
++            uint32_t rx_length = key & 0x1ff;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-command-length a=%u b=%u"
++                    " c=%" PRIu64 " d=0\n",
++                    now_ns, command, rx_length, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-command-length-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_pair_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_SSI_COMMAND_TIMING_SLOTS; slot++) {
++        uint32_t encoded =
++            esp32_handoff_metrics.ssi_command_timing_keys[slot];
++        uint64_t count =
++            esp32_handoff_metrics.ssi_command_timing_counts[slot];
++
++        if (encoded && count) {
++            uint32_t command = encoded - 1;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-command-gap a=%u b=%" PRIu64
++                    " c=%" PRIu64 " d=%" PRIu64 "\n",
++                    now_ns, command, count,
++                    esp32_handoff_metrics.ssi_command_timing_gap_ns[slot],
++                    esp32_handoff_metrics.ssi_command_timing_gap_max_ns[
++                        slot]);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-command-gap-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_command_timing_overflow);
++    for (uint32_t slot = 0;
++         slot < ESP32_HANDOFF_SSI_TRANSITION_SLOTS; slot++) {
++        uint64_t encoded = esp32_handoff_metrics.ssi_transition_keys[slot];
++        uint64_t count = esp32_handoff_metrics.ssi_transition_counts[slot];
++
++        if (encoded && count) {
++            uint64_t key = encoded - 1;
++            uint32_t previous_command = key >> 16;
++            uint32_t command = key & 0xffff;
++
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=-1 pc=00000000 component=ssi"
++                    " event=freeze-command-transition a=%u b=%u"
++                    " c=%" PRIu64 " d=0\n",
++                    now_ns, previous_command, command, count);
++        }
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi"
++            " event=freeze-command-transition-overflow a=%" PRIu64
++            " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.ssi_transition_overflow);
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=crosscore event=freeze-counters"
