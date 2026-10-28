@@ -112,6 +112,7 @@ Unit 历史 raw 归档已从源码交付外置，固定旧提交链接只用于�
 | [证据保留规则](evidence-retention.md) | 交付契约 | `2026-10-27` | 必要 fixture、哈希、精简总结和复现入口；历史 raw 外置，普通 CI 与显式归档审计分开 |
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
 | [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-28` | C/QEMU CoreS3 浏览器入口、固定源码构建、共享内存首控、管理员部署步骤和许可边界 |
+| [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 当前部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |
 | [CoreS3 C/QEMU 静态网页验收](evidence/2026-10-28-qemu-wasm-pages/README.md) | 历史证据 | `2026-10-28` | 固定源码完整构建、浏览器本地组合、真实 LCD/触摸/PIR及第二场分享启动/清理，Pages 单独记录 |
 | [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 执行研究 | `2026-10-28` | 完整WASM/CLI/QMP；主CPU栈恢复修正后64KiB运行，显式慢虚拟时钟和stdio主循环QMP下CoreS3完整LVGL帧/触摸/PIR/停止重开；默认时钟队列缺口开放，不属公众产品准入 |
 | [公众模拟器计划](plans/2026-10-28-public-simulator.md) | 进行中计划 | `2026-10-28` | 公众首页、Unit信息层级、新模型、URL分享、静态导出与部署前门禁 |

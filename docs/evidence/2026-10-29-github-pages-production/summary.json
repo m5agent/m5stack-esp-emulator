@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "browser virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "result": "PASS",
+  "source_commit": "8e47c6ba83c042398d767a8d56ff47c16b927181",
+  "url": "https://m5agent.github.io/m5stack-esp-emulator/",
+  "deployment": {
+    "provider": "GitHub Pages",
+    "build_type": "workflow",
+    "run": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40719197233",
+    "build_seconds": 833,
+    "deploy_seconds": 14
+  },
+  "site": {
+    "base_path": "/m5stack-esp-emulator/",
+    "service_url": "",
+    "firmware_bundled": false,
+    "asset_count": 1922,
+    "manifest_sha256": "ba041639ad8959c9d9c529db02a41d1cb59a349f875fec7e2c50a62ff8c50187",
+    "http_status": 200
+  },
+  "runtime": {
+    "engine": "qemu-wasm",
+    "profile": "cores3-wasm-vm-div8",
+    "clock_divisor": 8,
+    "source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+    "build_kind": "source-build",
+    "emscripten": "3.1.50",
+    "manifest_sha256": "59ff1fb5a43b0aae6aa25da5d357b5246621c190c5ad18de482f78e23a5fe124",
+    "wasm_sha256": "716f3b6a8750335613da2897be0933d1497965962d0dc1b3f2754ebf76316c89",
+    "rom_sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913",
+    "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f"
+  },
+  "public_acceptance": {
+    "checks": 21,
+    "passed": 21,
+    "failed": 0,
+    "report_sha256": "3251b33ef5fb76340a48f8cbd3e780ee3b9ce86caf613f176b58a90ffa6bee33",
+    "coverage": [
+      "service-worker-shared-memory",
+      "actual-cores3-lvgl-ready",
+      "exact-runtime-and-fixture",
+      "real-frame-pixels",
+      "touch-negative-and-positive",
+      "pir-both-transitions",
+      "qmp-pause-resume",
+      "four-responsive-widths",
+      "stop-reopen-and-worker-cleanup",
+      "no-service-or-local-emulator-requests",
+      "no-javascript-errors"
+    ]
+  },
+  "remaining": [
+    "default wall-clock LVGL scheduling and long-term stability",
+    "network, audio, other devices/Units and arbitrary firmware",
+    "flash persistence",
+    "physical hardware, RF, acoustic, optical and electrical validation"
+  ]
+}

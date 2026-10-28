@@ -362,7 +362,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | 能力 | 当前状态 | 主要边界 |
 | --- | --- | --- |
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
-| 公众 C/QEMU / CoreS3 | 本地、Linux Actions与测试 fork Pages 限定通过 | 浏览器本地组合固定示例、LCD/触摸/PIR/暂停/分享重开；虚拟时间和 WDT 为墙钟 1/8，UART 只输出，无 Flash 持久化；其它设备/固件/Unit 不继承。[证据](evidence/2026-10-28-qemu-wasm-pages/README.md) / [部署](pages-deployment.md) |
+| 公众 C/QEMU / CoreS3 | 本地、Linux Actions 与正式 GitHub Pages 限定通过 | 浏览器本地组合固定示例、LCD/触摸/PIR/暂停/分享重开；正式 HTTPS 地址独立 21 项验收通过。虚拟时间和 WDT 为墙钟 1/8，UART 只输出，无 Flash 持久化；其它设备/固件/Unit 不继承。[正式部署证据](evidence/2026-10-29-github-pages-production/README.md) / [部署](pages-deployment.md) |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
 | Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C、timer、WDT mask、SSI、DPORT handoff 与 classic RMT 子问题已修复；WDT-off Serial 到达 `APIKEY`，normal-WDT 在 BOARD/APIKEY 前 reset。pre-boot work/WDT deadline、display completion、PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |

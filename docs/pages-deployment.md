@@ -95,8 +95,17 @@ Service Worker 首控流程。它实际执行下载/组合、LCD、DOM 触摸正
 
 ## 已验证的部署参考
 
+正式站点已部署到
+<https://m5agent.github.io/m5stack-esp-emulator/>。原仓库
+[Pages 工作流](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40719197233)
+绑定 main 提交 `8e47c6ba`，完成固定源码构建、真实 CoreS3 guest 验收和
+GitHub Pages 部署；部署后从正式 HTTPS 地址独立复验 21 项检查全部通过。
+站点 manifest 声明 `1922` 个资产，`service_url` 为空，
+`firmware_bundled=false`。运行时、固件 SHA、公开报告 SHA 和边界见
+[正式部署证据](evidence/2026-10-29-github-pages-production/README.md)。
+
 测试 fork 的 [Pages 站点](https://yuyun2000.github.io/m5stack-esp-emulator/) 已由
 [Linux Actions](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40689514606)
 从固定源码构建、完成真实 guest 验收并部署；公开 HTTPS 地址另跑同一验收器通过。
 确切运行时/固件 SHA、检查与限制见[部署证据](evidence/2026-10-28-qemu-wasm-pages/README.md)。
-这不代表原仓库已部署；原仓库管理员仍需执行本页开头的步骤。
+该 fork 结果保留为部署前对照，不替代上面的正式站点证据。

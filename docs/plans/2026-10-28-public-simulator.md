@@ -24,16 +24,16 @@
 
 `.github/workflows/public-site.yml` 仅接受手动触发，`publish` 默认为 `false`；默认构建源码固定的 WASM、静态站及普通 preview artifact。只有在 `main` 上明确指定 `publish=true`，才生成真正的 Pages artifact 并进入 `github-pages` 部署环境；发布权限仅授予部署 job，并发组避免重叠发布，运行中的构建不被新请求取消。工作流不启用 Pages，也不修改仓库的 Pages 来源。
 
-2026-10-28 初始只读审计显示，上游与 fork 均未启用 Pages；随后按用户授权为测试 fork 配置 GitHub Actions 来源，上游设置仍由仓库管理员决定。测试目标为 `https://yuyun2000.github.io/m5stack-esp-emulator/`，构建前缀为 `/m5stack-esp-emulator/`。上游对应地址为 `https://m5agent.github.io/m5stack-esp-emulator/`。
+2026-10-28 初始只读审计显示，上游与 fork 均未启用 Pages；随后按用户授权为测试 fork 配置 GitHub Actions 来源。测试目标为 `https://yuyun2000.github.io/m5stack-esp-emulator/`，构建前缀为 `/m5stack-esp-emulator/`。上游正式地址为 `https://m5agent.github.io/m5stack-esp-emulator/`。
 
-测试 fork 已按用户授权将 Pages 来源设为 GitHub Actions，并在 `main` 手动运行 `publish=true`；Linux 构建、导出站真实 guest、部署及公开 HTTPS 复验均已通过。原仓库正式发布由管理员合并 PR 后按部署指南执行；不从 fork 部署结果继承原仓库部署状态。
+测试 fork 已按用户授权将 Pages 来源设为 GitHub Actions，并在 `main` 手动运行 `publish=true`；Linux 构建、导出站真实 guest、部署及公开 HTTPS 复验均已通过。2026-10-29 又按用户授权将原仓库 Pages 来源设为 GitHub Actions，在 `main@8e47c6ba` 运行 `publish=true`，完成构建、真实 guest 验收、部署和正式 HTTPS 独立 21 项复验；见[正式部署证据](../evidence/2026-10-29-github-pages-production/README.md)。
 
 ## 进度
 
 - 已核查运行架构、当前页面和来源 pin；模型在独立 worktree 更新，模块闭合、同步器检查和独立完整浏览器模型回归已通过，默认配置边界见证据页。
 - Unit / sessions 信息层级改造、公众首页四档布局、设备/Unit 搜索与失败契约已验证；Pages 子路径导出、URL 下载/取消/SHA、独立 Worker 后端已实现。
 - 用户要求先研究 esp-online-tester 的全浏览器架构；已从固定源码独立重建 browser backend，并在 Chromium 跑通 PaperS3 / StopWatch 官方固件、真实帧、输入和暂停/停止。首页分享直开、实际DOM触摸与四档布局均已通过。CoreS3 plain受控原生示例也已同guest完成输入/帧/evidence/停止；创建收据丢失后以同key/body恢复同guest并安全停止已完成真实回归；独立审查进一步补齐有界停止和明确lease释放。更多stock/unified路径作为后续扩展，不作为两profile browser部署硬门禁。证据和不可继承边界见[纯浏览器调研](../browser-runtime-feasibility.md)。
-- 早期 Rust browser backend 未部署；当前 C/QEMU 测试 fork 部署与验收见本页末段。任一路径的限定结果不转授已有 native 板级、任意固件或完整 Unit 协议。
+- 早期 Rust browser backend 未部署；当前 C/QEMU 正式 Pages 部署与验收见本页末段。任一路径的限定结果不转授已有 native 板级、任意固件或完整 Unit 协议。
 
 ## QEMU 到 WASM：按用户澄清恢复探索
 
