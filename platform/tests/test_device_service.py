@@ -256,7 +256,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(self.service.capacity()["active_sessions"], 0)
 
     def test_program_modes_are_advertised_only_on_admitted_devices(self):
-        for device_id in ("cores3", "atoms3r", "sticks3", "stopwatch"):
+        for device_id in ("cores3", "atoms3r", "sticks3", "stopwatch", "core2"):
             self.assertEqual(self.service.get_device(device_id)["program_modes"], ["uiflow-live"])
             features = self.service.get_device(device_id)["program_features"]
             self.assertEqual(features["runtimes"], ["qemu"])
@@ -266,7 +266,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertIs(features["native_mpy"], False)
             self.assertEqual(features["main_namespace"], "fresh-exec-globals")
             self.assertEqual(features["cleanup_mode"], "interrupt-only")
-        for device_id in ("core2", "tab5", "nanoc6"):
+        for device_id in ("tab5", "nanoc6"):
             self.assertEqual(self.service.get_device(device_id)["program_modes"], [])
             self.assertEqual(self.service.get_device(device_id)["program_features"], {})
 
@@ -1460,7 +1460,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
 
     def test_controller_trace_accept_only_explicit_boolean_enable(self):
-        traces = {key: "1" for key in ("M5SW_CAMERA_TRACE", "M5SW_GDMA_TRACE", "M5SW_GPSPI_TRACE", "M5SW_SPI_XFER_TRACE")}
+        traces = {key: "1" for key in (
+            "M5SW_CAMERA_TRACE",
+            "M5SW_GDMA_TRACE",
+            "M5SW_GPSPI_TRACE",
+            "M5SW_LCD_TRACE",
+            "M5SW_SPI_XFER_TRACE",
+        )}
         for key in traces:
             for value in ("0", "true", "/tmp/trace", "1\x00", True):
                 with self.subTest(key=key, value=value), self.assertRaises(ServiceError) as caught:

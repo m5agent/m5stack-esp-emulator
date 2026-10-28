@@ -37,7 +37,7 @@ def poll_button(milliseconds):
     return seen
 
 
-def run_inputs(include_touch=True):
+def run_inputs(include_touch=True, touch_coordinates=(61, 73)):
     M5.begin()
     events = []
     button = M5.BtnPWR
@@ -76,10 +76,11 @@ def run_inputs(include_touch=True):
             x, y = M5.Touch.getX(), M5.Touch.getY()
             detail, raw = M5.Touch.getDetail(), M5.Touch.getTouchPointRaw()
             if len(detail) == 11 and detail[4]:
-                input_emit("M5.Touch.getX", "API_ASSERTION_PASS" if x == 61 else "FAIL", x)
-                input_emit("M5.Touch.getY", "API_ASSERTION_PASS" if y == 73 else "FAIL", y)
+                expected_x, expected_y = touch_coordinates
+                input_emit("M5.Touch.getX", "API_ASSERTION_PASS" if x == expected_x else "FAIL", x)
+                input_emit("M5.Touch.getY", "API_ASSERTION_PASS" if y == expected_y else "FAIL", y)
                 input_emit("M5.Touch.getDetail", "API_ASSERTION_PASS", detail)
-                input_emit("M5.Touch.getTouchPointRaw", "API_ASSERTION_PASS" if tuple(raw[:2]) == (61, 73) else "FAIL", raw)
+                input_emit("M5.Touch.getTouchPointRaw", "API_ASSERTION_PASS" if tuple(raw[:2]) == touch_coordinates else "FAIL", raw)
                 recorded = True
         time.sleep_ms(10)
     input_emit("M5.Touch.getCount", "API_ASSERTION_PASS" if recorded and 1 in counts and counts[-1] == 0 else "FAIL", counts,

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/m5stack/uiflow-micropython",
+  "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+  "patch_sha256": "b7242e2eec13db9f3e7a8ca19539930d9ac196a399d57c35843184ec61f449ae",
+  "files": [
+    {
+      "path": "m5stack/libs/modbus/modbus/master.py",
+      "guest_file": "candidate_modbus_master.py",
+      "preimage_sha256": "f2ea91863878bd0131d4431ce4091ae16bc60304858ae015e3fae98f3c2eab71",
+      "candidate_sha256": "5187e9c146ceabc5c30b753f3d6eb9cd308a4708582c75df685dc7e22e29e6f7"
+    }
+  ],
+  "problem": "ModbusTCPClient async methods call CPython-only asyncio.Loop.sock_recv, which stock MicroPython asyncio does not expose.",
+  "correction": "On MicroPython, wait cooperatively on the existing socket with select.poll and bounded ticks, then receive through the socket; retain the CPython event-loop path.",
+  "scope": "candidate source correction only; stock firmware failure remains unchanged"
+}

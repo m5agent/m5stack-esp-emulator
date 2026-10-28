@@ -61,7 +61,14 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
-最新用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
+`API-01` 已扩展到 StopWatch、StickS3 与 Core2 的当前 v2.5.3 复测；本轮
+确认的 requests2、BLE UUID32、Modbus transform/async 和 M5UI 共享源码缺陷已有
+hash-pinned 候选修正及三设备虚拟结果，见
+[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。
+仍需关闭 StopWatch 单像素 CO5300 路径、QR/TLS 候选固件重建、WAV/mic 数据面、
+ESP-NOW controller TX/RX/IRQ、Core2 稳定按键输入和所有 28 类 Core2 文档方法矩阵。
+
+此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
 易用性修复。按[验证计划](plans/2026-10-27-uiflow2-complete-api-sweep.md)逐项
 对账，清单、导入和调用返回不能代替行为 PASS；模型/fixture/固件差异逐项保留。

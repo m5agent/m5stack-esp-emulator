@@ -94,27 +94,27 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`57` 个 Python 模块，`43253` 行；规模最大的模块如下。
+- `platform/tools`：`57` 个 Python 模块，`43290` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 11750 |
+| `device_service.py` | 11777 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
 | `serve.py` | 1557 |
 | `firmware_filesystems.py` | 1469 |
 
-- `tests/`：`125` 个可执行 Python 测试文件，分布在 `57` 个目录；`221` 个 evidence JSON。
-- `patches/`：`14` 个补丁组，`120` 个 patch 文件。
-- 文档：`368` 个 Markdown 页面；除本生成页外共 `34134` 行。
+- `tests/`：`126` 个可执行 Python 测试文件，分布在 `57` 个目录；`221` 个 evidence JSON。
+- `patches/`：`14` 个补丁组，`123` 个 patch 文件。
+- 文档：`369` 个 Markdown 页面；除本生成页外共 `34296` 行。
 
 ## 文档与测试
 
-- 平台测试：`1335` 项。
-- Docs 新鲜度登记：`57` 行；其中非历史页 `48` 行，历史固定页 `9` 行。
-- 文档职责分布：待办 `3`，契约 `7`，历史固定 `9`，实现/设计 `8`，参考 `26`，工作流/导航 `4`。
-- 全量文档盘点：`368` 个 Markdown 页面；职责分布：权威/专题页 `57`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `17`，平台说明 `9`，仓内历史记录 `5`，测试/用例说明 `154`，未登记 docs 页面 `1`，第三方来源说明 `102`。
+- 平台测试：`1344` 项。
+- Docs 新鲜度登记：`58` 行；其中非历史页 `49` 行，历史固定页 `9` 行。
+- 文档职责分布：待办 `3`，契约 `7`，证据/差异 `1`，历史固定 `9`，实现/设计 `8`，参考 `26`，工作流/导航 `4`。
+- 全量文档盘点：`369` 个 Markdown 页面；职责分布：权威/专题页 `58`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `17`，平台说明 `9`，仓内历史记录 `5`，测试/用例说明 `154`，未登记 docs 页面 `1`，第三方来源说明 `102`。
 - 复核日期早于当前事实日期的非历史页：[engineering-handoff.md](engineering-handoff.md) `2026-10-26`，[workstreams.md](workstreams.md) `2026-10-26`，[project-snapshot.md](project-snapshot.md) `2026-10-26`，[project-status.md](project-status.md) `2026-10-27`，[project-backlog.md](project-backlog.md) `2026-10-27`，[code-map.md](code-map.md) `2026-10-27`，[evidence-retention.md](evidence-retention.md) `2026-10-27`，[plans/2026-10-27-source-pr-cleanup.md](plans/2026-10-27-source-pr-cleanup.md) `2026-10-27`，[device-service-api.md](device-service-api.md) `2026-10-27`，[unit-agent-api.md](unit-agent-api.md) `2026-10-27`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[runtime-model-gap-register.md](runtime-model-gap-register.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[plans/2026-10-25-unit-runtime-integration.md](plans/2026-10-25-unit-runtime-integration.md) `2026-10-27`，[unit-integration-host-issues.md](unit-integration-host-issues.md) `2026-10-27`，[plans/2026-10-26-aiflow-live-preview-api.md](plans/2026-10-26-aiflow-live-preview-api.md) `2026-10-27`，[plans/2026-10-27-preview-run-control.md](plans/2026-10-27-preview-run-control.md) `2026-10-27`，[plans/2026-10-27-preview-web-consumer.md](plans/2026-10-27-preview-web-consumer.md) `2026-10-27`，[plans/2026-10-27-preview-controls-and-2relay.md](plans/2026-10-27-preview-controls-and-2relay.md) `2026-10-27`，[plans/2026-10-27-binary-checkpoint-and-unit-protocols.md](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) `2026-10-27`，[plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md](plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md) `2026-10-27`，[plans/2026-10-27-public-main-mpy-runtime.md](plans/2026-10-27-public-main-mpy-runtime.md) `2026-10-27`，[plans/2026-10-27-flashlight-route-history.md](plans/2026-10-27-flashlight-route-history.md) `2026-10-27`，[plans/2026-10-27-flashlight-cold-pad-observation.md](plans/2026-10-27-flashlight-cold-pad-observation.md) `2026-10-27`，[plans/2026-10-27-core2-startup-issues.md](plans/2026-10-27-core2-startup-issues.md) `2026-10-27`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`

@@ -338,7 +338,7 @@ SPECIFIC["M5Spinbox"].update({
 })
 
 
-GUEST_COMMON = '''import time, json, sys
+GUEST_COMMON = '''import time, json, sys, os
 import M5
 from M5 import *
 CASE_ID = %r
@@ -352,6 +352,19 @@ def settle():
         M5.update()
         time.sleep_ms(20)
 M5.begin()
+try:
+    # Display recipes compare requested colors with rendered pixels. Normalize
+    # panel backlight to full scale so a persisted user brightness is not
+    # misreported as a display-controller color error.
+    M5.Lcd.setBrightness(255)
+except Exception as error:
+    emit('BRIGHTNESS_NORMALIZATION',status='ERROR',error=repr(error))
+try:
+    # UI recipes use the unrotated native coordinate system. Current UIFlow2
+    # images may persist rotation=1 across the startup menu.
+    M5.Lcd.setRotation(0)
+except Exception as error:
+    emit('ROTATION_NORMALIZATION',status='ERROR',error=repr(error))
 emit('ENV', board=M5.getBoard(),width=M5.Lcd.width(),height=M5.Lcd.height(),rotation=M5.Lcd.getRotation())
 '''
 
@@ -439,6 +452,155 @@ DISPLAY_RECIPES.update({
     "setTextScroll": ("obj.setTextSize(2);obj.setTextScroll(True);obj.setCursor(0,216);obj.print(''.join('SCROLL %d\\n'%i for i in range(20)))", None, {"kind":"text","text":"SCROLL 19","box":[0,160,320,240]}),
 })
 
+
+def display_recipe_for(method: str, width: int, height: int):
+    """Adapt the 320x240 recipe canvas to the selected board geometry.
+
+    Coordinates represent the desktop-sized demonstration canvas. Scaling
+    both the drawing calls and their frame oracles keeps a narrow StickS3 or
+    circular StopWatch from producing harness-only out-of-bounds failures.
+    Text glyph size and image pixel dimensions remain native inputs.
+    """
+    if method not in DISPLAY_RECIPES:
+        return None
+    # The only square panel in the current inventory is the circular
+    # StopWatch glass. Keep its transformed drawing rectangle inside the
+    # inscribed visible circle.
+    margin = 0.9 if width == height else 1.0
+    x_scale = width / 320 * margin
+    y_scale = height / 240 * margin
+    sx = lambda x: max(0, min(width - 1, int(round(width / 2 + (x - 160) * x_scale))))
+    sy = lambda y: max(0, min(height - 1, int(round(height / 2 + (y - 120) * y_scale))))
+    sw = lambda value: max(1, int(round(value * x_scale)))
+    sh = lambda value: max(1, int(round(value * y_scale)))
+    sr = lambda value: max(1, int(round(value * min(x_scale, y_scale))))
+    p = lambda x, y: [sx(x), sy(y)]
+    box = lambda x0, y0, x1, y1: [sx(x0), sy(y0), sx(x1), sy(y1)]
+    image_points = lambda x, y: [
+        [sx(x) + 2, sy(y) + 2, 0xFF0000],
+        [sx(x) + 11, sy(y) + 2, 0x00FF00],
+        [sx(x) + 2, sy(y) + 11, 0x0000FF],
+        [sx(x) + 11, sy(y) + 11, 0xFFFF00],
+    ]
+    color = "0x38B8C8"
+    qr_size = min(sw(120), sh(120))
+    actions = {
+        "getCursor": f"obj.setCursor({sx(24)},{sy(68)});value=obj.getCursor()",
+        "setCursor": f"obj.setCursor({sx(24)},{sy(68)})",
+        "setFont": f"obj.setFont(M5.Lcd.FONTS.DejaVu18);obj.drawString('Font check',{sx(20)},{sy(60)})",
+        "setTextSize": f"obj.setTextSize(2);obj.drawString('Size 2',{sx(20)},{sy(60)})",
+        "setTextColor": f"obj.setTextColor({color},0x0B1014);obj.drawString('Color',{sx(20)},{sy(60)})",
+        "clear": f"obj.clear({color})",
+        "fillScreen": f"obj.fillScreen({color})",
+        "drawPixel": f"obj.drawPixel({sx(40)},{sy(70)},{color})",
+        "drawCircle": f"obj.drawCircle({sx(100)},{sy(100)},{sr(30)},{color})",
+        "fillCircle": f"obj.fillCircle({sx(100)},{sy(100)},{sr(30)},{color})",
+        "drawEllipse": f"obj.drawEllipse({sx(100)},{sy(100)},{sw(50)},{sh(30)},{color})",
+        "fillEllipse": f"obj.fillEllipse({sx(100)},{sy(100)},{sw(50)},{sh(30)},{color})",
+        "drawLine": f"obj.drawLine({sx(20)},{sy(70)},{sx(220)},{sy(70)},{color})",
+        "drawRect": f"obj.drawRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{color})",
+        "fillRect": f"obj.fillRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{color})",
+        "drawRoundRect": f"obj.drawRoundRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{sr(8)},{color})",
+        "fillRoundRect": f"obj.fillRoundRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{sr(8)},{color})",
+        "drawTriangle": f"obj.drawTriangle({sx(20)},{sy(140)},{sx(100)},{sy(60)},{sx(180)},{sy(140)},{color})",
+        "fillTriangle": f"obj.fillTriangle({sx(20)},{sy(140)},{sx(100)},{sy(60)},{sx(180)},{sy(140)},{color})",
+        "drawArc": f"obj.drawArc({sx(100)},{sy(100)},{sw(40)},{sh(30)},0,180,{color})",
+        "fillArc": f"obj.fillArc({sx(100)},{sy(100)},{sw(40)},{sh(30)},0,180,{color})",
+        "drawEllipseArc": f"obj.drawEllipseArc({sx(120)},{sy(100)},{sw(60)},{sh(40)},{sr(30)},{sr(20)},0,180,{color})",
+        "fillEllipseArc": f"obj.fillEllipseArc({sx(120)},{sy(100)},{sw(60)},{sh(40)},{sr(30)},{sr(20)},0,180,{color})",
+        "drawQR": f"obj.drawQR('UIFLOW2-API',{sx(40)},{sy(60)},{qr_size},3)",
+        "drawPng": f"obj.drawPng('/flash/api-sweep-fixture.png',{sx(40)},{sy(60)})",
+        "drawBmp": f"obj.drawBmp('/flash/api-sweep-fixture.bmp',{sx(40)},{sy(60)})",
+        "drawImage": f"obj.drawImage('/flash/api-sweep-fixture.png',{sx(40)},{sy(60)})",
+        "drawRawBuf": f"raw=bytearray([0xF8,0x00]*256);obj.drawRawBuf(raw,{sx(40)},{sy(60)},16,16,256,False)",
+        "drawString": f"obj.drawString('UIFlow API',{sx(20)},{sy(60)})",
+        "drawCenterString": f"obj.drawCenterString('Centered',{sx(120)},{sy(60)})",
+        "drawRightString": f"obj.drawRightString('Right',{sx(220)},{sy(60)})",
+        "print": f"obj.setCursor({sx(20)},{sy(60)});obj.print('Print API')",
+        "printf": f"obj.setCursor({sx(20)},{sy(60)});obj.printf('Value=%d',42)",
+        "drawPixels": f"obj.drawPixels([{p(40,70)},{p(80,90)}],color={color})",
+        "drawJpg": f"obj.drawJpg('/flash/api-sweep-fixture.jpg',{sx(40)},{sy(60)})",
+        "startWrite": f"obj.startWrite();obj.fillRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{color});obj.endWrite()",
+        "endWrite": f"obj.startWrite();obj.fillRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{color});obj.endWrite()",
+        "push": f"obj.fillRect({sx(20)},{sy(60)},{sw(160)},{sh(80)},{color});obj.push(0,0)",
+        "setTextScroll": f"obj.setTextSize(1);obj.setTextScroll(True);obj.setCursor(0,{max(0,height-20)});obj.print(''.join('SCROLL %d\\n'%i for i in range(20)))",
+        "newCanvas": (
+            f"canvas_width={sw(100)};canvas_height={sh(60)};"
+            f"child=obj.newCanvas(canvas_width,canvas_height,16,True);"
+            f"child.fillScreen({color});child.push({sx(20)},{sy(60)})"
+        ),
+    }
+    predicates = {
+        "getCursor": f"tuple(value)==({sx(24)},{sy(68)})",
+        "setCursor": f"tuple(obj.getCursor())==({sx(24)},{sy(68)})",
+        "newCanvas": "child.width()==canvas_width and child.height()==canvas_height",
+    }
+    frames = {
+        "clear": {"kind": "pixels", "points": [[*p(30, 70), 0x38B8C8], [*p(150, 120), 0x38B8C8]]},
+        "fillScreen": {"kind": "pixels", "points": [[*p(30, 70), 0x38B8C8], [*p(150, 120), 0x38B8C8]]},
+        "drawPixel": {"kind": "pixels", "points": [[*p(40, 70), 0x38B8C8]]},
+        "drawCircle": {"kind": "pixels", "points": [
+            [sx(100), sy(100) - sr(30), 0x38B8C8],
+            [sx(100) - sr(30), sy(100), 0x38B8C8],
+        ]},
+        "fillCircle": {"kind": "pixels", "points": [
+            [sx(100), sy(100), 0x38B8C8],
+            [sx(100) + sr(10), sy(100) + sr(10), 0x38B8C8],
+        ]},
+        "drawEllipse": {"kind": "pixels", "points": [
+            [sx(100), sy(100) - sh(30), 0x38B8C8],
+            [sx(100) - sw(50), sy(100), 0x38B8C8],
+        ]},
+        "fillEllipse": {"kind": "pixels", "points": [
+            [sx(100), sy(100), 0x38B8C8],
+            [sx(100) + sw(20), sy(100) + sh(10), 0x38B8C8],
+        ]},
+        "drawLine": {"kind": "pixels", "points": [[*p(40, 70), 0x38B8C8], [*p(200, 70), 0x38B8C8]]},
+        "drawRect": {"kind": "pixels", "points": [[*p(20, 60), 0x38B8C8], [*p(20, 100), 0x38B8C8]]},
+        "fillRect": {"kind": "pixels", "points": [[*p(40, 70), 0x38B8C8], [*p(150, 120), 0x38B8C8]]},
+        "drawRoundRect": {"kind": "pixels", "points": [[*p(60, 60), 0x38B8C8], [*p(20, 100), 0x38B8C8]]},
+        "fillRoundRect": {"kind": "pixels", "points": [[*p(40, 70), 0x38B8C8], [*p(150, 120), 0x38B8C8]]},
+        "drawTriangle": {"kind": "pixels", "points": [[*p(100, 60), 0x38B8C8], [*p(100, 140), 0x38B8C8]]},
+        "fillTriangle": {"kind": "pixels", "points": [[*p(100, 100), 0x38B8C8], [*p(100, 120), 0x38B8C8]]},
+        "drawArc": {"kind": "shape", "shape": "outlined lower semicircle", "box": box(60, 100, 140, 140)},
+        "fillArc": {"kind": "shape", "shape": "filled lower semicircle ring", "box": box(60, 100, 140, 140)},
+        "drawEllipseArc": {"kind": "shape", "shape": "elliptical lower arc", "box": box(60, 100, 180, 140)},
+        "fillEllipseArc": {"kind": "shape", "shape": "elliptical lower filled arc", "box": box(60, 100, 180, 140)},
+        "drawQR": {"kind": "qr_decode", "text": "UIFLOW2-API",
+                   "box": [sx(40), sy(60), sx(40) + qr_size, sy(60) + qr_size]},
+        "drawPng": {"kind": "pixels", "points": image_points(40, 60)},
+        "drawBmp": {"kind": "pixels", "points": image_points(40, 60)},
+        "drawImage": {"kind": "pixels", "points": image_points(40, 60)},
+        "drawJpg": {"kind": "pixels", "points": image_points(40, 60)},
+        "drawRawBuf": {"kind": "pixels", "points": [[sx(40) + 2, sy(60) + 2, 0xFF0000],
+                                                    [sx(40) + 11, sy(60) + 11, 0xFF0000]]},
+        "drawString": {"kind": "text", "text": "UIFlow API", "box": box(20, 60, 240, 90)},
+        "drawCenterString": {"kind": "text_center", "text": "Centered", "center_x": sx(120),
+                             "box": box(20, 60, 220, 90)},
+        "drawRightString": {"kind": "text_right", "text": "Right", "right_x": sx(220),
+                            "box": box(20, 60, 220, 90)},
+        "print": {"kind": "text", "text": "Print API", "box": box(20, 60, 240, 90)},
+        "printf": {"kind": "text", "text": "Value=42", "box": box(20, 60, 240, 90)},
+        "drawPixels": {"kind": "pixels", "points": [[*p(40, 70), 0x38B8C8], [*p(80, 90), 0x38B8C8]]},
+        "setFont": {"kind": "text", "text": "Font check", "box": box(20, 60, 220, 90)},
+        "setTextSize": {"kind": "text", "text": "Size 2", "box": box(20, 60, 220, 100)},
+        "setTextColor": {"kind": "text_color", "text": "Color", "rgb": 0x38B8C8, "box": box(20, 60, 180, 90)},
+        "newCanvas": {"kind": "pixels", "points": [[sx(40), sy(70), 0x38B8C8]]},
+        "startWrite": {"kind": "pixels", "points": [[sx(40), sy(70), 0x38B8C8]]},
+        "endWrite": {"kind": "pixels", "points": [[sx(40), sy(70), 0x38B8C8]]},
+        "push": {"kind": "pixels", "points": [[sx(40), sy(70), 0x38B8C8]]},
+        "setTextScroll": {"kind": "text", "text": "SCROLL 19", "box": [0, max(0, height - 60), width, height]},
+    }
+    action, predicate, frame = DISPLAY_RECIPES[method]
+    if method in actions:
+        action = actions[method]
+    if method in predicates:
+        predicate = predicates[method]
+    if method in frames:
+        frame = frames[method]
+    return action, predicate, frame
+
+
 WIDGET_CONSTRUCTORS = {
     "Label": "Widgets.Label('Widget label',24,68,1.0,0xF3F7F8,0x0B1014,Widgets.FONTS.DejaVu18)",
     "Title": "Widgets.Title('Widget title',8,0xF3F7F8,0x304850,Widgets.FONTS.DejaVu18)",
@@ -460,6 +622,50 @@ WIDGET_RECIPES = {
     "Triangle": {"setColor": "obj.setColor(0x58C78A,0x58C78A)", "setPoints": "obj.setPoints(40,160,140,80,240,160)", "setVisible": "obj.setVisible(False)"},
     "QRCode": {"setText": "obj.setText('UPDATED-API')", "setCursor": "obj.setCursor(80,80)", "setSize": "obj.setSize(100)", "setVersion": "obj.setVersion(4)", "setVisible": "obj.setVisible(False)"},
 }
+
+
+def widget_coordinates(width, height):
+    margin = 0.9 if width == height else 1.0
+    x_scale = width / 320 * margin
+    y_scale = height / 240 * margin
+    return {
+        "sx": lambda x: max(0, min(width - 1, int(round(width / 2 + (x - 160) * x_scale)))),
+        "sy": lambda y: max(0, min(height - 1, int(round(height / 2 + (y - 120) * y_scale)))),
+        "sw": lambda value: max(1, int(round(value * x_scale))),
+        "sh": lambda value: max(1, int(round(value * y_scale))),
+        "sr": lambda value: max(1, int(round(value * min(x_scale, y_scale)))),
+    }
+
+
+def widget_constructor(target, width, height):
+    c = widget_coordinates(width, height)
+    return {
+        "Label": f"Widgets.Label('Widget label',{c['sx'](24)},{c['sy'](68)},1.0,0xF3F7F8,0x0B1014,Widgets.FONTS.DejaVu18)",
+        "Title": f"Widgets.Title('Widget title',{c['sx'](8)},0xF3F7F8,0x304850,Widgets.FONTS.DejaVu18)",
+        "Image": f"Widgets.Image(__import__('os').getcwd()+'/fixture.png',{c['sx'](40)},{c['sy'](60)})",
+        "Line": f"Widgets.Line({c['sx'](20)},{c['sy'](60)},{c['sx'](220)},{c['sy'](140)},0x38B8C8)",
+        "Circle": f"Widgets.Circle({c['sx'](120)},{c['sy'](100)},{c['sr'](40)},0x38B8C8,0x38B8C8)",
+        "Rectangle": f"Widgets.Rectangle({c['sx'](20)},{c['sy'](60)},{c['sw'](160)},{c['sh'](80)},0x38B8C8,0x38B8C8)",
+        "Triangle": f"Widgets.Triangle({c['sx'](20)},{c['sy'](140)},{c['sx'](120)},{c['sy'](60)},{c['sx'](220)},{c['sy'](140)},0x38B8C8,0x38B8C8)",
+        "QRCode": f"Widgets.QRCode('UIFLOW2-API',{c['sx'](40)},{c['sy'](60)},{c['sr'](120)},3)",
+    }[target]
+
+
+def adapt_widget_action(target, method, action, width, height):
+    c = widget_coordinates(width, height)
+    return {
+        ("Label", "setCursor"): f"obj.setCursor({c['sx'](40)},{c['sy'](80)})",
+        ("Title", "setTextCursor"): f"obj.setTextCursor({c['sx'](28)})",
+        ("Image", "setCursor"): f"obj.setCursor({c['sx'](80)},{c['sy'](100)})",
+        ("Line", "setPoints"): f"obj.setPoints({c['sx'](20)},{c['sy'](140)},{c['sx'](220)},{c['sy'](60)})",
+        ("Circle", "setCursor"): f"obj.setCursor({c['sx'](160)},{c['sy'](120)})",
+        ("Circle", "setRadius"): f"obj.setRadius({c['sr'](55)})",
+        ("Rectangle", "setCursor"): f"obj.setCursor({c['sx'](80)},{c['sy'](100)})",
+        ("Rectangle", "setSize"): f"obj.setSize({c['sw'](100)},{c['sh'](60)})",
+        ("Triangle", "setPoints"): f"obj.setPoints({c['sx'](40)},{c['sy'](160)},{c['sx'](140)},{c['sy'](80)},{c['sx'](240)},{c['sy'](160)})",
+        ("QRCode", "setCursor"): f"obj.setCursor({c['sx'](80)},{c['sy'](80)})",
+        ("QRCode", "setSize"): f"obj.setSize({c['sr'](100)})",
+    }.get((target, method), action)
 
 
 def fixture_files() -> dict:
@@ -589,11 +795,32 @@ def method_recipes(target: str) -> dict:
     return {name: {"action": action, "state_oracle": predicate, "requires_frame": True, "requires_physical_input": name in ("add_event_cb", "value_changed_event")} for name, (action, predicate) in {**COMMON, **SPECIFIC.get(target, {})}.items()}
 
 
-def build_display_program(method: str, case_id: str, canvas: bool = False, width: int = 320, height: int = 240) -> str:
+def offset_display_frame(frame: dict | None, dx: int, dy: int) -> dict | None:
+    if not frame or (dx == 0 and dy == 0):
+        return frame
+    result = dict(frame)
+    if "points" in result:
+        result["points"] = [[x + dx, y + dy, *point[2:]] for point in result["points"] for x, y in [point[:2]]]
+    if "box" in result:
+        x0, y0, x1, y1 = result["box"]
+        result["box"] = [x0 + dx, y0 + dy, x1 + dx, y1 + dy]
+    if "center_x" in result:
+        result["center_x"] += dx
+    if "right_x" in result:
+        result["right_x"] += dx
+    return result
+
+
+def build_display_program(method: str, case_id: str, canvas: bool = False,
+                          width: int = 320, height: int = 240) -> str:
+    display_width, display_height = width, height
     target = "M5.Display.Canvas" if canvas else "M5.Display"
     lines = [GUEST_COMMON % (case_id, target), "M5.Lcd.fillScreen(0x0B1014)"]
+    canvas_origin = (0, 0)
     if canvas:
         width, height = min(280, width), min(200, height)
+        if display_width == display_height:
+            canvas_origin = ((display_width - width) // 2, (display_height - height) // 2)
         # Cardputer-ADV has no PSRAM. A failed createSprite can return a zero
         # sized Canvas without raising; admit its actual dimensions first.
         psram = width > 240
@@ -603,28 +830,28 @@ def build_display_program(method: str, case_id: str, canvas: bool = False, width
     lines += ["obj.setTextColor(0xF3F7F8,0x0B1014)", "obj.setFont(M5.Lcd.FONTS.DejaVu18)", "obj.drawString('API '+API_TARGET,8,8)"]
     if canvas:
         lines += [f"if not hasattr(obj,{method!r}):", f"    emit('RESULT',method={method!r},status='NOT_EXPORTED',reason='actual Canvas member absent on this firmware')", "    emit('READY',status='ACTUAL_EXPORT_UNAVAILABLE')", "    while True:", "        M5.update()", "        time.sleep_ms(20)"]
-    recipe = DISPLAY_RECIPES.get(method)
+    recipe = display_recipe_for(method, width, height)
     if recipe is None:
         reason = DISPLAY_UNASSIGNED_REASONS.get(method, "No behavior-specific recipe yet")
         lines += ["emit('RESULT',method=" + repr(method) + ",status='NOT_RUN',reason=" + repr(reason) + ")"]
     else:
         action, predicate, frame = recipe
-        # Keep the same geometry contract inside the smaller board's actual
-        # frame. Out-of-bounds oracle coordinates are a probe error, never a
-        # firmware failure or an inherited PASS from the larger display.
-        if height < 200:
-            if method in ("drawTriangle", "fillTriangle"):
-                action = f"obj.{method}(20,120,100,40,180,120,0x38B8C8)"
-                frame = {"kind": "pixels", "points": [[100,40,0x38B8C8],[100,120,0x38B8C8]]} if method == "drawTriangle" else {"kind": "pixels", "points": [[100,80,0x38B8C8],[100,100,0x38B8C8]]}
-            elif method == "drawQR":
-                action = "obj.drawQR('UIFLOW2-API',40,40,80,3)"
-                frame = {"kind": "qr_decode", "text": "UIFLOW2-API", "box": [40,40,120,120]}
-            elif method == "setTextScroll":
-                action = f"obj.setTextSize(1);obj.setTextScroll(True);obj.setCursor(0,{height-20});obj.print(''.join('SCROLL %d\\n'%i for i in range(20)))"
-                frame = {"kind": "text", "text": "SCROLL 19", "box": [0,max(0,height-60),width,height]}
+        if method in {"drawPng", "drawBmp", "drawImage", "drawJpg"}:
+            extension = {"drawPng": "png", "drawBmp": "bmp", "drawImage": "png", "drawJpg": "jpg"}[method]
+            lines += [
+                f"_fixture_source=open(os.getcwd()+'/fixture.{extension}','rb')",
+                "_fixture_data=_fixture_source.read()",
+                "_fixture_source.close()",
+                f"_fixture_target=open('/flash/api-sweep-fixture.{extension}','wb')",
+                "_fixture_target.write(_fixture_data)",
+                "_fixture_target.close()",
+            ]
+        frame = offset_display_frame(frame, *canvas_origin)
+        if canvas and method == "push":
+            action = action.replace("obj.push(0,0)", f"obj.push({canvas_origin[0]},{canvas_origin[1]})")
         lines += ["try:", "    " + action]
         if canvas and method != "push":
-            lines += ["    obj.push(0,0)"]
+            lines += [f"    obj.push({canvas_origin[0]},{canvas_origin[1]})"]
         lines += ["    settle()"]
         if predicate:
             lines += ["    ok=bool(" + predicate + ")", "    emit('RESULT',method=" + repr(method) + ",status='STATE_PASS' if ok else 'FAIL',oracle=" + repr(predicate) + ")"]
@@ -639,17 +866,34 @@ def build_display_program(method: str, case_id: str, canvas: bool = False, width
 
 
 def widget_frame_recipe(target: str, method: str | None, width: int, height: int) -> dict | None:
+    c = widget_coordinates(width, height)
+    if target == "Title" and width == height:
+        # Title draws a full-width top bar, while the StopWatch presents only
+        # the inscribed circle. Its state methods remain testable, but a
+        # rectangular top-strip frame oracle is not a valid visual claim.
+        return None
     if target == "QRCode":
         return {"kind": "qr_decode", "text": "UPDATED-API" if method == "setText" else "UIFLOW2-API"}
     if method == "setVisible":
         # Verify disappearance across the actual object region, not just one
         # sample that could miss a still-visible glyph or line.
-        boxes = {"Label": [20,60,235,min(120,height)], "Title": [0,0,width,20], "Image": [40,60,72,92], "Line": [20,60,221,min(145,height)], "Circle": [75,55,166,min(145,height)], "Rectangle": [20,60,180,min(140,height)], "Triangle": [20,60,220,min(145,height)]}
+        boxes = {
+            "Label": [c["sx"](20), c["sy"](60), min(width - 1, c["sx"](235)), min(height - 1, c["sy"](120))],
+            "Title": [0, 0, width - 1, max(1, min(height - 1, c["sy"](20)))],
+            "Image": [c["sx"](40), c["sy"](60), min(width - 1, c["sx"](40) + 32), min(height - 1, c["sy"](60) + 32)],
+            "Line": [c["sx"](20), c["sy"](60), min(width - 1, c["sx"](221)), max(1, min(height - 1, c["sy"](145)))],
+            "Circle": [max(0, c["sx"](120) - c["sr"](45)), max(0, c["sy"](100) - c["sr"](45)), min(width - 1, c["sx"](120) + c["sr"](46)), min(height - 1, c["sy"](100) + c["sr"](46))],
+            "Rectangle": [c["sx"](20), c["sy"](60), min(width - 1, c["sx"](20) + c["sw"](160)), min(height - 1, c["sy"](60) + c["sh"](80))],
+            "Triangle": [c["sx"](20), c["sy"](60), min(width - 1, c["sx"](220)), min(height - 1, c["sy"](140))],
+        }
         box = boxes[target]
         return {"kind": "color_region", "rgb": 0x304850 if target == "Title" else 0x0B1014, "box": box, "minimum": (box[2]-box[0])*(box[3]-box[1])}
     if target in ("Label", "Title"):
         title = target == "Title"
-        box = [0,0,width,60] if title else [20,60,min(300,width),min(130,height)]
+        box = [0, 0, width - 1, max(1, min(height - 1, c["sy"](60)))] if title else [
+            c["sx"](20), c["sy"](60), min(width - 1, c["sx"](300)),
+            max(c["sy"](60) + 1, min(height - 1, c["sy"](130))),
+        ]
         if method == "setColor":
             return {"kind": "color_region", "rgb": 0x38B8C8, "box": box, "minimum": 5}
         text = ("Updated title" if title else "Updated label") if method == "setText" else ("Widget title" if title else "Widget label")
@@ -657,20 +901,20 @@ def widget_frame_recipe(target: str, method: str | None, width: int, height: int
             return {"kind": "text", "text": text, "box": box}
         return None
     if target == "Image":
-        x, y = (80,100) if method == "setCursor" else (40,60)
+        x, y = (c["sx"](80), c["sy"](100)) if method == "setCursor" else (c["sx"](40), c["sy"](60))
         offsets = (2,26) if method == "setScale" else (2,12)
         colors = [0xFFFF00,0x0000FF,0x00FF00,0xFF0000] if method == "setImage" else [0xFF0000,0x00FF00,0x0000FF,0xFFFF00]
         a, b = offsets
         return {"kind": "pixels", "points": [[x+a,y+a,colors[0]],[x+b,y+a,colors[1]],[x+a,y+b,colors[2]],[x+b,y+b,colors[3]]]}
     color = 0x58C78A if method == "setColor" else 0x38B8C8
     if target == "Circle":
-        point = [160,120] if method == "setCursor" else [170,100] if method == "setRadius" else [120,100]
+        point = [c["sx"](160), c["sy"](120)] if method == "setCursor" else [c["sx"](120) + c["sr"](50), c["sy"](100)] if method == "setRadius" else [c["sx"](120), c["sy"](100)]
     elif target == "Rectangle":
-        point = [100,110] if method == "setCursor" else [80,100]
+        point = [c["sx"](100), c["sy"](110)] if method == "setCursor" else [c["sx"](80), c["sy"](100)]
     elif target == "Triangle":
-        point = [140,100] if method == "setPoints" else [120,100]
+        point = [c["sx"](140), c["sy"](100)] if method == "setPoints" else [c["sx"](120), c["sy"](100)]
     elif target == "Line":
-        point = [70,120] if method == "setPoints" else [120,100]
+        point = [c["sx"](120), c["sy"](100)]
     else:
         return None
     return {"kind": "pixels", "points": [point+[color]]}
@@ -679,17 +923,14 @@ def widget_frame_recipe(target: str, method: str | None, width: int, height: int
 def build_widgets_program(target: str, method: str | None, case_id: str, width: int = 320, height: int = 240) -> str:
     if target not in WIDGET_CONSTRUCTORS:
         raise ValueError(f"Unknown native widget {target}")
-    constructor = WIDGET_CONSTRUCTORS[target]
-    if target == "QRCode" and height < 200:
-        constructor = "Widgets.QRCode('UIFLOW2-API',40,30,80,3)"
+    constructor = widget_constructor(target, width, height)
     lines = [GUEST_COMMON % (case_id, "M5.Widgets." + target), "Widgets.fillScreen(0x0B1014)", "obj=" + constructor, "settle()", "emit('CONSTRUCTED',status='PENDING_FRAME',class_name=" + repr(target) + ")"]
     if method:
         action = WIDGET_RECIPES[target].get(method)
         if action is None:
             lines += ["emit('RESULT',method=" + repr(method) + ",status='NOT_RUN',reason='No behavior-specific recipe yet')"]
         else:
-            if target == "QRCode" and height < 200:
-                action = {"setCursor": "obj.setCursor(80,30)", "setSize": "obj.setSize(70)"}.get(method, action)
+            action = adapt_widget_action(target, method, action, width, height)
             lines += ["try:", "    " + action, "    settle()", "    emit('RESULT',method=" + repr(method) + ",status='PENDING_FRAME',action=" + repr(action) + ")", "except Exception as error:", "    emit('RESULT',method=" + repr(method) + ",status='FAIL',error=repr(error))"]
     oracle = widget_frame_recipe(target, method, width, height)
     if oracle is not None and not (target == "QRCode" and method == "setVisible"):
@@ -699,9 +940,9 @@ def build_widgets_program(target: str, method: str | None, case_id: str, width: 
 
 
 def build_lifecycle_program(case_id: str = "m5ui-lifecycle") -> str:
-    lines = [GUEST_COMMON % (case_id, "m5ui.lifecycle"), "import m5ui", "import lvgl as lv", "loop_type=m5ui.event_loop"]
+    lines = [GUEST_COMMON % (case_id, "m5ui.lifecycle"), "import m5ui", "import m5ui.port as port", "import lvgl as lv"]
     for cycle in range(2):
-        lines += ["m5ui.init()", "assert lv.is_initialized()", "assert loop_type.is_initialized()", "page=m5ui.M5Page(bg_c=0x0B1014)", "label=m5ui.M5Label('Lifecycle '+str(" + str(cycle) + "),x=20,y=80,text_c=0xF3F7F8,parent=page)", "page.screen_load()", "settle()", "emit('RESULT',method='init',cycle=" + str(cycle) + ",status='STATE_PASS',oracle='native LVGL and real event_loop initialized')", "m5ui.deinit()", "assert not lv.is_initialized()", "assert not loop_type.is_initialized()", "emit('RESULT',method='deinit',cycle=" + str(cycle) + ",status='STATE_PASS',oracle='native LVGL and real event_loop deinitialized')"]
+        lines += ["m5ui.init()", "assert lv.is_initialized()", "loop=port.event_loop._instance", "assert loop is not None and loop._initialized", "page=m5ui.M5Page(bg_c=0x0B1014)", "label=m5ui.M5Label('Lifecycle '+str(" + str(cycle) + "),x=20,y=80,text_c=0xF3F7F8,parent=page)", "page.screen_load()", "settle()", "emit('RESULT',method='init',cycle=" + str(cycle) + ",status='STATE_PASS',oracle='native LVGL and real event_loop initialized')", "m5ui.deinit()", "assert not lv.is_initialized()", "assert port.event_loop._instance is None", "emit('RESULT',method='deinit',cycle=" + str(cycle) + ",status='STATE_PASS',oracle='native LVGL and real event_loop deinitialized')"]
     lines += ["m5ui.init()", "page=m5ui.M5Page(bg_c=0x0B1014)", "label=m5ui.M5Label('Lifecycle restored',x=20,y=80,text_c=0xF3F7F8,parent=page)", "page.screen_load()", "settle()", "emit('READY',status='AWAITING_FRAME')", "try:", "    while True:", "        M5.update()", "        time.sleep_ms(20)", "finally:", "    m5ui.deinit()"]
     return "\n".join(lines) + "\n"
 
@@ -711,9 +952,10 @@ def build_widgets_module_program(method: str, case_id: str, width: int = 320, he
     if method == "setBrightness":
         lines += ["Widgets.setBrightness(192)", "assert M5.Lcd.getBrightness()==192", "emit('RESULT',method='setBrightness',status='STATE_PASS',oracle='native display brightness readback')"]
     elif method == "setRotation":
-        lines += ["Widgets.setRotation(1)", f"assert M5.Lcd.getRotation()==1 and M5.Lcd.width()=={width} and M5.Lcd.height()=={height}", "emit('RESULT',method='setRotation',status='STATE_PASS',oracle='native display rotation and dimensions readback')"]
+        lines += ["Widgets.setRotation(1)", f"assert M5.Lcd.getRotation()==1 and M5.Lcd.width()=={height} and M5.Lcd.height()=={width}", "emit('RESULT',method='setRotation',status='STATE_PASS',oracle='native display rotation and swapped dimensions readback')"]
     elif method == "fillScreen":
-        lines += ["Widgets.fillScreen(0x38B8C8)", "emit('FRAME_ORACLE',method='fillScreen',oracle=" + repr({"kind":"pixels","points":[[20,20,0x38B8C8],[width//2,height//2,0x38B8C8],[width-20,height-20,0x38B8C8]]}) + ",tolerance=8)"]
+        frame = display_recipe_for("fillScreen", width, height)[2]
+        lines += ["Widgets.fillScreen(0x38B8C8)", "emit('FRAME_ORACLE',method='fillScreen',oracle=" + repr(frame) + ",tolerance=8)"]
     else:
         raise ValueError("Unknown Widgets module method " + method)
     lines += ["settle()", "emit('READY',status='AWAITING_FRAME')", "while True:", "    M5.update()", "    time.sleep_ms(20)"]

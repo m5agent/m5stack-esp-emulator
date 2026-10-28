@@ -1,0 +1,34 @@
+{
+  "HARDWARE_INPUT_READY": [
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "down",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "sleep_seconds": 0.5
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "up",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "touch",
+        "x": 160,
+        "y": 120,
+        "settle_seconds": 0.4
+      }
+    }
+  ]
+}

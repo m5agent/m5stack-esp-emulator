@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/m5stack/uiflow-micropython",
+  "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+  "patch_sha256": "060f0f624ab62ccf9d775f593d0fd61a6e108002a2b06da0430ff1d82655490f",
+  "files": [
+    {
+      "path": "m5stack/libs/modbus/modbus/frame.py",
+      "guest_file": "candidate_modbus_frame.py",
+      "preimage_sha256": "92d6383d874fe77e37ea62ece8306b039990ea23f6639238c325b65e8f55ffc1",
+      "candidate_sha256": "960dbe7c6ae1a0375124fa564f1f82c7ce0bde092cee8cfd114b03275d86052f"
+    }
+  ],
+  "problem": "ModbusRTUFrame.transform_frame constructs an RTU frame with the invalid default function code 0 before copying the real TCP function code.",
+  "correction": "Construct the RTU frame once with the source unit, function code, frame type and payload fields.",
+  "scope": "candidate source correction only; stock firmware failure remains unchanged"
+}

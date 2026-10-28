@@ -1,0 +1,30 @@
+--- a/m5stack/libs/modbus/modbus/master.py
++++ b/m5stack/libs/modbus/modbus/master.py
+@@ -16,6 +16,7 @@ import math
+ import struct
+ import sys
+ import asyncio
++import select
+ 
+ if sys.implementation.name == "micropython":
+     import machine
+@@ -732,7 +733,17 @@ class ModbusTCPClient(ModbusMaster):
+         :rtype: bytearray
+         """
+         loop = asyncio.get_event_loop()
+         self.sock.send(frame)
+-        resp = await loop.sock_recv(self.sock, 256)
++        if sys.implementation.name == "micropython":
++            poll = select.poll()
++            poll.register(self.sock, select.POLLIN)
++            deadline = time.ticks_add(time.ticks_ms(), timeout)
++            while not poll.poll(0):
++                if time.ticks_diff(deadline, time.ticks_ms()) <= 0:
++                    return (False, b"")
++                await asyncio.sleep(0.001)
++            resp = self.sock.recv(256)
++        else:
++            resp = await loop.sock_recv(self.sock, 256)
+         state = self._exit_read(resp)
+         return (state, resp)
+ 

@@ -74,7 +74,7 @@ def reflect_hardware(paths):
             _hardware_emit(path, "ABSENT", detail=repr(exc))
 
 
-def _hardware_read_only():
+def _hardware_read_only(buttons=(), include_touch=True):
     _hardware_call("M5.getBoard", M5.getBoard)
     _hardware_call("M5.update", M5.update)
     for owner, names in (
@@ -85,10 +85,12 @@ def _hardware_read_only():
         ("Speaker", ("isRunning", "isEnabled", "isPlaying", "getPlayingChannels", "getVolume", "getVolumePercentage")),
         ("Mic", ("isRunning", "isEnabled", "isRecording")),
     ):
+        if owner == "Touch" and not include_touch:
+            continue
         for name in names:
             _hardware_call("M5." + owner + "." + name, lambda owner=owner, name=name: getattr(getattr(M5, owner), name)())
     names = ("isHolding", "isPressed", "isReleased", "wasClicked", "wasDoubleClicked", "wasHold", "wasPressed", "wasReleased", "wasSingleClicked", "wasChangePressed", "lastChange", "wasDeciedClickCount", "getClickCount")
-    for owner in ("BtnA", "BtnB", "BtnC", "BtnPWR", "BtnEXT"):
+    for owner in buttons:
         for name in names:
             _hardware_call("M5." + owner + "." + name, lambda owner=owner, name=name: getattr(getattr(M5, owner), name)())
         for name in ("pressedFor", "releasedFor"):
@@ -220,38 +222,42 @@ def _hardware_mic(expected):
         mic.config(original_config)
 
 
-def _hardware_inputs(milliseconds):
+def _hardware_inputs(milliseconds, buttons=(), configure_callbacks=False, include_touch=True):
     callback_events = []
-    for owner in ("BtnA", "BtnB", "BtnC", "BtnPWR", "BtnEXT"):
-        button = getattr(M5, owner)
-        for event in ("WAS_CLICKED", "WAS_DOUBLECLICKED", "WAS_HOLD", "WAS_PRESSED", "WAS_RELEASED"):
-            callback_type = getattr(button.CB_TYPE, event)
-            callback = lambda state, owner=owner, event=event: callback_events.append((owner, event, state))
-            _hardware_call("M5." + owner + ".setCallback." + event, lambda button=button, callback_type=callback_type, callback=callback: button.setCallback(type=callback_type, cb=callback))
+    if configure_callbacks:
+        for owner in buttons:
+            button = getattr(M5, owner)
+            for event in ("WAS_CLICKED", "WAS_DOUBLECLICKED", "WAS_HOLD", "WAS_PRESSED", "WAS_RELEASED"):
+                callback_type = getattr(button.CB_TYPE, event)
+                callback = lambda state, owner=owner, event=event: callback_events.append((owner, event, state))
+                _hardware_call("M5." + owner + ".setCallback." + event, lambda button=button, callback_type=callback_type, callback=callback: button.setCallback(type=callback_type, cb=callback))
     print("HARDWARE_INPUT_READY")
     deadline = time.ticks_add(time.ticks_ms(), milliseconds)
     last = None
     while time.ticks_diff(deadline, time.ticks_ms()) > 0:
         M5.update()
         current = []
-        for owner in ("BtnA", "BtnB", "BtnC", "BtnPWR", "BtnEXT"):
+        for owner in buttons:
             button = getattr(M5, owner)
             for name in ("isHolding", "isPressed", "isReleased", "wasClicked", "wasDoubleClicked", "wasHold", "wasPressed", "wasReleased", "wasSingleClicked"):
                 value = getattr(button, name)()
                 if value:
                     current.append((owner, name))
-        current.append(("touch", M5.Touch.getCount(), M5.Touch.getX(), M5.Touch.getY()))
+        if include_touch:
+            current.append(("touch", M5.Touch.getCount(), M5.Touch.getX(), M5.Touch.getY()))
         if current != last:
             _hardware_emit("M5.input.transitions", "OBSERVED", current)
             last = current
         time.sleep_ms(10)
     _hardware_emit("M5.Button.setCallback.events", "OBSERVED", callback_events)
-    for name in ("getX", "getY", "getCount", "getDetail", "getTouchPointRaw"):
-        _hardware_call("M5.Touch." + name, getattr(M5.Touch, name))
-    for owner in ("BtnA", "BtnB", "BtnC", "BtnPWR", "BtnEXT"):
-        button = getattr(M5, owner)
-        for event in ("WAS_CLICKED", "WAS_DOUBLECLICKED", "WAS_HOLD", "WAS_PRESSED", "WAS_RELEASED"):
-            _hardware_call("M5." + owner + ".removeCallback." + event, lambda button=button, event=event: button.removeCallback(type=getattr(button.CB_TYPE, event)))
+    if include_touch:
+        for name in ("getX", "getY", "getCount", "getDetail", "getTouchPointRaw"):
+            _hardware_call("M5.Touch." + name, getattr(M5.Touch, name))
+    if configure_callbacks:
+        for owner in buttons:
+            button = getattr(M5, owner)
+            for event in ("WAS_CLICKED", "WAS_DOUBLECLICKED", "WAS_HOLD", "WAS_PRESSED", "WAS_RELEASED"):
+                _hardware_call("M5." + owner + ".removeCallback." + event, lambda button=button, event=event: button.removeCallback(type=getattr(button.CB_TYPE, event)))
 
 
 def _hardware_keyboard(milliseconds):
@@ -478,13 +484,14 @@ def _hardware_config():
                 owner.config(original)
 
 
-def run_hardware(stage="read-only", expected=None, milliseconds=1000, pin_number=None):
+def run_hardware(stage="read-only", expected=None, milliseconds=1000, pin_number=None,
+                 buttons=(), configure_callbacks=False, include_touch=True):
     """Execute one isolated stage. Host supplies only physical/QOM expectations."""
     if expected is None:
         expected = {}
     print("HARDWARE_STAGE_START " + stage)
     if stage == "read-only":
-        _hardware_read_only()
+        _hardware_read_only(buttons, include_touch)
     elif stage == "sensors":
         _hardware_sensors(expected)
     elif stage == "audio":
@@ -492,7 +499,7 @@ def run_hardware(stage="read-only", expected=None, milliseconds=1000, pin_number
     elif stage == "mic":
         _hardware_mic(expected)
     elif stage == "input":
-        _hardware_inputs(milliseconds)
+        _hardware_inputs(milliseconds, buttons, configure_callbacks, include_touch)
     elif stage == "keyboard":
         _hardware_keyboard(milliseconds)
     elif stage == "power":

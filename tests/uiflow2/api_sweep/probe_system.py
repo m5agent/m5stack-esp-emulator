@@ -59,7 +59,8 @@ def clock_tests():
         system_result("time.mktime", lambda: stamp, lambda value: value == 1793104496)
         system_result("time.localtime", lambda: list(time.localtime(stamp)), lambda value: value[:6] == list(epoch[:6]))
         time.timezone("GMT-8")
-        system_result("time.timezone.localtime", lambda: list(time.localtime(stamp)), lambda value: value[:6] == [2026, 10, 27, 20, 34, 56])
+        # POSIX GMT-8 denotes UTC-8 (the sign is intentionally inverted).
+        system_result("time.timezone.localtime", lambda: list(time.localtime(stamp)), lambda value: value[:6] == [2026, 10, 27, 4, 34, 56])
     except Exception as error:
         print("SYSTEM_API " + json.dumps({"api": "time.timezone", "status": "ERROR", "error": repr(error)}))
     finally:

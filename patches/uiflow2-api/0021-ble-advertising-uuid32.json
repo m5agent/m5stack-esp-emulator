@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/m5stack/uiflow-micropython",
+  "source_commit": "db526eccc003335a89c3237112fcf2d1eb2d0904",
+  "patch_sha256": "8ec1f14f42702cc38b9c15975c300cad833aa32a64cb0598e420b5f1e392e15c",
+  "files": [
+    {
+      "path": "m5stack/libs/bleuart/ble_advertising.py",
+      "guest_file": "candidate_ble_advertising.py",
+      "preimage_sha256": "010f17d3a98abb2a4348ac47b735707aeb651d52298d7afc3f6798ce97697ac0",
+      "candidate_sha256": "cd794de3bb289723898c292da8300d45046e4174623266d4d854de9f4b188fed"
+    },
+    {
+      "path": "m5stack/libs/m5ble/m5ble.py",
+      "guest_file": "candidate_m5ble.py",
+      "preimage_sha256": "18c449e6be47b1d311ffeb4320809d02d01a73e0af11630728c56a19d00ce180",
+      "candidate_sha256": "65415a0d9821e5fe945786319ed0fb1b92ac077117de4a77bed5d865198ba14f"
+    }
+  ],
+  "problem": "Both advertising decoders unpack a four-byte Bluetooth 32-bit UUID as an eight-byte little-endian double.",
+  "correction": "Pass the four-byte Bluetooth UUID representation directly to bluetooth.UUID; this firmware accepts 2/4/16-byte values but rejects 32-bit integers.",
+  "scope": "candidate source correction only; stock firmware failure remains unchanged"
+}

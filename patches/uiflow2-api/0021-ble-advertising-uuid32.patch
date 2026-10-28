@@ -1,0 +1,22 @@
+--- a/m5stack/libs/bleuart/ble_advertising.py
++++ b/m5stack/libs/bleuart/ble_advertising.py
+@@ -74,7 +74,7 @@ def decode_services(payload):
+     for u in decode_field(payload, _ADV_TYPE_UUID16_COMPLETE):
+         services.append(bluetooth.UUID(struct.unpack("<h", u)[0]))
+     for u in decode_field(payload, _ADV_TYPE_UUID32_COMPLETE):
+-        services.append(bluetooth.UUID(struct.unpack("<d", u)[0]))
++        services.append(bluetooth.UUID(u))
+     for u in decode_field(payload, _ADV_TYPE_UUID128_COMPLETE):
+         services.append(bluetooth.UUID(u))
+     return services
+--- a/m5stack/libs/m5ble/m5ble.py
++++ b/m5stack/libs/m5ble/m5ble.py
+@@ -160,7 +160,7 @@ def decode_services(payload):
+     for u in decode_field(payload, _ADV_TYPE_UUID16_COMPLETE):
+         services.append(bluetooth.UUID(struct.unpack("<h", u)[0]))
+     for u in decode_field(payload, _ADV_TYPE_UUID32_COMPLETE):
+-        services.append(bluetooth.UUID(struct.unpack("<d", u)[0]))
++        services.append(bluetooth.UUID(u))
+     for u in decode_field(payload, _ADV_TYPE_UUID128_COMPLETE):
+         services.append(bluetooth.UUID(u))
+     return services

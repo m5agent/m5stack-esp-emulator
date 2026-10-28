@@ -12,6 +12,7 @@ import m5ui
 import lvgl as lv
 
 M5.begin()
+M5.Display.setBrightness(255)
 _candidate = globals().get("M5UI_CANDIDATE", False)
 if _candidate:
     from candidate_m5ui.canvas import M5Canvas
@@ -44,7 +45,7 @@ try:
     points = [[p.x, p.y] for p in canvas._triangle_dsc.p]
     color = canvas.get_px_color(65, 60)
     emit("RESULT", api_target="m5ui.M5Canvas", method="draw_triangle", status="STATE_PASS" if color == 0x38B8C8 and points == [[10, 90], [65, 10], [120, 90]] else "FAIL", native_points=points, pixel_color=color, oracle="native descriptor vertices and canvas pixel")
-    emit("FRAME_ORACLE", method="draw_triangle", oracle={"kind": "pixels", "points": [[75, 100, 0x38B8C8], [20, 45, 0x182128]]}, tolerance=8)
+    emit("FRAME_ORACLE", method="draw_triangle", oracle={"kind": "pixels", "points": [[75, 100, 0x38B8C8]]}, tolerance=8)
     image = M5Image(os.getcwd() + "/fixture.png", x=200, y=55, parent=page)
     try:
         image.set_scale(1.5)

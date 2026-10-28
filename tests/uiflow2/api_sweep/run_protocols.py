@@ -24,7 +24,7 @@ from probe_protocols import build_program
 from protocol_peers import mqtt_handler,modbus_handler,RTUControllerPeer,RTUSlaveControllerPeer
 from ppp_peer import PPPControllerPeer
 from run_device_api import save
-from run_guest import run as run_guest
+from run_guest import DEVICE_CHOICES, run as run_guest
 
 
 def stock_radio_model_blocker(evidence):
@@ -40,8 +40,8 @@ def run(args):
                           "peers":"owned loopback HTTP/TCP/UDP servers via guest actual WiFi/SLiRP",
                           "hardware_validation":"NOT RUN"},indent=2))
         return 0
-    if args.out_dir is None or args.token_file is None:
-        raise SystemExit("--out-dir and --token-file are required with --execute")
+    if args.out_dir is None:
+        raise SystemExit("--out-dir is required with --execute")
     bases=dict(value.split("=",1)for value in getattr(args,"base_image",[]))
     base_hashes=dict(value.split("=",1)for value in getattr(args,"expected_base_sha256",[]))
     if set(bases)!=set(base_hashes):
@@ -98,7 +98,12 @@ def run(args):
                     for part in message.iter_parts():
                         key=part.get_param("name",header="content-disposition")
                         if key=="file":file_bytes=part.get_payload(decode=True)
-                        else:fields[key]=part.get_payload(decode=True).decode()
+                        else:
+                            # Frozen EzData labels simple text parts as nested
+                            # multipart, so Python's email parser retains the
+                            # transport CRLF in get_payload(). File bytes are
+                            # handled separately and remain untouched.
+                            fields[key]=part.get_payload(decode=True).decode().rstrip("\r\n")
                     if file_bytes is None:raise ValueError("EzData multipart file absent")
                     key=fields["name"];ez_clock[0]+=1
                     row["multipart_fields"]=fields
@@ -211,6 +216,10 @@ def run(args):
         if args.requests2_source is None:
             raise SystemExit("--requests2-source is required for candidate source lane")
         config["requests_source"]=args.requests2_source.read_text(encoding="utf-8")
+    if args.group=="modbus-candidate":
+        if args.modbus_master_source is None:
+            raise SystemExit("--modbus-master-source is required for candidate source lane")
+        config["modbus_master_source"]=args.modbus_master_source.read_text(encoding="utf-8")
     source=build_program(args.group,config)
     source_path=args.out_dir/"probe.py";source_path.write_text(source,encoding="utf-8")
     reports=[]
@@ -222,9 +231,10 @@ def run(args):
             source_path=args.out_dir/(device+"-probe.py");source_path.write_text(source,encoding="utf-8")
             plain=args.group.startswith("audio-") or args.group in {"modbus-rtu","modbus-rtu-slave","ppp"}
             radio=args.group in {"ble-nus","m5ble-server","ble-client","m5ble-client"}
+            wifi_profile={"sticks3":"uiflow2-sticks3-wifi","core2":"core2-openmac"}.get(device,"generic-observe")
             arguments=SimpleNamespace(api=args.api,token_file=args.token_file,device=device,runtime="qemu-unified" if radio else "qemu" if plain else "qemu-wifi",
                        timeout=args.timeout,source=source_path,out_dir=output,done_marker="PROTOCOL_GROUP_DONE "+args.group,
-                       network=None if plain else {"profile":"generic-observe","capture_pcap":True,"attempts":1,
+                       network=None if plain else {"profile":wifi_profile,"capture_pcap":True,"attempts":1,
                                 "expected_markers":["PROTOCOL_GROUP_DONE "+args.group]})
             arguments.runtime_env=json.loads(args.runtime_env_json.read_text()) if args.runtime_env_json else None
             if device in bases:
@@ -232,7 +242,8 @@ def run(args):
                 arguments.expected_base_sha256=base_hashes[device]
                 arguments.firmware_lane=("hci-offload-test-firmware" if radio else "caller-pinned-candidate")
             if radio:
-                arguments.network.update(profile="uiflow2-"+device+"-unified",ble_linger_seconds=8)
+                radio_profile={"core2":"core2-unified"}.get(device,"uiflow2-"+device+"-unified")
+                arguments.network.update(profile=radio_profile,ble_linger_seconds=8)
                 if args.group in {"ble-client","m5ble-client"}:arguments.network["ble_peer_role"]="peripheral"
             if args.group in {"modbus-rtu","modbus-rtu-slave","ppp"}:
                 if device!="cores3":raise ValueError("Cardputer-ADV RS485 Unit is not admitted")
@@ -315,7 +326,7 @@ def run(args):
                     "evidence_sha256":execution.get("evidence_sha256"),"cases":results,
                     "counts":dict(Counter(row["status"] for row in results)),
                     "status":"PASS" if code==0 and results and all(row["status"] in {"PASS","EXPECTED_REJECTION","NOT_APPLICABLE_LISTENER"} for row in results) else "FAIL"}
-            report["library_lane"]="candidate-source" if args.group=="requests-candidate" else "stock-frozen"
+            report["library_lane"]="candidate-source" if args.group in {"requests-candidate","modbus-candidate"} else "stock-frozen"
             report["firmware_lane"]=execution.get("firmware_lane","stock-frozen")
             if radio and not bases and code!=0:
                 report["model_blockers"]=[stock_radio_model_blocker(evidence)]
@@ -330,6 +341,9 @@ def run(args):
                     "not_valid_after":certificate.not_valid_after_utc.isoformat(),"server_name":"m5-api.test"}
             if args.group=="requests-candidate":
                 report["candidate_source_sha256"]=hashlib.sha256(config["requests_source"].encode()).hexdigest()
+                report["stock_firmware_result_unchanged"]=True
+            elif args.group=="modbus-candidate":
+                report["candidate_source_sha256"]=hashlib.sha256(config["modbus_master_source"].encode()).hexdigest()
                 report["stock_firmware_result_unchanged"]=True
             save(output/"protocol-results.json",report)
             reports.append({"device_id":device,"status":report["status"],"counts":report["counts"],"failures":[{key:row[key] for key in ("api","status","error","oracle","value") if key in row} for row in results if row["status"] not in {"PASS","NOT_APPLICABLE_LISTENER"}]})
@@ -346,9 +360,10 @@ def run(args):
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", required=True)
-    parser.add_argument("--device",choices=("cores3","cardputer-adv"),action="append",default=[])
-    parser.add_argument("--group",choices=("http","sockets","easysocket","mqtt","network","modbus","modbus-rtu","modbus-rtu-slave","ppp","ezdata","requests-candidate","audio-player","audio-recorder","ble-nus","m5ble-server","ble-client","m5ble-client","espnow","espnow-native","tls"),required=True)
+    parser.add_argument("--device",choices=DEVICE_CHOICES,action="append",default=[])
+    parser.add_argument("--group",choices=("http","sockets","easysocket","mqtt","network","modbus","modbus-candidate","modbus-rtu","modbus-rtu-slave","ppp","ezdata","requests-candidate","audio-player","audio-recorder","ble-nus","m5ble-server","ble-client","m5ble-client","espnow","espnow-native","tls"),required=True)
     parser.add_argument("--requests2-source",type=Path)
+    parser.add_argument("--modbus-master-source",type=Path)
     parser.add_argument("--base-image",action="append",default=[],help="device_id=/path/to/explicit-HCI-test-base.bin")
     parser.add_argument("--expected-base-sha256",action="append",default=[],help="device_id=exact-SHA256; mandatory for each alternate base")
     parser.add_argument("--audio-case",choices=("all","raw","tone","file"),default="all")

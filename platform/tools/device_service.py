@@ -206,8 +206,15 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_GDMA_TRACE",
     "M5SW_GPSPI_TRACE",
     "M5SW_SPI_XFER_TRACE",
+    "M5SW_LCD_TRACE",
 }
-BOOLEAN_RUNTIME_TRACES = frozenset({"M5SW_CAMERA_TRACE", "M5SW_GDMA_TRACE", "M5SW_GPSPI_TRACE", "M5SW_SPI_XFER_TRACE"})
+BOOLEAN_RUNTIME_TRACES = frozenset({
+    "M5SW_CAMERA_TRACE",
+    "M5SW_GDMA_TRACE",
+    "M5SW_GPSPI_TRACE",
+    "M5SW_LCD_TRACE",
+    "M5SW_SPI_XFER_TRACE",
+})
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
 PLAIN_QEMU_AUDIO_DEVICES = frozenset({"cores3", "cardputer-adv"})
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
@@ -2573,6 +2580,12 @@ class FirmwareStore:
         except OSError as error:
             raise ServiceError("uiflow_base_unreadable", "base storage is unavailable or is not a regular file", 409) from error
 
+    @staticmethod
+    def _uiflow_family_markers(app_bytes: bytes) -> list[str]:
+        """Return admitted UIFlow2 build fingerprints without assuming one casing."""
+        markers = ("_uiflow_run_main", "UIFLOW2", "UiFlow2", "uiflow2.m5stack.com")
+        return [marker for marker in markers if marker.encode("ascii") in app_bytes]
+
     def _explicit_uiflow_base(self, spec: DeviceSpec, payload: dict) -> tuple[bytes, dict, dict]:
         """Re-admit an immutable manifest image for this source composition.
 
@@ -2646,7 +2659,11 @@ class FirmwareStore:
         declared_table = target.get("partition_table") or {}
         if not isinstance(declared_table, dict) or declared_table.get("offset") != table["offset"] or declared_table.get("partitions") != table["partitions"]:
             raise ServiceError("uiflow_base_integrity_error", "base manifest partition layout differs from actual bytes", 409)
-        images = [(analyze_esp_image(base, 0), 0x8000)]
+        boot_image = analyze_esp_image(base, 0)
+        bootloader_absent = not boot_image["valid"] and spec.id == "core2"
+        if not boot_image["valid"] and not bootloader_absent:
+            raise ServiceError("uiflow_base_not_admitted", "base bootloader image is invalid", 409)
+        images = [] if bootloader_absent else [(boot_image, 0x8000)]
         families = []
         for part in table["partitions"]:
             if part["type"] != 0 or not any(byte != 0xff for byte in base[part["offset"]:part["offset"] + 32]):
@@ -2656,11 +2673,19 @@ class FirmwareStore:
             images.append((image, end))
             descriptor = find_app_descriptor(base, part["offset"], min(image.get("image_end", end), end))
             app_bytes = base[part["offset"]:min(image.get("image_end", end), end)]
-            if not descriptor or descriptor.get("project_name") != "micropython" or not re.match(r"[Vv]2\.", descriptor.get("version", "")) or b"_uiflow_run_main" not in app_bytes or b"UIFLOW2" not in app_bytes:
+            family_markers = self._uiflow_family_markers(app_bytes)
+            if (
+                not descriptor
+                or descriptor.get("project_name") != "micropython"
+                or not re.match(r"[Vv]2\.", descriptor.get("version", ""))
+                or "_uiflow_run_main" not in family_markers
+                or not any(marker != "_uiflow_run_main" for marker in family_markers)
+            ):
                 raise ServiceError("uiflow_base_not_admitted", "base application lacks the supported UIFlow2 compatibility fingerprint", 409)
             if target.get("application") != descriptor:
                 raise ServiceError("uiflow_base_integrity_error", "base application descriptor differs from the manifest", 409)
-            families.append({"offset": part["offset"], "project_name": descriptor["project_name"], "version": descriptor["version"]})
+            families.append({"offset": part["offset"], "project_name": descriptor["project_name"],
+                             "version": descriptor["version"], "family_markers": family_markers})
         if not families or any(not image["valid"] or image.get("chip_id") != expected_chip_id(spec.soc) or image.get("image_end", end + 1) > end for image, end in images):
             raise ServiceError("uiflow_base_not_admitted", "base boot/application image is invalid or targets another chip", 409)
         signatures = [detect_secure_boot_v2_signature(base, image, region_end=end) for image, end in images]
@@ -2674,7 +2699,9 @@ class FirmwareStore:
             "artifact_source_sha256": artifact.get("source_sha256"),
             "compatibility": compatibility,
             "family": {"classification": "STATIC_COMPATIBILITY_FINGERPRINT_NOT_AUTHENTICATION", "applications": families,
-                       "markers": ["_uiflow_run_main", "UIFLOW2"], "runtime": "NOT RUN"},
+                       "markers": family_markers,
+                       "bootloader_region": "absent-known-core2-app-only-image" if bootloader_absent else "present",
+                       "runtime": "NOT RUN"},
         }
         return base, manifest, provenance
 
@@ -10020,7 +10047,7 @@ class DeviceService:
             )
         if program_mode:
             if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
-                raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted S3 QEMU reference device", 409)
+                raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted UIFlow2 QEMU device", 409)
             if "firmware_id" in payload or "uiflow_source_sha256" in payload:
                 raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares its UIFlow2 base; omit firmware_id and source pin", 409)
             if payload.get("ready_marker", LIVE_READY_MARKER) != LIVE_READY_MARKER or payload.get("ready"):
@@ -10076,7 +10103,7 @@ class DeviceService:
             # Keep idempotency bound to the original caller request above.
             # Initialization uses the established immutable source/Flash path
             # once; subsequent /program requests only use the live guest UART.
-            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files(),
+            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files(device_id),
                 **({"base_firmware_id": payload["base_firmware_id"], "expected_base_sha256": payload["expected_base_sha256"]}
                    if explicit_program_base else
                    {"expected_base_sha256": _management_binding["expected_reference_sha256"]} if _management_binding is not None else {})})

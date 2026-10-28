@@ -23,6 +23,8 @@ from run_profile_ui_test import build_image
 from run_service_test import Api, process_identity, runtime_executable
 from firmware_analysis import parse_partition_table
 
+DEVICE_CHOICES = ("cores3", "cardputer-adv", "stopwatch", "sticks3", "core2")
+
 
 def save(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -150,6 +152,8 @@ def run(args):
     matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
     device = next(row for row in matrix["devices"] if row["id"] == args.device)
     source = args.source.read_text(encoding="utf-8")
+    for statement in getattr(args, "append_code", None) or []:
+        source += "\n" + statement.rstrip() + "\n"
     base_path = args.base_image if getattr(args, "base_image", None) else ROOT / device["base"]
     base = base_path.read_bytes()
     firmware_lane=getattr(args,"firmware_lane",None) or ("caller-pinned-candidate" if getattr(args,"base_image",None) else "stock-frozen")
@@ -168,13 +172,21 @@ def run(args):
     vfs = partitions[0]
     files = args.out_dir / "files"
     files.mkdir()
-    (files / "boot.py").write_text(
-        'from machine import UART\nimport os\n'
-        '_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n'
-        'os.dupterm(_repl_uart, 0)\n'
-        '_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n'
-        '_uiflow_run_main = True\n', encoding="utf-8")
-    (files / "main.py").write_text('print("M5EMU_API_SWEEP_READY")\n' + source, encoding="utf-8")
+    # Core2's UART0 duplicate-terminal route returns EPERM on the current
+    # UIFlow2 image even though the stock REPL owns that UART. Finite cold
+    # probes do not need to replace it; S3 live-program sessions do.
+    boot = '_uiflow_run_main = True\n'
+    if args.device != "core2":
+        boot = (
+            'from machine import UART\nimport os\n'
+            '_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n'
+            'os.dupterm(_repl_uart, 0)\n'
+            '_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n'
+            '_uiflow_run_main = True\n'
+        )
+    main = 'print("M5EMU_API_SWEEP_READY")\n' + source
+    (files / "boot.py").write_text(boot, encoding="utf-8")
+    (files / "main.py").write_text(main, encoding="utf-8")
     fixture_hashes = {}
     fixture_dir = getattr(args, "fixture_dir", None)
     if fixture_dir is not None:
@@ -223,13 +235,50 @@ def run(args):
     session_id = None
     serial_text, serial_offset, observed_pages = "", 0, []
     try:
-        artifact = api.json("artifacts", "POST", body=raw, headers={
+        artifact_body = base if getattr(args, "program_transport", None) else raw
+        artifact = api.json("artifacts", "POST", body=artifact_body, headers={
             "Content-Type": "application/octet-stream", "X-Artifact-Name": args.device + "-api-sweep.bin"})
-        firmware = api.json("firmware", "POST", {"device_id": args.device, "kind": "merged", "artifact_id": artifact["artifact_id"]})
+        if getattr(args, "program_transport", None):
+            imported = api.json(
+                "firmware/import",
+                "POST",
+                {"device_id": args.device, "artifact_id": artifact["artifact_id"]},
+            )
+            caller_files = {"boot.py": boot, "main.py": main}
+            for relative in fixture_hashes:
+                if Path(relative).suffix != ".py":
+                    raise ValueError("live sessions currently require Python-only guest fixtures")
+                caller_files[relative] = (files / relative).read_text(encoding="utf-8")
+            firmware = api.json(
+                "firmware/uiflow",
+                "POST",
+                {
+                    "device_id": args.device,
+                    "files": caller_files,
+                    "base_firmware_id": imported["firmware_id"],
+                    "expected_base_sha256": imported["sha256"],
+                },
+            )
+            report["live_source_composition"] = {
+                "base_firmware_id": imported["firmware_id"],
+                "base_sha256": imported["sha256"],
+                "source_sha256": firmware["source"]["metadata"]["source_sha256"],
+            }
+            report["firmware_sha256"] = firmware["sha256"]
+            save(args.out_dir / "imported-base.json", imported)
+            save(args.out_dir / "composed-firmware.json", firmware)
+        else:
+            firmware = api.json("firmware", "POST", {"device_id": args.device, "kind": "merged", "artifact_id": artifact["artifact_id"]})
         prepare_timeout = getattr(args, "prepare_timeout", 600)
+        ttl_seconds = 3600 if getattr(args, "keep_session", False) else min(
+            3600, prepare_timeout + args.timeout + 120
+        )
         session_request = {"device_id": args.device, "firmware_id": firmware["firmware_id"],
-            "runtime": args.runtime, "ttl_seconds": min(3600, prepare_timeout + args.timeout + 120),
+            "runtime": args.runtime, "ttl_seconds": ttl_seconds,
             "ready_marker": "M5EMU_API_SWEEP_READY", "ready_timeout_seconds": 60}
+        if getattr(args, "program_transport", None) is not None:
+            session_request["program_transport"] = args.program_transport
+            session_request["uiflow_source_sha256"] = firmware["source"]["metadata"]["source_sha256"]
         if getattr(args, "network", None) is not None:
             session_request["network"] = args.network
         if getattr(args, "runtime_env", None) is not None:
@@ -288,16 +337,6 @@ def run(args):
             except Exception as error:
                 report["frame_error"] = str(error)
             try:
-                bundle = api.raw(prefix + "/evidence")
-                (args.out_dir / "evidence.zip").write_bytes(bundle)
-                with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
-                    if archive.testzip():
-                        raise RuntimeError("evidence ZIP is corrupt")
-                report["evidence_sha256"] = hashlib.sha256(bundle).hexdigest()
-            except Exception as error:
-                report["evidence_error"] = str(error)
-                report["status"] = "FAIL"
-            try:
                 appended, serial_offset, pages = serial_pages(api, session_id, serial_offset)
                 serial_text += appended
                 observed_pages.extend(pages)
@@ -306,53 +345,83 @@ def run(args):
             except Exception as error:
                 report["serial_error"] = str(error)
                 report["status"] = "FAIL"
-            try:
+            keep_running = bool(getattr(args, "keep_session", False) and report["status"] == "EXECUTED")
+            if keep_running:
                 try:
-                    before_stop = api.json(prefix)
-                except Exception:
-                    before_stop = session
-                try:
-                    worker_before_stop = api.json("worker")
-                    save(args.out_dir / "worker-before-stop.json", worker_before_stop)
-                except Exception:
-                    worker_before_stop = {}
-                stop_response = api.json(prefix + "?purge=0", "DELETE")
-                save(args.out_dir / "stop-response.json", stop_response)
-                stop_deadline = time.monotonic() + 15
-                while True:
-                    stopped = api.json(prefix)
-                    if stopped["state"] in {"stopped", "failed"} or time.monotonic() >= stop_deadline:
-                        break
-                    time.sleep(.2)
-                save(args.out_dir / "stopped.json", stopped)
-                old_pid = before_stop.get("pid")
-                runtime_gone = old_pid is None or not process_identity(old_pid)["exists"]
-                try:
-                    worker_after_stop = api.json("worker")
-                    save(args.out_dir / "worker-after-stop.json", worker_after_stop)
-                except Exception:
-                    worker_after_stop = {}
-                worker_identity = worker_after_stop if all(
-                    worker_before_stop.get(key) == worker_after_stop.get(key)
-                    for key in ("worker_id", "instance_id", "generation", "pid")
-                ) else {}
-                companions = companion_cleanup(
-                    before_stop, stopped, runtime_pid_gone=runtime_gone, worker_identity=worker_identity,
-                )
-                failed_preserved = before_stop["state"] != "failed" or (
-                    stopped["state"] == "failed" and stopped.get("error") == before_stop.get("error"))
-                history_preserved = all(stopped.get(key) == session.get(key) for key in (
-                    "session_id", "device_id", "firmware_id", "firmware_sha256", "runtime"))
-                report["stopped"] = stopped["state"] == "stopped"
-                report["cleanup"] = {"terminal_state": stopped["state"], "runtime_pid_gone": runtime_gone,
-                                     "failed_state_preserved": failed_preserved, "history_preserved": history_preserved}
-                report["cleanup"].update(companions)
-                if not companions["companions_cleanup_complete"]:report["status"]="FAIL"
-                if stopped["state"] not in {"stopped", "failed"} or not all((runtime_gone, failed_preserved, history_preserved)):
+                    kept = api.json(prefix)
+                    alive = bool(kept.get("pid") and process_identity(kept["pid"])["exists"])
+                    record = {
+                        "state": kept.get("state"),
+                        "pid": kept.get("pid"),
+                        "runtime_pid_alive": alive,
+                        "firmware_sha256": kept.get("firmware_sha256"),
+                        "program_transport": kept.get("program_transport"),
+                    }
+                    report["kept_running"] = record
+                    if kept.get("state") != "running" or not alive:
+                        report["status"] = "FAIL"
+                    save(args.out_dir / "kept-running.json", kept)
+                except Exception as error:
+                    report["keep_session_error"] = str(error)
                     report["status"] = "FAIL"
-            except Exception as error:
-                report["stop_error"] = str(error)
-                report["status"] = "FAIL"
+            else:
+                try:
+                    bundle = api.raw(prefix + "/evidence")
+                    (args.out_dir / "evidence.zip").write_bytes(bundle)
+                    with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+                        if archive.testzip():
+                            raise RuntimeError("evidence ZIP is corrupt")
+                    report["evidence_sha256"] = hashlib.sha256(bundle).hexdigest()
+                except Exception as error:
+                    report["evidence_error"] = str(error)
+                    report["status"] = "FAIL"
+                try:
+                    try:
+                        before_stop = api.json(prefix)
+                    except Exception:
+                        before_stop = session
+                    try:
+                        worker_before_stop = api.json("worker")
+                        save(args.out_dir / "worker-before-stop.json", worker_before_stop)
+                    except Exception:
+                        worker_before_stop = {}
+                    stop_response = api.json(prefix + "?purge=0", "DELETE")
+                    save(args.out_dir / "stop-response.json", stop_response)
+                    stop_deadline = time.monotonic() + 15
+                    while True:
+                        stopped = api.json(prefix)
+                        if stopped["state"] in {"stopped", "failed"} or time.monotonic() >= stop_deadline:
+                            break
+                        time.sleep(.2)
+                    save(args.out_dir / "stopped.json", stopped)
+                    old_pid = before_stop.get("pid")
+                    runtime_gone = old_pid is None or not process_identity(old_pid)["exists"]
+                    try:
+                        worker_after_stop = api.json("worker")
+                        save(args.out_dir / "worker-after-stop.json", worker_after_stop)
+                    except Exception:
+                        worker_after_stop = {}
+                    worker_identity = worker_after_stop if all(
+                        worker_before_stop.get(key) == worker_after_stop.get(key)
+                        for key in ("worker_id", "instance_id", "generation", "pid")
+                    ) else {}
+                    companions = companion_cleanup(
+                        before_stop, stopped, runtime_pid_gone=runtime_gone, worker_identity=worker_identity,
+                    )
+                    failed_preserved = before_stop["state"] != "failed" or (
+                        stopped["state"] == "failed" and stopped.get("error") == before_stop.get("error"))
+                    history_preserved = all(stopped.get(key) == session.get(key) for key in (
+                        "session_id", "device_id", "firmware_id", "firmware_sha256", "runtime"))
+                    report["stopped"] = stopped["state"] == "stopped"
+                    report["cleanup"] = {"terminal_state": stopped["state"], "runtime_pid_gone": runtime_gone,
+                                         "failed_state_preserved": failed_preserved, "history_preserved": history_preserved}
+                    report["cleanup"].update(companions)
+                    if not companions["companions_cleanup_complete"]:report["status"]="FAIL"
+                    if stopped["state"] not in {"stopped", "failed"} or not all((runtime_gone, failed_preserved, history_preserved)):
+                        report["status"] = "FAIL"
+                except Exception as error:
+                    report["stop_error"] = str(error)
+                    report["status"] = "FAIL"
         report["serial_bytes_observed"] = serial_offset
         report["serial_pages_observed"] = len(observed_pages)
         save(args.out_dir / "report.json", report)
@@ -364,9 +433,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", required=True)
     parser.add_argument("--token-file", type=Path)
-    parser.add_argument("--device", choices=("cores3", "cardputer-adv"), required=True)
-    parser.add_argument("--runtime", default="qemu")
+    parser.add_argument("--device", choices=DEVICE_CHOICES, required=True)
+    parser.add_argument(
+        "--runtime",
+        choices=("qemu", "network", "qemu-wifi", "qemu-ble", "qemu-unified"),
+        default="qemu",
+        help="session runtime mode; QEMU executable selection is service configuration",
+    )
     parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--append-code", action="append")
     parser.add_argument("--base-image", type=Path, help="explicit compatible candidate image; never changes the device-matrix reference")
     parser.add_argument("--expected-base-sha256", help="required exact SHA256 when --base-image is supplied")
     parser.add_argument("--fixture-dir", type=Path, help="local files copied into the guest VFS, with hashes in the report")
@@ -374,4 +449,15 @@ if __name__ == "__main__":
     parser.add_argument("--done-marker", required=True)
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--prepare-timeout", type=int, default=600)
-    raise SystemExit(run(parser.parse_args()))
+    parser.add_argument("--program-transport", choices=("uart-repl",))
+    parser.add_argument("--runtime-env-json", type=Path,
+                        help="explicit local diagnostic runtime environment, sent through /sessions")
+    parser.add_argument("--keep-session", action="store_true",
+                        help="leave an executed session running for subsequent /program batches")
+    args = parser.parse_args()
+    if args.runtime_env_json is not None:
+        runtime_env = json.loads(args.runtime_env_json.read_text(encoding="utf-8"))
+        if not isinstance(runtime_env, dict):
+            raise SystemExit("--runtime-env-json must contain a JSON object")
+        args.runtime_env = runtime_env
+    raise SystemExit(run(args))

@@ -28,6 +28,9 @@
 | [0018-lvgl-cache-entry-allocation.patch](0018-lvgl-cache-entry-allocation.patch) | 在 payload 后方初始化并返回真正的 metadata header，保持零填充 payload 和原分配基址释放契约 | 完整固定源码 C 正反回归及 CoreS3 matching SDK 原版 / 候选同源程序；先检查原始 metadata，再测完整 payload、指针、引用及 delete，失败后手动初始化仅用于清理 |
 | [0019-widgets-qrcode-geometry.patch](0019-widgets-qrcode-geometry.patch) | `QRCode.setCursor` / `setSize` 修改位置或宽度前，按原几何擦除旧区域，避免移动和缩小时留下旧图块 | 精确原生方法 C++ 正反回归及 CoreS3 stock / matching SDK 原版 / 候选同源程序；新 QR 解码与旧独占区域清空分别检查，版本切换保持原几何；不外推其它板卡 |
 | [0020-display-canvas-allocation.patch](0020-display-canvas-allocation.patch) | 拒绝非正宽高；底层 createSprite 分配失败时释放 Canvas 并抛 MemoryError，避免发布空对象后 show 写入 NULL | 精确原生函数 C++ 16 个正反域、CoreS3 stock / matching SDK HCI-cache / 独立候选同源六项检查，候选 19/19 收据检查；不增加 DMA 内存或声称任意尺寸可分配 |
+| [0021-ble-advertising-uuid32.patch](0021-ble-advertising-uuid32.patch) | 两个 BLE advertising 解码器不再把 4-byte UUID 当作 8-byte `double`；将原始 4-byte 蓝牙 UUID 交给 `bluetooth.UUID` | StopWatch / StickS3 / Core2 stock 32-bit 失败保留；同 VM 候选源码包在 16/32-bit 向量上通过，见 2026-10-28 三设备证据 |
+| [0022-modbus-transform-frame.patch](0022-modbus-transform-frame.patch) | `ModbusRTUFrame.transform_frame` 用源 TCP frame 的字段直接构造 RTU frame，不再先创建非法 `func_code=0` 对象 | StopWatch / StickS3 / Core2 stock 失败保留；同 VM 候选源码包验证 function-03 request、response 和 exception frame 的精确 RTU bytes/CRC |
+| [0023-modbus-async-socket.patch](0023-modbus-async-socket.patch) | MicroPython 下不再调用不存在的 `asyncio.Loop.sock_recv`，改为有界、可让出执行权的 `select.poll` + socket receive；CPython 路径保留 | StopWatch / StickS3 / Core2 stock 八个 async TCP 方法均报 `sock_recv`；候选须由真实 owned Modbus peer 验证读、写和回读 |
 
 相邻 JSON 固定官方源码及 preimage / candidate SHA；`0001` 使用多文件
 `files` 清单，`0002` 使用 `source_path` / `postimage_sha256`。含

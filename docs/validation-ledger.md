@@ -306,3 +306,19 @@ SDK0001–0020独立候选与stock/matching结果分lane；0017 observer修正�
 逐项接口分母、失败/阻塞、固件/runtime/serial/frame/ZIP哈希及复现入口见
 [本轮证据](evidence/2026-10-27-uiflow2-api-sweep/README.md)。原私有应用、旧
 UIFlow1 LVGL7、未选外设和物理硬件不继承通过；API-01继续保留剩余项。
+
+## 2026-10-28：StopWatch / StickS3 / Core2 UIFlow2 三设备复测
+
+三台当前 M5Burner UIFlow2 v2.5.3 镜像经独立可见 Device Service 和 28 补丁
+QEMU runtime 执行；全部为 virtual-device validation，physical hardware 为
+`NOT RUN`。system runtime 每台 `50 PASS + 1 STATE_PASS`；sockets `23/23`、
+MQTT `42/42`、network `14/14`、EasySocket `57 PASS + 1 N/A`、EzData
+`17/17`。HTTP stock 三台均为 `15 PASS / 1 FAIL`，候选 form/UTF-8 三台
+`2/2`；Modbus stock `42 PASS / 8 ERROR`，候选源码三台 `50/50`。
+
+确认并固定为候选补丁的 shared defects：BLE 32-bit UUID 的
+`struct.unpack("<d")`、Modbus TCP→RTU 的非法默认构造、Modbus async
+`Loop.sock_recv`，以及 M5UI Canvas/Image/Spinbox Python 绑定问题。
+StopWatch/Core2 的同 VM stock→candidate 对照、ESP-NOW 控制面、TLS epoch、
+QRCode.setText、WAV/mic、StopWatch drawPixel trace 和 Core2 按键边界见
+[三设备证据](evidence/2026-10-28-multi-board-uiflow2-revalidation/README.md)。

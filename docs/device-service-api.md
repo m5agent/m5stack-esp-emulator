@@ -1198,8 +1198,9 @@ either endpoint, returns `400 invalid_uiflow_request`. Optional
 `expected_base_sha256` pins the base image to a lowercase SHA256;
 a mismatch returns `409 uiflow_base_hash_mismatch`.
 
-Source intake currently admits only `cores3`, `atoms3r`, `sticks3` and
-`stopwatch`. By default it uses each device's known, locally cached UIFlow2 reference.
+Source intake currently admits `cores3`, `atoms3r`, `sticks3`, `stopwatch`,
+`cardputer-adv` and `core2`. By default it uses each device's known, locally
+cached UIFlow2 reference.
 An enabled device outside that set returns `409 unsupported_uiflow_device`;
 a missing default cached reference returns `409 reference_firmware_missing`.
 
@@ -2047,8 +2048,9 @@ object when creating a session:
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
 `M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
-`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_CAMERA_TRACE`, and
-`M5SW_GDMA_TRACE`, `M5SW_GPSPI_TRACE`, and `M5SW_SPI_XFER_TRACE` are accepted.
+`M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_CAMERA_TRACE`,
+`M5SW_GDMA_TRACE`, `M5SW_GPSPI_TRACE`, `M5SW_LCD_TRACE`, and
+`M5SW_SPI_XFER_TRACE` are accepted.
 The camera/GDMA/GP-SPI trace keys accept only the
 string `"1"`; omit them to disable tracing. They enable existing controller
 diagnostics in the session's retained QEMU stderr and do not accept paths.

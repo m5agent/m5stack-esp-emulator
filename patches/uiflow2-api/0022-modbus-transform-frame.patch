@@ -1,0 +1,26 @@
+--- a/m5stack/libs/modbus/modbus/frame.py
++++ b/m5stack/libs/modbus/modbus/frame.py
+@@ -354,14 +354,15 @@ class ModbusRTUFrame(ModbusFrame):
+         :return: ModbusRTUFrame object with data from tcp_frame
+         :rtype: ModbusRTUFrame
+         """
+-        frame = ModbusRTUFrame()
+-        frame.data = tcp_frame.data
+-        frame.device_addr = tcp_frame.unit_id
+-        frame.func_code = tcp_frame.func_code
+-        frame.length = tcp_frame.length
+-        frame.register = tcp_frame.register
+-        frame.type = tcp_frame.type
+-        return frame
++        return ModbusRTUFrame(
++            device_addr=tcp_frame.unit_id,
++            func_code=tcp_frame.func_code,
++            register=tcp_frame.register,
++            fr_type=tcp_frame.type,
++            length=tcp_frame.length,
++            data=tcp_frame.data,
++            error_code=tcp_frame.error_code,
++        )
+ 
+ 
+ class ModbusTCPFrame(ModbusFrame):

@@ -1,0 +1,48 @@
+{
+  "HARDWARE_PWR_CALLBACK_READY": [
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "down",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "sleep_seconds": 0.6
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "up",
+        "settle_seconds": 0.1
+      }
+    }
+  ],
+  "HARDWARE_PWR_REMOVED_READY": [
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "down",
+        "settle_seconds": 0.1
+      }
+    },
+    {
+      "sleep_seconds": 0.6
+    },
+    {
+      "endpoint": "input",
+      "payload": {
+        "kind": "key",
+        "key": "p",
+        "action": "up",
+        "settle_seconds": 0.1
+      }
+    }
+  ]
+}

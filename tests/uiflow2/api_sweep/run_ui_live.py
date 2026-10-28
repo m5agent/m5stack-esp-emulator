@@ -15,20 +15,59 @@ import time
 
 from check_ui_frame import check_frame
 import probe_ui
-from run_guest import Api, process_identity, runtime_executable, save, serial_pages
+from run_guest import Api, DEVICE_CHOICES, process_identity, runtime_executable, save, serial_pages
+
+
+def display_dimensions(device):
+    """Read the board geometry from the device inventory instead of guessing."""
+    matrix = json.loads((Path(__file__).resolve().parents[1] / "device_matrix.json").read_text())
+    record = next((row for row in matrix["devices"] if row["id"] == device), None)
+    if record is None:
+        raise ValueError("unknown device: " + device)
+    try:
+        width, height = (int(part) for part in record["expected_size"].lower().split("x"))
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("device matrix has an invalid expected_size for " + device) from error
+    return width, height
+
+
+def api_dimensions(device):
+    """Return the guest's unrotated logical display coordinate size."""
+    matrix = json.loads((Path(__file__).resolve().parents[1] / "device_matrix.json").read_text())
+    record = next((row for row in matrix["devices"] if row["id"] == device), None)
+    if record is None:
+        raise ValueError("unknown device: " + device)
+    value = record.get("api_size", record.get("expected_size"))
+    try:
+        width, height = (int(part) for part in value.lower().split("x"))
+    except (AttributeError, TypeError, ValueError) as error:
+        raise ValueError("device matrix has an invalid API size for " + device) from error
+    return width, height
+
+
+def ui_rotation(device):
+    """Return the inventory's canonical landscape/portrait UI rotation."""
+    matrix = json.loads((Path(__file__).resolve().parents[1] / "device_matrix.json").read_text())
+    record = next((row for row in matrix["devices"] if row["id"] == device), None)
+    if record is None:
+        raise ValueError("unknown device: " + device)
+    value = record.get("ui_rotation", 0)
+    if type(value) is not int or not 0 <= value <= 3:
+        raise ValueError("device matrix has an invalid ui_rotation for " + device)
+    return value
 
 
 def source_for(args, method):
     if args.lane == "m5ui":
         return probe_ui.build_m5ui_program(args.target, [method] if method else [], args.target + "-" + str(method))
     if args.lane in ("display", "canvas"):
-        width, height = (320, 240) if args.device == "cores3" else (240, 135)
+        width, height = api_dimensions(args.device)
         return probe_ui.build_display_program(method, args.lane + "-" + method, canvas=args.lane == "canvas", width=width, height=height)
     if args.lane == "widgets":
-        width, height = (320, 240) if args.device == "cores3" else (240, 135)
+        width, height = api_dimensions(args.device)
         return probe_ui.build_widgets_program(args.target, method, args.target + "-" + str(method), width=width, height=height)
     if args.lane == "widgets-module":
-        width, height = (320, 240) if args.device == "cores3" else (240, 135)
+        width, height = api_dimensions(args.device)
         return probe_ui.build_widgets_module_program(method, "widgets-module-" + method, width=width, height=height)
     if args.lane == "native-styles":
         if args.uiflow_root is None:
@@ -62,6 +101,19 @@ def record_lines(text):
     return rows
 
 
+def requires_package(args, method):
+    """Only recipes that consume uploaded assets need a guest package."""
+    if args.lane in ("display", "canvas") and method in {
+        "drawPng", "drawBmp", "drawImage", "drawJpg",
+    }:
+        return True
+    if args.lane == "widgets" and args.target == "Image":
+        return True
+    if args.lane == "m5ui" and (args.target == "M5Image" or args.device == "core2"):
+        return True
+    return args.lane == "corrections"
+
+
 def run(args):
     args.out_dir.mkdir(parents=True, exist_ok=False)
     api = Api(args.api, args.token_file)
@@ -88,31 +140,46 @@ def run(args):
         methods = ["setBrightness", "setRotation", "fillScreen"]
     else:
         methods = [None]
+    if args.skip_method:
+        skipped = set(args.skip_method)
+        methods = [method for method in methods if method not in skipped]
     try:
         for number, method in enumerate(methods):
             label = f"{number:03d}-" + (method or args.target or args.lane)
             out = args.out_dir / label
             out.mkdir()
-            source = source_for(args, method)
+            source = source_for(args, method).replace(
+                "    M5.Lcd.setRotation(0)\n",
+                f"    M5.Lcd.setRotation({ui_rotation(args.device)})\n",
+                1,
+            )
             (out / "main.py").write_text(source, encoding="utf-8")
             previous = api.json(prefix + "/program").get("program") or {}
-            files = probe_ui.fixture_files()
-            if args.candidate_dir:
-                provenance = json.loads((args.candidate_dir / "provenance.json").read_text(encoding="utf-8"))
-                for entry in provenance["files"]:
-                    raw = (args.candidate_dir / entry["candidate_module"]).read_bytes()
-                    if hashlib.sha256(raw).hexdigest() != entry["candidate_sha256"]:
-                        raise ValueError("candidate module digest changed")
-                    files[entry["candidate_module"]] = {"encoding": "utf8", "data": raw.decode("utf-8")}
-                for entry in provenance.get("support_files", []):
-                    raw = (args.candidate_dir / entry["path"]).read_bytes()
-                    if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
-                        raise ValueError("candidate package support digest changed")
-                    files[entry["path"]] = {"encoding": "utf8", "data": raw.decode("utf-8")}
-                save(args.out_dir / "candidate-provenance.json", provenance)
-            files["main.py"] = {"encoding": "utf8", "data": source}
-            receipt = api.json(prefix + "/program", "POST", {"files": files, "source_kind": "uiflow2-package", "entrypoint": "main.py",
-                "expected_execution_id": previous.get("execution_id"), "timeout_seconds": 120})
+            package = requires_package(args, method)
+            request = {
+                "expected_execution_id": previous.get("execution_id"),
+                "timeout_seconds": 120 if package else 30,
+            }
+            if package:
+                files = probe_ui.fixture_files()
+                if args.candidate_dir:
+                    provenance = json.loads((args.candidate_dir / "provenance.json").read_text(encoding="utf-8"))
+                    for entry in provenance["files"]:
+                        raw = (args.candidate_dir / entry["candidate_module"]).read_bytes()
+                        if hashlib.sha256(raw).hexdigest() != entry["candidate_sha256"]:
+                            raise ValueError("candidate module digest changed")
+                        files[entry["candidate_module"]] = {"encoding": "utf8", "data": raw.decode("utf-8")}
+                    for entry in provenance.get("support_files", []):
+                        raw = (args.candidate_dir / entry["path"]).read_bytes()
+                        if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
+                            raise ValueError("candidate package support digest changed")
+                        files[entry["path"]] = {"encoding": "utf8", "data": raw.decode("utf-8")}
+                    save(args.out_dir / "candidate-provenance.json", provenance)
+                files["main.py"] = {"encoding": "utf8", "data": source}
+                request.update(files=files, source_kind="uiflow2-package", entrypoint="main.py")
+            else:
+                request["source"] = source
+            receipt = api.json(prefix + "/program", "POST", request)
             save(out / "program.json", receipt)
             execution_id = receipt["program"]["execution_id"]
             offset = receipt["program"]["serial_offset"]
@@ -137,6 +204,7 @@ def run(args):
             save(out / "context.json", program)
             case = {"label": label, "method": method, "execution_id": execution_id,
                     "api_target": next((row["data"].get("api_target") for row in records if row["data"].get("api_target")), None),
+                    "program_transport": "package" if package else "direct-source",
                     "source_sha256": hashlib.sha256(source.encode()).hexdigest(), "frame_sha256": hashlib.sha256(frame).hexdigest(),
                     "ready": any(row["kind"] == "READY" for row in records),
                     "results": [row["data"] for row in records if row["kind"] == "RESULT"], "frame_oracles": []}
@@ -178,12 +246,13 @@ def run(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api", required=True)
-    parser.add_argument("--token-file", type=Path, required=True)
+    parser.add_argument("--token-file", type=Path)
     parser.add_argument("--session-id", required=True)
-    parser.add_argument("--device", choices=("cores3", "cardputer-adv"), required=True)
+    parser.add_argument("--device", choices=DEVICE_CHOICES, required=True)
     parser.add_argument("--lane", choices=("m5ui", "display", "canvas", "widgets", "widgets-module", "native-styles", "native-objects", "native-objects-more", "native-widgets", "native-widgets-more", "lifecycle", "corrections"), required=True)
     parser.add_argument("--target")
     parser.add_argument("--method", action="append")
+    parser.add_argument("--skip-method", action="append", default=[])
     parser.add_argument("--uiflow-root", type=Path)
     parser.add_argument("--candidate-dir", type=Path)
     parser.add_argument("--keep-session", action="store_true")

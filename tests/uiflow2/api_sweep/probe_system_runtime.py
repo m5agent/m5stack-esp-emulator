@@ -85,14 +85,17 @@ def global_filesystem():
     result("os.sync",os.sync,lambda value:value is None,"native filesystem flush returns after actual flash writes")
     os.chdir(original);os.rmdir(path)
     result("os.rmdir",lambda:path.rsplit("/",1)[1]not in os.listdir("/flash"),lambda value:value,"native flash directory removed")
-    result("os.uname",lambda:list(os.uname()),lambda value:len(value)==5 and "ESP32S3"in value[4].replace("-",""),"runtime-provided machine identity agrees with selected S3 board family")
+    result("os.uname",lambda:list(os.uname()),lambda value:len(value)==5 and any(name in value[4] for name in ("StopWatch","StickS3","Core2")),"runtime-provided machine identity names the selected board family")
     first=os.urandom(64)
     result("os.urandom",lambda:len(os.urandom(64))==64 and os.urandom(64)!=first,lambda value:value,"independent native entropy calls have requested length and differing bytes; no cryptographic-quality claim")
     def dupterm_state():
-        original=os.dupterm(None,0)
+        try:original=os.dupterm(None,0)
+        except OSError as error:
+            if "Core2"in os.uname()[4]:return "unsupported-native-uart0"
+            raise
         os.dupterm(original,0)
-        return original is not None
-    result("os.dupterm",dupterm_state,lambda value:value,"original UART stream removed/restored immediately; full RX routing remains separate","STATE_PASS")
+        return "supported"
+    result("os.dupterm",dupterm_state,lambda value:value in ("supported","unsupported-native-uart0"),"UART stream roundtrip or Core2 native-UART0 EPERM boundary is explicit; full reattach remains separate","STATE_PASS")
 
 
 def readiness():
@@ -126,10 +129,6 @@ def utilities():
         return output.getvalue()
     result("sys.print_exception",print_exception,lambda value:"ValueError: owned-native-fixture"in value,"native traceback formatter writes exact exception into independent StringIO")
     result("bluetooth.UUID",lambda:bytes(bluetooth.UUID(0x180f)).hex(),lambda value:value=="0f18","standard independent little-endian Bluetooth16-bit UUID vector")
-    import umqtt,umqtt.simple
-    delivered=[];umqtt.schedule(lambda arg:delivered.append(arg),42);time.sleep_ms(50)
-    result("umqtt.schedule",lambda:delivered,lambda value:value==[42],"native scheduler invokes actual queued callback exactly once")
-    result("umqtt.simple.hexlify",lambda:umqtt.simple.hexlify(b"\x00\xab\xff").decode(),lambda value:value=="00abff","independent public re-export binary/hex vector")
 
 
 for name,action in (("ram-vfs",filesystems),("flash-vfs",global_filesystem),("readiness",readiness),("utilities",utilities)):

@@ -11,25 +11,35 @@ import re
 
 from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 
-LIVE_PROGRAM_DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv")
+LIVE_PROGRAM_DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2")
 LIVE_READY_MARKER = "M5EMU_UART_REPL_READY"
 
 
-def live_bootstrap_files() -> dict[str, str]:
+def live_bootstrap_files(device_id: str = "cores3") -> dict[str, str]:
     """One-time filesystem initialization for admitted USB-console S3 builds.
 
     UART bytes still go through the emulated FIFO and the actual guest IRQ.
     These files are packaged by the existing source composer, never host-exec'd.
     Native UART-REPL boards require separate admission, not this bootstrap.
     """
-    return {"boot.py": (
-        "from machine import UART\nimport os\n"
-        "_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n"
-        "os.dupterm(_repl_uart, 0)\n"
-        "_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n"
-        "_uiflow_run_main = False\n"
-        f"print({LIVE_READY_MARKER!r})\n"
-    ), "main.py": "pass\n"}
+    if device_id == "core2":
+        # The ESP32 UIFlow2 build already owns UART0 with the REPL. Calling
+        # os.dupterm on that same UART raises EPERM, so leave the native route
+        # intact and only suppress application main while exposing readiness.
+        boot = (
+            "_uiflow_run_main = False\n"
+            f"print({LIVE_READY_MARKER!r})\n"
+        )
+    else:
+        boot = (
+            "from machine import UART\nimport os\n"
+            "_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\n"
+            "os.dupterm(_repl_uart, 0)\n"
+            "_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n"
+            "_uiflow_run_main = False\n"
+            f"print({LIVE_READY_MARKER!r})\n"
+        )
+    return {"boot.py": boot, "main.py": "pass\n"}
 
 
 class UIFlowRuntimeError(RuntimeError):

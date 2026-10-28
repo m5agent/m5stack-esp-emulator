@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime": {
+    "sha256": "21b7e34cc96560b4c8185131791008ae49fb1c6975a8428e4e344188a8236394",
+    "patches": 28,
+    "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566"
+  },
+  "devices": {
+    "stopwatch": {
+      "firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "system_runtime": {"pass": 50, "state_pass": 1},
+      "shared_candidates": {"pass": 7},
+      "sockets": {"pass": 23},
+      "mqtt": {"pass": 42},
+      "network": {"pass": 14},
+      "http_stock": {"pass": 15, "fail": 1},
+      "http_candidate": {"pass": 2},
+      "easysocket": {"pass": 57, "not_applicable": 1},
+      "modbus_stock": {"pass": 42, "error": 8},
+      "modbus_candidate": {"pass": 50},
+      "ezdata": {"pass": 17},
+      "espnow": {"pass": 8, "state_pass": 5, "configured_unverified": 1, "blocked_model": 4}
+    },
+    "sticks3": {
+      "firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "system_runtime": {"pass": 50, "state_pass": 1},
+      "shared_candidates": {"pass": 7},
+      "sockets": {"pass": 23},
+      "mqtt": {"pass": 42},
+      "network": {"pass": 14},
+      "http_stock": {"pass": 15, "fail": 1},
+      "http_candidate": {"pass": 2},
+      "easysocket": {"pass": 57, "not_applicable": 1},
+      "modbus_stock": {"pass": 42, "error": 8},
+      "modbus_candidate": {"pass": 50},
+      "ezdata": {"pass": 17},
+      "espnow": {"pass": 8, "state_pass": 5, "configured_unverified": 1, "blocked_model": 4},
+      "m5ui": "NOT_EXPORTED"
+    },
+    "core2": {
+      "firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "system_runtime": {"pass": 50, "state_pass": 1},
+      "shared_candidates": {"pass": 7},
+      "sockets": {"pass": 23},
+      "mqtt": {"pass": 42},
+      "network": {"pass": 14},
+      "http_stock": {"pass": 15, "fail": 1},
+      "http_candidate": {"pass": 2},
+      "easysocket": {"pass": 57, "not_applicable": 1},
+      "modbus_stock": {"pass": 42, "error": 8},
+      "modbus_candidate": {"pass": 50},
+      "ezdata": {"pass": 17},
+      "espnow": {"pass": 8, "state_pass": 5, "configured_unverified": 1, "blocked_model": 4},
+      "espnow_native": {"pass": 12, "state_pass": 21, "configured_unverified": 3, "blocked_model": 11},
+      "m5ui_constructors": {"ready": 28, "total": 28},
+      "m5ui_documented_sample": {"state_pass": 73, "pending": 15, "expected_unsupported": 1, "fail": 1}
+    }
+  },
+  "candidate_fixes": [
+    "0001-m5ui-native-marshalling",
+    "0002-requests2-form-encoding",
+    "0021-ble-advertising-uuid32",
+    "0022-modbus-transform-frame",
+    "0023-modbus-async-socket"
+  ],
+  "validation_checks": {
+    "platform_tests": {
+      "run": 1344,
+      "status": "PASS",
+      "skipped": 1
+    },
+    "targeted_contracts": {
+      "run": 27,
+      "status": "PASS"
+    },
+    "generated_checks": [
+      "runtime_coverage",
+      "peripheral_catalog",
+      "qemu_profiles",
+      "project_snapshot"
+    ],
+    "stopwatch_m5ui_corrections_final": {
+      "status": "PASS",
+      "state_pass": 4,
+      "frame_pass": 2,
+      "firmware_sha256": "0951ee6b5ce33a2b5ab35048f5a1deaf51383160d49a620c76d4c6d5600ed386",
+      "runtime_sha256": "21b7e34cc96560b4c8185131791008ae49fb1c6975a8428e4e344188a8236394"
+    }
+  },
+  "remaining": [
+    "StopWatch drawPixel does not transfer a one-pixel CO5300 window",
+    "QRCode.setText stock behavior remains unverified with candidate firmware",
+    "TLS stock certificate epoch remains unverified with candidate firmware",
+    "StopWatch/StickS3 playWavFile hangs after playWav",
+    "Mic capture has no nonzero PCM fixture; StopWatch/StickS3 recording state remains set",
+    "ESP-NOW TX/RX/IRQ controller model is absent",
+    "Core2 host-key button callback delivery is not repeatably observed",
+    "Core2 full documented M5UI matrix across all 28 classes remains REVIEW",
+    "Text glyph OCR and physical hardware validation are NOT RUN"
+  ]
+}

@@ -325,8 +325,9 @@ curl -fsS "$M5_API/units?device_id=cores3" -o "$M5_AGENT_DIR/units.json"
 ```
 
 检查 `backend_ready`、Unit `runtime.hosts`、输入定义和主机 port。源码入口
-只接受 `cores3`、`atoms3r`、`sticks3`、`stopwatch` 的已知本地 reference，
-不接受任意 MicroPython base。下例固定 **CoreS3 + Button + PORT.A**；
+只接受 `cores3`、`atoms3r`、`sticks3`、`stopwatch`、`cardputer-adv`、`core2`
+的已知本地 reference 或经 manifest 准入的显式 base，不接受任意 MicroPython
+base。下例固定 **CoreS3 + Button + PORT.A**；
 该口 white=GPIO1、yellow=GPIO2。UART0 TX43/RX44 也只属于本 CoreS3 示例，
 换主机必须重新核对，不可只改 `device_id`。
 

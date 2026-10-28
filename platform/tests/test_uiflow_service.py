@@ -26,7 +26,7 @@ import test_uiflow_source as source_fixtures
 from serve import Handler
 from uiflow_source import DEFAULT_BOOT, UIFlowSourceError, build_uiflow_source_image
 
-SUPPORTED = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv")
+SUPPORTED = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2")
 SENTINEL = "UIFLOW_SOURCE_CONTENT_MUST_NOT_APPEAR_IN_LIST_METADATA_20261026"
 CALLER_FILES = {
     "main.py": f"print('{SENTINEL}')\n",
@@ -62,7 +62,7 @@ def install_reference(service, directory):
     return path
 
 
-def explicit_base_image(*, chip_id=9, family=True, flags=0):
+def explicit_base_image(*, chip_id=9, family=True, flags=0, family_marker=b"UIFLOW2"):
     """Static admission fixture, never executed or claimed as firmware PASS."""
     image = bytearray(source_reference())
     from test_firmware_analysis import build_image
@@ -70,7 +70,7 @@ def explicit_base_image(*, chip_id=9, family=True, flags=0):
     app[32 + 16:32 + 48] = b"V2.5.3\0".ljust(32, b"\0")
     app[32 + 48:32 + 80] = b"micropython\0".ljust(32, b"\0")
     if family:
-        app.extend(b"_uiflow_run_main\0UIFLOW2\0")
+        app.extend(b"_uiflow_run_main\0" + family_marker + b"\0")
         struct.pack_into("<I", app, 28, len(app) - 32)
     image[0x10000:0x20000] = b"\xff" * 0x10000
     image[0x10000:0x10000 + len(app)] = app
@@ -82,7 +82,7 @@ def explicit_base_image(*, chip_id=9, family=True, flags=0):
     return bytes(image)
 
 
-def store_explicit_base(service, *, data=None, psram_size=None, required=None, security=None):
+def store_explicit_base(service, *, data=None, psram_size=None, required=None, security=None, device_id="cores3"):
     data = explicit_base_image() if data is None else data
     # Upload is deliberately sparse. The required composer pin must cover
     # the flash-sized normalized FirmwareStore result rather than this SHA.
@@ -90,19 +90,21 @@ def store_explicit_base(service, *, data=None, psram_size=None, required=None, s
     artifact = service.artifacts.create(data)
     normalized = data.ljust(source_fixtures.FLASH_SIZE, b"\xff")
     manifest = {
-        "schema_version": 1, "kind": "m5stack-firmware-manifest", "device_id": "cores3",
+        "schema_version": 1, "kind": "m5stack-firmware-manifest", "device_id": device_id,
         "artifact": {"kind": "merged-flash", "file": "fixture.bin", "artifact_id": artifact["artifact_id"],
                      "size": len(data), "sha256": artifact["sha256"], "source_sha256": artifact["sha256"]},
-        "target": {"soc": "esp32s3", "chip_id": 9, "flash_size": source_fixtures.FLASH_SIZE,
+        "target": {"soc": "esp32" if device_id == "core2" else "esp32s3",
+                   "chip_id": 0 if device_id == "core2" else 9,
+                   "flash_size": source_fixtures.FLASH_SIZE,
                    "psram_size": psram_size, "partition_table": service_module.parse_partition_table(normalized, image_size=len(normalized)),
                    "application": service_module.find_app_descriptor(normalized, 0x10000, 0x20000)},
         "security": security or {"secure_boot": "unknown", "flash_encryption": "unknown", "efuse": "not-included", "secure_version": 0},
         "provenance": {"importer": "static-unit-fixture", "source_format": "merged-bin"},
-        "resources": {}, "capabilities": {"required": required or ["wifi"], "optional": []},
+        "resources": {}, "capabilities": {"required": ["wifi"] if required is None else required, "optional": []},
         "validation": {"status": "PASS", "errors": [], "warnings": []},
     }
     service_fixtures.seal_manifest(manifest)
-    return service.create_firmware({"device_id": "cores3", "kind": "manifest", "manifest": manifest})
+    return service.create_firmware({"device_id": device_id, "kind": "manifest", "manifest": manifest})
 
 
 class ServiceFixture:
@@ -167,7 +169,7 @@ class UIFlowServiceAdmissionTests(ServiceFixture, unittest.TestCase):
                 self.assert_error_without_publish(code, payload)
 
     def test_supported_device_gate_is_distinct_from_unknown_device(self):
-        for device_id in ("core2", "tab5"):
+        for device_id in ("tab5",):
             with self.subTest(device=device_id):
                 self.assert_error_without_publish("unsupported_uiflow_device", {
                     "device_id": device_id, "files": CALLER_FILES,
@@ -214,6 +216,35 @@ class UIFlowServiceAdmissionTests(ServiceFixture, unittest.TestCase):
         meta = self.service.firmware._meta(base["firmware_id"])
         record = json.loads(meta.read_text());record["kind"] = "merged";meta.write_text(json.dumps(record))
         self.assert_error_without_publish("uiflow_base_not_admitted", {**payload, "expected_base_sha256": base["sha256"]}, status=409)
+
+    def test_current_uiflow2_case_variants_are_admitted(self):
+        for marker in (b"UIFLOW2", b"UiFlow2", b"uiflow2.m5stack.com"):
+            with self.subTest(marker=marker):
+                base = store_explicit_base(
+                    self.service,
+                    data=explicit_base_image(family_marker=marker),
+                )
+                composed = self.service.create_uiflow_firmware({
+                    "device_id": "cores3",
+                    "files": CALLER_FILES,
+                    "base_firmware_id": base["firmware_id"],
+                    "expected_base_sha256": base["sha256"],
+                })
+                markers = composed["source"]["metadata"]["base_provenance"]["family"]["markers"]
+                self.assertEqual(markers, ["_uiflow_run_main", marker.decode("ascii")])
+
+    def test_core2_app_only_image_without_bootloader_is_admitted(self):
+        data = bytearray(explicit_base_image(chip_id=0))
+        data[:0x8000] = b"\xff" * 0x8000
+        base = store_explicit_base(self.service, data=bytes(data), required=[], device_id="core2")
+        composed = self.service.create_uiflow_firmware({
+            "device_id": "core2",
+            "files": CALLER_FILES,
+            "base_firmware_id": base["firmware_id"],
+            "expected_base_sha256": base["sha256"],
+        })
+        family = composed["source"]["metadata"]["base_provenance"]["family"]
+        self.assertEqual(family["bootloader_region"], "absent-known-core2-app-only-image")
 
     def test_explicit_base_rejects_store_corruption_symlinks_and_special_files(self):
         base = store_explicit_base(self.service)
