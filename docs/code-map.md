@@ -65,7 +65,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
-| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`worker_discovery_seed.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、multicast/unicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
+| 服务与生命周期 | `serve.py`、`device_service.py`、`device_service_runtime.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`worker_discovery_seed.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、运行时参数与脱敏 helper、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、multicast/unicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
 | 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、Secure Boot v2 结构/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/CNAME/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
@@ -88,6 +88,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
+| `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
@@ -128,7 +129,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/unified_http_guestfwd.py` | QEMU user-net `guestfwd` 的 per-connection HTTP fixture；避免并发 session 共享宿主 18089 端口 | Device Service、Core2 concurrent runner |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
-| `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay、hold 和 session-readiness-bound peer scan 的共享上限，以及按 cycle/delay 计算的 readiness workload 预算 | Device Service、BLE probe、Core2 runner |
+| `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay、hold、unified peer write settle 和 session-readiness-bound peer scan 的共享上限，以及按 cycle/delay 计算的 readiness workload 预算 | Device Service、BLE probe、Core2 runner |
 | `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
@@ -357,7 +358,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
 | `platform/tools/device_service.py` | `DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移无状态配置/解析、存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
-| `platform/tools/device_service_errors.py`、`device_service_parsing.py` | `ServiceError`、`parse_int`、`parse_size`、`parse_capture_pcap` 与 SHA256 检查已独立；`device_service.py` 保留同名 re-export | 每个 parser 的行为、错误码和 public symbol identity 由 `test_device_service_parsing.py` 锁定；后续只继续移动无状态边界，不改变 API payload |
+| `platform/tools/device_service_errors.py`、`device_service_parsing.py`、`device_service_runtime.py` | `ServiceError`、首批 parser、QEMU/runtime 内存策略和私有 env 脱敏已独立；`device_service.py` 保留同名 re-export | 行为、错误码、返回结构和 public symbol identity 分别由对应边界测试锁定；后续只继续移动无状态边界，不改变 API payload |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -368,7 +369,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
 1. 已锁定 `ServiceError.payload()`、首批 parser 行为和 public re-export；
-2. 已提取首批无状态 parser；继续提取其余请求解析、运行参数构造与设备规格加载；
+2. 已提取首批 parser，以及 QEMU/runtime 内存策略和私有 env 脱敏；继续提取其余请求解析、运行参数构造与设备规格加载；
 3. content-addressed firmware/artifact store 与 resumable upload；
 4. session repository、状态机和历史恢复；
 5. QEMU、esp-emu/Tab5、network runtime adapters；

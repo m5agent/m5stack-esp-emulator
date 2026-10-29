@@ -43,6 +43,7 @@ if str(TEST_TOOLS) not in sys.path:
     sys.path.insert(0, str(TEST_TOOLS))
 
 from ble_runtime_limits import (  # noqa: E402
+    BLE_UNIFIED_WRITE_DELAY_SECONDS,
     MAX_BLE_LINGER_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
     MAX_BLE_RECONNECT_DELAY_SECONDS,
@@ -55,6 +56,12 @@ from device_service_parsing import (  # noqa: E402
     parse_capture_pcap,
     parse_int,
     parse_size,
+)
+from device_service_runtime import (  # noqa: E402
+    PRIVATE_RUNTIME_ENV as PRIVATE_RUNTIME_ENV,
+    qemu_runtime_memory,
+    redacted_runtime_env,
+    runtime_psram_mismatch,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from evidence_store import (  # noqa: E402
@@ -241,11 +248,6 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_SPI_XFER_TRACE",
     "M5SW_LCD_TRACE",
 }
-PRIVATE_RUNTIME_ENV = frozenset({
-    "M5SW_ESPNOW_PEER_LMK",
-    "M5SW_ESPNOW_PEER_PUBLIC_MAC",
-    "M5SW_ESPNOW_PEER_PMK",
-})
 BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
@@ -379,78 +381,6 @@ def controlled_http_requests_match(requests: list[dict]) -> bool:
         and item.get("host") == "qemu.test"
         for item in requests
     )
-
-
-def qemu_runtime_memory(
-    memory: str | None,
-    profile: str | None,
-    device_id: str | None = None,
-) -> dict[str, Any]:
-    """Describe the QEMU PSRAM selection without claiming physical timing."""
-    requested: int | None
-    try:
-        requested = int(memory) if memory is not None else None
-    except (TypeError, ValueError):
-        requested = None
-    native_controller = profile in {
-        CORE2_NATIVE_VHCI_PROFILE,
-        CORE2_NATIVE_HCI_PROFILE,
-    }
-    cli_requested = 0 if native_controller else requested
-    effective = cli_requested
-    effective_source = "qemu-cli-request"
-    if native_controller and device_id == "core2":
-        # The m5core2 machine resolves `-m 0` to its 8 MiB board default.
-        # QOM evidence verifies memory=8 MiB and has_psram=true.
-        effective = 8
-        effective_source = "validated-m5core2-qom"
-    if native_controller:
-        policy = "native-controller-machine-default-psram"
-    elif effective == 0:
-        policy = "qemu-no-psram"
-    elif effective is not None:
-        policy = "qemu-emulated-psram"
-    else:
-        policy = "not-configured"
-    return {
-        "requested_psram_mib": requested,
-        "cli_requested_psram_mib": cli_requested,
-        "effective_psram_mib": effective,
-        "effective_source": effective_source,
-        "policy": policy,
-        "claim": "qemu-memory-configuration-only",
-        "physical_cache_psram_timing": "NOT RUN",
-    }
-
-
-def runtime_psram_mismatch(
-    memory: str | None,
-    profile: str | None,
-    required_bytes: object,
-    device_id: str | None = None,
-) -> dict[str, Any] | None:
-    """Return a structured preflight issue for an undersized QEMU PSRAM lane."""
-    if not isinstance(required_bytes, int) or required_bytes <= 0:
-        return None
-    runtime_memory = qemu_runtime_memory(memory, profile, device_id)
-    effective_mib = runtime_memory["effective_psram_mib"]
-    if not isinstance(effective_mib, int):
-        return None
-    available_bytes = effective_mib << 20
-    if required_bytes <= available_bytes:
-        return None
-    return {
-        "code": "runtime_psram_mismatch",
-        "message": (
-            f"firmware declares {required_bytes} bytes of PSRAM; "
-            f"runtime profile provides {available_bytes}"
-        ),
-        "requirement": required_bytes,
-        "available": available_bytes,
-        "path": "target.psram_size",
-        "runtime_profile": profile,
-        "memory_policy": runtime_memory["policy"],
-    }
 
 
 CORE2_HCI_GATT_MARKERS = (
@@ -679,13 +609,6 @@ def redacted_network_config(config: dict | None) -> dict:
         if key in safe and safe[key] is not None:
             safe[key] = "<redacted>"
     return safe
-
-
-def redacted_runtime_env(runtime_env: dict[str, str] | None) -> dict[str, str]:
-    return {
-        key: "<redacted>" if key in PRIVATE_RUNTIME_ENV else value
-        for key, value in (runtime_env or {}).items()
-    }
 
 
 def qemu_station_mac(session_id: str) -> str:
@@ -3136,8 +3059,13 @@ def default_session_ready_timeout(
 ) -> float:
     profile = (network_config or {}).get("profile")
     if profile in {
-        CORE2_HCI_GATT_PROFILE,
+        CORE2_UNIFIED_PROFILE,
         CORE2_NATIVE_VHCI_PROFILE,
+        CORE2_NATIVE_HCI_PROFILE,
+    }:
+        return 180.0
+    if profile in {
+        CORE2_HCI_GATT_PROFILE,
         NANOC6_HCI_BLE_PROFILE,
         NESSO_UNIFIED_PROFILE,
         *UNIFIED_PROFILES,
@@ -5406,7 +5334,11 @@ class DeviceSession:
                 else "25"
             ),
             "--write-delay",
-            "2" if extended_exchange else "1",
+            (
+                str(int(BLE_UNIFIED_WRITE_DELAY_SECONDS))
+                if extended_exchange
+                else "1"
+            ),
             "--linger",
             str(
                 self.network_config.get(
@@ -5807,7 +5739,7 @@ class DeviceSession:
         setup: tuple[tuple[str, str, Any], ...],
         pause: bool = True,
     ) -> None:
-        deadline = time.time() + 20
+        deadline = time.time() + max(0.1, self.ready_timeout)
         while time.time() < deadline:
             self._check_cancelled()
             serial = (

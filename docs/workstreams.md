@@ -29,7 +29,7 @@
 | Core2 无线、映射与长稳 | `tests/uiflow2/core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py`、`qemu_accel.py` | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop、post-reset stop 和当前单设备容量门禁已有虚拟设备证据 | `CORE2-02`：大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`runtime_acl.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、ZIP/资源/build 选择 fail-closed、capability、文件系统、SD/NVS fixture、SBOM、许可声明、Secure Boot v2 镜像分析和 operator runtime ACL 可执行 | `FW-01`、`FW-02`、`FW-03`：guest filesystem ACL/完整许可、live eFuse/生产 key、真实云端业务和更多固件族 |
 | 运行时模型缺口 | runtime coverage、QEMU patches、firmware/runtime evidence | `RUNTIME-01` Flash/PMP、`RUNTIME-04` Core2 for AWS ATECC608 初始化与 `RUNTIME-05` S3 WPA2 已关闭；`RUNTIME-03` 已修复 shared I2C、timer、WDT mask、stateful SSI、pending SPI remap 和 classic RMT，并由 `0065` 关闭 high-priority DPORT handoff 调度死锁。legacy Serial 到达 `APIKEY`，但 normal-WDT reset、WDT-off 黑帧、display completion、setup/REPL 和非空帧继续 OPEN；`0088` 证明 100 ms RR 放大跨核 spin，`0090` 又将双 vCPU deterministic icount slice 默认限制为 `10 us`，把 IPC return/peer wait 降到约 `56.2/184.7 us`，但 WDT 仍未解除。`0067` 补齐 loopback，`0076` 完成 plaintext，`0077` 完成 CCMP，`0078/0079` 完成 duplicate/reorder window，native/M5ESPNow wrapper 完成 lifecycle；guest key-state、key rotation 与多 peer replay 仍 OPEN | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-06` |
-| Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py`、docs contract tests | lease、history、artifact upload、QEMU/QMP 与 companion recovery、控制面/本地 runtime API 分离可执行 | `SVC-01`、`SVC-02`、`SVC-03` |
+| Device Service 与生命周期 | `serve.py`、`device_service.py`、`device_service_runtime.py`、`storage_policy.py`、docs contract tests | lease、history、artifact upload、QEMU/QMP 与 companion recovery、控制面/本地 runtime API 分离、无状态 runtime 参数/脱敏边界可执行 | `SVC-01`、`SVC-02`、`SVC-03` |
 | 真机同路径验证 | Device Test Center 和硬件证据流程 | 已有测试入口与分层规则；当前仓库结论仍以 virtual-device validation 为主 | `HW-01` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | 烧录、画面、触摸、RS-485、ESP-Hosted 和部分 I2C 可用，外设仍为 `partial` | `TAB5-01` |
 | 设备视觉保真 | `platform/web/device-shell*`、设备 renderer | 功能验证与视觉保真分开；StopWatch 是参考质量外壳 | `UI-01` |
@@ -71,7 +71,7 @@
 | `RUNTIME-06` | 进行中 | controller loopback、plaintext、CCMP、单 peer 64-frame replay window、native 与 wrapper lifecycle 已有证据；guest key-state 写入 bridge、key rotation、multi-peer replay、跨设备 fabric 与 RF/timing 仍 OPEN |
 | `SVC-01` | 进行中 | 跨主机/namespace-managed/Tab5 companion 与跨主机幂等 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和多机容量 |
-| `SVC-03` | 进行中 | 首个无状态错误/parser 边界已拆出；继续拆分 `device_service.py` 编排热区 |
+| `SVC-03` | 进行中 | 无状态错误/parser、QEMU/runtime 内存策略与私有 env 脱敏边界已拆出；继续拆分 `device_service.py` 编排热区 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 真机验证 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归 |

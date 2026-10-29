@@ -1759,7 +1759,7 @@ UART1 instance:
 {
   "device_id": "core2",
   "runtime": "qemu-unified",
-  "ready_timeout_seconds": 90,
+  "ready_timeout_seconds": 180,
   "network": {
     "profile": "core2-unified",
     "attempts": 3
@@ -1786,7 +1786,7 @@ The preferred stock-firmware path is `core2-native-hci`:
 {
   "device_id": "core2",
   "runtime": "qemu-unified",
-  "ready_timeout_seconds": 120,
+  "ready_timeout_seconds": 180,
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",

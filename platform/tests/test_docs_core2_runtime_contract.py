@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 import json
 import sys
@@ -2435,6 +2434,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         service = (
             ROOT / "platform/tools/device_service.py"
         ).read_text()
+        runtime = (
+            ROOT / "platform/tools/device_service_runtime.py"
+        ).read_text()
         himem_readme = (
             ROOT / "tests/firmware/core2_psram_himem/README.md"
         ).read_text()
@@ -2444,7 +2446,8 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         core2_doc = (DOCS / "core2-native-hci-backend.md").read_text()
         api = (DOCS / "device-service-api.md").read_text()
         self.assertIn('SERVICE_MEMORY_OVERRIDES = {"core2": "8"}', service)
-        self.assertIn("effective = 8", service)
+        self.assertIn("from device_service_runtime import", service)
+        self.assertIn("effective = 8", runtime)
         self.assertIn("same virtual window", himem_readme.lower())
         for text in (status, backlog, code_map, core2_doc, api):
             self.assertIn("8 MiB", text)

@@ -1117,8 +1117,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
 
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
+            "core2-unified",
             "core2-native-vhci",
             "core2-native-hci",
+        ):
+            with self.subTest(profile=profile):
+                self.assertEqual(
+                    default_session_ready_timeout(
+                        {"profile": profile}
+                    ),
+                    180.0,
+                )
+        for profile in (
             "core2-hci-gatt",
             "nanoc6-hci-ble",
             "nesso-unified",
@@ -1161,6 +1171,32 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ),
             requested,
         )
+
+    def test_profile_qom_injection_uses_session_ready_timeout(self):
+        session = self._stopped_session(session_id=uuid.uuid4().hex)
+        session.ready_timeout = 3.0
+        session.serial0.write_text("")
+        session._stop_event = mock.Mock()
+        session._proc = mock.Mock()
+        session._proc.poll.return_value = None
+
+        with mock.patch.object(
+            session,
+            "_check_cancelled",
+        ), mock.patch.object(
+            device_service_module.time,
+            "time",
+            side_effect=range(30),
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                session._apply_profile_qom(
+                    "PROFILE_READY",
+                    "test-profile",
+                    (),
+                )
+
+        self.assertEqual(caught.exception.code, "qom_timeout")
+        self.assertEqual(session._stop_event.wait.call_count, 2)
 
     def test_catalog_exposes_sku_and_coverage(self):
         row = self.service.get_device("cores3")
@@ -4064,6 +4100,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
             command.index("--notification-timeout") + 1
         )
         self.assertEqual(command[notification_timeout_index], "30")
+        write_delay_index = command.index("--write-delay") + 1
+        self.assertEqual(
+            command[write_delay_index],
+            str(
+                int(
+                    device_service_module
+                    .BLE_UNIFIED_WRITE_DELAY_SECONDS
+                )
+            ),
+        )
         scan_timeout_index = command.index("--timeout") + 1
         self.assertEqual(command[scan_timeout_index], "113")
         trigger_index = command.index("--post-pass-trigger") + 1
