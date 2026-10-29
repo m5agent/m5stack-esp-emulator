@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
+日期：`2026-10-30`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，源码与测试入口见[代码与验证入口地图](code-map.md)。
@@ -189,7 +189,7 @@ BOARD/APIKEY、在 `8.50 s` 执行完 matching 原厂 `/flash/boot.py`；但
 `wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`；
 当前下一阻断是 boot.py 之后的 WiFi 配置/UI 线程等待，随后才是 display
 flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复。
-`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset，剩余 blocker 是真实 `wifiWebCfg`/WiFi 分区与 normal-WDT 生命周期；`RUNTIME-03` 和原厂 factory UI/REPL 仍 `OPEN`。
+`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset。Core2 `qemu-wifi` 随后增加严格的 legacy `deviceCfg` overlay，只更新 session Flash 副本并记录 hashed SSID/base/effective SHA；同一 effective Flash 在诊断控制下显示真实 `Connecting to myssid`，但默认 WDT 仍在 boot markers 后触发 cache-disabled panic 和黑帧。剩余 blocker 是 normal-WDT 生命周期、setup/REPL 和完整应用帧；`RUNTIME-03` 仍 `OPEN`，见[legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)。
 精确批次、通过率、artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注

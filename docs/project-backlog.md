@@ -237,6 +237,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   因此剩余原厂路径是提供有效 WiFi 配置并重跑真实 `wifiWebCfg`/WiFi
   UI 生命周期，而不是继续修 display/LVGL。见
   [WiFi stub 菜单证据](evidence/2026-10-30-core2-wifi-stub-menu/README.md)。
+  Core2 `qemu-wifi` 随后增加严格的 legacy `deviceCfg` overlay：只处理
+  session Flash 副本中的 `config` 分区，校验 schema、长度和 checksum，
+  记录 hashed SSID/base/effective SHA，其他固件逐字节不变。service 产物与
+  诊断使用的 effective Flash 相同；诊断控制可显示真实
+  `Connecting to myssid`，默认 WDT 仍在 boot 后触发 cache-disabled panic。
+  因此这是配置/取证里程碑，`RUNTIME-03` 继续 OPEN。见
+  [legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API

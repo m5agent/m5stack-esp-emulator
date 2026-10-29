@@ -107,6 +107,10 @@ from firmware_manifest import (  # noqa: E402
     validate_capabilities,
     validate_manifest_structure,
 )
+from legacy_device_config import (  # noqa: E402
+    LegacyDeviceConfigError,
+    apply_legacy_wifi_config,
+)
 from network_egress import (  # noqa: E402
     EgressEndpoint,
     endpoint_contains_address,
@@ -5100,6 +5104,7 @@ class DeviceSession:
                     self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
                 self._check_cancelled()
+            self._apply_legacy_wifi_config()
             self._apply_nvs_fixture()
             self._check_cancelled()
             try:
@@ -5171,6 +5176,39 @@ class DeviceSession:
                         )
         if last_error is not None:
             raise last_error
+
+    def _apply_legacy_wifi_config(self) -> None:
+        if (
+            self.runtime != QEMU_WIFI_RUNTIME
+            or self.spec.id != "core2"
+            or self.virtual_flash is None
+        ):
+            return
+        try:
+            info = apply_legacy_wifi_config(
+                self.virtual_flash,
+                flash_size=self.spec.flash_size,
+                ssid=str(self.network_config.get("wifi_ssid", "myssid")),
+                password=str(self.network_config.get("wifi_password", "")),
+            )
+        except LegacyDeviceConfigError as error:
+            raise ServiceError(
+                "legacy_wifi_config_invalid",
+                str(error),
+                409,
+            ) from error
+        if info is None:
+            return
+        effective_sha256 = hashlib.sha256(
+            self.virtual_flash.read_bytes()
+        ).hexdigest()
+        self.flash_info = {
+            **(self.flash_info or {}),
+            "base_flash_sha256": self.firmware_sha,
+            "effective_flash_sha256": effective_sha256,
+            "legacy_wifi_config": info,
+        }
+        self._record_event("legacy_wifi_config_applied", **info)
 
     def _wait_hci_probe_result(self, timeout: float) -> None:
         # Reconnect workloads can legitimately exceed the legacy 30-second

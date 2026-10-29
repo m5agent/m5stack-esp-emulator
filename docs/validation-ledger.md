@@ -2013,3 +2013,20 @@ session state、evidence 字段或硬件路径；物理硬件、RF 和电气验�
 `NOT RUN`。见
 [证据](evidence/2026-10-30-svc03-network-parsing/README.md)和
 [机器摘要](evidence/2026-10-30-svc03-network-parsing/summary.json)。
+
+## 2026-10-30：Core2 legacy deviceCfg WiFi overlay
+
+Core2 `qemu-wifi` 现在识别 classic UIFlow `deviceCfg` schema、长度和
+checksum，并只把请求的 SSID/password 应用到 session-isolated Flash 的
+`config` 分区；非匹配固件的字节保持不变，事件只记录 hashed SSID、
+base/effective Flash SHA 和 password 是否提供。标准 QEMU
+`54e7a7f7…` 的 service 路径记录了 `legacy_wifi_config_applied`，并由
+原始 `4d2d648b…` 得到 effective Flash `b30f3014…`；同一 effective
+Flash 在 WDT-disabled 诊断控制下渲染真实 `Connecting to myssid` UI
+（`320x240`、`75,373` nonblack、`305` colors、PNG SHA
+`df9ba184…`）。diagnostic QEMU 的默认 WDT 控制仍到达 BOARD/APIKEY/boot
+markers 后触发 `Cache disabled but cached memory region accessed`，黑帧
+不变，因此只关闭配置/取证前置，`RUNTIME-03` 保持 OPEN（virtual-device
+validation；物理硬件、真实 cache/PSRAM、RF、DHCP 和网络连接均 `NOT RUN`）。
+见[证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-wifi-config-overlay/summary.json)。
