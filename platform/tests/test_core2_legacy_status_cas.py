@@ -17,6 +17,11 @@ EPISODE_PATCH = (
     / "patches/qemu-m5stack-peripherals/"
     "0086-esp32-legacy-cas-episode-profile.patch"
 )
+FAIR_YIELD_PATCH = (
+    ROOT
+    / "patches/qemu-m5stack-peripherals/"
+    "0088-xtensa-contended-cas-fair-yield.patch"
+)
 RUNNER = (
     ROOT
     / "tests/firmware/core2_handoff_trace/run_pause_sweep.py"
@@ -62,6 +67,26 @@ class Core2LegacyStatusCasPatchTests(unittest.TestCase):
     def test_patch_keeps_controls_opt_in_and_wdt_unchanged(self):
         patch = PATCH.read_text()
         self.assertIn("getenv(\"M5SW_XTENSA_CONTENDED_CAS_YIELD\")", patch)
+        self.assertNotIn("M5SW_DISABLE_WDT", patch)
+        self.assertNotIn("qemu_clock_notify", patch)
+        self.assertNotIn("qemu_clock_warp", patch)
+
+    def test_contended_cas_fair_yield_only_shortens_rr_quantum(self):
+        patch = FAIR_YIELD_PATCH.read_text()
+        self.assertIn("rr_contended_cas_yield_requested", patch)
+        self.assertIn("TCG_CONTENDED_KICK_PERIOD", patch)
+        self.assertIn("NANOSECONDS_PER_SECOND / 1000", patch)
+        self.assertIn("rr_apply_contended_cas_yield", patch)
+        self.assertIn("timer_mod(rr_kick_vcpu_timer", patch)
+        self.assertIn("holder_cpu < 2 && holder_cpu != cpu", patch)
+        self.assertIn(
+            "M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD",
+            patch,
+        )
+        self.assertIn(
+            "M5SW_XTENSA_CONTENDED_CAS_YIELD",
+            patch,
+        )
         self.assertNotIn("M5SW_DISABLE_WDT", patch)
         self.assertNotIn("qemu_clock_notify", patch)
         self.assertNotIn("qemu_clock_warp", patch)

@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "task": "RUNTIME-03",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "profile": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "75e7fa97424c859c6e1fe918dda203aa2c6509e9c81937893a15d2a4a46b6714"
+  },
+  "patch": {
+    "name": "0088-xtensa-contended-cas-fair-yield.patch",
+    "sha256": "f3fbb89c9aa86922f27d236915cc268a65832df4e0c25e85b0fa451beae9aa48",
+    "default_enabled": false,
+    "environment": "M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD",
+    "contended_rr_quantum_ns": 1000000
+  },
+  "wdt_off_5s": {
+    "control": {
+      "cpu": {
+        "0": "0x40087986",
+        "1": "0x4000bff0"
+      },
+      "s32c1i_total": 1070625,
+      "s32c1i_contended": 984964,
+      "episodes": 212,
+      "episode_duration_ns_total": 2239772672,
+      "episode_duration_ns_max": 378000032,
+      "task_queue_mutex_episodes": 138,
+      "task_queue_mutex_duration_ns_total": 1861772640,
+      "ssi_0x05": 2078,
+      "ssi_0xbb64": 2386
+    },
+    "fair_yield_1ms": {
+      "cpu": {
+        "0": "0x400951fe",
+        "1": "0x40095c2e"
+      },
+      "s32c1i_total": 91465,
+      "s32c1i_contended": 2702,
+      "episodes": 16,
+      "episode_duration_ns_total": 1017736288,
+      "episode_duration_ns_max": 246999968,
+      "task_queue_mutex_episodes": 16,
+      "task_queue_mutex_duration_ns_total": 1017736288,
+      "ssi_0x05": 2086,
+      "ssi_0xbb64": 2394
+    }
+  },
+  "wdt_off_20s": {
+    "control": {
+      "s32c1i_total": 4219480,
+      "s32c1i_contended": 3700764,
+      "episodes": 494,
+      "episode_duration_ns_total": 15330116502,
+      "ssi_0x05": 12897,
+      "ssi_0xbb64": 11845
+    },
+    "fair_yield_1ms": {
+      "s32c1i_total": 545962,
+      "s32c1i_contended": 13758,
+      "episodes": 103,
+      "episode_duration_ns_total": 10449083200,
+      "ssi_0x05": 12897,
+      "ssi_0xbb64": 11845
+    }
+  },
+  "quantum_probe_100us_5s": {
+    "cpu0": "0x40087986",
+    "episodes": 1,
+    "episode_duration_ns_total": 183823232,
+    "decision": "not retained; CPU0 remained in the handoff-spin cluster"
+  },
+  "normal_wdt": {
+    "control": {
+      "stage1_timeout_ns": 17249439933,
+      "reset_ns": 17249535709,
+      "serial_classification": "TG0WDT_SYS_RESET"
+    },
+    "fair_yield_1ms": {
+      "stage1_timeout_ns": 17248017950,
+      "reset_ns": 17248020126,
+      "serial_classification": "TG0WDT_SYS_RESET"
+    },
+    "startup_ui": "NOT REACHED",
+    "setup_repl": "NOT REACHED",
+    "application_frame": "NOT RUN"
+  },
+  "checks": [
+    {
+      "name": "same_binary_control",
+      "status": "PASS"
+    },
+    {
+      "name": "contended_rr_reduces_cas_amplification",
+      "status": "PASS"
+    },
+    {
+      "name": "ssi_work_equivalence_at_20s",
+      "status": "PASS"
+    },
+    {
+      "name": "normal_wdt_startup",
+      "status": "FAIL"
+    },
+    {
+      "name": "physical_hardware",
+      "status": "NOT RUN"
+    }
+  ],
+  "evidence_hashes": {
+    "control_5s_evidence_sha256": "f41aa97a7018fcf12f996279a5a3f1b36b6c14134bd3c04bfc4f39282ea02fbc",
+    "fair_yield_5s_evidence_sha256": "eca94baec3c364579f7426513990c1bc888dd82dd477171aee973ff1bce4e28a",
+    "control_20s_evidence_sha256": "be1c37779e16e7890ca42f38d6831866a704f3b797236afabf8b8a4ba2a11d84",
+    "fair_yield_20s_evidence_sha256": "03c89a667c5bbf895ec5fb9997d371b3fccbf88b85c9efdacdf6687a248f1b18"
+  },
+  "limits": [
+    "virtual-device only",
+    "WDT-off is diagnostic control only",
+    "MTTCG without deterministic icount still reset and is not a substitute",
+    "no physical scheduler, cache, PSRAM, watchdog or hardware claim",
+    "RUNTIME-03 remains OPEN"
+  ]
+}

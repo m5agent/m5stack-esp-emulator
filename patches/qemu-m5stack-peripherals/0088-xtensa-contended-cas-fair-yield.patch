@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 20:00:00 +0800
+Subject: [PATCH] accel/tcg: shorten RR quantum after contended Xtensa CAS
+
+Single-threaded TCG runs one vCPU until the default 100 ms rate-limiter
+tick. A cross-core Xtensa spinlock can therefore turn a short critical
+section into several 100 ms guest turns: the waiter exits after a failed
+S32C1I, the holder runs a full quantum, and the waiter cannot return until
+the next tick even after the holder releases the lock.
+
+Add an opt-in request from Xtensa S32C1I contention to shorten only the
+next RR quantum to 1 ms. The guest atomic remains compare-and-swap, the
+failed CAS still exits the TCG slice, and lock ownership, icount conversion,
+watchdog deadlines and peripheral data planes are unchanged. The default
+100 ms RR behavior remains in force unless
+M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD=1 is set.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ accel/tcg/tcg-accel-ops-rr.c   | 28 ++++++++++++++++++++++++++++
+ include/sysemu/cpu-timers.h    |  1 +
+ target/xtensa/op_helper.c      |  7 ++++++-
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/accel/tcg/tcg-accel-ops-rr.c b/accel/tcg/tcg-accel-ops-rr.c
+--- a/accel/tcg/tcg-accel-ops-rr.c
++++ b/accel/tcg/tcg-accel-ops-rr.c
+@@ -61,12 +61,38 @@ void rr_kick_vcpu_thread(CPUState *unused)
+ 
+ static QEMUTimer *rr_kick_vcpu_timer;
+ static CPUState *rr_current_cpu;
++static bool rr_contended_cas_yield_requested;
++
++#define TCG_CONTENDED_KICK_PERIOD (NANOSECONDS_PER_SECOND / 1000)
++
++static void rr_start_kick_timer(void);
+ 
+ static inline int64_t rr_next_kick_time(void)
+ {
+     return qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + TCG_KICK_PERIOD;
+ }
+ 
++void icount_request_contended_cas_yield(void)
++{
++    if (icount_enabled()) {
++        rr_contended_cas_yield_requested = true;
++    }
++}
++
++static void rr_apply_contended_cas_yield(void)
++{
++    if (!rr_contended_cas_yield_requested) {
++        return;
++    }
++    rr_contended_cas_yield_requested = false;
++    rr_start_kick_timer();
++    if (rr_kick_vcpu_timer) {
++        timer_mod(rr_kick_vcpu_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)
++                  + TCG_CONTENDED_KICK_PERIOD);
++    }
++}
++
+ /* Kick the currently round-robin scheduled vCPU to next */
+ static void rr_kick_next_cpu(void)
+ {
+@@ -263,6 +289,7 @@ static void *rr_cpu_thread_fn(void *arg)
+                     icount_process_data(cpu);
+                 }
+                 bql_lock();
++                rr_apply_contended_cas_yield();
+ 
+                 if (r == EXCP_DEBUG) {
+                     cpu_handle_guest_debug(cpu);
+diff --git a/include/sysemu/cpu-timers.h b/include/sysemu/cpu-timers.h
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -75,6 +75,7 @@ int64_t icount_round(int64_t count);
+ void icount_note_high_priority_irq(int cpu_index, bool active);
+ void icount_yield_for_high_priority_irq(CPUState *cpu);
+ bool icount_high_priority_irq_active(void);
++void icount_request_contended_cas_yield(void);
+ 
+ /* if the CPUs are idle, start accounting real time to virtual clock. */
+ void icount_start_warp_timer(void);
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -656,7 +656,12 @@ void HELPER(s32c1i_trace)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
+         esp32_handoff_metrics.s32c1i_last_success = success;
+         esp32_handoff_metrics.s32c1i_last_caller = caller;
+         if (!success && icount_enabled()
+-            && getenv("M5SW_XTENSA_CONTENDED_CAS_YIELD")) {
++            && holder_cpu < 2 && holder_cpu != cpu
++            && getenv("M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD")) {
++            icount_request_contended_cas_yield();
++            cpu_exit(env_cpu(env));
++        } else if (!success && icount_enabled()
++                   && getenv("M5SW_XTENSA_CONTENDED_CAS_YIELD")) {
+             cpu_exit(env_cpu(env));
+         }
+         esp32_s32c1i_note_episode(cpu, vaddr, holder_cpu, success);
+-- 
+2.51.0

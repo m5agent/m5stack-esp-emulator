@@ -1689,6 +1689,37 @@ reset、startup UI、setup/REPL、完整应用帧和 physical hardware 仍不通
 [证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和
 [机器摘要](evidence/2026-10-29-core2-legacy-cas-episodes/summary.json)。
 
+## 2026-10-29：Core2 contended-CAS RR scheduling attribution
+
+新增默认关闭的 `0088-xtensa-contended-cas-fair-yield.patch`。真实跨核
+failed S32C1I 会退出当前 TCG slice，并把单线程 RR 的下一个 quantum 从
+`100 ms` 缩短到 `1 ms`；guest CAS、lock owner、`-icount shift=5`、WDT
+deadline 和 peripheral data plane 不变。`M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD`
+未设置时保持原调度。
+
+同一 public `UIFlow_Core2 v1.15.4` SHA 和同一 QEMU binary 的 5 秒
+WDT-off A/B 中，control/candidate 的 S32C1I 为
+`1,070,625→91,465`、跨核 contended 为 `984,964→2,702`、episode
+count 为 `212→16`、episode time 为 `2.239772672→1.017736288 s`。
+CPU0 freeze PC 从 `0x40087986` 的 handoff-spin 簇移到
+`0x400951fe`。SSI `0x05` 为 `2,078→2,086`、`0xBB/64` 为
+`2,386→2,394`，说明 Flash 工作类别和进度近似不变。
+
+20 秒 WDT-off 控制仍显示 candidate 降低 CAS
+`4,219,480→545,962`、contended `3,700,764→13,758`、episode time
+`15.330116502→10.449083200 s`，两轮 SSI 计数完全相同。`100 us`
+对照虽然进一步压低 episode time，但 CPU0 仍停在 handoff-spin 簇，
+因此保留 `1 ms`。
+
+normal-WDT control 在 `17.249535709 s`、candidate 在
+`17.248020126 s` 触发同一 TG0 stage-1 reset；serial 均为
+`TG0WDT_SYS_RESET`，均未到 `BOARD NAME`、setup/REPL 或应用帧。
+因此该结果证明默认 `100 ms` RR 是跨核 spin 的重要放大器，但没有关闭
+`RUNTIME-03`。MTTCG 与当前 deterministic `-icount` 不兼容；移除
+`-icount` 后仍复位且不属于可复现验收 lane。见
+[调度证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)和
+[机器摘要](evidence/2026-10-29-core2-contended-cas-scheduler/summary.json)。
+
 ## 2026-10-29：FlashLight cold constructor 四host
 
 `run_flashlight_route_probe.py` 在 QEMU `e318b2b7…` 上为 CoreS3、AtomS3R、

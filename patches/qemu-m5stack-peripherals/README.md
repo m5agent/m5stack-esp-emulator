@@ -605,6 +605,19 @@ the next I/O-capable observation continues or closes the episode. This changes
 diagnostics only and does not alter guest instructions, lock outcomes,
 interrupts, watchdog behavior or default scheduling.
 
+`0088-xtensa-contended-cas-fair-yield.patch` addresses the scheduling boundary
+exposed by those episodes. A real failed cross-core S32C1I can request a
+one-millisecond RR quantum for the next vCPU turn instead of leaving the holder
+to run the normal 100-millisecond TCG quantum. The guest CAS result, lock owner,
+`-icount` conversion, WDT deadlines and peripheral paths are unchanged. The
+behavior is default-off behind `M5SW_XTENSA_CONTENDED_CAS_FAIR_YIELD=1`.
+Same-binary five-second A/B reduced S32C1I operations from `1,070,625` to
+`91,465`, contended operations from `984,964` to `2,702`, and total episode
+time from `2.239772672 s` to `1.017736288 s`, while SSI `0x05`/`0xBB` counts
+stayed within eight operations. Normal WDT still reset at TG0 stage 1 in both
+lanes, so this is scheduler attribution rather than `RUNTIME-03` closure; see
+the [scheduler evidence](../../docs/evidence/2026-10-29-core2-contended-cas-scheduler/README.md).
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
