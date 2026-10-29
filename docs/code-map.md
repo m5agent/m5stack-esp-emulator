@@ -86,6 +86,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
+| `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
@@ -354,7 +356,8 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | `ServiceError`、`DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和请求解析仍集中在同一模块；Core2 并发 evidence 还绑定该文件 SHA | 按 `SVC-03` 先锁契约并计划配套 evidence 重跑，再移无状态配置/解析、存储、runtime adapter、evidence 和 history；不得让新代码借用旧 tool hash |
+| `platform/tools/device_service.py` | `DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移无状态配置/解析、存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
+| `platform/tools/device_service_errors.py`、`device_service_parsing.py` | `ServiceError`、`parse_int`、`parse_size`、`parse_capture_pcap` 与 SHA256 检查已独立；`device_service.py` 保留同名 re-export | 每个 parser 的行为、错误码和 public symbol identity 由 `test_device_service_parsing.py` 锁定；后续只继续移动无状态边界，不改变 API payload |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -364,8 +367,8 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
-1. 锁定并测试 `/api/v1`、session JSON、evidence ZIP、历史恢复和现有公开符号；
-2. 提取无状态请求解析、运行参数构造与设备规格加载；
+1. 已锁定 `ServiceError.payload()`、首批 parser 行为和 public re-export；
+2. 已提取首批无状态 parser；继续提取其余请求解析、运行参数构造与设备规格加载；
 3. content-addressed firmware/artifact store 与 resumable upload；
 4. session repository、状态机和历史恢复；
 5. QEMU、esp-emu/Tab5、network runtime adapters；

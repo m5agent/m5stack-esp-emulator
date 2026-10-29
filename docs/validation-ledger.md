@@ -1807,3 +1807,23 @@ episode 频率约 `733-736/s`。因此当前不支持“某个 handshake 永久�
 `OPEN/NOT RUN`。见
 [证据](evidence/2026-10-29-core2-handoff-episode-budget/README.md)和
 [机器摘要](evidence/2026-10-29-core2-handoff-episode-budget/summary.json)。
+
+## 2026-10-29：SVC-03 首批无状态解析边界
+
+完成 `SVC-03` 的第一个无语义移动：`ServiceError` 移到
+`platform/tools/device_service_errors.py`；`parse_int`、`parse_size`、
+`parse_capture_pcap`、`is_sha256`/`_is_sha256` 移到
+`platform/tools/device_service_parsing.py`。`device_service.py` 继续
+re-export 同名对象，因此现有调用方和公开导入路径不变。
+
+新增 `test_device_service_parsing.py` 锁定：
+
+- `ServiceError` 的 code/message/status/extra 与 `payload()` 结构；
+- decimal/prefixed integer、size、pcap bool-only parser 行为；
+- lowercase 64-hex SHA256 契约；
+- `device_service.py` 与解析模块的 symbol identity。
+
+该步骤没有修改 `/api/v1` 路由、错误码、session JSON、evidence ZIP、
+历史恢复或运行时参数；也没有改 store、adapter、状态机或 orchestration。
+`SVC-03` 继续 `进行中`，下一项是继续提取其余请求解析、运行参数构造和
+设备规格加载。

@@ -87,7 +87,7 @@
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
-| `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
+| `SVC-03` | 进行中 | `ServiceError` 与首批无状态 parser 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数/设备规格，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
@@ -97,11 +97,11 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`62` 个 Python 模块，`45933` 行；规模最大的模块如下。
+- `platform/tools`：`64` 个 Python 模块，`45971` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 12458 |
+| `device_service.py` | 12417 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
@@ -110,11 +110,11 @@
 
 - `tests/`：`135` 个可执行 Python 测试文件，分布在 `62` 个目录；`226` 个 evidence JSON。
 - `patches/`：`15` 个补丁组，`176` 个 patch 文件。
-- 文档：`450` 个 Markdown 页面；除本生成页外共 `44882` 行。
+- 文档：`450` 个 Markdown 页面；除本生成页外共 `44907` 行。
 
 ## 文档与测试
 
-- 平台测试：`1562` 项。
+- 平台测试：`1569` 项。
 - Docs 新鲜度登记：`118` 行；其中非历史页 `107` 行，历史固定页 `11` 行。
 - 文档职责分布：待办 `3`，契约 `8`，证据/差异 `54`，历史固定 `11`，实现/设计 `9`，参考 `29`，工作流/导航 `4`。
 - 全量文档盘点：`450` 个 Markdown 页面；职责分布：权威/专题页 `118`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，其他 `3`，补丁说明 `18`，平台说明 `10`，仓内历史记录 `5`，测试/用例说明 `166`，未登记 docs 页面 `3`，第三方来源说明 `104`。
