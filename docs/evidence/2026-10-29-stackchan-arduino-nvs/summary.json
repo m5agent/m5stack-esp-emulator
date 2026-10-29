@@ -79,7 +79,149 @@
       }
     },
     "fixed_browser": {
-      "status": "NOT RUN yet"
+      "status": "PASS",
+      "checks": {
+        "set_i32_success": true,
+        "commit_success": true,
+        "close_reopen_readback_exact": true,
+        "same_session_reset_marker_exact": true,
+        "before_partition_digest_matches_file": true,
+        "after_partition_digest_matches_file": true,
+        "reset_partition_digest_matches_file": true,
+        "backing_flash_preserved_after_reset": true
+      },
+      "report_sha256": "2ee389d39e7bd62179aaff12b61756c26f18aa75c4297d95bf761577ef10cde1",
+      "observer": "Test-served MessagePort read-only Flash snapshots; no guest/Flash/API return mutation. Initial Worker.evaluate observer interfered with CDP cleanup and is retained as a rejected observation attempt."
+    },
+    "fixed_native_browser_comparison": {
+      "schema_version": 1,
+      "kind": "independent-arduino-nvs-fixed-native-wasm-same-image",
+      "functional_status": "PASS",
+      "firmware_sha256": "001c4ec99c30746a167bba7386e39240b7208b0675ae84969c2a2b2d4b9eea42",
+      "source_sha256": "1ead1c59fa20cf603147238bf5ff8a33be88d2329fe04dba8ecd796a04f30bf9",
+      "native_runtime_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+      "wasm_runtime_sha256": "8f4e45bcd76e8de6473b480acc64f78ac429a07fa483ee5cedc169c89e61a592",
+      "native_checks": {
+        "set_i32_success": true,
+        "commit_success": true,
+        "close_reopen_readback_exact": true,
+        "same_session_reset_marker_exact": true,
+        "before_partition_digest_matches_file": true,
+        "after_partition_digest_matches_file": true,
+        "reset_partition_digest_matches_file": true,
+        "backing_flash_preserved_after_reset": true
+      },
+      "browser_checks": {
+        "set_i32_success": true,
+        "commit_success": true,
+        "close_reopen_readback_exact": true,
+        "same_session_reset_marker_exact": true,
+        "before_partition_digest_matches_file": true,
+        "after_partition_digest_matches_file": true,
+        "reset_partition_digest_matches_file": true,
+        "backing_flash_preserved_after_reset": true
+      },
+      "native_evidence_sha256": "eab55498b1672ad128652fd33c21a3f366294e6000fab76ec460bfd2b152706c",
+      "native_session_id": "c48328d83742488092eb1cefd3cf5ba6",
+      "native_retained_flash": true,
+      "native_flash": {
+        "before_flash": {
+          "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+          "snapshot_id": "c7b9afcda3244c0ab340af09f8c11a78",
+          "size": 16777216,
+          "sha256": "4fd844f457b67a8e56c3ad0e0e3ae0e66a499018d1589de6bbe7b3af3019b37f",
+          "created_at": "2026-10-29T11:46:31.220454+00:00"
+        },
+        "after_flash": {
+          "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+          "snapshot_id": "302a4237b0ef45269bcd8018a295c3b7",
+          "size": 16777216,
+          "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+          "created_at": "2026-10-29T11:46:43.362796+00:00"
+        },
+        "reset_flash": {
+          "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+          "snapshot_id": "c3b644fab3424f39b52e4d0d8f1ff2b5",
+          "size": 16777216,
+          "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+          "created_at": "2026-10-29T11:46:44.533634+00:00"
+        }
+      },
+      "browser_flash": {
+        "flash_before": {
+          "bytes": 16777216,
+          "sha256": "4fd844f457b67a8e56c3ad0e0e3ae0e66a499018d1589de6bbe7b3af3019b37f",
+          "nvs_offset": 36864,
+          "nvs_sha256": "1dbfdc9e33abbe08799708eb6cd8218f790860f1efc001b9b0bbfefd895d7b32"
+        },
+        "flash_after": {
+          "bytes": 16777216,
+          "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+          "nvs_offset": 36864,
+          "nvs_sha256": "5d208333c8782e44dd50cd8bdc493ff8ac5d96179e24f87e84a1b400bc7a4120"
+        },
+        "flash_reset": {
+          "bytes": 16777216,
+          "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+          "nvs_offset": 36864,
+          "nvs_sha256": "5d208333c8782e44dd50cd8bdc493ff8ac5d96179e24f87e84a1b400bc7a4120"
+        }
+      },
+      "cross_runtime_exact_flash_match": {
+        "before": true,
+        "after": true,
+        "after_reset": true
+      },
+      "browser_cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "browser_worker_targets": {
+        "ok": true,
+        "observed_count": 6,
+        "live_count": 0
+      },
+      "browser_page_errors": [],
+      "browser_blocked_requests": [],
+      "old_failure_control": {
+        "native": "79ec2ace57dca1df426a7023689457c6eef9bea022bbfff4bf08674462a15ce0",
+        "wasm": "3880086c6266f318817d112686dfdf663444990a76e192037f2ec40334bdc529",
+        "readback_error": "ESP_ERR_NVS_NOT_FOUND (0x1102) after successful set/commit and after reset",
+        "backing_flash_contains_marker": true,
+        "guest_before_read_equals_actual_shift_plus_2": true
+      },
+      "first_observer_retry": {
+        "path": "browser-8f4e-v1/report.json",
+        "functional_nvs": "PASS",
+        "lifecycle": "FAIL retained engine target under Playwright Worker.evaluate; final retry uses MessagePort read-only snapshot op; original failure preserved"
+      },
+      "hardware_validation": "NOT RUN",
+      "same_vm_reset_does_not_mean_browser_refresh_persistence": true,
+      "script_sha256": "f2fdf9047999c6fe0641272c53724a3c407c3d617b50eb4508c48ddb353ddbe8",
+      "report_sha256": "2ee389d39e7bd62179aaff12b61756c26f18aa75c4297d95bf761577ef10cde1",
+      "native_report_sha256": "dbc315b6daa6101466497ca4978c2751929bcf289b7b25f7507bad2345f35f17",
+      "export_manifest_sha256": "3707d2b62168e17227c5426c12ffc47d61384083a692dbb89008ae5aaffa6636"
     }
   },
   "plus2_native": {
@@ -226,7 +368,331 @@
     "implementation_changes_during_acceptance": false
   },
   "browser_dance": {
-    "status": "NOT RUN yet on final WASM"
+    "experiment_status": "PASS",
+    "checks_passed": 29,
+    "checks_total": 29,
+    "claim_boundary": "Expected distinctions verified; original/observed motion FAIL, explicit diagnostic motion bounded PASS. No original-Dance functional PASS.",
+    "export_manifest_sha256": "3707d2b62168e17227c5426c12ffc47d61384083a692dbb89008ae5aaffa6636",
+    "wasm_sha256": "8f4e45bcd76e8de6473b480acc64f78ac429a07fa483ee5cedc169c89e61a592",
+    "report_sha256": "e078ccd2056ca5a52cf747f2c50b11f119f9dfa89cb1df9b03c65e5cf1131a2d",
+    "input_path": "Real browser local-file input plus SHA validation; actual model raycast surface pointer events for screen-negative and Si12T top Front input",
+    "observer": "Test-served public.js appends a read-only page state reference; production callbacks forwarded before collecting QOM/joints; no guest/controller/output state synthesized",
+    "bsp_commit": "e2f3b02dbe7f28e26a02adc72bef3aa2c545e4a0",
+    "original_source_sha256": "8863092f75b55999fab8752edc3dba9db818119b190903471f65be4487280180",
+    "variants": [
+      {
+        "variant": "original",
+        "functional_motion": "FAIL (unmodified torque policy disabled)",
+        "firmware_sha256": "1b9f951715441b299ea480a8be1ee1230720ac7bf6c4c93d9d0dbc7f284ccb97",
+        "samples": 471,
+        "present_range_ticks": [
+          0,
+          0
+        ],
+        "goal_range_ticks": [
+          485,
+          240
+        ],
+        "torque_values": [
+          0
+        ],
+        "uart_tx_connected_values": [
+          true
+        ],
+        "uart_rx_connected_values": [
+          true
+        ],
+        "actual_web_diagnostic": {
+          "code": "torque-disabled",
+          "text": "左右、抬头舵机未使能。请在固件中开启舵机扭矩。",
+          "hidden": false
+        },
+        "nvs_readonly_lines": [],
+        "sdk_invalid_current_or_fallback_seen": false,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0,
+            "workerCountScope": "nested-pthreads",
+            "enginePlacement": "dedicated-worker-v1",
+            "engineWorkersAtAcknowledgement": 1,
+            "selfCloseAfterAcknowledgement": true
+          },
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineNormalTerminations": 1,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "engineOwnershipStage": "before-iframe-removal",
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      },
+      {
+        "variant": "observed",
+        "functional_motion": "FAIL (unmodified torque policy disabled)",
+        "firmware_sha256": "0ed947ee189d94eee4df7b1ac57c91f680e232571ad009dbd52d70de2206c5ea",
+        "samples": 256,
+        "present_range_ticks": [
+          0,
+          0
+        ],
+        "goal_range_ticks": [
+          477,
+          245
+        ],
+        "torque_values": [
+          0
+        ],
+        "uart_tx_connected_values": [
+          true
+        ],
+        "uart_rx_connected_values": [
+          true
+        ],
+        "actual_web_diagnostic": {
+          "code": "torque-disabled",
+          "text": "左右、抬头舵机未使能。请在固件中开启舵机扭矩。",
+          "hidden": false
+        },
+        "nvs_readonly_lines": [
+          "DANCE_DIAG nonce=sc-dance-20261029-e2f3b02d-v1 variant=observed zero_pos_1=460 zero_pos_2=620"
+        ],
+        "sdk_invalid_current_or_fallback_seen": false,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0,
+            "workerCountScope": "nested-pthreads",
+            "enginePlacement": "dedicated-worker-v1",
+            "engineWorkersAtAcknowledgement": 1,
+            "selfCloseAfterAcknowledgement": true
+          },
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineNormalTerminations": 1,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "engineOwnershipStage": "before-iframe-removal",
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      },
+      {
+        "variant": "torque_explicit",
+        "functional_motion": "bounded PASS (explicit torque diagnostic)",
+        "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+        "samples": 228,
+        "present_range_ticks": [
+          477,
+          235
+        ],
+        "goal_range_ticks": [
+          477,
+          235
+        ],
+        "torque_values": [
+          1
+        ],
+        "uart_tx_connected_values": [
+          true
+        ],
+        "uart_rx_connected_values": [
+          true
+        ],
+        "actual_web_diagnostic": {
+          "code": "ready",
+          "text": "舵机已使能，画面跟随实际位置。",
+          "hidden": false
+        },
+        "nvs_readonly_lines": [
+          "DANCE_DIAG nonce=sc-dance-20261029-e2f3b02d-v1 variant=torque_explicit zero_pos_1=460 zero_pos_2=620"
+        ],
+        "sdk_invalid_current_or_fallback_seen": false,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "disposal": {
+            "workersRemaining": 0,
+            "workersTerminatedByDispose": 0,
+            "workerCountScope": "nested-pthreads",
+            "enginePlacement": "dedicated-worker-v1",
+            "engineWorkersAtAcknowledgement": 1,
+            "selfCloseAfterAcknowledgement": true
+          },
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineNormalTerminations": 1,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "engineOwnershipStage": "before-iframe-removal",
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        }
+      }
+    ]
   },
-  "full_shared_controller_matrix": "NOT RUN for the requested early fork preview"
+  "full_shared_controller_matrix": "NOT RUN for the requested early fork preview",
+  "default_browser_smoke": {
+    "status": "PASS",
+    "site_manifest_sha256": "3707d2b62168e17227c5426c12ffc47d61384083a692dbb89008ae5aaffa6636",
+    "report_sha256": "3a5926be978b0046739c0119c77c32b7ed089a7c8b51e23c6a64872bbc49e2c0",
+    "checks": [
+      {
+        "name": "same-guest-real-servo-QOM-samples",
+        "ok": true
+      },
+      {
+        "name": "present-ticks-match-model-joints",
+        "ok": true
+      },
+      {
+        "name": "real-servo-position-changes-at-least-50-ticks",
+        "ok": true
+      },
+      {
+        "name": "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "ok": true
+      },
+      {
+        "name": "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero",
+        "ok": true
+      },
+      {
+        "name": "natural-shutdown-pthreads-close-before-iframe-removal",
+        "ok": true
+      },
+      {
+        "name": "natural-shutdown-all-workers-and-iframe-closed",
+        "ok": true
+      },
+      {
+        "name": "no-API-or-user-service-requests",
+        "ok": true
+      },
+      {
+        "name": "no-page-errors",
+        "ok": true
+      }
+    ],
+    "known_followup": "Trailing PWR release banner fixed and verified in final Arduino 10-check browser smoke. Final export differs only in public.js; unchanged NVS/Dance execution results retain their v6 manifest identity."
+  },
+  "build": {
+    "source_patch_count": 59,
+    "native_patch_count": 44,
+    "all_objects_rebuilt": true,
+    "runtime_wasm_sha256": "8f4e45bcd76e8de6473b480acc64f78ac429a07fa483ee5cedc169c89e61a592",
+    "selected_public_profiles": [
+      "stopwatch",
+      "sticks3",
+      "atoms3",
+      "atoms3-lite",
+      "atoms3r",
+      "cores3",
+      "cardputer-adv",
+      "stamplc",
+      "stackchan",
+      "papercolor",
+      "papermono",
+      "core2",
+      "stickc-plus2",
+      "stickc",
+      "stickc-plus-se"
+    ],
+    "excluded_candidates": [
+      "dial",
+      "stickc-plus",
+      "atom-lite",
+      "atom-matrix",
+      "atom-matrix-v11"
+    ],
+    "receipts": {
+      "scripts/qemu-wasm-build/sources.lock.json": "36bcaded0a2381825dd481c0e9b252846aa5337ce21e1523f6c987fb096fb123",
+      "scripts/qemu-wasm-build/build.py": "78ce32b81f3619f49c7292afecdf95e4c655d73c2b29ed5c03edcff94f219f40",
+      ".work/motion-devices-wasm-build-v4/source.json": "9d9c5bb1d9b763e75f94bd9d0de7426891f69f8e5f776ff7fce8a846bf017d91",
+      ".work/motion-devices-wasm-build-v4/dependencies.json": "35d7405af33ff5b2ef8432f036b2385cdf8d6bc9737724a1d8637761312fb00e",
+      ".work/motion-devices-wasm-build-v4/build-receipt.json": "60f3da6a2be187de8250474a1c7959c2226590c31430ff8852e5fbd7fff3d886",
+      ".work/motion-devices-wasm-build-v4/effective-link.json": "45c9eda62335ab0ccb348ffbff80ab81096846e55aba3872850f234ac55ea641",
+      ".work/motion-devices-wasm-runtime-v4/runtime.json": "0bb2d2b38f66f6b1c32a6ba2fcfbe95d6109f7bcb89f564b99da95743feb0c95",
+      ".work/stackchan-motion-public-site-v6/public-site-manifest.json": "3707d2b62168e17227c5426c12ffc47d61384083a692dbb89008ae5aaffa6636"
+    }
+  },
+  "platform_checks": {
+    "unittest_run": 1590,
+    "skipped": 10,
+    "status": "PASS",
+    "report_sha256": "271bba7c6e01186bcc005c5ecb737e61b7d0c6b3009a0ad58c13dd84dca4064a",
+    "catalog_runtime_profiles_snapshot": "PASS"
+  },
+  "final_arduino_browser_smoke": {
+    "status": "PASS",
+    "site_manifest_sha256": "eed692b4cbdc23269b86c381737fd726d94b3efb95cac316b3cbb39ac03bae64",
+    "report_sha256": "5db7f78d5083eb6c7a180943a4bbe41deb5081df0e1e47eacd86dc4e087ef966",
+    "checks": [
+      {
+        "name": "same-guest-real-servo-QOM-samples",
+        "ok": true
+      },
+      {
+        "name": "present-ticks-match-model-joints",
+        "ok": true
+      },
+      {
+        "name": "real-servo-position-changes-at-least-50-ticks",
+        "ok": true
+      },
+      {
+        "name": "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "ok": true
+      },
+      {
+        "name": "power-release-after-natural-stop-has-no-error-banner",
+        "ok": true
+      },
+      {
+        "name": "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero",
+        "ok": true
+      },
+      {
+        "name": "natural-shutdown-pthreads-close-before-iframe-removal",
+        "ok": true
+      },
+      {
+        "name": "natural-shutdown-all-workers-and-iframe-closed",
+        "ok": true
+      },
+      {
+        "name": "no-API-or-user-service-requests",
+        "ok": true
+      },
+      {
+        "name": "no-page-errors",
+        "ok": true
+      }
+    ],
+    "power_banner": "",
+    "same_instance_reset": true,
+    "runtime_status_after_poweroff": "stopped",
+    "worker_close_verified_before_iframe_removal": true,
+    "all_workers_closed": true
+  }
 }

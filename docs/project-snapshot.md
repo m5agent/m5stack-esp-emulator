@@ -101,7 +101,7 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer IRQ/chord/CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；优先复现 Arduino 上传后的 StackChan 官方 Dance、零位/torque/运动时序与复位/断电行为，补齐 Plus2 HOLD/USB sleep 并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 |
+| `UI-02` | 进行中 | 继续归因正常时钟候选的触摸延迟与 CPU 开销，补 stock SDK 第一层 C Timer coalescing、异常路径、长期稳定性和 Flash 持久化；已准入固定示例的 Xtensa 板型继续扩展应用与长期验证，保留 PaperMono stock 逻辑校准、StopWatch 触摸偏差及 Cardputer IRQ/chord/CFG1 时序边界；C6 RISC-V 浏览器构建、P4 可用 backend 与 Linux ARM64 浏览器执行分别立证；继续扩展 StackChan 其它 Arduino/UIFlow 固件、零位和连续转动模式；补 Plus2 浏览器 USB sleep、显式 EXT0 唤醒及 RTC CRC 等价性，并继续经典 Atom/Stick 的真实浏览器准入；扩展固件/Unit，Rust 演示保持研究原型 |
 | `UNIT-01` | 进行中 | 其余同guest Unit（issue #5–#8 已补控制器路径，仍需更广固件/主机矩阵）、FlashLight实时Web与动态S1/PWM、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它准入主机/固件的实际源码API执行、ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
@@ -120,7 +120,7 @@
 
 - `tests/`：`135` 个可执行 Python 测试文件，分布在 `62` 个目录；`226` 个 evidence JSON。
 - `patches/`：`16` 个补丁组，`192` 个 patch 文件。
-- 文档：`472` 个 Markdown 页面；除本生成页外共 `45576` 行。
+- 文档：`472` 个 Markdown 页面；除本生成页外共 `45619` 行。
 
 ## 文档与测试
 

@@ -1737,3 +1737,18 @@ fixture均PASS。该结果关闭 `UNIT-HOST-37` 的 cold constructor/低基线�
 电气或 physical hardware。见
 [四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)和
 [机器摘要](evidence/2026-10-29-flashlight-cold-route-four-host/summary.json)。
+
+
+## 2026-10-29：StackChan Arduino 上传与 S3 NVS 读取错位
+
+同一独立 Arduino NVS 固件在旧 native/WASM 均复现 set/commit 成功但分区
+读取偏移 +2，重新打开和复位后 NOT_FOUND。按实际 Flash 模型修正 S3 QIOR
+phase 后，新 native `dc98b0fd…` / WASM `8f4e45bc…` 各 8 项通过，三阶段
+完整 Flash SHA 跨 runtime 完全一致。三份固定官方 Dance 的上传对照 29 项
+通过，但原样 torque=0 不动如实保留；显式开启后实际 UART1/SCS 位置和
+3D 关节一致，NVS 零位实际读回。默认示例 v6 的运动/复位/关机 9 项通过，
+最终仅调整 PWR 松开提示的 v7 另以 Arduino 上传完成 10 项，包括自然 exit0、
+无错误提示和移除 iframe 前 Worker 关闭。Plus2 USB 原 API 睡眠及电池 HOLD
+关断 native 13 项通过，正 EXT0、RTC 硅片等价性、其它新 runtime 板型、
+完整共享控制器矩阵和硬件均不继承。平台 1590 项、10 skip；四个 validator
+通过。详见[有界证据](evidence/2026-10-29-stackchan-arduino-nvs/README.md)。

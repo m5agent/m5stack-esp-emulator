@@ -38,3 +38,18 @@ Flash 模型配置相位，且不改变共享控制器上 CS1 PSRAM 的时序。
 RESET 通过同一实例的 QMP `system_reset`，保留该实例的 Flash。停止会话后
 重新创建、页面重载和跨次运行的 Flash 持久化仍是独立能力，不能从一次
 同实例复位验证推导已经支持。准确新旧 runtime、固件及验证结果见验证台账。
+
+独立 NVS 复现源码位于 `tests/firmware/stackchan_arduino_nvs/`，不链接
+StackChan-BSP，也不替换 IDF 返回值。使用固定 PlatformIO 6.1.18：
+
+```sh
+pio run -d tests/firmware/stackchan_arduino_nvs
+python3 tests/firmware/stackchan_arduino_nvs/merge.py \
+  --boot-app0 "$PLATFORMIO_CORE_DIR/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin" \
+  --output /tmp/stackchan-nvs-16mb.bin
+```
+
+`PLATFORMIO_CORE_DIR` 指向该构建实际使用的 PlatformIO core 目录。上传完整
+16 MiB 镜像后，首次应出现 `readback rc=0 value=6885417`，同实例 RESET 后
+应出现 `persisted_after_reset rc=0 value=6885417`，且无需再次写入。构建时间
+等元数据可能改变镜像 SHA；每次运行必须记录实际 SHA，不能继承旧镜像结果。

@@ -369,6 +369,9 @@ async function deliverInput(command, original = {}) {
         if (command.down) state.holds.set('touch', command);
         else state.holds.delete('touch');
       }
+      // Natural power-off may finish before the pointer's release arrives.
+      // Drop that trailing release after clearing the held-input bookkeeping.
+      if (command.down === false && ['stopped', 'error'].includes(run.controller.status)) return;
       await run.controller.input(command);
     } else if (command.type === 'reset')
       await run.controller.reset();
