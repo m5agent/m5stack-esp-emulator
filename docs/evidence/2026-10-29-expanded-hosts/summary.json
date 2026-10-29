@@ -1483,7 +1483,10 @@
           "api_service_requests": 0,
           "page_errors": 0
         }
-      ]
+      ],
+      "verified_guest_stops": 4,
+      "engine_normal_terminations_total": 4,
+      "engine_fallback_terminations_total": 0
     }
   },
   "source_reviews": {
@@ -1492,7 +1495,8 @@
     "native_patch_replay": "42 layers / 124 source files",
     "wasm_patch_replay": "51 layers / 153 source files",
     "wasm_lock_sha256": "6eeededa22f6928192f1114141fed5d1bb35baeed5ff605a4caf52a81ed51974",
-    "experimental_lite_spi_and_dial_timing_patches_included": false
+    "experimental_lite_spi_and_dial_timing_patches_included": false,
+    "final_main_sync": "PR32 only narrows the model-retry locator to button[data-device-id]; served assets, runtimes and firmware unchanged. Execution reports retain their actual per-case test-script hashes."
   },
   "redaction": "Derived summary: local origins, ports, session/worker identifiers, raw serial and request/event traces omitted; complete source reports retained locally and bound by SHA256.",
   "checks": {
@@ -1504,7 +1508,10 @@
       "report_sha256": "c50bba047b84fa5f41a3c508d4f77bea4bc5c86a6b1919ded83bc93c0497cf05",
       "source_commit": "300d8d2379f40ac156ed46aace99fd4b91d1d610"
     },
-    "node_contracts": "PASS",
+    "node_contracts": {
+      "status": "PASS",
+      "report_sha256": "dd87e00d6ea21e38b41b0f36d1c37f849153b8b16dd1cf91ceaf2883a38216ea"
+    },
     "runtime_coverage": "PASS",
     "peripheral_catalog": "PASS",
     "qemu_profiles": "PASS",
@@ -1514,12 +1521,21 @@
       "tests_run": 1566,
       "skipped": 10,
       "passed": 1556,
-      "report_sha256": "0614ce9d77ae7498aab1b53a6e68e1178b32548bd87be4645537f913bfdae6d4",
-      "source_commit": "300d8d2379f40ac156ed46aace99fd4b91d1d610",
+      "report_sha256": "e3cce1744fbf21b81b5211d29b6f41e37e37c24cd9babc6d63e396215123d1f7",
+      "source_commit": "26b148bf9e96500a684b4a3eede319af44599112",
       "local_evidence_cache": false,
       "python_dependencies_only": true
     },
-    "platform_after_main31": "PENDING_FINAL_CHECKOUT_SUITE"
+    "platform_after_main31": {
+      "status": "PASS",
+      "execution": "fresh_clone",
+      "source_commit": "26b148bf9e96500a684b4a3eede319af44599112",
+      "scope": "1,566 tests after PR31, no local .work or node_modules in clone. Later PR32 changes only two browser-test locators, not platform Python or served bytes."
+    },
+    "additional_node_contracts": {
+      "status": "PASS",
+      "report_sha256": "b293e4b03276172271da0e8c7087a2bd66fce8bdd63e50b6505805a7d640c1e6"
+    }
   },
-  "emulator_base_commit": "84bc88edddf13b070be97ed035209ed6442c1c79"
+  "emulator_base_commit": "0eb8f8fa53f1089d61455796fd1aea8b38de2990"
 }
