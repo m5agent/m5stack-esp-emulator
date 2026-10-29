@@ -66,15 +66,17 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "已核验原 StickC Plus K016-P 适用的官方 UIFlow2 v2.5.2、ESP32/4MB 与分区身份；独立 guest 显示、按键及 MPU6886 功能待验证，不继承 SE/Plus2 PASS。"
+      "status": "native-selected-behaviors-pass",
+      "detail": "原 StickC Plus K016-P 官方 v2.5.2、ESP32/4MB 在 dc98b0fd 独立 guest 通过 135x240 显示、两次 GPIO37 按键和两组六轴 MPU6886 原 API/QOM 读回，连同 ZIP/历史/清理共 26 项。其它外设及浏览器准入独立验证。 新 WASM 3d91c7b1 的独立浏览器上传示例已通过相同固件、真实模型输入、控制器输出或帧像素及完整 Worker 清理；默认参考入口另行取证。",
+      "evidence": "docs/evidence/2026-10-29-motion-command-followup/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate."
+      "Selected original v2.5.2 display, GPIO37 and MPU6886 behavior passed independently. RTC, other buttons, audio, IR, power and arbitrary browser firmware still require their own selected-path evidence; no SE/Plus2 result is inherited."
     ],
     "service_admission": {
       "blocked": false,
-      "reason": "Exact official original StickC Plus v2.5.2 identity, ESP32/4MB image and partition map verified; independent device-local functional validation remains pending."
+      "reason": "Exact official original StickC Plus v2.5.2 ESP32/4MB and independent native display, GPIO37 and MPU6886 paths verified; remaining peripherals are partial."
     }
   },
   "uiflow2": {

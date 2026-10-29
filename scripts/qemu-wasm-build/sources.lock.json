@@ -16,7 +16,7 @@
     "ninja": "1.13.2",
     "pycotap": "1.3.1"
   },
-  "native_patch_count": 44,
+  "native_patch_count": 47,
   "patches": [
     {
       "path": "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
@@ -195,6 +195,18 @@
       "sha256": "52c5688a135226c949b4e81515dbd81dece8135c747e78d6afd1317314a45fb8"
     },
     {
+      "path": "patches/qemu-m5stack-peripherals/0096-stackchan-scs-command-edges.patch",
+      "sha256": "b8545a012384a86340965cef29f2faf3afdce453225d8047fa3147577fc561ac"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0097-s3-soft-i2c-reset-handoff.patch",
+      "sha256": "dcea8d2c4d6b5355b726d2b798c13283b300278950bfa597c73a12fbbf40c849"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0098-uart-rxfifo-reset.patch",
+      "sha256": "d64f5a713ad3f0d03f6977e160cd03f54f4e0f59a2a2f7a8915c15b9f588da72"
+    },
+    {
       "path": "patches/qemu-wasm-probe/0001-qemu-9.2.2-wasm-tci.patch",
       "sha256": "6754272ea00e1c19b6f7786bd16b95a9eb75bb28be1d60dd5bed7c8e6f55f279"
     },
@@ -279,7 +291,7 @@
     "hw/m5stopwatch/esp32s3_phy.c": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
     "hw/m5stopwatch/esp32s3_regi2c.c": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
     "hw/m5stopwatch/esp32s3_sens.c": "7da08e71a3b7aa48e99cc148ce46b425baa842a19dcab47f68258b6c1e0f0f52",
-    "hw/m5stopwatch/esp32s3_soft_i2c.c": "ee46e8b948e5a116fee9ca44cfa1039d54959c7f44614f80b739707779fa03a9",
+    "hw/m5stopwatch/esp32s3_soft_i2c.c": "476fb52932108f382ea26dca6c50c96bed56f9cd9f3de6f94be6581c5bdd5a99",
     "hw/m5stopwatch/m5_atecc608.c": "40561459536b14cad0e50057da9c0fd5da45e8bc2c8270f68b12df5959470197",
     "hw/m5stopwatch/m5_bcm_spi_panel.c": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
     "hw/m5stopwatch/m5_board.c": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
@@ -292,7 +304,7 @@
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
-    "hw/m5stopwatch/m5_scs_servo.c": "115c089bcdcfde63f26795e38bf55483790389564e72e8492169a292b0b3dda3",
+    "hw/m5stopwatch/m5_scs_servo.c": "1bc83814d5f1b194b7e7956386d515ec24f32caaa1a05da0ea73561140a49ae8",
     "hw/m5stopwatch/m5_spi_panel.c": "c3043cd1ef17c145ce3fae39ea7487cbca594e6d8c25bea370bba9b63734cede",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
@@ -412,7 +424,8 @@
     "util/coroutine-wasm.c": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
     "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
     "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
-    "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0"
+    "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0",
+    "hw/char/esp32s3_uart.c": "487df4d05e694047435a9aca433cd89d90f47a1a1134742dd0f3d014fea440a4"
   },
   "subprojects": [
     {

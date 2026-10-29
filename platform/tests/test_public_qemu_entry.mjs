@@ -9,6 +9,7 @@ import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
 import * as qemuFrame from '../web/public-qemu-frame.js';
+import * as qemuServo from '../web/public-qemu-servo.js';
 import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime.js';
 
 const pageRoot='https://example.test/showcase/';
@@ -18,7 +19,10 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,15,'review the harness if the entry module dependency boundary changes');
+assert.equal(imports.length,16,'review the harness if the entry module dependency boundary changes');
+assert.deepEqual(imports.filter(match=>match[2]==='./public-qemu-servo.js')
+  .flatMap(match=>match[1].split(',').map(name=>name.trim())),
+['qemuServoVisualCommands','qemuServoDiagnostic']);
 assert.ok(source.endsWith('void init().catch(error);\n'));
 const body=source.replace(/^import \{[^}]+\} from '[^']+';\n/gm,'').replace(/void init\(\)\.catch\(error\);\n$/,'');
 const required=imports.flatMap(match=>match[1].split(',').map(name=>name.trim()));
@@ -52,7 +56,7 @@ async function entry({search='',isolationError,registryFailure=false,publication
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,{
+  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,qemuServo,{
     siteRoot:()=>new URL(pageRoot),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     getBrowserProfile:()=>null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],

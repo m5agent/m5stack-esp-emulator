@@ -75,6 +75,8 @@ export function qemuServoDiagnostic(profile, state) {
   if(state.servos.some(servo=>servo.mode==='pwm'))return {code:'pwm-unmodelled',message:'固件使用连续转动模式；此模式的机械运动尚未模拟。'};
   const disabled=state.servos.filter(servo=>servo.torque!==1);
   if(disabled.length)return {code:'torque-disabled',message:`${disabled.map(servo=>servo.id===1?'左右':'抬头').join('、')}舵机未使能。请在固件中开启舵机扭矩。`};
+  if(state.servos.some(servo=>servo.goal_time_ms===0&&servo.goal_speed>0))
+    return {code:'speed-unmodelled',message:'固件使用速度控制；当前尚未模拟其运动速度，显示的动作时间不代表真实舵机。'};
   const rawPitch=(state.servos[1].present_position-profile.outputs.calibration.pitchZeroTicks)
     *profile.outputs.calibration.tickDegrees*profile.outputs.calibration.pitchDirection;
   if(rawPitch<0||rawPitch>90)return {code:'visual-range',message:'实际舵机位置超出模型俯仰范围。请检查固件保存的零位。'};

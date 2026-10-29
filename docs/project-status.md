@@ -3,12 +3,18 @@
 日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
-代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。 中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板启动、原 StickC Plus 准确镜像、Dial 旋钮及新板全外设完成度继续开放，详见本轮证据与 Backlog。
+代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板与原 StickC Plus 已补独立原生及新 WASM 上传固定示例验证，见[命令边沿与新板后续证据](evidence/2026-10-29-motion-command-followup/README.md)。Matrix 的 IMU 轴向来源绑定、非均色灯阵空间链序、Dial 旋钮及新板其它外设继续开放。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
-本轮 [舵机、电源与复位预览](evidence/2026-10-29-motion-power-preview/README.md) 已部署到 fork Pages：StackChan 同 guest UART1 SCS → QOM → 3D 关节、同实例复位与外壳 PWR 长按 6 秒自然关机通过。其余 14 款未重跑本轮新 WASM，不能继承 StackChan 结果；Plus2 浏览器睡眠/唤醒、PM1 ROM 下载及完整共享控制器回归保持开放。
+此前[舵机、电源与复位预览](evidence/2026-10-29-motion-power-preview/README.md)已部署到 fork Pages：StackChan 同 guest UART1 SCS → QOM → 3D 关节、同实例复位与外壳 PWR 长按 6 秒自然关机通过。结果只绑定该次导出；新 WASM 的逐板验证独立追加。Plus2 浏览器睡眠/唤醒、PM1 ROM 下载和未覆盖的电源路径继续开放。
 
 [Arduino 与 NVS 补充复测](evidence/2026-10-29-stackchan-arduino-nvs/README.md)已修复旧 S3 Flash 读取错位，新 native/WASM 同固件各 8 项 NVS/复位检查通过；Arduino 原样 torque=0 与显式开启的 29 项对照、默认示例 9 项及最终 Arduino 复位/关机/松开提示 10 项检查通过。Plus2 USB 睡眠和电池 HOLD 关断仅授予同 native 13 项结果；本轮 fork 发布状态以该 evidence 的部署条目为准。
+
+最新[追加验证](evidence/2026-10-29-motion-command-followup/README.md)完成独立新
+native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严格测试。
+自然关机的固件行为通过，但 engine Worker 的 CDP target 未完全消失，资源
+回收仍为 PARTIAL。保留早先一次原样 Dance 的 PSRAM/OOB 启动失败，不将
+后续成功视为已根治；原用户 Arduino 镜像和物理硬件均未验证。
 
 ## 一页结论
 

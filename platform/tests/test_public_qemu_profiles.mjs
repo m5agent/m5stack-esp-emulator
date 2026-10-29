@@ -11,7 +11,7 @@ validateQemuBrowserProfiles(registry);
 const sortedRegistry=JSON.parse(JSON.stringify(registry,(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value));
 validateQemuBrowserProfiles(sortedRegistry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se']);
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus', 'stickc-plus-se', 'atom-lite', 'atom-matrix', 'atom-matrix-v11']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);

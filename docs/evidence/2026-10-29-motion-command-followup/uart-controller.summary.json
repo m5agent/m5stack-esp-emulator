@@ -1,0 +1,89 @@
+{
+  "kind": "exact-source-uart-rxfifo-reset-controller-proof",
+  "scope": "Host C replay only. No guest/browser/service/physical-hardware execution. Specific browser ReadPos error causality remains unproven.",
+  "status": "PASS",
+  "patch": "patches/qemu-m5stack-peripherals/0098-uart-rxfifo-reset.patch",
+  "patch_sha256": "d64f5a713ad3f0d03f6977e160cd03f54f4e0f59a2a2f7a8915c15b9f588da72",
+  "cases": [
+    {
+      "runtime": "before",
+      "case": "flush-ack-read",
+      "returncode": -6,
+      "expected": "FAIL",
+      "matched_expected": true,
+      "stdout": "",
+      "stderr": "Assertion failed: (fifo8_num_used(&uart.parent.rx_fifo) == 0), function flush_ack_read, file before.c, line 1167.",
+      "program_sha256": "ac389e1098ce3ed9a091f65e51d43a4ad0e6ae4a2a0af0a4ff2574301931fb31"
+    },
+    {
+      "runtime": "before",
+      "case": "timeout-throttle",
+      "returncode": -6,
+      "expected": "FAIL",
+      "matched_expected": true,
+      "stdout": "",
+      "stderr": "Assertion failed: (fifo8_is_empty(&uart.parent.rx_fifo)), function timeout_throttle, file before.c, line 1190.",
+      "program_sha256": "ac389e1098ce3ed9a091f65e51d43a4ad0e6ae4a2a0af0a4ff2574301931fb31"
+    },
+    {
+      "runtime": "before",
+      "case": "reply-irq-drain",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "real SCS response -> parent FIFO -> RX timeout IRQ -> MMIO drain PASS",
+      "stderr": "",
+      "program_sha256": "ac389e1098ce3ed9a091f65e51d43a4ad0e6ae4a2a0af0a4ff2574301931fb31"
+    },
+    {
+      "runtime": "before",
+      "case": "unrelated",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "unrelated CONF0 and classic parent behavior retained PASS",
+      "stderr": "",
+      "program_sha256": "ac389e1098ce3ed9a091f65e51d43a4ad0e6ae4a2a0af0a4ff2574301931fb31"
+    },
+    {
+      "runtime": "after",
+      "case": "flush-ack-read",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "stale SCS ACK -> IDF RXFIFO pulse -> exact ReadPos reply PASS",
+      "stderr": "",
+      "program_sha256": "f712efd27e00ce25e8b680fcc59a6ecc1e1c224343d08a06d43aab4a6387a3aa"
+    },
+    {
+      "runtime": "after",
+      "case": "timeout-throttle",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "RX timers/IRQ cleared; TX/config/interrupt masks retained PASS",
+      "stderr": "",
+      "program_sha256": "f712efd27e00ce25e8b680fcc59a6ecc1e1c224343d08a06d43aab4a6387a3aa"
+    },
+    {
+      "runtime": "after",
+      "case": "reply-irq-drain",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "real SCS response -> parent FIFO -> RX timeout IRQ -> MMIO drain PASS",
+      "stderr": "",
+      "program_sha256": "f712efd27e00ce25e8b680fcc59a6ecc1e1c224343d08a06d43aab4a6387a3aa"
+    },
+    {
+      "runtime": "after",
+      "case": "unrelated",
+      "returncode": 0,
+      "expected": "PASS",
+      "matched_expected": true,
+      "stdout": "unrelated CONF0 and classic parent behavior retained PASS",
+      "stderr": "",
+      "program_sha256": "f712efd27e00ce25e8b680fcc59a6ecc1e1c224343d08a06d43aab4a6387a3aa"
+    }
+  ]
+}

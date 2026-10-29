@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import socket
@@ -337,6 +338,23 @@ def send_input(
             send_key_event(qmp, value, down, settle=0.45)
         time.sleep(settle)
         return
+    if kind == "keytap":
+        parts = value.split(",")
+        if len(parts) != 2 or not parts[0].strip():
+            raise SystemExit(f"keytap expects QCODE,SECONDS: {spec}")
+        try:
+            hold = float(parts[1])
+        except ValueError:
+            raise SystemExit(f"keytap expects a numeric hold duration: {spec}") from None
+        if not math.isfinite(hold) or not 0 < hold <= 10:
+            raise SystemExit(f"keytap hold must be finite and in (0, 10] seconds: {spec}")
+        send_key_event(qmp, parts[0], True)
+        try:
+            time.sleep(hold)
+        finally:
+            send_key_event(qmp, parts[0], False)
+        time.sleep(settle)
+        return
     if kind in {"keydown", "keyup"}:
         send_key_event(
             qmp,
@@ -409,7 +427,7 @@ def main():
         action="append",
         default=[],
         help=(
-            "key:a, touch:X,Y, drag:X1,Y1,X2,Y2, or "
+            "key:a, keytap:p,0.1, touch:X,Y, drag:X1,Y1,X2,Y2, or "
             "longpress:X,Y,SECONDS; repeat for multiple input events"
         ),
     )

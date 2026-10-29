@@ -34,7 +34,7 @@ function fixture({constructorError,transferError}={}){
 assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
 const initial=fixture();
 assert.deepEqual(initial.ownership(),{engineWorkersCreated:0,engineOwnerLive:false,
-  engineCloseNotificationReceived:false,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false});
+  engineCloseNotificationReceived:false,engineSelfCloseNotifications:0,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false});
 const invalidPort=initial.port();
 for(const overrides of [
   {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{ports:[]},{ports:null},{ports:[invalidPort,initial.port()]},
@@ -70,13 +70,30 @@ vm.runInContext('try { globalThis.m5QemuEngineOwnership.engineWorkersCreated=99;
 assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
-assert.equal(active.ownership().engineNormalTerminations,1);
+assert.equal(active.ownership().engineSelfCloseNotifications,1);
+assert.equal(active.ownership().engineNormalTerminations,0,'a cooperative notification is not an owner terminate call');
 assert.equal(active.ownership().engineFallbackTerminations,0);
-assert.equal(engine.terminations,1,'cooperative close is finalized by the owning iframe');
+assert.equal(engine.terminations,0,'cooperative self.close must not race an immediate owner terminate');
+engine.emit('message',{type:'m5-qemu-engine-closing'});
+assert.equal(active.ownership().engineSelfCloseNotifications,1,'duplicate notifications cannot invent another close');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
-assert.equal(engine.terminations,1,'pagehide cannot double-finalize a cooperative engine close');
+assert.equal(engine.terminations,0,'normal pagehide must let the announced self.close finish');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(active.ownership().engineOwnerLive,false);
+
+// A later explicit worker error is still a failure, even after normal close
+// intent. Its forced termination remains separate from cooperative intent.
+const closeFailure=fixture(),closeFailurePort=closeFailure.port();closeFailure.connect(closeFailurePort);
+const closeFailureWorker=closeFailure.workers[0];
+closeFailureWorker.emit('message',{type:'m5-qemu-engine-listening'});
+closeFailureWorker.emit('message',{type:'m5-qemu-engine-closing'});
+closeFailureWorker.emit('error',{message:'synthetic error after close notification'});
+closeFailureWorker.emit('error',{message:'duplicate error'});
+closeFailure.dispatch('pagehide',{});
+assert.equal(closeFailure.ownership().engineSelfCloseNotifications,1);
+assert.equal(closeFailure.ownership().engineNormalTerminations,0);
+assert.equal(closeFailure.ownership().engineFallbackTerminations,1);
+assert.equal(closeFailureWorker.terminations,1,'an explicit error still forces teardown exactly once');
 
 for(const transferred of [false,true]){
   const abandoned=fixture(),port=abandoned.port();abandoned.connect(port);
@@ -85,9 +102,12 @@ for(const transferred of [false,true]){
   abandoned.dispatch('pagehide',{});abandoned.dispatch('pagehide',{});
   assert.equal(worker.terminations,1,'pagehide terminates an unclosed engine exactly once');
   assert.equal(abandoned.ownership().engineFallbackTerminations,1);
+  assert.equal(abandoned.ownership().engineSelfCloseNotifications,0);
   assert.equal(abandoned.ownership().engineOwnerLive,false);
   const sent=worker.messages.length;worker.emit('message',{type:'m5-qemu-engine-listening'});
   assert.equal(worker.messages.length,sent,'late listening after teardown cannot transfer a port');
+  worker.emit('message',{type:'m5-qemu-engine-closing'});
+  assert.equal(abandoned.ownership().engineCloseNotificationReceived,false,'late closing cannot rewrite a forced fallback as cooperative');
 }
 
 function assertBeforeTransferFailure(state,port,expectedMessage,created){
@@ -126,4 +146,4 @@ assert.equal(transferredFailure.ownership().engineFallbackTerminations,1);
 assert.equal(failedEngine.terminations,1);assert.equal(transferredFailure.timers.size,0);
 transferredFailure.dispatch('pagehide',{});assert.equal(failedEngine.terminations,1);
 
-console.log('private QEMU iframe engine ownership/origin/one-port/transfer/close, startup failure, timeout and pagehide-fallback contracts passed; no guest executed');
+console.log('private QEMU iframe ownership/origin/one-port/transfer, cooperative self-close without owner terminate, startup/error/timeout/pagehide fallback contracts passed; no guest executed');

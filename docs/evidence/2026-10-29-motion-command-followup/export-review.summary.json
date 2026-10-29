@@ -1,0 +1,187 @@
+{
+  "checks": [
+    {
+      "name": "exact-requested-site-manifest",
+      "ok": true
+    },
+    {
+      "details": {
+        "count": 2115
+      },
+      "name": "2115-distinct-assets",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 2115,
+        "failures": []
+      },
+      "name": "all-asset-paths-bytes-sha256",
+      "ok": true
+    },
+    {
+      "details": {
+        "extra": [],
+        "missing": []
+      },
+      "name": "export-file-closed-set",
+      "ok": true
+    },
+    {
+      "name": "no-export-symlinks",
+      "ok": true
+    },
+    {
+      "details": {
+        "failures": []
+      },
+      "name": "no-firmware-rom-raw-binaries-in-site",
+      "ok": true
+    },
+    {
+      "name": "empty-service-url-and-publication-boundaries",
+      "ok": true
+    },
+    {
+      "details": {
+        "devices": [
+          "stopwatch",
+          "sticks3",
+          "atoms3",
+          "atoms3-lite",
+          "atoms3r",
+          "cores3",
+          "cardputer-adv",
+          "stamplc",
+          "stackchan",
+          "papercolor",
+          "papermono",
+          "core2",
+          "stickc-plus2",
+          "stickc",
+          "stickc-plus",
+          "stickc-plus-se",
+          "atom-lite",
+          "atom-matrix",
+          "atom-matrix-v11"
+        ]
+      },
+      "name": "19-public-zero-candidate-profiles",
+      "ok": true
+    },
+    {
+      "name": "dial-remains-unpublished",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 1351,
+        "failures": []
+      },
+      "name": "production-js-css-html-match-worktree-base-rewrite",
+      "ok": true
+    },
+    {
+      "name": "root-entry-and-isolation-worker-exact-aliases",
+      "ok": true
+    },
+    {
+      "name": "exact-requested-wasm",
+      "ok": true
+    },
+    {
+      "name": "runtime-directory-closed-set",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 5,
+        "failures": []
+      },
+      "name": "all-runtime-asset-bytes-hash",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 6
+      },
+      "name": "site-qemu-runtime-identical-to-v6",
+      "ok": true
+    },
+    {
+      "name": "runtime-unbundled-rom-firmware",
+      "ok": true
+    },
+    {
+      "name": "runtime-complete-lock-identity",
+      "ok": true
+    },
+    {
+      "details": {
+        "dependency_count": 2,
+        "failures": [],
+        "native_count": 46,
+        "qemu_count": 61
+      },
+      "name": "all-locked-worktree-patch-hashes",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 157,
+        "failures": []
+      },
+      "name": "157-real-build-source-file-hashes",
+      "ok": true
+    },
+    {
+      "name": "full-build-receipt-and-source-lock-identity",
+      "ok": true
+    },
+    {
+      "name": "build-recipe-and-commands-identities",
+      "ok": true
+    },
+    {
+      "name": "exported-profile-and-browser-registry-exact-filtered-worktree",
+      "ok": true
+    },
+    {
+      "details": {
+        "members": 14618
+      },
+      "name": "source-archive-unique-safe-member-paths",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 231,
+        "failures": []
+      },
+      "name": "source-bundle-lock-patches-157-sources-recipe-dependencies-identities",
+      "ok": true
+    },
+    {
+      "details": {
+        "failures": [],
+        "qemu_source_members": 10599
+      },
+      "name": "source-bundle-qemu-excludes-firmware-rom-images",
+      "ok": true
+    },
+    {
+      "name": "source-bundle-licenses-and-rebuild-entry-present",
+      "ok": true
+    }
+  ],
+  "created_at": "2026-10-29T13:29:32.704107+00:00",
+  "errors": [],
+  "guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "kind": "independent-static-final-public-export-review",
+  "manifest_sha256": "464feccb11921ac8f8379cba6fb5bb03c6352d63d106fd107720c1065bae262f",
+  "scope": "Asset and source provenance audit only; no guest/browser/service/build execution",
+  "source_lock_sha256": "75c6ba79fa3248fb1eeaed0c98ed36b0c511d9659edd4b10654d59f15dc69796",
+  "status": "PASS",
+  "wasm_sha256": "aa2ea4ef0b74886445e6956adb848c35ccbea9797d8e98e2701b0b17ebf553c8"
+}

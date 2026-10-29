@@ -1,0 +1,23 @@
+diff --git a/hw/char/esp32s3_uart.c b/hw/char/esp32s3_uart.c
+--- a/hw/char/esp32s3_uart.c
++++ b/hw/char/esp32s3_uart.c
+@@ -59,7 +59,19 @@
+              * register, poke that register instead */
+             autobaud = FIELD_EX32(value, ESP32S3_UART_CONF0, AUTOBAUD_EN) ? 1 : 0;
+             class->parent_uart_write(opaque, ESP32_UART_AUTOBAUD, autobaud, sizeof(uint32_t));
++            if (FIELD_EX32(value, ESP32S3_UART_CONF0, RXFIFO_RST)) {
++                /* IDF flushes stale hardware bytes by pulsing RXFIFO_RST.
++                 * Reset only RX state; retain framing, masks and TX data. */
++                fifo8_reset(&s->parent.rx_fifo);
++                timer_del(&s->parent.rx_timeout_timer);
++                s->parent.rxfifo_tout = false;
++                timer_del(&s->parent.throttle_timer);
++                s->parent.throttle_rx = false;
++            }
+             class->parent_uart_write(opaque, addr, value, size);
++            if (FIELD_EX32(value, ESP32S3_UART_CONF0, RXFIFO_RST)) {
++                qemu_chr_fe_accept_input(&s->parent.chr);
++            }
+             break;
+ 
+         case A_ESP32S3_UART_MEM_CONF:

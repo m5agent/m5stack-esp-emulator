@@ -1728,7 +1728,7 @@
         "tbSizeMb": 128,
         "icountShift": 5
       },
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "readyFirmwareSHA256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
       "roms": [
@@ -1772,7 +1772,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003037/2094351510644318209/bin/2094351510644318210.bin",
         "bytes": 4186112,
         "sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
-        "browserValidation": "NOT RUN: exact original K016-P browser-composer identity is verified; final WASM display, original BtnA input and Worker cleanup acceptance remain pending."
+        "browserValidation": "PASS for the exact original v2.5.2 composed display/BtnA probe via local file upload, guest framebuffer-to-model readback and complete Worker cleanup. Default-reference execution is recorded separately."
       },
       "fixture": {
         "vfsOffset": 3608576,
@@ -1802,8 +1802,8 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Experimental candidate: original StickC Plus K016-P, exact official UIFlow2 v2.5.2, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse, 135x240 ST7789v2, AXP192 and MPU6886.",
-        "Independent browser fixed-probe display, original BtnA and Worker teardown require a matching runtime receipt; native or SE/Plus2 evidence is not inherited.",
+        "Experimental fixed-probe browser profile: original StickC Plus K016-P, exact official UIFlow2 v2.5.2, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse, 135x240 ST7789v2, AXP192 and MPU6886.",
+        "Exact original K016-P display, original BtnA model input, guest framebuffer readback and Worker teardown are validated for this fixed probe; native, SE and Plus2 evidence is not inherited.",
         "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, arbitrary firmware, BtnB/PWR, power, RTC, audio, IR, networking/BLE and Units are unvalidated."
       ]
     },
@@ -1928,7 +1928,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "atom-lite-wasm-deterministic-icount",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -1972,7 +1972,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002571/2098279874229915649/bin/2098279874229915650.bin",
         "bytes": 4186112,
         "sha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
-        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+        "browserValidation": "PASS for the exact composed fixed RGB()/USER probe via local file upload, real RMT-decoded controller output, model readback, no-LCD negative controls and complete Worker cleanup. Default-reference execution is recorded separately."
       },
       "fixture": {
         "vfsOffset": 3608576,
@@ -2002,7 +2002,7 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Experimental candidate: atom-lite, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Experimental fixed-probe browser profile: atom-lite, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Only the exact original RGB()/USER fixture is accepted; the device remains partial.",
         "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
         "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated."
       ],
@@ -2039,7 +2039,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "atom-matrix-wasm-deterministic-icount",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -2083,7 +2083,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin",
         "bytes": 4186112,
         "sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
-        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+        "browserValidation": "PASS for the exact composed fixed RGB()/USER probe via local file upload, real RMT-decoded controller output, model readback, no-LCD negative controls and complete Worker cleanup. Default-reference execution is recorded separately."
       },
       "fixture": {
         "vfsOffset": 3608576,
@@ -2113,11 +2113,11 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Experimental candidate: atom-matrix, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Experimental fixed-probe browser profile: atom-matrix, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Only the exact original RGB()/USER fixture is accepted; the device remains partial.",
         "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
         "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated.",
         "The 25 RMT-decoded colors remain raw digital data. Only uniform frames illuminate all 25 model LEDs; nonuniform frames keep model LEDs unknown until physical chain order is verified.",
-        "M5Unified touch-based automatic board identification and resulting IMU board-axis conversion remain a runtime model gap; the compiled M5.getBoard() ID does not prove native board identification."
+        "IMU axis mapping is not validated by this RGB/button fixture. Neither native automatic board identification nor its backend/SDK root cause is established by the unmatched reference-source oracle."
       ],
       "readyFirmwareSHA256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
       "outputs": {
@@ -2179,7 +2179,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "atom-matrix-v11-wasm-deterministic-icount",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -2223,7 +2223,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin",
         "bytes": 4186112,
         "sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
-        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+        "browserValidation": "PASS for the exact composed fixed RGB()/USER probe via local file upload, real RMT-decoded controller output, model readback, no-LCD negative controls and complete Worker cleanup. Default-reference execution is recorded separately."
       },
       "fixture": {
         "vfsOffset": 3608576,
@@ -2253,11 +2253,11 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Experimental candidate: atom-matrix-v11, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Experimental fixed-probe browser profile: atom-matrix-v11, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Only the exact original RGB()/USER fixture is accepted; the device remains partial.",
         "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
         "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated.",
         "The 25 RMT-decoded colors remain raw digital data. Only uniform frames illuminate all 25 model LEDs; nonuniform frames keep model LEDs unknown until physical chain order is verified.",
-        "M5Unified touch-based automatic board identification and resulting IMU board-axis conversion remain a runtime model gap; the compiled M5.getBoard() ID does not prove native board identification."
+        "IMU axis mapping is not validated by this RGB/button fixture. Neither native automatic board identification nor its backend/SDK root cause is established by the unmatched reference-source oracle."
       ],
       "readyFirmwareSHA256": "bd39432078335b768b2fa1c6a6df7445a4e525a09fea5ed37061773b5d44d23e",
       "outputs": {

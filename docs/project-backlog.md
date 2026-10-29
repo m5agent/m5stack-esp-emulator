@@ -677,7 +677,14 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
 本轮 AtomS3/Lite、StickC/SE/Plus2 的原生显示或 LED、输入及选定外设已有
 [限定验证](evidence/2026-10-29-expanded-hosts/README.md)，浏览器逐板准入独立维护。
-继续关闭经典 Atom 三板官方固件启动、原 StickC Plus 准确镜像、Dial 旋钮稳定投送，
+经典 Atom 三板官方固件启动与原 StickC Plus 准确镜像已有独立原生和浏览器上传
+固定示例证据，见[后续验证](evidence/2026-10-29-motion-command-followup/README.md)。
+StackChan 正常长按已到 guest SHUTDOWN/exit0，但最终自然关机仍有一个 engine
+CDP target 残留；需补 owner 最终回收兜底，并在关闭浏览器上下文前独立验证
+全部 Worker 归零。一次原样 Dance 启动出现 PSRAM/OOB，后续通过不能关闭
+该偶发问题。还需用实际短间隔命令验证中途改目标，不能用超过原动作时长的
+两次目标变化替代。
+继续绑定 Matrix stock 固件的 IMU 轴向语义、非均色灯阵链序、Dial 旋钮稳定投送，
 以及已启动设备未覆盖的音频/IR/电源/网络等数据面；不能以编译或另一板 PASS 关闭。
 其它 14 款视觉主机按实际芯片、板修订和准确固件逐个接入，StickV 的 K210、
 StickT2 等异构芯片不使用 ESP32 alias。

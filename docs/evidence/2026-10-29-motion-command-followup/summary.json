@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "kind": "motion-command-and-classic-host-followup",
+  "date": "2026-10-29",
+  "status": "PARTIAL",
+  "validation_category": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "controller_regression": {
+    "patch": "0096-stackchan-scs-command-edges.patch",
+    "sha256": "b8545a012384a86340965cef29f2faf3afdce453225d8047fa3147577fc561ac",
+    "test_module": "platform/tests/test_stackchan_scs_patch.py",
+    "status": "PASS",
+    "pre_fix_failures_reproduced": [
+      "identical-torque-restarts-deadline",
+      "official-mode-restore-rejected"
+    ],
+    "scope": "Compiled replayed controller C with synthetic clock/UART/QOM peers; not a guest/hardware run"
+  },
+  "classic_native": {
+    "runtime_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+    "source_receipt_sha256": "1f17aa884a3d4e45fd5d55652c36332f2fda06419ae7df078a7ede5a7cd4d8a0",
+    "report_sha256": "5e1fc44fe7d38d1e8ad59e8d0d8f1ebbea835d74778b976f017de76f5133bffa",
+    "execution": "Dedicated Device Service, two agent-owned random ports, max1 serial sessions; no direct QEMU launches",
+    "cases": [
+      {
+        "device": "atom-lite",
+        "status": "PASS",
+        "device_complete": false,
+        "hardware_pass": false,
+        "base_firmware_sha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
+        "composed_firmware_sha256": "9a9f460e86608ff270578aedb433a9376990c8696a8351c47a25f850135b39c8",
+        "probe_sha256": "ec31b6b036298d80516b60122964e60273e122b28796543b95f748f66f25260c",
+        "checks": {
+          "firmware_build_id": true,
+          "default_rgb_rmt_before": true,
+          "frame-before_no_display_contract": true,
+          "button_press_count_gpio": true,
+          "default_rgb_rmt_press": true,
+          "frame-pressed_no_display_contract": true,
+          "button_release_gpio": true,
+          "default_rgb_rmt_release": true,
+          "frame-released_no_display_contract": true,
+          "button_cycle2_press_count_gpio": true,
+          "default_rgb_rmt_cycle2_press": true,
+          "button_cycle2_release_count_gpio": true,
+          "default_rgb_rmt_cycle2_release": true
+        },
+        "session_id_sha256": "3cf57f0a4cee10621585c7a1c8a7066a38dfa47c6c64686907a4344c881f3269",
+        "raw_report_sha256": "1a0284e0ef497ca61c00fbbad69c6ea3bafe4b9b529eeec3e2d2d918e5f96469",
+        "evidence_zip_sha256": "243f1491b0ccc0fc047aa5939b2e45444279756c99bde853c900e1a3c552f60a"
+      },
+      {
+        "device": "atom-matrix",
+        "status": "PARTIAL",
+        "device_complete": false,
+        "hardware_pass": false,
+        "base_firmware_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "composed_firmware_sha256": "014efa96c5bf1697cab6d1ae47a21d11f46fe058c6377eabb4e0a4d93527a2a6",
+        "probe_sha256": "bafd4f609b8e3259ff3a45a185974df5f061f1af5f06db836b568428ba629eb3",
+        "checks": {
+          "firmware_build_id": true,
+          "default_rgb_rmt_before": true,
+          "frame-before_no_display_contract": true,
+          "button_press_count_gpio": true,
+          "default_rgb_rmt_press": true,
+          "frame-pressed_no_display_contract": true,
+          "button_release_gpio": true,
+          "default_rgb_rmt_release": true,
+          "frame-released_no_display_contract": true,
+          "button_cycle2_press_count_gpio": true,
+          "default_rgb_rmt_cycle2_press": true,
+          "button_cycle2_release_count_gpio": true,
+          "default_rgb_rmt_cycle2_release": true,
+          "imu_1_controller_qom_readback": true,
+          "imu_1_original_api_accel_board_axes": false,
+          "imu_1_original_api_gyro_board_axes": false,
+          "imu_2_controller_qom_readback": true,
+          "imu_2_original_api_accel_board_axes": false,
+          "imu_2_original_api_gyro_board_axes": false
+        },
+        "session_id_sha256": "441e3d19cf579e990876ecd4d6d836d938dd828d55c58ea5c651beb7bbf2f6c0",
+        "raw_report_sha256": "d836c26063b3d4f14963099a4c5fb6c12bf44233a7c2567a95909f82f010023c",
+        "evidence_zip_sha256": "f1b80ca3af7833bdbb537399bdf5ebca99e98a3780882dd1713c6a8e3bb0c8ce"
+      },
+      {
+        "device": "atom-matrix-v11",
+        "status": "PARTIAL",
+        "device_complete": false,
+        "hardware_pass": false,
+        "base_firmware_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "composed_firmware_sha256": "ec12aa8ec713250e17d7f2a0e951a17b563dad865442807aa890f59e7df0f7b2",
+        "probe_sha256": "cecdff1e18b6a468397cd4d23d3ab782e6bedfaa0c3f06485c67671d1a3db25f",
+        "checks": {
+          "firmware_build_id": true,
+          "default_rgb_rmt_before": true,
+          "frame-before_no_display_contract": true,
+          "button_press_count_gpio": true,
+          "default_rgb_rmt_press": true,
+          "frame-pressed_no_display_contract": true,
+          "button_release_gpio": true,
+          "default_rgb_rmt_release": true,
+          "frame-released_no_display_contract": true,
+          "button_cycle2_press_count_gpio": true,
+          "default_rgb_rmt_cycle2_press": true,
+          "button_cycle2_release_count_gpio": true,
+          "default_rgb_rmt_cycle2_release": true,
+          "imu_1_controller_qom_readback": true,
+          "imu_1_original_api_accel_board_axes": false,
+          "imu_1_original_api_gyro_board_axes": false,
+          "imu_2_controller_qom_readback": true,
+          "imu_2_original_api_accel_board_axes": false,
+          "imu_2_original_api_gyro_board_axes": false
+        },
+        "session_id_sha256": "13d8648f30c8e4c506c3f5614eb1e07648464bdb3e332a59cc223fc8c46d768e",
+        "raw_report_sha256": "8eb85bd775ecc770b9d51ba6af9cadf951c120fff58a26bf96b08fdc805744df",
+        "evidence_zip_sha256": "20ab84cc2fd0467951738e2984e45f65e8b2a420aea3343f4abb4ebfdaf8c878"
+      },
+      {
+        "device": "stickc-plus",
+        "status": "PASS_SELECTED_VIRTUAL_BEHAVIORS",
+        "device_complete": false,
+        "hardware_pass": false,
+        "base_firmware_sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+        "composed_firmware_sha256": "52a83fa64ff63815a81c07cd61d0705a825c0af3f6ef3c86301fbe100a85d6cf",
+        "probe_sha256": "4b337b5640f1f53846a8ee4d53c0fe8328c5d4b31c48575f4d353afed3599a4f",
+        "checks": {
+          "canonical_inventory_creatable": true,
+          "runtime_command_exact_binary": true,
+          "compile_board_id_4": true,
+          "display_dimensions_135x240": true,
+          "frame-baseline": true,
+          "button_1_down_count_gpio37": true,
+          "frame-1-pressed": true,
+          "button_1_up_count_gpio37": true,
+          "frame-1-released": true,
+          "button_2_down_count_gpio37": true,
+          "frame-2-pressed": true,
+          "button_2_up_count_gpio37": true,
+          "frame-2-released": true,
+          "imu_1_qom_readback_six_axis": true,
+          "imu_1_original_api_accel": true,
+          "imu_1_original_api_gyro": true,
+          "imu_2_qom_readback_six_axis": true,
+          "imu_2_original_api_accel": true,
+          "imu_2_original_api_gyro": true,
+          "evidence_zip_crc": true,
+          "evidence_before_stop": true,
+          "stop_purge0_retained_history": true,
+          "runtime_pid_gone": true,
+          "no_active_sessions_after_stop": true,
+          "runtime_binary_unchanged": true,
+          "base_firmware_unchanged": true
+        },
+        "session_id_sha256": "5eda8df8aa521f6c8cae455bcd5d6818b1bf638485f3f9179330b3dc8fbe7cae",
+        "raw_report_sha256": "e52750e031383bd1cb28b4a0dc370c54fd6aaf4087f30d0bbfba96b8db0b6f8a",
+        "evidence_zip_sha256": "42a605d53a5d92542059b0fec96ceb42722882cab0ab242608a9f6f7c0eb4d8a"
+      }
+    ]
+  },
+  "limitations": [
+    "Native and WASM evidence stays independently bound to each exact runtime and firmware.",
+    "Only uniform Matrix LED frames selected; IMU board-axis interpretation remains under review.",
+    "Speed-only and PWM mechanics, physical load/optics/power and unrelated board peripherals remain partial.",
+    "Natural-PWR independent engine Worker-target exit remains FAIL for the recorded v7 attempt; candidate fixes require new same-export evidence.",
+    "The strict v7 motion group does not erase retained ReadPos or WASM out-of-bounds failures, establish their cause, or prove reliability.",
+    "Classic four-board default-reference final results remain pending; uploaded-image evidence is a separate user path."
+  ],
+  "classic_browser_upload": {
+    "status": "PASS_SELECTED_BEHAVIORS",
+    "runtime_wasm_sha256": "3d91c7b1b880c67686c429e522451e8a4b0a822e3dc4c94090ed0ab536280101",
+    "devices": [
+      "atom-lite",
+      "stickc-plus",
+      "atom-matrix",
+      "atom-matrix-v11"
+    ],
+    "checks_passed": 75,
+    "source": "classic-hosts.summary.json",
+    "source_sha256": "c9187da9bb8665fed5206d3cd91762babf7cb6dadb1345f1e0dff5e00a7e5e3c"
+  },
+  "peripheral_regression": {
+    "status": "COHORT_PASS_WITH_PRESERVED_INITIAL_FAILURES",
+    "initial_full_run": {
+      "PASS": 58,
+      "FAIL": 10,
+      "cases": 68,
+      "attempts_per_case": 1
+    },
+    "c6_dependency_followup": {
+      "PASS": 5,
+      "firmware_unchanged": true
+    },
+    "pm1_original_short_tap_control": {
+      "FAIL": 4,
+      "observed": "real default button-single reset"
+    },
+    "pm1_guest_irq_mode_followup": {
+      "PASS": 5,
+      "firmware_changed": "guest I2C explicitly disables single-click reset; original oracles retained"
+    },
+    "no_clean_single_full_run_claim": true,
+    "source": "peripheral-regression.summary.json",
+    "source_sha256": "3986f09ac14270091d00b0c0f23ed05f6d91b4763bb8def8a271d52cc36338bf",
+    "scope": "Historical first v5 full run and targeted follow-ups only. The later exact v6/v7 clean full rounds are independently recorded in their own fields."
+  },
+  "runtime_v5": {
+    "native_sha256": "4ff3860c5ab31443fc90d0cb0fdbed1c16904116d82da0e221a528ed9cbe4e70",
+    "native_build_receipt_sha256": "060b2f8f5574fad04b0749ca1ed91688777559b090dd103bba7070af8e70d429",
+    "native_scope": "slirp-disabled functional build; not a full-network runtime replacement",
+    "native_patch_count": 51,
+    "native_source_files": 129,
+    "wasm_sha256": "3d91c7b1b880c67686c429e522451e8a4b0a822e3dc4c94090ed0ab536280101",
+    "wasm_manifest_sha256": "94338fd22a0e15653a46ef1aaf0541996de592667094d1ee7c4a82e05260d80e",
+    "wasm_source_archive_sha256": "96ed4853f5b6fca962457e486f914d1c20cdd9f5e676d8139fef3c800a460128",
+    "wasm_patch_count": 60,
+    "wasm_source_files": 157,
+    "all_wasm_objects_rebuilt": true,
+    "source_lock_sha256": "75935bd702408fe63d23910f8827491b77db00748eb60b18639b898f09861a8f"
+  },
+  "source_replay_v5": {
+    "patch_count": 60,
+    "native_patch_count": 45,
+    "patched_files": 157,
+    "lock_sha256": "75935bd702408fe63d23910f8827491b77db00748eb60b18639b898f09861a8f",
+    "forward": "PASS",
+    "reverse": "PASS",
+    "final_hashes": "PASS"
+  },
+  "s3_soft_i2c_reset_controller": {
+    "schema": "s3-soft-i2c-reset-proof.v1",
+    "evidence_level": "host-C logic only; no guest or hardware validation",
+    "scope": [
+      "hw/m5stopwatch/esp32s3_soft_i2c.c"
+    ],
+    "patch_sha256": "dcea8d2c4d6b5355b726d2b798c13283b300278950bfa597c73a12fbbf40c849",
+    "before_sha256": "ee46e8b948e5a116fee9ca44cfa1039d54959c7f44614f80b739707779fa03a9",
+    "after_sha256": "476fb52932108f382ea26dca6c50c96bed56f9cd9f3de6f94be6581c5bdd5a99",
+    "bootstrap_replay_equals_sealed_v5": true,
+    "forward_check": true,
+    "forward_bytes_equal_after": true,
+    "reverse_check": true,
+    "reverse_bytes_equal_before": true,
+    "sealed_v5_unchanged": true,
+    "regression_cases": [
+      "cores3",
+      "stopwatch",
+      "ack",
+      "rx",
+      "fresh",
+      "external-low",
+      "classic"
+    ],
+    "prefixed_negative_controls": [
+      "cores3",
+      "stopwatch",
+      "ack",
+      "rx"
+    ]
+  },
+  "platform_validation": {
+    "status": "PASS",
+    "tests_run": 1613,
+    "skipped": 10,
+    "seconds": 221.49,
+    "report_sha256": "7e3dec7a73281145ef84da8ba2525d5d67ef1c57f0b52b726d2f2ee3f2fcc7dd",
+    "command": "PYTHONPATH=platform/tools:<optional-local-regression-deps> python3.12 -m unittest discover -s platform/tests -p test_*.py",
+    "scope": "Python platform/static/controller regression only. Skipped cases are not execution PASS; real browser guests are recorded independently."
+  },
+  "tested_export_v11": {
+    "manifest_sha256": "464feccb11921ac8f8379cba6fb5bb03c6352d63d106fd107720c1065bae262f",
+    "assets": 2115,
+    "public_profiles": 19,
+    "candidate_profiles": [],
+    "firmware_bundled": false,
+    "service_url": "",
+    "publication_eligible": true,
+    "deployed": false
+  },
+  "peripheral_regression_v6": {
+    "status": "PASS",
+    "cases": 68,
+    "checks": 278,
+    "attempts_per_case": 1,
+    "retries": 0,
+    "seconds": 965.28,
+    "native_sha256": "bb84cbb4efbfe44ae8bcbb0528f2cda4fecf794d8fc8ae073734448feb3b8d82",
+    "source": "peripheral-v6.summary.json",
+    "source_sha256": "78a07a200e7da2279af120c67779153cfdb0e519dbc5efab10802208ec70950c",
+    "scope": "Exact v6 native runtime; later runtime identities require independent validation."
+  },
+  "uart_rxfifo_reset_controller": {
+    "status": "PASS",
+    "patch": "0098-uart-rxfifo-reset.patch",
+    "patch_sha256": "d64f5a713ad3f0d03f6977e160cd03f54f4e0f59a2a2f7a8915c15b9f588da72",
+    "source": "uart-controller.summary.json",
+    "source_sha256": "6416f61fb7fe180fa5db39f5f02f103ce7ac4bda3bef60a6c0c33449d6589474",
+    "guest_failure_causality": "UNPROVEN"
+  },
+  "stackchan_v6": {
+    "status": "PARTIAL",
+    "source": "stackchan-v6.summary.json",
+    "source_sha256": "d080591ca8e2eb4bd6ba8ca7c98a9d3799cbc38a3a14e60360f41aafb888549a",
+    "note": "Includes original ReadPos failure and unchanged-image isolated PASS; natural-power engine Target retention remains unresolved, later controls recorded separately."
+  },
+  "runtime_v6": {
+    "native_sha256": "bb84cbb4efbfe44ae8bcbb0528f2cda4fecf794d8fc8ae073734448feb3b8d82",
+    "native_build_receipt_sha256": "169dae431116bca61436573eb9617b4108adb8298a5cdd4b1652061fbdded3a2",
+    "native_scope": "slirp-disabled functional build; not a full-network runtime replacement",
+    "native_patch_count": 52,
+    "native_source_files": 129,
+    "native_source_receipt_sha256": "6c25cef3a57bdc3b03a567acbf89bbfa96ae3dfb1fd600c8e621b84996a05d51",
+    "wasm_sha256": "aa2ea4ef0b74886445e6956adb848c35ccbea9797d8e98e2701b0b17ebf553c8",
+    "wasm_manifest_sha256": "9d6dfb1030302e288114167fd60a7755363c0ee7fdcb44d99610593b08d741ed",
+    "wasm_source_archive_sha256": "a47822f957ad94a01fd938210988227686293ff895329a91ceef87381500d606",
+    "wasm_patch_count": 61,
+    "wasm_source_files": 157,
+    "all_wasm_objects_rebuilt": true,
+    "source_lock_sha256": "75c6ba79fa3248fb1eeaed0c98ed36b0c511d9659edd4b10654d59f15dc69796"
+  },
+  "source_replay_v6": {
+    "patch_count": 61,
+    "native_patch_count": 46,
+    "patched_files": 157,
+    "lock_sha256": "75c6ba79fa3248fb1eeaed0c98ed36b0c511d9659edd4b10654d59f15dc69796",
+    "forward": "PASS",
+    "reverse": "PASS",
+    "final_hashes": "PASS"
+  },
+  "runtime": {
+    "native_sha256": "6b79beccc37cb5d0327602e721ab8d8e59c1e18c5768ebed745db7fe4f83d83a",
+    "native_build_receipt_sha256": "6d2cddd79dfee157b2e1492b485c2bc5de394b47b65ae8e72064dd22ca9e040c",
+    "native_scope": "slirp-disabled functional build; not a full-network runtime replacement",
+    "native_patch_count": 53,
+    "native_source_files": 130,
+    "native_source_receipt_sha256": "e7e155375db924ed59fc1d77f08114e92141e00775a0ffd2b89dc9839aef776f",
+    "wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+    "wasm_manifest_sha256": "f0e7c5e6f98289a94bcde257f69dd386e381f2fe02fe4757ccae89f9a5297ab6",
+    "wasm_source_archive_sha256": "d66cbc0c5c252362e540d59388020aa1da45dc960d0912d4276e2f7834f2d240",
+    "wasm_patch_count": 62,
+    "wasm_source_files": 158,
+    "all_wasm_objects_rebuilt": true,
+    "source_lock_sha256": "ef0beb11cd41c20dee195493cc526784911da78b8aa06503473d8a4f9a3df84b"
+  },
+  "source_replay": {
+    "patch_count": 62,
+    "native_patch_count": 47,
+    "patched_files": 158,
+    "lock_sha256": "ef0beb11cd41c20dee195493cc526784911da78b8aa06503473d8a4f9a3df84b",
+    "forward": "PASS",
+    "reverse": "PASS",
+    "final_hashes": "PASS",
+    "s3_uart_sha256": "487df4d05e694047435a9aca433cd89d90f47a1a1134742dd0f3d014fea440a4"
+  },
+  "export_review_v11": {
+    "status": "PASS",
+    "checks": 26,
+    "assets": 2115,
+    "source": "export-review.summary.json",
+    "source_sha256": "4a03c2182276d4694c069418505753276579d35c7568aa2d0a405391b8193a84",
+    "scope": "Static byte/source provenance audit only; guest results recorded separately."
+  },
+  "export_review": {
+    "status": "PASS",
+    "checks": 29,
+    "assets": 2115,
+    "source": "export-v12-review.summary.json",
+    "source_sha256": "372dc0cc525bb9c5546d6fc446bf4ac1bcdda1766a1bb9f276ccc4e2faf2160c",
+    "scope": "Static byte/source provenance only; final guest checks remain separately bound."
+  },
+  "tested_export_v12": {
+    "manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+    "assets": 2115,
+    "public_profiles": 19,
+    "candidate_profiles": [],
+    "firmware_bundled": false,
+    "service_url": "",
+    "publication_eligible": true,
+    "deployed": false
+  },
+  "peripheral_regression_v7": {
+    "status": "PASS",
+    "cases": 68,
+    "checks": 278,
+    "attempts_per_case": 1,
+    "retries": 0,
+    "seconds": 956.3,
+    "native_sha256": "6b79beccc37cb5d0327602e721ab8d8e59c1e18c5768ebed745db7fe4f83d83a",
+    "source": "peripheral-v7.summary.json",
+    "source_sha256": "9e4e99ecffda8134ddb5edffd3b5f48d8058d3da552d843c20dd27de52bf44f9",
+    "scope": "Exact v7 Xtensa runtime and separately pinned existing complete C6 runtime; no browser/hardware PASS inheritance.",
+    "raw_summary_sha256": "909e9d1103690301db4ae8306066722bf47117b5e1874bf217042378ba93c707",
+    "bound_summary_bytes": 57776,
+    "guest_source_files": 132,
+    "owned_matrix_qemu_remaining": 0,
+    "no_result_inheritance": "Earlier incomplete or failing rounds remain unchanged; this is one clean exact-v7 run."
+  },
+  "platform_validation_prior_1609": {
+    "status": "PASS",
+    "tests_run": 1609,
+    "skipped": 10,
+    "seconds": 223.732,
+    "report_sha256": "e3feb0d59a70308407f9f0d872716c92cfa196c482be419520cab7e7371811cb",
+    "commands": [
+      "PYTHONPATH=platform/tools:<optional-local-regression-deps> python3.12 -m unittest discover -s platform/tests -p test_*.py"
+    ],
+    "node_modules_passed": [
+      "profiles",
+      "servo",
+      "frame",
+      "runtime",
+      "instance"
+    ],
+    "note": "Retained prior platform suite. Does not replace or inherit the final 1613-test run recorded separately."
+  },
+  "current_status_scope": "Native v7 single-round matrix and exact-export strict StackChan motion paths passed; natural-PWR independent engine-target exit failed, classic default-reference final results pending. No deployment or physical-hardware completion claim.",
+  "stackchan_v7": {
+    "status": "PARTIAL",
+    "source": "stackchan-v7.summary.json",
+    "source_sha256": "91036f4711d834baafb0e6a472186f1b8851fcb31af78973cb5e3568140b844f",
+    "runtime_wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+    "site_manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+    "strict_motion": {
+      "status": "PASS",
+      "cases": 5,
+      "independent_workers_observed": 30,
+      "independent_workers_live": 0,
+      "exit_gate": "Zero live CDP Worker targets for each case before context.close; exact cumulative count preserved."
+    },
+    "natural_PWR": {
+      "status": "FAIL",
+      "actual_hold_ms": 6011.285000085831,
+      "guest_SHUTDOWN": true,
+      "exit_code": 0,
+      "iframe_count": 0,
+      "independent_workers_observed": 6,
+      "independent_workers_live": 1,
+      "remaining_kind": "public-qemu-engine Worker",
+      "wait_timeout_ms": 30000,
+      "scope": "Natural guest shutdown succeeded, but independent complete Worker exit did not. Owner self-close intent and forced browser cleanup do not grant PASS."
+    },
+    "retarget": {
+      "status": "PARTIAL",
+      "actual_target_interval_ms": 3082,
+      "scope": "No proven 100 ms guest mid-animation retarget or physical-servo result."
+    },
+    "historical_failures_retained": [
+      "v6 isolated ReadPos=-1 with unproven cause",
+      "v7 attempt1 unmodified-Dance WASM out-of-bounds with unconfirmed cause",
+      "earlier natural-PWR independent Worker-exit failures"
+    ],
+    "original_user_firmware": "NOT RUN; not supplied",
+    "hardware_validation": "NOT RUN"
+  },
+  "classic_browser_default_v7": {
+    "status": "AWAITING_FINAL_RESULT",
+    "devices": [
+      "atom-lite",
+      "atom-matrix",
+      "atom-matrix-v11",
+      "stickc-plus"
+    ],
+    "runtime_wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+    "site_manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+    "scope": "Final default-reference entry checks are still running. Earlier uploaded-image PASS is preserved separately and does not grant default-entry PASS."
+  },
+  "node_contracts": {
+    "status": "PASS",
+    "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE='<installed Chrome>' npm run --prefix platform/tests test:contracts",
+    "exit_code": 0,
+    "log_sha256": "2b2f2f0260ae3d1af8876dd2b592c5ec0f6201eda8fe20aad64a23c9fcf4ac4d",
+    "scope": "Host contracts and web fixtures; no guest PASS inheritance. Initial missing Playwright dependency failure retained in ignored storage; npm ci completed without lockfile changes."
+  }
+}

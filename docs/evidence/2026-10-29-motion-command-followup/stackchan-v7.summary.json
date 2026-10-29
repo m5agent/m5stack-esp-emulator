@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "kind": "stackchan-v7-bounded-browser-comparison",
+  "overall_status": "PARTIAL: strict motion group PASS; normal PWR independent engine-exit FAIL; earlier unmodified-Dance WASM OOB unresolved",
+  "runtime_wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+  "site_manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+  "owner_javascript_sha256": "78e0a7d688e97270ef81d413bc8fdf320097591bee0c01e395e7585c42d0f161",
+  "bsp_commit": "e2f3b02dbe7f28e26a02adc72bef3aa2c545e4a0",
+  "hardware_validation": "NOT RUN",
+  "original_user_firmware": "NOT RUN; not supplied",
+  "diagnostic_source_verifier": "PASS source files and original BSP tree; not a compiler/runtime claim",
+  "portable_harnesses": {
+    "motion": {
+      "path": "platform/tests/test_stackchan_motion_guest.mjs",
+      "sha256": "ebd634b7889af89be6a6dd883be57bdac8bac941f59a2fc3444506ec0b93a7c4",
+      "saved_copy_matches": true,
+      "provenance_runner_matches": true
+    },
+    "power": {
+      "path": "platform/tests/test_stackchan_power_guest.mjs",
+      "sha256": "22f94dc6c7fdfb619f936d319cf650af192e4def41e9e4434e2b332815227612",
+      "saved_copy_matches": true,
+      "provenance_runner_matches": true
+    }
+  },
+  "prior_v6_retained": {
+    "wasm_sha256": "aa2ea4ef0b74886445e6956adb848c35ccbea9797d8e98e2701b0b17ebf553c8",
+    "site_manifest_sha256": "464feccb11921ac8f8379cba6fb5bb03c6352d63d106fd107720c1065bae262f",
+    "bounded_summary_sha256": "d080591ca8e2eb4bd6ba8ca7c98a9d3799cbc38a3a14e60360f41aafb888549a",
+    "reported_cases": [
+      {
+        "case": "scs_command_edges",
+        "status": "PASS",
+        "firmware_sha256": "c1efc5f309edbd44a07936a69328131a8958a2ded10d4f288fe3537b6ec57c80",
+        "raw_report_sha256": "6621766f2ebf31724d356c258584a92f9748a44e42851bae8a691b39293052cb"
+      },
+      {
+        "case": "motion_calibration",
+        "status": "PASS",
+        "firmware_sha256": "28df9cc822d6be1d8979601a9f2028c736045074f4643e12be3fad49951a3627",
+        "raw_report_sha256": "843c4de78a05dc65554371a92776fe83b45a09159bf273eb076b20035b5a867b"
+      },
+      {
+        "case": "three_dances",
+        "status": "PASS",
+        "firmware_sha256": "1bf88472cf658bc3b0bbde1abb89131836705568116f5a4b7dd75b9252b052a1",
+        "raw_report_sha256": "f79cd7033f8e7d4122313f15028244ad2b69b1a7e49d158ca7549e856f4cde94"
+      },
+      {
+        "case": "unmodified_dance_negative_control",
+        "status": "PASS",
+        "firmware_sha256": "1b9f951715441b299ea480a8be1ee1230720ac7bf6c4c93d9d0dbc7f284ccb97",
+        "raw_report_sha256": "6cc78a6524e534a17044b41fe45797ac6301791b7bfdab68145137457f6060c8"
+      },
+      {
+        "case": "motion_lifecycle",
+        "status": "PARTIAL; strict no-SDK-UART-fallback FAIL",
+        "firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+        "raw_report_sha256": null
+      },
+      {
+        "case": "natural_PWR_held_iframe_v1",
+        "status": "FAIL",
+        "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+        "raw_report_sha256": "92945bb616353a0355e227af9e4e6916a4a88d623361511fc2756179f3fa043c"
+      },
+      {
+        "case": "natural_PWR_held_iframe_v2",
+        "status": "FAIL",
+        "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+        "raw_report_sha256": "3a4ebcb4a030d7c4db899c208536411ee3991736bd4e704093a5ad9d70088616"
+      },
+      {
+        "case": "motion_lifecycle_same_image_low_load_recheck",
+        "status": "PASS for this bounded recheck; first failure remains unresolved",
+        "firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+        "raw_report_sha256": "28ae060f1e71e0cec59ac50ab15f4c6dbb36d64f3e7154c8897c5ee2cb57b05e"
+      },
+      {
+        "case": "natural_PWR_normal_DOM_v3",
+        "status": "FAIL final independent Worker target predicate",
+        "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+        "raw_report_sha256": "0da4ad2607895ec53e3d022914a0dbca5654c1af3772b7519ff2610ed778cd3f"
+      }
+    ],
+    "boundary": "All nine earlier attempts remain unchanged. Recorded cleanup is not upgraded by the new per-case CDP gate. Real SDK ReadPos=-1 and three PWR failures remain retained."
+  },
+  "v7_attempt1_retained": {
+    "status": "FAIL",
+    "harness_sha256": "50bb261be95941c9d1f2d1576074172875714400ea8ca27015b00cefc55c06df",
+    "raw_report_sha256": "9c5866465efc8b2cb2fa015aeb07029dafcb6ec0e6fdf969dfda0d37efbdb272",
+    "summary_sha256": "dc54a6242744c9a44c5cbfb4fd84a5d6bd20f743c321ec8c50654dbc5b78753e",
+    "first_four_cases": "Data-plane checks passed. Cleanup not independently established before context teardown; no per-case CDP exit PASS.",
+    "failure": {
+      "case": "unmodified Dance negative control",
+      "firmware_sha256": "1b9f951715441b299ea480a8be1ee1230720ac7bf6c4c93d9d0dbc7f284ccb97",
+      "runtime_error": "Uncaught RuntimeError: memory access out of bounds",
+      "qom_changes": 1,
+      "frames": 1,
+      "serial_boot_error": "opi psram ID read error and spiram initialization failure",
+      "root_cause": "UNCONFIRMED; a later passing attempt is not a fix/reliability claim"
+    }
+  },
+  "v7_strict_motion": {
+    "status": "PASS",
+    "raw_report_sha256": "76a95b06756f410ff6fe4df2d292e75d989e8cbf8062cb756444d68374f71e49",
+    "concise_summary_sha256": "03cab5822db923117637b9f1ebb2e72cecd43ede7238115d1b007c671d723f5e",
+    "served_production_files_sha256": {
+      "platform/web/public.js": "39333dac357ddecf77338755e1c5d30c6d8a6c5146f89552b55f58398d7359d5",
+      "platform/web/public-qemu-runtime.js": "d42a07fdc93964477b5f0a4b90cad2feeb86edf57e09a6531105b0c450ba9a6a",
+      "platform/web/model-shell.js": "ee1dfb10aaa573667b6f7df07dd401620512c1379dabf16aeb1f30e172d82d96"
+    },
+    "cases": [
+      {
+        "case": "scs_command_edges",
+        "status": "PASS",
+        "firmware_sha256": "c1efc5f309edbd44a07936a69328131a8958a2ded10d4f288fe3537b6ec57c80",
+        "raw_report_sha256": "752dde2778657dad11eb8520c0f7d437f1b8bbe7e4b4723646928bd943b7cadf",
+        "qom_changes": 711,
+        "qom_reads_including_unchanged": 1322,
+        "frames": 450,
+        "unique_frame_hashes": 327,
+        "all_guest_pixels_match_model_LCD": true,
+        "geometry_max_center_error_mm": 1.4210854715202004e-14,
+        "geometry_max_normal_error": 4.440892098500626e-16,
+        "fixed_base_usb_max_error": 0,
+        "no_SDK_fallback": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 0,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "independent_CDP_before_context_close": {
+          "ok": true,
+          "cumulative_observed_count": 6,
+          "live_count": 0,
+          "source": "Chrome DevTools Target.getTargets"
+        }
+      },
+      {
+        "case": "motion_calibration",
+        "status": "PASS",
+        "firmware_sha256": "28df9cc822d6be1d8979601a9f2028c736045074f4643e12be3fad49951a3627",
+        "raw_report_sha256": "27fdd14c096613275b164348389e398096a90eedb585a663a97ca7083f3c4eb3",
+        "qom_changes": 422,
+        "qom_reads_including_unchanged": 1447,
+        "frames": 531,
+        "unique_frame_hashes": 339,
+        "all_guest_pixels_match_model_LCD": true,
+        "geometry_max_center_error_mm": 2.1316282072803006e-14,
+        "geometry_max_normal_error": 3.3306690738754696e-16,
+        "fixed_base_usb_max_error": 0,
+        "no_SDK_fallback": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 0,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "independent_CDP_before_context_close": {
+          "ok": true,
+          "cumulative_observed_count": 12,
+          "live_count": 0,
+          "source": "Chrome DevTools Target.getTargets"
+        }
+      },
+      {
+        "case": "motion_lifecycle",
+        "status": "PASS",
+        "firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+        "raw_report_sha256": "77b8368f539d0e20829d5d7cbf49d4a5d1ad17b5486bcc5aca334bd6e3e1597b",
+        "qom_changes": 1130,
+        "qom_reads_including_unchanged": 2828,
+        "frames": 1483,
+        "unique_frame_hashes": 766,
+        "all_guest_pixels_match_model_LCD": true,
+        "geometry_max_center_error_mm": 1.2434497875801753e-14,
+        "geometry_max_normal_error": 2.220446049250313e-16,
+        "fixed_base_usb_max_error": 0,
+        "no_SDK_fallback": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 0,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "independent_CDP_before_context_close": {
+          "ok": true,
+          "cumulative_observed_count": 18,
+          "live_count": 0,
+          "source": "Chrome DevTools Target.getTargets"
+        }
+      },
+      {
+        "case": "dance",
+        "status": "PASS",
+        "firmware_sha256": "1bf88472cf658bc3b0bbde1abb89131836705568116f5a4b7dd75b9252b052a1",
+        "raw_report_sha256": "b6ef342b0593d946f41bd844d0c3d1d11bda6644204c77ccf01baed6700c71b0",
+        "qom_changes": 495,
+        "qom_reads_including_unchanged": 820,
+        "frames": 71,
+        "unique_frame_hashes": 61,
+        "all_guest_pixels_match_model_LCD": true,
+        "geometry_max_center_error_mm": 1.2434497875801753e-14,
+        "geometry_max_normal_error": 2.220446049250313e-16,
+        "fixed_base_usb_max_error": 0,
+        "no_SDK_fallback": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 0,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "independent_CDP_before_context_close": {
+          "ok": true,
+          "cumulative_observed_count": 24,
+          "live_count": 0,
+          "source": "Chrome DevTools Target.getTargets"
+        }
+      },
+      {
+        "case": "original",
+        "status": "PASS",
+        "firmware_sha256": "1b9f951715441b299ea480a8be1ee1230720ac7bf6c4c93d9d0dbc7f284ccb97",
+        "raw_report_sha256": "5cb6fb1d6f4a06016eb4404bf025c8eb88f49ab6ca6b1d6afc9add3595c9748f",
+        "qom_changes": 535,
+        "qom_reads_including_unchanged": 843,
+        "frames": 45,
+        "unique_frame_hashes": 35,
+        "all_guest_pixels_match_model_LCD": true,
+        "geometry_max_center_error_mm": 3.552713678800501e-15,
+        "geometry_max_normal_error": 0,
+        "fixed_base_usb_max_error": 0,
+        "no_SDK_fallback": true,
+        "cleanup": {
+          "gracefulExit": true,
+          "exitCode": 0,
+          "workersCreated": 5,
+          "workersAtExit": 0,
+          "engineOwnership": {
+            "engineWorkersCreated": 1,
+            "engineOwnerLive": false,
+            "engineCloseNotificationReceived": true,
+            "engineSelfCloseNotifications": 1,
+            "engineNormalTerminations": 0,
+            "engineFallbackTerminations": 0,
+            "enginePortTransferred": true
+          },
+          "explicitWorkerDisposal": true,
+          "iframeRemoved": true
+        },
+        "independent_CDP_before_context_close": {
+          "ok": true,
+          "cumulative_observed_count": 30,
+          "live_count": 0,
+          "source": "Chrome DevTools Target.getTargets"
+        }
+      }
+    ],
+    "all_workers": {
+      "observed": 30,
+      "live": 0,
+      "ok": true
+    },
+    "no_API_or_user_service_requests": true,
+    "no_page_errors": true,
+    "boundary": "Each case creates exactly six new CDP Workers and reaches zero live targets before context.close. Production files served unchanged; real DOM input, UART/QOM/frame and independent geometry/pixel equality verified."
+  },
+  "v7_normal_PWR": {
+    "status": "FAIL",
+    "failure": "natural-shutdown-all-workers-and-iframe-closed",
+    "raw_report_sha256": "278f0ae7ce2b25b99f9517be85b5391b1f04b3c2326f9c68059a367b1885d03d",
+    "concise_summary_sha256": "767aced23f83d974aa227fc9c89fa0901028ee013dac9f1165303373c58d59ea",
+    "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+    "checks": [
+      {
+        "name": "exact-final-WASM-and-firmware",
+        "ok": true
+      },
+      {
+        "name": "same-guest-real-servo-QOM-samples",
+        "ok": true
+      },
+      {
+        "name": "present-ticks-match-model-joints",
+        "ok": true
+      },
+      {
+        "name": "real-servo-position-changes-at-least-50-ticks",
+        "ok": true
+      },
+      {
+        "name": "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "ok": true
+      },
+      {
+        "name": "actual-six-second-model-hold-and-release",
+        "ok": true
+      },
+      {
+        "name": "power-release-after-natural-stop-has-no-error-banner",
+        "ok": true
+      },
+      {
+        "name": "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero",
+        "ok": true
+      },
+      {
+        "name": "natural-shutdown-all-workers-and-iframe-closed",
+        "ok": false
+      }
+    ],
+    "actual_hold_ms": 6011.285000085831,
+    "guest_SHUTDOWN": true,
+    "status_after_power": "stopped",
+    "iframe_count": 0,
+    "error_banner_empty": true,
+    "runtime_errors": [],
+    "cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersCreated": 5,
+      "workersAtExit": 0,
+      "disposal": {
+        "workersRemaining": 0,
+        "workersTerminatedByDispose": 0,
+        "workerCountScope": "nested-pthreads",
+        "enginePlacement": "dedicated-worker-v1",
+        "engineWorkersAtAcknowledgement": 1,
+        "selfCloseAfterAcknowledgement": true
+      },
+      "engineOwnership": {
+        "engineWorkersCreated": 1,
+        "engineOwnerLive": false,
+        "engineCloseNotificationReceived": true,
+        "engineSelfCloseNotifications": 1,
+        "engineNormalTerminations": 0,
+        "engineFallbackTerminations": 0,
+        "enginePortTransferred": true
+      },
+      "engineOwnershipStage": "before-iframe-removal",
+      "explicitWorkerDisposal": true,
+      "iframeRemoved": true
+    },
+    "independent_CDP": {
+      "observed": 6,
+      "live": 1,
+      "remaining_kind": "public-qemu-engine Worker",
+      "wait_timeout_ms": 30000,
+      "attached_constant_evaluation_timeout_ms": 5000
+    },
+    "no_API_or_user_service_requests": true,
+    "boundary": "No iframe/window retained, no iframe.remove override. Owner self-close intent is not actual independent exit. Final forced browser cleanup does not grant PASS."
+  },
+  "retarget_boundary": {
+    "status": "PARTIAL",
+    "actual_target_interval_ms": 3082,
+    "wire_timestamps_ms": [
+      32152,
+      35234
+    ],
+    "reason": "LCD and serial observer overhead separate real Motion.move calls by this measured interval. No 100ms guest mid-animation retarget or physical servo PASS."
+  },
+  "reproduction": {
+    "source": "tests/firmware/stackchan_motion_contract/",
+    "source_lock": "tests/firmware/stackchan_motion_contract/sources.lock.json",
+    "commands": "tests/firmware/stackchan_motion_contract/README.md",
+    "ordinary_checkout": "Both portable harnesses explicitly SKIP without M5_PUBLIC_SITE.",
+    "scope": "One local static-export browser at a time; no native Device Service or hardware. Provide exact image/manifest/WASM SHA and fresh ignored output."
+  },
+  "privacy_boundary": "Redacted publication candidate. Raw traces, frames, diagnostics, endpoints, target/session IDs and firmware remain local ignored artifacts. Parent external verification/work-log gates remain required."
+}

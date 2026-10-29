@@ -47,6 +47,16 @@ except Exception:
     log_uart = None
 
 emit("PAPERCOLOR_PERIPHERAL_MAIN")
+pm1_i2c = I2C(1, scl=Pin(2), sda=Pin(3), freq=100000)
+pm1_cfg_before = pm1_i2c.readfrom_mem(0x6E, 0x49, 1)[0]
+pm1_i2c.writeto_mem(0x6E, 0x49, bytes((pm1_cfg_before | 1,)))
+pm1_cfg_after = pm1_i2c.readfrom_mem(0x6E, 0x49, 1)[0]
+emit("PAPERCOLOR_PM1_BUTTON_CFG", hex(pm1_cfg_before), hex(pm1_cfg_after),
+     "irq", hex(pm1_i2c.readfrom_mem(0x6E, 0x42, 1)[0]),
+     "status", hex(pm1_i2c.readfrom_mem(0x6E, 0x48, 1)[0]))
+if pm1_cfg_after != pm1_cfg_before | 1:
+    raise RuntimeError("PM1 single-click IRQ mode readback mismatch")
+emit("PAPERCOLOR_PM1_BUTTON_READY")
 try:
     state["power"] = (
         Power.getBatteryLevel(),
@@ -59,7 +69,7 @@ except Exception as error:
     emit("PAPERCOLOR_POWER_ERR", repr(error))
 
 try:
-    i2c = I2C(1, scl=Pin(3), sda=Pin(2), freq=100000)
+    i2c = pm1_i2c
     state["rtc"] = check_rx8130(i2c)
     emit("PAPERCOLOR_RTC", "2026-10-22 07:08:09")
 except Exception as error:

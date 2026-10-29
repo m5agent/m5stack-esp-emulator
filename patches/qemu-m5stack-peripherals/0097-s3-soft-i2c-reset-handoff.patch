@@ -1,0 +1,87 @@
+diff --git a/hw/m5stopwatch/esp32s3_soft_i2c.c b/hw/m5stopwatch/esp32s3_soft_i2c.c
+index 26e26a4b..75f2b7d0 100644
+--- a/hw/m5stopwatch/esp32s3_soft_i2c.c
++++ b/hw/m5stopwatch/esp32s3_soft_i2c.c
+@@ -42,6 +42,7 @@ typedef struct M5StopwatchSoftI2C {
+     Esp32GpioBoardBias *scl_pullup;
+     int sda;
+     int scl;
++    bool sda_driven;
+     bool active;
+     bool in_xfer;
+     bool read;
+@@ -71,12 +72,14 @@ static void soft_i2c_trace(const char *fmt, ...)
+ static void soft_i2c_release_sda(M5StopwatchSoftI2C *s)
+ {
+     esp32_gpio_set_input(s->sda_pin, 1);
++    s->sda_driven = false;
+     s->sda = esp32_gpio_get_line(s->sda_pin);
+ }
+ 
+ static void soft_i2c_drive_sda(M5StopwatchSoftI2C *s, int level)
+ {
+     esp32_gpio_set_input(s->sda_pin, level ? 1 : 0);
++    s->sda_driven = !level;
+     s->sda = esp32_gpio_get_line(s->sda_pin);
+ }
+ 
+@@ -90,6 +93,40 @@ static void soft_i2c_end(M5StopwatchSoftI2C *s)
+     soft_i2c_release_sda(s);
+ }
+ 
++static void soft_i2c_reset(void *opaque, int pin, int level)
++{
++    M5StopwatchSoftI2C *s = opaque;
++
++    /* A new boot probes through GPIO before either hardware controller is
++     * opened. Reset the bridge, not the devices on its physical bus. Only
++     * finish a transfer owned by this bridge; a controller's independent
++     * reset must not re-enable bit-banging on its peer's shared I2CBus. */
++    s->active = false;
++    s->state = SOFT_I2C_IDLE;
++    s->read = false;
++    s->ack_pending = false;
++    s->master_ack = false;
++    s->ack_step = 0;
++    s->bit = 0;
++    s->shift = 0;
++    s->rx = 0;
++    if (s->in_xfer) {
++        i2c_end_transfer(s->bus);
++        s->in_xfer = false;
++    }
++    /* A fresh bridge has never driven SDA. Do not invent an external high
++     * source or release a low held by another endpoint on its behalf. */
++    if (s->sda_driven) {
++        soft_i2c_release_sda(s);
++    }
++    s->hardware_active = false;
++    /* GPIO emits normal line notifications after its reset listeners.
++     * Sample both lines now so those notifications cannot invent STARTs.
++     * Keep physical pull-ups and the reset pad configuration unchanged. */
++    s->sda = esp32_gpio_get_line(s->sda_pin);
++    s->scl = esp32_gpio_get_line(s->scl_pin);
++}
++
+ static void soft_i2c_line(void *opaque, int pin, int level)
+ {
+     M5StopwatchSoftI2C *s = opaque;
+@@ -293,6 +330,7 @@ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
+      * process lifetime; reset and hardware hand-off retain physical wiring.
+      */
+     Esp32GpioState *gpio = esp32_gpio_get_controller(true);
++    bool s3 = gpio != NULL;
+     if (!gpio) {
+         gpio = esp32_gpio_get_controller(false);
+     }
+@@ -304,6 +342,10 @@ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
+     esp32_gpio_set_open_drain(scl_pin, true);
+     esp32_gpio_add_out_listener(sda_pin, soft_i2c_line, s);
+     esp32_gpio_add_out_listener(scl_pin, soft_i2c_line, s);
++    if (s3) {
++        /* One callback per bridge, after both pads have reset. */
++        esp32_gpio_add_reset_listener(sda_pin, soft_i2c_reset, s);
++    }
+     s->next = soft_i2c_instance;
+     soft_i2c_instance = s;
+ }

@@ -41,7 +41,7 @@ const mockDocument={
     };
     port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
   }}};
-  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineNormalTerminations:1,engineFallbackTerminations:0,enginePortTransferred:true};
+  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineSelfCloseNotifications:1,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:true};
   frames.push(frame);return frame;},
   body:{append(frame){if(!options.ignoreLoad)queueMicrotask(()=>frame.onload?.());}},
 };
@@ -138,8 +138,13 @@ try {
   assert.equal(dedicatedFrame.calls.filter(row=>row.op==='dispose').length,1);
   assert.equal(dedicated.runtime.cleanupResult.disposal.enginePlacement,'dedicated-worker-v1');
   assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineCloseNotificationReceived,true);
-  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineNormalTerminations,1);
+  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineSelfCloseNotifications,1);
+  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineNormalTerminations,0);
   assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineFallbackTerminations,0);
+  assert.equal(dedicated.runtime.engineOwnerFailed(dedicated.runtime.cleanupResult.engineOwnership),false,
+    'cooperative owner disposition without forced termination is not an engine error');
+  assert.equal(browserQemuHistory(dedicated.runtime.storage)[0].cleanup.engineOwnership.engineSelfCloseNotifications,1,
+    'history retains cooperative intent without claiming a terminate call or observed exit');
   assert.equal(dedicatedFrame.removed,true);
 
   const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,engineNormalTerminations:0,

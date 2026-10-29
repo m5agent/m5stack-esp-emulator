@@ -51,8 +51,11 @@ CASES = [
         "expected_size": "135x240",
         "efuse_pkg_version": "1",
         "wait": "5",
-        "inputs": ["key:a", "key:b", "key:p"],
+        # PM1 single-click default is 250 ms; the generic key hold is 450 ms.
+        "inputs": ["key:a", "key:b", "keytap:p,0.1"],
+        "pre_input_marker": "STICKS3_PM1_BUTTON_READY",
         "serial_expect": [
+            "STICKS3_PM1_BUTTON_CFG",
             "STICKS3_IMU_TYPE 6",
             "STICKS3_BATTERY 87 4000 0",
             "STICKS3_BTN_A 1",
@@ -871,8 +874,10 @@ CASES = [
         "expected_size": "466x466",
         "efuse_pkg_version": "0",
         "wait": "10",
-        "inputs": ["touch:233,348", "key:a", "key:b", "key:p"],
+        "inputs": ["touch:233,348", "key:a", "key:b", "keytap:p,0.1"],
+        "pre_input_marker": "STOPWATCH_PM1_BUTTON_READY",
         "serial_expect": [
+            "STOPWATCH_PM1_BUTTON_CFG",
             "STOPWATCH_IMU_TYPE 6",
             "STOPWATCH_POWER 87 4000 1",
             "STOPWATCH_RTC 2026-10-22 07:08:09",
@@ -918,11 +923,13 @@ CASES = [
         "expected_size": "480x800",
         "efuse_pkg_version": "0",
         "wait": "12",
-        "inputs": ["touch:240,650", "key:a", "key:p"],
+        "inputs": ["touch:240,650", "key:a", "keytap:p,0.1"],
+        "pre_input_marker": "PAPERMONO_PM1_BUTTON_READY",
         "qom_set_boot": [
             ("/machine/ip2315", "charging", "true"),
         ],
         "serial_expect": [
+            "PAPERMONO_PM1_BUTTON_CFG",
             "PAPERMONO_IMU_TYPE 6",
             "PAPERMONO_POWER 87 4000 1",
             "PAPERMONO_RTC 2026-10-22 07:08:09",
@@ -1072,7 +1079,8 @@ CASES = [
         "expected_size": "400x600",
         "efuse_pkg_version": "0",
         "wait": "12",
-        "inputs": ["key:a", "key:p", "key:a"],
+        "inputs": ["key:a", "keytap:p,0.1", "key:a"],
+        "pre_input_marker": "PAPERCOLOR_PM1_BUTTON_READY",
         "qom": [],
         "qom_set_boot": [
             ("/machine/m5pm1", "vbat-mv", "4000"),
@@ -1085,6 +1093,7 @@ CASES = [
         ],
         "qom_sequence_settle": 5.0,
         "serial_expect": [
+            "PAPERCOLOR_PM1_BUTTON_CFG",
             "PAPERCOLOR_PERIPHERAL_MAIN",
             "PAPERCOLOR_POWER 87 4000 1",
             "PAPERCOLOR_POWER_STATE 3400 1",
@@ -2288,7 +2297,14 @@ CASES = [
         "expected_size": "466x466",
         "efuse_pkg_version": "0",
         "wait": "10",
-        "inputs": ["key:a", "key:p"],
+        "inputs": ["key:a", "keytap:p,0.1"],
+        "pre_input_marker": "STOPWATCH_M5PM1_READY",
+        "post_input_marker": "STOPWATCH_M5PM1_DONE",
+        "serial_expect": [
+            "STOPWATCH_M5PM1_BUTTON_CFG",
+            "STOPWATCH_M5PM1_FIELDS",
+            "STOPWATCH_M5PM1_DONE PASS",
+        ],
         "qom": [
             ("/machine/m5pm1", "gpio-input-bits", "29"),
             ("/machine/m5pm1", "adc1-mv", "1650"),

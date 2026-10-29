@@ -972,3 +972,31 @@ READ commands retain their own paths. The patch also uses buffer indices for
 mixed-length TX/RX bounds. The independent Arduino NVS old/new comparison
 must establish readback and same-guest reset persistence separately from the
 controller C fixtures. See [Arduino browser behavior](../../docs/stackchan-arduino-browser.md).
+
+`0096-stackchan-scs-command-edges.patch` distinguishes a repeated torque
+setting from a new position/time/speed command across WRITE, REG_WRITE/ACTION
+and SYNC_WRITE. Repeating EnableTorque(1) preserves an in-flight deadline;
+real torque transitions still stop or resume the held goal. It also accepts
+the individually bounded min/max writes used by official SCSCL SwitchMode(0).
+An intermediate inverted interval cannot drive position motion. Controller
+regressions retain both pre-fix failures; speed-only motion, PWM mechanics,
+EEPROM locking and servo ID reassignment remain outside this patch's scope.
+
+`0097-s3-soft-i2c-reset-handoff.patch` resets the ESP32-S3 GPIO I2C bridge's
+protocol and hardware-handoff state on GPIO reset. M5GFX can then repeat its
+real bit-banged discovery before the hardware controller opens again. The
+bridge ends only its own transfer and releases only its own SDA-low drive;
+endpoint registers, other external SDA sources, physical bias and GPIO reset
+configuration remain owned by their existing components. Classic ESP32 bridge
+registration is unchanged. Exact-source C regressions include cold/warm
+handoff, interrupted ACK/RX, independent low sources and pre-fix controls;
+guest RESET validation remains a separately bound execution result.
+
+`0098-uart-rxfifo-reset.patch` implements the ESP32-S3 CONF0 RXFIFO_RST pulse
+used by the real IDF UART input-flush path. It clears the hardware RX FIFO,
+cancels RX timeout/throttle state, recomputes IRQ through the existing parent
+write and notifies the character backend that input can resume. TX contents,
+framing, interrupt masks, classic UART behavior and overflow policy are
+unchanged. Exact-source UART/S3/Fifo8/SCS C waveforms retain the failed old
+ACK/flush/ReadPos recovery path. A single SDK ReadPos=-1 is not sufficient to
+identify its error class or establish this gap as its unique cause.

@@ -1,0 +1,31 @@
+{
+  "commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "files": {
+    "esp32_uart.c": {
+      "sha256": "2a3667b901b151d240fc20269d3ddf2b941d184b66dcff15c678657301431794",
+      "upstream_path": "hw/char/esp32_uart.c"
+    },
+    "esp32_uart.h": {
+      "sha256": "e88430d600c7f1d6333699e3c0d43643dbeb5a8c34d99899fe6ae7422b029c01",
+      "upstream_path": "include/hw/char/esp32_uart.h"
+    },
+    "esp32s3_uart.c": {
+      "sha256": "07402dae146f9a8202d1ffe1dfb6ecd48781885a0670ce4e4cb26c9ab196a1be",
+      "upstream_path": "hw/char/esp32s3_uart.c"
+    },
+    "esp32s3_uart.h": {
+      "sha256": "a5b8ac745b165c602127d4cc34991d2789435e1adcbb221a9bafed6c21afba19",
+      "upstream_path": "include/hw/char/esp32s3_uart.h"
+    },
+    "fifo8.c": {
+      "sha256": "4859082a5a1ff6852deb54cfe2d7d6ef87d74642da13ed54ea71de43e19bb127",
+      "upstream_path": "util/fifo8.c"
+    },
+    "fifo8.h": {
+      "sha256": "6f0c722084674a4b8f8cf4bdd4930d8ee0cb058b7641a75eefb71a470e2bd896",
+      "upstream_path": "include/qemu/fifo8.h"
+    }
+  },
+  "scope": "Exact upstream C/header replay seeds. Runtime algorithms are replayed from tracked patches; ordinary tests require no .work cache or network.",
+  "upstream_repository": "https://github.com/espressif/qemu.git"
+}

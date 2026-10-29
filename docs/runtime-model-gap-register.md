@@ -314,3 +314,18 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
 固定源码、官方 API/数据手册来源和范围见
 [逐板浏览器 fixture](../tests/browser-qemu/board_display/README.md) 与
 [QEMU WASM 补丁](../patches/qemu-wasm-probe/README.md)。
+
+## StackChan 运动边界（2026-10-29）
+
+由 `UI-02` 跟踪。UART1 SCS 的定时位置模型有真实命令与反馈数据面；
+仅指定速度的命令仍没有速度到运动时间的模型，PWM 连续转动也只提供寄存器
+观测。网页分别提示这两个限制，不能将瞬时位置或静止的 PWM 外壳当作真实
+机械速度、负载或惯性验证。关闭条件是固定官方协议依据、同固件 UART 输入、
+按时间变化的实际反馈、同浏览器几何读回及反向/扭矩/断电负控。
+
+同一固件的目标变化、实际反馈变化和模型角度变化应分别记录。扭矩未使能、
+供电关闭和 UART 接线错误属于可观测的运行条件，不能由网页自动使能来掩盖。
+用户保存的 SDK 零位与外壳机械零位不同；NVS 校准不能直接重写 host 外壳零位。
+本轮控制器命令边沿修复与可重建诊断见
+[Arduino 行为说明](stackchan-arduino-browser.md)及
+[运动合约探针](../tests/firmware/stackchan_motion_contract/README.md)。

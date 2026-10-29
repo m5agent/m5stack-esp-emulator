@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
-import {resolve, dirname, extname} from 'node:path';
+import {resolve, dirname, extname, basename} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
@@ -12,6 +12,7 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const site = process.env.M5_PUBLIC_SITE && resolve(process.env.M5_PUBLIC_SITE);
 if (!site) { console.log('SKIP: explicit M5_PUBLIC_SITE candidate export required'); process.exit(0); }
 const device = process.env.M5_QEMU_DEVICE || 'atoms3r', basePath = process.env.M5_PUBLIC_BASE_PATH || '/showcase/';
+const uploadPath = process.env.M5_QEMU_UPLOAD && resolve(process.env.M5_QEMU_UPLOAD);
 const clockDivisor = process.env.M5_QEMU_CLOCK_DIVISOR ? Number(process.env.M5_QEMU_CLOCK_DIVISOR) : undefined;
 const diagnostic = process.env.M5_QEMU_FRAME_DIAGNOSTIC === '1';
 const publicUI = process.env.M5_PUBLIC_UI === '1';
@@ -38,13 +39,14 @@ const mime = {'.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascr
 let server, browser, page, workerTargets;
 function check(name, ok, details) { checks.push({name, ok, details}); assert.ok(ok, name); console.log(name); }
 async function guest(kind, predicate = () => true, timeout = 180000) {
-  const until = Date.now() + timeout;
+  const until = Date.now() + timeout; let nextProgress = 0;
   while (Date.now() < until) {
     const state = await page.evaluate(() => {
       const banner = document.querySelector('#errorBanner');
       return {serial:globalThis.boardRun?.serial || '', errors:[...(globalThis.boardRun?.errors || []),
         ...(banner && !banner.hidden && banner.textContent ? [banner.textContent] : [])]};
     });
+    if(Date.now()>=nextProgress){await writeFile(resolve(output,'guest-progress.json'),JSON.stringify({waiting_for:kind,...state},null,2)+'\n');nextProgress=Date.now()+10000;}
     if (state.errors.length) throw new Error(state.errors.join('\n'));
     if (state.serial.includes('Traceback (most recent call last):')) throw new Error(`Guest Python traceback before ${kind}`);
     if (/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(state.serial)) throw new Error(`Guest panic before ${kind}`);
@@ -108,7 +110,7 @@ try {
     if (!allowCandidateProfiles && clockDivisor !== undefined) throw new Error('Public board validation must use the exported default clock');
     const profile = getQemuBrowserProfile(device, registry, {allowCandidateProfiles});
     if (!profile) throw new Error('Selected board absent from this export admission');
-    const admission = {publication_eligible:config.publication_eligible, allow_candidate_profiles:allowCandidateProfiles,
+    const admission = {profile, publication_eligible:config.publication_eligible, allow_candidate_profiles:allowCandidateProfiles,
       candidate_profiles:selected, exported_profiles:registry.profiles.map(row => ({device:row.deviceId, admission:row.admission}))};
     if (publicUI) {
       // Observe the actual public controller and newly selected model shell.
@@ -195,6 +197,15 @@ try {
     await page.locator('#runtimeMode').selectOption('browser');
     await page.locator('input[name="firmwareSource"][value="reference"]').check();
     check('public-ui-selected-board-reference', await page.locator('#referenceTitle').textContent().then(text => text.includes('屏幕与输入示例')));
+    if (uploadPath) {
+      const bytes = await readFile(uploadPath), hash = createHash('sha256').update(bytes).digest('hex');
+      const profile = report.admission.profile;
+      check('local-upload-exact-reviewed-firmware', hash === profile.fixture.firmwareSHA256 && bytes.length === profile.flashMb * 1048576);
+      report.upload = {name:basename(uploadPath), bytes:bytes.length, sha256:hash};
+      await page.locator('input[name="firmwareSource"][value="local"]').check();
+      await page.locator('#firmwareFile').setInputFiles(uploadPath);
+      await page.locator('#firmwareSha').fill(hash);
+    }
     await page.locator('#startBtn').click();
   }
   const textureReadback = async () => {
@@ -223,6 +234,7 @@ try {
   if(device==='stickc-plus2')check('original-plus2-board-and-three-guest-buttons',ready.board===5&&ready.width===135&&ready.height===240
     &&JSON.stringify(ready.buttons)===JSON.stringify(['a','b','power']),ready);
   if(device==='stickc')check('original-stickc-board',ready.board===3&&ready.width===80&&ready.height===160,ready);
+  if(device==='stickc-plus')check('original-stickc-plus-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
   if(device==='stickc-plus-se')check('original-stickc-plus-se-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
@@ -424,7 +436,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(modelShell => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus':'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return {target,key:modelShell
         ? Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0] : null};
@@ -579,7 +591,8 @@ try {
     && stopped.cleanup?.workersAtExit === 0 && stopped.cleanup?.disposal?.workersTerminatedByDispose === 0
     && stopped.cleanup?.disposal?.workersRemaining === 0 && stopped.cleanup?.explicitWorkerDisposal && stopped.cleanup?.iframeRemoved
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
-    && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
+    && stopped.cleanup?.engineOwnership?.engineSelfCloseNotifications === 1
+    && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 0
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
   // Check nested pthreads while the iframe is held, then all targets after
   // normal DOM removal. Bind both phases to the same run's actual worker count.

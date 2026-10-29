@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 PATCHES = ROOT / 'patches/qemu-m5stack-peripherals'
 PATCH = PATCHES / '0090-stackchan-scs-motion-observer.patch'
 WIRING_PATCH = PATCHES / '0094-stackchan-scs-uart-wiring.patch'
+COMMAND_EDGES_PATCH = PATCHES / '0096-stackchan-scs-command-edges.patch'
+COMMAND_EDGES_FIXTURE = ROOT / 'platform/tests/fixtures/stackchan_scs_command_edges.c'
 UNIT = 'hw/m5stopwatch/m5_scs_servo.c'
 
 STUBS = r'''
@@ -184,6 +186,7 @@ int main(void) {
     move(1,3,1000,65535);now_ms+=32767;assert(read_position(1)>0&&read_position(1)<1000);now_ms+=32768;assert(read_position(1)==1000);
     /* Locked torque never turns position writes into displacement. */
     torque(1,2);move(1,3,0,20);now_ms+=100;assert(read_position(1)==1000);
+    scs_command_edges_cases();
     puts("SCS UART protocol, timed feedback, torque/rail, deferred/sync writes, rejection and observer cases passed");
     return 0;
 }
@@ -191,36 +194,56 @@ int main(void) {
 
 
 class StackchanScsPatchTests(unittest.TestCase):
-    def test_replayed_controller_packets(self):
-        compiler = shutil.which('cc')
-        if compiler is None:
-            self.skipTest('C compiler is unavailable')
+    def _replayed_model(self, root, with_command_edges=True):
         baseline = (PATCHES / '0002-m5stack-peripheral-data-paths.patch').read_text()
         section = baseline.split('+++ b/' + UNIT, 1)[1].split('\n@@', 1)[1]
         section = section.split('\ndiff ', 1)[0]
         original = ''.join(line[1:] + '\n' for line in section.splitlines() if line.startswith('+'))
+        source = root / UNIT
+        source.parent.mkdir(parents=True)
+        source.write_text(original)
+        patches = [PATCH, WIRING_PATCH]
+        if with_command_edges:
+            patches.append(COMMAND_EDGES_PATCH)
+        for patch in patches:
+            result = subprocess.run(['patch', '--batch', '-p1', '-i', str(patch)], cwd=root,
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return re.sub(r'^#include[^\n]*\n', '', source.read_text(), flags=re.M)
+
+    def _run_controller(self, root, model, edge_case=0):
+        compiler = shutil.which('cc')
+        if compiler is None:
+            self.skipTest('C compiler is unavailable')
+        harness = root / 'harness.c'
+        cases = CASES.replace('int main(void)',
+                              COMMAND_EDGES_FIXTURE.read_text() + '\nint main(void)', 1)
+        harness.write_text(STUBS + model + cases)
+        executable = root / 'harness'
+        result = subprocess.run([compiler, '-std=c11', '-Wall', '-Werror',
+                                 '-Wno-unused-parameter',
+                                 '-DSCS_COMMAND_EDGES_CASE=' + str(edge_case),
+                                 str(harness), '-o', str(executable)],
+                                text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return subprocess.run([str(executable)], cwd=root, text=True, capture_output=True)
+
+    def test_replayed_controller_packets(self):
         with tempfile.TemporaryDirectory(prefix='m5-scs-patch-') as folder:
             root = Path(folder)
-            source = root / UNIT
-            source.parent.mkdir(parents=True)
-            source.write_text(original)
-            result = subprocess.run(['patch', '--batch', '-p1', '-i', str(PATCH)], cwd=root,
-                                    text=True, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            result = subprocess.run(['patch', '--batch', '-p1', '-i', str(WIRING_PATCH)], cwd=root,
-                                    text=True, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            model = re.sub(r'^#include[^\n]*\n', '', source.read_text(), flags=re.M)
-            harness = root / 'harness.c'
-            harness.write_text(STUBS + model + CASES)
-            executable = root / 'harness'
-            result = subprocess.run([compiler, '-std=c11', '-Wall', '-Werror',
-                                     '-Wno-unused-parameter', str(harness), '-o', str(executable)],
-                                    text=True, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            result = subprocess.run([str(executable)], text=True, capture_output=True)
+            result = self._run_controller(root, self._replayed_model(root))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn('observer cases passed', result.stdout)
+
+    def test_command_edges_fail_without_fix(self):
+        for edge_case in (1, 2):
+            with self.subTest(edge_case=edge_case):
+                with tempfile.TemporaryDirectory(prefix='m5-scs-before-fix-') as folder:
+                    root = Path(folder)
+                    model = self._replayed_model(root, with_command_edges=False)
+                    result = self._run_controller(root, model, edge_case)
+                    self.assertNotEqual(result.returncode, 0,
+                                        'Pre-fix controller unexpectedly passed regression')
 
 
 if __name__ == '__main__':

@@ -26,13 +26,13 @@
 
 candidate。
 
-- 验证：`candidate-not-validated` (2026-10-29)
+- 验证：`native-selected-behaviors-pass` (2026-10-29)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 未完成的板级数据面
 
-- Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate.
+- Selected original v2.5.2 display, GPIO37 and MPU6886 behavior passed independently. RTC, other buttons, audio, IR, power and arbitrary browser firmware still require their own selected-path evidence; no SE/Plus2 result is inherited.
 
 ## 文件
 

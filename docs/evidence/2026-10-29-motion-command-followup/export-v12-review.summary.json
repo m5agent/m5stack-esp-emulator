@@ -1,0 +1,218 @@
+{
+  "checks": [
+    {
+      "name": "exact-requested-site-manifest",
+      "ok": true
+    },
+    {
+      "details": {
+        "count": 2115
+      },
+      "name": "2115-distinct-assets",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 2115,
+        "failures": []
+      },
+      "name": "all-asset-paths-bytes-sha256",
+      "ok": true
+    },
+    {
+      "details": {
+        "extra": [],
+        "missing": []
+      },
+      "name": "export-file-closed-set",
+      "ok": true
+    },
+    {
+      "name": "no-export-symlinks",
+      "ok": true
+    },
+    {
+      "details": {
+        "failures": []
+      },
+      "name": "no-firmware-rom-raw-binaries-in-site",
+      "ok": true
+    },
+    {
+      "name": "empty-service-url-and-publication-boundaries",
+      "ok": true
+    },
+    {
+      "details": {
+        "devices": [
+          "stopwatch",
+          "sticks3",
+          "atoms3",
+          "atoms3-lite",
+          "atoms3r",
+          "cores3",
+          "cardputer-adv",
+          "stamplc",
+          "stackchan",
+          "papercolor",
+          "papermono",
+          "core2",
+          "stickc-plus2",
+          "stickc",
+          "stickc-plus",
+          "stickc-plus-se",
+          "atom-lite",
+          "atom-matrix",
+          "atom-matrix-v11"
+        ]
+      },
+      "name": "19-public-zero-candidate-profiles",
+      "ok": true
+    },
+    {
+      "name": "dial-remains-unpublished",
+      "ok": true
+    },
+    {
+      "name": "exported-profile-and-browser-registry-exact-filtered-worktree",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 1584,
+        "failures": [],
+        "js_css_html_checked": 1351
+      },
+      "name": "production-texts-match-worktree-base-rewrite",
+      "ok": true
+    },
+    {
+      "name": "root-entry-and-isolation-worker-exact-aliases",
+      "ok": true
+    },
+    {
+      "name": "exact-requested-owner-source-and-export",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 12,
+        "failures": []
+      },
+      "name": "all-selected-public-guest-probe-source-identities",
+      "ok": true
+    },
+    {
+      "name": "exact-requested-wasm",
+      "ok": true
+    },
+    {
+      "name": "runtime-directory-closed-set",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 5,
+        "failures": []
+      },
+      "name": "all-runtime-asset-bytes-hash",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 6
+      },
+      "name": "site-qemu-runtime-identical-to-v7",
+      "ok": true
+    },
+    {
+      "name": "runtime-unbundled-rom-firmware",
+      "ok": true
+    },
+    {
+      "name": "runtime-complete-lock-identity",
+      "ok": true
+    },
+    {
+      "details": {
+        "dependency_count": 2,
+        "failures": [],
+        "native_count": 47,
+        "qemu_count": 62
+      },
+      "name": "all-locked-worktree-patch-hashes",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 158,
+        "failures": []
+      },
+      "name": "158-real-build-source-file-hashes",
+      "ok": true
+    },
+    {
+      "name": "full-build-receipt-and-source-lock-identity",
+      "ok": true
+    },
+    {
+      "name": "build-recipe-commands-and-effective-link-identities",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 8,
+        "failures": []
+      },
+      "name": "linked-dependency-library-identities",
+      "ok": true
+    },
+    {
+      "details": {
+        "duplicates": [],
+        "members": 14619,
+        "unsafe": []
+      },
+      "name": "source-archive-unique-safe-member-paths",
+      "ok": true
+    },
+    {
+      "details": {
+        "checked": 239,
+        "expected": 239,
+        "failures": [],
+        "missing": []
+      },
+      "name": "source-bundle-lock-62patches-158sources-recipe-dependencies-identities",
+      "ok": true
+    },
+    {
+      "details": {
+        "failures": [],
+        "qemu_source_members": 10603
+      },
+      "name": "source-bundle-qemu-excludes-firmware-rom-images",
+      "ok": true
+    },
+    {
+      "details": {
+        "emscripten_source_members": 3935,
+        "exact_dependency_source_archives": 9,
+        "missing": []
+      },
+      "name": "source-bundle-licenses-support-and-rebuild-entry-present",
+      "ok": true
+    }
+  ],
+  "created_at": "2026-10-29T14:09:07.174938+00:00",
+  "errors": [],
+  "guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "kind": "independent-static-final-public-export-review",
+  "manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+  "owner_sha256": "78e0a7d688e97270ef81d413bc8fdf320097591bee0c01e395e7585c42d0f161",
+  "scope": "Asset and source provenance audit only; no guest/browser/service/build execution",
+  "source_lock_sha256": "ef0beb11cd41c20dee195493cc526784911da78b8aa06503473d8a4f9a3df84b",
+  "status": "PASS",
+  "wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320"
+}

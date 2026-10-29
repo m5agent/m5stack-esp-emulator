@@ -78,6 +78,9 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0093-classic-gpio-rtc-sleep.patch",
     "patches/qemu-m5stack-peripherals/0094-stackchan-scs-uart-wiring.patch",
     "patches/qemu-m5stack-peripherals/0095-s3-qio-flash-model-header.patch",
+    "patches/qemu-m5stack-peripherals/0096-stackchan-scs-command-edges.patch",
+    "patches/qemu-m5stack-peripherals/0097-s3-soft-i2c-reset-handoff.patch",
+    "patches/qemu-m5stack-peripherals/0098-uart-rxfifo-reset.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

@@ -304,8 +304,8 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(original_plus["uiflow2"]["firmware"]["sha256"],
                          "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2")
         self.assertFalse(original_plus["runtime"]["service_admission"]["blocked"])
-        self.assertEqual(original_plus["runtime"]["validation"]["status"], "candidate-not-validated")
-        self.assertIn("independent device-local functional validation remains pending",
+        self.assertEqual(original_plus["runtime"]["validation"]["status"], "native-selected-behaviors-pass")
+        self.assertIn("independent native display, GPIO37 and MPU6886 paths verified",
                       original_plus["runtime"]["service_admission"]["reason"])
 
     def test_group_counts(self):

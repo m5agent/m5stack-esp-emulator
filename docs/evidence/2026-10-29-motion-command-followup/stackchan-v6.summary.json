@@ -1,0 +1,413 @@
+{
+  "schema_version": 1,
+  "kind": "stackchan-final-aa2e-evidence-boundaries",
+  "runtime_wasm_sha256": "aa2ea4ef0b74886445e6956adb848c35ccbea9797d8e98e2701b0b17ebf553c8",
+  "site_manifest_sha256": "464feccb11921ac8f8379cba6fb5bb03c6352d63d106fd107720c1065bae262f",
+  "bsp_commit": "e2f3b02dbe7f28e26a02adc72bef3aa2c545e4a0",
+  "overall_status": "PARTIAL; real SDK readback and held-iframe cleanup failures retained",
+  "hardware_validation": "NOT RUN",
+  "original_user_firmware": "NOT RUN; original user image was not supplied",
+  "retarget_boundary": {
+    "status": "PARTIAL",
+    "actual_guest_target_records": [
+      {
+        "nonce": "stackchan-motion-deep-20261029-v2",
+        "kind": "target",
+        "case": 0,
+        "boot": 1,
+        "phase": "reverse_forward",
+        "ms": 32215,
+        "target_ddeg": [
+          600,
+          0
+        ],
+        "spring_speed": 500
+      },
+      {
+        "nonce": "stackchan-motion-deep-20261029-v2",
+        "kind": "target",
+        "case": 0,
+        "boot": 1,
+        "phase": "reverse_back",
+        "ms": 35332,
+        "target_ddeg": [
+          -600,
+          0
+        ],
+        "spring_speed": 500
+      }
+    ],
+    "actual_target_interval_ms": 3117,
+    "reason": "LCD rendering and detailed UART observer overhead delayed the second real move; this run does not prove a 100ms mid-animation retarget. Independent official UITK host-code reproduction remains host-only. No guest or hardware mid-retarget PASS."
+  },
+  "lifecycle_reliability_boundary": "Two attempts on identical firmware94a63898 and final aa2e runtime: one actual ReadPos=-1 fallback with concurrent native regression, one no-fallback PASS after native regression ended. No timeout was changed, no failure was removed, and host load is not a confirmed root cause.",
+  "unchanged_source_contract": "Actual model geometry is checked independently from angle fields; actual guest frame bytes are compared to the LCD buffer. Guest NVS does not alter the mechanical460/620 host mapping. Exact controller RESET is checked with CPUs paused on both sides, separately from quantized original BSP initialization.",
+  "cases": [
+    {
+      "case": "scs_command_edges",
+      "status": "PASS",
+      "firmware_sha256": "c1efc5f309edbd44a07936a69328131a8958a2ded10d4f288fe3537b6ec57c80",
+      "raw_report_sha256": "6621766f2ebf31724d356c258584a92f9748a44e42851bae8a691b39293052cb",
+      "qom_change_samples": 718,
+      "qom_readbacks_including_unchanged": 1351,
+      "guest_frames": 462,
+      "unique_guest_frame_hashes": 342,
+      "geometry_max_center_error_mm": 1.4210854715202004e-14,
+      "geometry_max_normal_error": 4.440892098500626e-16,
+      "fixed_base_usb_max_error": 0,
+      "actual_guest_pixels_match_lcd": true,
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      }
+    },
+    {
+      "case": "motion_calibration",
+      "status": "PASS",
+      "firmware_sha256": "28df9cc822d6be1d8979601a9f2028c736045074f4643e12be3fad49951a3627",
+      "raw_report_sha256": "843c4de78a05dc65554371a92776fe83b45a09159bf273eb076b20035b5a867b",
+      "qom_change_samples": 424,
+      "qom_readbacks_including_unchanged": 1456,
+      "guest_frames": 533,
+      "unique_guest_frame_hashes": 338,
+      "geometry_max_center_error_mm": 2.1316282072803006e-14,
+      "geometry_max_normal_error": 2.8449465006019636e-16,
+      "fixed_base_usb_max_error": 0,
+      "actual_guest_pixels_match_lcd": true,
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      }
+    },
+    {
+      "case": "three_dances",
+      "status": "PASS",
+      "firmware_sha256": "1bf88472cf658bc3b0bbde1abb89131836705568116f5a4b7dd75b9252b052a1",
+      "raw_report_sha256": "f79cd7033f8e7d4122313f15028244ad2b69b1a7e49d158ca7549e856f4cde94",
+      "qom_change_samples": 507,
+      "qom_readbacks_including_unchanged": 854,
+      "guest_frames": 90,
+      "unique_guest_frame_hashes": 80,
+      "geometry_max_center_error_mm": 1.4210854715202004e-14,
+      "geometry_max_normal_error": 2.7755575615628914e-16,
+      "fixed_base_usb_max_error": 0,
+      "actual_guest_pixels_match_lcd": true,
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      }
+    },
+    {
+      "case": "unmodified_dance_negative_control",
+      "status": "PASS",
+      "firmware_sha256": "1b9f951715441b299ea480a8be1ee1230720ac7bf6c4c93d9d0dbc7f284ccb97",
+      "raw_report_sha256": "6cc78a6524e534a17044b41fe45797ac6301791b7bfdab68145137457f6060c8",
+      "qom_change_samples": 552,
+      "qom_readbacks_including_unchanged": 842,
+      "guest_frames": 38,
+      "unique_guest_frame_hashes": 29,
+      "geometry_max_center_error_mm": 3.552713678800501e-15,
+      "geometry_max_normal_error": 0,
+      "fixed_base_usb_max_error": 0,
+      "actual_guest_pixels_match_lcd": true,
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      }
+    },
+    {
+      "case": "motion_lifecycle",
+      "status": "PARTIAL; strict no-SDK-UART-fallback FAIL",
+      "firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+      "passed_checks": [
+        "motion_lifecycle: exact-firmware-WASM",
+        "lifecycle: auto-release-inhibits-motion-until-explicit-enable",
+        "lifecycle: rail-loss-and-volatility",
+        "lifecycle: actual-wire-time20-speed0",
+        "motion_lifecycle: exact-paused-reset-keeps-physical-pose",
+        "motion_lifecycle: same-instance-BSP-init-follows-real-quantized-command",
+        "motion_lifecycle: reset-home-follows-real-calibration",
+        "motion_lifecycle: independent-matrix-geometry",
+        "motion_lifecycle: actual-guest-frame-on-LCD",
+        "motion_lifecycle: QOM-present-matches-joints"
+      ],
+      "failed_checks": [
+        "motion_lifecycle: no-SDK-UART-fallback"
+      ],
+      "warnings": [
+        "[ 39762][W][M5StackChan.cpp:194] getCurrentAngle(): [M5StackChan] Servo ID: 1 ignore invalid current pos: -1, fallback angle: -197"
+      ],
+      "sdk_default_interbyte_timeout_ms": 10,
+      "root_cause": "UNRESOLVED; no timeout or BSP algorithm was changed",
+      "qom_change_samples": 1189,
+      "geometry_max_center_error_mm": 1.4210854715202004e-14,
+      "geometry_max_normal_error": 3.3306690738754696e-16,
+      "actual_guest_pixels_match_lcd": true,
+      "cleanup": "Browser force-closed by finally after strict assertion; no lifecycle natural-cleanup PASS claimed",
+      "cleanup_summary": {}
+    },
+    {
+      "case": "natural_PWR_held_iframe_v1",
+      "status": "FAIL",
+      "raw_report_sha256": "92945bb616353a0355e227af9e4e6916a4a88d623361511fc2756179f3fa043c",
+      "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+      "passed_checks": [
+        "exact-final-WASM-and-firmware",
+        "same-guest-real-servo-QOM-samples",
+        "present-ticks-match-model-joints",
+        "real-servo-position-changes-at-least-50-ticks",
+        "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "power-release-after-natural-stop-has-no-error-banner",
+        "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero",
+        "natural-shutdown-pthreads-close-before-iframe-removal"
+      ],
+      "failed_checks": [
+        "natural-shutdown-all-workers-and-iframe-closed"
+      ],
+      "independent_worker_observation": {
+        "observed": 6,
+        "remaining_after_30s": 1,
+        "remaining_types": [
+          "public-qemu-engine.js"
+        ],
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "boundary": "The test deliberately held iframe.remove to observe pre-removal pthread teardown. Clearing only test-owned DOM references in v2 did not clear the engine CDP target. The normal automatic-removal PWR user path has not been rechecked here; the held experiment remains FAIL. Browser force-closed by finally.",
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      },
+      "machine_events": [
+        {
+          "event": "RESET",
+          "reason": "host-qmp-system-reset",
+          "guest": false
+        },
+        {
+          "event": "SHUTDOWN",
+          "reason": "guest-shutdown",
+          "guest": true
+        }
+      ]
+    },
+    {
+      "case": "natural_PWR_held_iframe_v2",
+      "status": "FAIL",
+      "raw_report_sha256": "3a4ebcb4a030d7c4db899c208536411ee3991736bd4e704093a5ad9d70088616",
+      "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+      "passed_checks": [
+        "exact-final-WASM-and-firmware",
+        "same-guest-real-servo-QOM-samples",
+        "present-ticks-match-model-joints",
+        "real-servo-position-changes-at-least-50-ticks",
+        "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "power-release-after-natural-stop-has-no-error-banner",
+        "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero",
+        "natural-shutdown-pthreads-close-before-iframe-removal"
+      ],
+      "failed_checks": [
+        "natural-shutdown-all-workers-and-iframe-closed"
+      ],
+      "independent_worker_observation": {
+        "observed": 6,
+        "remaining_after_30s": 1,
+        "remaining_types": [
+          "public-qemu-engine.js"
+        ],
+        "source": "Chrome DevTools Target.getTargets"
+      },
+      "boundary": "The test deliberately held iframe.remove to observe pre-removal pthread teardown. Clearing only test-owned DOM references in v2 did not clear the engine CDP target. The normal automatic-removal PWR user path has not been rechecked here; the held experiment remains FAIL. Browser force-closed by finally.",
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      },
+      "machine_events": [
+        {
+          "event": "RESET",
+          "reason": "host-qmp-system-reset",
+          "guest": false
+        },
+        {
+          "event": "SHUTDOWN",
+          "reason": "guest-shutdown",
+          "guest": true
+        }
+      ]
+    },
+    {
+      "case": "motion_lifecycle_same_image_low_load_recheck",
+      "status": "PASS for this bounded recheck; first failure remains unresolved",
+      "firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+      "raw_report_sha256": "28ae060f1e71e0cec59ac50ab15f4c6dbb36d64f3e7154c8897c5ee2cb57b05e",
+      "qom_change_samples": 1138,
+      "qom_readbacks_including_unchanged": 2879,
+      "guest_frames": 1496,
+      "unique_guest_frame_hashes": 768,
+      "geometry_max_center_error_mm": 1.2434497875801753e-14,
+      "geometry_max_normal_error": 2.220446049250313e-16,
+      "fixed_base_usb_max_error": 0,
+      "actual_guest_pixels_match_lcd": true,
+      "SDK_Uart_fallbacks": 0,
+      "load_boundary": "The parent confirmed native regression had ended before this recheck. This difference does not identify or fix the cause of the earlier single ReadPos timeout.",
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      }
+    },
+    {
+      "case": "natural_PWR_normal_DOM_v3",
+      "status": "FAIL final independent Worker target predicate",
+      "raw_report_sha256": "0da4ad2607895ec53e3d022914a0dbca5654c1af3772b7519ff2610ed778cd3f",
+      "firmware_sha256": "9d6725488267e62bc88e129466df9724e8b69f326e7baf1eb674c099d6e2be4b",
+      "passed_checks": [
+        "exact-final-WASM-and-firmware",
+        "same-guest-real-servo-QOM-samples",
+        "present-ticks-match-model-joints",
+        "real-servo-position-changes-at-least-50-ticks",
+        "hardware-reset-keeps-session-and-iframe-and-reaches-fresh-ready",
+        "power-release-after-natural-stop-has-no-error-banner",
+        "PWR-six-second-hold-causes-natural-SHUTDOWN-exit-zero"
+      ],
+      "failed_checks": [
+        "natural-shutdown-all-workers-and-iframe-closed"
+      ],
+      "independent_worker_observation": {
+        "observed": 6,
+        "remaining_after_30s": 1,
+        "remaining_types": [
+          "public-qemu-engine.js"
+        ],
+        "constant_Runtime_evaluate": "attach succeeded; 1+1 response timed out after5000ms; not proof of a responding live execution context"
+      },
+      "boundary": "No iframe.remove hold/override. The original reset-identity observer still held smokeRun.sameFrame; parent delegated a no-reference experiment separately. This trial remains FAIL and browser teardown was not accepted as proof.",
+      "cleanup_summary": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true,
+        "reported_engine_owner": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineNormalTerminations": 1,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        }
+      },
+      "machine_events": [
+        {
+          "event": "RESET",
+          "reason": "host-qmp-system-reset",
+          "guest": false
+        },
+        {
+          "event": "SHUTDOWN",
+          "reason": "guest-shutdown",
+          "guest": true
+        }
+      ]
+    }
+  ],
+  "reproduction": {
+    "sources": "tests/firmware/stackchan_motion_contract/",
+    "source_lock": "tests/firmware/stackchan_motion_contract/sources.lock.json",
+    "build": "Copy a source project into ignored storage, fetch the exact locked official BSP and dependencies, verify_sources.py, then pio run -j2 and full-Flash merge per README.",
+    "browser": "Run only one isolated local static export at a time. Upload the exact diagnostic Flash, verify manifest/WASM/firmware SHA, drive real model input, retain serial/QOM/frame/scene-matrix readback and natural cleanup evidence.",
+    "archive_boundary": "This is a redacted candidate summary. Raw report hashes identify the retained local archive; publication still needs the parent external verification/work-log gate."
+  },
+  "privacy_boundary": "No credentials, local paths/endpoints, session identifiers, firmware/ROM binaries or raw execution logs are embedded."
+}

@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
-import {resolve,dirname,extname} from 'node:path';
+import {resolve,dirname,extname,basename} from 'node:path';
+import {createHash} from 'node:crypto';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
 import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
@@ -14,6 +15,7 @@ const device=process.env.M5_QEMU_DEVICE||'atoms3-lite', matrix=['atom-matrix','a
 assert.ok(['atoms3-lite','atom-lite','atom-matrix','atom-matrix-v11'].includes(device),'unsupported headless board');
 const output=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qemu-headless-'+device));
 assert.ok(output.startsWith(resolve(repo,'.work')+'/'),'raw guest evidence belongs in ignored .work');
+const uploadPath=process.env.M5_QEMU_UPLOAD&&resolve(process.env.M5_QEMU_UPLOAD);
 const timeout=Number(process.env.M5_QEMU_READY_TIMEOUT_MS||180000);
 assert.ok(Number.isInteger(timeout)&&timeout>=30000&&timeout<=600000);
 await mkdir(output,{recursive:false});
@@ -21,16 +23,21 @@ const modules=process.env.M5_WASM_NODE_MODULES||resolve(repo,'platform/tests/nod
 const {chromium}=await import(pathToFileURL(resolve(modules,'playwright/index.mjs')));
 const checks=[],errors=[],requests=[],workers=[];
 const report={kind:'browser-local-qemu-headless-acceptance',device,public_ui:true,status:'FAIL',
-  started_at:new Date().toISOString(),checks,errors,requests,workers};
+  started_at:new Date().toISOString(),checks,errors,requests,workers,
+  scope:'Same-browser original RGB()/USER input, RMT-decoded digital color, model readback and Worker cleanup',
+  device_complete:false,hardware_pass:false,device_status:matrix?'partial':'selected-behaviors-only',
+  limitations:matrix?['Only uniform 25-LED frames are mapped to the model; nonuniform spatial order is unvalidated.',
+    'IMU behavior did not satisfy the native board-axis oracle; API/source interpretation remains under review and this RGB/button fixture does not validate it.']:[]};
 let server,browser,page,workerTargets;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json',
   '.wasm':'application/wasm','.css':'text/css','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml'};
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
 async function guest(kind,predicate=()=>true){
-  const end=Date.now()+timeout;
+  const end=Date.now()+timeout;let nextProgress=0;
   while(Date.now()<end){
     const observation=await page.evaluate(()=>({serial:globalThis.headlessRun?.runtime.serial||'',errors:globalThis.headlessRun?.errors||[],
       banner:document.querySelector('#errorBanner')?.hidden?'':document.querySelector('#errorBanner')?.textContent}));
+    if(Date.now()>=nextProgress){await writeFile(resolve(output,'guest-progress.json'),JSON.stringify({waiting_for:kind,...observation},null,2)+'\n');nextProgress=Date.now()+10000;}
     if(observation.errors.length||observation.banner)throw new Error([...observation.errors,observation.banner].filter(Boolean).join('\n'));
     if(/Traceback \(most recent call last\):|Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred/.test(observation.serial))throw new Error('Guest panic or Python traceback');
     const events=observation.serial.split('\n').filter(line=>line.startsWith('M5_BROWSER_PROBE ')).flatMap(line=>{
@@ -135,6 +142,14 @@ try{
   await page.locator('input[name="firmwareSource"][value="reference"]').check();
   check('public-headless-reference-label',(await page.locator('#referenceTitle').textContent()).includes('RGB 与按键示例'));
   check('public-headless-reference-instructions',!(await page.locator('#referenceDescription').textContent()).includes('屏幕'));
+  if(uploadPath){
+    const bytes=await readFile(uploadPath),hash=createHash('sha256').update(bytes).digest('hex');
+    check('local-upload-exact-reviewed-firmware',hash===report.admission.profile.fixture.firmwareSHA256&&bytes.length===report.admission.profile.flashMb*1048576);
+    report.upload={name:basename(uploadPath),bytes:bytes.length,sha256:hash};
+    await page.locator('input[name="firmwareSource"][value="local"]').check();
+    await page.locator('#firmwareFile').setInputFiles(uploadPath);
+    await page.locator('#firmwareSha').fill(hash);
+  }
   await page.locator('#startBtn').click();
   const ready=await guest('ready',event=>event.device===device&&event.output===(device==='atoms3-lite'?'ws2812-rmt-gpio35':'ws2812-rmt-gpio27'));report.ready=ready;
   check('original-firmware-board-and-output-route',ready.board===(matrix?141:device==='atoms3-lite'?137:128)&&ready.input==='button'&&(!matrix||ready.leds===25),ready);
@@ -172,7 +187,8 @@ try{
   check('clean-guest-and-worker-stop',stopped.cleanup?.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.workersAtExit===0
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
-    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===1
+    &&stopped.cleanup.engineOwnership?.engineSelfCloseNotifications===1
+    &&stopped.cleanup.engineOwnership?.engineNormalTerminations===0
     &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
   const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
   assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');

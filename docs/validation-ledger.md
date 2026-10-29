@@ -1907,3 +1907,44 @@ handoff；不是继续调 Flash 数据面。两个负控也已排除：
 帧、物理 cache/Flash timing 和硬件仍 `OPEN/NOT RUN`。见
 [证据](evidence/2026-10-29-core2-handoff-issuer-phases/README.md)和
 [机器摘要](evidence/2026-10-29-core2-handoff-issuer-phases/summary.json)。
+
+## 2026-10-29：运动命令、S3 复位与 v7 浏览器后续验证
+
+`0096` 区分重复 torque 与新运动命令，并接受官方 SCSCL 分步恢复角限的有界
+中间态；`0097` 恢复 S3 复位后的软件 I²C 探测桥交接；`0098` 实现 IDF 的 S3
+RXFIFO 复位脉冲。控制器源码回放均保留旧版失败负控。`0098` 覆盖真实旧 ACK
+清除、ReadPos 应答、RX timeout IRQ 和 MMIO 逐字节读取，但尚未证明它是旧轮
+孤立 `ReadPos=-1` 的原因。
+
+独立完整构建的 native v7 `6b79beccc37cb5d0…`（53 patch / 130 源文件）完成
+单轮 **68/68 PASS、278 checks**，956.3 秒，每项一次、无重试。132 份 guest
+源码、两份 runner 和 runtime 哈希未变，205 个证据文件哈希独立核对通过，
+本轮 QEMU 残留为零。五项 C6 使用另外冻结的既有完整 13 文件 runtime，不继承
+Xtensa 修复。原始 summary SHA256 为
+`909e9d1103690301db4ae8306066722bf47117b5e1874bf217042378ba93c707`；
+57,776-byte [有界摘要](evidence/2026-10-29-motion-command-followup/peripheral-v7.summary.json)
+SHA256 为 `9e4e99ecffda8134ddb5edffd3b5f48d8058d3da552d843c20dd27de52bf44f9`。
+最终 Python 平台回归 `1613 tests OK, 10 skipped`，221.490 秒，日志 SHA256
+`7e3dec7a73281145ef84da8ba2525d5d67ef1c57f0b52b726d2f2ee3f2fcc7dd`。
+
+WASM v7 `d65cb046b0f759fc…` 为完整 62 patch / 158 源文件构建，本地 v12
+manifest `962697a23a4826ab…` 含 2115 个资源、19 public / 0 candidate，
+无捆绑固件/ROM、无服务地址。固定该导出的 StackChan SCS、校准/RESET、
+生命周期、三段显式扭矩 Dance、原样未开扭矩负控五项严格路径通过。每项都在
+`context.close` 之前确认零 live CDP Worker，累计精确 30 个 Worker；UART、
+QOM、实际帧和独立几何读回保持同实例绑定。
+
+PWR 正常 DOM 路径实际长按 6011.285 ms 后 guest SHUTDOWN/exit0、iframe0、
+五个 pthread 退出且无 banner；但独立 CDP 等待 30 秒仍有一个 engine target，
+附着后的常量求值 5 秒超时，完整退出断言 **FAIL**，修复仍在评估。owner
+self-close 意图和最终强制 browser cleanup 不授予 PASS。本轮整体保持
+**PARTIAL**，没有部署。四款经典 Atom/Stick 的 v7 默认参考入口仍待最终结果，
+不得继承旧 runtime 的本地上传结果。
+
+旧轮 PM1/C6 失败、ReadPos fallback、v7 attempt1 原样 Dance WASM 越界和
+旧 PWR 退出失败均保留；后续通过不改写旧结果或证明其原因。实际反向目标间隔
+3082 ms 不构成 100 ms guest 中途反向验证；Matrix 空间灯序/IMU 轴向、速度
+控制/PWM 机械运动、用户原上传固件及物理硬件均不由以上结果覆盖。见
+[证据说明](evidence/2026-10-29-motion-command-followup/README.md)、
+[主摘要](evidence/2026-10-29-motion-command-followup/summary.json)和
+[StackChan v7 摘要](evidence/2026-10-29-motion-command-followup/stackchan-v7.summary.json)。

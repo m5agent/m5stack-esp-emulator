@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "kind": "observed-build-source-and-dependency-lock",
+  "created_on": "2026-10-29",
+  "device_id": "stackchan",
+  "chip": "esp32s3",
+  "flash_bytes": 16777216,
+  "psram_bytes": 8388608,
+  "bsp": {
+    "repository": "https://github.com/m5stack/StackChan-BSP",
+    "commit": "e2f3b02dbe7f28e26a02adc72bef3aa2c545e4a0",
+    "source_tree_sha256": "6fd477393914f32ad077d207d93599ccdfa53b22c4adcea33007e4a15844c128"
+  },
+  "platformio_version": "6.1.18",
+  "platform": "espressif32@6.10.0",
+  "board": "m5stack-cores3",
+  "packages": [
+    {
+      "name": "framework-arduinoespressif32",
+      "version": "3.20017.241212+sha.dcc1105b",
+      "package_metadata_sha256": "f35415c75f6f43755df92bbbf7ef10c9e65c2edb2569d512636a0477be64d5bf"
+    },
+    {
+      "name": "tool-esptoolpy",
+      "version": "1.40501.0",
+      "package_metadata_sha256": "092bd61c2583d5ae523070e2935a10c3954ffa3eb9e5149e54e061cb602d2a3f"
+    },
+    {
+      "name": "tool-scons",
+      "version": "4.40801.0",
+      "package_metadata_sha256": "a9543d5b24b39d0203bc2c4c4e8ae62db6eb8842bd15d09f11d2b7a4628fe4db"
+    },
+    {
+      "name": "toolchain-riscv32-esp",
+      "version": "8.4.0+2021r2-patch5",
+      "package_metadata_sha256": "25f9cab3e7e13b496195cfc9611a7870143de55b55412fb2d6fb12168c139fae"
+    },
+    {
+      "name": "toolchain-xtensa-esp32s3",
+      "version": "8.4.0+2021r2-patch5",
+      "package_metadata_sha256": "40b436b30848b52f0a66cb28b4a6c0118afb7ee242558078f4c2460b3bd70f8d"
+    }
+  ],
+  "libraries": [
+    {
+      "directory": "IRremoteESP8266",
+      "name": "IRremoteESP8266",
+      "version": "2.8.6",
+      "tree_sha256": "85a3262239bc03ed94495fdb28c61009c3cef982351f2997664d1f109862ce35"
+    },
+    {
+      "directory": "M5GFX",
+      "name": "M5GFX",
+      "version": "0.2.35",
+      "tree_sha256": "181fbd3d1e51be55084181d789c57dc842bc3420023f6ef3fc2d4bc74c598910"
+    },
+    {
+      "directory": "M5HAL",
+      "name": "M5HAL",
+      "version": "0.1.4",
+      "tree_sha256": "abd8359b22730983b9a005c407e90606309730db0214bee535dcaad6f28b114d"
+    },
+    {
+      "directory": "M5Unified",
+      "name": "M5Unified",
+      "version": "0.2.28",
+      "tree_sha256": "ee91b2f44557cb1c4c69662d75f995de811ac8380d90d0b4de9c09bd50d2689f"
+    },
+    {
+      "directory": "M5Unit-NFC",
+      "name": "M5Unit-NFC",
+      "version": "0.1.2",
+      "tree_sha256": "def1e3282c0fec2124289c734ef81a7479e3b658828c3b4b06177cb2d8f9befc"
+    },
+    {
+      "directory": "M5UnitUnified",
+      "name": "M5UnitUnified",
+      "version": "0.6.4",
+      "tree_sha256": "979f659a8ba3f014eadd8be1ab77480dddfab04388400db88c9118f432b00835"
+    },
+    {
+      "directory": "M5Utility",
+      "name": "M5Utility",
+      "version": "0.3.1",
+      "tree_sha256": "4df77b1466b7551893188e475b41c750467551167974c408e45b7523aaca4c4e"
+    }
+  ],
+  "source_files": {
+    "src/scs_command_edges.cpp": "3667e24ec2aa16194af0ab76ce674a44cd2de2ef4da253a5f04f233353e467b8",
+    "src/main.cpp": "fbcaf4221c64033d427f5d21764a24d41c56ea1863483ba5534416a5dd7a5339",
+    "dance_idle_release/platformio.ini": "250dc0031f1b70e5257765f662ce3a314f6f527086a01814906847f8556369e2",
+    "dance_idle_release/src/dance_torque_explicit_idle_release.cpp": "e77cadcd2554e04d25b15b8e788d2291fb7c23208df0459ec79f7802d52afc7f"
+  },
+  "platform_config_sha256": "264ca844e768fb387ac18c92e984ea097afcf001b73149918c63bba64522cd69",
+  "config_boundary": "Only machine-specific core_dir and build_cache_dir removed from the actually compiled config; source bytes, flags, environment names and dependency pins are unchanged. Use an ignored build copy with a pinned BSP library checkout.",
+  "observed_builds": {
+    "motion_calibration": {
+      "nonce": "stackchan-motion-deep-20261029-v2",
+      "probe_source_sha256": "fbcaf4221c64033d427f5d21764a24d41c56ea1863483ba5534416a5dd7a5339",
+      "merged_firmware_sha256": "28df9cc822d6be1d8979601a9f2028c736045074f4643e12be3fad49951a3627",
+      "elf_sha256": "a4fd1b176e931a6f330501d35e3236767c037e91b54ed0fc78c6afb4e47304e3",
+      "segments": [
+        {
+          "offset": 0,
+          "bytes": 15104,
+          "sha256": "2a71d69b471e20c2bac7fb469f3c6a807b3ebee780e348e5889db0da849ca363"
+        },
+        {
+          "offset": 32768,
+          "bytes": 3072,
+          "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+        },
+        {
+          "offset": 57344,
+          "bytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "offset": 65536,
+          "bytes": 558400,
+          "sha256": "d664aa42e9c49a93300d7c7846297040b38fe2445cb39233bfaf00e96ffee957"
+        }
+      ]
+    },
+    "motion_lifecycle": {
+      "nonce": "stackchan-motion-deep-20261029-v2",
+      "probe_source_sha256": "fbcaf4221c64033d427f5d21764a24d41c56ea1863483ba5534416a5dd7a5339",
+      "merged_firmware_sha256": "94a638982a625e616411118b290035343096dc7a305ca7e8b5822034f1736a05",
+      "elf_sha256": "d7f5ca8b6f075702890e3ba890e5e4199ed8fee7cda476dfeb7cd9be2c37dd82",
+      "segments": [
+        {
+          "offset": 0,
+          "bytes": 15104,
+          "sha256": "2a71d69b471e20c2bac7fb469f3c6a807b3ebee780e348e5889db0da849ca363"
+        },
+        {
+          "offset": 32768,
+          "bytes": 3072,
+          "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+        },
+        {
+          "offset": 57344,
+          "bytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "offset": 65536,
+          "bytes": 558816,
+          "sha256": "3b4912c9d9c8c6880cd3ee03a11ed012e7360564ea398c2f27d40176e4952584"
+        }
+      ]
+    },
+    "scs_command_edges": {
+      "nonce": "stackchan-scs-edges-20261029-v2",
+      "probe_source_sha256": "3667e24ec2aa16194af0ab76ce674a44cd2de2ef4da253a5f04f233353e467b8",
+      "merged_firmware_sha256": "c1efc5f309edbd44a07936a69328131a8958a2ded10d4f288fe3537b6ec57c80",
+      "elf_sha256": "404b9c18ffadd021e12dd438a3f7354eddf08ddb46ab7ed59b2b5cc596be1f77",
+      "segments": [
+        {
+          "offset": 0,
+          "bytes": 15104,
+          "sha256": "2a71d69b471e20c2bac7fb469f3c6a807b3ebee780e348e5889db0da849ca363"
+        },
+        {
+          "offset": 32768,
+          "bytes": 3072,
+          "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+        },
+        {
+          "offset": 57344,
+          "bytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "offset": 65536,
+          "bytes": 530368,
+          "sha256": "784a33cd3bae87466840fb475dca7a46dfc898aa48b93403603949f709c437de"
+        }
+      ]
+    },
+    "dance_torque_explicit_idle_release": {
+      "nonce": "sc-dance-release-20261029-e2f3b02d-v1",
+      "project": "dance_idle_release",
+      "probe_source_sha256": "e77cadcd2554e04d25b15b8e788d2291fb7c23208df0459ec79f7802d52afc7f",
+      "merged_firmware_sha256": "1bf88472cf658bc3b0bbde1abb89131836705568116f5a4b7dd75b9252b052a1",
+      "elf_sha256": "c30eaa93aa67a6175c1cf1a94a4c794fbe1b5ba8dc5f2e9255e6c1672ef6e9d6",
+      "segments": [
+        {
+          "offset": 0,
+          "bytes": 15104,
+          "sha256": "2a71d69b471e20c2bac7fb469f3c6a807b3ebee780e348e5889db0da849ca363"
+        },
+        {
+          "offset": 32768,
+          "bytes": 3072,
+          "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+        },
+        {
+          "offset": 57344,
+          "bytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "offset": 65536,
+          "bytes": 559248,
+          "sha256": "462a638c118c2c19bd5d3013cb4ea9cd17939f23a339aca8540b076667453acd"
+        }
+      ]
+    }
+  },
+  "runtime_validation": "NOT RUN on rebuilt runtime at preparation time; see the dated validation ledger for actual execution results",
+  "hardware_validation": "NOT RUN",
+  "output_hash_boundary": "These hashes identify the actual original diagnostic builds. Fresh compiled output can differ with build time/path; record new hashes and never claim a pre-existing firmware result for changed bytes.",
+  "fixture_version": 2,
+  "timing_boundary": {
+    "previous_version": "v1 source and raw failures preserved in sibling ignored project",
+    "motion": "Phase hold starts after screen, serial target record and actual original BSP Motion.move return.",
+    "scs_edges": "Phase hold starts after original SCSCL command and setup/readback return. Each long move uses actual raw Time4000ms; seven repeats occur before completion; hold5000ms leaves room for real driver read/console overhead. Actual per-command and ReadPos times must prove all seven were mid-motion."
+  },
+  "dance_idle_release_boundary": {
+    "dance_torque_explicit_idle_release": "Same explicit-torque diagnostic and all original three dance tables/delays, plus one idle_release marker after each actual SDK TouchSensor.update observes all three real channel intensities0. Observation includes SDK UART angle reads and serial overhead; no motion or touch values supplied."
+  }
+}

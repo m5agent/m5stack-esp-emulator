@@ -17,9 +17,13 @@ FIXTURE = Path(__file__).with_name("fixtures") / "soft_i2c_pullup_harness.c"
 
 
 def replay_bridge(root, current=True):
-    for name in cold.bootstrap_stack():
-        if not current and name == cold.PATCH:
-            continue
+    stack = cold.bootstrap_stack()
+    if not current:
+        # This negative control is the real pre-0047 bridge. Later bridge
+        # patches depend on its pull-up initialization and cannot be applied
+        # after deleting their prerequisite from an otherwise current stack.
+        stack = stack[:stack.index(cold.PATCH)]
+    for name in stack:
         if BRIDGE not in cold.patch_paths(name):
             continue
         command = ["git", "apply", "--include=" + BRIDGE]

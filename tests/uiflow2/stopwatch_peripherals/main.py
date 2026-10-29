@@ -60,6 +60,16 @@ try:
 except Exception:
     log_uart = None
 emit("STOPWATCH_PERIPHERAL_MAIN")
+pm1_i2c = I2C(1, scl=Pin(48), sda=Pin(47), freq=100000)
+pm1_cfg_before = pm1_i2c.readfrom_mem(0x6E, 0x49, 1)[0]
+pm1_i2c.writeto_mem(0x6E, 0x49, bytes((pm1_cfg_before | 1,)))
+pm1_cfg_after = pm1_i2c.readfrom_mem(0x6E, 0x49, 1)[0]
+emit("STOPWATCH_PM1_BUTTON_CFG", hex(pm1_cfg_before), hex(pm1_cfg_after),
+     "irq", hex(pm1_i2c.readfrom_mem(0x6E, 0x42, 1)[0]),
+     "status", hex(pm1_i2c.readfrom_mem(0x6E, 0x48, 1)[0]))
+if pm1_cfg_after != pm1_cfg_before | 1:
+    raise RuntimeError("PM1 single-click IRQ mode readback mismatch")
+emit("STOPWATCH_PM1_BUTTON_READY")
 try:
     state["type"] = Imu.getType()
     emit("STOPWATCH_IMU_TYPE", state["type"])

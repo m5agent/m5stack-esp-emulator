@@ -92,8 +92,12 @@ for(const [change,code]of [
  [state=>state.powered=false,'power-off'],
  [state=>{state.servos[0].torque=0;state.servos[0].moving=false;},'torque-disabled'],
  [state=>{state.servos[1].mode='pwm';state.servos[1].moving=false;},'pwm-unmodelled'],
+ [state=>{state.servos[0].goal_time_ms=0;state.servos[0].goal_speed=100;state.servos[0].moving=false;},'speed-unmodelled'],
  [state=>state.servos[1].present_position=125,'visual-range'],
 ]){const state=structuredClone(observed);change(state);if(!state.powered)state.servos.forEach(servo=>servo.moving=false);assert.equal(qemuServoDiagnostic(profile,state).code,code);}
+const timedSpeed=structuredClone(observed);
+timedSpeed.servos[0].goal_speed=100;
+assert.equal(qemuServoDiagnostic(profile,timedSpeed).code,'ready');
 const wiring={...structuredClone(observed),uart_tx_connected:false,uart_rx_connected:true,disconnected_tx_bytes:12,disconnected_rx_packets:0};
 assert.equal(qemuServoDiagnostic(profile,wiring).code,'uart-tx-disconnected');
 wiring.uart_tx_connected=true;wiring.uart_rx_connected=false;

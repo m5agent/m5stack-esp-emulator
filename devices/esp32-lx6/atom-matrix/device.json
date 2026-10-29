@@ -44,11 +44,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "native-boot-failed",
-      "detail": "独立官方固件在正式 native42 的 55 秒窗口内仅到 ROM/bootloader，未观察到 Python probe 或 RMT 帧；没有强制板型或伪造 RGB/IMU。需定位启动路径，尚不能称为可用模拟器。"
+      "status": "native-rgb-button-pass-imu-axis-partial",
+      "detail": "固定官方 v2.5.3 在 dc98b0fd 已独立通过启动、25 灯同色 RMT 输出、两次 USER 按键和无 LCD 契约；六轴控制器注入可读回，但原 Imu API 的 X/Z 方向未满足板级轴向检查，不升级为完整 IMU 通过。 新 WASM 3d91c7b1 的独立浏览器上传示例已通过相同固件、真实模型输入、控制器输出或帧像素及完整 Worker 清理；默认参考入口另行取证。",
+      "evidence": "docs/evidence/2026-10-29-motion-command-followup/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked."
+      "Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation."
     ]
   },
   "uiflow2": {

@@ -1,0 +1,615 @@
+{
+  "schema_version": 1,
+  "status": "BOUNDED_CLASSIC_NATIVE_AND_BROWSER_UPLOAD_CLOSEOUT",
+  "scope": "Four exact classic board fixtures; virtual-device functional evidence only",
+  "published": false,
+  "device_completion_claimed": false,
+  "native_v4": {
+    "runtime_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+    "runtime_source_receipt_sha256": "1f17aa884a3d4e45fd5d55652c36332f2fda06419ae7df078a7ede5a7cd4d8a0",
+    "native_patch_count": 50,
+    "source_preflight": {
+      "status": "PASS",
+      "patch_count": 50,
+      "source_file_count": 129,
+      "receipt_sha256": "1f17aa884a3d4e45fd5d55652c36332f2fda06419ae7df078a7ede5a7cd4d8a0"
+    },
+    "execution": "Dedicated Device Service, two agent-owned random ports, max1 serial sessions; no direct QEMU launches",
+    "cases": [
+      {
+        "device": "atom-lite",
+        "status": "PASS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "08e1aafd9e15450bb40b2c1c1b26d342",
+        "base_firmware_sha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
+        "composed_firmware_sha256": "9a9f460e86608ff270578aedb433a9376990c8696a8351c47a25f850135b39c8",
+        "probe_sha256": "ec31b6b036298d80516b60122964e60273e122b28796543b95f748f66f25260c",
+        "checks_passed": 13,
+        "checks_total": 13,
+        "unbound_reference_oracle_mismatches": [],
+        "zip_and_history_checks_passed": 12,
+        "zip_and_history_checks_total": 12,
+        "raw_report": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-lite-native-v4/report.json",
+          "sha256": "1a0284e0ef497ca61c00fbbad69c6ea3bafe4b9b529eeec3e2d2d918e5f96469"
+        },
+        "evidence_zip": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-lite-native-v4/evidence.zip",
+          "sha256": "243f1491b0ccc0fc047aa5939b2e45444279756c99bde853c900e1a3c552f60a"
+        },
+        "guest_errors": []
+      },
+      {
+        "device": "atom-matrix",
+        "status": "PARTIAL",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "2f27ebbfd830487b9efb7aa2034e9aba",
+        "base_firmware_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "composed_firmware_sha256": "014efa96c5bf1697cab6d1ae47a21d11f46fe058c6377eabb4e0a4d93527a2a6",
+        "probe_sha256": "bafd4f609b8e3259ff3a45a185974df5f061f1af5f06db836b568428ba629eb3",
+        "checks_passed": 15,
+        "checks_total": 19,
+        "unbound_reference_oracle_mismatches": [
+          "imu_1_original_api_accel_board_axes",
+          "imu_1_original_api_gyro_board_axes",
+          "imu_2_original_api_accel_board_axes",
+          "imu_2_original_api_gyro_board_axes"
+        ],
+        "zip_and_history_checks_passed": 12,
+        "zip_and_history_checks_total": 12,
+        "raw_report": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-matrix-native-v4/report.json",
+          "sha256": "d836c26063b3d4f14963099a4c5fb6c12bf44233a7c2567a95909f82f010023c"
+        },
+        "evidence_zip": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-matrix-native-v4/evidence.zip",
+          "sha256": "f1b80ca3af7833bdbb537399bdf5ebca99e98a3780882dd1713c6a8e3bb0c8ce"
+        },
+        "guest_errors": []
+      },
+      {
+        "device": "atom-matrix-v11",
+        "status": "PARTIAL",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "318a4e53cb5c47acb5c5370938898eec",
+        "base_firmware_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "composed_firmware_sha256": "ec12aa8ec713250e17d7f2a0e951a17b563dad865442807aa890f59e7df0f7b2",
+        "probe_sha256": "cecdff1e18b6a468397cd4d23d3ab782e6bedfaa0c3f06485c67671d1a3db25f",
+        "checks_passed": 15,
+        "checks_total": 19,
+        "unbound_reference_oracle_mismatches": [
+          "imu_1_original_api_accel_board_axes",
+          "imu_1_original_api_gyro_board_axes",
+          "imu_2_original_api_accel_board_axes",
+          "imu_2_original_api_gyro_board_axes"
+        ],
+        "zip_and_history_checks_passed": 12,
+        "zip_and_history_checks_total": 12,
+        "raw_report": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-matrix-v11-native-v4/report.json",
+          "sha256": "8eb85bd775ecc770b9d51ba6af9cadf951c120fff58a26bf96b08fdc805744df"
+        },
+        "evidence_zip": {
+          "path": ".work/classic-host-native-v4-validation-v1/atoms/atom-matrix-v11-native-v4/evidence.zip",
+          "sha256": "20ab84cc2fd0467951738e2984e45f65e8b2a420aea3343f4abb4ebfdaf8c878"
+        },
+        "guest_errors": []
+      },
+      {
+        "device": "stickc-plus",
+        "status": "PASS_SELECTED_VIRTUAL_BEHAVIORS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "779ae40d4b9c4ca5b0dcf5afdcaf1eac",
+        "base_firmware_sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+        "composed_firmware_sha256": "52a83fa64ff63815a81c07cd61d0705a825c0af3f6ef3c86301fbe100a85d6cf",
+        "probe_sha256": "4b337b5640f1f53846a8ee4d53c0fe8328c5d4b31c48575f4d353afed3599a4f",
+        "checks_passed": 26,
+        "checks_total": 26,
+        "unbound_reference_oracle_mismatches": [],
+        "zip_and_history_checks_passed": 12,
+        "zip_and_history_checks_total": 12,
+        "raw_report": {
+          "path": ".work/classic-host-native-v4-validation-v1/stickc-plus/report.json",
+          "sha256": "e52750e031383bd1cb28b4a0dc370c54fd6aaf4087f30d0bbfba96b8db0b6f8a"
+        },
+        "evidence_zip": {
+          "path": ".work/classic-host-native-v4-validation-v1/stickc-plus/original-stickc-plus-v252/evidence.zip",
+          "sha256": "42a605d53a5d92542059b0fec96ceb42722882cab0ab242608a9f6f7c0eb4d8a"
+        },
+        "guest_errors": []
+      }
+    ],
+    "cleanup": {
+      "atoms_service_pid_gone": true,
+      "atoms_service_port_closed": true,
+      "stickc-plus_service_pid_gone": true,
+      "stickc-plus_service_port_closed": true
+    },
+    "raw_closeout": {
+      "path": ".work/classic-host-native-v4-validation-v1/closeout-summary.json",
+      "bytes": 19430,
+      "sha256": "5e1fc44fe7d38d1e8ad59e8d0d8f1ebbea835d74778b976f017de76f5133bffa"
+    },
+    "scope_correction": "The original native report is preserved. Its automatic-identification/axis gap wording is qualified by imu_oracle_review: exact stock source and native board detection were not established. No backend or SDK root cause is proven."
+  },
+  "browser_upload_v5": {
+    "runtime_wasm_sha256": "3d91c7b1b880c67686c429e522451e8a4b0a822e3dc4c94090ed0ab536280101",
+    "executed_site_manifest_sha256": "2d7e82ee0827b4b9e02bd4f8c61942fbeea997f877f9e1d9a78cb226ef8bf830",
+    "executed_site_publication_eligible": false,
+    "execution": "Actual public UI local .bin selection on an agent-owned static export; one browser at a time",
+    "cases": [
+      {
+        "device": "atom-lite",
+        "status": "PASS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "50e32815-b37d-4d0c-84e6-1f4577695011",
+        "runtime_profile": "atom-lite-wasm-deterministic-icount",
+        "clock_divisor": 1,
+        "accelerator": {
+          "icountShift": 5,
+          "kind": "tcg-icount",
+          "tbSizeMb": 128,
+          "thread": "single"
+        },
+        "board": "m5atomlite",
+        "uploaded_firmware": {
+          "name": "atom-lite-browser-probe.bin",
+          "bytes": 4194304,
+          "sha256": "d97f454582aa88b81c04deb1bbcabdcc4ed30fe6e30cd6aef4a219ce68a80ce4"
+        },
+        "report": {
+          "path": ".work/classic-host-browser-v5-validation-v1/atom-lite/report.json",
+          "sha256": "c242c421bca33e4f5a9338ffab70c2dc2c0b540b4e4ec09a7177916d51ed984f"
+        },
+        "test_source_identity": {
+          "path": "platform/tests/test_public_qemu_headless_guest.mjs",
+          "sha256": "ba55cf09bf1bbfd01ae16c9ca714f6e8d2fef52fbe8daed20c55701f48e8297a"
+        },
+        "executed_test_source": {
+          "path": ".work/classic-host-browser-v5-validation-v1/executed-test-sources/atom-lite-test_public_qemu_headless_guest.mjs",
+          "sha256": "ba55cf09bf1bbfd01ae16c9ca714f6e8d2fef52fbe8daed20c55701f48e8297a"
+        },
+        "checks_passed": 16,
+        "checks_total": 16,
+        "observations": {
+          "idle": {
+            "led_count": 1,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 2,
+            "pressed": false,
+            "model_all_known": true
+          },
+          "down": {
+            "led_count": 1,
+            "uniform": true,
+            "rgb": 4235296,
+            "rmt_frames": 3,
+            "pressed": true,
+            "model_all_known": true
+          },
+          "up": {
+            "led_count": 1,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 4,
+            "pressed": false,
+            "model_all_known": true
+          }
+        },
+        "cleanup": {
+          "graceful_exit": true,
+          "exit_code": 0,
+          "nested_workers_created": 4,
+          "nested_workers_remaining": 0,
+          "engine_normal_terminations": 1,
+          "engine_fallback_terminations": 0,
+          "iframe_removed": true
+        },
+        "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+      },
+      {
+        "device": "stickc-plus",
+        "status": "PASS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "b2754168-b180-4fbc-a7cb-750a2343e856",
+        "runtime_profile": "stickc-plus-wasm-deterministic-icount",
+        "clock_divisor": 1,
+        "accelerator": {
+          "icountShift": 5,
+          "kind": "tcg-icount",
+          "tbSizeMb": 128,
+          "thread": "single"
+        },
+        "board": "m5stickcplus",
+        "uploaded_firmware": {
+          "name": "stickc-plus-v252-browser-probe.bin",
+          "bytes": 4194304,
+          "sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a"
+        },
+        "report": {
+          "path": ".work/classic-host-browser-v5-validation-v1/stickc-plus/report.json",
+          "sha256": "fb5f9cc1855d1c9f8c8c4da1e4ff6644c80088d51395ed5959a67408898758e5"
+        },
+        "test_source_identity": {
+          "path": "platform/tests/test_public_qemu_board_guest.mjs",
+          "sha256": "586ca13ab33f5dccaf3abac55162b7089e6c71df26e48b8f6f042b0e1d94b669"
+        },
+        "executed_test_source": {
+          "path": ".work/classic-host-browser-v5-validation-v1/executed-test-sources/stickc-plus-test_public_qemu_board_guest.mjs",
+          "sha256": "586ca13ab33f5dccaf3abac55162b7089e6c71df26e48b8f6f042b0e1d94b669"
+        },
+        "checks_passed": 27,
+        "checks_total": 27,
+        "observations": {
+          "native_to_model_texture_pixels": 32400,
+          "display_size": [
+            135,
+            240
+          ]
+        },
+        "cleanup": {
+          "graceful_exit": true,
+          "exit_code": 0,
+          "nested_workers_created": 4,
+          "nested_workers_remaining": 0,
+          "engine_normal_terminations": 1,
+          "engine_fallback_terminations": 0,
+          "iframe_removed": true
+        },
+        "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+      },
+      {
+        "device": "atom-matrix",
+        "status": "PASS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "a2e1e932-f645-42a1-8eda-775264f72cee",
+        "runtime_profile": "atom-matrix-wasm-deterministic-icount",
+        "clock_divisor": 1,
+        "accelerator": {
+          "icountShift": 5,
+          "kind": "tcg-icount",
+          "tbSizeMb": 128,
+          "thread": "single"
+        },
+        "board": "m5atommatrix",
+        "uploaded_firmware": {
+          "name": "atom-matrix-browser-probe.bin",
+          "bytes": 4194304,
+          "sha256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b"
+        },
+        "report": {
+          "path": ".work/classic-host-browser-v5-validation-v1/atom-matrix/report.json",
+          "sha256": "076f640885214c9e378b3c7a42bc99610ea2a114ffd756e8890c171bd3d18297"
+        },
+        "test_source_identity": {
+          "path": "platform/tests/test_public_qemu_headless_guest.mjs",
+          "sha256": "17b83d384325701c015d75aa4fe02cb62a115e587bcea0aa287670f0ffb66518"
+        },
+        "executed_test_source": {
+          "path": ".work/classic-host-browser-v5-validation-v1/executed-test-sources/atom-matrix-test_public_qemu_headless_guest.mjs",
+          "sha256": "17b83d384325701c015d75aa4fe02cb62a115e587bcea0aa287670f0ffb66518"
+        },
+        "checks_passed": 16,
+        "checks_total": 16,
+        "observations": {
+          "idle": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 2,
+            "pressed": false,
+            "model_all_known": true
+          },
+          "down": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 4235296,
+            "rmt_frames": 3,
+            "pressed": true,
+            "model_all_known": true
+          },
+          "up": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 4,
+            "pressed": false,
+            "model_all_known": true
+          }
+        },
+        "cleanup": {
+          "graceful_exit": true,
+          "exit_code": 0,
+          "nested_workers_created": 4,
+          "nested_workers_remaining": 0,
+          "engine_normal_terminations": 1,
+          "engine_fallback_terminations": 0,
+          "iframe_removed": true
+        },
+        "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+      },
+      {
+        "device": "atom-matrix-v11",
+        "status": "PASS",
+        "device_status": "partial",
+        "hardware_pass": false,
+        "session_id": "a6f6f9ae-ed42-4447-8a7c-b352924e994c",
+        "runtime_profile": "atom-matrix-v11-wasm-deterministic-icount",
+        "clock_divisor": 1,
+        "accelerator": {
+          "icountShift": 5,
+          "kind": "tcg-icount",
+          "tbSizeMb": 128,
+          "thread": "single"
+        },
+        "board": "m5atommatrixv11",
+        "uploaded_firmware": {
+          "name": "atom-matrix-v11-browser-probe.bin",
+          "bytes": 4194304,
+          "sha256": "bd39432078335b768b2fa1c6a6df7445a4e525a09fea5ed37061773b5d44d23e"
+        },
+        "report": {
+          "path": ".work/classic-host-browser-v5-validation-v1/atom-matrix-v11/report.json",
+          "sha256": "4e784e8933b8a867078b34d7f64d2bf593c7b4d75bc632f149b5c4156f4cb00c"
+        },
+        "test_source_identity": {
+          "path": "platform/tests/test_public_qemu_headless_guest.mjs",
+          "sha256": "17b83d384325701c015d75aa4fe02cb62a115e587bcea0aa287670f0ffb66518"
+        },
+        "executed_test_source": {
+          "path": ".work/classic-host-browser-v5-validation-v1/executed-test-sources/atom-matrix-v11-test_public_qemu_headless_guest.mjs",
+          "sha256": "17b83d384325701c015d75aa4fe02cb62a115e587bcea0aa287670f0ffb66518"
+        },
+        "checks_passed": 16,
+        "checks_total": 16,
+        "observations": {
+          "idle": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 2,
+            "pressed": false,
+            "model_all_known": true
+          },
+          "down": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 4235296,
+            "rmt_frames": 3,
+            "pressed": true,
+            "model_all_known": true
+          },
+          "up": {
+            "led_count": 25,
+            "uniform": true,
+            "rgb": 2113632,
+            "rmt_frames": 4,
+            "pressed": false,
+            "model_all_known": true
+          }
+        },
+        "cleanup": {
+          "graceful_exit": true,
+          "exit_code": 0,
+          "nested_workers_created": 4,
+          "nested_workers_remaining": 0,
+          "engine_normal_terminations": 1,
+          "engine_fallback_terminations": 0,
+          "iframe_removed": true
+        },
+        "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+      }
+    ],
+    "independent_crosscheck": {
+      "path": ".work/classic-host-browser-v5-validation-v1/crosscheck.json",
+      "sha256": "348b6e35550ad37f08983eb85af9472bf4d655a5c21f8cbf96cd1b166b9b148c",
+      "checks_passed": 130,
+      "checks_total": 130
+    },
+    "raw_closeout": {
+      "path": ".work/classic-host-browser-v5-validation-v1/closeout-summary.json",
+      "bytes": 17192,
+      "sha256": "23f677adb45eb6822b19e3571d0eef8f1b01933a26ca83f902b58f3b2dfc622e"
+    },
+    "browser_window_released": true
+  },
+  "imu_oracle_review": {
+    "schema_version": 1,
+    "status": "REFERENCE_ORACLE_MISMATCH_WITH_UNBOUND_STOCK_SOURCE",
+    "applies_to_devices": [
+      "atom-matrix",
+      "atom-matrix-v11"
+    ],
+    "stock_raw_firmware_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+    "native_summary_sha256": "5e1fc44fe7d38d1e8ad59e8d0d8f1ebbea835d74778b976f017de76f5133bffa",
+    "measured_behavior": "Both stock Imu.getAccel/getGyro paths delivered both controller-injected sensor-coordinate vectors with identity signs. This satisfies data delivery but does not satisfy the reference [-1,+1,-1] board-axis oracle.",
+    "reference_source_semantics": "Public tag2.5.3 commit50e440780492aa847378c7d3477ab912f7063bac pins M5Unified8530f5377d782e4a25a6c482de2e71c3f75ca8eb. In that source, wrapper getAccel/getGyro reach getImuData and board-axis conversion; getAccelData/getGyroData are aliases.",
+    "source_binding_limit": "That release executable app differs from stock1591382c; stock build-name db526ecc resolves to a currently unavailable candidate source commit. The source reference is not a proven oracle for the exact stock binary.",
+    "confirmed_backend_bug": false,
+    "confirmed_sdk_bug": false,
+    "oracle_correctness_for_stock": "NOT ESTABLISHED",
+    "native_board_detection_observed_directly": false,
+    "device_status": "partial",
+    "preserve_original_reports": true,
+    "evidence": {
+      ".work/classic-host-admission-prep-v1/atom-hardware/imu-chain-v4/release-vs-intake-binary-comparison.json": "eead35593d87e0f903d0f7c11f10439d912b2bd9ef7b58a1ad597f4bc2ff1ec7",
+      ".work/classic-host-admission-prep-v1/atom-hardware/imu-chain-v4/RELEASE_BINDING.md": "eeddfbfa6c0c7e63470cda1f4b83c30f2f24938e6360d33e01cb134ca122cd20"
+    }
+  },
+  "imu_oracle_review_source": {
+    "path": ".work/classic-host-native-v4-validation-v1/imu-oracle-review.json",
+    "bytes": 1715,
+    "sha256": "8760e305f44eb0f537d310bca0b5169f01e9c6a24918d39b105c11ed606d048b"
+  },
+  "source_and_final_export": {
+    "status": "PASS_SOURCE_AND_EXPORT_CONTRACT",
+    "guest_started": false,
+    "public_profile_count": 19,
+    "public_profile_ids": [
+      "stopwatch",
+      "sticks3",
+      "atoms3",
+      "atoms3-lite",
+      "atoms3r",
+      "cores3",
+      "cardputer-adv",
+      "stamplc",
+      "stackchan",
+      "papercolor",
+      "papermono",
+      "core2",
+      "stickc-plus2",
+      "stickc",
+      "stickc-plus",
+      "stickc-plus-se",
+      "atom-lite",
+      "atom-matrix",
+      "atom-matrix-v11"
+    ],
+    "candidate_profile_ids": [
+      "dial"
+    ],
+    "export": ".work/stackchan-motion-public-site-v10",
+    "site_manifest_sha256": "4e79d1d307cfbafd768c9df7416b9afcf51d26399e5faaac9316590c57d7438b",
+    "runtime_wasm_sha256": "3d91c7b1b880c67686c429e522451e8a4b0a822e3dc4c94090ed0ab536280101",
+    "source_build_full": true,
+    "runtime_source_patch_count": 60,
+    "runtime_source_file_count": 157,
+    "exported_assets_hash_checked": 2115,
+    "frontend_sources_matched_to_export": [
+      {
+        "path": "platform/web/public-browser-runtime.js",
+        "sha256": "21c4fb04dac5de5599a2de7591f7fa169dfc72825f6ef2986cb8581a07d76a6d"
+      },
+      {
+        "path": "platform/web/public-coi-serviceworker.js",
+        "sha256": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3"
+      },
+      {
+        "path": "platform/web/public-coi.js",
+        "sha256": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3"
+      },
+      {
+        "path": "platform/web/public-config.js",
+        "sha256": "14a01bd386a74abc608250495019897069e6984a0e7afc4c702d3ba435f4d679"
+      },
+      {
+        "path": "platform/web/public-demo-firmware.js",
+        "sha256": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9"
+      },
+      {
+        "path": "platform/web/public-firmware.js",
+        "sha256": "a7dd6fe5a32e40dab863b3ce1cf3f224337321a09e1a3254a674ca7b1bbae4b4"
+      },
+      {
+        "path": "platform/web/public-qemu-engine.js",
+        "sha256": "ad467404fa922e00c31d32f8f6766254741d23d20e790749038a5df7bdf484c3"
+      },
+      {
+        "path": "platform/web/public-qemu-frame.js",
+        "sha256": "71822138c2d8e217c431c2f2411e0861e2e5f8406f51125382db9b96d6f33172"
+      },
+      {
+        "path": "platform/web/public-qemu-instance.js",
+        "sha256": "5a89884ed7ae49c9c420d80650c21adf92766824dde480d4c3e6cd61014aa6bf"
+      },
+      {
+        "path": "platform/web/public-qemu-probe-firmware.js",
+        "sha256": "6787564e58c730b7f69a73012a43ceb27027e2afdbbdb6251775f4ea090c1073"
+      },
+      {
+        "path": "platform/web/public-qemu-profiles.js",
+        "sha256": "32dfab9f6f86ab0085a343c8a489ea9d294626f522a8d9db67acad4beada0dea"
+      },
+      {
+        "path": "platform/web/public-qemu-runtime.js",
+        "sha256": "d42a07fdc93964477b5f0a4b90cad2feeb86edf57e09a6531105b0c450ba9a6a"
+      },
+      {
+        "path": "platform/web/public-qemu-servo.js",
+        "sha256": "3e886e398ddbff773a0091536d94a5cb83a665e65fde58e312905d56ab88f290"
+      },
+      {
+        "path": "platform/web/public-service.js",
+        "sha256": "c0250a435ef434a5cb952b90d9b2e7980c1596455e160851f962e21cfad99158"
+      },
+      {
+        "path": "platform/web/public-session-controller.js",
+        "sha256": "1b46cb4510e951a45a13ba57d9a596dfb4c928d2166aab007ca256bdf8eb52ba"
+      },
+      {
+        "path": "platform/web/public.js",
+        "sha256": "39333dac357ddecf77338755e1c5d30c6d8a6c5146f89552b55f58398d7359d5"
+      }
+    ],
+    "all_qemu_runtime_export_assets_matched": true,
+    "node_contract_tests": [
+      {
+        "source": "platform/tests/test_public_qemu_profiles.mjs",
+        "source_sha256": "be08f01974de713810ace6a8fd23e4076bf28a24a315fd2a5e27e193519ca639",
+        "status": "PASS",
+        "output": {
+          "path": ".work/classic-host-closeout-v1/node-profiles.log",
+          "bytes": 141,
+          "sha256": "02fa421c6857a2895f1e524762d5796d4fb517f2b002e263fec2e7b7404eae51"
+        }
+      },
+      {
+        "source": "platform/tests/test_public_qemu_frame.mjs",
+        "source_sha256": "2dfb1f19333bd2b0027b754a1beda89b0b6459ba339bf9b89356c6c9a1d2322d",
+        "status": "PASS",
+        "output": {
+          "path": ".work/classic-host-closeout-v1/node-frame.log",
+          "bytes": 125,
+          "sha256": "b9022d164e9a68fbcebb48db924e5db1c33d17878ac36ce1ecbcd2e7b77fc570"
+        }
+      },
+      {
+        "source": "platform/tests/test_public_qemu_runtime.mjs",
+        "source_sha256": "5d3011a20e7e8c05f85db0edd0c43eb089e5a069f0d58359e182503062b576a3",
+        "status": "PASS",
+        "output": {
+          "path": ".work/classic-host-closeout-v1/node-runtime.log",
+          "bytes": 148,
+          "sha256": "e71df6bd8e3d558cfd7711ad44b22452a710974ada59911de8fefae9342402b2"
+        }
+      },
+      {
+        "source": "platform/tests/test_public_qemu_instance.mjs",
+        "source_sha256": "3b7bafde3ebf5de8fbafdc73028baeffe6a45939ddfddeace4cdfdf47635d3b5",
+        "status": "PASS",
+        "output": {
+          "path": ".work/classic-host-closeout-v1/node-instance.log",
+          "bytes": 329,
+          "sha256": "8702404de30a8d9079180a8eb3852048de946e5a769fa055769ab8c9fdcb26ae"
+        }
+      }
+    ]
+  },
+  "default_reference_composer": {
+    "status": "NOT RUN",
+    "reason": "Prepared; waiting for exclusive browser window after the StackChan deep validation",
+    "candidate_site": ".work/stackchan-motion-public-site-v10",
+    "runner": ".work/classic-host-browser-v5-reference-v1/run_reference_browsers.py",
+    "upload_environment_variable": "explicitly removed for default browser composer",
+    "upload_results_do_not_grant_reference_composer_pass": true
+  },
+  "boundaries": [
+    "Native evidence binds runtime v4; browser uploads bind WASM v5. Neither result is transferred to another runtime or firmware SHA.",
+    "All four devices remain partial; publication scope may cover only their admitted fixed fixtures.",
+    "Three Atom devices have no LCD; HTTP409 display_not_available is the expected native frame contract.",
+    "Browser Plus validates the 135x240 display and button route; its upload fixture does not test IMU.",
+    "Matrix IMU browser paths are untested. Native sensor-vector delivery is measured, but the board-axis oracle is not binary-source matched.",
+    "Matrix 25 equal LED colors are validated; nonuniform chain-to-scene spatial mapping remains unknown.",
+    "No touch-pad frequency was adjusted; no board identity was forced; no host-side IMU correction was added.",
+    "Physical hardware, optical/electrical behavior, broader peripherals, network/RF/BLE and arbitrary firmware compatibility are outside this evidence."
+  ]
+}

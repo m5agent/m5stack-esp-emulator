@@ -1,0 +1,77 @@
+diff --git a/hw/m5stopwatch/m5_scs_servo.c b/hw/m5stopwatch/m5_scs_servo.c
+index ae914b4b..196549d3 100644
+--- a/hw/m5stopwatch/m5_scs_servo.c
++++ b/hw/m5stopwatch/m5_scs_servo.c
+@@ -74,11 +74,17 @@ static bool scs_pwm_mode(const uint8_t *mem)
+     return scs_get_be16(mem, 9) == 0 && scs_get_be16(mem, 11) == 0;
+ }
+ 
++static bool scs_position_limits_valid(const uint8_t *mem)
++{
++    return scs_get_be16(mem, 9) <= scs_get_be16(mem, 11);
++}
++
+ static void scs_advance(M5ScsServoState *s, int64_t now)
+ {
+     for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {
+         uint8_t *m = s->mem[id];
+-        if (!s->powered || m[40] != 1 || scs_pwm_mode(m)) {
++        if (!s->powered || m[40] != 1 || scs_pwm_mode(m) ||
++            !scs_position_limits_valid(m)) {
+             s->duration_ms[id] = 0;
+             m[66] = 0;
+             continue;
+@@ -186,7 +192,8 @@ static void scs_motion_written(M5ScsServoState *s, int id)
+     uint8_t *m = s->mem[id];
+     s->duration_ms[id] = 0;
+     m[66] = 0;
+-    if (!s->powered || m[40] != 1 || scs_pwm_mode(m)) {
++    if (!s->powered || m[40] != 1 || scs_pwm_mode(m) ||
++        !scs_position_limits_valid(m)) {
+         return;
+     }
+     uint16_t goal = scs_get_be16(m, 42);
+@@ -208,8 +215,11 @@ static void scs_motion_written(M5ScsServoState *s, int id)
+ 
+ static bool scs_valid_registers(const uint8_t *mem)
+ {
++    /* SCSCL::SwitchMode(0) restores min then max with separate writes.
++     * Keep each field bounded, but allow its temporary inverted interval.
++     * Such an interval cannot drive position-mode motion. */
+     return mem[40] <= 2 && scs_get_be16(mem, 42) <= SCS_RAW_MAX &&
+-           scs_get_be16(mem, 9) <= scs_get_be16(mem, 11) &&
++           scs_get_be16(mem, 9) <= SCS_RAW_MAX &&
+            scs_get_be16(mem, 11) <= SCS_RAW_MAX;
+ }
+ 
+@@ -238,9 +248,12 @@ static bool scs_write(M5ScsServoState *s, int id, uint8_t addr,
+         memcpy(s->pending[id] + addr, data, count);
+         memset(s->pending_mask[id] + addr, 1, count);
+     } else {
++        uint8_t old_torque = m[40];
+         memcpy(m + addr, data, count);
+-        /* Unrelated EEPROM/lock writes do not restart an in-flight move. */
+-        if (addr < 48 && (unsigned)addr + count > 40) {
++        /* A repeated torque setting is not a fresh movement command.
++         * Explicit position/time/speed writes still restart from feedback. */
++        if (old_torque != m[40] ||
++            (addr < 48 && (unsigned)addr + count > 42)) {
+             scs_motion_written(s, id);
+         }
+     }
+@@ -292,12 +305,13 @@ static void scs_handle_packet(M5ScsServoState *s)
+                     if (s->pending_mask[sid][reg]) {
+                         proposed[reg] = s->pending[sid][reg];
+                         pending = true;
+-                        motion_pending |= reg >= 40 && reg < 48;
++                        motion_pending |= reg >= 42 && reg < 48;
+                     }
+                 }
+                 if (pending && scs_valid_registers(proposed)) {
++                    bool torque_changed = proposed[40] != s->mem[sid][40];
+                     memcpy(s->mem[sid] + 5, proposed + 5, 44);
+-                    if (motion_pending) {
++                    if (motion_pending || torque_changed) {
+                         scs_motion_written(s, sid);
+                     }
+                 }
