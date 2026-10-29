@@ -1,0 +1,428 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: add key-bound CCMP to external ESP-NOW peer
+
+Extend the opt-in external ESP-NOW bridge with AES-CCMP protected
+management action frames. The bridge unwraps the fixture LMK using
+AES-128-ECB under the configured PMK, strips the guest hardware
+envelope on TX, encrypts the action body with a fresh PN and eight-byte
+MIC, and authenticates RX before injecting it through the normal DMA
+path. Authentication failure is dropped before guest delivery.
+
+The PMK and wrapped LMK remain controller-local. The plaintext LMK is
+not retained in device state, and PMK/LMK runtime environment values
+are redacted from persisted/API session snapshots. This fixture
+exercises key-bound CCMP and wrong-LMK rejection, not guest key-state
+programming, replay windows, loss/retry, RF, timing or physical
+hardware behavior.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ 3 files changed, 315 insertions(+)
+
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -39,6 +39,10 @@
+     int espnow_peer_local_port;
+     int espnow_peer_remote_port;
+     bool espnow_peer_trace;
++    bool espnow_peer_encrypted;
++    uint8_t espnow_peer_pmk[16];
++    uint8_t espnow_peer_wrapped_lmk[16];
++    uint64_t espnow_peer_tx_pn;
+     uint32_t ap_state;
+     int inject_queue_size;
+     struct mac80211_frame *inject_queue;
+@@ -93,6 +97,12 @@
+ void Esp32_ESPNow_peer_realize(Esp32WifiState *s, Error **errp);
+ void Esp32_ESPNow_peer_cleanup(Esp32WifiState *s);
+ void Esp32_ESPNow_peer_send(Esp32WifiState *s, struct mac80211_frame *frame);
++bool Esp32_WLAN_ccmp_encrypt_payload(const uint8_t key[16],
++                                     struct mac80211_frame *frame,
++                                     uint64_t pn);
++bool Esp32_WLAN_ccmp_decrypt_payload(const uint8_t key[16],
++                                     struct mac80211_frame *frame,
++                                     size_t *length);
+ 
+ REG32(WIFI_DMA_IN_STATUS, 0x84);
+ REG32(WIFI_DMA_INLINK, 0x88);
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -6,6 +6,7 @@
+ #include "qemu/main-loop.h"
+ #include "qemu/sockets.h"
+ #include "qapi/error.h"
++#include "crypto/cipher.h"
+ #include "sysemu/sysemu.h"
+ #include "hw/hw.h"
+ #include "hw/irq.h"
+@@ -58,6 +59,132 @@
+     return result;
+ }
+ 
++static bool espnow_peer_parse_hex_key(const char *value, uint8_t key[16])
++{
++    size_t index;
++
++    if (!value || strlen(value) != 32) {
++        return false;
++    }
++    for (index = 0; index < 16; index++) {
++        unsigned int high;
++        unsigned int low;
++
++        if (sscanf(value + index * 2, "%1x%1x", &high, &low) != 2) {
++            return false;
++        }
++        key[index] = (high << 4) | low;
++    }
++    return true;
++}
++
++static bool espnow_peer_aes_ecb(const uint8_t key[16], bool encrypt,
++                                const uint8_t input[16], uint8_t output[16])
++{
++    g_autoptr(QCryptoCipher) cipher = NULL;
++    Error *error = NULL;
++    int result;
++
++    cipher = qcrypto_cipher_new(
++        QCRYPTO_CIPHER_ALGO_AES_128,
++        QCRYPTO_CIPHER_MODE_ECB,
++        key,
++        16,
++        &error
++    );
++    if (!cipher) {
++        error_report_err(error);
++        return false;
++    }
++    result = encrypt
++        ? qcrypto_cipher_encrypt(cipher, input, output, 16, &error)
++        : qcrypto_cipher_decrypt(cipher, input, output, 16, &error);
++    if (result < 0) {
++        error_report_err(error);
++        return false;
++    }
++    return true;
++}
++
++static bool espnow_peer_unwrap_lmk(Esp32WifiState *s, uint8_t lmk[16])
++{
++    return s->espnow_peer_encrypted &&
++           espnow_peer_aes_ecb(
++               s->espnow_peer_pmk, false,
++               s->espnow_peer_wrapped_lmk, lmk);
++}
++
++static bool espnow_peer_encrypt_guest_frame(Esp32WifiState *s,
++                                            struct mac80211_frame *frame)
++{
++    uint8_t key[16];
++    size_t length = frame->frame_length;
++    size_t plain_length;
++    bool success;
++
++    if (!s->espnow_peer_encrypted ||
++        !(frame->frame_control._flags & BIT(4)) ||
++        length < IEEE80211_HEADER_SIZE + 8 + 8 + 1) {
++        return false;
++    }
++    plain_length = length - IEEE80211_HEADER_SIZE - 8 - 8;
++    memmove(frame->data_and_fcs, frame->data_and_fcs + 8, plain_length);
++    frame->frame_length = IEEE80211_HEADER_SIZE + plain_length;
++    frame->frame_control._flags &= ~BIT(4);
++    if (!espnow_peer_unwrap_lmk(s, key)) {
++        return false;
++    }
++    success = Esp32_WLAN_ccmp_encrypt_payload(
++        key, frame, ++s->espnow_peer_tx_pn
++    );
++    memset(key, 0, sizeof(key));
++    return success;
++}
++
++static bool espnow_peer_ccmp_pn(const struct mac80211_frame *frame,
++                                size_t length, uint64_t *pn)
++{
++    const uint8_t *ccmp = frame->data_and_fcs;
++
++    if (!(frame->frame_control._flags & BIT(4)) ||
++        length < IEEE80211_HEADER_SIZE + 8 + 8 + 1) {
++        return false;
++    }
++    *pn = (uint64_t)ccmp[0] |
++          ((uint64_t)ccmp[1] << 8) |
++          ((uint64_t)ccmp[4] << 16) |
++          ((uint64_t)ccmp[5] << 24) |
++          ((uint64_t)ccmp[6] << 32) |
++          ((uint64_t)ccmp[7] << 40);
++    return true;
++}
++
++static bool espnow_peer_wrap_rx_envelope(struct mac80211_frame *frame,
++                                         uint64_t pn)
++{
++    uint8_t *hw = frame->data_and_fcs;
++    size_t plain_length;
++
++    if (frame->frame_length < IEEE80211_HEADER_SIZE + 1 ||
++        frame->frame_length + 16 > sizeof(*frame)) {
++        return false;
++    }
++    plain_length = frame->frame_length - IEEE80211_HEADER_SIZE;
++    memmove(hw + 8, hw, plain_length);
++    hw[0] = pn;
++    hw[1] = pn >> 8;
++    hw[2] = 0;
++    hw[3] = 0xe0;
++    hw[4] = pn >> 16;
++    hw[5] = pn >> 24;
++    hw[6] = pn >> 32;
++    hw[7] = pn >> 40;
++    memset(hw + 8 + plain_length, 0, 8);
++    frame->frame_control._flags |= BIT(4);
++    frame->frame_length = IEEE80211_HEADER_SIZE + 8 + plain_length + 8;
++    return true;
++}
++
+ static void espnow_peer_trace(Esp32WifiState *s, const char *direction,
+                               const struct mac80211_frame *frame,
+                               size_t length)
+@@ -67,6 +194,7 @@
+     }
+     fprintf(stderr,
+             "[espnow-peer] %s local=%d remote=%d len=%zu checksum=%08x "
++            "encrypted=%d "
+             "dst=%02x:%02x:%02x:%02x:%02x:%02x "
+             "src=%02x:%02x:%02x:%02x:%02x:%02x "
+             "filter0=%02x:%02x:%02x:%02x:%02x:%02x "
+@@ -74,6 +202,7 @@
+             direction, s->espnow_peer_local_port,
+             s->espnow_peer_remote_port, length,
+             espnow_peer_checksum((const uint8_t *)frame, length),
++            s->espnow_peer_encrypted,
+             frame->receiver_address[0], frame->receiver_address[1],
+             frame->receiver_address[2], frame->receiver_address[3],
+             frame->receiver_address[4], frame->receiver_address[5],
+@@ -129,6 +258,39 @@
+         }
+         frame.frame_length = length;
+         frame.next_frame = NULL;
++        if (s->espnow_peer_encrypted) {
++            uint8_t key[16];
++            size_t plain_length = length;
++            uint64_t pn;
++
++            if (!espnow_peer_ccmp_pn(&frame, plain_length, &pn) ||
++                !espnow_peer_unwrap_lmk(s, key) ||
++                !Esp32_WLAN_ccmp_decrypt_payload(
++                    key, &frame, &plain_length)) {
++                memset(key, 0, sizeof(key));
++                if (s->espnow_peer_trace) {
++                    fprintf(stderr,
++                            "[espnow-peer] RX drop: encrypted CCMP validation failed\n");
++                }
++                continue;
++            }
++            memset(key, 0, sizeof(key));
++            if (!espnow_peer_wrap_rx_envelope(&frame, pn)) {
++                if (s->espnow_peer_trace) {
++                    fprintf(stderr,
++                            "[espnow-peer] RX drop: cannot prepare decrypted envelope\n");
++                }
++                continue;
++            }
++            length = frame.frame_length;
++        } else if (frame.frame_control._flags & BIT(4)) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: protected frame without peer key\n");
++            }
++            continue;
++        }
++        frame.frame_length = length;
+         if (!s->is_s3) {
+             const uint8_t *filter0 = (const uint8_t *)s->mem + 0x40;
+ 
+@@ -168,6 +330,11 @@
+     s->espnow_peer_fd = -1;
+     s->espnow_peer_local_port = 0;
+     s->espnow_peer_remote_port = 0;
++    s->espnow_peer_encrypted = false;
++    s->espnow_peer_tx_pn = 0;
++    memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
++    memset(s->espnow_peer_wrapped_lmk, 0,
++           sizeof(s->espnow_peer_wrapped_lmk));
+     s->espnow_peer_trace =
+         getenv("M5SW_ESPNOW_PEER_TRACE") != NULL;
+ 
+@@ -186,6 +353,43 @@
+                    "external ESP-NOW peer bridge");
+         return;
+     }
++    {
++        const char *pmk_value = getenv("M5SW_ESPNOW_PEER_PMK");
++        const char *lmk_value = getenv("M5SW_ESPNOW_PEER_LMK");
++        uint8_t lmk[16];
++        uint8_t unwrapped[16];
++
++        if ((pmk_value == NULL) != (lmk_value == NULL)) {
++            error_setg(errp,
++                       "M5SW_ESPNOW_PEER_PMK and "
++                       "M5SW_ESPNOW_PEER_LMK must be set together");
++            return;
++        }
++        if (pmk_value) {
++            if (!espnow_peer_parse_hex_key(pmk_value, s->espnow_peer_pmk) ||
++                !espnow_peer_parse_hex_key(lmk_value, lmk)) {
++                error_setg(errp,
++                           "ESP-NOW peer PMK and LMK must be 32 hexadecimal "
++                           "characters");
++                return;
++            }
++            if (!espnow_peer_aes_ecb(
++                    s->espnow_peer_pmk, true, lmk,
++                    s->espnow_peer_wrapped_lmk) ||
++                !espnow_peer_aes_ecb(
++                    s->espnow_peer_pmk, false,
++                    s->espnow_peer_wrapped_lmk, unwrapped) ||
++                memcmp(lmk, unwrapped, sizeof(lmk))) {
++                memset(lmk, 0, sizeof(lmk));
++                memset(unwrapped, 0, sizeof(unwrapped));
++                error_setg(errp, "cannot prepare ESP-NOW peer key");
++                return;
++            }
++            memset(lmk, 0, sizeof(lmk));
++            memset(unwrapped, 0, sizeof(unwrapped));
++            s->espnow_peer_encrypted = true;
++        }
++    }
+     if (parse_uint_full(local_value, 10, &local_port) ||
+         local_port < 1024 || local_port > 65535 ||
+         parse_uint_full(remote_value, 10, &remote_port) ||
+@@ -224,6 +428,11 @@
+     qemu_set_fd_handler(s->espnow_peer_fd, NULL, NULL, NULL);
+     close(s->espnow_peer_fd);
+     s->espnow_peer_fd = -1;
++    s->espnow_peer_encrypted = false;
++    s->espnow_peer_tx_pn = 0;
++    memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
++    memset(s->espnow_peer_wrapped_lmk, 0,
++           sizeof(s->espnow_peer_wrapped_lmk));
+ }
+ 
+ void Esp32_ESPNow_peer_send(Esp32WifiState *s,
+@@ -240,6 +449,22 @@
+     memcpy(forwarded.transmitter_address, s->macaddr,
+            sizeof(forwarded.transmitter_address));
+     memcpy(forwarded.address_3, s->macaddr, sizeof(forwarded.address_3));
++    if (s->espnow_peer_encrypted) {
++        if (!espnow_peer_encrypt_guest_frame(s, &forwarded)) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] TX drop: encrypted guest frame "
++                        "validation failed\n");
++            }
++            return;
++        }
++    } else if (forwarded.frame_control._flags & BIT(4)) {
++        if (s->espnow_peer_trace) {
++            fprintf(stderr,
++                    "[espnow-peer] TX drop: protected frame without peer key\n");
++        }
++        return;
++    }
+     espnow_peer_trace(s, "TX", &forwarded, forwarded.frame_length);
+     sent = send(s->espnow_peer_fd, &forwarded, forwarded.frame_length, 0);
+     if (sent < 0 && s->espnow_peer_trace) {
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -534,6 +534,86 @@
+     return !memcmp(auth, expected_auth, sizeof(expected_auth));
+ }
+ 
++bool Esp32_WLAN_ccmp_encrypt_payload(const uint8_t key[16],
++                                     struct mac80211_frame *frame,
++                                     uint64_t pn)
++{
++    const uint8_t *header = (const uint8_t *)frame;
++    uint8_t plain[2316];
++    uint8_t aad[22];
++    uint8_t nonce[13];
++    uint8_t *ccmp = frame->data_and_fcs;
++    size_t plain_len;
++
++    if (frame->frame_length < IEEE80211_HEADER_SIZE + 1) {
++        return false;
++    }
++    plain_len = frame->frame_length - IEEE80211_HEADER_SIZE;
++    if (plain_len > sizeof(plain) ||
++        IEEE80211_HEADER_SIZE + 8 + plain_len + 8 > sizeof(*frame)) {
++        return false;
++    }
++
++    memcpy(plain, frame->data_and_fcs, plain_len);
++    ccmp[0] = pn;
++    ccmp[1] = pn >> 8;
++    ccmp[2] = 0;
++    ccmp[3] = 0x20;
++    ccmp[4] = pn >> 16;
++    ccmp[5] = pn >> 24;
++    ccmp[6] = pn >> 32;
++    ccmp[7] = pn >> 40;
++    frame->frame_control._flags |= BIT(4);
++    ccmp_header_aad_nonce(header, ccmp, aad, nonce);
++
++    if (!aes_ccm_encrypt(
++            key, nonce, plain, plain_len, aad, sizeof(aad),
++            ccmp + 8, ccmp + 8 + plain_len)) {
++        return false;
++    }
++    frame->frame_length = IEEE80211_HEADER_SIZE + 8 + plain_len + 8;
++    return true;
++}
++
++bool Esp32_WLAN_ccmp_decrypt_payload(const uint8_t key[16],
++                                     struct mac80211_frame *frame,
++                                     size_t *length)
++{
++    const uint8_t *header = (const uint8_t *)frame;
++    const uint8_t *ccmp = frame->data_and_fcs;
++    uint8_t aad[22];
++    uint8_t nonce[13];
++    uint8_t plain[2316];
++    size_t encrypted_len;
++    size_t plain_len;
++
++    if (!(frame->frame_control._flags & BIT(4)) ||
++        *length < IEEE80211_HEADER_SIZE + 8 + 8 + 1 ||
++        *length > sizeof(*frame)) {
++        return false;
++    }
++    if (ccmp[3] & 0x40) {
++        return false;
++    }
++    encrypted_len = *length - IEEE80211_HEADER_SIZE;
++    plain_len = encrypted_len - 8 - 8;
++    if (plain_len > sizeof(plain)) {
++        return false;
++    }
++    ccmp_header_aad_nonce(header, ccmp, aad, nonce);
++    if (!aes_ccm_decrypt(
++            key, nonce, ccmp + 8, plain_len, aad, sizeof(aad),
++            ccmp + 8 + plain_len, plain)) {
++        return false;
++    }
++
++    memcpy(frame->data_and_fcs, plain, plain_len);
++    frame->frame_control._flags &= ~BIT(4);
++    frame->frame_length = IEEE80211_HEADER_SIZE + plain_len;
++    *length = frame->frame_length;
++    return true;
++}
++
+ static bool ccmp_encrypt_data(Esp32WifiState *s,
+                               struct mac80211_frame *frame,
+                               bool group)

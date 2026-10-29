@@ -3861,7 +3861,10 @@ components:
           type: object
           description: >
             Trusted-local runtime overrides for the QEMU process. Only
-            M5SW_CORE2_PMIC, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
+            M5SW_CORE2_PMIC, M5SW_ESPNOW_LOOPBACK,
+            M5SW_ESPNOW_PEER_LOCAL_PORT, M5SW_ESPNOW_PEER_REMOTE_PORT,
+            M5SW_ESPNOW_PEER_PMK, M5SW_ESPNOW_PEER_LMK,
+            M5SW_ESPNOW_PEER_TRACE, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
             M5SW_I2S_RX_PCM_FILE, M5SW_I2S_TRACE, M5SW_RMT_TX_FILE,
             M5SW_RMT_RX_FILE, M5SW_RMT_TRACE, M5SW_CAMERA_TRACE and
             M5SW_GDMA_TRACE are accepted. Camera/GDMA/RMT traces accept only
@@ -3873,10 +3876,34 @@ components:
             mono on Cardputer-ADV, two identical interleaved channels on CoreS3).
             Evidence includes the owned PCM and fixture provenance. Diagnostic
             overrides remain explicit; arbitrary override files are not archived.
+            ESP-NOW peer ports must be supplied as a distinct pair.
+            PMK/LMK must also be supplied together as 32 hexadecimal
+            characters; their values are redacted from session snapshots and
+            persisted session records.
           properties:
             M5SW_CORE2_PMIC:
               type: string
               enum: [axp192, axp2101]
+            M5SW_ESPNOW_LOOPBACK:
+              type: string
+              enum: ['1']
+            M5SW_ESPNOW_PEER_LOCAL_PORT:
+              type: string
+              pattern: '^[0-9]+$'
+            M5SW_ESPNOW_PEER_REMOTE_PORT:
+              type: string
+              pattern: '^[0-9]+$'
+            M5SW_ESPNOW_PEER_PMK:
+              type: string
+              pattern: '^[0-9A-Fa-f]{32}$'
+              writeOnly: true
+            M5SW_ESPNOW_PEER_LMK:
+              type: string
+              pattern: '^[0-9A-Fa-f]{32}$'
+              writeOnly: true
+            M5SW_ESPNOW_PEER_TRACE:
+              type: string
+              enum: ['1']
             M5SW_CAMERA_TRACE:
               type: string
               enum: ['1']

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run an unencrypted two-guest ESP-NOW exchange through the controller bridge."""
+"""Run a two-guest ESP-NOW exchange through the controller bridge."""
 
 from __future__ import annotations
 
@@ -31,6 +31,8 @@ ROLE = __ROLE__
 PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
 PEER_PAYLOAD = ("PAIR_PLAINTEXT:" + ROLE).encode()
 EXPECTED_PAYLOAD = ("PAIR_PLAINTEXT:" + ("B" if ROLE == "A" else "A")).encode()
+PMK = __PMK__
+LMK = __LMK__
 
 
 def emit(kind, **values):
@@ -70,13 +72,19 @@ connect_wifi()
 node = espnow.ESPNow()
 node.active(True)
 node.config(rxbuf=4096, timeout_ms=100)
-node.add_peer(PEER_MAC, channel=0, ifidx=0, encrypt=False)
+if __ENCRYPT__:
+    node.set_pmk(PMK)
+    node.add_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+else:
+    node.add_peer(PEER_MAC, channel=0, ifidx=0, encrypt=False)
 peer_count = list(node.peer_count())
-if peer_count != [1, 0]:
+expected_peer_count = [1, 1] if __ENCRYPT__ else [1, 0]
+if peer_count != expected_peer_count:
     emit("RESULT", role=ROLE, api="external_peer_registration", status="FAIL",
-         peer_count=peer_count)
+         peer_count=peer_count, encryption=__ENCRYPT__)
     raise RuntimeError("external peer registration failed")
-emit("RESULT", role=ROLE, api="external_peer_registration", status="PASS")
+emit("RESULT", role=ROLE, api="external_peer_registration", status="PASS",
+     peer_count=peer_count, encryption=__ENCRYPT__)
 emit("READY", role=ROLE)
 
 received = False
@@ -111,7 +119,7 @@ emit(
     source_matches=source_matches,
     payload_matches=payload_matches,
     last_payload_len=last_payload_len,
-    encryption=False,
+    encryption=__ENCRYPT__,
     expected_payload_sha256=__EXPECTED_HASH__,
 )
 emit("DONE", role=ROLE)
@@ -189,9 +197,15 @@ def run_one(
     local_port: int,
     remote_port: int,
     output: Path,
+    encrypt: bool,
+    pmk: bytes,
+    lmk: bytes,
 ) -> dict:
     source = (
         PAIR_SOURCE.replace("__ROLE__", repr(role))
+        .replace("__PMK__", repr(pmk))
+        .replace("__LMK__", repr(lmk))
+        .replace("__ENCRYPT__", repr(encrypt))
         .replace(
             "__EXPECTED_HASH__",
             repr(
@@ -208,6 +222,11 @@ def run_one(
         "M5SW_ESPNOW_PEER_REMOTE_PORT": str(remote_port),
         "M5SW_ESPNOW_PEER_TRACE": "1",
     }
+    if encrypt:
+        runtime_env.update({
+            "M5SW_ESPNOW_PEER_PMK": pmk.hex(),
+            "M5SW_ESPNOW_PEER_LMK": lmk.hex(),
+        })
     args = SimpleNamespace(
         api=api,
         token_file=token_file,
@@ -267,7 +286,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--api", required=True)
     parser.add_argument("--token-file", type=Path, required=True)
-    parser.add_argument("--scenario", choices=("plaintext",), required=True)
+    parser.add_argument(
+        "--scenario",
+        choices=("plaintext", "encrypted", "wrong-lmk", "wrong-pmk"),
+        required=True,
+    )
     parser.add_argument("--left-device", default="stopwatch")
     parser.add_argument("--right-device", default="sticks3")
     parser.add_argument("--out-dir", type=Path, required=True)
@@ -275,6 +298,35 @@ def main() -> int:
 
     output = args.out_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    encrypt = args.scenario != "plaintext"
+    keys = {
+        "stopwatch": (
+            b"0123456789abcdef",
+            b"fedcba9876543210",
+        ),
+        "sticks3": (
+            b"0123456789abcdef",
+            b"fedcba9876543210",
+        ),
+        "core2": (
+            b"0123456789abcdef",
+            b"fedcba9876543210",
+        ),
+    }
+    if args.scenario == "wrong-lmk":
+        _, right_lmk = keys[args.right_device]
+        keys[args.right_device] = (
+            b"0123456789abcdef",
+            bytes(value ^ 0xff for value in right_lmk),
+        )
+    elif args.scenario == "wrong-pmk":
+        right_pmk, right_lmk = keys[args.right_device]
+        keys[args.right_device] = (
+            bytes(value ^ 0xff for value in right_pmk),
+            right_lmk,
+        )
+    left_pmk, left_lmk = keys[args.left_device]
+    right_pmk, right_lmk = keys[args.right_device]
     left_port, right_port = port_pair()
     jobs = (
         dict(
@@ -285,6 +337,9 @@ def main() -> int:
             local_port=left_port,
             remote_port=right_port,
             output=output / "role-a",
+            encrypt=encrypt,
+            pmk=left_pmk,
+            lmk=left_lmk,
         ),
         dict(
             api=args.api,
@@ -294,6 +349,9 @@ def main() -> int:
             local_port=right_port,
             remote_port=left_port,
             output=output / "role-b",
+            encrypt=encrypt,
+            pmk=right_pmk,
+            lmk=right_lmk,
         ),
     )
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -324,12 +382,23 @@ def main() -> int:
         if row.get("kind") == "RESULT"
         and row.get("api") == "external_peer_registration"
     ]
+    expected_drop = args.scenario == "wrong-lmk"
+    delivery_ok = (
+        all(
+            row.get("status") == "EXPECTED_DROP"
+            and row.get("received") is False
+            and row.get("rx_packets") == 0
+            for row in delivery_results
+        )
+        if expected_drop
+        else all(row.get("status") == "PASS" for row in delivery_results)
+    )
     status_ok = (
         len(registration_results) == 2
         and all(row.get("status") == "PASS" for row in registration_results)
         and len(delivery_results) == 2
-        and all(row.get("status") == "PASS" for row in delivery_results)
-        and all(row.get("encryption") is False for row in delivery_results)
+        and delivery_ok
+        and all(row.get("encryption") is encrypt for row in delivery_results)
         and all(result["returncode"] == 0 for result in results)
         and cleanup_ok
         and bridge_traffic_ok
@@ -339,7 +408,7 @@ def main() -> int:
         "validation": "virtual-device validation",
         "hardware_validation": "NOT RUN",
         "scenario": args.scenario,
-        "encryption": False,
+        "encryption": encrypt,
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {
             "transport": "IPv4 loopback UDP action-frame bridge",

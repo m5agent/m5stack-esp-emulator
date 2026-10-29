@@ -200,6 +200,8 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
     "M5SW_ESPNOW_PEER_LOCAL_PORT",
+    "M5SW_ESPNOW_PEER_LMK",
+    "M5SW_ESPNOW_PEER_PMK",
     "M5SW_ESPNOW_PEER_REMOTE_PORT",
     "M5SW_ESPNOW_PEER_TRACE",
     "M5SW_I2S_DMA_IRQ",
@@ -218,6 +220,10 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_SPI_XFER_TRACE",
     "M5SW_LCD_TRACE",
 }
+PRIVATE_RUNTIME_ENV = frozenset({
+    "M5SW_ESPNOW_PEER_LMK",
+    "M5SW_ESPNOW_PEER_PMK",
+})
 BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
@@ -637,6 +643,13 @@ def redacted_network_config(config: dict | None) -> dict:
         if key in safe and safe[key] is not None:
             safe[key] = "<redacted>"
     return safe
+
+
+def redacted_runtime_env(runtime_env: dict[str, str] | None) -> dict[str, str]:
+    return {
+        key: "<redacted>" if key in PRIVATE_RUNTIME_ENV else value
+        for key, value in (runtime_env or {}).items()
+    }
 
 
 def qemu_station_mac(session_id: str) -> str:
@@ -3517,7 +3530,7 @@ class DeviceSession:
                 "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
             **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
             **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
-            "runtime_env": dict(self.runtime_env),
+            "runtime_env": redacted_runtime_env(self.runtime_env),
             "units": self.units,
             "unit_contract": self.unit_contract,
             "runtime": self.runtime,
@@ -4042,7 +4055,7 @@ class DeviceSession:
                     "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
                 **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
-                "runtime_env": dict(self.runtime_env),
+                "runtime_env": redacted_runtime_env(self.runtime_env),
                 "runtime": self.runtime,
                 "runtime_memory": (
                     qemu_runtime_memory(
@@ -10557,6 +10570,40 @@ class DeviceService:
                         "external ESP-NOW peer bridge",
                         400,
                     )
+            espnow_pmk = runtime_env.get("M5SW_ESPNOW_PEER_PMK")
+            espnow_lmk = runtime_env.get("M5SW_ESPNOW_PEER_LMK")
+            if (espnow_pmk is None) != (espnow_lmk is None):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "M5SW_ESPNOW_PEER_PMK and "
+                    "M5SW_ESPNOW_PEER_LMK must be set together",
+                    400,
+                )
+            if espnow_pmk is not None:
+                if espnow_local_port is None:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "ESP-NOW peer keys require the external peer bridge",
+                        400,
+                    )
+                for key_name, key_value in (
+                    ("M5SW_ESPNOW_PEER_PMK", espnow_pmk),
+                    ("M5SW_ESPNOW_PEER_LMK", espnow_lmk),
+                ):
+                    if not (
+                        len(key_value) == 32
+                        and key_value.isascii()
+                        and all(
+                            character in "0123456789abcdefABCDEF"
+                            for character in key_value
+                        )
+                    ):
+                        raise ServiceError(
+                            "invalid_runtime_env",
+                            f"{key_name} must contain exactly 32 hexadecimal "
+                            "characters",
+                            400,
+                        )
             core2_pmic = runtime_env.get("M5SW_CORE2_PMIC")
             if core2_pmic is not None:
                 if device_id != "core2":

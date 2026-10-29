@@ -500,6 +500,17 @@ bridge rejects invalid/equal ports and cannot be combined with `0067`'s
 same-guest loopback. This unencrypted external-guest lane does not implement
 PMK/LMK, CCMP, loss/retry, RF, antenna or timing.
 
+`0077-esp32-espnow-external-ccmp.patch` adds key-bound AES-CCMP to that
+external bridge. The explicit fixture supplies a PMK and plaintext LMK to the
+controller boundary; QEMU stores only the AES-128-ECB-wrapped LMK, strips the
+guest hardware envelope on TX, encrypts the action body with a fresh PN and
+eight-byte MIC, and authenticates RX before normal DMA delivery. A wrong LMK
+causes RX authentication failure and no guest callback. The same PMK rule
+still permits traffic when both ends use the same on-wire LMK, so this is not
+a wrong-PMK negative control. This milestone does not prove guest
+`set_pmk`/`add_peer` state propagation, peer add/update/delete, replay
+protection, loss/retry, cross-fabric routing, RF, timing or physical hardware.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

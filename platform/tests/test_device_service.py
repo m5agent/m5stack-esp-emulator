@@ -1491,10 +1491,48 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(mixed_gate.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as partial_keys:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_PMK": "0123456789abcdef" * 2,
+                    },
+                }
+            )
+        self.assertEqual(partial_keys.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as invalid_key:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_PMK": "z" * 32,
+                        "M5SW_ESPNOW_PEER_LMK": "fedcba9876543210" * 2,
+                    },
+                }
+            )
+        self.assertEqual(invalid_key.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as orphan_keys:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_PMK": "0123456789abcdef" * 2,
+                        "M5SW_ESPNOW_PEER_LMK": "fedcba9876543210" * 2,
+                    },
+                }
+            )
+        self.assertEqual(orphan_keys.exception.code, "invalid_runtime_env")
 
     def test_external_espnow_peer_ports_are_trusted_local_fixtures(self):
         runtime_env = {
             "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+            "M5SW_ESPNOW_PEER_PMK": "0123456789abcdef" * 2,
+            "M5SW_ESPNOW_PEER_LMK": "fedcba9876543210" * 2,
             "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
             "M5SW_ESPNOW_PEER_TRACE": "1",
         }
@@ -1504,6 +1542,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         session = self.service.get_session(result["session_id"])
         self.assertEqual(session.runtime_env, runtime_env)
+        self.assertEqual(
+            result["runtime_env"]["M5SW_ESPNOW_PEER_PMK"],
+            "<redacted>",
+        )
+        self.assertEqual(
+            session.snapshot()["runtime_env"]["M5SW_ESPNOW_PEER_LMK"],
+            "<redacted>",
+        )
+        persisted = json.loads(
+            session.session_record_path.read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            persisted["runtime_env"]["M5SW_ESPNOW_PEER_PMK"],
+            "<redacted>",
+        )
 
     def test_controller_trace_accept_only_explicit_boolean_enable(self):
         traces = {key: "1" for key in (

@@ -1167,3 +1167,33 @@ channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
 `NOT RUN`。全部为 virtual-device validation。见
 [证据](evidence/2026-10-29-espnow-external-peer/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-external-peer/summary.json)。
+
+## 2026-10-29：ESP-NOW external peer 的 key-bound AES-CCMP
+
+新增 `0077-esp32-espnow-external-ccmp.patch`，SHA256
+`4a0aa4fa4d92ddf00d02e62136c4bc881b4a5b6e73edeb78a835feb94a74e095`。
+该 patch 在 `0076` 的 independent-guest bridge 边界执行真实 AES-CCMP：
+PMK 以 AES-128-ECB wrap LMK，plaintext LMK 不进入 controller state；TX
+移除 guest hardware envelope 后以新 PN/8-byte MIC 加密 action body，RX 在
+正常 DMA 注入前验证 MIC，认证失败直接丢弃。最终 QEMU SHA256 为
+`5340171ca484ce7ee3b13a0538a35c5f22fcd3a2ff726fa7a902424ff4d7d179`。
+
+StopWatch↔StickS3 完成明文回归、正确 key、错误 LMK 和 wrong-PMK/same-LMK
+四条路径；Core2↔StopWatch 完成正确 key 与错误 LMK。十二个独立 session 中，
+正确 key 均双向收到对方 payload；两条错误 LMK 场景的两个方向均为
+`EXPECTED_DROP`、`rx_packets=0`，同时 bridge TX/RX 仍大于零，证明数据已到达
+peer controller 后才因 MIC 失败被丢弃。wrong-PMK/same-LMK 按 ESP-NOW 语义
+继续 PASS，因此不能把它当作错误 payload key 负控。所有 session 均
+`purge=0` 停止，terminal state 为 `stopped`、QEMU PID 已消失并保留 history。
+
+PMK/LMK 现在从 API snapshot 和 persisted session JSON 脱敏为
+`<redacted>`。早期“原样搬运 guest protected envelope”控制在错误 LMK 下仍
+PASS，因此被拒绝；只有实际 CCMP/MIC 实现进入本轮结论。
+
+该结果关闭 `RUNTIME-06` 的 key-bound CCMP fixture 正负控，但任务仍为
+`PARTIAL`：guest `set_pmk`/`add_peer` key-state 传播、key rotation、
+peer add/update/delete、replay、loss/retry、超过两个 peer 的 fabric、
+channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
+`NOT RUN`。全部为 virtual-device validation。见
+[证据](evidence/2026-10-29-espnow-external-ccmp/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-external-ccmp/summary.json)。

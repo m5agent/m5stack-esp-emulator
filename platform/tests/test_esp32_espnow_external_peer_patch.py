@@ -77,7 +77,7 @@ class Esp32EspNowExternalPeerPatchTests(unittest.TestCase):
         self.assertIn("remote_port < 1024 || remote_port > 65535", text)
         self.assertIn("local_port == remote_port", text)
 
-    def test_service_and_runner_expose_only_plaintext_external_lane(self):
+    def test_service_and_runner_retain_plaintext_external_lane(self):
         text = PATCH.read_text()
         service = (ROOT / "platform/tools/device_service.py").read_text()
         runner = (ROOT / "tests/uiflow2/api_sweep/run_espnow_pair.py").read_text()
@@ -89,14 +89,12 @@ class Esp32EspNowExternalPeerPatchTests(unittest.TestCase):
             '"qemu-esp32lx6"',
         ):
             self.assertIn(marker, service)
-        self.assertIn('choices=("plaintext",)', runner)
+        self.assertIn("plaintext", runner)
         self.assertIn("encrypt=False", runner)
-        self.assertIn('"encryption": False', runner)
+        self.assertIn("encryption=__ENCRYPT__", runner)
         self.assertIn('api="external_payload"', runner)
         self.assertIn('PEER_MAC = b"\\x02\\x00\\x00\\x00\\x00\\x43"', runner)
         self.assertNotIn('kind == "DISCOVERED"', runner)
-        self.assertNotIn("encrypt=True", runner)
-        self.assertNotIn("correct-pmk", runner)
         self.assertNotIn("[espnow-peer-data]", text)
 
     def test_patch_does_not_claim_encryption_or_rf(self):

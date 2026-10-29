@@ -2057,7 +2057,10 @@ object when creating a session:
 
 Core2 board-revision probes may additionally set
 `M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
-`M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
+`M5SW_CORE2_PMIC`, `M5SW_ESPNOW_LOOPBACK`,
+`M5SW_ESPNOW_PEER_LOCAL_PORT`, `M5SW_ESPNOW_PEER_REMOTE_PORT`,
+`M5SW_ESPNOW_PEER_PMK`, `M5SW_ESPNOW_PEER_LMK`,
+`M5SW_ESPNOW_PEER_TRACE`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
 `M5SW_I2S_RX_PCM_FILE`, `M5SW_I2S_TRACE`, `M5SW_RMT_TX_FILE`,
 `M5SW_RMT_RX_FILE`, `M5SW_RMT_TRACE`, `M5SW_INPUT_TRACE`,
 `M5SW_FT_TRACE`, `M5SW_I2C_TRACE`, `M5SW_CAMERA_TRACE`,
@@ -2071,6 +2074,16 @@ trusted-workstation control surface; do not expose it to untrusted tenants.
 Explicit diagnostic microphone overrides are labeled separately with unknown
 format until independently verified. Their arbitrary host files are not copied
 into the evidence ZIP as if they were the generated fixture.
+
+ESP-NOW external peer fixtures set both loopback UDP ports as a pair and cannot
+combine them with `M5SW_ESPNOW_LOOPBACK`. Optional
+`M5SW_ESPNOW_PEER_PMK` and `M5SW_ESPNOW_PEER_LMK` enable the key-bound CCMP
+bridge; each must contain exactly 32 hexadecimal characters and both must be
+present. These values are passed to QEMU but are returned as `<redacted>` in
+session snapshots and are not written to persisted session JSON. The generated
+guest probe may still contain its own fixed test keys, so callers must keep that
+source and raw evidence in trusted-local storage when stronger secrecy is
+required.
 
 Devices whose `features.storage` is true accept a content-addressed raw SD
 image through `storage.sd_image_artifact_id` in the session request:

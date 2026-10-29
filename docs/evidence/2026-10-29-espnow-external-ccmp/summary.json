@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "scope": "Key-bound AES-CCMP between two independent emulated ESP-NOW guests using the external peer bridge.",
+  "runtime_binary_sha256": "5340171ca484ce7ee3b13a0538a35c5f22fcd3a2ff726fa7a902424ff4d7d179",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0077-esp32-espnow-external-ccmp.patch",
+    "sha256": "4a0aa4fa4d92ddf00d02e62136c4bc881b4a5b6e73edeb78a835feb94a74e095"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "8c1530688da51bd4a3d7c5730af90462fd92282128c0ad9bf4b7bdbc191f96d0",
+    "window_ms": 12000
+  },
+  "service": {
+    "path": "platform/tools/device_service.py",
+    "sha256": "f83d05ec87745211244d37045ee13eb876e71691e786e1eae6aa6a4681779c69",
+    "runtime_key_values_redacted": true
+  },
+  "scenarios": [
+    {
+      "name": "plaintext",
+      "pair": ["stopwatch", "sticks3"],
+      "encryption": false,
+      "expected": "PASS",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "45bc4d347687820a9ceb91f6e97f3de448274ffc2ae1a44d64e87754bd4fd261",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 57,
+          "result": "PASS",
+          "evidence_sha256": "be7489793d8422de2f17322fff99f875e932ed22afb1538a07c3699b0c3959fe",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "852720f8a4aa7fa4a39525b0bb5d40562ab30de180684b1a0039db17ca88d49b",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 58,
+          "result": "PASS",
+          "evidence_sha256": "d66925ca62534d549a8b71d82cca650c960f802dfb72bc992938a6c35c06d56b",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "encrypted",
+      "pair": ["stopwatch", "sticks3"],
+      "encryption": true,
+      "expected": "PASS",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "b6baab9fa89d706a1e97da9302306c19f6f3f45abf171fa3c4dcab5e35dddb08",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 58,
+          "result": "PASS",
+          "evidence_sha256": "17ff82f231cf5405f6a8f0dfcb206e0bfdf01ebfc5dee7fb5a9e5ea939e4e7f0",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "a36fdff4efaee90b1b9bc1eed265b660d7e009b2fd391552a0d8205ed508ee6c",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 57,
+          "result": "PASS",
+          "evidence_sha256": "469e54a18640beac1cffc019c07d328be66621a93207da298946fc9fddee6b24",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "wrong-lmk",
+      "pair": ["stopwatch", "sticks3"],
+      "encryption": true,
+      "expected": "DROP",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "b6baab9fa89d706a1e97da9302306c19f6f3f45abf171fa3c4dcab5e35dddb08",
+          "bridge_tx": 40,
+          "bridge_rx": 40,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP",
+          "evidence_sha256": "8a00bd53388f5bae30a399f1d62aeb3b00165491bdf33d4f2b36e32cf82e104c",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "8851f381e8f3a40a759b1d4fee037887563d6c0bde48ac5d92b90e1f36ae06bf",
+          "bridge_tx": 40,
+          "bridge_rx": 40,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP",
+          "evidence_sha256": "b901839ac11c8339aa72684290177ff393066d0cb51d091cf5222de06b5ff501",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "wrong-pmk-same-lmk",
+      "pair": ["stopwatch", "sticks3"],
+      "encryption": true,
+      "expected": "PASS",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "b6baab9fa89d706a1e97da9302306c19f6f3f45abf171fa3c4dcab5e35dddb08",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 58,
+          "result": "PASS",
+          "evidence_sha256": "dbdf59585755f06116c37a684baa86bc8b4e8332ee107b9c776ef179172e4be1",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "4cd2afe265c7d16fe028e50b43eef7d8d8dac7d74b7b6fdf86b57deb28cecba9",
+          "bridge_tx": 58,
+          "bridge_rx": 58,
+          "peer_payloads": 57,
+          "result": "PASS",
+          "evidence_sha256": "2a03c32bd7729d29dc48bf7518ab5ff632e0559ac5edcffd9b6addef1583100a",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "encrypted",
+      "pair": ["core2", "stopwatch"],
+      "encryption": true,
+      "expected": "PASS",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "core2",
+          "firmware_sha256": "b39ced5db5e6f5896baac4b2d59fc5a7d809d10798a2adafa0db461811238750",
+          "bridge_tx": 44,
+          "bridge_rx": 31,
+          "peer_payloads": 15,
+          "result": "PASS",
+          "evidence_sha256": "404fdfc24a63c7d6a3085a9c2db3d314fdb369aba88a80c2b98fe02063409167",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "stopwatch",
+          "firmware_sha256": "bb9999e9f822854b6929ce4357cfb7b9a07ab6488e5e638239348b9f476258b7",
+          "bridge_tx": 48,
+          "bridge_rx": 44,
+          "peer_payloads": 44,
+          "result": "PASS",
+          "evidence_sha256": "0afe6c0b1eddd5dd15cfccd10824d54de354dcf64d4804be242b37c4d1a43407",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "name": "wrong-lmk",
+      "pair": ["core2", "stopwatch"],
+      "encryption": true,
+      "expected": "DROP",
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "core2",
+          "firmware_sha256": "b39ced5db5e6f5896baac4b2d59fc5a7d809d10798a2adafa0db461811238750",
+          "bridge_tx": 40,
+          "bridge_rx": 24,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP",
+          "evidence_sha256": "28a2bb66b23b6533a7fc9b4fbeb4064211838df763cd495fd96f1ea88c8e0c31",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "stopwatch",
+          "firmware_sha256": "e499e27ccf1021a73782958d56995dbeb9bb33aa4f7f6960ac277f3859cf6164",
+          "bridge_tx": 40,
+          "bridge_rx": 40,
+          "peer_payloads": 0,
+          "result": "EXPECTED_DROP",
+          "evidence_sha256": "35f2aa3c7e7de9bb629f4803e6d651a1926a25ec1c57a0a4bd58f309e8cf5e14",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    }
+  ],
+  "failure_control": "Directly forwarding the guest protected envelope did not reject a wrong LMK and was discarded; 0077 verifies CCMP/MIC before RX DMA.",
+  "not_claimed": [
+    "guest set_pmk/add_peer key-state propagation into the controller",
+    "peer add/update/delete, replay protection or key rotation lifecycle",
+    "loss/retry, more than two peers, channel/rate or bit-exact controller behavior",
+    "RF, antenna, coexistence, electrical, timing or physical hardware validation"
+  ]
+}
