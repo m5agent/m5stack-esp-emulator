@@ -929,3 +929,23 @@ QIOR header count: GigaDevice/Winbond use five mode/dummy bytes; ISSI uses
 three. The board configures this before realization, and the phase bridge
 applies only to flash CS0, preserving the independent PSRAM CS1 route.
 These source registrations do not inherit functional PASS between devices.
+
+### Motion, RTC sleep and S3 Flash follow-up
+
+`0093-classic-gpio-rtc-sleep.patch` connects classic GPIO pad observation to
+the RTC sleep/wake controller and preserves the RTC-fast memory path. Its
+controller contract and guest sleep validation remain distinct from physical
+RTC timing and power measurements.
+
+`0094-stackchan-scs-uart-wiring.patch` admits StackChan SCS bytes only through
+the board's UART1 TX6/RX7 GPIO matrix routes and exposes disconnected-route
+counters in the read-only QOM snapshot. It does not enable servo torque.
+
+`0095-s3-qio-flash-model-header.patch` selects the S3 SPI Flash QIOR phase for
+the actual attached model: three serialized mode/dummy bytes for the 16 MiB
+ISSI model, five for the 2/4/8 MiB Winbond/GigaDevice models. The selection
+occurs before SPI1 realization and applies only to CS0; CS1 PSRAM and ordinary
+READ commands retain their own paths. The patch also uses buffer indices for
+mixed-length TX/RX bounds. The independent Arduino NVS old/new comparison
+must establish readback and same-guest reset persistence separately from the
+controller C fixtures. See [Arduino browser behavior](../../docs/stackchan-arduino-browser.md).

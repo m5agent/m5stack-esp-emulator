@@ -272,6 +272,11 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             for profile in registry["profiles"]:
                 for name, row in profile.get("fixture", {}).get("sources", {}).items():
                     source_names = {
+                        "atom-lite": {'boot.py': 'core2_boot.py', 'main.py': 'atom_lite_main.py'},
+                        "atom-matrix": {'boot.py': 'core2_boot.py', 'main.py': 'atom_matrix_main.py'},
+                        "atom-matrix-v11": {'boot.py': 'core2_boot.py', 'main.py': 'atom_matrix_main.py'},
+                        "stickc-plus": {'boot.py': 'core2_boot.py'},
+
                         "stackchan": {"main.py": "main_stackchan.py"},
                         "atoms3": {"boot.py": "core2_boot.py"},
                         "atoms3-lite": {"main.py": "atoms3_lite_main.py"},

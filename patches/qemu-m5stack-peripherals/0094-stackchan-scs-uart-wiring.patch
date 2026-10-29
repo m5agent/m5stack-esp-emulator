@@ -1,0 +1,72 @@
+--- a/hw/m5stopwatch/m5_scs_servo.c
++++ b/hw/m5stopwatch/m5_scs_servo.c
+@@ -12,6 +12,7 @@
+ #include "qapi/qmp/qdict.h"
+ #include "qapi/qmp/qlist.h"
+ #include "hw/char/esp32_uart.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "m5stopwatch.h"
+ 
+ #define SCS_MAX_PACKET 256
+@@ -37,10 +38,26 @@
+     bool powered;
+     uint64_t packets;
+     uint64_t rejected_packets;
++    uint64_t disconnected_tx_bytes;
++    uint64_t disconnected_rx_packets;
+ } M5ScsServoState;
+ 
+ static M5ScsServoState *scs_peer;
+ 
++/* StackChan's internal bus is UART1 on TX6/RX7 (ESP32-S3 signal15).
++ * A UART register write alone does not establish the board's GPIO wiring.
++ * Inverted or disconnected routes cannot deliver a packet to the peer.
++ */
++static bool scs_tx_connected(void)
++{
++    return esp32_gpio_matrix_out_signal(6, true) == 15;
++}
++
++static bool scs_rx_connected(void)
++{
++    return esp32_gpio_matrix_in_pin(15, true) == 7;
++}
++
+ static void scs_put_be16(uint8_t *mem, int addr, uint16_t value)
+ {
+     mem[addr] = value >> 8;
+@@ -134,6 +151,10 @@
+ static void scs_send(M5ScsServoState *s, uint8_t id, uint8_t error,
+                      const uint8_t *data, uint8_t data_len)
+ {
++    if (!scs_rx_connected()) {
++        s->disconnected_rx_packets++;
++        return;
++    }
+     uint8_t out[SCS_MAX_PACKET];
+     uint8_t len = data_len + 2;
+     uint8_t sum = id + len + error;
+@@ -307,7 +328,11 @@
+ {
+     M5ScsServoState *s = opaque;
+     scs_sync_power(s);
+-    if (!s->powered) {
++    if (!s->powered || !scs_tx_connected()) {
++        s->packet_len = 0;
++        if (s->powered) {
++            s->disconnected_tx_bytes++;
++        }
+         return;
+     }
+     if (s->packet_len >= sizeof(s->packet)) {
+@@ -358,6 +383,10 @@
+     qdict_put_bool(state, "powered", s->powered);
+     qdict_put_int(state, "packets", s->packets);
+     qdict_put_int(state, "rejected_packets", s->rejected_packets);
++    qdict_put_bool(state, "uart_tx_connected", scs_tx_connected());
++    qdict_put_bool(state, "uart_rx_connected", scs_rx_connected());
++    qdict_put_int(state, "disconnected_tx_bytes", s->disconnected_tx_bytes);
++    qdict_put_int(state, "disconnected_rx_packets", s->disconnected_rx_packets);
+     qdict_put_str(state, "motion_model", "command-time-position-v1");
+     qdict_put_bool(state, "pwm_motion_modelled", false);
+     for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {

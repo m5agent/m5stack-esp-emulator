@@ -15,13 +15,18 @@ export function validateQemuProfile(profile) {
   check(profile.bootloaderOffset === (profile.chip === 'esp32s3' ? 0 : 0x1000) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
   const display = profile.display;
   if (display === null) {
-    const output = profile.outputs;
-    check(profile.deviceId === 'atoms3-lite' && profile.board === 'm5atoms3lite' && profile.chip === 'esp32s3'
-      && profile.flashMb === 8 && profile.psramMb === 0 && output && Object.keys(output).length === 5
-      && output.kind === 'single-ws2812-qom-v1' && output.path === '/machine/onboard_io'
-      && Array.isArray(output.properties) && output.properties.length === 3
-      && output.properties.every((property, index) => property === ['led-rgb', 'led-frames', 'pressed'][index])
-      && output.ledTarget === 'rgb' && output.buttonTarget === 'button', 'Invalid QEMU headless output profile');
+    const output=profile.outputs, matrix=['atom-matrix','atom-matrix-v11'].includes(profile.deviceId);
+    const identity=profile.deviceId==='atoms3-lite'&&profile.board==='m5atoms3lite'&&profile.chip==='esp32s3'&&profile.flashMb===8
+      || profile.deviceId==='atom-lite'&&profile.board==='m5atomlite'&&profile.chip==='esp32'&&profile.flashMb===4
+      || matrix&&profile.chip==='esp32'&&profile.flashMb===4
+        &&profile.board===({'atom-matrix':'m5atommatrix','atom-matrix-v11':'m5atommatrixv11'}[profile.deviceId]);
+    check(identity&&profile.psramMb===0&&output&&Object.keys(output).length===(matrix?6:5)
+      && output.kind===(matrix?'matrix-ws2812-qom-v1':'single-ws2812-qom-v1')&&output.path==='/machine/onboard_io'
+      && Array.isArray(output.properties)&&output.properties.length===3
+      && output.properties.every((property,index)=>property===['led-rgb','led-frames','pressed'][index])
+      &&output.buttonTarget==='button'&&(matrix?output.spatialMapping==='uniform-only-v1'
+        &&Array.isArray(output.ledTargets)&&output.ledTargets.length===25
+        &&output.ledTargets.every((target,index)=>target===`led${index}`):output.ledTarget==='rgb'), 'Invalid QEMU headless output profile');
   } else {
     check(display && Number.isInteger(display.width) && display.width > 0 && display.width <= 2048 && Number.isInteger(display.height) && display.height > 0 && display.height <= 2048
       && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
@@ -47,13 +52,17 @@ export function validateQemuProfile(profile) {
     && profile.efuse.bytes === 4096 && profile.efuse.packageVersion === 6;
   const classicCompactEfuse = (profile.deviceId === 'stickc' && profile.board === 'm5stickc'
       && display?.width === 80 && display?.height === 160
+    || profile.deviceId === 'stickc-plus' && profile.board === 'm5stickcplus'
+      && display?.width === 135 && display?.height === 240
     || profile.deviceId === 'stickc-plus-se' && profile.board === 'm5stickcplusse'
       && display?.width === 135 && display?.height === 240)
     && profile.flashMb === 4 && profile.psramMb === 0 && profile.efuse?.driver === 'nvram.esp32.efuse'
     && profile.efuse.bytes === 4096 && profile.efuse.packageVersion === 5;
+  const classicHeadlessEfuse = ['atom-lite','atom-matrix','atom-matrix-v11'].includes(profile.deviceId)
+    && display===null&&profile.efuse?.driver==='nvram.esp32.efuse'&&profile.efuse.bytes===4096&&profile.efuse.packageVersion===5;
   const classicNoEfuse = profile.deviceId === 'core2' && profile.board === 'm5core2' && profile.efuse === null;
-  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
-  if (display === null) check(profile.efuse.packageVersion === 0, 'Invalid QEMU headless eFuse package');
+  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse || classicHeadlessEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
+  if (display === null) check(profile.efuse.packageVersion === (profile.chip==='esp32'?5:0), 'Invalid QEMU headless eFuse package');
   const input = profile.inputs;
   check(input?.reset === undefined || input.reset === true, 'Invalid hardware reset admission');
   if (input?.capacitiveTouch !== undefined) check(profile.deviceId === 'stackchan' && profile.board === 'm5stackchan'
@@ -291,7 +300,9 @@ export function validateQemuOnboardState(profile, state) {
   qemuOnboardOutputQueries(profile);
   check(state && Object.keys(state).length === 7 && state.schema_version === 1 && state.device_id === profile.deviceId
     && state.source === 'qemu-rmt-qom-readback' && state.path === profile.outputs.path
-    && Number.isSafeInteger(state.led_rgb) && state.led_rgb >= 0 && state.led_rgb <= 0xFFFFFF
+    && (profile.outputs.kind==='matrix-ws2812-qom-v1'
+      ? Array.isArray(state.led_rgb)&&state.led_rgb.length===25&&state.led_rgb.every(color=>Number.isSafeInteger(color)&&color>=0&&color<=0xFFFFFF)
+      : Number.isSafeInteger(state.led_rgb)&&state.led_rgb>=0&&state.led_rgb<=0xFFFFFF)
     && Number.isSafeInteger(state.led_frames) && state.led_frames >= 0 && typeof state.pressed === 'boolean', 'Invalid QEMU onboard output state');
   return state;
 }

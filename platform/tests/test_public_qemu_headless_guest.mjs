@@ -10,7 +10,8 @@ import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const site=process.env.M5_PUBLIC_SITE&&resolve(process.env.M5_PUBLIC_SITE);
 if(!site){console.log('SKIP: explicit M5_PUBLIC_SITE candidate export required');process.exit(0);}
-const device='atoms3-lite',basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+const device=process.env.M5_QEMU_DEVICE||'atoms3-lite', matrix=['atom-matrix','atom-matrix-v11'].includes(device),basePath=process.env.M5_PUBLIC_BASE_PATH||'/showcase/';
+assert.ok(['atoms3-lite','atom-lite','atom-matrix','atom-matrix-v11'].includes(device),'unsupported headless board');
 const output=resolve(process.env.M5_PUBLIC_QEMU_OUT||resolve(repo,'.work/public-qemu-headless-'+device));
 assert.ok(output.startsWith(resolve(repo,'.work')+'/'),'raw guest evidence belongs in ignored .work');
 const timeout=Number(process.env.M5_QEMU_READY_TIMEOUT_MS||180000);
@@ -43,18 +44,23 @@ async function guest(kind,predicate=()=>true){
 async function outputState({color,pressed,after=0}){
   await page.waitForFunction(({color,pressed,after})=>{
     const run=globalThis.headlessRun,s=run?.runtime.lastDeviceState;
-    return s?.led_rgb===color&&s.pressed===pressed&&s.led_frames>after;
+    return (Array.isArray(s?.led_rgb)?s.led_rgb.length===25&&s.led_rgb.every(value=>value===color):s?.led_rgb===color)&&s.pressed===pressed&&s.led_frames>after;
   },{color,pressed,after},{timeout:30000});
   return page.evaluate(()=>structuredClone(headlessRun.runtime.lastDeviceState));
 }
 async function modelReadback(state){
   const handle=await page.waitForFunction(expected=>{
-    const shell=globalThis.headlessShell,led=shell?.model.find('rgb','led'),button=shell?.model.find('button','button');
-    if(!led||!button||shell.display||shell.observedOutput?.led_frames!==expected.led_frames
-      ||shell.observedOutput?.pressed!==expected.pressed||shell.observedOutput?.led_rgb!==expected.led_rgb)return false;
-    const value=led.getState(),color='#'+expected.led_rgb.toString(16).padStart(6,'0');
-    if(value.color!==color||value.brightness!==(expected.led_rgb?1:0)||led.runtimeKnown!==true||button.getState().pressed!==expected.pressed)return false;
-    return {led:value,known:led.runtimeKnown,pressed:button.getState().pressed,rendered_outputs:shell.observedOutputRenders};
+    const shell=globalThis.headlessShell,button=shell?.model.find('button','button'),matrix=Array.isArray(expected.led_rgb);
+    const targets=matrix?Array.from({length:25},(_,index)=>'led'+index):['rgb'];
+    const colors=matrix?expected.led_rgb:[expected.led_rgb],leds=targets.map(target=>shell?.model.find(target,'led'));
+    if(!button||leds.some(led=>!led)||shell.display||shell.observedOutput?.led_frames!==expected.led_frames
+      ||shell.observedOutput?.pressed!==expected.pressed||JSON.stringify(shell.observedOutput?.led_rgb)!==JSON.stringify(expected.led_rgb))return false;
+    const values=leds.map(led=>led.getState());
+    if(values.some((value,index)=>value.color!=='#'+colors[index].toString(16).padStart(6,'0')
+      ||value.brightness!==(colors[index]?1:0)||leds[index].runtimeKnown!==true)
+      ||button.getState().pressed!==expected.pressed)return false;
+    return {leds:values,known:leds.every(led=>led.runtimeKnown),pressed:button.getState().pressed,rendered_outputs:shell.observedOutputRenders,
+      spatial_mapping:matrix?'uniform-only-v1':'single-led'};
   },state,{timeout:30000});
   const value=await handle.jsonValue();await handle.dispose();return value;
 }
@@ -91,7 +97,7 @@ try{
     const {loadQemuBrowserProfiles,getQemuBrowserProfile}=await import(new URL('platform/web/public-qemu-profiles.js',origin));
     const registry=await loadQemuBrowserProfiles({root:origin}),allowCandidateProfiles=config.publication_eligible===false;
     const profile=getQemuBrowserProfile(device,registry,{allowCandidateProfiles});
-    if(!profile||profile.display!==null||profile.outputs.kind!=='single-ws2812-qom-v1')throw new Error('Missing explicit headless browser profile');
+    if(!profile||profile.display!==null||!['single-ws2812-qom-v1','matrix-ws2812-qom-v1'].includes(profile.outputs.kind))throw new Error('Missing explicit headless browser profile');
     if(profile.admission==='candidate'&&(!allowCandidateProfiles||!config.browser_candidate_profiles?.includes(device)))throw new Error('Unselected candidate');
     const {ModelDeviceShell}=await import(new URL('platform/web/model-shell.js?v=20261026h',origin)),create=ModelDeviceShell.create;
     ModelDeviceShell.create=async function(...args){
@@ -119,7 +125,7 @@ try{
   },{origin,device});
   await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.locator(`[data-device-id="${device}"]`).click();
-  await page.waitForFunction(()=>globalThis.headlessShell?.device.id==='atoms3-lite',{}, {timeout:45000});
+  await page.waitForFunction(device=>globalThis.headlessShell?.device.id===device,device, {timeout:45000});
   report.webgl_renderer=await page.evaluate(()=>{
     const gl=headlessShell.viewer.renderer.getContext(),info=gl.getExtension('WEBGL_debug_renderer_info');
     return info?gl.getParameter(info.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);
@@ -130,8 +136,8 @@ try{
   check('public-headless-reference-label',(await page.locator('#referenceTitle').textContent()).includes('RGB 与按键示例'));
   check('public-headless-reference-instructions',!(await page.locator('#referenceDescription').textContent()).includes('屏幕'));
   await page.locator('#startBtn').click();
-  const ready=await guest('ready',event=>event.device===device&&event.output==='ws2812-rmt-gpio35');report.ready=ready;
-  check('original-lite-board-and-output-route',ready.board===137&&ready.input==='button',ready);
+  const ready=await guest('ready',event=>event.device===device&&event.output===(device==='atoms3-lite'?'ws2812-rmt-gpio35':'ws2812-rmt-gpio27'));report.ready=ready;
+  check('original-firmware-board-and-output-route',ready.board===(matrix?141:device==='atoms3-lite'?137:128)&&ready.input==='button'&&(!matrix||ready.leds===25),ready);
   const idle=await outputState({color:0x204060,pressed:false});report.idle={qom:idle,model:await modelReadback(idle)};
   check('no-lcd-or-frame-transport',await page.evaluate(()=>!headlessShell.display&&headlessRun.runtime.profile.display===null
     &&headlessRun.runtime.lastFrame===null&&headlessRun.runtime.receipt.frameTransport===null&&document.querySelector('#nativeScreenBtn').hidden));
@@ -186,7 +192,7 @@ try{
     &&targetClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1,targetClose);
   check('no-leftover-iframe',await page.locator('iframe').count()===0);
   check('no-device-service-or-page-errors',errors.length===0&&!requests.some(request=>/\/api\/v1|:8787\b|:8830\b/.test(request.url)),errors);
-  check('stopped-model-output-unknown',await page.evaluate(()=>headlessShell.model.find('rgb','led').runtimeKnown===false));
+  check('stopped-model-output-unknown',await page.evaluate(()=>{const matrix=headlessRun.profile.outputs.kind==='matrix-ws2812-qom-v1';return (matrix?Array.from({length:25},(_,i)=>'led'+i):['rgb']).every(target=>headlessShell.model.find(target,'led').runtimeKnown===false);}));
   report.status='PASS';
 }catch(error){
   report.error=error.message;process.exitCode=1;

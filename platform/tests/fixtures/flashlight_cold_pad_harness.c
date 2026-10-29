@@ -99,6 +99,12 @@ void esp32_ledc_gpio_route_changed(bool);
 void m5_unit_gpio_route_changed(bool,unsigned);
 int esp32_gpio_matrix_out_signal(int,bool);
 int esp32_gpio_matrix_in_pin(unsigned,bool);
+/* The classic RTC controller is not enabled in this GPIO/AW/I2C fixture.
+ * Keep that optional owner absent; S3 RTC-pad algorithms are replayed below. */
+static uint32_t esp32_rtc_gpio_pad_blockers(unsigned pin)
+{ (void)pin; return 0; }
+static void esp32_rtc_gpio_input_changed(unsigned pin, int level)
+{ (void)pin; (void)level; }
 typedef struct M5Unit {
  DeviceState parent_obj;char *unit_id;int yellow,white;bool s3;
  uint64_t input_events,output_transitions;

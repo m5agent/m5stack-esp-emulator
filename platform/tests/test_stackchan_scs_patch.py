@@ -13,6 +13,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 PATCHES = ROOT / 'patches/qemu-m5stack-peripherals'
 PATCH = PATCHES / '0090-stackchan-scs-motion-observer.patch'
+WIRING_PATCH = PATCHES / '0094-stackchan-scs-uart-wiring.patch'
 UNIT = 'hw/m5stopwatch/m5_scs_servo.c'
 
 STUBS = r'''
@@ -64,6 +65,9 @@ typedef struct ESP32UARTState { void (*tx)(void *,uint8_t);void *opaque;uint8_t 
 #define ESP32_UART(uart) ((ESP32UARTState *)(uart))
 static void esp32_uart_set_tx_byte_callback(ESP32UARTState *uart,void (*cb)(void *,uint8_t),void *opaque) { uart->tx=cb;uart->opaque=opaque; }
 static void esp32_uart_inject_rx(ESP32UARTState *uart,const uint8_t *data,int count) { assert(count<=256);memcpy(uart->rx,data,count);uart->rx_len=count; }
+static int tx_signal=15,rx_pin=7;
+static int esp32_gpio_matrix_out_signal(int pin,bool s3) { assert(pin==6&&s3);return tx_signal; }
+static int esp32_gpio_matrix_in_pin(unsigned signal,bool s3) { assert(signal==15&&s3);return rx_pin; }
 static bool rail_enabled;
 static bool m5sw_stackchan_servo_power_enabled(void) { return rail_enabled; }
 void m5_scs_servo_power_changed(bool enabled);
@@ -72,7 +76,7 @@ void m5_scs_servo_power_changed(bool enabled);
 CASES = r'''
 static ESP32UARTState uart;
 static void fresh(void) {
-    memset(&uart,0,sizeof(uart));rail_enabled=false;now_ms=0;
+    memset(&uart,0,sizeof(uart));rail_enabled=false;now_ms=0;tx_signal=15;rx_pin=7;
     scs_peer=NULL;m5_scs_servo_attach((DeviceState *)&uart);
 }
 static void power(bool on) { rail_enabled=on;m5_scs_servo_power_changed(on); }
@@ -162,6 +166,24 @@ int main(void) {
     now_ms=400;assert(read_position(1)==676);
     uint8_t lock=1;write_bytes(1,4,48,&lock,1);packet(0xfe,5,NULL,0,true);
     now_ms=1000;assert(read_position(1)==1000&&scs_peer->mem[1][66]==0);
+    /* Wrong TX pins cannot operate servos; wrong RX pins cannot return feedback.
+     * Restoring the real route must recover without a reset or host-side values.
+     */
+    fresh();power(true);torque(1,1);tx_signal=14;
+    move(1,3,800,100);now_ms=1000;scs_sync_power(scs_peer);
+    assert(present(1)==460&&scs_get_be16(scs_peer->mem[1],42)==460);
+    assert(scs_peer->disconnected_tx_bytes>0);tx_signal=15;
+    rx_pin=8;move(1,3,800,100);assert(uart.rx_len==0);
+    now_ms+=100;scs_sync_power(scs_peer);assert(present(1)==800);
+    uint8_t read_params[]={56,2};packet(1,2,read_params,2,true);assert(uart.rx_len==0);
+    assert(scs_peer->disconnected_rx_packets>=2);rx_pin=7;assert(read_position(1)==800);
+    /* 20ms BSP updates follow intermediate feedback without host interpolation. */
+    for(int i=0;i<200;i++){move(1,3,100+i*4,20);now_ms+=10;int middle=read_position(1);now_ms+=10;int end=read_position(1);assert(middle>=0&&middle<=1000);assert(end==100+i*4);}
+    /* Full raw bounds and the longest unsigned move duration stay monotonic. */
+    move(1,3,0,65535);now_ms+=32767;assert(read_position(1)>0);now_ms+=32768;assert(read_position(1)==0);
+    move(1,3,1000,65535);now_ms+=32767;assert(read_position(1)>0&&read_position(1)<1000);now_ms+=32768;assert(read_position(1)==1000);
+    /* Locked torque never turns position writes into displacement. */
+    torque(1,2);move(1,3,0,20);now_ms+=100;assert(read_position(1)==1000);
     puts("SCS UART protocol, timed feedback, torque/rail, deferred/sync writes, rejection and observer cases passed");
     return 0;
 }
@@ -183,6 +205,9 @@ class StackchanScsPatchTests(unittest.TestCase):
             source.parent.mkdir(parents=True)
             source.write_text(original)
             result = subprocess.run(['patch', '--batch', '-p1', '-i', str(PATCH)], cwd=root,
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            result = subprocess.run(['patch', '--batch', '-p1', '-i', str(WIRING_PATCH)], cwd=root,
                                     text=True, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             model = re.sub(r'^#include[^\n]*\n', '', source.read_text(), flags=re.M)

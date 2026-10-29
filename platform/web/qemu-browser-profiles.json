@@ -1704,6 +1704,110 @@
       "readyFirmwareSHA256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15"
     },
     {
+      "deviceId": "stickc-plus",
+      "board": "m5stickcplus",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 135,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stickc-plus-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      },
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "readyFirmwareSHA256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "a": "a"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.2 (original StickC Plus K016-P)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003037/2094351510644318209/bin/2094351510644318210.bin",
+        "bytes": 4186112,
+        "sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+        "browserValidation": "NOT RUN: exact original K016-P browser-composer identity is verified; final WASM display, original BtnA input and Worker cleanup acceptance remain pending."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "c12aca3558deffc569b86a7e573225300c3b89cd1d3cf6b08722af13a752580f",
+        "firmwareSHA256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+        "baseFileCount": 32,
+        "preservedFileCount": 30,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental candidate: original StickC Plus K016-P, exact official UIFlow2 v2.5.2, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse, 135x240 ST7789v2, AXP192 and MPU6886.",
+        "Independent browser fixed-probe display, original BtnA and Worker teardown require a matching runtime receipt; native or SE/Plus2 evidence is not inherited.",
+        "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, arbitrary firmware, BtnB/PWR, power, RTC, audio, IR, networking/BLE and Units are unvalidated."
+      ]
+    },
+    {
       "deviceId": "stickc-plus-se",
       "board": "m5stickcplusse",
       "chip": "esp32",
@@ -1809,6 +1913,397 @@
         "This SE board has an AXP192 and no IMU. BtnB, PMIC power button, power/battery, audio, IR, networking/BLE, Units and other peripherals require independent browser device-local evidence."
       ],
       "readyFirmwareSHA256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc"
+    },
+    {
+      "deviceId": "atom-lite",
+      "board": "m5atomlite",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": null,
+      "execution": "browser-qemu-wasm",
+      "profile": "atom-lite-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "button": "a",
+          "a": "a"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (Atom Lite C008)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002571/2098279874229915649/bin/2098279874229915650.bin",
+        "bytes": 4186112,
+        "sha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
+        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-led-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/atom_lite_main.py",
+            "bytes": 1085,
+            "sha256": "b31b9e62e2500269ff878d31114c1d048d0a258bdaae120632c9e3c7796a6fa9"
+          }
+        },
+        "configSHA256": "94eb19cef74202ab988cc29562bf738c13b294de94530abfd0bfaf27d9aa6873",
+        "firmwareSHA256": "d97f454582aa88b81c04deb1bbcabdcc4ed30fe6e30cd6aef4a219ce68a80ce4",
+        "baseFileCount": 19,
+        "preservedFileCount": 17,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental candidate: atom-lite, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
+        "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated."
+      ],
+      "readyFirmwareSHA256": "d97f454582aa88b81c04deb1bbcabdcc4ed30fe6e30cd6aef4a219ce68a80ce4",
+      "outputs": {
+        "kind": "single-ws2812-qom-v1",
+        "path": "/machine/onboard_io",
+        "properties": [
+          "led-rgb",
+          "led-frames",
+          "pressed"
+        ],
+        "ledTarget": "rgb",
+        "buttonTarget": "button"
+      },
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      }
+    },
+    {
+      "deviceId": "atom-matrix",
+      "board": "m5atommatrix",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": null,
+      "execution": "browser-qemu-wasm",
+      "profile": "atom-matrix-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "button": "a",
+          "a": "a"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (Atom Matrix C008-B)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin",
+        "bytes": 4186112,
+        "sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-led-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/atom_matrix_main.py",
+            "bytes": 1088,
+            "sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"
+          }
+        },
+        "configSHA256": "34c358f749c77f32b98981d1d6beb5de783d5eed3c8ddf153c9241935abb0e0b",
+        "firmwareSHA256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+        "baseFileCount": 19,
+        "preservedFileCount": 17,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental candidate: atom-matrix, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
+        "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated.",
+        "The 25 RMT-decoded colors remain raw digital data. Only uniform frames illuminate all 25 model LEDs; nonuniform frames keep model LEDs unknown until physical chain order is verified.",
+        "M5Unified touch-based automatic board identification and resulting IMU board-axis conversion remain a runtime model gap; the compiled M5.getBoard() ID does not prove native board identification."
+      ],
+      "readyFirmwareSHA256": "f028cf0bca868f48b9ae9b5e5c524c6c0fa3ef8d5d19b4e75ab829a78ecbd88b",
+      "outputs": {
+        "kind": "matrix-ws2812-qom-v1",
+        "path": "/machine/onboard_io",
+        "properties": [
+          "led-rgb",
+          "led-frames",
+          "pressed"
+        ],
+        "ledTargets": [
+          "led0",
+          "led1",
+          "led2",
+          "led3",
+          "led4",
+          "led5",
+          "led6",
+          "led7",
+          "led8",
+          "led9",
+          "led10",
+          "led11",
+          "led12",
+          "led13",
+          "led14",
+          "led15",
+          "led16",
+          "led17",
+          "led18",
+          "led19",
+          "led20",
+          "led21",
+          "led22",
+          "led23",
+          "led24"
+        ],
+        "buttonTarget": "button",
+        "spatialMapping": "uniform-only-v1"
+      },
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      }
+    },
+    {
+      "deviceId": "atom-matrix-v11",
+      "board": "m5atommatrixv11",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": null,
+      "execution": "browser-qemu-wasm",
+      "profile": "atom-matrix-v11-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "admission": "candidate",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "button": "a",
+          "a": "a"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false,
+        "reset": true
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (Atom Matrix v1.1 C008-B-V11)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin",
+        "bytes": 4186112,
+        "sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+        "browserValidation": "NOT RUN: independent exact-board browser guest, real RMT output, original USER input and Worker cleanup require the final matching runtime receipt."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-led-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/atom_matrix_main.py",
+            "bytes": 1088,
+            "sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"
+          }
+        },
+        "configSHA256": "61113665d9878844af605781204fd13e15f7cf79a1b27989327c5464c7afb17a",
+        "firmwareSHA256": "bd39432078335b768b2fa1c6a6df7445a4e525a09fea5ed37061773b5d44d23e",
+        "baseFileCount": 19,
+        "preservedFileCount": 17,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental candidate: atom-matrix-v11, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package-5 eFuse and no LCD. Browser fixed-probe acceptance is pending.",
+        "Read-only same-worker QOM output observes original RGB() RMT-decoded GPIO27 data and GPIO39 USER input; it supplies no synthetic framebuffer or host LED writes.",
+        "Deterministic TCG single-thread icount shift=5 is limited to this fixed probe; physical timing, optical output, IR, networking/BLE, Units and arbitrary firmware remain unvalidated.",
+        "The 25 RMT-decoded colors remain raw digital data. Only uniform frames illuminate all 25 model LEDs; nonuniform frames keep model LEDs unknown until physical chain order is verified.",
+        "M5Unified touch-based automatic board identification and resulting IMU board-axis conversion remain a runtime model gap; the compiled M5.getBoard() ID does not prove native board identification."
+      ],
+      "readyFirmwareSHA256": "bd39432078335b768b2fa1c6a6df7445a4e525a09fea5ed37061773b5d44d23e",
+      "outputs": {
+        "kind": "matrix-ws2812-qom-v1",
+        "path": "/machine/onboard_io",
+        "properties": [
+          "led-rgb",
+          "led-frames",
+          "pressed"
+        ],
+        "ledTargets": [
+          "led0",
+          "led1",
+          "led2",
+          "led3",
+          "led4",
+          "led5",
+          "led6",
+          "led7",
+          "led8",
+          "led9",
+          "led10",
+          "led11",
+          "led12",
+          "led13",
+          "led14",
+          "led15",
+          "led16",
+          "led17",
+          "led18",
+          "led19",
+          "led20",
+          "led21",
+          "led22",
+          "led23",
+          "led24"
+        ],
+        "buttonTarget": "button",
+        "spatialMapping": "uniform-only-v1"
+      },
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      }
     }
   ]
 }

@@ -52,7 +52,7 @@ function output(text) {
           memoryBytes:module.HEAPU8.buffer.byteLength, crossOriginIsolated, relocatedGlueSha256});
       })().catch(fail);
     }
-    if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN'].includes(message.event)) {
+    if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(message.event)) {
       emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true});
       if (message.event==='RESET') {resetEpoch++;previousOutputs=undefined;sourceSequence=0;}
     }

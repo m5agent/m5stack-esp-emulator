@@ -41,6 +41,11 @@ export async function readQemuOnboardOutputs(profile, qmp) {
 /** Output-only model commands from a validated same-worker QOM observation. */
 export function qemuOnboardVisualCommands(profile, state) {
   validateQemuOnboardState(profile, state);
+  if(profile.outputs.kind==='matrix-ws2812-qom-v1') {
+    const uniform=state.led_rgb.every(color=>color===state.led_rgb[0]), color=state.led_rgb[0];
+    return [...profile.outputs.ledTargets.map(target=>({type:'led',target,known:uniform&&state.led_frames>0,color,brightness:1,on:color!==0})),
+      {type:'button-state',target:profile.outputs.buttonTarget,pressed:state.pressed}];
+  }
   return [{type:'led',target:profile.outputs.ledTarget,known:state.led_frames > 0,
     color:state.led_rgb,brightness:1,on:state.led_rgb !== 0},
   {type:'button-state',target:profile.outputs.buttonTarget,pressed:state.pressed}];

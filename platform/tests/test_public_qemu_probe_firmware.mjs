@@ -22,7 +22,7 @@ const server = http.createServer(async (request, response) => {
     if (pathname === '/base.bin') { response.end(base); return; }
     const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-servo|public-qemu-profiles|public-config|public-firmware|sha256)\.js$/.exec(pathname);
     if (web) { response.setHeader('content-type', 'text/javascript'); response.end(await fs.readFile(path.join(root, 'platform/web', web[1] + '.js'))); return; }
-    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(main_stackchan|boot|main|core2_boot|atoms3_lite_main|stickc_plus2_main|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
+    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(main_stackchan|boot|main|core2_boot|atoms3_lite_main|atom_lite_main|atom_matrix_main|stickc_plus2_main|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
     if (source) { response.end(await fs.readFile(path.join(root, 'tests/browser-qemu/board_display', source[1] + '.py'))); return; }
     const name = pathname.replace('/platform/runtime/littlefs/', '');
     if (!pathname.startsWith('/platform/runtime/littlefs/') || !allowed.has(name)) { response.writeHead(404).end(); return; }
@@ -48,7 +48,7 @@ try {
       if (kind === 'wrong-base') settings.baseBytes[settings.baseBytes.length - 1] ^= 1;
       if (kind === 'changed-layout') settings.profile.fixture.vfsOffset += 4096;
       if (kind === 'changed-source') settings.profile.fixture.sources['main.py'].sha256 = '0'.repeat(64);
-      if (kind === 'changed-boot') settings.profile.fixture.sources['boot.py'].path = 'platform/runtime/qemu-probe/fixture/' + (['atoms3', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se', 'dial'].includes(profile.deviceId) ? 'boot.py' : 'core2_boot.py');
+      if (kind === 'changed-boot') settings.profile.fixture.sources['boot.py'].path = 'platform/runtime/qemu-probe/fixture/' + (['atoms3', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se', 'stickc-plus', 'atom-lite', 'atom-matrix', 'atom-matrix-v11', 'dial'].includes(profile.deviceId) ? 'boot.py' : 'core2_boot.py');
       if (kind === 'cancelled') { const controller = new AbortController(); controller.abort(); settings.signal = controller.signal; }
       try { await composeQemuProbeFirmware(settings); failures.push({kind,rejected:false}); }
       catch (error) { failures.push({kind,rejected:true,error:error.message}); }

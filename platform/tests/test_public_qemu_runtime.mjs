@@ -98,6 +98,17 @@ try {
   assert.equal(resetting.runtime.iframe,resetFrame);assert.equal(resetting.runtime.sessionId,resetId);
   assert.equal(resetting.runtime.generation,resetGeneration);assert.equal(resetting.downloads.length,resetDownloads);
   assert.equal(resetFrame.calls.filter(row=>row.op==='start').length,1);assert.equal(resetting.runtime.observe().resetCount,2);
+  resetting.runtime.receive({type:'machine-event',value:{event:'SUSPEND'}},resetGeneration);
+  assert.equal(resetting.runtime.status,'sleeping');
+  await resetting.runtime.input({type:'button',id:'power',down:true});
+  await resetting.runtime.input({type:'button',id:'power',down:false});
+  await assert.rejects(resetting.runtime.input({type:'pir',motion:true}),/请先启动/);
+  await assert.rejects(resetting.runtime.resume(),/设备未暂停/);
+  resetting.runtime.receive({type:'machine-event',value:{event:'WAKEUP'}},resetGeneration);
+  assert.equal(resetting.runtime.status,'running');
+  resetting.runtime.receive({type:'machine-event',value:{event:'SUSPEND'}},resetGeneration);
+  await resetting.runtime.reset();assert.equal(resetFrame.calls.at(-1).value.type,'reset');
+  resetting.runtime.receive({type:'machine-event',value:{event:'WAKEUP'}},resetGeneration);
   resetting.runtime.receive({type:'machine-event',value:{event:'SHUTDOWN',guest:true,reason:'guest-shutdown'}},resetGeneration);
   resetting.runtime.receive({type:'exit',value:{code:0}},resetGeneration);
   await until(()=>resetting.runtime.iframe===null);

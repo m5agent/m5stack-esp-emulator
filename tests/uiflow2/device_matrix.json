@@ -378,6 +378,30 @@
       "efuse_driver": "nvram.esp32.efuse"
     },
     {
+      "id": "stickc-plus",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5stickcplus",
+      "base": "platform/.cache/firmware/stickc-plus/uiflow2.bin",
+      "files_dir": "tests/uiflow2/stickc_plus_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "expected_size": "135x240",
+      "input": "key:a",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse",
+      "post_frame_color": "3,3,00FF00",
+      "serial_expect": [
+        "STICKC_PLUS_MAIN_START",
+        "STICKC_PLUS_M5_BEGIN_OK",
+        "CLASSIC_DISPLAY 135 240",
+        "CLASSIC_BUTTON 1 1"
+      ]
+    },
+    {
       "id": "stickc-plus-se",
       "backend": "qemu-esp32lx6",
       "network_status": "unverified",

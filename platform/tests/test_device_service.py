@@ -356,14 +356,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_catalog_enables_tab5_and_excludes_cardputer_zero(self):
         payload = self.service.list_devices()
         rows = {row["device_id"]: row for row in payload["devices"]}
-        # The blocked Plus lacks an exact admitted reference; Linux remains
-        # discoverable metadata but cannot become a Device Service session.
-        self.assertEqual(len(rows), 23)
-        self.assertNotIn("stickc-plus", rows)
-        self.assertEqual(sum(row["creatable"] for row in rows.values()), 22)
+        # The original Plus now has an exact reference; its functional status
+        # remains candidate. Linux metadata cannot create a service session.
+        self.assertEqual(len(rows), 24)
+        self.assertIn("stickc-plus", rows)
+        self.assertEqual(sum(row["creatable"] for row in rows.values()), 23)
         self.assertFalse(rows["cardputer-zero"]["creatable"])
         supported = self.service.list_devices(include_unsupported=False)["devices"]
-        self.assertEqual(len(supported), 22)
+        self.assertEqual(len(supported), 23)
         self.assertNotIn("cardputer-zero", {row["device_id"] for row in supported})
         for candidate in (
             "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus-se",
@@ -6061,9 +6061,9 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)
         self.assertEqual(payload["api_version"], "v1")
-        self.assertEqual(len(payload["devices"]), 23)
+        self.assertEqual(len(payload["devices"]), 24)
         rows = {row["device_id"]: row for row in payload["devices"]}
-        self.assertNotIn("stickc-plus", rows)
+        self.assertIn("stickc-plus", rows)
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["cardputer-zero"]["creatable"])
         status, capacity = self.request("/api/v1/capacity")

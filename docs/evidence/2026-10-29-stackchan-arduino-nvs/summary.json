@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation_category": "virtual-device",
+  "hardware_validation": "NOT RUN",
+  "source_lock_sha256": "36bcaded0a2381825dd481c0e9b252846aa5337ce21e1523f6c987fb096fb123",
+  "nvs": {
+    "firmware_sha256": "001c4ec99c30746a167bba7386e39240b7208b0675ae84969c2a2b2d4b9eea42",
+    "old_failure_control": {
+      "native_binary_sha256": "79ec2ace57dca1df426a7023689457c6eef9bea022bbfff4bf08674462a15ce0",
+      "browser_wasm_sha256": "3880086c6266f318817d112686dfdf663444990a76e192037f2ec40334bdc529",
+      "native_result": "FAIL nvs_get_i32 returns ESP_ERR_NVS_NOT_FOUND after successful set/commit and after reset",
+      "browser_result": "FAIL same serial API result and same backing Flash digests as native",
+      "shift_control": {
+        "guest_partition_read_sha256": "f34becd80f27509dff643f3d4466dd57a3f837af360ca3198f2f5398ecbd046a",
+        "actual_nvs_sha256": "1dbfdc9e33abbe08799708eb6cd8218f790860f1efc001b9b0bbfefd895d7b32",
+        "actual_nvs_shift_plus_2_sha256": "f34becd80f27509dff643f3d4466dd57a3f837af360ca3198f2f5398ecbd046a",
+        "plus2_matches_guest": true
+      }
+    },
+    "fixed_native": {
+      "binary_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+      "nvs_functional_status": "PASS",
+      "nvs_checks": {
+        "set_i32_success": true,
+        "commit_success": true,
+        "close_reopen_readback_exact": true,
+        "same_session_reset_marker_exact": true,
+        "before_partition_digest_matches_file": true,
+        "after_partition_digest_matches_file": true,
+        "reset_partition_digest_matches_file": true,
+        "backing_flash_preserved_after_reset": true
+      },
+      "source_sha256": "1ead1c59fa20cf603147238bf5ff8a33be88d2329fe04dba8ecd796a04f30bf9",
+      "report_sha256": "dbc315b6daa6101466497ca4978c2751929bcf289b7b25f7507bad2345f35f17",
+      "evidence_sha256": "eab55498b1672ad128652fd33c21a3f366294e6000fab76ec460bfd2b152706c",
+      "before_flash": {
+        "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+        "snapshot_id": "c7b9afcda3244c0ab340af09f8c11a78",
+        "size": 16777216,
+        "sha256": "4fd844f457b67a8e56c3ad0e0e3ae0e66a499018d1589de6bbe7b3af3019b37f",
+        "created_at": "2026-10-29T11:46:31.220454+00:00"
+      },
+      "after_flash": {
+        "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+        "snapshot_id": "302a4237b0ef45269bcd8018a295c3b7",
+        "size": 16777216,
+        "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+        "created_at": "2026-10-29T11:46:43.362796+00:00"
+      },
+      "reset_flash": {
+        "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+        "snapshot_id": "c3b644fab3424f39b52e4d0d8f1ff2b5",
+        "size": 16777216,
+        "sha256": "71ae50427770ceea6e0f087e690764d71a05741decc2b3df1b897004cb71f212",
+        "created_at": "2026-10-29T11:46:44.533634+00:00"
+      },
+      "flash_diff": {
+        "session_id": "c48328d83742488092eb1cefd3cf5ba6",
+        "before": "c7b9afcda3244c0ab340af09f8c11a78",
+        "after": "302a4237b0ef45269bcd8018a295c3b7",
+        "size": 16777216,
+        "changed_bytes": 28,
+        "ranges": [
+          {
+            "offset": 36896,
+            "length": 1
+          },
+          {
+            "offset": 36960,
+            "length": 3
+          },
+          {
+            "offset": 36964,
+            "length": 24
+          }
+        ],
+        "truncated_ranges": false
+      }
+    },
+    "fixed_browser": {
+      "status": "NOT RUN yet"
+    }
+  },
+  "plus2_native": {
+    "validation_category": "virtual-device",
+    "hardware_pass": false,
+    "cases": [
+      {
+        "scope": "USB original Power.powerOff indefinite deep sleep",
+        "session_id": "cae1b694c65f48358685ea7e03429c9d",
+        "firmware_sha256": "65808de5031ec54c744f88e2cec9b4d2314d2d5b23f97952049d121ca4cabd7f",
+        "runtime_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+        "nonce": "c1b87142c30842299339b8fa62560452",
+        "checks": [
+          {
+            "name": "managed-live-ready",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "original-M5-begin-arms-hold",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "usb-bypass-hold-low-negative",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "gpio35-no-host-timed-off",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "original-powerOff-usb-real-deep-sleep",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "wrong-button-does-not-wake",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "inactive-power-level-does-not-wake",
+            "ok": true,
+            "details": null
+          }
+        ],
+        "power_events": [
+          "[m5-sleep] model=esp32 action=suspend deep=1 wake_mask=0x0 virtual_ns=99173386430"
+        ],
+        "evidence_zip_sha256": "8fb30e79f0bc0412ee746f0ef417f2fc77152a468b1b23615febd1d189cfbd68",
+        "purge0_stop_state": "stopped",
+        "status": "PASS_FOR_DECLARED_SCOPE",
+        "frame": {
+          "width": 135,
+          "height": 240,
+          "black": true,
+          "sha256": "6137776e702c5b264abb6b213b709fd7ba3f40310d38d3e33d7f06be08cfc5c0"
+        },
+        "wake_boundary": "Stock Power.powerOff arms no wake source (wake_mask=0); keys correctly do not wake it. Positive EXT0 guest wake is NOT RUN."
+      },
+      {
+        "scope": "Battery original guest longpress and Power.powerOff GPIO4 cutoff",
+        "session_id": "d91893cecfb14d71b3bf80aaa9d1f394",
+        "firmware_sha256": "65808de5031ec54c744f88e2cec9b4d2314d2d5b23f97952049d121ca4cabd7f",
+        "runtime_sha256": "dc98b0fd10ad2216a32476a34f53b6e171b59675a950782a99f26a9222628bc1",
+        "nonce": "555c89e009b048a3b5bcc52d4f91c8bd",
+        "checks": [
+          {
+            "name": "managed-live-ready",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "original-M5-begin-arms-hold",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "battery-high-alive",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "real-guest-longpress-detected",
+            "ok": true,
+            "details": null
+          },
+          {
+            "name": "controller-natural-exit-zero",
+            "ok": true,
+            "details": {
+              "state": "failed",
+              "exit": [
+                {
+                  "at": "2026-10-29T11:51:36.714161+00:00",
+                  "event": "process_exited",
+                  "returncode": 0
+                }
+              ]
+            }
+          },
+          {
+            "name": "original-powerOff-no-return-marker",
+            "ok": true,
+            "details": null
+          }
+        ],
+        "power_events": [
+          "[m5-power] model=stickc-plus2 action=off source=GPIO4-HOLD usb_present=0"
+        ],
+        "evidence_zip_sha256": "2b2e1d36a63ce6acd696454162495409d187127c44f20a486d4a6c33669fe88c",
+        "purge0_stop_state": "failed",
+        "status": "PASS"
+      }
+    ],
+    "checks_passed": 13,
+    "cleanup": [
+      {
+        "kind": "service",
+        "pid": 96241,
+        "exited": true
+      },
+      {
+        "kind": "qemu",
+        "pid": 96249,
+        "exited": true
+      },
+      {
+        "kind": "service",
+        "pid": 20747,
+        "exited": true
+      },
+      {
+        "kind": "qemu",
+        "pid": 20763,
+        "exited": true
+      }
+    ],
+    "all_owned_services_stopped": true,
+    "diagnostic_boundary": "Initial optional direct RTC_FAST probe faulted on stock MicroPython Core1 before CRC MMIO; it was removed as an invalid Core1 test fixture. No CRC golden-vector or silicon-equivalence PASS is claimed.",
+    "implementation_changes_during_acceptance": false
+  },
+  "browser_dance": {
+    "status": "NOT RUN yet on final WASM"
+  },
+  "full_shared_controller_matrix": "NOT RUN for the requested early fork preview"
+}

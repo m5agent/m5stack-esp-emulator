@@ -16,7 +16,7 @@
     "ninja": "1.13.2",
     "pycotap": "1.3.1"
   },
-  "native_patch_count": 40,
+  "native_patch_count": 44,
   "patches": [
     {
       "path": "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
@@ -179,6 +179,22 @@
       "sha256": "4f4f5ce3efae5d9f2b25baae61c795fa9e1d982128a2b348363fe1528a7663a0"
     },
     {
+      "path": "patches/qemu-m5stack-peripherals/0087-unit-hard-reset-output-boundary.patch",
+      "sha256": "d269d35e83411f2c7170e36a76948531f7a2e6d43611f1adf916ab903aa4f7db"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0093-classic-gpio-rtc-sleep.patch",
+      "sha256": "c915ec2ae2bf23c26b366348fcac32f9caad246297591f51a19e3e3c697e01e7"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0094-stackchan-scs-uart-wiring.patch",
+      "sha256": "f0fd8c525abcbe079f53048a6a2af63dbb653ed6b03dcec5f80c287cbc23e464"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0095-s3-qio-flash-model-header.patch",
+      "sha256": "52c5688a135226c949b4e81515dbd81dece8135c747e78d6afd1317314a45fb8"
+    },
+    {
       "path": "patches/qemu-wasm-probe/0001-qemu-9.2.2-wasm-tci.patch",
       "sha256": "6754272ea00e1c19b6f7786bd16b95a9eb75bb28be1d60dd5bed7c8e6f55f279"
     },
@@ -252,7 +268,7 @@
     "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
     "hw/dma/esp32s3_gdma.c": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
     "hw/dma/esp_gdma.c": "2737ef4c3fb95cd3ef5d316f56f7c4c0092b980baa1de62eb46d7345486446a9",
-    "hw/gpio/esp32_gpio.c": "1a54d71afdfeb0a2444991e8116386a07b100f20f9bbd5f98f27f77cc5363e67",
+    "hw/gpio/esp32_gpio.c": "b45b14e0fe628e8f36e18de8a5d039b3b8737b9ac3344bc90c6f09654b301869",
     "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
     "hw/gpio/meson.build": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83",
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
@@ -276,7 +292,7 @@
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
-    "hw/m5stopwatch/m5_scs_servo.c": "830b7e5069441b635e1df9ed343e41eee07754dba330663d0883a67ffd77fe7e",
+    "hw/m5stopwatch/m5_scs_servo.c": "115c089bcdcfde63f26795e38bf55483790389564e72e8492169a292b0b3dda3",
     "hw/m5stopwatch/m5_spi_panel.c": "c3043cd1ef17c145ce3fae39ea7487cbca594e6d8c25bea370bba9b63734cede",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
@@ -285,7 +301,7 @@
     "hw/m5stopwatch/m5_unit_gpio.c": "c014cc46116f3a57d23fbd06719bdc9d3b2e04bdf74454caac9f726c8c77514b",
     "hw/m5stopwatch/m5_unit_i2c_controls.c": "7b21489be357404133248fda80016f8a81d401f78d17f4df07b615d4f8800b49",
     "hw/m5stopwatch/m5_unit_i2c_sensors.c": "b3f5cff668ad1e2a31c43f9cd2c04fc2ded2b86c48189bb7376ea28671764c03",
-    "hw/m5stopwatch/m5_unit_runtime.c": "f42f13bb186e831c3ae40ccabb5ae885d4fbe8bb4acd1d00ba2419c92be4fdea",
+    "hw/m5stopwatch/m5_unit_runtime.c": "8d1d58b6e1d1928d10d3c93344b0505bea2470b553c09f0ec51be7230e8bab06",
     "hw/m5stopwatch/m5_unit_runtime.h": "ef8a08f266438ac231970a2fb310f00f6587e049f37e7d29d70d52d8e537a222",
     "hw/m5stopwatch/m5atomclassic.c": "2b4f7b9daedbdccd324594640990cb2f334684fc7e53d0da8a2c618ed9683f74",
     "hw/m5stopwatch/m5atoms3.c": "b8c135dd9d015e1fc3c549d36dbaf69aceda74f90d6003aa9899731a828bae78",
@@ -302,7 +318,7 @@
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
     "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9b7bd9a47a8b47edb9a7db1f640fca7f2d420bdf0baba3b66aec14b7fd7f3d51",
-    "hw/m5stopwatch/m5stopwatch.h": "d37445452ce192d899fb863d19b2597628f61eb036f0409a9c12185ac767e3a7",
+    "hw/m5stopwatch/m5stopwatch.h": "0233a66a78eaeec245de5f9930b57a3cb3fc928490de3775e09531b8519f594c",
     "hw/m5stopwatch/m5sw_i2c_devs.c": "c18dd3a9f2902198d9590d9c20654c51c5c409bdbd2896cce911bed251d26c22",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
@@ -310,6 +326,7 @@
     "hw/misc/esp32_fe.c": "c86372d9bc337cb3290e17609b55fd60e8b5633721cb7745f96c00d3023eb2ff",
     "hw/misc/esp32_ledc.c": "a82e8cde98b13d5972fea594a0dec304d796955d3baa7d3136ff9b9aeb5f50b8",
     "hw/misc/esp32_phya.c": "cb1eaa1eb43ba3e38b97a412bf2c76aa676e8c3bbe77c851d5213409fb26bc89",
+    "hw/misc/esp32_rtc_cntl.c": "3e9621434eed74633847e32ea260c0557e1cf53252f0ac3194495c1c5d260db3",
     "hw/misc/esp32_unknown.c": "d8775ce143c0cf7f614b8865de48cfb5c4c2e7e27a56b4c8d3e4eefdf04c7b77",
     "hw/misc/esp32_wifi.c": "4b24e689222d0439a508ea7966a11aefa757d04a1cd87b6078e3e302f9f42361",
     "hw/misc/esp32_wifi_ap.c": "1234310925b1310b0b71aff59110b0a5dfc240656a9877bd78c524e6e02951ee",
@@ -326,15 +343,15 @@
     "hw/nvram/esp_efuse.c": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
     "hw/ssi/bcm2835_spi.c": "65ac105ab90ea0bd0aa6b368e5813c976d16acf0220a5503fdd04cf689cfe2cc",
     "hw/ssi/esp32_spi.c": "7cb30da72e8c101bad3c880b26b453c3139daefe62b9c66878fbb68c777890ba",
-    "hw/ssi/esp32s3_spi.c": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
+    "hw/ssi/esp32s3_spi.c": "1e38f1358fa7abb21a53f88f849ecdefd5fe304224bef680283b6601fe9cbe90",
     "hw/timer/esp32_timg.c": "4dd7194130b905fcc189747a05c33fb9d7c9759553dec1622402a2ab61d2b97f",
     "hw/timer/esp32s3_timg.c": "33c44e520a6b407716b1d95271d3ee88b3332ada37b7d7bde8b950d283e67007",
     "hw/timer/esp_systimer.c": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
     "hw/timer/esp_timg.c": "2bea866b4d46e5074ae7b43423d7731161471f788008ffb284798cc9ed9eff4e",
-    "hw/xtensa/esp32.c": "08d5d7a7d010b26eaec0e478a7fbd727cdb1889ef72963fdbfa52a32ec6dcb60",
+    "hw/xtensa/esp32.c": "24f39d8969d5fe187df2f7c42d6cbca1d3131b79efb11470c1b32f1e5484b2f5",
     "hw/xtensa/esp32_intc.c": "760b86bd07b471b8846e349751cbd30d5374a46ba658cf751ea1b57c363a3574",
     "hw/xtensa/esp32_native_hci.c": "4fd96940f3441f6a1d84a78680899a3d28b3d0d9bbdd28bb4a2979d2c50d1a4d",
-    "hw/xtensa/esp32s3.c": "c3a8070f4468362355e07f97d9db9ce3b4dc05b4418fc46827ce93700c2526c3",
+    "hw/xtensa/esp32s3.c": "a957eb0f441d85839cc2ebbe616080d58b17b644ca55fef3eb23d73e57161ca6",
     "hw/xtensa/esp32s3_clk.c": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
     "hw/xtensa/esp32s3_intc.c": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
     "hw/xtensa/meson.build": "d8ad56451d22bb1f01ae4309cef540e4a33fc4b4bec3bbeb65d7b2ce4b21727e",
@@ -352,12 +369,14 @@
     "include/hw/misc/esp32_ledc.h": "dd755a02910227828a4846c281b8165a233f962689dec8121fc9db6f33505aae",
     "include/hw/misc/esp32_phya.h": "35b12d18785b1f34d611a5797319a9cb6f03e610491d7f8a6d43df1145a7bab8",
     "include/hw/misc/esp32_reg.h": "cac0b3177fd8ec18e5bbe94d815d57686816c0b5bc9832446af1e721ff9cede1",
+    "include/hw/misc/esp32_rtc_cntl.h": "cc75730e8718f7b457e1626c89b1dafce6464f6e13f8b301c545f48c1cc9c0c4",
     "include/hw/misc/esp32_unknown.h": "8bb12db1a2fd8302ba0a8cafadf75a3afa308918d0ec8bf675556b2e6f459738",
     "include/hw/misc/esp32_wifi.h": "d5a2e849258ce6467cb8a56ddd032d0634fc2e0bafdb3921fdf3c99a83ee2d1a",
     "include/hw/misc/esp32s3_wifi.h": "cb7ebfc57d3c49a68ccdd36807872d083b1cb61f843da7ea238b1ab82aaac285",
     "include/hw/misc/m5_bcm_spi_panel.h": "090b5e40050948236592ff2f2674a602e8f6504c3918cc365b48786dd4909244",
     "include/hw/misc/unimp-default.h": "dfb2c64c58383cace35e1d755bd0e17e4a43bbade49b4e209b5da1ec75bd98ec",
     "include/hw/ssi/esp32_spi.h": "93a873601dee63ceaa246286b278b40fc749a911816b4cbe0868bc5a809a67d2",
+    "include/hw/ssi/esp32s3_spi.h": "74066414c2981cb7b298468d7e7636882c8bb0967f6778ff4c1a05df65842ff2",
     "include/hw/timer/esp_timg.h": "5bccada346e3280ace71861ab4319d65a863e64de2b71e87d443c471cae64515",
     "include/hw/xtensa/esp32.h": "13a2099f62549a3923249217c45c4af2849effa1de906e15a569a7a8c53831ff",
     "include/hw/xtensa/esp32_intc.h": "cedb76b189b348c37d25522e04e73f6f7c15323c17813e3850b251502e03d814",

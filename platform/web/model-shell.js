@@ -20,6 +20,10 @@ const CONTROL_MAPS = {
   nanoc6: { button: 'button' },
   atoms3: { button: 'button' },
   'atoms3-lite': { button: 'button' },
+  'atom-lite': {button:'button'},
+  'atom-matrix': {button:'button'},
+  'atom-matrix-v11': {button:'button'},
+  'stickc-plus': {a:'a',b:'b',power:'power'},
   'stickc-plus2': { a: 'a', b: 'b', power: 'power' },
   stickc: { a: 'a', b: 'b', power: 'power' },
   'stickc-plus-se': { a: 'a', b: 'b', power: 'power' },
@@ -124,7 +128,8 @@ export class ModelDeviceShell {
       this.display = model.find('lcd', 'display');
       // No demo or made-up sensor/frame values. Wait for the real runtime.
       if (this.display) this.display.fill('#000000');
-      if (device.id === 'atoms3-lite') this.applyVisualState({type:'led',target:'rgb',known:false});
+      if (['atoms3-lite','atom-lite','atom-matrix','atom-matrix-v11'].includes(device.id))
+        this.applyVisualState(this.model.list('led').map(led=>({type:'led',target:led.id,known:false})));
       this.offInput = model.on('input', event => this.handleInput(event));
       this.viewer.setView('front', { duration: 0 });
       this.viewer.fit({ padding: 1.15, duration: 0 });

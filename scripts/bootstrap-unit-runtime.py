@@ -75,6 +75,9 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0090-stackchan-scs-motion-observer.patch",
     "patches/qemu-m5stack-peripherals/0091-board-power-lifecycle.patch",
     "patches/qemu-m5stack-peripherals/0092-classic-touch-measurement.patch",
+    "patches/qemu-m5stack-peripherals/0093-classic-gpio-rtc-sleep.patch",
+    "patches/qemu-m5stack-peripherals/0094-stackchan-scs-uart-wiring.patch",
+    "patches/qemu-m5stack-peripherals/0095-s3-qio-flash-model-header.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

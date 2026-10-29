@@ -292,7 +292,7 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(matrix_ids, esp32_ids | {"cardputer-zero"})
         blocked = {row["id"]: row for row in self.registry["devices"]
                    if row.get("service_admission", {}).get("blocked", False)}
-        self.assertEqual(set(blocked), {"stickc-plus"})
+        self.assertEqual(set(blocked), set())
         for device_id, row in blocked.items():
             self.assertNotIn(device_id, matrix_ids)
             self.assertEqual(row["qemu_status"], "backend-pending")
@@ -300,9 +300,13 @@ class QemuProfileTest(unittest.TestCase):
             self.assertTrue(row["service_admission"]["reason"].strip())
         source = json.loads((ROOT / "devices/catalog.source.json").read_text())
         original_plus = next(row for row in source["devices"] if row["id"] == "stickc-plus")
-        self.assertNotIn("firmware", original_plus["uiflow2"])
-        self.assertEqual(original_plus["runtime"]["service_admission"], blocked["stickc-plus"]["service_admission"])
-        self.assertIn("legacy UIFlow1", blocked["stickc-plus"]["service_admission"]["reason"])
+        self.assertEqual(original_plus["uiflow2"]["firmware"]["version"], "v2.5.2")
+        self.assertEqual(original_plus["uiflow2"]["firmware"]["sha256"],
+                         "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2")
+        self.assertFalse(original_plus["runtime"]["service_admission"]["blocked"])
+        self.assertEqual(original_plus["runtime"]["validation"]["status"], "candidate-not-validated")
+        self.assertIn("independent device-local functional validation remains pending",
+                      original_plus["runtime"]["service_admission"]["reason"])
 
     def test_group_counts(self):
         groups = {}

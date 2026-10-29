@@ -56,8 +56,10 @@ export class PublicQemuRuntime {
       if(this.status==='booting'&&this.guestReady())this.state('running');
     }
     if(data.type==='machine-event') {
-      if(!['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN'].includes(data.value?.event))return;
+      if(!['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN','SUSPEND','WAKEUP'].includes(data.value?.event))return;
       this.machineEvents.push({...data.value,at:new Date().toISOString()});if(this.machineEvents.length>50)this.machineEvents.shift();
+      if(data.value.event==='SUSPEND')this.state('sleeping');
+      if(data.value.event==='WAKEUP'&&this.status==='sleeping')this.state(this.guestReady()?'running':'booting');
       if(data.value.event==='RESET'){this.readySerialOffset=this.serial.length;this.lastDeviceState=null;if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');}
     }
     if(data.type==='diagnostic') { this.diagnostics=(this.diagnostics+data.value+'\n').slice(-32768); }
@@ -182,9 +184,10 @@ export class PublicQemuRuntime {
   }
   async pause(){check(this.status==='running','设备未运行。');await this.ask('pause');this.state('paused');return this.observe();}
   async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state(this.guestReady()?'running':'booting');return this.observe();}
-  reset(){check(this.status==='running'||this.status==='paused','设备未运行。');return this.input({type:'reset',down:true});}
+  reset(){check(['running','paused','sleeping'].includes(this.status),'设备未运行。');return this.input({type:'reset',down:true});}
   async input(event){
-    check(this.status==='running'||this.status==='paused'&&(event?.down===false||event?.type==='reset'),'请先启动或继续设备。');
+    check(this.status==='running'||this.status==='sleeping'&&['button','reset'].includes(event?.type)
+      ||this.status==='paused'&&(event?.down===false||event?.type==='reset'),'请先启动或继续设备。');
     qemuInputCommand(this.profile,event); // Validate before crossing the iframe boundary.
     const result=await this.ask('input',event);
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};

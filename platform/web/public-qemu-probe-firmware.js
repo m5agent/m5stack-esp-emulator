@@ -4,6 +4,9 @@ import {sha256Bytes} from './sha256.js';
 
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCES = Object.freeze({
+  "atom_lite_main.py": {"bytes": 1085, "sha256": "b31b9e62e2500269ff878d31114c1d048d0a258bdaae120632c9e3c7796a6fa9"},
+  "atom_matrix_main.py": {"bytes": 1088, "sha256": "45dbc4041b6e60cfd070a554e1846e64ffd7368cfc36599e7f38d0b957d1c6f1"},
+
   "main_stackchan.py": {"bytes": 5101, "sha256": "7ad884363bcd574c2ea05820b8225e2a0329bf089aed804b86897f8d1c50753d"},
   "boot.py": {
     "bytes": 214,
@@ -43,6 +46,11 @@ const SOURCES = Object.freeze({
   }
 });
 const SOURCE_NAMES = Object.freeze({
+  "atom-lite": {"boot.py": "core2_boot.py", "main.py": "atom_lite_main.py"},
+  "atom-matrix": {"boot.py": "core2_boot.py", "main.py": "atom_matrix_main.py"},
+  "atom-matrix-v11": {"boot.py": "core2_boot.py", "main.py": "atom_matrix_main.py"},
+  "stickc-plus": {"boot.py": "core2_boot.py"},
+
   "stackchan": {"main.py":"main_stackchan.py"},
   "atoms3": {
     "boot.py": "core2_boot.py"

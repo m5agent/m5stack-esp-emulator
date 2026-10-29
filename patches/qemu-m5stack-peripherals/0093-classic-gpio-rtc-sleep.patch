@@ -1,0 +1,1580 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -1,315 +1,354 @@
+ /*
+  * ESP32 GPIO emulation
+  *
+  * Copyright (c) 2019 Espressif Systems (Shanghai) Co. Ltd.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 or
+  * (at your option) any later version.
+  */
+ 
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
+ #include "qemu/timer.h"
+ #include "qemu/error-report.h"
+ #include "qapi/error.h"
+ #include "hw/hw.h"
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
+ #include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/gpio/esp32_gpio.h"
+ #include "hw/gpio/esp32s3_gpio_pad_aux.h"
+ #include "hw/misc/esp32_ledc.h"
++#include "hw/misc/esp32_rtc_cntl.h"
+ #include "../m5stopwatch/m5stopwatch.h"
+ 
+ 
+ 
+ /*
+  * Minimal functional GPIO model: register storage, OUT/ENABLE W1TS/W1TC,
+  * IN/IN1 computed from outputs and externally driven inputs (default: pulled up).
+  * Output-change listeners let board models observe e.g. software chip-selects.
+  */
+ #define GPIO_NPINS 54
+ #define GPIO_MAX_LISTENERS 8
+ static uint64_t g_ext_in = ~0ULL;      /* externally driven input levels */
+ static uint32_t g_regs[0x200];         /* 0x000..0x7ff */
+ static Esp32GpioState *g_gpio_device;
+ static bool g_gpio_s3;
+ static void gpio_transition_irq(uint64_t before, uint64_t after);
+ static void gpio_update_irq(void);
+ static uint64_t g_open_drain;          /* pins whose output stage is open-drain */
+ static uint64_t g_force_mask;          /* passive board lines forced by a model */
+ static uint64_t g_force_level;
+ static struct {
+     esp32_gpio_out_cb cb;
+     void *opaque;
+ } g_listeners[GPIO_NPINS][GPIO_MAX_LISTENERS];
+ static uint8_t g_listener_count[GPIO_NPINS];
+ static struct {
+     esp32_gpio_reset_cb cb;
+     void *opaque;
+ } g_reset_listeners[GPIO_NPINS][GPIO_MAX_LISTENERS];
+ static uint8_t g_reset_listener_count[GPIO_NPINS];
+ static int g_trace_last_level = -1;
+ 
+ static uint64_t gpio_line64(void);
+ static uint64_t gpio_out64(void);
+ static uint64_t gpio_en64(void);
+ 
+ /* Controller-local observer/bias state. The existing GPIO model is singleton. */
+ #define GPIO_PAD_OBSERVERS_PER_PIN 8
+ static uint64_t g_external_seen;
+ static uint32_t g_iomux_regs[49];
+ static bool g_iomux_pull_known[49];
++static bool g_iomux_written[49];
++
++/* ESP-IDF v5.5.4 gpio_periph.c: classic IO_MUX is not pin-linear. */
++static const uint8_t classic_iomux_offset[40] = {
++    0x44,0x88,0x40,0x84,0x48,0x6c,0x60,0x64,
++    0x68,0x54,0x58,0x5c,0x34,0x38,0x30,0x3c,
++    0x4c,0x50,0x70,0x74,0x78,0x7c,0x80,0x8c,
++    0xff,0x24,0x28,0x2c,0xff,0xff,0xff,0xff,
++    0x1c,0x20,0x14,0x18,0x04,0x08,0x0c,0x10,
++};
+ static Esp32GpioOdOrigin g_od_origin[GPIO_NPINS];
+ static uint64_t g_pad_revision[GPIO_NPINS];
+ static uint64_t g_pad_epoch, g_pad_generation, g_pad_sequence;
+ static unsigned g_pad_dispatch_depth;
+ 
+ struct Esp32GpioPadObserver {
+     Esp32GpioState *gpio;
+     unsigned pin;
+     Esp32GpioPadObserverFn cb;
+     void *opaque;
+     struct Esp32GpioPadObserver *next;
+ };
+ struct Esp32GpioBoardBias {
+     Esp32GpioState *gpio;
+     unsigned pin;
+     Esp32GpioBias bias;
+     const void *owner;
+     struct Esp32GpioBoardBias *next;
+ };
+ static Esp32GpioPadObserver *g_pad_observers;
+ static Esp32GpioBoardBias *g_board_biases;
+ static uint64_t gpio_legacy_line64(void);
+ 
+ static bool gpio_pad_valid(Esp32GpioState *s, unsigned pin)
+ {
+     return s && s == g_gpio_device && pin < (g_gpio_s3 ? 49 : 40) &&
+-           (!g_gpio_s3 || pin < 22 || pin > 25);
++           (g_gpio_s3 ? (pin < 22 || pin > 25) :
++            classic_iomux_offset[pin] != 0xff);
+ }
+ 
+ static bool gpio_iomux_alias(unsigned pin)
+ {
+     return pin <= 21 || (pin >= 33 && pin <= 38) || pin == 45 || pin == 46;
+ }
+ 
+ static void gpio_iomux_reset(void)
+ {
++    memset(g_iomux_written, 0, sizeof(g_iomux_written));
++    if (!g_gpio_s3) {
++        /* Boot straps/eFuse/package reset pulls are not inferred. An actual
++         * IO_MUX write proves the classic matrix path and pull configuration. */
++        memset(g_iomux_regs, 0, sizeof(g_iomux_regs));
++        memset(g_iomux_pull_known, 0, sizeof(g_iomux_pull_known));
++        return;
++    }
+     /* TRM v1.8 Table 6.12-1 RST codes; holes have no pad. UART RST4
+      * describes its peripheral OE, not a GPIO_ENABLE bit to synthesize.
+      */
+     static const uint8_t rst[49] = {
+         3, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+         0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3,
+         3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 3, 2, 2, 1, 1,
+     };
+     for (unsigned pin = 0; pin < 49; pin++) {
+         unsigned code = rst[pin];
+         g_iomux_regs[pin] = ((pin == 19 || pin == 20) ? 3u : 2u) << 10;
+         if (code == 1 || code == 2 || code == 3) {
+             g_iomux_regs[pin] |= 1u << 9;
+         }
+         if (code == 2) { g_iomux_regs[pin] |= 1u << 7; }
+         if (code == 3 || code == 4) { g_iomux_regs[pin] |= 1u << 8; }
+         /* GPIO39's reset pull depends on eFuse DIS_PAD_JTAG. An explicit
+          * later IOMUX write supplies both pull bits without that ambiguity.
+          */
+         g_iomux_pull_known[pin] = pin != 39;
+     }
+ }
+ 
+ static void gpio_snapshot_internal(Esp32GpioState *s, unsigned pin,
+                                    Esp32GpioPadSnapshot *out)
+ {
+     memset(out, 0, sizeof(*out));
+     out->pin = pin;
+     out->s3 = g_gpio_s3;
+     out->controller_generation = g_pad_generation;
+     out->epoch = g_pad_epoch;
+     out->revision = pin < GPIO_NPINS ? g_pad_revision[pin] : 0;
+     out->at_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     if (!gpio_pad_valid(s, pin)) { return; }
+     uint64_t bit = 1ULL << pin;
+     uint32_t route = g_regs[((g_gpio_s3 ? 0x554 : 0x530) + pin * 4) / 4];
+     uint32_t pin_cfg = g_regs[((g_gpio_s3 ? 0x74 : 0x88) + pin * 4) / 4];
+     out->level = !!(gpio_legacy_line64() & bit);
+     out->out_latch = !!(gpio_out64() & bit);
+     out->enable_reg = !!(gpio_en64() & bit);
+     out->out_sel = route & 0x1ff;
+     out->out_inv = !!(route & (1u << 9));
+     out->oen_sel = !!(route & (1u << 10));
+     out->oen_inv = !!(route & (1u << 11));
+     out->open_drain = !!(g_open_drain & bit);
+     out->pad_driver_reg = !!(pin_cfg & (1u << 2));
+     out->od_origin = g_od_origin[pin];
+     out->external_seen = !!(g_external_seen & bit);
+     out->external_level = !!(g_ext_in & bit);
+     out->force_enabled = !!(g_force_mask & bit);
+     out->force_level = !!(g_force_level & bit);
+     for (Esp32GpioBoardBias *b = g_board_biases; b; b = b->next) {
+         if (b->gpio == s && b->pin == pin) {
+             if (b->bias == ESP32_GPIO_BIAS_PULL_UP) { out->bias_up_count++; }
+             else { out->bias_down_count++; }
+         }
+     }
+     if (g_gpio_s3) {
+         uint32_t mux = g_iomux_regs[pin];
+         out->iomux_valid = true;
+         out->mcu_sel = (mux >> 12) & 7;
+         out->fun_pd = !!(mux & (1u << 7));
+         out->fun_pu = !!(mux & (1u << 8));
+         out->fun_ie = !!(mux & (1u << 9));
+         out->slp_sel = !!(mux & (1u << 1));
+         out->filter_en = !!(mux & (1u << 15));
+         out->pull_config_known = g_iomux_pull_known[pin];
+         out->override_mask = esp32s3_gpio_pad_aux_blockers(s, pin);
+         if (out->mcu_sel == 1) {
+             out->mux_path = ESP32_GPIO_MUX_GPIO_MATRIX;
+         } else if (out->mcu_sel == 0 && gpio_iomux_alias(pin)) {
+             out->mux_path = ESP32_GPIO_MUX_GPIO_ALIAS;
+         } else {
+             out->mux_path = ESP32_GPIO_MUX_OTHER_UNMODELED;
+             out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_MUX;
+         }
+         /* The function table proves the unmodified GPIO alias. It does not
+          * establish its coupling to peripheral routing or inversion bits.
+          */
+         if (out->mux_path == ESP32_GPIO_MUX_GPIO_ALIAS &&
+             (out->out_sel != 256 || out->out_inv || out->oen_inv)) {
+             out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_MUX;
+         }
+         if (out->override_mask) { out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_OVERRIDE; }
+     } else {
+-        out->mux_path = ESP32_GPIO_MUX_UNRESOLVED;
+-        out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_MUX;
++        uint32_t mux = g_iomux_regs[pin];
++        out->iomux_valid = g_iomux_written[pin];
++        out->mcu_sel = (mux >> 12) & 7;
++        out->fun_pd = !!(mux & (1u << 7));
++        out->fun_pu = !!(mux & (1u << 8));
++        out->fun_ie = !!(mux & (1u << 9));
++        out->slp_sel = !!(mux & (1u << 1));
++        out->pull_config_known = g_iomux_pull_known[pin];
++        out->override_mask = esp32_rtc_gpio_pad_blockers(pin);
++        if (out->iomux_valid && out->mcu_sel == 2) {
++            out->mux_path = ESP32_GPIO_MUX_GPIO_MATRIX;
++        } else {
++            /* Other classic IO_MUX peripheral/alias functions remain outside
++             * this GPIO matrix data plane. A latch is not proof of a pad. */
++            out->mux_path = out->iomux_valid ? ESP32_GPIO_MUX_OTHER_UNMODELED
++                                           : ESP32_GPIO_MUX_UNRESOLVED;
++            out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_MUX;
++        }
++        if (out->slp_sel || out->override_mask) {
++            out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_OVERRIDE;
++        }
+     }
+     bool mux_ok = !(out->blocker_mask & (ESP32_GPIO_PAD_BLOCK_MUX |
+                                        ESP32_GPIO_PAD_BLOCK_OVERRIDE));
+     if (mux_ok) {
+         out->oe_known = out->out_sel == 256 || out->oen_sel;
+         if (out->oe_known) { out->oe = out->enable_reg ^ out->oen_inv; }
+         else { out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_PERIPHERAL_OE; }
+         out->drive_known = out->out_sel == 256;
+         out->drive_level = out->out_latch ^ out->out_inv;
+         if (out->oe_known && out->oe && !out->drive_known) {
+             out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_PERIPHERAL_DATA;
+         }
+     }
+     bool driven = mux_ok && out->oe_known && out->oe && out->drive_known &&
+                   (!out->open_drain || !out->drive_level);
+     bool released = mux_ok && out->oe_known &&
+                     (!out->oe || (out->drive_known && out->open_drain &&
+                                   out->drive_level));
+     if (driven) {
+         out->known = true;
+         out->level = out->drive_level;
+         out->source_mask = ESP32_GPIO_PAD_SOURCE_GPIO;
+         /* The legacy external API cannot distinguish an actively driven
+          * value from release/pull semantics at every call site. Never
+          * certify an opposing explicit external value as a known pad.
+          */
+         if (out->external_seen && out->external_level != out->level) {
+             out->source_mask |= ESP32_GPIO_PAD_SOURCE_EXTERNAL;
+             out->conflict = true;
+         }
+         if (out->force_enabled) {
+             out->source_mask |= ESP32_GPIO_PAD_SOURCE_FORCE;
+             if (out->force_level != out->level) { out->conflict = true; }
+         }
+     } else if (released) {
+         if (out->force_enabled) {
+             out->known = true;
+             out->level = out->force_level;
+             out->source_mask = ESP32_GPIO_PAD_SOURCE_FORCE;
+             if (out->external_seen && out->external_level != out->level) {
+                 out->conflict = true;
+             }
+         } else if (out->external_seen) {
+             out->known = true;
+             out->level = out->external_level;
+             out->source_mask = ESP32_GPIO_PAD_SOURCE_EXTERNAL;
+         } else {
+             bool up = out->bias_up_count || out->fun_pu;
+             bool down = out->bias_down_count || out->fun_pd;
+             if (out->bias_up_count) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_BOARD_UP; }
+             if (out->bias_down_count) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_BOARD_DOWN; }
+             if (out->fun_pu) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_IOMUX_UP; }
+             if (out->fun_pd) { out->source_mask |= ESP32_GPIO_PAD_SOURCE_IOMUX_DOWN; }
+             if (!out->pull_config_known) {
+                 out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_RESET_UNKNOWN;
+             } else if (up && down) {
+                 out->conflict = true;
+             } else if (up || down) {
+                 out->known = true;
+                 out->level = up;
+             } else {
+                 out->source_mask |= ESP32_GPIO_PAD_SOURCE_LEGACY_FALLBACK;
+                 out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_FLOATING;
+             }
+         }
+     }
+     if (out->conflict) {
+         out->known = false;
+         out->blocker_mask |= ESP32_GPIO_PAD_BLOCK_CONFLICT;
+     }
+     if (!out->known) {
+         /* Compatibility reads retain the previous resolver's value. It is
+          * diagnostic only and must not confer a known Unit baseline.
+          */
+         out->level = !!(gpio_legacy_line64() & bit);
+     }
+     out->receiver_level = out->iomux_valid && !out->fun_ie ? false : out->level;
+     out->receiver_known = out->iomux_valid && !out->fun_ie ? true :
+                           out->known && !out->filter_en;
+ }
+ 
+ static uint32_t gpio_pad_changes(const Esp32GpioPadSnapshot *a,
+                                  const Esp32GpioPadSnapshot *b)
+ {
+     uint32_t changed = 0;
+     if (a->level != b->level) { changed |= ESP32_GPIO_PAD_CHANGE_LEVEL; }
+     if (a->known != b->known || a->conflict != b->conflict ||
+         a->blocker_mask != b->blocker_mask || a->override_mask != b->override_mask) {
+         changed |= ESP32_GPIO_PAD_CHANGE_KNOWN;
+     }
+     if (a->source_mask != b->source_mask) { changed |= ESP32_GPIO_PAD_CHANGE_SOURCE; }
+     if (a->oe_known != b->oe_known || a->oe != b->oe ||
+         a->drive_known != b->drive_known || a->drive_level != b->drive_level) {
+         changed |= ESP32_GPIO_PAD_CHANGE_DRIVE;
+     }
+     if (a->out_sel != b->out_sel || a->out_inv != b->out_inv ||
+         a->oen_sel != b->oen_sel || a->oen_inv != b->oen_inv) {
+         changed |= ESP32_GPIO_PAD_CHANGE_ROUTE;
+     }
+     if (a->iomux_valid != b->iomux_valid || a->mcu_sel != b->mcu_sel ||
+         a->mux_path != b->mux_path || a->fun_ie != b->fun_ie ||
+         a->fun_pu != b->fun_pu || a->fun_pd != b->fun_pd ||
+         a->slp_sel != b->slp_sel || a->filter_en != b->filter_en ||
+         a->pull_config_known != b->pull_config_known) {
+         changed |= ESP32_GPIO_PAD_CHANGE_IOMUX;
+     }
+     if (a->external_seen != b->external_seen || a->external_level != b->external_level) {
+         changed |= ESP32_GPIO_PAD_CHANGE_EXTERNAL;
+     }
+     if (a->force_enabled != b->force_enabled || a->force_level != b->force_level) {
+         changed |= ESP32_GPIO_PAD_CHANGE_FORCE;
+     }
+     if (a->open_drain != b->open_drain || a->pad_driver_reg != b->pad_driver_reg ||
+         a->od_origin != b->od_origin) { changed |= ESP32_GPIO_PAD_CHANGE_OD; }
+     if (a->bias_up_count != b->bias_up_count || a->bias_down_count != b->bias_down_count) {
+         changed |= ESP32_GPIO_PAD_CHANGE_BIAS;
+     }
+     if (a->receiver_level != b->receiver_level || a->receiver_known != b->receiver_known) {
+         changed |= ESP32_GPIO_PAD_CHANGE_RECEIVER;
+     }
+     if (a->out_latch != b->out_latch) { changed |= ESP32_GPIO_PAD_CHANGE_LATCH; }
+     if (a->enable_reg != b->enable_reg) { changed |= ESP32_GPIO_PAD_CHANGE_ENABLE; }
+     if (a->epoch != b->epoch || a->controller_generation != b->controller_generation) {
+         changed |= ESP32_GPIO_PAD_CHANGE_RESET;
+     }
+     return changed;
+ }
+ 
+@@ -348,256 +387,257 @@
+         if (!gpio_pad_valid(s, pin)) { continue; }
+         Esp32GpioPadEvent *event = &events[pin];
+         *event = (Esp32GpioPadEvent) { .cause = cause, .before = before[pin] };
+         gpio_snapshot_internal(s, pin, &event->after);
+         event->change_mask = gpio_pad_changes(&event->before, &event->after);
+         if (!event->change_mask) { continue; }
+         event->after.revision = ++g_pad_revision[pin];
+         event->commit_sequence = ++g_pad_sequence;
+         changed[pin] = true;
+     }
+     g_pad_dispatch_depth++;
+     for (unsigned pin = 0; pin < GPIO_NPINS; pin++) {
+         if (!changed[pin]) { continue; }
+         for (Esp32GpioPadObserver *o = g_pad_observers; o; o = o->next) {
+             if (o->gpio == s && o->pin == pin) { o->cb(o->opaque, &events[pin]); }
+         }
+     }
+     g_pad_dispatch_depth--;
+ }
+ 
+ Esp32GpioPadObserver *esp32_gpio_observe_pad(
+     Esp32GpioState *s, unsigned pin, Esp32GpioPadObserverFn cb, void *opaque,
+     Esp32GpioPadSnapshot *initial_out, Error **errp)
+ {
+     if (!gpio_pad_valid(s, pin) || !cb || !initial_out || g_pad_dispatch_depth) {
+         error_setg(errp, "invalid GPIO pad observer registration");
+         return NULL;
+     }
+     unsigned count = 0;
+     for (Esp32GpioPadObserver *o = g_pad_observers; o; o = o->next) {
+         if (o->gpio == s && o->pin == pin) { count++; }
+     }
+     if (count >= GPIO_PAD_OBSERVERS_PER_PIN) {
+         error_setg(errp, "GPIO pad observer capacity exceeded for pin %u", pin);
+         return NULL;
+     }
+     Esp32GpioPadObserver *o = g_new0(Esp32GpioPadObserver, 1);
+     o->gpio = s; o->pin = pin; o->cb = cb; o->opaque = opaque;
+     object_ref(OBJECT(s));
+     o->next = g_pad_observers; g_pad_observers = o;
+     gpio_snapshot_internal(s, pin, initial_out);
+     return o;
+ }
+ 
+ void esp32_gpio_unobserve_pad(Esp32GpioPadObserver *observer)
+ {
+     if (!observer) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadObserver **link = &g_pad_observers;
+     while (*link && *link != observer) { link = &(*link)->next; }
+     if (!*link) { return; }
+     *link = observer->next;
+     Esp32GpioState *s = observer->gpio;
+     g_free(observer);
+     object_unref(OBJECT(s));
+ }
+ 
+ Esp32GpioBoardBias *esp32_gpio_add_board_bias(
+     Esp32GpioState *s, unsigned pin, Esp32GpioBias bias,
+     const void *owner, Error **errp)
+ {
+     if (!gpio_pad_valid(s, pin) || !owner || g_pad_dispatch_depth ||
+         (bias != ESP32_GPIO_BIAS_PULL_UP && bias != ESP32_GPIO_BIAS_PULL_DOWN)) {
+         error_setg(errp, "invalid GPIO board bias registration");
+         return NULL;
+     }
+     unsigned count = 0;
+     for (Esp32GpioBoardBias *b = g_board_biases; b; b = b->next) {
+         if (b->gpio == s && b->pin == pin) {
+             if (b->owner == owner) {
+                 error_setg(errp, "GPIO board bias owner already registered on pin %u", pin);
+                 return NULL;
+             }
+             count++;
+         }
+     }
+     if (count >= GPIO_PAD_OBSERVERS_PER_PIN) {
+         error_setg(errp, "GPIO board bias capacity exceeded for pin %u", pin);
+         return NULL;
+     }
+     Esp32GpioPadSnapshot before[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, before);
+     Esp32GpioBoardBias *b = g_new0(Esp32GpioBoardBias, 1);
+     b->gpio = s; b->pin = pin; b->bias = bias; b->owner = owner;
+     object_ref(OBJECT(s));
+     b->next = g_board_biases; g_board_biases = b;
+     esp32_gpio_notify_pads(s, before, ESP32_GPIO_PAD_BIAS_ADD);
+     return b;
+ }
+ 
+ void esp32_gpio_remove_board_bias(Esp32GpioBoardBias *bias)
+ {
+     if (!bias) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioBoardBias **link = &g_board_biases;
+     while (*link && *link != bias) { link = &(*link)->next; }
+     if (!*link) { return; }
+     Esp32GpioState *s = bias->gpio;
+     Esp32GpioPadSnapshot before[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, before);
+     *link = bias->next;
+     g_free(bias);
+     esp32_gpio_notify_pads(s, before, ESP32_GPIO_PAD_BIAS_REMOVE);
+     object_unref(OBJECT(s));
+ }
+ 
+ 
+ static int gpio_trace_pin(void)
+ {
+     const char *value = getenv("M5SW_GPIO_TRACE_PIN");
+     int pin = value ? atoi(value) : 18;
+ 
+     return pin >= 0 && pin < GPIO_NPINS ? pin : 18;
+ }
+ 
+ 
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(g_gpio_device, observed);
+     uint64_t before = gpio_line64();
+     g_external_seen |= 1ULL << pin;
+     if (level) { g_ext_in |= 1ULL << pin; }
+     else { g_ext_in &= ~(1ULL << pin); }
+     esp32_gpio_notify_pads(g_gpio_device, observed, ESP32_GPIO_PAD_EXTERNAL);
+     gpio_transition_irq(before, gpio_line64());
++    if (!g_gpio_s3) { esp32_rtc_gpio_input_changed(pin, level); }
+     if (getenv("M5SW_GPIO_TRACE") &&
+         (pin == 11 || pin == 12 || pin == gpio_trace_pin())) {
+         fprintf(stderr, "[gpio] ext input pin=%d level=%d line=%d\n",
+                 pin, level, esp32_gpio_get_line(pin));
+     }
+ }
+ 
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS || !cb) {
+         return;
+     }
+     if (g_listener_count[pin] >= GPIO_MAX_LISTENERS) {
+         fprintf(stderr, "[gpio] listener overflow pin=%d\n", pin);
+         return;
+     }
+     unsigned slot = g_listener_count[pin]++;
+     g_listeners[pin][slot].cb = cb;
+     g_listeners[pin][slot].opaque = opaque;
+ }
+ 
+ void esp32_gpio_add_reset_listener(int pin, esp32_gpio_reset_cb cb,
+                                    void *opaque)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS || !cb) {
+         return;
+     }
+     if (g_reset_listener_count[pin] >= GPIO_MAX_LISTENERS) {
+         fprintf(stderr, "[gpio] reset listener overflow pin=%d\n", pin);
+         return;
+     }
+     unsigned slot = g_reset_listener_count[pin]++;
+     g_reset_listeners[pin][slot].cb = cb;
+     g_reset_listeners[pin][slot].opaque = opaque;
+ }
+ 
+ 
+ void esp32_gpio_set_open_drain(int pin, bool enable)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(g_gpio_device, observed);
+     if (enable) { g_open_drain |= 1ULL << pin; }
+     else { g_open_drain &= ~(1ULL << pin); }
+     g_od_origin[pin] = ESP32_GPIO_OD_DIRECT;
+     esp32_gpio_notify_pads(g_gpio_device, observed, ESP32_GPIO_PAD_DIRECT_OD);
+ }
+ 
+ 
+ void esp32_gpio_force_line(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(g_gpio_device, observed);
+     g_force_mask |= 1ULL << pin;
+     if (level) { g_force_level |= 1ULL << pin; }
+     else { g_force_level &= ~(1ULL << pin); }
+     esp32_gpio_notify_pads(g_gpio_device, observed, ESP32_GPIO_PAD_FORCE);
+ }
+ 
+ int esp32_gpio_get_line(int pin)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) {
+         return 1;
+     }
+     int level = (gpio_line64() >> pin) & 1;
+     if (getenv("M5SW_GPIO_TRACE") && pin == gpio_trace_pin()) {
+         fprintf(stderr, "[gpio] get pin=%d level=%d force=%d\n",
+                 pin, level, !!(g_force_mask & (1ULL << pin)));
+     }
+     return level;
+ }
+ 
+ static uint64_t gpio_out64(void)
+ {
+     return (uint64_t)g_regs[0x04 / 4] | ((uint64_t)g_regs[0x10 / 4] << 32);
+ }
+ 
+ static uint64_t gpio_en64(void)
+ {
+     return (uint64_t)g_regs[0x20 / 4] | ((uint64_t)g_regs[0x2c / 4] << 32);
+ }
+ 
+ /*
+  * Effective pin level: driven output when the pin is enabled, otherwise
+  * the board's external pull-up.  Software-I2C listeners need this rather
+  * than the raw OUT register, because switching a pin between output-low
+  * and input is a real bus transition.
+  */
+ static uint64_t gpio_legacy_line64(void)
+ {
+     uint64_t out = gpio_out64();
+     uint64_t en = gpio_en64();
+     uint64_t driven = out & en;
+ 
+     /*
+      * An open-drain output can only pull low: when its latch is high the
+      * actual line level is determined by the external pull-up/devices.
+      * This is what makes software-I2C acknowledge bits visible to the
+      * master while it is releasing SDA.
+      */
+     uint64_t line = (driven & ~g_open_drain)
+                   | ((driven & g_ext_in) & g_open_drain)
+                   | (~en & g_ext_in);
+     return (line & ~g_force_mask) | (g_force_level & g_force_mask);
+ }
+ 
+ 
+ static uint64_t gpio_line64(void)
+ {
+     uint64_t line = gpio_legacy_line64();
+     if (!g_gpio_device || !g_gpio_s3) { return line; }
+     for (unsigned pin = 0; pin < 49; pin++) {
+         if (!gpio_pad_valid(g_gpio_device, pin)) { continue; }
+         Esp32GpioPadSnapshot state;
+         gpio_snapshot_internal(g_gpio_device, pin, &state);
+         if (state.known) {
+             uint64_t bit = 1ULL << pin;
+             line = state.level ? line | bit : line & ~bit;
+         }
+     }
+     return line;
+ }
+ 
+ static uint64_t gpio_input64(void)
+ {
+@@ -675,289 +715,298 @@
+                 );
+             }
+         }
+     }
+ }
+ 
+ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+     uint64_t in = gpio_input64();
+     switch (addr) {
+     case A_GPIO_STRAP:
+         return s->strap_mode;
+     case 0x3c: {
+         int trace_pin = gpio_trace_pin();
+         int trace_level = (in >> trace_pin) & 1;
+ 
+         if (getenv("M5SW_GPIO_TRACE") &&
+             trace_level != g_trace_last_level) {
+             fprintf(stderr, "[gpio] in0=0x%08x pin%d=%d\n",
+                     (uint32_t)in, trace_pin, trace_level);
+             g_trace_last_level = trace_level;
+         }
+         return (uint32_t)in;
+     }
+     case 0x40:
+         return (uint32_t)(in >> 32) & 0x3fffff;
+     case 0x08: case 0x0c: case 0x14: case 0x18:
+     case 0x24: case 0x28: case 0x30: case 0x34:
+         return 0;
+     default:
+         if (addr == (g_gpio_s3 ? 0x5c : 0x68)) { return g_regs[0x44 / 4]; }
+         if (addr == (g_gpio_s3 ? 0x68 : 0x7c)) { return g_regs[0x50 / 4]; }
+         if (addr < sizeof(g_regs)) {
+             return g_regs[addr / 4];
+         }
+         return 0;
+     }
+ }
+ 
+ static void esp32_gpio_write(void *opaque, hwaddr addr,
+                        uint64_t value, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, observed);
+     uint64_t before = gpio_line64();
+     bool route_refresh = false;
+     Esp32GpioPadCause cause = ESP32_GPIO_PAD_OUT;
+     if (addr >= 0x20 && addr <= 0x34) { cause = ESP32_GPIO_PAD_ENABLE; }
+     if (getenv("M5SW_GPIO_REG_TRACE") && addr >= 0x100 && addr < 0x140) {
+         fprintf(stderr, "[gpio] wr addr=0x%03" HWADDR_PRIx
+                 " value=0x%08" PRIx64 "\n", addr, value);
+     }
+     switch (addr) {
+     case 0x08: g_regs[0x04 / 4] |= value; break;
+     case 0x0c: g_regs[0x04 / 4] &= ~value; break;
+     case 0x14: g_regs[0x10 / 4] |= value; break;
+     case 0x18: g_regs[0x10 / 4] &= ~value; break;
+     case 0x24: g_regs[0x20 / 4] |= value; break;
+     case 0x28: g_regs[0x20 / 4] &= ~value; break;
+     case 0x30: g_regs[0x2c / 4] |= value; break;
+     case 0x34: g_regs[0x2c / 4] &= ~value; break;
+     case 0x48: g_regs[0x44 / 4] |= value; break;
+     case 0x4c: g_regs[0x44 / 4] &= ~value; break;
+     case 0x54: g_regs[0x50 / 4] |= value; break;
+     case 0x58: g_regs[0x50 / 4] &= ~value; break;
+     case A_GPIO_STRAP: case 0x3c: case 0x40:
+         break;
+     default:
+         if (addr < sizeof(g_regs)) {
+             uint32_t previous = g_regs[addr / 4];
+             unsigned output_base = g_gpio_s3 ? 0x554 : 0x530;
+             g_regs[addr / 4] = value;
+             if (addr >= output_base &&
+                 addr < output_base + (g_gpio_s3 ? 49 : 40) * 4 &&
+                 ((previous ^ (uint32_t)value) & 0x3ff)) {
+                 route_refresh = true;
+             }
+             /*
+              * GPIO_PIN0_REG starts at 0x74 on ESP32-S3.  M5GFX's
+              * pinMode(input*) uses gpio_ll_od_enable(), which leaves the
+              * output enable set and relies on open-drain + latch-high
+              * semantics so an external low can still pull the line down.
+              */
+             if (addr >= output_base &&
+                 addr < output_base + (g_gpio_s3 ? 49 : 40) * 4) {
+                 cause = ESP32_GPIO_PAD_ROUTE;
+             }
+             unsigned pin_base = g_gpio_s3 ? 0x74 : 0x88;
+             if (addr >= pin_base && addr < pin_base + GPIO_NPINS * 4) {
+                 unsigned pin = (addr - pin_base) / 4;
+                 uint64_t pin_bit = 1ULL << pin;
+                 cause = ESP32_GPIO_PAD_DRIVER;
+                 g_od_origin[pin] = ESP32_GPIO_OD_PAD_DRIVER;
+                 if (value & (1u << 2)) {
+                     g_open_drain |= pin_bit;
+                 } else {
+                     g_open_drain &= ~pin_bit;
+                 }
+             }
+         }
+         break;
+     }
+     esp32_gpio_notify_pads(s, observed, cause);
+     if (route_refresh) { esp32_ledc_gpio_route_changed(g_gpio_s3); }
+     gpio_notify(before, gpio_line64());
+     gpio_transition_irq(before, gpio_line64());
+ }
+ 
+ static const MemoryRegionOps uart_ops = {
+     .read =  esp32_gpio_read,
+     .write = esp32_gpio_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ 
+ static void esp32_gpio_reset_hold(Object *obj, ResetType type)
+ {
+     Esp32GpioState *s = ESP32_GPIO(obj);
+     assert(!g_pad_dispatch_depth);
+     uint64_t before = gpio_line64();
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, observed);
+     memset(g_regs, 0, sizeof(g_regs));
+     g_open_drain = 0;
+     memset(g_od_origin, ESP32_GPIO_OD_RESET, sizeof(g_od_origin));
++    gpio_iomux_reset();
+     if (g_gpio_s3) {
+         for (unsigned pin = 0; pin < 49; pin++) {
+             g_regs[(0x554 + pin * 4) / 4] = 256;
+         }
+-        gpio_iomux_reset();
+     }
+     g_pad_epoch++;
+     esp32_gpio_notify_pads(s, observed, ESP32_GPIO_PAD_RESET);
+     gpio_notify_reset();
+     uint64_t after = gpio_line64();
+     gpio_notify(before, after);
+     gpio_transition_irq(before, after);
+     gpio_update_irq();
+ }
+ 
+ static void esp32_gpio_realize(DeviceState *dev, Error **errp)
+ {
+ }
+ 
+ 
+ static int gpio_iomux_pin(hwaddr addr)
+ {
+-    if (addr < 4 || addr > 4 + 48 * 4 || (addr & 3)) { return -1; }
++    if (addr & 3) { return -1; }
++    if (!g_gpio_s3) {
++        for (unsigned pin = 0; pin < 40; pin++) {
++            if (classic_iomux_offset[pin] != 0xff &&
++                classic_iomux_offset[pin] == addr) { return pin; }
++        }
++        return -1;
++    }
++    if (addr < 4 || addr > 4 + 48 * 4) { return -1; }
+     unsigned pin = (addr - 4) / 4;
+-    return g_gpio_s3 && (pin < 22 || pin > 25) ? pin : -1;
++    return pin < 22 || pin > 25 ? pin : -1;
+ }
+ 
+ static uint64_t esp32_gpio_iomux_read(void *opaque, hwaddr addr, unsigned size)
+ {
+     int pin = gpio_iomux_pin(addr);
+     return pin >= 0 ? g_iomux_regs[pin] : 0;
+ }
+ 
+ static void esp32_gpio_iomux_write(void *opaque, hwaddr addr,
+                                    uint64_t value, unsigned size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+     int pin = gpio_iomux_pin(addr);
+     if (pin < 0) { return; }
+     assert(!g_pad_dispatch_depth);
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, observed);
+     uint64_t before = gpio_line64();
+     g_iomux_regs[pin] = value;
++    g_iomux_written[pin] = true;
+     g_iomux_pull_known[pin] = true;
+     esp32_gpio_notify_pads(s, observed, ESP32_GPIO_PAD_IOMUX);
+     gpio_notify(before, gpio_line64());
+     gpio_transition_irq(before, gpio_line64());
+ }
+ 
+ static const MemoryRegionOps iomux_ops = {
+     .read = esp32_gpio_iomux_read,
+     .write = esp32_gpio_iomux_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+     .valid.min_access_size = 4,
+     .valid.max_access_size = 4,
+ };
+ 
+ static void esp32_gpio_init(Object *obj)
+ {
+     Esp32GpioState *s = ESP32_GPIO(obj);
+     SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
+     g_gpio_device = s;
+     g_gpio_s3 = object_dynamic_cast(obj, "esp32s3.gpio") != NULL;
+     g_pad_generation++;
+     g_pad_epoch = g_pad_sequence = 0;
+     memset(g_pad_revision, 0, sizeof(g_pad_revision));
+     g_external_seen = 0;
++    gpio_iomux_reset();
+     if (g_gpio_s3) {
+-        gpio_iomux_reset();
+         for (unsigned pin = 0; pin < 49; pin++) {
+             g_regs[(0x554 + pin * 4) / 4] = 256;
+         }
+     }
+ 
+     /* Set the default value for the strap_mode property */
+     object_property_set_int(obj, "strap_mode", ESP32_STRAP_MODE_FLASH_BOOT, &error_fatal);
+ 
+     memory_region_init_io(&s->iomem, obj, &uart_ops, s,
+                           TYPE_ESP32_GPIO, 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
+     memory_region_init_io(&s->iomux, obj, &iomux_ops, s,
+-                          "esp32s3.iomux", 0x2000);
++                          "esp32.iomux", 0x2000);
+     sysbus_init_mmio(sbd, &s->iomux);
+     sysbus_init_irq(sbd, &s->irq);
+ }
+ 
+ 
+ static void esp32_gpio_finalize(Object *obj)
+ {
+     if (g_gpio_device == ESP32_GPIO(obj)) {
+         g_gpio_device = NULL;
+     }
+ }
+ 
+ static Property esp32_gpio_properties[] = {
+     /* The strap_mode needs to be explicitly set in the instance init, thus, set
+      * the default value to 0. */
+     DEFINE_PROP_UINT32("strap_mode", Esp32GpioState, strap_mode, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+ static void esp32_gpio_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     ResettableClass *rc = RESETTABLE_CLASS(klass);
+ 
+     rc->phases.hold = esp32_gpio_reset_hold;
+     dc->realize = esp32_gpio_realize;
+     device_class_set_props(dc, esp32_gpio_properties);
+ }
+ 
+ static const TypeInfo esp32_gpio_info = {
+     .name = TYPE_ESP32_GPIO,
+     .parent = TYPE_SYS_BUS_DEVICE,
+     .instance_size = sizeof(Esp32GpioState),
+     .instance_init = esp32_gpio_init,
+     .instance_finalize = esp32_gpio_finalize,
+     .class_init = esp32_gpio_class_init,
+     .class_size = sizeof(Esp32GpioClass),
+ };
+ 
+ static void esp32_gpio_register_types(void)
+ {
+     type_register_static(&esp32_gpio_info);
+ }
+ 
+ type_init(esp32_gpio_register_types)
+ 
+ /* ESP-IDF GPIO matrix register/signal maps, v5.5: S3 I2C 89..92,
+  * classic ESP32 29/30 and 95/96. Both input and output routes must match.
+  */
+ bool esp32_gpio_matrix_i2c_pins(unsigned controller, bool s3, int *sda, int *scl)
+ {
+     unsigned scl_signal = s3 ? 89 + controller * 2 : (controller ? 95 : 29);
+     unsigned sda_signal = scl_signal + 1;
+     unsigned input_base = s3 ? 0x154 : 0x130;
+     unsigned output_base = s3 ? 0x554 : 0x530;
+     uint32_t scl_input = g_regs[(input_base + scl_signal * 4) / 4];
+     uint32_t sda_input = g_regs[(input_base + sda_signal * 4) / 4];
+     *scl = scl_input & 0x3f;
+     *sda = sda_input & 0x3f;
+     return controller < 2 && (scl_input & 0xc0) == 0x80 &&
+            (sda_input & 0xc0) == 0x80 && *scl < (s3 ? 49 : 40) &&
+            *sda < (s3 ? 49 : 40) &&
+            (g_regs[(output_base + *scl * 4) / 4] & 0x3ff) == scl_signal &&
+            (g_regs[(output_base + *sda * 4) / 4] & 0x3ff) == sda_signal;
+ }
+ 
+ int esp32_gpio_matrix_out_signal(int pin, bool s3)
+ {
+     if (pin < 0 || pin >= (s3 ? 49 : 40)) { return -1; }
+     uint32_t value = g_regs[((s3 ? 0x554 : 0x530) + pin * 4) / 4];
+     return (value & BIT(9)) ? -1 : value & 0x1ff;
+ }
+ int esp32_gpio_matrix_in_pin(unsigned signal, bool s3)
+ {
+     if (signal > 190) { return -1; }
+     uint32_t value = g_regs[((s3 ? 0x154 : 0x130) + signal * 4) / 4];
+     return (value & 0xc0) == 0x80 ? value & 0x3f : -1;
+ }
+diff --git a/hw/misc/esp32_rtc_cntl.c b/hw/misc/esp32_rtc_cntl.c
+--- a/hw/misc/esp32_rtc_cntl.c
++++ b/hw/misc/esp32_rtc_cntl.c
+@@ -1,245 +1,497 @@
+ /*
+  * ESP32 RTC_CNTL (RTC block controller) device
+  *
+  * Copyright (c) 2019 Espressif Systems (Shanghai) Co. Ltd.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 or
+  * (at your option) any later version.
+  */
+ 
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "qemu/main-loop.h"
++#include "qapi/visitor.h"
++#include "exec/address-spaces.h"
++#include "sysemu/runstate.h"
++#include "hw/gpio/esp32_gpio.h"
++#include <zlib.h>
+ #include "qemu/module.h"
+ #include "qemu/timer.h"
+ #include "qapi/error.h"
+ #include "qemu/error-report.h"
+ #include "hw/hw.h"
+ #include "hw/sysbus.h"
+ #include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/misc/esp32_reg.h"
+ #include "hw/misc/esp32_rtc_cntl.h"
+ 
++
++/* ESP-IDF v5.5.4 rtc_io_periph.c order is RTC channel number. The actual
++ * external board pin feeds this input path even when RTC owns the pad. */
++typedef struct ClassicRtcPad {
++    uint8_t pin, reg, mux_bit, ie_bit, hold_bit;
++} ClassicRtcPad;
++static const ClassicRtcPad rtc_pads[] = {
++    { 36, 0x7c, 27, 19, 31 },
++    { 37, 0x7c, 26, 14, 30 },
++    { 38, 0x7c, 25, 9, 29 },
++    { 39, 0x7c, 24, 4, 28 },
++    { 34, 0x80, 29, 23, 31 },
++    { 35, 0x80, 28, 18, 30 },
++    { 25, 0x84, 17, 11, 29 },
++    { 26, 0x88, 17, 11, 29 },
++    { 33, 0x8c, 18, 11, 29 },
++    { 32, 0x8c, 17, 5, 24 },
++    { 4, 0x94, 19, 13, 31 },
++    { 0, 0x98, 19, 13, 31 },
++    { 2, 0x9c, 19, 13, 31 },
++    { 15, 0xa0, 19, 13, 31 },
++    { 13, 0xa4, 19, 13, 31 },
++    { 12, 0xa8, 19, 13, 31 },
++    { 14, 0xac, 19, 13, 31 },
++    { 27, 0xb0, 19, 13, 31 },
++};
++static Esp32RtcCntlState *classic_rtc;
++#define RTC_STATE0       0x18
++#define RTC_WAKEUP       0x38
++#define RTC_INT_ENA      0x3c
++#define RTC_INT_RAW      0x40
++#define RTC_INT_ST       0x44
++#define RTC_INT_CLR      0x48
++#define RTC_EXT_CONF     0x60
++#define RTC_DIG_PWC      0x84
++#define RTC_EXT0_SEL     0xbc
++#define RTC_SLEEP_EN     (1u << 31)
++#define RTC_EXT0_ENABLE  1u
++
++static void rtc_notify_pads(Esp32RtcCntlState *s,
++                            Esp32GpioPadSnapshot before[54])
++{
++    Esp32GpioState *gpio = esp32_gpio_get_controller(false);
++    if (gpio) { esp32_gpio_notify_pads(gpio, before, ESP32_GPIO_PAD_OVERRIDE); }
++}
++
++uint32_t esp32_rtc_gpio_pad_blockers(unsigned pin)
++{
++    Esp32RtcCntlState *s = classic_rtc;
++    if (!s) { return 1; }
++    if (s->sleeping) { return 1; }
++    for (unsigned ch = 0; ch < G_N_ELEMENTS(rtc_pads); ch++) {
++        const ClassicRtcPad *pad = &rtc_pads[ch];
++        if (pad->pin == pin &&
++            (s->rtcio_regs[pad->reg / 4] &
++             ((1u << pad->mux_bit) | (1u << pad->hold_bit)))) { return 1; }
++    }
++    return 0;
++}
++
++static void esp32_rtc_try_ext0_wake(void *opaque)
++{
++    Esp32RtcCntlState *s = opaque;
++    uint32_t enabled = (s->sleep_regs[RTC_WAKEUP / 4] >> 11) & 0x7ff;
++    unsigned channel = s->rtcio_regs[RTC_EXT0_SEL / 4] >> 27;
++    if (!s->sleeping || !runstate_check(RUN_STATE_SUSPENDED) ||
++        !(enabled & RTC_EXT0_ENABLE) || channel >= G_N_ELEMENTS(rtc_pads)) {
++        return;
++    }
++    const ClassicRtcPad *pad = &rtc_pads[channel];
++    uint32_t config = s->rtcio_regs[pad->reg / 4];
++    bool active = !!(s->sleep_regs[RTC_EXT_CONF / 4] & (1u << 30));
++    if (!(config & (1u << pad->mux_bit)) ||
++        !(config & (1u << pad->ie_bit)) ||
++        !(s->external_seen & (1ULL << pad->pin)) ||
++        !!(s->external_levels & (1ULL << pad->pin)) != active) { return; }
++    Esp32GpioPadSnapshot before[54];
++    esp32_gpio_capture_pads(esp32_gpio_get_controller(false), before);
++    bool deep = s->deep_sleep;
++    s->sleeping = false;
++    s->wakeup_requests++;
++    s->sleep_regs[RTC_STATE0 / 4] &= ~RTC_SLEEP_EN;
++    s->sleep_regs[RTC_STATE0 / 4] |= 1u << 29;
++    s->sleep_regs[RTC_WAKEUP / 4] =
++        (s->sleep_regs[RTC_WAKEUP / 4] & ~0x7ffu) | RTC_EXT0_ENABLE;
++    s->sleep_regs[RTC_INT_RAW / 4] |= 1;
++    qemu_set_irq(s->irq, !!(s->sleep_regs[RTC_INT_RAW / 4] &
++                           s->sleep_regs[RTC_INT_ENA / 4]));
++    fprintf(stderr, "[m5-sleep] model=esp32 action=wake source=ext0 gpio=%u deep=%u\n",
++            pad->pin, deep);
++    qemu_system_wakeup_request(QEMU_WAKEUP_REASON_OTHER, &error_abort);
++    rtc_notify_pads(s, before);
++    if (deep) {
++        s->reset_cause[0] = s->reset_cause[1] = ESP32_DEEPSLEEP_RESET;
++        s->wake_reset_pending = true;
++        qemu_irq_pulse(s->dig_reset_req);
++    }
++}
++
++static void esp32_rtc_suspended(Notifier *notifier, void *data)
++{
++    Esp32RtcCntlState *s = container_of(notifier, Esp32RtcCntlState,
++                                      suspend_notifier);
++    /* The suspend notifier precedes RUN_STATE_SUSPENDED. The BH checks a
++     * level already active at entry only after that transition commits. */
++    if (s->sleeping) { qemu_bh_schedule(s->wake_bh); }
++}
++
++void esp32_rtc_gpio_input_changed(unsigned pin, int level)
++{
++    Esp32RtcCntlState *s = classic_rtc;
++    if (!s || pin >= 40) { return; }
++    s->external_seen |= 1ULL << pin;
++    if (level) { s->external_levels |= 1ULL << pin; }
++    else { s->external_levels &= ~(1ULL << pin); }
++    esp32_rtc_try_ext0_wake(s);
++}
++
++static void esp32_rtc_sleep_enter(Esp32RtcCntlState *s)
++{
++    if (s->sleeping) { return; }
++    Esp32GpioPadSnapshot before[54];
++    esp32_gpio_capture_pads(esp32_gpio_get_controller(false), before);
++    s->deep_sleep = !!(s->sleep_regs[RTC_DIG_PWC / 4] & (1u << 31));
++    s->sleeping = true;
++    s->sleep_requests++;
++    fprintf(stderr, "[m5-sleep] model=esp32 action=suspend deep=%u wake_mask=0x%x virtual_ns=%" PRId64 "\n",
++            s->deep_sleep, (s->sleep_regs[RTC_WAKEUP / 4] >> 11) & 0x7ff,
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    rtc_notify_pads(s, before);
++    qemu_system_suspend_request();
++}
++
++static uint64_t esp32_rtcio_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32RtcCntlState *s = opaque;
++    if (addr == 0x24) {
++        uint32_t inputs = 0;
++        for (unsigned ch = 0; ch < G_N_ELEMENTS(rtc_pads); ch++) {
++            if (s->external_levels & (1ULL << rtc_pads[ch].pin)) {
++                inputs |= 1u << (ch + 14);
++            }
++        }
++        return inputs;
++    }
++    return addr < sizeof(s->rtcio_regs) ? s->rtcio_regs[addr / 4] : 0;
++}
++
++static void esp32_rtcio_write(void *opaque, hwaddr addr, uint64_t value,
++                              unsigned size)
++{
++    Esp32RtcCntlState *s = opaque;
++    if (addr >= sizeof(s->rtcio_regs) || addr == 0x24) { return; }
++    Esp32GpioPadSnapshot before[54];
++    esp32_gpio_capture_pads(esp32_gpio_get_controller(false), before);
++    s->rtcio_regs[addr / 4] = value;
++    rtc_notify_pads(s, before);
++    esp32_rtc_try_ext0_wake(s);
++}
++
++static const MemoryRegionOps rtcio_ops = {
++    .read = esp32_rtcio_read, .write = esp32_rtcio_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4, .valid.max_access_size = 4,
++};
++
++static void rtc_get_bool(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{ visit_type_bool(v, name, opaque, errp); }
++static void rtc_get_count(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{ visit_type_int64(v, name, opaque, errp); }
++
+ static void esp32_rtc_update_cpu_stall(Esp32RtcCntlState* s);
+ static void esp32_rtc_update_clk(Esp32RtcCntlState* s);
+ 
+ static uint64_t esp32_rtc_cntl_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32RtcCntlState *s = ESP32_RTC_CNTL(opaque);
+-    uint64_t r = 0;
++    uint64_t r = addr < sizeof(s->sleep_regs) ? s->sleep_regs[addr / 4] : 0;
+     switch (addr) {
++    case 0x100:
++        return s->memory_crc_conf;
++    case 0x104:
++        return s->memory_crc_result;
++    case RTC_INT_ST:
++        return s->sleep_regs[RTC_INT_RAW / 4] & s->sleep_regs[RTC_INT_ENA / 4];
+     case A_RTC_CNTL_OPTIONS0:
+         r = s->options0_reg;
+         break;
+     case A_RTC_CNTL_TIME_UPDATE:
+         r = R_RTC_CNTL_TIME_UPDATE_VALID_MASK;
+         break;
+     case A_RTC_CNTL_TIME0:
+         r = s->time_reg & UINT32_MAX;
+         break;
+     case A_RTC_CNTL_TIME1:
+         r = s->time_reg >> 32;
+         break;
+ 
+     case A_RTC_CNTL_RESET_STATE:
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, RESET_CAUSE_PROCPU, s->reset_cause[0]);
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, RESET_CAUSE_APPCPU, s->reset_cause[1]);
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, PROCPU_STAT_VECTOR_SEL, s->stat_vector_sel[0]);
+         r = FIELD_DP32(r, RTC_CNTL_RESET_STATE, APPCPU_STAT_VECTOR_SEL, s->stat_vector_sel[1]);
+         break;
+ 
+     case A_RTC_CNTL_STORE0:
+     case A_RTC_CNTL_STORE1:
+     case A_RTC_CNTL_STORE2:
+     case A_RTC_CNTL_STORE3:
+         r = s->scratch_reg[(addr - A_RTC_CNTL_STORE0) / 4];
+         break;
+ 
+     case A_RTC_CNTL_CLK_CONF:
+         r = FIELD_DP32(r, RTC_CNTL_CLK_CONF, SOC_CLK_SEL, s->soc_clk);
+         r = FIELD_DP32(r, RTC_CNTL_CLK_CONF, FAST_CLK_RTC_SEL, s->rtc_fastclk);
+         r = FIELD_DP32(r, RTC_CNTL_CLK_CONF, ANA_CLK_RTC_SEL, s->rtc_slowclk);
+         break;
+ 
+     case A_RTC_CNTL_SW_CPU_STALL:
+         r = s->sw_cpu_stall_reg;
+         break;
+ 
+     case A_RTC_CNTL_STORE4:
+     case A_RTC_CNTL_STORE5:
+     case A_RTC_CNTL_STORE6:
+     case A_RTC_CNTL_STORE7:
+         r = s->scratch_reg[(addr - A_RTC_CNTL_STORE4) / 4 + 4];
+         break;
+     }
+     return r;
+ }
+ 
+ static void esp32_rtc_cntl_write(void *opaque, hwaddr addr, uint64_t value,
+                                  unsigned int size)
+ {
+     Esp32RtcCntlState *s = ESP32_RTC_CNTL(opaque);
++    if (addr < sizeof(s->sleep_regs) && addr != RTC_INT_RAW && addr != RTC_INT_ST) {
++        if (addr == RTC_WAKEUP) {
++            s->sleep_regs[addr / 4] = (value & ~0x7ffu) |
++                                     (s->sleep_regs[addr / 4] & 0x7ff);
++        } else { s->sleep_regs[addr / 4] = value; }
++    }
+     switch (addr) {
++    case 0x100: {
++        s->memory_crc_conf = value & ~(1u << 31);
++        if (value & (1u << 8)) {
++            unsigned start = ((value >> 9) & 0x7ff) * 4;
++            unsigned length = (((value >> 20) & 0x7ff) + 1) * 4;
++            uint8_t buffer[8192];
++            /* The RTC_FAST memory is read through the actual SoC data plane,
++             * including wrap at its 8 KiB boundary; no canned CRC/finish. */
++            AddressSpace *as = cpu_get_address_space(qemu_get_cpu(0), 0);
++            unsigned first = MIN(length, 8192 - start);
++            address_space_read(as, 0x3ff80000 + start, MEMTXATTRS_UNSPECIFIED,
++                               buffer, first);
++            if (first < length) {
++                address_space_read(as, 0x3ff80000, MEMTXATTRS_UNSPECIFIED,
++                                   buffer + first, length - first);
++            }
++            s->memory_crc_result = crc32(0, buffer, length);
++            s->memory_crc_conf |= 1u << 31;
++        }
++        break;
++    }
++    case RTC_STATE0:
++        if (value & RTC_SLEEP_EN) { esp32_rtc_sleep_enter(s); }
++        break;
++    case RTC_INT_CLR:
++        s->sleep_regs[RTC_INT_RAW / 4] &= ~value;
++        qemu_set_irq(s->irq, !!(s->sleep_regs[RTC_INT_RAW / 4] &
++                               s->sleep_regs[RTC_INT_ENA / 4]));
++        break;
++    case RTC_INT_ENA:
++        qemu_set_irq(s->irq, !!(s->sleep_regs[RTC_INT_RAW / 4] & value));
++        break;
+     case A_RTC_CNTL_OPTIONS0:
+         if (value & R_RTC_CNTL_OPTIONS0_SW_SYS_RESET_MASK) {
+             s->reset_cause[0] = ESP32_SW_SYS_RESET;
+             s->reset_cause[1] = ESP32_SW_SYS_RESET;
+             qemu_irq_pulse(s->dig_reset_req);
+             value &= ~(R_RTC_CNTL_OPTIONS0_SW_SYS_RESET_MASK);
+         }
+         if (value & R_RTC_CNTL_OPTIONS0_SW_APPCPU_RESET_MASK) {
+             s->reset_cause[1] = ESP32_SW_CPU_RESET;
+             qemu_irq_pulse(s->cpu_reset_req[1]);
+             value &= ~(R_RTC_CNTL_OPTIONS0_SW_APPCPU_RESET_MASK);
+         }
+         if (value & R_RTC_CNTL_OPTIONS0_SW_PROCPU_RESET_MASK) {
+             s->reset_cause[0] = ESP32_SW_CPU_RESET;
+             qemu_irq_pulse(s->cpu_reset_req[0]);
+             value &= ~(R_RTC_CNTL_OPTIONS0_SW_PROCPU_RESET_MASK);
+         }
+         s->options0_reg = value;
+         esp32_rtc_update_cpu_stall(s);
+         break;
+ 
+     case A_RTC_CNTL_TIME_UPDATE:
+         if (value & R_RTC_CNTL_TIME_UPDATE_UPDATE_MASK) {
+             s->time_reg = muldiv64(
+                 qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) - s->time_base_ns,
+                 s->rtc_slowclk_freq, NANOSECONDS_PER_SECOND);
+         }
+         break;
+ 
+     case A_RTC_CNTL_RESET_STATE:
+         s->stat_vector_sel[0] = FIELD_EX32(value, RTC_CNTL_RESET_STATE,
+                                            PROCPU_STAT_VECTOR_SEL);
+         s->stat_vector_sel[1] = FIELD_EX32(value, RTC_CNTL_RESET_STATE,
+                                            APPCPU_STAT_VECTOR_SEL);
+         break;
+ 
+     case A_RTC_CNTL_STORE0:
+     case A_RTC_CNTL_STORE1:
+     case A_RTC_CNTL_STORE2:
+     case A_RTC_CNTL_STORE3:
+         s->scratch_reg[(addr - A_RTC_CNTL_STORE0) / 4] = value;
+         break;
+ 
+     case A_RTC_CNTL_CLK_CONF:
+         s->soc_clk = FIELD_EX32(value, RTC_CNTL_CLK_CONF, SOC_CLK_SEL);
+         s->rtc_fastclk = FIELD_EX32(value, RTC_CNTL_CLK_CONF, FAST_CLK_RTC_SEL);
+         s->rtc_slowclk = FIELD_EX32(value, RTC_CNTL_CLK_CONF, ANA_CLK_RTC_SEL);
+         esp32_rtc_update_clk(s);
+         break;
+ 
+     case A_RTC_CNTL_SW_CPU_STALL:
+         s->sw_cpu_stall_reg = value;
+         esp32_rtc_update_cpu_stall(s);
+         break;
+ 
+     case A_RTC_CNTL_STORE4:
+     case A_RTC_CNTL_STORE5:
+     case A_RTC_CNTL_STORE6:
+     case A_RTC_CNTL_STORE7:
+         s->scratch_reg[(addr - A_RTC_CNTL_STORE4) / 4 + 4] = value;
+         break;
+     }
+ }
+ 
+ static void esp32_rtc_update_cpu_stall(Esp32RtcCntlState* s)
+ {
+     uint32_t procpu_stall = (FIELD_EX32(s->sw_cpu_stall_reg, RTC_CNTL_SW_CPU_STALL, PROCPU_C1) << 2) |
+                             (FIELD_EX32(s->options0_reg, RTC_CNTL_OPTIONS0, SW_STALL_PROCPU_C0));
+ 
+     uint32_t appcpu_stall = (FIELD_EX32(s->sw_cpu_stall_reg, RTC_CNTL_SW_CPU_STALL, APPCPU_C1) << 2) |
+                             (FIELD_EX32(s->options0_reg, RTC_CNTL_OPTIONS0, SW_STALL_APPCPU_C0));
+ 
+     const uint32_t stall_magic_val = 0x86;
+ 
+     s->cpu_stall_state[0] = procpu_stall == stall_magic_val;
+     s->cpu_stall_state[1] = appcpu_stall == stall_magic_val;
+ 
+     qemu_set_irq(s->cpu_stall_req[0], s->cpu_stall_state[0]);
+     qemu_set_irq(s->cpu_stall_req[1], s->cpu_stall_state[1]);
+ }
+ 
+ static void esp32_rtc_update_clk(Esp32RtcCntlState* s)
+ {
+     const uint32_t slowclk_freq[] = {150000, 32768, 8000000/256};
+     const uint32_t fastclk_freq[] = {s->xtal_apb_freq / 4, 8000000};
+     s->rtc_slowclk_freq = slowclk_freq[s->rtc_slowclk];
+     s->rtc_fastclk_freq = fastclk_freq[s->rtc_fastclk];
+     qemu_irq_pulse(s->clk_update);
+ }
+ 
+ static const MemoryRegionOps esp32_rtc_cntl_ops = {
+     .read =  esp32_rtc_cntl_read,
+     .write = esp32_rtc_cntl_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ static void esp32_rtc_cntl_reset_hold(Object *obj, ResetType type)
+ {
+     Esp32RtcCntlState *s = ESP32_RTC_CNTL(obj);
+ 
+     s->time_base_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    s->sleeping = s->deep_sleep = false;
++    if (s->wake_reset_pending) {
++        /* Deep sleep resets the digital domain; RTC wake cause and RTC pad
++         * configuration survive that reset for the ROM/IDF to inspect. */
++        s->wake_reset_pending = false;
++    } else {
++        memset(s->sleep_regs, 0, sizeof(s->sleep_regs));
++        memset(s->rtcio_regs, 0, sizeof(s->rtcio_regs));
++        s->memory_crc_conf = s->memory_crc_result = 0;
++    }
+ }
+ 
+ static void esp32_rtc_cntl_realize(DeviceState *dev, Error **errp)
+ {
+ }
+ 
+ static void esp32_rtc_cntl_init(Object *obj)
+ {
+     Esp32RtcCntlState *s = ESP32_RTC_CNTL(obj);
+     SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
+ 
+     memory_region_init_io(&s->iomem, obj, &esp32_rtc_cntl_ops, s,
+                           TYPE_ESP32_RTC_CNTL, ESP32_RTC_CNTL_SIZE);
+     sysbus_init_mmio(sbd, &s->iomem);
++    memory_region_init_io(&s->rtcio, obj, &rtcio_ops, s, "esp32.rtcio", 0x400);
++    sysbus_init_mmio(sbd, &s->rtcio);
++    classic_rtc = s;
++    s->wake_bh = qemu_bh_new(esp32_rtc_try_ext0_wake, s);
++    s->suspend_notifier.notify = esp32_rtc_suspended;
++    qemu_register_suspend_notifier(&s->suspend_notifier);
++    object_property_add(obj, "sleeping", "bool", rtc_get_bool, NULL, NULL, &s->sleeping);
++    object_property_add(obj, "deep-sleep", "bool", rtc_get_bool, NULL, NULL, &s->deep_sleep);
++    object_property_add(obj, "sleep-requests", "int", rtc_get_count, NULL, NULL, &s->sleep_requests);
++    object_property_add(obj, "wakeup-requests", "int", rtc_get_count, NULL, NULL, &s->wakeup_requests);
+     sysbus_init_irq(sbd, &s->irq);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->dig_reset_req, ESP32_RTC_DIG_RESET_GPIO, 1);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cpu_reset_req[0], ESP32_RTC_CPU_RESET_GPIO, ESP32_CPU_COUNT);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->cpu_stall_req[0], ESP32_RTC_CPU_STALL_GPIO, ESP32_CPU_COUNT);
+     qdev_init_gpio_out_named(DEVICE(sbd), &s->clk_update, ESP32_RTC_CLK_UPDATE_GPIO, 1);
+ 
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         s->reset_cause[i] = ESP32_POWERON_RESET;
+         s->stat_vector_sel[i] = true;
+     }
+ 
+     s->rtc_slowclk = ESP32_SLOW_CLK_RC;
+     s->rtc_fastclk = ESP32_FAST_CLK_8M;
+     s->soc_clk = ESP32_SOC_CLK_XTAL;
+     s->xtal_apb_freq = 40000000;
+     s->pll_apb_freq = 80000000;
+     esp32_rtc_update_clk(s);
+ }
+ 
++static void esp32_rtc_cntl_finalize(Object *obj)
++{
++    Esp32RtcCntlState *s = ESP32_RTC_CNTL(obj);
++    notifier_remove(&s->suspend_notifier);
++    qemu_bh_delete(s->wake_bh);
++    if (classic_rtc == s) { classic_rtc = NULL; }
++}
++
+ static Property esp32_rtc_cntl_properties[] = {
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+ static void esp32_rtc_cntl_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     ResettableClass *rc = RESETTABLE_CLASS(klass);
+ 
+     rc->phases.hold = esp32_rtc_cntl_reset_hold;
+     dc->realize = esp32_rtc_cntl_realize;
+     device_class_set_props(dc, esp32_rtc_cntl_properties);
+ }
+ 
+ static const TypeInfo esp32_rtc_cntl_info = {
+     .name = TYPE_ESP32_RTC_CNTL,
+     .parent = TYPE_SYS_BUS_DEVICE,
+     .instance_size = sizeof(Esp32RtcCntlState),
+     .instance_init = esp32_rtc_cntl_init,
++    .instance_finalize = esp32_rtc_cntl_finalize,
+     .class_init = esp32_rtc_cntl_class_init
+ };
+ 
+ static void esp32_rtc_cntl_register_types(void)
+ {
+     type_register_static(&esp32_rtc_cntl_info);
+ }
+ 
+ type_init(esp32_rtc_cntl_register_types)
+diff --git a/include/hw/misc/esp32_rtc_cntl.h b/include/hw/misc/esp32_rtc_cntl.h
+--- a/include/hw/misc/esp32_rtc_cntl.h
++++ b/include/hw/misc/esp32_rtc_cntl.h
+@@ -1,117 +1,133 @@
+ #pragma once
+ 
+ #include "hw/hw.h"
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
++#include "hw/misc/esp32_reg.h"
++#include "qemu/notify.h"
++#include "qemu/main-loop.h"
+ 
+ #define TYPE_ESP32_RTC_CNTL "misc.esp32.rtc_cntl"
+ #define ESP32_RTC_CNTL(obj) OBJECT_CHECK(Esp32RtcCntlState, (obj), TYPE_ESP32_RTC_CNTL)
+ 
+ #define ESP32_RTC_DIG_RESET_GPIO    "dig-reset"
+ #define ESP32_RTC_CPU_RESET_GPIO    "cpu-reset"
+ #define ESP32_RTC_CPU_STALL_GPIO    "cpu-stall"
+ #define ESP32_RTC_CLK_UPDATE_GPIO   "clk-update"
+ 
+ typedef enum Esp32ResetCause {
+     ESP32_POWERON_RESET = 1,
+     ESP32_SW_SYS_RESET = 3,
+     ESP32_OWDT_RESET = 4,
+     ESP32_DEEPSLEEP_RESET = 5,
+     ESP32_SDIO_RESET = 6,
+     ESP32_TG0WDT_SYS_RESET = 7,
+     ESP32_TG1WDT_SYS_RESET = 8,
+     ESP32_RTCWDT_SYS_RESET = 9,
+     ESP32_TGWDT_CPU_RESET = 11,
+     ESP32_SW_CPU_RESET = 12,
+     ESP32_RTCWDT_CPU_RESET = 13,
+     ESP32_EXT_CPU_RESET = 14,
+     ESP32_RTCWDT_BROWN_OUT_RESET = 15,
+     ESP32_RTCWDT_RTC_RESET = 16
+ } Esp32ResetCause;
+ 
+ typedef enum Esp32SocClkSel {
+     ESP32_SOC_CLK_XTAL = 0,
+     ESP32_SOC_CLK_PLL = 1,
+     ESP32_SOC_CLK_8M = 2,
+     ESP32_SOC_CLK_APLL = 3
+ } Esp32SocClkSel;
+ 
+ typedef enum Esp32FastClkSel {
+     ESP32_FAST_CLK_XTALD4 = 0,
+     ESP32_FAST_CLK_8M = 1
+ } Esp32FastClkSel;
+ 
+ typedef enum Esp32SlowClkSel {
+     ESP32_SLOW_CLK_RC = 0,
+     ESP32_SLOW_CLK_32KXTAL = 1,
+     ESP32_SLOW_CLK_8MD256 = 2
+ } Esp32SlowClkSel;
+ 
+ typedef struct Esp32RtcCntlState {
+     SysBusDevice parent_obj;
+ 
+     MemoryRegion iomem;
++    MemoryRegion rtcio;
++    uint32_t sleep_regs[0x140 / 4];
++    uint32_t rtcio_regs[0x400 / 4];
++    uint64_t external_seen, external_levels;
++    bool sleeping, deep_sleep, wake_reset_pending;
++    int64_t sleep_requests, wakeup_requests;
++    uint32_t memory_crc_conf, memory_crc_result;
++    Notifier suspend_notifier;
++    QEMUBH *wake_bh;
+     qemu_irq irq;
+     qemu_irq dig_reset_req;
+     qemu_irq cpu_reset_req[ESP32_CPU_COUNT];
+     qemu_irq cpu_stall_req[ESP32_CPU_COUNT];
+     qemu_irq clk_update;
+     bool cpu_stall_state[ESP32_CPU_COUNT];
+ 
+     uint32_t xtal_apb_freq;
+     uint32_t pll_apb_freq;
+     Esp32SocClkSel soc_clk;
+     Esp32FastClkSel rtc_fastclk;
+     uint32_t rtc_fastclk_freq;
+     Esp32SlowClkSel rtc_slowclk;
+     uint32_t rtc_slowclk_freq;
+     int64_t time_base_ns;
+ 
+     uint32_t options0_reg;
+     uint64_t time_reg;
+     uint32_t sw_cpu_stall_reg;
+     uint32_t scratch_reg[ESP32_RTC_CNTL_SCRATCH_REG_COUNT];
+     Esp32ResetCause reset_cause[ESP32_CPU_COUNT];
+     bool stat_vector_sel[ESP32_CPU_COUNT];
+ } Esp32RtcCntlState;
+ 
+ REG32(RTC_CNTL_OPTIONS0, 0x00)
+     FIELD(RTC_CNTL_OPTIONS0, SW_SYS_RESET, 31, 1)
+     FIELD(RTC_CNTL_OPTIONS0, SW_PROCPU_RESET, 5, 1)
+     FIELD(RTC_CNTL_OPTIONS0, SW_APPCPU_RESET, 4, 1)
+     FIELD(RTC_CNTL_OPTIONS0, SW_STALL_PROCPU_C0, 2, 2)
+     FIELD(RTC_CNTL_OPTIONS0, SW_STALL_APPCPU_C0, 0, 2)
+ 
+ REG32(RTC_CNTL_TIME_UPDATE, 0xc)
+     FIELD(RTC_CNTL_TIME_UPDATE, UPDATE, 31, 1)
+     FIELD(RTC_CNTL_TIME_UPDATE, VALID, 30, 1)
+ REG32(RTC_CNTL_TIME0, 0x10)
+ REG32(RTC_CNTL_TIME1, 0x14)
+ 
+ REG32(RTC_CNTL_RESET_STATE, 0x34)
+     FIELD(RTC_CNTL_RESET_STATE, PROCPU_STAT_VECTOR_SEL, 13, 1)
+     FIELD(RTC_CNTL_RESET_STATE, APPCPU_STAT_VECTOR_SEL, 12, 1)
+     FIELD(RTC_CNTL_RESET_STATE, RESET_CAUSE_APPCPU, 6, 6)
+     FIELD(RTC_CNTL_RESET_STATE, RESET_CAUSE_PROCPU, 0, 6)
+ 
+ REG32(RTC_CNTL_STORE0, 0x4c)
+ REG32(RTC_CNTL_STORE1, 0x50)
+ REG32(RTC_CNTL_STORE2, 0x54)
+ REG32(RTC_CNTL_STORE3, 0x58)
+ 
+ REG32(RTC_CNTL_CLK_CONF, 0x70)
+     FIELD(RTC_CNTL_CLK_CONF, ANA_CLK_RTC_SEL, 30, 2)
+     FIELD(RTC_CNTL_CLK_CONF, FAST_CLK_RTC_SEL, 29, 1)
+     FIELD(RTC_CNTL_CLK_CONF, SOC_CLK_SEL, 27, 2)
+ 
+ REG32(RTC_CNTL_SW_CPU_STALL, 0xac)
+     FIELD(RTC_CNTL_SW_CPU_STALL, PROCPU_C1, 26, 6)
+     FIELD(RTC_CNTL_SW_CPU_STALL, APPCPU_C1, 20, 6)
+ 
+ REG32(RTC_CNTL_STORE4, 0xb0)
+ REG32(RTC_CNTL_STORE5, 0xb4)
+ REG32(RTC_CNTL_STORE6, 0xb8)
+ REG32(RTC_CNTL_STORE7, 0xbc)
+ REG32(RTC_CNTL_DATE,   0x13c)
+ 
+ #define ESP32_RTC_CNTL_SIZE (A_RTC_CNTL_DATE + 4)
++
++/* Classic ESP32 RTC pad ownership and real board-input wake path. */
++uint32_t esp32_rtc_gpio_pad_blockers(unsigned pin);
++void esp32_rtc_gpio_input_changed(unsigned pin, int level);
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -657,12 +657,10 @@
+             &s->rgb.vram, 0);
+     }
+ 
+-    esp32_soc_add_unimp_device(
+-        sys_mem, "esp32.rtcio", DR_REG_RTCIO_BASE, 0x400, 0);
++    sysbus_mmio_map(SYS_BUS_DEVICE(&s->rtc_cntl), 1, DR_REG_RTCIO_BASE);
+     esp32_soc_add_unimp_device(
+         sys_mem, "esp32.sens", DR_REG_SENS_BASE, 0x400, 0);
+-    esp32_soc_add_unimp_device(
+-        sys_mem, "esp32.iomux", DR_REG_IO_MUX_BASE, 0x2000, 0);
++    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 1, DR_REG_IO_MUX_BASE);
+     esp32_soc_add_unimp_device(
+         sys_mem, "esp32.hinf", DR_REG_HINF_BASE, 0x100, 0);
+     esp32_soc_add_unimp_device(

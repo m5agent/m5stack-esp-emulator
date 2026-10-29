@@ -8,7 +8,7 @@ import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCL
 import {loadQemuBrowserProfiles,getQemuBrowserProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
 import {qemuOnboardVisualCommands} from './public-qemu-frame.js';
-import {qemuServoVisualCommands} from './public-qemu-servo.js';
+import {qemuServoVisualCommands,qemuServoDiagnostic} from './public-qemu-servo.js';
 import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
@@ -116,6 +116,7 @@ function status(status, detail) {
     flashing: '正在写入固件',
     running: '固件运行中',
     paused: '固件已暂停',
+    sleeping: '设备睡眠中',
     stopped: '运行已停止',
     stopping: '正在停止会话',
     stop_pending: '停止结果未确认',
@@ -477,10 +478,11 @@ async function firmware(signal, runGeneration) {
   return {bytes: await file.arrayBuffer(), name: file.name, size: file.size, sha256};
 }
 function clearBrowserOutputs(profile) {
+  message('actuatorStatus');
   if (!profile?.outputs) return;
   const commands=profile.outputs.kind==='stackchan-scs-qom-v1'
     ? ['yaw','pitch'].map(target=>({type:'joint',target,known:false}))
-    : [{type:'led',target:profile.outputs.ledTarget,known:false},
+    : [...(profile.outputs.ledTargets||[profile.outputs.ledTarget]).map(target=>({type:'led',target,known:false})),
       {type:'button-state',target:profile.outputs.buttonTarget,pressed:false}];
   state.shell?.applyVisualState?.(commands);
   $('deviceMount').dataset.outputKnown='false';
@@ -500,10 +502,16 @@ function applyBrowserDeviceState(value, run) {
     mount.dataset.servoPitchTicks=String(value.servos[1].present_position);
     mount.dataset.servoPowered=String(value.powered);
     mount.dataset.servoPackets=String(value.packets);
+    const diagnostic=qemuServoDiagnostic(run.controller.profile,value);
+    $('actuatorStatus').dataset.code=diagnostic.code;
+    message('actuatorStatus',diagnostic.message);
     mount.dataset.outputLabel=`舵机 · 左右 ${yaw.angleDeg.toFixed(1)}° · 抬头 ${pitch.angleDeg.toFixed(1)}°${value.powered?'':' · 未供电'}`;
     $('frameStatus').textContent=mount.dataset.outputLabel;
   } else {
-    $('frameStatus').textContent = `RGB #${value.led_rgb.toString(16).padStart(6,'0').toUpperCase()} · RMT ${value.led_frames} 帧 · 按键${value.pressed?'按下':'松开'}`;
+    const color=Array.isArray(value.led_rgb)?value.led_rgb.every(color=>color===value.led_rgb[0])
+      ?`25 灯 · RGB #${value.led_rgb[0].toString(16).padStart(6,'0').toUpperCase()}`:'25 灯 · 多色帧已读取，空间顺序待验证'
+      :`RGB #${value.led_rgb.toString(16).padStart(6,'0').toUpperCase()}`;
+    $('frameStatus').textContent = `${color} · RMT ${value.led_frames} 帧 · 按键${value.pressed?'按下':'松开'}`;
     mount.dataset.outputFrames=String(value.led_frames);
   }
 }
