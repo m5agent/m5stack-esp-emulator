@@ -504,7 +504,10 @@ try {
     && stopped.cleanup?.disposal?.workersRemaining === 0 && stopped.cleanup?.explicitWorkerDisposal && stopped.cleanup?.iframeRemoved
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  const workersClosedDeadline=Date.now()+15000;
+  // Playwright can deliver the engine Worker close event several seconds after
+  // the guest confirms self-close on shared macOS runners. Keep observing the
+  // real close event, and keep the iframe alive until it arrives.
+  const workersClosedDeadline=Date.now()+30000;
   while (workerObservations.some(row=>!row.closed_at) && Date.now()<workersClosedDeadline)
     await new Promise(resolve=>setTimeout(resolve,100));
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
