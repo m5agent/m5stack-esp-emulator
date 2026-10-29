@@ -65,7 +65,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
-| 服务与生命周期 | `serve.py`、`device_service.py`、`device_service_runtime.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`worker_discovery_seed.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、运行时参数与脱敏 helper、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、multicast/unicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
+| 服务与生命周期 | `serve.py`、`device_service.py`、`device_service_runtime.py`、`device_service_specs.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`worker_discovery_seed.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、运行时参数与脱敏 helper、设备规格/profile 解析、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、multicast/unicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
 | 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、Secure Boot v2 结构/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/CNAME/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
@@ -90,6 +90,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |
+| `platform/tools/device_service_specs.py` | 设备 catalog/matrix/profile 解析、QEMU backend 路径和 runtime profile 选择 | `device_service.py` 兼容 re-export、device-spec tests |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
@@ -359,15 +360,16 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | `DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移无状态配置/解析、存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
-| `platform/tools/device_service_errors.py`、`device_service_parsing.py`、`device_service_runtime.py` | `ServiceError`、首批 parser、QEMU/runtime 内存策略和私有 env 脱敏已独立；`device_service.py` 保留同名 re-export | 行为、错误码、返回结构和 public symbol identity 分别由对应边界测试锁定；后续只继续移动无状态边界，不改变 API payload |
+| `platform/tools/device_service.py` | 三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
+| `platform/tools/device_service_errors.py`、`device_service_parsing.py`、`device_service_runtime.py`、`device_service_specs.py` | `ServiceError`、首批 parser、QEMU/runtime 内存策略、私有 env 脱敏和设备规格/profile 选择已独立；`device_service.py` 保留同名 re-export | 行为、错误码、返回结构和 public symbol identity 分别由对应边界测试锁定；后续只继续移动无状态边界，不改变 API payload |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
 `device_service_network.py` 现在承接 network policy 与 CNAME 请求解析；
+`device_service_specs.py` 承接 catalog/matrix/profile 和设备规格选择，
 `device_service.py` 只保留 same-object re-export。下一步仍按 `SVC-03`
-拆分其余请求解析、设备规格和 runtime/store/evidence 边界。
+拆分其余请求解析与 runtime/store/evidence 边界。
 
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
 保护时，不做跨文件大重构。
@@ -375,7 +377,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
 1. 已锁定 `ServiceError.payload()`、首批 parser 行为和 public re-export；
-2. 已提取首批 parser，以及 QEMU/runtime 内存策略和私有 env 脱敏；继续提取其余请求解析、运行参数构造与设备规格加载；
+2. 已提取首批 parser、QEMU/runtime 内存策略、私有 env 脱敏和设备规格/profile 加载；继续提取其余请求解析与运行参数构造；
 3. content-addressed firmware/artifact store 与 resumable upload；
 4. session repository、状态机和历史恢复；
 5. QEMU、esp-emu/Tab5、network runtime adapters；

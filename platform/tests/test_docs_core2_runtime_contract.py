@@ -2437,6 +2437,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         runtime = (
             ROOT / "platform/tools/device_service_runtime.py"
         ).read_text()
+        specs = (
+            ROOT / "platform/tools/device_service_specs.py"
+        ).read_text()
         himem_readme = (
             ROOT / "tests/firmware/core2_psram_himem/README.md"
         ).read_text()
@@ -2445,7 +2448,11 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         code_map = (DOCS / "code-map.md").read_text()
         core2_doc = (DOCS / "core2-native-hci-backend.md").read_text()
         api = (DOCS / "device-service-api.md").read_text()
-        self.assertIn('SERVICE_MEMORY_OVERRIDES = {"core2": "8"}', service)
+        self.assertIn(
+            'SERVICE_MEMORY_OVERRIDES = {"core2": "8"}',
+            specs,
+        )
+        self.assertIn("from device_service_specs import", service)
         self.assertIn("from device_service_runtime import", service)
         self.assertIn("effective = 8", runtime)
         self.assertIn("same virtual window", himem_readme.lower())
