@@ -210,6 +210,22 @@ try {
       }
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
       if (button) { button.press('integration-probe'); button.release('integration-probe'); }
+      const physicalAliases=[];
+      if(device.id==='cardputer-adv')for(const id of ['key-Fn','key-CapsLock','key-AltLeft','key-AltRight','key-Escape']){
+        const component=shell.model.find(id,'button'),start=controls.length;
+        if(!component)throw new Error('Missing physical keyboard alias '+id);
+        component.press('integration-probe');component.release('integration-probe');
+        physicalAliases.push({id,events:controls.splice(start).map(event=>[event.key,event.down])});
+        if(id==='key-Escape'){
+          component.press('key:Escape');component.release('key:Escape');
+          physicalAliases.push({id:'pc-Escape',events:controls.splice(start).map(event=>[event.key,event.down])});
+          for(const sources of [['integration-probe','key:Escape'],['key:Escape','integration-probe']]){
+            component.press(sources[0]);component.press(sources[1]);
+            component.release(sources[0]);component.release(sources[1]);
+            physicalAliases.push({id:'mixed-Escape-'+sources[0],events:controls.splice(start).map(event=>[event.key,event.down])});
+          }
+        }
+      }
       const before = raw.length;
       const ownership = window.modelProbe.ownership(shell, shell.model);
       const outputs = window.modelProbe.outputs(shell, shell.model);
@@ -218,7 +234,7 @@ try {
       return {
         id: device.id, visual_only: Boolean(device.visual_only), source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, touches, resets, ownership, outputs, artwork, outputEcho: raw.length - before,
+        frame, controls, physicalAliases, touches, resets, ownership, outputs, artwork, outputEcho: raw.length - before,
       };
     }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
     assert.equal(result.source, 'm5stack-models', `${device.id} fell back to the old renderer`);
@@ -233,10 +249,12 @@ try {
     if (device.hardware.display?.touch) {
       assert.deepEqual(result.touches.map(event => [event.x, event.y, event.down]), [[12, 34, true], [12, 34, false]]);
     }
-    const firstKeys = { sticks3: 'a', cores3: 'p', stopwatch: 'a', 'cardputer-adv': 'esc',
+    const firstKeys = { sticks3: 'a', cores3: 'p', stopwatch: 'a', 'cardputer-adv': 'grave_accent',
       'cardputer-zero': 'f1', papermono: 'a', core2: 'a', papercolor: 'a',
       nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
+    if(device.id==='cardputer-adv')assert.deepEqual(result.physicalAliases.map(row=>row.events),
+      ['compose','shift','meta_l','alt','grave_accent','esc','grave_accent','esc'].map(code=>[[code,true],[code,false]]),'ADV physical matrix aliases and mixed-source Escape holds retain matching input edges');
     if (device.id === 'tab5') assert.equal(result.resets, 1);
     result.case = test.key; result.configuration = test.configuration; result.options = test.options;
     report.controllers.push(result);

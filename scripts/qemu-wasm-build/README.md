@@ -96,3 +96,23 @@ pinned SDK's `poll` implementation. Build PASS alone proves neither frame
 rate nor reduced CPU: use the browser benchmark and same-guest input/frame/
 cleanup receipts, and keep compiler/background-load and GPU renderer details
 with resource measurements.
+
+Patch `0017` coalesces expired positive-period SYSTIMER host callbacks in WASM
+while retaining the next alarm's phase. The elapsed counter, pending interrupt
+level and guest tick accounting remain unchanged. Its `__EMSCRIPTEN__` guard
+preserves native behavior, and zero periods keep the original semantics. The
+actual-function C controls establish the redundant-callback defect; they do not
+establish that a particular guest watchdog failure is resolved.
+
+Patch `0018` follows the TI TCA8418 SCPS215G interrupt contract (sections
+8.6.2.1/2/4, pages 28–30) for the original keyboard driver's `INT_CFG=0` path.
+The last FIFO read leaves the key interrupt latched until W1C, and an event
+arriving between drain and acknowledgement keeps `K_INT` asserted. The
+bounded actual-C pre/post controls require the old premature GPIO rise and
+stranded-release result as negative controls, then check FIFO order and
+unrelated status bits. The legacy `INT_CFG=1` path is unchanged; its required
+50-microsecond pulse and interrupt-enable/other-source behavior are not granted
+coverage. See the [patch provenance and boundaries](../../patches/qemu-wasm-probe/README.md#tca8418-key-interrupt-acknowledgement-0018).
+These checkout-only controls do not execute a guest. A new build must repeat
+the exact firmware's browser acceptance, including every keyboard release;
+results from the preceding runtime do not transfer to the new binary hash.

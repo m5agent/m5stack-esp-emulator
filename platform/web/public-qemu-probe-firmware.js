@@ -4,10 +4,52 @@ import {sha256Bytes} from './sha256.js';
 
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCES = Object.freeze({
-  'boot.py': {bytes:214, sha256:'8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33'},
-  'main.py': {bytes:1692, sha256:'4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0'},
+  "boot.py": {
+    "bytes": 214,
+    "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+  },
+  "main.py": {
+    "bytes": 1692,
+    "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+  },
+  "core2_boot.py": {
+    "bytes": 24,
+    "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+  },
+  "stopwatch_main.py": {
+    "bytes": 1732,
+    "sha256": "67daad6cd3680fda6379d5fb79b6c18bf42feda2d38fdb1197a42ecba4814406"
+  },
+  "papercolor_main.py": {
+    "bytes": 2826,
+    "sha256": "c18b09c5290562fcea2071faf5b9e7984f2b36b8a347fa76a85d4fdb2997448a"
+  },
+  "papermono_main.py": {
+    "bytes": 4297,
+    "sha256": "9ec71a31dfe6ad2d359e48a9bc1bdd9ce5eccb0080271fe819e3cfce109d403e"
+  },
+  "cardputer_adv_main.py": {
+    "bytes": 3320,
+    "sha256": "ff2d229274ac7b59ff70ef702b26a3c26415573063e4a31203f4024eed4ef6b8"
+  }
 });
-const CORE2_BOOT = Object.freeze({bytes:24, sha256:'b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9'});
+const SOURCE_NAMES = Object.freeze({
+  "core2": {
+    "boot.py": "core2_boot.py"
+  },
+  "stopwatch": {
+    "main.py": "stopwatch_main.py"
+  },
+  "papercolor": {
+    "main.py": "papercolor_main.py"
+  },
+  "papermono": {
+    "main.py": "papermono_main.py"
+  },
+  "cardputer-adv": {
+    "main.py": "cardputer_adv_main.py"
+  }
+});
 const CONFIG = {block_size:4096, read_size:128, prog_size:32, lookahead_size:128, block_cycles:100, cache_size:128, name_max:255, disk_version:0};
 function check(ok, message) { if (!ok) throw new Error(message); }
 function abort(signal) { if (signal?.aborted) throw signal.reason || new DOMException('Cancelled', 'AbortError'); }
@@ -52,7 +94,7 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
   signal, fetchImpl = globalThis.fetch, onProgress = () => {}} = {}) {
   validateQemuProfile(profile); abort(signal);
   const fixture = profile.fixture;
-  check(fixture?.id === 'xtensa-board-display-v1' && ['button', 'touch'].includes(fixture.inputMode)
+  check(fixture?.id === 'xtensa-board-display-v1' && ['button', 'touch', 'keyboard'].includes(fixture.inputMode)
     && Number.isInteger(fixture.uiRotation) && fixture.uiRotation >= 0 && fixture.uiRotation <= 3
     && /^[a-f0-9]{64}$/.test(fixture.firmwareSHA256), 'This board has no reviewed browser probe fixture');
   const options = {signal, fetchImpl};
@@ -70,9 +112,9 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
     check(bytes.length === row.bytes && sha256Bytes(bytes) === row.sha256, 'Probe composer asset hash mismatch'); return bytes;
   };
   const source = async name => {
-    const core2Boot = profile.deviceId === 'core2' && name === 'boot.py';
-    const row = fixture.sources?.[name], pinned = core2Boot ? CORE2_BOOT : SOURCES[name];
-    const path = `platform/runtime/qemu-probe/fixture/${core2Boot ? 'core2_boot.py' : name}`;
+    const sourceName = SOURCE_NAMES[profile.deviceId]?.[name] || name;
+    const row = fixture.sources?.[name], pinned = SOURCES[sourceName];
+    const path = `platform/runtime/qemu-probe/fixture/${sourceName}`;
     check(row?.path === path && row.bytes === pinned.bytes && row.sha256 === pinned.sha256, 'Probe source identity mismatch');
     const bytes = await download(localURL(assetUrl(path, new URL(root)), root), row.bytes, options);
     check(bytes.length === row.bytes && sha256Bytes(bytes) === row.sha256, 'Probe source asset hash mismatch'); return bytes;

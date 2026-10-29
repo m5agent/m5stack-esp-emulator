@@ -1350,3 +1350,20 @@ PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna、
 电气时序和真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-peer-fabric/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-peer-fabric/summary.json)。
+
+## 2026-10-29：剩余 Xtensa 浏览器准入与独立 engine Worker
+
+同步原仓库 main 至 `96ee9f33` 后，46 层 C/QEMU 固定源码完整重建；WASM
+SHA256 `9d2db548e3f4b2622d9839b57311cbab7244775a492d4fff660140c19f68ac93`，
+lock SHA256 `b39bba5b0dc1aaa51ac9f98210cbaca3ed324db3251d0a3cf2da3bf281a5ef4f`。
+新增六板与既有四板、CoreS3 两例在同一最终公开导出独立执行 11 例，313 项
+检查全过；串口/帧/输入/暂停恢复及 engine+五 pthread 在 iframe 保留时退出
+均取自各自同一 guest。正式 Pages 新部署、物理硬件与原生全矩阵为 NOT RUN。
+
+实际 C 负控分别保留 QAPI 枚举错误、迟到 systimer deadline 重放及 TCA
+未读 FIFO 被 W1C 吞掉 K_INT；45 层 Cardputer N-release 失败不被新 PASS
+覆盖。PaperMono 使用固定 raw-point workaround，逻辑校准与 StopWatch 触摸
+偏差仍开放。平台 1505 项检查 OK（10 skipped）；最终链接/源码/报告/固件
+身份、浏览器序列和边界见
+[有界证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) 与
+[机器可读摘要](evidence/2026-10-29-wasm-remaining-xtensa/summary.json)。

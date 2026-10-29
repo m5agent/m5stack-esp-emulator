@@ -1,0 +1,111 @@
+diff --git a/hw/timer/esp_systimer.c b/hw/timer/esp_systimer.c
+--- a/hw/timer/esp_systimer.c
++++ b/hw/timer/esp_systimer.c
+@@ -46,96 +46,107 @@
+         /* Optimize a bit by not calling the interrupt module if the state didn't change */
+         const int new_level = comparator->raw_st && comparator->int_enabled;
+         if (new_level != comparator->cur_irq_level) {
+             comparator->cur_irq_level = new_level;
+             qemu_set_irq(comparator->irq, new_level);
+         }
+     }
+ }
+ 
+ 
+ static void esp_systimer_notify(ESPSysTimerComp* comparator)
+ {
+     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+ #if SYSTIMER_DEBUG
+     static int64_t previous = 0;
+     info_report("Elapsed since last interrupt %ld ns\n", now - previous);
+     previous = now;
+ #endif
+ 
+     /* Update the counter linked to the comparator */
+     const uint32_t counter_idx = comparator->counter;
+     ESPSysTimerState *s = comparator->systimer;
+     ESPSysTimerCounter* counter = &s->counter[counter_idx];
+ 
+     if (counter->enabled) {
+         esp_systimer_update_counter(counter);
+     }
+ 
+     /* Set raw status to 1 to show the application that the interrupts pending.
+      * If this is omitted, clearing any comparator interrupt would clear all comparators status! */
+     comparator->raw_st = 1;
+     esp_systimer_set_irqs(s);
+ 
+     /* Check if we have to reload the comparator's timer */
+     if (counter->enabled && comparator->period_mode) {
+         /**
+          * If the timer is periodic, we have to compensate the delay that may have been taken
+          * by QEMU framework. Indeed, this timer may have been triggered too late (tenth of us)
+          * As such, compensate here by triggering the next timer earlier.
+          */
+         const int64_t diff_ns = now - comparator->expire_time;
+         const int64_t target_ns = now + TICKS_TO_NS(comparator->period);
+         int64_t adjusted_target_ns = target_ns;
+ 
+         if (diff_ns < target_ns) {
+             adjusted_target_ns = target_ns - diff_ns;
+         }
+ 
++#ifdef __EMSCRIPTEN__
++        /* A pending level interrupt already represents elapsed periods.  Do
++         * not replay obsolete host callbacks while holding the timer list.
++         * Keep the alarm phase and let the guest account for elapsed ticks. */
++        const int64_t period_ns = TICKS_TO_NS(comparator->period);
++        if (period_ns > 0 && adjusted_target_ns <= now) {
++            adjusted_target_ns +=
++                ((now - adjusted_target_ns) / period_ns + 1) * period_ns;
++        }
++#endif
++
+         comparator->expire_time = adjusted_target_ns;
+         timer_mod_ns(&comparator->qtimer, adjusted_target_ns);
+     }
+ }
+ 
+ 
+ /**
+  * @brief Function called when the configuration of the given comparator changed.
+  * It will reprogram the QEMU Timer according to the new parameters. The comparator
+  * must be enabled when this function is called.
+  */
+ static void esp_systimer_comparator_reprogram(ESPSysTimerComp* comparator)
+ {
+     assert(comparator->enabled);
+ 
+     const uint32_t counter_idx = comparator->counter;
+     ESPSysTimerState *s = comparator->systimer;
+     ESPSysTimerCounter* counter = &s->counter[counter_idx];
+ 
+     /* Update the counter to get the latest value */
+     esp_systimer_update_counter(counter);
+ 
+     /* If the counter we have to compare it to is not enabled, do not program any timer */
+     if (!counter->enabled) {
+         /* "Disable" the timer */
+         timer_del(&comparator->qtimer);
+         return;
+     }
+ 
+     /**
+      * According to the TRM, if the comparator (alarm) is smaller than the counter value and the
+      * difference is bigger or equal to (2^51) - 1, the alarm is not triggered right now and the counter
+      * will have to overflow first before reached the comparator value.
+      */
+     const int64_t count_val = counter->value;
+     const int64_t alarm = comparator->value;
+     const bool overflow_valid = alarm < count_val && count_val - alarm >= ((1ULL << 51) - 1);
+ 
+     if (!comparator->period_mode && !overflow_valid && alarm <= count_val) {
+         timer_del(&comparator->qtimer);
+         esp_systimer_notify(comparator);
+         return;
+     }
+ 
+     /* Calculate in how many ns the counter would reach the comparator */
+     uint64_t diff = 0;
+ 
+     if (comparator->period_mode) {

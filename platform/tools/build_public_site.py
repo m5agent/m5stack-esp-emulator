@@ -162,7 +162,7 @@ def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str
     return registry, browser
 
 
-def littlefs_runtime_files(directory: Path) -> dict[str, bytes]:
+def littlefs_runtime_files(directory: Path, *, require_sized_mount: bool = False) -> dict[str, bytes]:
     directory = directory.resolve()
     manifest = json.loads((directory / "manifest.json").read_text())
     if (manifest.get("schema_version") != 1 or manifest.get("kind") != "m5stack-browser-littlefs"
@@ -170,6 +170,8 @@ def littlefs_runtime_files(directory: Path) -> dict[str, bytes]:
             or manifest.get("build", {}).get("kind") != "source-build"
             or manifest.get("firmware_bundled") is not False or manifest.get("rom_bundled") is not False):
         raise ValueError("LittleFS runtime manifest mismatch")
+    if require_sized_mount and manifest.get("partition_mount", {}).get("export") != "_m5_lfs_mount_sized":
+        raise ValueError("Per-board probes require a rebuilt LittleFS sized-partition composer")
     files = {"manifest.json": encode_json(manifest)}
     rows = manifest["assets"]
     if isinstance(rows, dict):
@@ -268,7 +270,14 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             # only sources selected by an explicit per-board fixture identity.
             for profile in registry["profiles"]:
                 for name, row in profile.get("fixture", {}).get("sources", {}).items():
-                    source_name = "core2_boot.py" if profile["deviceId"] == "core2" and name == "boot.py" else name
+                    source_names = {
+                        "core2": {"boot.py": "core2_boot.py"},
+                        "stopwatch": {"main.py": "stopwatch_main.py"},
+                        "cardputer-adv": {"main.py": "cardputer_adv_main.py"},
+                        "papercolor": {"main.py": "papercolor_main.py"},
+                        "papermono": {"main.py": "papermono_main.py"},
+                    }
+                    source_name = source_names.get(profile["deviceId"], {}).get(name, name)
                     expected_path = f"platform/runtime/qemu-probe/fixture/{source_name}"
                     if name not in {"boot.py", "main.py"} or row.get("path") != expected_path:
                         raise ValueError("invalid QEMU probe source path")
@@ -283,7 +292,9 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                     destination.write_bytes(content)
         wallclock_example = False
         if littlefs_runtime:
-            littlefs_files = littlefs_runtime_files(littlefs_runtime)
+            per_board_probes = bool(qemu_runtime and any(
+                row.get("fixture", {}).get("id") == "xtensa-board-display-v1" for row in registry["profiles"]))
+            littlefs_files = littlefs_runtime_files(littlefs_runtime, require_sized_mount=per_board_probes)
             wallclock_example = "cores3-wasm-lvgl-wallclock-v1" in json.loads(littlefs_files["manifest.json"]).get("fixtures", {})
             for name, content in littlefs_files.items():
                 destination = temporary / "platform/runtime/littlefs" / name

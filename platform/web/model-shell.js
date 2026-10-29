@@ -245,6 +245,20 @@ export class ModelDeviceShell {
     let id = CONTROL_MAPS[this.device.id]?.[event.id];
     if (['cardputer-adv', 'cardputer-zero'].includes(this.device.id) && event.id.startsWith('key-')) {
       id = keyboardQcode(event.id);
+      if(this.device.id==='cardputer-adv'){
+        // The imported model names differ from the original ADV matrix.
+        // Route these physical positions to their actual SDK keys. COMPOSE
+        // carries physical Fn through QAPI to this board's TCA8418 only.
+        id=({'key-Fn':'compose','key-CapsLock':'shift','key-AltLeft':'meta_l','key-AltRight':'alt'})[event.id]||id;
+        // The top-left model key is physically grave/Fn-Escape. Keep a PC
+        // Escape key logical, while a model press follows the real matrix.
+        if(event.id==='key-Escape'&&!event.source?.startsWith('key:'))id='grave_accent';
+        // Model buttons aggregate simultaneous pointer/keyboard holds. The
+        // final release may come from another source; retain the first code.
+        this.keyEdgeQcodes??=new Map();
+        if(event.action==='down')this.keyEdgeQcodes.set(event.id,id);
+        else {id=this.keyEdgeQcodes.get(event.id)||id;this.keyEdgeQcodes.delete(event.id);}
+      }
     }
     if (!id) return;
     const gpio = /^G(\d+)$/.exec(component?.meta?.gpio || '');

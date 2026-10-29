@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-actual-post45-tca8418-controller-source",
+  "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "source": {
+    "path": "hw/m5stopwatch/m5sw_i2c_devs.c",
+    "preimage_sha256": "3858e5eacc0e7091327951c29df057f5e05c4e359b6a5cc7185739dafdda3d6e",
+    "postimage_sha256": "f757fbb0666d4301cc6a1fc05651bed0d57f6e2747a5b3b7ef187e325b7c3084",
+    "license_header": "/*\n * I2C slave models for the M5Stack StopWatch:\n *   M5PM1 PMIC (0x6E), M5IOE1 IO expander (0x4F), CST820 touch (0x15),\n *   BMI270 IMU (0x68), RX8130CE RTC (0x32), ES8311 codec (0x18)\n * Register maps derived from the drivers in M5StopWatch-UserDemo/components.\n * SPDX-License-Identifier: GPL-2.0-or-later\n */"
+  },
+  "fragments": {
+    "queue_globals": {
+      "sha256": "290f8460a0fcb879848eff11229f9097797bfc86a0df9529cf7f54f1a471f398",
+      "source": "static M5swI2CDev *g_keyboard;\nstatic uint8_t g_key_events[16];\nstatic unsigned g_key_event_head;\nstatic unsigned g_key_event_count;"
+    },
+    "queue_event": {
+      "sha256": "ed4a514d5011e4cb1caabb831907aeba7531f13a8fe6cc023cb03bcfe8b605ea",
+      "source": "void m5sw_keyboard_event(uint8_t event)\n{\n    if (g_key_event_count == ARRAY_SIZE(g_key_events)) {\n        return;\n    }\n    g_key_events[(g_key_event_head + g_key_event_count) % ARRAY_SIZE(g_key_events)] = event;\n    g_key_event_count++;\n    if (g_keyboard) {\n        g_keyboard->regs[0x02] |= 0x01;  /* INT_STAT: key event */\n    }\n    esp32_gpio_set_input(11, 0);\n}"
+    },
+    "read_case": {
+      "sha256": "8f68005211b740e0482f5d0144f809c44801d06dd2a8de697753cfc4741a305a",
+      "source": "    case M_TCA8418:\n        if (r == 0x03) {\n            return g_key_event_count;\n        }\n        if (r == 0x04 && g_key_event_count) {\n            uint8_t event = g_key_events[g_key_event_head];\n            g_key_event_head = (g_key_event_head + 1) % ARRAY_SIZE(g_key_events);\n            g_key_event_count--;\n            if (!g_key_event_count) {\n                esp32_gpio_set_input(11, 1);\n            }\n            return event;\n        }\n        break;"
+    },
+    "write_case": {
+      "sha256": "0326b4db65fcffd102fa83b2482da13cdfc6b5dda176f7397795611e2ffa1fb3",
+      "source": "    case M_TCA8418:\n        if (r == 0x02) {          /* INT_STAT is write-one-to-clear */\n            s->regs[r] &= ~data;\n            s->ptr++;\n            return 0;\n        }\n        break;"
+    }
+  },
+  "patched_fragments_sha256": {
+    "read_case": "da63aaa990217a6e3038fa5b0484d3847220f78510fab0b2c8cc471c054ff6c4",
+    "write_case": "762a4da2e9dc0e8f486c9ab52318fd5c8b416a89463e9befb403cc3c7cc60228"
+  },
+  "scope": "Actual queue function and TCA8418 read/write case bodies. Small host wrappers replay register protocol; no QEMU guest or physical hardware is executed. INT_CFG=1 legacy behavior is retained and its timing is not validated.",
+  "official_evidence": {
+    "url": "https://www.ti.com/lit/ds/symlink/tca8418.pdf",
+    "document": "SCPS215G",
+    "pdf_sha256": "fdd74a30911f0a92a592be42f5f040600ce41609a1ce5d87b287ce435df6a944",
+    "sections": [
+      "8.6.2.1",
+      "8.6.2.2",
+      "8.6.2.4"
+    ],
+    "pages": [
+      28,
+      29,
+      30
+    ]
+  }
+}

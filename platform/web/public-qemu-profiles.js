@@ -29,7 +29,7 @@ export function validateQemuProfile(profile) {
   const input = profile.inputs;
   check(input && typeof input.touch === 'boolean' && input.uart === false && input.buttons && typeof input.buttons === 'object'
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
-    && input.keyboard.every(code => /^[a-z0-9]+$/.test(code)), 'Invalid QEMU input profile');
+    && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
   check(input.pir === null || input.pir?.path === '/machine/units/pir' && input.pir.property === 'motion', 'Invalid QEMU Unit endpoint');
   check(profile.units?.schema_version === 1 && Array.isArray(profile.units.attachments)
     && profile.units.attachments.length === (input.pir ? 1 : 0), 'Invalid QEMU Unit wiring');
@@ -42,6 +42,30 @@ export function validateQemuProfile(profile) {
   const url = new URL(reference?.url);
   check(reference?.kind === 'official-base' && url.protocol === 'https:' && url.hostname === 'm5burner-cdn.m5stack.com' && !url.username && !url.password && !url.search && !url.hash
     && identity.test(reference.sha256) && Number.isSafeInteger(reference.bytes) && reference.bytes > 0 && reference.bytes <= profile.flashMb * MIB, 'Invalid QEMU reference firmware');
+  if(profile.fixture?.frameOracle!==undefined){
+    const oracle=profile.fixture.frameOracle,r=oracle?.rect;
+    check(r && ['x','y','width','height'].every(key=>Number.isInteger(r[key]))
+      && r.x>=0 && r.y>=0 && r.width>0 && r.height>0 && r.x+r.width<=display.width && r.y+r.height<=display.height
+      && [oracle.before,oracle.after].every(color=>Number.isInteger(color)&&color>=0&&color<=65535)
+      && oracle.before!==oracle.after,'Invalid QEMU panel frame oracle');
+    check(oracle.encoding===undefined||oracle.encoding==='sdk-quality-pattern-v1'
+      && ['papercolor','papermono'].includes(profile.deviceId),'Invalid QEMU panel oracle encoding');
+  }
+  if(profile.fixture?.logicalDisplay!==undefined){
+    check(['width','height'].every(key=>Number.isInteger(profile.fixture.logicalDisplay[key])
+      && profile.fixture.logicalDisplay[key]>0 && profile.fixture.logicalDisplay[key]<=2048),'Invalid QEMU logical display');
+  }
+  for(const key of ['touchPoint','negativeTouchPoint'])if(profile.fixture?.[key]!==undefined){
+    const point=profile.fixture[key];
+    check(input.touch && Number.isInteger(point.x) && Number.isInteger(point.y)
+      && point.x>=0 && point.x<display.width && point.y>=0 && point.y<display.height,'Invalid QEMU fixture touch point');
+  }
+  if (profile.fixture?.coordinateSource !== undefined) {
+    check(profile.deviceId === 'papermono' && input.touch
+      && profile.fixture.coordinateSource === 'official-raw-point'
+      && profile.fixture.logicalTouchStatus === 'known-sdk-calibration-gap'
+      && profile.fixture.releaseCoordinates === 'last-pressed-raw-point', 'Invalid QEMU raw touch fixture');
+  }
   if (profile.firmwareProfiles !== undefined) {
     check(Array.isArray(profile.firmwareProfiles) && profile.firmwareProfiles.length <= 16, 'Invalid QEMU firmware execution variants');
     const hashes = new Set(), fields = ['firmwareSHA256', 'profile', 'clockDivisor', 'readyMarker', 'fixture', 'sourceSHA256', 'schedulerCandidate'];

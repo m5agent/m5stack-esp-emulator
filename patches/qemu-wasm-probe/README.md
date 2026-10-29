@@ -229,3 +229,108 @@ branches remain unchanged. Deterministic C controls and the real SDK
 poll/pipe/pthread experiment are in
 [`poll_wait`](../../tests/browser-qemu/poll_wait/README.md); actual browser CPU,
 input and exit results still require their own runtime-bound evidence.
+
+## Cardputer-ADV keyboard matrix (`0016`)
+
+`0016-cardputer-keyboard-qcode-map.patch` follows `0015` in the browser build
+lock. It changes only the Cardputer-ADV keyboard helpers in
+`hw/m5stopwatch/m5_spi_panel.c`; other panel, button and touch paths retain
+their behavior. Native bootstrap is unchanged.
+
+QEMU's `QKeyCode` values follow PC scan-code order, so subtracting
+`Q_KEY_CODE_A` from an alleged alphabetical A..Z range maps keys to unrelated
+matrix cells and misses others. The patch explicitly maps symbolic key codes
+to the physical 4x14 matrix, including right-side modifier aliases. `COMPOSE`
+is the board-specific carrier for the physical Fn key. Logical Escape,
+Delete and navigation events enter the existing FIFO as Fn plus the physical
+key; key-down precedes key-up, and each chord releases its key before Fn.
+The TCA8418 FIFO, guest I2C registers and original UIFlow decoder remain the
+data plane; no decoded character is injected through UART or Python.
+
+The source inputs are fixed independently:
+
+- [Espressif QEMU `qapi/ui.json`](https://github.com/espressif/qemu/blob/40edccac415693c5130f91c01d84176ae6008566/qapi/ui.json),
+  commit `40edccac415693c5130f91c01d84176ae6008566`, SHA256
+  `0b25e722122221301f0cee76b775a5fda569e45ec9bc73676fb8aad55df903eb`;
+- [UIFlow2 2.5.3 `hardware/keyboard/__init__.py`](https://github.com/m5stack/uiflow-micropython/blob/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/hardware/keyboard/__init__.py),
+  commit `50e440780492aa847378c7d3477ab912f7063bac`, SHA256
+  `ca22657f704da629e9659ba50b769f169af077aca16d9dae1c94b269ae85fd33`.
+
+`platform/tests/fixtures/cardputer_qkeycode_40edccac.json` preserves the
+nonalphabetical enum and physical matrix. The C replay in
+`platform/tests/test_cardputer_keyboard_qcode_patch.py` compiles the actual
+patch helpers and checks 204 position, press, release, Fn-order and invalid-key
+conditions; the original preimage is a required failing control. These are
+mapping controls, not a browser guest result. Browser acceptance separately
+requires the same firmware's original `KeyboardI2C` FIFO decoding, matrix
+coordinates, counter/frame changes and release state for each declared case.
+GPIO interrupt delivery and arbitrary simultaneous modifiers remain separate
+validation boundaries. See the
+[fixture contract](../../tests/browser-qemu/board_display/README.md).
+
+## Periodic SYSTIMER deadlines (`0017`)
+
+`0017-wasm-systimer-periodic-deadline.patch` changes only the WASM branch of
+`esp_systimer_notify`. The old calculation advances an overdue periodic alarm
+one interval at a time. A one-millisecond alarm serviced 50 milliseconds late
+therefore produces 51 host callbacks in one timer-list pass, including when
+its interrupt level is already pending. The extra callbacks cannot deliver
+additional guest interrupts while that level remains asserted.
+
+For positive periods, the patch advances the next deadline by whole periods
+to the first deadline strictly after the current virtual time. Alarm phase,
+elapsed counter updates, raw interrupt state and one-shot behavior retain
+their original paths. `__EMSCRIPTEN__` limits this change to the browser build;
+native behavior is unchanged. Zero periods, including periods rounded to zero
+by the existing conversion, deliberately retain their original semantics.
+
+The checkout-only control in
+`platform/tests/test_wasm_systimer_periodic_patch.py` compiles the actual patch
+preimage and postimage with the fixed QEMU counter, IRQ and timer-list
+functions. The fixture retains their original GPL/MIT headers and hashes.
+Late and pending-level cases require the old redundant-callback result as a
+negative control; early, exact, zero-period, counter-wrap, disabled-counter
+and one-shot cases check preservation. A native compilation must match the
+preimage. No `.work` cache, download or guest is needed for these controls.
+
+These controls establish the redundant host-callback defect. A specific
+firmware's watchdog stability still requires its own browser guest evidence
+bound to the resulting runtime, firmware and normal-clock profile.
+
+## TCA8418 key interrupt acknowledgement (`0018`)
+
+`0018-tca8418-cfg0-key-interrupt.patch` follows `0017` and changes only the
+TCA8418 read/W1C branches in `hw/m5stopwatch/m5sw_i2c_devs.c`. The physical
+matrix mapping, FIFO bytes and original `KeyboardI2C` decoder remain unchanged.
+The native bootstrap patch list does not acquire this browser-build layer.
+
+The authority is [TI TCA8418 SCPS215G](https://www.ti.com/lit/ds/symlink/tca8418.pdf),
+sections 8.6.2.1, 8.6.2.2 and 8.6.2.4, pages 28–30. The PDF retrieved on
+2026-10-29 has SHA256
+`fdd74a30911f0a92a592be42f5f040600ce41609a1ce5d87b287ce435df6a944`.
+CFG register `0x01`, bit 4 selects `INT_CFG`. In mode 0, unread FIFO data
+prevents clearing `K_INT` (`INT_STAT 0x02`, bit 0); reading the last event
+alone does not acknowledge the latched interrupt. The fixed UIFlow2 2.5.3
+driver from commit `50e440780492aa847378c7d3477ab912f7063bac` uses this mode:
+it drains the FIFO and then writes one to clear `K_INT`.
+
+The old model raises GPIO11 when the last event is read and unconditionally
+clears `K_INT` on W1C. A new release between the empty-FIFO check and W1C can
+therefore remain queued with `K_INT=0`; the original driver's next poll skips
+the FIFO because it first tests that flag. Mode 0 now retains the active-low
+IRQ until acknowledgement and preserves `K_INT` if unread events remain.
+Other W1C bits and FIFO order are preserved. Mode 1 retains its legacy code
+path: the required 50-microsecond deassert/reassert timing is not modeled or
+validated by this patch. Interrupt-enable gating and other interrupt sources
+are outside this key-interrupt control.
+
+`platform/tests/test_tca8418_irq_patch.py` compiles the actual queue function
+and read/write case bodies retained in the bounded GPL-licensed fixture
+`platform/tests/fixtures/tca8418_irq_post45.json`, with small register/GPIO
+stubs. Required failing preimage controls demonstrate both premature GPIO
+deassertion and queued-release/cleared-flag interleaves. Postimage controls
+check last-read versus W1C ordering, zero writes, preservation of other status
+bits, FIFO byte order and unchanged legacy mode-1 behavior. They need no
+`.work` cache or download and establish a C register-contract result only.
+The resulting runtime still requires its own same-Flash browser guest
+keyboard press/release, serial, framebuffer and cleanup evidence.

@@ -218,6 +218,12 @@ function renderDetails() {
   $('referenceTitle').textContent = ref?.name || '此型号暂无参考固件';
   $('referenceDescription').textContent = ref?.wallclockCandidate
     ? '在官方 UIFlow2 基底中加入明确的 LVGL 调度候选修复，用于本交互示例。'
+    : ref?.composedProbe
+    ? ({'cardputer-adv':'点击模型键盘，或先点击模型再用电脑键盘输入；屏幕显示按键状态和累计次数。',
+        papermono:'点击屏幕下方的触摸区域，观察计数和电子纸刷新；区域外点击不计数。',
+        papercolor:'按模型正面的 A 键，观察计数和六色电子纸刷新。',
+        stopwatch:'点击圆屏，观察计数和屏幕标记变化。'}[device.id]
+      || '点击模型上的按键或触摸屏，观察设备屏幕中的计数变化。')
     : ref
     ? '已为当前设备选择对应固件。也可以使用自己的链接或本地文件。'
     : '请选择固件链接或本地 .bin 文件。';
@@ -452,7 +458,7 @@ function applyBrowserFrame(frame, run) {
     context.putImageData(image, 0, 0);
     const touch=!(run.controller instanceof PublicQemuRuntime)||run.controller.profile?.inputs.touch;
     $('rawFrameDescription').textContent = `完整 ${frame.width} × ${frame.height} 固件帧 · ${touch?'支持触摸':'请使用设备按键'}`;
-    if (state.selected.id === 'stopwatch') {
+    if (state.selected.id === 'stopwatch' && !(run.controller instanceof PublicQemuRuntime)) {
       const first = $('rawFramePanel').hidden;
       $('rawFramePanel').hidden = false;
       $('deviceMount').classList.add('has-raw-frame');

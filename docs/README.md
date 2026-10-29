@@ -47,6 +47,8 @@ Core2 legacy 的最新 status/CAS 诊断见
 原生设备验证与浏览器准入分别绑定执行产物。测量与准入见
 [浏览器性能证据](evidence/2026-10-29-wasm-performance-devices/README.md)，
 SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallclock/README.md)。
+新增六板已按[后续 Xtensa 接入计划](plans/2026-10-29-wasm-remaining-xtensa.md)完成固定示例准入；
+编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 ## 按角色继续阅读
 
@@ -122,6 +124,8 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [纯浏览器执行调研](browser-runtime-feasibility.md) | 架构调查 | `2026-10-28` | esp-online-tester 固定源码、体积与板级范围；独立源码构建的当前浏览器实验及不可继承边界 |
 | [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-29` | C/QEMU 逐板准入、两种 CoreS3 示例、共享帧与每次构建的全公开板型门禁；固定源码构建、管理员部署步骤和许可边界 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
+| [剩余 Xtensa 浏览器接入](plans/2026-10-29-wasm-remaining-xtensa.md) | 后续交付计划 | `2026-10-29` | 六板独立组合、矩阵键盘、EPD QUALITY 抖色与真实输入/帧/清理；新 runtime 逐板验收后才能准入 |
+| [剩余 Xtensa 浏览器准入证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) | 本地浏览器证据 | `2026-10-29` | 46 层固定源码、独立 engine Worker、矩阵键盘和 TCA W1C、EPD 精确抖色、10 板 11 例最终门禁；正式部署另验 |
 | [浏览器性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md) | 本地浏览器证据 | `2026-10-29` | 同固件 CPU 对照、实际动画像素变化与剩余触摸延迟；四板五示例按两个导出清单分别取证，不冒称正式 Pages 已更新 |
 | [LVGL 正常时钟候选](evidence/2026-10-29-browser-lvgl-wallclock/README.md) | 限定候选证据 | `2026-10-29` | 显式 SDK Python 调度候选在同 guest 验证时间推进、真实字形/动画/触摸/PIR 和清理；stock SDK、C Timer 第一层和硬件不继承 |
 | [正式 GitHub Pages 部署](evidence/2026-10-29-github-pages-production/README.md) | 当前部署证据 | `2026-10-29` | 原仓库 Actions 构建/部署成功；正式 HTTPS 地址独立执行真实 CoreS3 C/QEMU 21 项检查，LCD/触摸/PIR/QMP/分享重开/清理通过 |

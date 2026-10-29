@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -13,6 +14,10 @@ import build_public_site as public
 
 
 class PublicSiteTests(unittest.TestCase):
+    def test_epd_quality_patterns_match_pinned_fixture_sources(self):
+        subprocess.run([sys.executable, str(public.ROOT / "tests/browser-qemu/board_display/epd_oracle.py"), "--check"],
+                       check=True, capture_output=True, text=True)
+
     def test_littlefs_named_wallclock_variant_is_complete_and_source_pinned(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -117,6 +122,11 @@ class PublicSiteTests(unittest.TestCase):
                 (root / "manifest.json").write_text(json.dumps(manifest))
             save()
             self.assertEqual(set(public.littlefs_runtime_files(root)), set(names) | {"manifest.json"})
+            with self.assertRaisesRegex(ValueError, "sized-partition"):
+                public.littlefs_runtime_files(root, require_sized_mount=True)
+            manifest["partition_mount"] = {"export": "_m5_lfs_mount_sized"}
+            save()
+            self.assertEqual(set(public.littlefs_runtime_files(root, require_sized_mount=True)), set(names) | {"manifest.json"})
             license_row = rows.pop("LICENSE.musl")
             save()
             with self.assertRaisesRegex(ValueError, "incomplete"):
