@@ -569,8 +569,13 @@ class DocsNetworkWorkerContractTests(DocsContractBase):
         self.assertIn("def resolve_cname", sandbox)
         self.assertIn("conflicts with a domain suffix answer", sandbox)
         service = (ROOT / "platform/tools/device_service.py").read_text()
-        self.assertIn("def parse_dns_cname_records", service)
-        self.assertIn("validate_cname_record_bindings", service)
+        network_service = (
+            ROOT / "platform/tools/device_service_network.py"
+        ).read_text()
+        self.assertIn("from device_service_network import", service)
+        self.assertIn("def parse_network_policy", network_service)
+        self.assertIn("def parse_dns_cname_records", network_service)
+        self.assertIn("validate_cname_record_bindings", network_service)
         self.assertIn("network_isolation_path", service)
         self.assertIn("termination_timeout = 20", service)
         self.assertIn("network/dns-requests.json", service)
