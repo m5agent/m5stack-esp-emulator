@@ -33,7 +33,7 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
   cdp.on('Target.targetDestroyed', onDestroyed);
   await cdp.send('Target.setDiscoverTargets', {discover:true});
   return {
-    async waitUntilClosed({minimumObserved, timeoutMs = 30000}) {
+    async waitUntilOnly({minimumObserved, allowedUrlPart, timeoutMs = 30000}) {
       const deadline = Date.now() + timeoutMs;
       let live = [];
       while (true) {
@@ -41,16 +41,20 @@ export async function observeWorkerTargets(browser, {pollIntervalMs = 100} = {})
         const response = await cdp.send('Target.getTargets');
         live = (response.targetInfos || []).filter(target => target.type === 'worker' && known.has(target.targetId))
           .map(target => ({target_id:target.targetId, url:target.url}));
-        if (targets.size >= minimumObserved && live.length === 0) {
+        if (targets.size >= minimumObserved
+            && (allowedUrlPart ? live.every(target => target.url.includes(allowedUrlPart)) : live.length === 0)) {
           return {ok:true, minimum_observed:minimumObserved, observed:[...targets.values()], live, events,
-            source:'Chrome DevTools Target.getTargets'};
+            allowed_url_part:allowedUrlPart, source:'Chrome DevTools Target.getTargets'};
         }
         if (Date.now() >= deadline) {
           return {ok:false, minimum_observed:minimumObserved, observed:[...targets.values()], live, events,
-            source:'Chrome DevTools Target.getTargets'};
+            allowed_url_part:allowedUrlPart, source:'Chrome DevTools Target.getTargets'};
         }
         await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
       }
+    },
+    async waitUntilClosed({minimumObserved, timeoutMs = 30000}) {
+      return this.waitUntilOnly({minimumObserved, allowedUrlPart:'', timeoutMs});
     },
     async detach() {
       cdp.off('Target.targetCreated', onCreated);
