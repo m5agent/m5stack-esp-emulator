@@ -1,0 +1,55 @@
+name: Deploy prepared public simulator preview
+
+# Emergency visual-preview path: deploy an already exported, immutable static
+# site without rebuilding C/QEMU. This does not replace the validated
+# publication workflow and must not be used for a production PASS claim.
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release containing public-site-preview-live.tar.gz"
+        required: true
+        default: "pages-preview-20261029"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download prepared site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .work/public-site-preview-live
+          gh release download "${{ inputs.release_tag }}" \
+            --repo "${{ github.repository }}" \
+            --pattern public-site-preview-live.tar.gz \
+            --dir .work \
+            --clobber
+          tar -xzf .work/public-site-preview-live.tar.gz \
+            -C .work/public-site-preview-live
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: .work/public-site-preview-live
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy prepared preview
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
