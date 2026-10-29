@@ -56,6 +56,16 @@
 | `Enter` | 保持 500 ms 后触发画面切换；前后帧序号差 `23` |
 | 5.0126 s 墙钟 / 5.0119 s 虚拟时间 | 比例 `0.999856` |
 
+其它主机核查：
+
+- `test_public_qemu_profiles.mjs` 遍历所有已登记 S3 profile，确认同一组合成
+  ADC calibration 字段存在；没有发现另一块 S3 需要不同的 eFuse 字段。
+- `test_model_shell.mjs --case controller:cardputer-adv` 与
+  `controller:stamplc` 均通过，确认新增设备旋转接口没有破坏另一块
+  240×135 设备模型。
+- CoreS3 默认 `div8` 和 Core2 确定性 `icount` 是有意执行 profile；不能用
+  Cardputer-ADV 的 wall-clock 比例覆盖。
+
 ## 复现
 
 ```bash
@@ -80,6 +90,7 @@ node platform/tests/test_public_qemu_cardputer_legacy_user.mjs
 - `test_public_qemu_runtime.mjs`
 - `test_public_qemu_entry.mjs`
 - `test_model_shell.mjs --case controller:cardputer-adv`
+- `test_model_shell.mjs --case controller:stamplc`
 - `runtime_coverage.py --check`
 - `peripheral_catalog.py --check`
 - `qemu_profiles.py --check`
