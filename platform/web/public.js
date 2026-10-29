@@ -552,6 +552,7 @@ async function startRun() {
         $('browserPirState').textContent = 'QOM: CLEAR';
       }
       state.run = run;
+      state.shell?.focusInput?.();
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
       const imported = await state.service.importFirmware(
