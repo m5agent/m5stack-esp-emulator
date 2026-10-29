@@ -181,6 +181,13 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   ELF/MAP，区分 host-vCPU 调度延迟与 guest 长临界区；不能把 WDT-off、
   扩大超时、改变原子指令语义或局部 yield 当作修复。见
   [episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)。
+  `0088` 随后用同一 QEMU binary 完成默认关闭的 contended-RR A/B：5 秒
+  WDT-off 控制/候选的 CAS 为 `1,070,625→91,465`、跨核 contended 为
+  `984,964→2,702`、episode time 为 `2.240→1.018 s`，而 SSI `0x05` 与
+  `0xBB/64` 仅相差 8；说明 100 ms 单线程 RR 确实放大了 spin，而不是
+  Flash 数据面变慢。候选仍无法阻止 normal-WDT 在 `17.248 s` 触发 TG0
+  stage-1 reset，所以 `RUNTIME-03` 继续 OPEN。见
+  [scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -324,9 +331,10 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    不能把旧对象/寄存器结论直接继承为当前第一失败点；
    `0071/0072` 已给出完整 command/RX-length/gap、联合键、per-command gap
    和 transition 分布；`0073` 已绑定主要 issuer PC，`0075` 已排除
-   RDSR busy 位并定位到 scheduler/list 跨核锁竞争；下一步结合
-   matching symbols、tick/IRQ rate 与最长锁持有区间解释 `0x05` 前的
-   transaction-bound gap；
+   RDSR busy 位并定位到 scheduler/list 跨核锁竞争；`0086/0088` 已证明
+   单线程 RR 的 100 ms quantum 会放大 spin，但缩短 contended quantum
+   仍不能解除 normal-WDT reset。下一步结合 matching symbols、tick/IRQ
+   rate 与最长锁持有区间解释 `0x05` 前的 transaction-bound gap；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
    callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
    再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；
