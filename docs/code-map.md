@@ -120,6 +120,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
 | `platform/tools/firmware_filesystems.py` | LittleFS、FAT12/16/32 与 SPIFFS 只读清单、LUT/对象页校验、哈希和 SPDX | manifest |
 | `platform/tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查、SBOM 摘要 | manifest |
+| `platform/tools/legacy_device_config.py` | 严格识别 classic UIFlow `deviceCfg` 的 config partition，并仅在 session Flash 副本中应用 SSID/password | Device Service Core2 `qemu-wifi`、legacy config tests |
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件的 SHA-bound UI/headless/network-first Device Service 批量仿真；可加载 session-isolated NVS fixture | 回归操作员 |
 | `platform/tools/user_firmware_expectations.schema.json` | review expectation v1 的 JSON Schema；绑定 device/firmware/SHA，禁止明文 WiFi 密码 | matrix、审查工具 |
 | `platform/tools/nvs_image.py` | 确定性 NVSv2 namespace/string fixture 生成器 | Device Service、firmware probes |
@@ -451,6 +452,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/user_firmware_expectations.schema.json` | UI/headless/network-first review expectation v1 schema |
 | `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
+| `platform/tools/legacy_device_config.py` | 校验 classic UIFlow `deviceCfg` schema、长度和 checksum，只更新匹配的 config partition |
 | [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI、Core2 PSRAM/flash-IPC 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 | `platform/web/firmware.html`、`firmware.js`、`firmware-report.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复、manifest 导入、sdkconfig/image capability 来源与 warning 展示 |
@@ -580,6 +582,7 @@ PASS 比例、轮次、资源数值和哈希都只属于所链接的 evidence；
 | Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | SD media fixture | `platform/tools/sd_image.py`；`test_sd_image.py`；Device Service `storage.sd_image_artifact_id` | 纯 Python 生成确定性 FAT32+MBR 或 FAT16 superfloppy raw image；Device Service 拒绝无 SD 模型的设备，校验 512-byte 对齐，复制到 session 后重新哈希并以 writable `if=sd` 挂载 |
 | NVS partition fixture | `platform/tools/nvs_image.py`；`test_nvs_image.py`；Device Service `nvs.image_artifact_id` | 生成与 ESP-IDF generator 逐字节一致的 NVSv2 namespace/string 数据；服务按固件分区表校验 label/offset/size，只覆盖 session Flash 副本并记录 base/effective SHA |
+| Core2 legacy deviceCfg WiFi fixture | `platform/tools/legacy_device_config.py`；`test_legacy_device_config.py`；Device Service `legacy_wifi_config_applied` | 只接受 Core2 `qemu-wifi` 的完整 legacy config schema/checksum；只改 session Flash 副本，记录 hashed SSID/base/effective SHA，不记录明文密码；其他固件逐字节不变 |
 | OpenAI first-boot NVS precondition | `tests/firmware/openai_nvs_precondition/run_test.py`；`evidence-2026-10-25-openai-nvs-precondition.json` | 公开 BIN 的 NVS 全空；Open 与正确 WPA2-PSK 都完成关联、DHCP、`api.openai.com` DNS 与 TCP/443；WPA2 路径完成 M1-M4 和成对密钥 CCMP，错误密码在 M2 MIC 被拒绝且无 DHCP |
 | SHA-bound network-first expectation | `user_firmware_matrix.py`；`user_firmware_expectations.schema.json`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-network-first-review-expectation.json` | UI/headless/network-first 由 device/firmware/SHA 绑定；required/forbidden markers、network status、expectation 与 NVS digest 同 result key；OpenAI 无需 frame 即完成 guest 联网 marker、DHCP、DNS、TCP/443、pcap 与 stop cleanup |
 | Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 的 UI/input 规则仍为 PARTIAL，但空 NVS、WPA2 与错误密码前置条件已分层验证 |

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "core2-legacy-wifi-config-overlay",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL_RUNTIME03_OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "base_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+    "effective_sha256": "b30f3014b75f762f50be3284010502e047b3bd0494b0f0b72a673c2756baffd7"
+  },
+  "partition": {
+    "label": "config",
+    "type": 64,
+    "subtype": 64,
+    "offset": 12574720,
+    "size": 4096,
+    "config_sha256": "6d5f7fb3eca7fb7823f32053f8efd2c7885645a524cc71d10b1b67a0c22d108d",
+    "wifi_ssid_sha256": "4118a1151b34a6715fdbaf8e2afb6c2ca61b2c492e1f3091204a7d5e226c9658",
+    "password_provided": false,
+    "wifi_entries": 1
+  },
+  "service_overlay": {
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac",
+    "qemu_sha256": "54e7a7f7cd0ff6f5a1d6343c06563388f49c2b0abbca4cafb850876e57ed1254",
+    "event": "legacy_wifi_config_applied",
+    "frame_after_43_seconds": {
+      "nonblack_pixels": 0,
+      "unique_colors": 0,
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    }
+  },
+  "diagnostic_wifi_ui": {
+    "controls": [
+      "watchdog disabled",
+      "diagnostic QEMU"
+    ],
+    "width": 320,
+    "height": 240,
+    "nonblack_pixels": 75373,
+    "unique_colors": 305,
+    "png_sha256": "df9ba1849edb7742f7b5672ff14fdfc97a2f351cd5a96b0f429ef9e22dfbf4c3",
+    "visible_text": [
+      "Wi-Fi Connect",
+      "Connecting to myssid",
+      "Core2 v1.15.4"
+    ]
+  },
+  "default_watchdog_control": {
+    "serial_markers": [
+      "BOARD NAME: M5STACK-CORE2",
+      "APIKEY: 7621FAE2",
+      "CORE2_LEGACY_ORIGINAL_BOOT_START",
+      "CORE2_LEGACY_ORIGINAL_BOOT_DONE"
+    ],
+    "remaining_failure": "Cache disabled but cached memory region accessed",
+    "frame": "blank"
+  },
+  "checks": {
+    "focused_tests": "7/7 PASS",
+    "platform_full_suite": "1596 run, 1595 PASS + 1 skip",
+    "device_api_inventory": "1/1 PASS",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "diff_check": "PASS",
+    "non_legacy_flash_unchanged": "PASS",
+    "overlay_scope": "PASS",
+    "idempotent_overlay": "PASS",
+    "credential_redaction": "PASS"
+  },
+  "remaining": [
+    "normal-WDT stable startup",
+    "setup/REPL",
+    "nonblank completed application frame",
+    "DHCP and Internet connectivity",
+    "physical RF, cache/PSRAM and electrical validation"
+  ]
+}
