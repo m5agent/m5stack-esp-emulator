@@ -217,7 +217,7 @@ class PublicSiteTests(unittest.TestCase):
         self.assertIn("          brew install autoconf automake libtool bison flex ninja pkg-config xz\n", build)
         self.assertIn("          M5_WASM_GPU: hardware\n", build)
         self.assertIn("          M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n", build)
-        self.assertIn('          M5_QEMU_READY_TIMEOUT_MS: "360000"\n', build)
+        self.assertIn('          M5_QEMU_READY_TIMEOUT_MS: "600000"\n', build)
         self.assertRegex(deploy, r"^    " + re.escape(gate) + r"\n")
         self.assertIn("    needs: build\n", deploy)
         self.assertIn("    permissions:\n      pages: write\n      id-token: write\n", deploy)

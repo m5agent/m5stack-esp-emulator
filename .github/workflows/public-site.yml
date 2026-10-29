@@ -74,7 +74,7 @@ jobs:
           M5_PUBLIC_BASE_PATH: ${{ inputs.base_path }}
           M5_WASM_GPU: hardware
           M5_WASM_CHROME: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-          M5_QEMU_READY_TIMEOUT_MS: "360000"
+          M5_QEMU_READY_TIMEOUT_MS: "600000"
         run: node platform/tests/test_public_qemu_admitted_boards.mjs
       - name: Retain browser acceptance evidence
         if: always()

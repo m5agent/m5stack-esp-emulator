@@ -75,10 +75,15 @@ for (const profile of registry.profiles) {
   assert.throws(() => validateQemuFirmware(overflow, profile), /Partition/);
 }
 const core2 = pick('core2'), s3 = pick('cores3'), atom = pick('atoms3r');
-for (const id of ['atoms3r', 'sticks3', 'core2']) {
+for (const id of ['atoms3r', 'sticks3']) {
   assert.equal(pick(id).clockDivisor, 1, 'fixed non-LVGL board probes use their admitted normal-clock configuration');
   assert.equal(pick(id).profile, `${id}-wasm-wallclock`);
 }
+assert.equal(core2.clockDivisor, 1);
+assert.equal(core2.profile, 'core2-wasm-deterministic-icount');
+assert.deepEqual(core2.accelerator, {kind:'tcg-icount', thread:'single', tbSizeMb:128, icountShift:5});
+assert.deepEqual(buildQemuArguments(core2).slice(-4),
+  ['-accel', 'tcg,thread=single,tb-size=128', '-icount', 'shift=5,align=off,sleep=off']);
 const variantSHA = 'e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554';
 const variantProfile = resolveQemuFirmwareProfile(s3, variantSHA);
 assert.equal(variantProfile.clockDivisor, 1); assert.equal(variantProfile.profile, 'cores3-wasm-wallclock-sdk-candidate');
