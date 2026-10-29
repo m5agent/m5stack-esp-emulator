@@ -1872,3 +1872,38 @@ re-export 同名对象，因此现有调用方和公开导入路径不变。
 历史恢复或运行时参数；也没有改 store、adapter、状态机或 orchestration。
 `SVC-03` 继续 `进行中`，下一项是继续提取其余请求解析、运行参数构造和
 设备规格加载。
+
+## 2026-10-29：Core2 legacy handoff issuer 与 phase 归因
+
+在 `0089` 的 icount-safe PC trace 上增加 `0x40093b57` fast-read issuer 和
+`0x4006222c` ROM status-read issuer，并把它们绑定到每个 initiator handoff
+区间。30 秒 wall-time normal-WDT 控制到达约 `10.97 s` virtual，记录
+`8,234` 个完整 episode：
+
+| episode 内容 | 数量 | 总等待 | mean | p50 | max |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 一条 fast read + 一条 status read | `6,806` | `5.857184128 s` | `860.591 us` | `891.776 us` | `1.1048 ms` |
+| 无这两类 issuer | `1,342` | `1.192171392 s` | `888.354 us` | `887.904 us` | `4.750784 ms` |
+| 仅 status read | `48` | `0.042949728 s` | `894.786 us` | `888.832 us` | `1.020256 ms` |
+
+无 Flash 命令的 episode 成本与 64-byte fast-read episode 基本相同，排除
+数据长度/单一 Flash 命令为主要预算。随后在 initiator source-shape 路径
+加入内部 PC，`1,974` 个完整 episode 的平均 phase 为：
+
+- `0x40087a25 -> 0x40087a31`（initiator 经 IPC source shape 返回）：
+  `615.595 us`；
+- can_start poll exit：`2.181 us`；
+- vTaskSuspendAll source shape：`1.322 us`；
+- priority change source shape：`34.083 us`；
+- 两级 cache-disable source shape：`101.104 + 52.053 us`；
+- block wait 到 complete setter：`63.733 us`。
+
+因此下一次修改应针对跨核 IPC handoff/wakeup 延迟，或减少每次读都触发一次
+handoff；不是继续调 Flash 数据面。两个负控也已排除：
+`100 us` contended-CAS RR quantum 和临时 `can_start` immediate-yield
+都没有降低 block wait 或 reset 边界，未保留代码。
+
+所有名称仍是 BIN-bound source shape；normal-WDT startup、UI、REPL、非空
+帧、物理 cache/Flash timing 和硬件仍 `OPEN/NOT RUN`。见
+[证据](evidence/2026-10-29-core2-handoff-issuer-phases/README.md)和
+[机器摘要](evidence/2026-10-29-core2-handoff-issuer-phases/summary.json)。
