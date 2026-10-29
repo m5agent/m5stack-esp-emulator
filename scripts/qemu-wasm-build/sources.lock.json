@@ -201,6 +201,18 @@
     {
       "path": "patches/qemu-wasm-probe/0018-tca8418-cfg0-key-interrupt.patch",
       "sha256": "6ef56523fb5186f66fe968a61482ab671bd4e06e2eb9af94b8423bc02a7f467f"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0019-cardputer-adv-rotated-panel.patch",
+      "sha256": "beb218a73770e8a8f8ab4649662c7fcab7f33ea16947c7a7c023ffcdc9c5b40e"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0020-cardputer-legacy-matrix-and-orientation.patch",
+      "sha256": "efc40459c15e61d4af47c87b65fdbb23b6f2aa66fec790ab1e7e6fd35903165f"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0021-board-bias-over-internal-pull.patch",
+      "sha256": "22583685a5e3ce0468f69e48139655b7c10869e20edc81ce3e6ed2cff4e33a53"
     }
   ],
   "patched_files": {
@@ -216,7 +228,7 @@
     "hw/core/loader.c": "f123d76834a425e31016167ef2d05178f9ba8299553bf5437e75caf0814103ba",
     "hw/dma/esp32s3_gdma.c": "11a666b0c7169433195ec6c1945ce338453ba29c65daef7a622c3a6bd709ed23",
     "hw/dma/esp_gdma.c": "2737ef4c3fb95cd3ef5d316f56f7c4c0092b980baa1de62eb46d7345486446a9",
-    "hw/gpio/esp32_gpio.c": "1a54d71afdfeb0a2444991e8116386a07b100f20f9bbd5f98f27f77cc5363e67",
+    "hw/gpio/esp32_gpio.c": "b0d335e75154f02be3540c779d64faf4b1f5f684dd3477c8af3923cd1b34a2a4",
     "hw/gpio/esp32s3_gpio_pad_aux.c": "52edd36d9b380b99ac7ece8ecb6a28ff37b79af14fabe8a31f04e03ddbf77c87",
     "hw/gpio/meson.build": "569b24a4047dff6dab3a6b1dd4723335ce7c24237d09239a3a8685c5d6869e83",
     "hw/i2c/esp32_i2c.c": "f102c105d89885443bc08bc20909604c476c1df319e97a640e63ae335cae6582",
@@ -240,7 +252,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a277fba4a29c24048141003e5e824dc3a779f30ebf25940f6abd87f2d44bb263",
     "hw/m5stopwatch/m5_scs_servo.c": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
-    "hw/m5stopwatch/m5_spi_panel.c": "c7b0c88bb6a4a4654a6d578a41a7801a6f90c4347cb2e2ec5c4c7c75391ed868",
+    "hw/m5stopwatch/m5_spi_panel.c": "a64ff01b647e5334658c29eb16028b3ebe1298cf3c139c6d4425eadf5366945e",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -251,7 +263,7 @@
     "hw/m5stopwatch/m5_unit_runtime.c": "f42f13bb186e831c3ae40ccabb5ae885d4fbe8bb4acd1d00ba2419c92be4fdea",
     "hw/m5stopwatch/m5_unit_runtime.h": "6bde25226a300ea21a036ca0eb10d08217ff0e7f1533ad410a6cfb79141c4926",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
-    "hw/m5stopwatch/m5cardputeradv.c": "5b77c693588433f5223810c44bde987d4de70fe96b0c673f5e403e28ee000792",
+    "hw/m5stopwatch/m5cardputeradv.c": "c74942754eefbf521ddad9ad39c6be85185eb35d23ffbc02100ec6569c6756f3",
     "hw/m5stopwatch/m5core2.c": "9174f969f2940a02038765ddcd7f12b9bcfa8c02f5c72717710a4da4f15ee06d",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
@@ -259,8 +271,8 @@
     "hw/m5stopwatch/m5stackchan.c": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
     "hw/m5stopwatch/m5stamplc.c": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
     "hw/m5stopwatch/m5sticks3.c": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
-    "hw/m5stopwatch/m5stopwatch.h": "8714e8abc86e5463b0448c18da8c43b51bd6a63244d632f1276afe52c36a939f",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "f757fbb0666d4301cc6a1fc05651bed0d57f6e2747a5b3b7ef187e325b7c3084",
+    "hw/m5stopwatch/m5stopwatch.h": "5941b1564b59a6722e9f2949506ad8686d83e4052697c7979479f6585d0eb40f",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "8c58a1c75ddfdc490e482f3e6b1ec825b17b47814725f63dd06e9a0dde224174",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",

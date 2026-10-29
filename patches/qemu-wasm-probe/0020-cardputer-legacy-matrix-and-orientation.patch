@@ -1,0 +1,173 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: M5Stack Agent <agent@m5stack.local>
+Date: Thu, 29 Oct 2026 19:45:00 +0800
+Subject: [PATCH] hw/m5stopwatch: support legacy Cardputer input and orientation
+
+M5GFX releases before 5f8a783f overwrite the Cardputer/CardputerADV
+probe result during the VAMeter check, so ADV firmware from that period
+selects the legacy 4x14 GPIO matrix reader even though the board has a
+TCA8418 keyboard. Keep the normal TCA8418 path and additionally expose
+the same physical key state through the legacy selector/input pins only
+after the guest demonstrably scans all three selector pins as push-pull
+outputs.
+
+Expose the panel's current logical window orientation so the browser can
+rotate the device model and planar framebuffer consistently when an
+application switches to a portrait layout.
+---
+ hw/m5stopwatch/m5_spi_panel.c    | 16 ++++++++++++++++
+ hw/m5stopwatch/m5cardputeradv.c  | 62 +++++++++++++++++++++++++++++++++++++++-
+ hw/m5stopwatch/m5stopwatch.h     |  1 +
+ hw/m5stopwatch/m5sw_i2c_devs.c   |  1 +
+ 4 files changed, 79 insertions(+), 1 deletion(-)
+
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index dd57f4a1..89a4725c 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -486,6 +486,20 @@ static void m5_panel_set_refresh_now(Object *obj, bool value, Error **errp)
+     }
+ }
+ 
++static char *m5_panel_logical_orientation_get(Object *obj, Error **errp)
++{
++    M5SpiPanelState *s = (M5SpiPanelState *)obj;
++    uint32_t width = s->xe >= s->xs ? s->xe - s->xs + 1 : 0;
++    uint32_t height = s->ye >= s->ys ? s->ye - s->ys + 1 : 0;
++    if (width == s->vis_h && height == s->vis_w) {
++        return g_strdup("portrait");
++    }
++    if (width == s->vis_w && height == s->vis_h) {
++        return g_strdup("landscape");
++    }
++    return g_strdup("unknown");
++}
++
+ static uint8_t tca8418_event(int row, int col, bool down)
+ {
+     int raw_row = col / 2;
+@@ -748,6 +762,8 @@ static void m5_panel_realize(DeviceState *dev, Error **errp)
+                             m5_panel_get_dump_path, m5_panel_set_dump_path);
+     object_property_add_bool(OBJECT(s), "refresh-now",
+                              m5_panel_get_refresh_now, m5_panel_set_refresh_now);
++    object_property_add_str(OBJECT(s), "logical-orientation",
++                            m5_panel_logical_orientation_get, NULL);
+ }
+ 
+ static Property m5_panel_props[] = {
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index 1a8d8f76..f80e3fa7 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -13,6 +13,62 @@
+ #include "m5stopwatch.h"
+ 
+ static const char cardputer_adv_i2c_bias_owner;
++static const unsigned legacy_output_pins[] = { 8, 9, 11 };
++static const unsigned legacy_input_pins[] = { 13, 15, 3, 4, 5, 6, 7 };
++static bool legacy_scan_seen;
++static unsigned legacy_selector;
++static uint8_t legacy_keys[8];
++
++static void legacy_matrix_output_changed(void *opaque, int pin, int level)
++{
++    if (!legacy_scan_seen) {
++        Esp32GpioState *gpio = esp32_gpio_get_controller(true);
++        bool all_outputs = true;
++        for (int i = 0; i < ARRAY_SIZE(legacy_output_pins); i++) {
++            Esp32GpioPadSnapshot state;
++            if (!esp32_gpio_pad_snapshot(gpio, legacy_output_pins[i], &state) ||
++                !state.enable_reg || !state.oe_known || !state.oe ||
++                state.pad_driver_reg) {
++                all_outputs = false;
++                break;
++            }
++        }
++        if (!all_outputs) {
++            return;
++        }
++        legacy_scan_seen = true;
++        for (int i = 0; i < ARRAY_SIZE(legacy_input_pins); i++) {
++            esp32_gpio_set_input(legacy_input_pins[i], 1);
++        }
++    }
++
++    legacy_selector = (esp32_gpio_get_line(8) ? 1 : 0) |
++                      (esp32_gpio_get_line(9) ? 2 : 0) |
++                      (esp32_gpio_get_line(11) ? 4 : 0);
++    for (int i = 0; i < ARRAY_SIZE(legacy_input_pins); i++) {
++        esp32_gpio_set_input(legacy_input_pins[i],
++                             !(legacy_keys[legacy_selector] & (1u << i)));
++    }
++}
++
++void m5cardputeradv_keyboard_event(uint8_t event)
++{
++    unsigned raw = (event & 0x7f) - 1;
++    unsigned raw_row = raw / 10;
++    unsigned raw_col = raw % 10;
++    unsigned row = (raw_col + 4) % 4;
++    unsigned col = raw_row * 2 + (raw_col > 3);
++    unsigned selector = (col & 1) ? 3 - row : 7 - row;
++    uint8_t mask = 1u << (col / 2);
++    if (event & 0x80) {
++        legacy_keys[selector] |= mask;
++    } else {
++        legacy_keys[selector] &= ~mask;
++    }
++    if (legacy_scan_seen) {
++        legacy_matrix_output_changed(NULL, 0, 0);
++    }
++}
+ 
+ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                ESPGdmaState *gdma)
+@@ -26,15 +82,19 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+      * external pull-ups on the ADV's internal SDA/SCL (G8/G9), while it
+      * temporarily enables the ESP32's internal pull-downs. Model the board
+      * wiring, not a forced input: I2C ACK/data must still be able to pull
+-     * either open-drain line low. The GPIO resolver retains its existing
+-     * unknown/conflict boundary for opposing weak biases; this is nominal
+-     * board identification, not a resistor/threshold or electrical model.
++     * either open-drain line low. The resolver lets the external board bias
++     * win over the temporary weak internal pull; this is nominal board
++     * identification, not a resistor/threshold or electrical model.
+      */
+     Esp32GpioState *gpio = esp32_gpio_get_controller(true);
+     esp32_gpio_add_board_bias(gpio, 8, ESP32_GPIO_BIAS_PULL_UP,
+                              &cardputer_adv_i2c_bias_owner, &error_fatal);
+     esp32_gpio_add_board_bias(gpio, 9, ESP32_GPIO_BIAS_PULL_UP,
+                              &cardputer_adv_i2c_bias_owner, &error_fatal);
++    for (int i = 0; i < ARRAY_SIZE(legacy_output_pins); i++) {
++        esp32_gpio_add_out_listener(legacy_output_pins[i],
++                                    legacy_matrix_output_changed, NULL);
++    }
+ 
+     DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 5a67ed22..a5ca7edf 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -79,6 +79,7 @@ extern M5Board m5_board;
+ typedef void (*esp32_gpio_out_cb)(void *opaque, int pin, int level);
+ void esp32_gpio_set_input(int pin, int level);
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
++void m5cardputeradv_keyboard_event(uint8_t event);
+ void esp32_gpio_set_open_drain(int pin, bool enable);
+ void esp32_gpio_force_line(int pin, int level);
+ int esp32_gpio_get_line(int pin);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 61fcefc6..e92fce98 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -340,6 +340,7 @@ void m5sw_ft_touch_set_pin(int pressed, int x, int y, int int_pin)
+ 
+ void m5sw_keyboard_event(uint8_t event)
+ {
++    m5cardputeradv_keyboard_event(event);
+     if (g_key_event_count == ARRAY_SIZE(g_key_events)) {
+         return;
+     }
+-- 
+2.39.2

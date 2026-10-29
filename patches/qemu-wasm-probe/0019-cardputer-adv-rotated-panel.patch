@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: M5Stack Agent <agent@m5stack.local>
+Date: Thu, 29 Oct 2026 19:00:00 +0800
+Subject: [PATCH] hw/m5stopwatch: model Cardputer ADV panel rotation
+
+M5GFX configures the ST7789 as a 135x240 panel with 52/40 controller
+offsets and starts it at rotation 1. The QEMU model used a 320x240 memory
+crop with the offsets swapped and MADCTL disabled, so portrait applications
+such as Piano Tiles appeared in only the left part of the framebuffer.
+
+Keep the controller memory in its native 240x320 orientation, apply the
+guest MADCTL, and rotate the glass into the board's 240x135 physical frame.
+This preserves the fixed display probe while allowing both M5GFX rotation 0
+and rotation 1 to render the complete panel.
+---
+ hw/m5stopwatch/m5cardputeradv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -74,14 +74,15 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                                 ETS_SPI3_INTR_SOURCE);
+ 
+     DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
+-    qdev_prop_set_uint32(panel, "mem-width", 320);
+-    qdev_prop_set_uint32(panel, "mem-height", 240);
++    qdev_prop_set_uint32(panel, "mem-width", 240);
++    qdev_prop_set_uint32(panel, "mem-height", 320);
+     qdev_prop_set_uint32(panel, "vis-width", 240);
+     qdev_prop_set_uint32(panel, "vis-height", 135);
+-    qdev_prop_set_uint32(panel, "offset-x", 40);
+-    qdev_prop_set_uint32(panel, "offset-y", 53);
++    qdev_prop_set_uint32(panel, "offset-x", 52);
++    qdev_prop_set_uint32(panel, "offset-y", 40);
+     qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+-    qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_uint32(panel, "glass-rotation", 1);
++    qdev_prop_set_bit(panel, "apply-madctl", true);
+     qdev_prop_set_bit(panel, "keyboard", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+-- 
+2.39.2

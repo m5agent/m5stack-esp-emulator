@@ -334,3 +334,35 @@ bits, FIFO byte order and unchanged legacy mode-1 behavior. They need no
 `.work` cache or download and establish a C register-contract result only.
 The resulting runtime still requires its own same-Flash browser guest
 keyboard press/release, serial, framebuffer and cleanup evidence.
+
+## Cardputer-ADV user-firmware compatibility (`0019`–`0021`)
+
+`0019-cardputer-adv-rotated-panel.patch` keeps the ST7789 controller memory at
+240×320, applies the guest MADCTL stream, uses the M5GFX `(52,40)` native
+offset and rotates the glass into the 240×135 board frame. This preserves both
+landscape and portrait application windows; the previous 320×240 crop could
+show only the left 135 pixels of a portrait page.
+
+`0020-cardputer-legacy-matrix-and-orientation.patch` adds two independent,
+bounded paths:
+
+- the normal TCA8418 FIFO remains primary; a legacy 4×14 matrix view is
+  activated only after the guest configures G8, G9 and G11 as push-pull
+  outputs and performs the old Cardputer scan. This supports the actual
+  `Piano Tiles ADV 2.0 (13.06.2026)` image, which predates M5GFX
+  `5f8a783f7dbc07e8ce5c19cf8779829d1eefcde1` and consequently reports
+  board 14 even though the selected hardware is Cardputer-ADV. The
+  compatibility path is not described as native ADV wiring;
+- the panel exposes its current logical window orientation through QOM. The
+  browser uses `portrait` to rotate the device model and planar frame
+  together. This is presentation state, not a second framebuffer or synthetic
+  guest pixel source.
+
+`0021-board-bias-over-internal-pull.patch` resolves an external board pull-up
+or pull-down before a short-lived opposing internal pull. Active drive and
+open-drain low still win, so I2C acknowledgements are not hidden by the board
+identification resistor model.
+
+The same-Flash Cardputer-ADV browser run, frame hashes, clock ratio, input
+transition and explicit hardware limits are recorded in
+[the 2026-10-29 evidence](../../docs/evidence/2026-10-29-cardputer-adv-user-firmware/README.md).

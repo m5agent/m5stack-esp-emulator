@@ -85,6 +85,17 @@ assert.equal(touchCommands[0].arguments.events[0].data.value,32767);assert.equal
 const pir=one.onmessage({data:{id:12,op:'input',value:{type:'pir',motion:true}}});
 const pirSet=commands();assert.equal(pirSet.length,1);assert.equal(pirSet[0].execute,'qom-set');assert.equal(pirSet[0].arguments.path,'/machine/units/pir');respond(pirSet[0],{});await tick();
 const pirGet=commands();assert.equal(pirGet.length,1);assert.equal(pirGet[0].execute,'qom-get');respond(pirGet[0],true);await pir;assert.equal(one.messages.at(-1).value.motion,true);
+const display=one.onmessage({data:{id:13,op:'display'}});
+const panelList=commands();assert.equal(panelList.length,1);assert.equal(panelList[0].execute,'qom-list');
+assert.equal(panelList[0].arguments.path,'/machine/unattached');
+respond(panelList[0],[{name:'device[13]',type:'child<m5.spi-panel>'}]);
+await tick();
+const panelOrientation=commands();assert.equal(panelOrientation.length,1);assert.equal(panelOrientation[0].execute,'qom-get');
+assert.equal(panelOrientation[0].arguments.path,'/machine/unattached/device[13]');
+assert.equal(panelOrientation[0].arguments.property,'logical-orientation');
+respond(panelOrientation[0],'portrait');await display;
+assert.equal(one.messages.at(-1).value.orientation,'portrait');
+assert.equal(one.messages.at(-1).value.deviceRotationDeg,-90);
 // A synthetic host-side ABI buffer exercises the imported real shared-frame
 // reader through the instance port. It is not firmware/display validation.
 vm.runInContext(`

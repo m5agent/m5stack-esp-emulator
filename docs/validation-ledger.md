@@ -14,6 +14,12 @@ PASS 不代表本次检出重跑；材料、哈希和显式审计入口见[证�
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-10-29
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UI-02` / Cardputer-ADV 用户固件 | `Piano Tiles ADV 2.0` 完整 Flash `470aabe2…872f0a` 在最终 49-patch browser QEMU 中通过：ADC calibration 错误 `0`，240×135 原生帧全部有内容，135×240 竖屏自动旋转且无裁切，5.0126 秒墙钟对应 5.0119 秒虚拟时间。该固件发布于 M5GFX `5f8a783f` 修复前，确实上报 board 14；仅在 guest 实际执行旧矩阵扫描时启用兼容输入，Enter 保持 500ms 后画面切换、帧序号差 23。未把兼容路径称为 ADV 原生旧键盘接线或物理硬件 PASS | [范围、根因与复现](evidence/2026-10-29-cardputer-adv-user-firmware/README.md)、[机器摘要](evidence/2026-10-29-cardputer-adv-user-firmware/summary.json) |
+
 ## 2026-10-28
 
 | 工作流 | 结果 | 证据 |
