@@ -28,6 +28,11 @@ LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机
 公开板型的真实客体验收成功，包括 CoreS3 两种示例。候选预览导出明确标为
 `publication_eligible=false`，聚合发布门禁拒绝它。构建 job 只有仓库读取权限，
 部署 job 才取得 Pages/OIDC 权限。
+发布构建/验收 job 固定在 `macos-14`。正常时钟板型同时运行两个客体 CPU
+和 Chromium；受限的 Linux headless runner 曾连续两次在 StickS3 按键后
+触发真实 `Interrupt wdt timeout on CPU1`，而同源码在 12 vCPU Apple M4 Pro
+上三次通过。这里恢复宿主能力，不降低公开 profile 的 `clockDivisor=1`，
+不关闭 WDT，也不放宽客体断言。较慢的访问者设备仍不在当前正常时钟验收范围内。
 不要只复制 `index.html`：模型、字体、WASM、Worker、固件组合器和对应源码包
 都必须按 artifact 中的目录结构保留。
 

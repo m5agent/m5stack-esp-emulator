@@ -213,6 +213,8 @@ class PublicSiteTests(unittest.TestCase):
         self.assertEqual(set(jobs), {"build", "deploy"})
         build, deploy = jobs["build"], jobs["deploy"]
         gate = "if: ${{ inputs.publish && github.ref == 'refs/heads/main' }}"
+        self.assertIn("    runs-on: macos-14\n", build)
+        self.assertIn("          brew install autoconf automake libtool bison flex ninja pkg-config xz\n", build)
         self.assertRegex(deploy, r"^    " + re.escape(gate) + r"\n")
         self.assertIn("    needs: build\n", deploy)
         self.assertIn("    permissions:\n      pages: write\n      id-token: write\n", deploy)
