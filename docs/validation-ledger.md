@@ -1221,3 +1221,26 @@ key rotation、guest key-state 传播、peer lifecycle、loss/retry、
 channel/rate、bit-exact controller、RF/antenna、电气时序和真机均
 `NOT RUN`。见[证据](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)
 和[机器摘要](evidence/2026-10-29-espnow-external-ccmp-replay/summary.json)。
+
+## 2026-10-29：ESP-NOW native peer add/delete/modify 生命周期
+
+stock UIFlow2 `espnow.ESPNow` lifecycle runner 在 QEMU
+`be7c3765…` 上验证独立 guest 的 encrypted peer 生命周期。
+StopWatch↔StickS3 与 Core2↔StopWatch 均完成 `add_peer` 后
+`peer_count=[1,1]`、双向 PRE 同步、`del_peer` 后 `[0,0]`、删除后
+`get_peer`/`send` 的 `OSError` 负控、重新 `add_peer`/`mod_peer` 后
+`[1,1]`，以及 post-resume encrypted payload 双向交付。
+
+四个 session 的 `get_peer_not_found`、`send_rejected`、`modified`、
+`pre_synced`、`post_resumed` 全为 true；均 `purge=0` 停止、runtime PID
+消失并保留 history。Core2 首轮暴露 runner 单向屏障竞态：StopWatch 收到
+Core2 PRE 后立即删除，较慢 Core2 尚未看到回向 PRE；delete/re-add/modify
+本身已 PASS。runner 改为首次匹配后继续发送 PRE 1.5 秒再删除，两个设备对
+最终均 PASS。
+
+该结果关闭 stock native guest 的 encrypted peer add/delete/modify
+生命周期，但 `RUNTIME-06` 仍为 `PARTIAL`：guest key-state 写入 QEMU
+bridge、key rotation、m5espnow wrapper、多 peer/乱序 replay window、
+loss/retry、channel/rate、bit-exact controller、RF/antenna、电气时序和
+真机均 `NOT RUN`。见[证据](evidence/2026-10-29-espnow-peer-lifecycle/README.md)
+和[机器摘要](evidence/2026-10-29-espnow-peer-lifecycle/summary.json)。

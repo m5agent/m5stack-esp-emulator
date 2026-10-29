@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "scope": "Stock UIFlow2 native ESP-NOW peer add, delete, modify, re-add and resumed delivery between independent guests.",
+  "runtime_binary_sha256": "be7c376550829427b0fc72ada75f9d06e2246feaa64b2c222904d5a17a3c4076",
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "7d1c4a9122cbb51316ccc91aecc3241449ec49b304cee62d3c0026ed4c4c23e4",
+    "scenario": "lifecycle",
+    "pre_sync_settle_ms": 1500
+  },
+  "pairs": [
+    {
+      "devices": ["stopwatch", "sticks3"],
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "stopwatch",
+          "firmware_sha256": "7a4be3675173a324ba6ae375ab4d279dbdec8bd7c36a465fd63eacf8a553c2d2",
+          "bridge_tx": 16,
+          "bridge_rx": 16,
+          "initial_count": [1, 1],
+          "deleted_count": [0, 0],
+          "readded_count": [1, 1],
+          "get_peer_not_found": true,
+          "send_rejected": true,
+          "modified": true,
+          "pre_synced": true,
+          "post_resumed": true,
+          "evidence_sha256": "08304edd96e4b1ee47fe8e4d62552be76ce65c161ce886880c28526b958e668f",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "sticks3",
+          "firmware_sha256": "93535fae7014051095b6c7a579fc57ea40470c692260c0104c6c02a26156f900",
+          "bridge_tx": 16,
+          "bridge_rx": 16,
+          "initial_count": [1, 1],
+          "deleted_count": [0, 0],
+          "readded_count": [1, 1],
+          "get_peer_not_found": true,
+          "send_rejected": true,
+          "modified": true,
+          "pre_synced": true,
+          "post_resumed": true,
+          "evidence_sha256": "b8bf59fd11a46d8226901aa831c113acfd6d819234fb61e53318aa81bfb234a2",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    },
+    {
+      "devices": ["core2", "stopwatch"],
+      "status": "PASS",
+      "sessions": [
+        {
+          "role": "A",
+          "device": "core2",
+          "firmware_sha256": "c7383713513462e13e53843f9a23265d749cb15647f4829c09284ba058b5194e",
+          "bridge_tx": 51,
+          "bridge_rx": 35,
+          "initial_count": [1, 1],
+          "deleted_count": [0, 0],
+          "readded_count": [1, 1],
+          "get_peer_not_found": true,
+          "send_rejected": true,
+          "modified": true,
+          "pre_synced": true,
+          "post_resumed": true,
+          "evidence_sha256": "08059bd81f0f9906615436c0c8b9ea7a1adeb7d6f3e8d31752a5bd3621d20b39",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        },
+        {
+          "role": "B",
+          "device": "stopwatch",
+          "firmware_sha256": "d982afde8fcf864f85fed805c9c514fbca2758bd0970c7338e9735cf9ddc9f1b",
+          "bridge_tx": 39,
+          "bridge_rx": 51,
+          "initial_count": [1, 1],
+          "deleted_count": [0, 0],
+          "readded_count": [1, 1],
+          "get_peer_not_found": true,
+          "send_rejected": true,
+          "modified": true,
+          "pre_synced": true,
+          "post_resumed": true,
+          "evidence_sha256": "fbc44a4a11d38e2d386dca9a3acf12a78c88b1896db7d9a69c25724419263f5d",
+          "cleanup": "stopped; runtime_pid_gone; purge=0"
+        }
+      ]
+    }
+  ],
+  "failure_control": {
+    "description": "The first Core2 pair deleted after a one-way PRE observation before the slower Core2 saw the reverse PRE.",
+    "core2_pre_synced": false,
+    "stopwatch_pre_synced": true,
+    "delete_readd_modify": "PASS",
+    "resolution": "continue sending the PRE marker for 1500 ms after first observation"
+  },
+  "not_claimed": [
+    "guest set_pmk/add_peer key-state propagation into the QEMU bridge",
+    "key rotation or production key lifecycle",
+    "multiple peers or a production cross-device fabric",
+    "loss/retry, channel/rate or bit-exact controller behavior",
+    "RF, antenna, coexistence, electrical, timing or physical hardware validation"
+  ]
+}
