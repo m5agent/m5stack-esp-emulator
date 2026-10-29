@@ -505,6 +505,7 @@ async function startRun() {
   const generation = ++state.runGeneration,
     abort = (state.abort = new AbortController());
   state.busy = true;
+  if (kind === 'browser') state.shell?.pauseRendering();
   status('loading', '尚未取得应用首帧');
   updateCapability();
   let run;
@@ -551,7 +552,6 @@ async function startRun() {
         $('browserPirState').textContent = 'QOM: CLEAR';
       }
       state.run = run;
-      state.shell?.pauseRendering();
       await run.controller.start({device: state.selected.id, firmware: loaded.bytes, signal: abort.signal});
     } else {
       const imported = await state.service.importFirmware(
