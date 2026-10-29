@@ -1,9 +1,9 @@
 # 舵机命令边沿与经典 Atom/Stick 后续验证
 
-本轮整体为 **PARTIAL，尚未部署**。最终 native v7 全矩阵和固定浏览器导出的
+本轮整体为 **PARTIAL，已部署到 fork Pages**。最终 native v7 全矩阵和固定浏览器导出的
 StackChan 五条严格动作路径通过；自然 PWR 已使 guest 正常关机，但独立 CDP
 仍观察到一个 engine Worker target，完整清理断言失败。四款经典 Atom/Stick
-的 v7 默认参考入口正在独立验证，不能用之前的本地固件上传结果替代。
+的 v7 默认参考入口结果单独记录，不能用之前的本地固件上传结果替代。
 
 `0096` 修复重复相同 torque 重启动作计时，以及官方 PWM→位置模式分步恢复
 角限被拒绝；控制器 C 回归保留两项旧版失败负控。`0097` 修复 S3 GPIO 复位后
@@ -41,8 +41,13 @@ PASS。修复仍在评估，需另取新结果。实际 guest 反向目标间隔
 Atom Lite、Atom Matrix、Atom Matrix v1.1 与原 StickC Plus 的既有本地上传
 证据继续保留各自旧 runtime 身份。范围限固定 RGB/USER 或显示/BtnA 示例；
 Matrix 仅验证 25 灯同色输出，IMU 轴向的参考源码尚未绑定到所测 stock 二进制，
-不能据此认定 backend 或 SDK 缺陷。设备仍为 partial。v7 默认参考入口结果
-待最终汇总，不从上传路径继承结论。
+不能据此认定 backend 或 SDK 缺陷。设备仍为 partial。v7 默认参考入口原始 240 秒门槛下，三款 Atom 分别
+236.83/237.51/238.02 秒完成通过；原 Plus 在首个应用标记前超时失败。
+见[默认参考入口摘要](classic-default-v7.summary.json)，不会从旧上传路径继承
+通过。相同字节和 harness 的 Plus 随后仅做一次 480 秒 ready 预算的独立诊断，
+实际 189.00 秒完成 ready、BtnA、红绿帧/纹理与正常 Stop，context.close 前
+独立 CDP 确认 5 个 Worker 全部销毁。四款均已有成功的限定默认入口证据，
+但首次 Plus 超时保留；189 秒低于原预算，不能认定等待时间不足是根因。
 
 PM1 的默认 CFG1 `0x2a` 选择单击复位，450 ms 也超出默认 250 ms 短按窗口。
 完整回归原轮与 100 ms 定向跟进的失败分别保留；定向跟进实际触发了板级复位。
@@ -56,3 +61,10 @@ fallback、v7 attempt1 原样 Dance 的 WASM 越界和旧 PWR 清理失败也完
 包含固定官方 BSP 的生命周期、真实 NVS/RESET 与独立 SCSCL 协议路径。
 原始镜像、ZIP、完整串口、Flash、帧系列和浏览器响应留在忽略存储，不进入源码
 Git。速度控制曲线、PWM 机械行为及物理硬件不由定时位置模型的通过结果覆盖。
+
+[公网预览](https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=88a41651)
+由固定 payload `6899687c…` 部署，源提交 `88a41651…`，主线集成提交另记为
+`9907eee3…`。[部署工作流](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40892573994)
+成功，公网首页、脚本、完整 WASM 与对应源码包均与 v12 字节一致，见
+[部署摘要](deployment-v12.summary.json)。该检查仅证明公网文件完整性，不把本地
+浏览器运行改写为公网 guest 实测。已知自然关机清理失败继续保留。

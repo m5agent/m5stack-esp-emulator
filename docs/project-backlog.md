@@ -688,7 +688,8 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 StackChan 正常长按已到 guest SHUTDOWN/exit0，但最终自然关机仍有一个 engine
 CDP target 残留；需补 owner 最终回收兜底，并在关闭浏览器上下文前独立验证
 全部 Worker 归零。一次原样 Dance 启动出现 PSRAM/OOB，后续通过不能关闭
-该偶发问题。还需用实际短间隔命令验证中途改目标，不能用超过原动作时长的
+该偶发问题。原 StickC Plus 默认入口的首次超时虽有同镜像后续通过，
+仍需定位启动时序并验证稳定性。还需用实际短间隔命令验证中途改目标，不能用超过原动作时长的
 两次目标变化替代。
 继续绑定 Matrix stock 固件的 IMU 轴向语义、非均色灯阵链序、Dial 旋钮稳定投送，
 以及已启动设备未覆盖的音频/IR/电源/网络等数据面；不能以编译或另一板 PASS 关闭。

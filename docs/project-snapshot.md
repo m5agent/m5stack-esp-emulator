@@ -15,16 +15,16 @@
 | 设备 | SoC | 后端 | 外设 | 最近验证 | 当前边界 |
 | --- | --- | --- | --- | --- | --- |
 | StopWatch (`stopwatch`) | ESP32-S3R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-touch-peripherals-wifi-ble-pass` | 无登记 blocker |
-| Atom Lite (`atom-lite`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-selected-behaviors-pass` | Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/RGB/IR validation is blocked. |
-| Atom Matrix (`atom-matrix`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked. |
-| Atom Matrix v1.1 (`atom-matrix-v11`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked. |
+| Atom Lite (`atom-lite`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-selected-behaviors-pass` | IR and other unselected peripheral paths remain unvalidated; browser admission is limited to its hash-pinned RGB/USER fixture. |
+| Atom Matrix (`atom-matrix`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation. |
+| Atom Matrix v1.1 (`atom-matrix-v11`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-rgb-button-pass-imu-axis-partial` | Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation. |
 | AtomS3 (`atoms3`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-10-29` / `native-display-input-imu-rgb-pass` | Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open. |
 | AtomS3 Lite (`atoms3-lite`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-10-29` / `native-button-rmt-rgb-pass` | Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open. |
 | AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | CoreS3 (`cores3`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-touch-peripherals-wifi-ble-pass` | UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct |
 | Dial (`dial`) | ESP32-S3FN8 | `qemu-esp32s3` | `partial` | `2026-10-29` / `native-display-input-rtc-pass-rotary-partial` | Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open. |
 | StickC (`stickc`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-display-input-imu-pass` | Device-local official-firmware display, GPIO37 BtnA/frame and one MPU6886 vector passed. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open. |
-| StickC Plus (`stickc-plus`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-selected-behaviors-pass` | Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate. |
+| StickC Plus (`stickc-plus`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-selected-behaviors-pass` | Selected original v2.5.2 display, GPIO37 and MPU6886 behavior passed independently. RTC, other buttons, audio, IR, power and arbitrary browser firmware still require their own selected-path evidence; no SE/Plus2 result is inherited. |
 | StickC Plus SE (`stickc-plus-se`) | ESP32-PICO-D4 | `qemu-esp32lx6` | `partial` | `2026-10-29` / `native-display-input-pass` | Device-local official-firmware display and GPIO37 BtnA/frame passed; this board has no IMU. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open. |
 | StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-keyboard-peripherals-wifi-ble-pass` | 无登记 blocker |
@@ -120,7 +120,7 @@
 
 - `tests/`：`135` 个可执行 Python 测试文件，分布在 `62` 个目录；`226` 个 evidence JSON。
 - `patches/`：`16` 个补丁组，`198` 个 patch 文件。
-- 文档：`480` 个 Markdown 页面；除本生成页外共 `46836` 行。
+- 文档：`480` 个 Markdown 页面；除本生成页外共 `46879` 行。
 
 ## 文档与测试
 

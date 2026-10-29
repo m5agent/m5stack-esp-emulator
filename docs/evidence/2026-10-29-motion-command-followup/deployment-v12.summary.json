@@ -1,0 +1,79 @@
+{
+  "kind": "fork-pages-byte-integrity-verification",
+  "status": "PASS",
+  "verified_at": "2026-10-29T14:35:24.860495+00:00",
+  "url": "https://yuyun2000.github.io/m5stack-esp-emulator/",
+  "workflow_run": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40892573994",
+  "workflow_conclusion": "success",
+  "payload_commit": "6899687c1fc7208274c03de7fb6cc88218ceb708",
+  "source_commit": "88a41651efadc9f64d70a7f78949d105efb038d9",
+  "integration_commit": "9907eee389a657b757811be07b45c171476c78fa",
+  "manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+  "checks": [
+    {
+      "path": "public-site-manifest.json",
+      "http_status": 200,
+      "bytes": 427325,
+      "sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
+      "matches_reviewed_export": true,
+      "content_type": "application/json; charset=utf-8"
+    },
+    {
+      "path": "index.html",
+      "http_status": 200,
+      "bytes": 15326,
+      "sha256": "27e11f8cc1feb367388413792314a49e9f42647a39de0c3609144b81afaf3830",
+      "matches_reviewed_export": true,
+      "content_type": "text/html; charset=utf-8"
+    },
+    {
+      "path": "platform/web/public.js",
+      "http_status": 200,
+      "bytes": 50939,
+      "sha256": "39333dac357ddecf77338755e1c5d30c6d8a6c5146f89552b55f58398d7359d5",
+      "matches_reviewed_export": true,
+      "content_type": "application/javascript; charset=utf-8"
+    },
+    {
+      "path": "platform/web/public-qemu-instance.js",
+      "http_status": 200,
+      "bytes": 3124,
+      "sha256": "78e0a7d688e97270ef81d413bc8fdf320097591bee0c01e395e7585c42d0f161",
+      "matches_reviewed_export": true,
+      "content_type": "application/javascript; charset=utf-8"
+    },
+    {
+      "path": "platform/web/qemu-browser-profiles.json",
+      "http_status": 200,
+      "bytes": 83020,
+      "sha256": "34b9ba5fc06225cf67cd1deb3e96bb7c27404033b56c34ba01cb7fe7e3ffc22c",
+      "matches_reviewed_export": true,
+      "content_type": "application/json; charset=utf-8"
+    },
+    {
+      "path": "platform/runtime/qemu/runtime.json",
+      "http_status": 200,
+      "bytes": 31249,
+      "sha256": "f0e7c5e6f98289a94bcde257f69dd386e381f2fe02fe4757ccae89f9a5297ab6",
+      "matches_reviewed_export": true,
+      "content_type": "application/json; charset=utf-8"
+    },
+    {
+      "path": "platform/runtime/qemu/qemu-system-xtensa.wasm",
+      "http_status": 200,
+      "bytes": 24027524,
+      "sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
+      "matches_reviewed_export": true,
+      "content_type": "application/wasm"
+    },
+    {
+      "path": "platform/runtime/qemu/corresponding-source.tar.xz",
+      "http_status": 200,
+      "bytes": 35226040,
+      "sha256": "d66cbc0c5c252362e540d59388020aa1da45dc960d0912d4276e2f7834f2d240",
+      "matches_reviewed_export": true,
+      "content_type": "application/x-xz"
+    }
+  ],
+  "scope": "Public HTTPS byte integrity only; no online guest execution or physical-hardware claim. Guest acceptance remains bound to this exact local export."
+}

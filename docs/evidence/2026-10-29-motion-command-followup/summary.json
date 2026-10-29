@@ -375,7 +375,7 @@
     "firmware_bundled": false,
     "service_url": "",
     "publication_eligible": true,
-    "deployed": false
+    "deployed": true
   },
   "peripheral_regression_v7": {
     "status": "PASS",
@@ -452,7 +452,7 @@
     "hardware_validation": "NOT RUN"
   },
   "classic_browser_default_v7": {
-    "status": "AWAITING_FINAL_RESULT",
+    "status": "PARTIAL_INITIAL_FAILURE_RETAINED",
     "devices": [
       "atom-lite",
       "atom-matrix",
@@ -461,7 +461,30 @@
     ],
     "runtime_wasm_sha256": "d65cb046b0f759fce453e7b79bcbfb45c86b58e0ea879c4e02115535afefd320",
     "site_manifest_sha256": "962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88",
-    "scope": "Final default-reference entry checks are still running. Earlier uploaded-image PASS is preserved separately and does not grant default-entry PASS."
+    "scope": "Three Atom profiles passed the original gate. Original Plus first failed to reach its first application marker; exactly one independent diagnostic using a 480-second ready budget passed in 189 seconds with the same firmware and harness. All four have successful selected default-entry evidence, but startup stability and the first Plus timeout root cause remain open. Earlier upload results retain their identities.",
+    "passes": [
+      "atom-lite",
+      "atom-matrix",
+      "atom-matrix-v11"
+    ],
+    "failed": [
+      "stickc-plus: initial 240-second ready gate"
+    ],
+    "source": "classic-default-v7.summary.json",
+    "source_sha256": "c8fdd6c2d2f1e5d074a36b859075ce6d1dfe8085992999454f6d96a76fc2d050",
+    "plus_followup": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "ready_budget_ms": 480000,
+      "total_seconds": 189.0,
+      "actual_elapsed_below_original_budget": true,
+      "firmware_sha256": "69567208e8c5a8ff3e2dbf07d85a724c85a3436e80c5ebce3d866c47464a5a6a",
+      "report_sha256": "79c5d7fde06e7c65cabae471c56a30c7f9c8c8f11c94231fe5486060a92859c2",
+      "normal_stop_cdp_worker_targets": {
+        "observed": 5,
+        "remaining_before_context_close": 0
+      },
+      "root_cause": "NOT ESTABLISHED; the successful run under 240 seconds does not prove the initial budget was insufficient."
+    }
   },
   "node_contracts": {
     "status": "PASS",
@@ -469,5 +492,54 @@
     "exit_code": 0,
     "log_sha256": "2b2f2f0260ae3d1af8876dd2b592c5ec0f6201eda8fe20aad64a23c9fcf4ac4d",
     "scope": "Host contracts and web fixtures; no guest PASS inheritance. Initial missing Playwright dependency failure retained in ignored storage; npm ci completed without lockfile changes."
+  },
+  "deployment": {
+    "status": "PASS_BYTE_INTEGRITY",
+    "source": "deployment-v12.summary.json",
+    "source_sha256": "63193d1d4faf00829864fa5986f3566e665035a78909e9688b758fd20995f4f1",
+    "url": "https://yuyun2000.github.io/m5stack-esp-emulator/",
+    "workflow_run": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40892573994",
+    "payload_commit": "6899687c1fc7208274c03de7fb6cc88218ceb708",
+    "source_commit": "88a41651efadc9f64d70a7f78949d105efb038d9",
+    "integration_commit": "9907eee389a657b757811be07b45c171476c78fa",
+    "scope": "Public HTTPS bytes exactly match v12; no public online guest execution claim. Known natural-power cleanup limitation remains."
+  },
+  "post_merge_validation": {
+    "integration_commit": "9907eee389a657b757811be07b45c171476c78fa",
+    "upstream_main": "ed612f3b1589221dfdbad9e067cebafc7d231d8a",
+    "source_runtime_boundary": "Upstream native Core2 per-vCPU scheduler patch is not included in the frozen browser runtime or assigned its PASS results.",
+    "checks": [
+      {
+        "suite": "motion-main-merge-qemu-accel",
+        "tests": 7,
+        "status": "PASS",
+        "log_sha256": "21c7e48d0b1ec908feef784bbce1fa55f2c9a7acf76382fa7578754a78bd1ed8"
+      },
+      {
+        "suite": "motion-main-merge-handoff",
+        "tests": 5,
+        "status": "PASS",
+        "log_sha256": "5afdb5ffa23680af10d9a19847d803e219f211da4d70e8c474652a9e99771f06"
+      },
+      {
+        "suite": "motion-v7-docs-postmerge-r2",
+        "tests": 50,
+        "status": "PASS",
+        "log_sha256": "4b35081557b982d4bcb6ef8de7249e74e7f07b7d1ee97e5a638465347f7ced19"
+      },
+      {
+        "suite": "qemu-registry-prose-consistency",
+        "tests": 20,
+        "status": "PASS",
+        "log_sha256": "92a22a228b1edfa3e109936db9edca24ccd7f92c711e60fad9f5b55ebc95674a",
+        "scope": "Native registry blocker wording aligned with already recorded selected-behavior results; not an exported asset."
+      }
+    ],
+    "github_checks": {
+      "source_commit": "9907eee389a657b757811be07b45c171476c78fa",
+      "network-namespace-policy": "PASS",
+      "platform-contracts": "PASS",
+      "run_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40892506944"
+    }
   }
 }

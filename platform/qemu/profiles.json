@@ -1312,7 +1312,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate."
+        "Selected original v2.5.2 display, GPIO37 and MPU6886 behavior passed independently. RTC, other buttons, audio, IR, power and arbitrary browser firmware still require their own selected-path evidence; no SE/Plus2 result is inherited."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1410,7 +1410,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/RGB/IR validation is blocked."
+        "IR and other unselected peripheral paths remain unvalidated; browser admission is limited to its hash-pinned RGB/USER fixture."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1467,7 +1467,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked."
+        "Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1524,7 +1524,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked."
+        "Original guest IMU board-axis X/Z conversion does not match the board-axis test oracle. Nonuniform LED spatial order, IR, arbitrary browser firmware and physical hardware remain independent unfinished validation."
       ],
       "validation": {
         "date": "2026-10-29",

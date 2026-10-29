@@ -15,6 +15,10 @@ native 的完整 68 项、278 个检查，以及新 WASM 的五组 StackChan 严
 自然关机的固件行为通过，但 engine Worker 的 CDP target 未完全消失，资源
 回收仍为 PARTIAL。保留早先一次原样 Dance 的 PSRAM/OOB 启动失败，不将
 后续成功视为已根治；原用户 Arduino 镜像和物理硬件均未验证。
+该固定 v12 已部署到[预览网页](https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=88a41651)，
+公网关键文件与完整 WASM/源码包已核对一致；部署不关闭以上功能限制。
+三款经典 Atom 默认入口首轮通过，原 Plus 首轮超时后仅一次独立复核在
+189 秒通过；其首次超时原因和启动稳定性继续开放。
 
 ## 一页结论
 

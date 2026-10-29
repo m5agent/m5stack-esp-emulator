@@ -1938,7 +1938,7 @@ PWR 正常 DOM 路径实际长按 6011.285 ms 后 guest SHUTDOWN/exit0、iframe0
 五个 pthread 退出且无 banner；但独立 CDP 等待 30 秒仍有一个 engine target，
 附着后的常量求值 5 秒超时，完整退出断言 **FAIL**，修复仍在评估。owner
 self-close 意图和最终强制 browser cleanup 不授予 PASS。本轮整体保持
-**PARTIAL**，没有部署。四款经典 Atom/Stick 的 v7 默认参考入口仍待最终结果，
+**PARTIAL**。四款经典 Atom/Stick 的 v7 默认参考入口见下方独立结果，
 不得继承旧 runtime 的本地上传结果。
 
 旧轮 PM1/C6 失败、ReadPos fallback、v7 attempt1 原样 Dance WASM 越界和
@@ -1979,3 +1979,28 @@ TG0 stage-1 reset，serial 没有 `BOARD NAME`/`APIKEY`/REPL，frame 仍是
 它不关闭 `RUNTIME-03` 的正常启动、显示、REPL、非空应用帧或物理边界。
 见[证据](evidence/2026-10-29-core2-icount-percpu-budget/README.md)和
 [机器摘要](evidence/2026-10-29-core2-icount-percpu-budget/summary.json)。
+
+## 2026-10-29：冻结 v12 预览部署
+
+本轮 Pages [workflow](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40892573994)
+成功部署 payload `6899687c1fc7208274c03de7fb6cc88218ceb708`。静态源码固定在
+`88a41651efadc9f64d70a7f78949d105efb038d9`；后续 `9907eee3…` 另合入
+主线 `ed612f3b…`，不将其新增原生 Core2 调度补丁授给冻结 WASM。公网 manifest
+SHA256 `962697a23a4826aba73a6cebdd6df65987d903329950eb9e43c3d6b6187bdf88`
+与本地一致，另核首页、public/owner 脚本、profile、runtime manifest、完整 WASM
+及对应源码包，共八项 HTTP 200/字节一致。仅授予部署与完整性 PASS，不授公网
+guest 或硬件 PASS。自然 PWR Worker 清理仍 PARTIAL。见
+[部署摘要](evidence/2026-10-29-motion-command-followup/deployment-v12.summary.json)。
+
+## 2026-10-29：经典四板默认参考入口收尾
+
+固定 v7/v12 下，Atom Lite、Matrix、Matrix v1.1 分别在原始门槛内以
+236.83/237.51/238.02 秒首轮通过，独立读取原 RMT/USER 和模型 LED，无屏
+负控及关闭 context 前 CDP Worker 归零。原 StickC Plus 的相同
+`69567208…` 完整固件首次在 240 秒 ready 门槛超时，未到首个应用标记；
+不能据此认定 M5.begin 或显示控制器失败。该失败未被覆盖。仅一次独立
+480 秒 ready 预算诊断在 189.00 秒完成 ready、BtnA、红绿帧/模型纹理及
+正常 Stop，context.close 前独立 CDP 为精确 5/0。复核低于原 240 秒，
+不能把原失败归因为预算不足或宣称启动稳定性已关闭。所有测试只使用独立
+静态站端口，没有访问用户保留的服务。见
+[最终有界摘要](evidence/2026-10-29-motion-command-followup/classic-default-v7.summary.json)。
