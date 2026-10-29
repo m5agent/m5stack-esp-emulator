@@ -33,7 +33,9 @@ const mockDocument={
         port.postMessage({id:data.id,error:'contract dispose rejection'});return;
       }
       if(data.op==='start')frame.profile=data.value.profile;
-      port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}:data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true}:{})}:undefined});
+      port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}
+        :data.op==='display'?{orientation:'landscape',deviceRotationDeg:0}
+        :data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true}:{})}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
@@ -58,6 +60,7 @@ function create(overrides={}){
 try {
   const normal=create();await normal.runtime.start({device:'cores3',firmware:firmware()});await until(()=>normal.runtime.lastFrame);
   assert.equal(normal.runtime.observe().status,'running');assert.equal(normal.runtime.observe().persistentStorage,false);
+  assert.deepEqual(normal.runtime.display,{orientation:'landscape',deviceRotationDeg:0});
   assert.equal(normal.runtime.receipt.clockDivisor,8);assert.equal(normal.downloads.length,4);assert.equal(normal.downloads[3].expectedSha256,romSha);
   assert.equal(normal.runtime.receipt.firmwareVariant,null,'an unknown complete Flash hash stays on the baseline clock profile');
   const startMessage=frames.at(-1).calls.find(row=>row.op==='start');
@@ -97,7 +100,8 @@ try {
   await until(()=>pausedFailure.runtime.status==='stopped');
   assert.equal(pausedFailure.errors.length,1);assert.match(pausedFailure.errors[0],/执行线程异常停止/);
   assert.ok(pausedFailure.states.includes('error'),'a paused engine failure must immediately enter the error path');
-  assert.equal(pausedFailureFrame.calls.length,beforeFailureCalls,'a dead engine cannot receive frame/quit/dispose commands');
+  assert.deepEqual(pausedFailureFrame.calls.slice(beforeFailureCalls).map(row=>row.op)
+    .filter(op=>['frame','quit','dispose'].includes(op)),[],'a dead engine cannot receive frame/quit/dispose commands');
   assert.deepEqual(pausedFailure.runtime.cleanupResult.engineOwnership,failedEngine);
   assert.equal(pausedFailure.runtime.cleanupResult.engineOwnershipStage,'before-iframe-removal');
   assert.equal(pausedFailure.runtime.cleanupResult.explicitWorkerDisposal,false);
@@ -109,7 +113,8 @@ try {
   await rejectedDispose.runtime.start({device:'cores3',firmware:firmware()});await rejectedDispose.runtime.pause();
   const rejectedDisposeFrame=frames.at(-1),beforeRejectedStop=rejectedDisposeFrame.calls.length;
   await rejectedDispose.runtime.stop();
-  assert.deepEqual(rejectedDisposeFrame.calls.slice(beforeRejectedStop).map(row=>row.op),['quit','dispose']);
+  assert.deepEqual(rejectedDisposeFrame.calls.slice(beforeRejectedStop).map(row=>row.op)
+    .filter(op=>op!=='display'),['quit','dispose']);
   assert.deepEqual(rejectedDispose.runtime.cleanupResult.engineOwnership,failedEngine,'failed dispose must retain the latest owner failure without an acknowledgement');
   assert.equal(rejectedDispose.runtime.cleanupResult.engineOwnershipStage,'before-iframe-removal');
   assert.equal(rejectedDispose.runtime.cleanupResult.disposal,null);
