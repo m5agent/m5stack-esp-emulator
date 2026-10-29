@@ -3,8 +3,7 @@
 日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
-代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，
-源码与测试入口见[代码与验证入口地图](code-map.md)。
+代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，源码与测试入口见[代码与验证入口地图](code-map.md)。
 
 ## 一页结论
 
@@ -52,6 +51,7 @@ stock `espnow.ESPNow` lifecycle runner 在 StopWatch↔StickS3 与 Core2↔StopW
 Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp32_wifi` NIC；改用 UIFlow 自带 packer 与 `/api/v1` 的 `runtime=qemu-wifi` 后，120 秒诊断已执行注入的 `CORE2_LEGACY_VFS_BOOT`。随后 `0068` 修复 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 的共享 panel routing，legacy `m5stack`/`lcd` probe 从 0 变为 1422 nonblack pixels；`0069` 修正 protected `WDTPROTECT` 下合法 `WDTFEED` 被丢弃的模型错误，但同固件 60 秒正常 WDT 仍在 `17.2529 s` 触发 TG0 stage-1 reset。原厂 startup UI、setup/REPL 和应用帧仍未完成，`RUNTIME-03` 保持 `OPEN`。`0071`-`0073` 又把 WDT-off 的工作预算收窄到稳定的 `0xBB/64 -> 0x05/1` 循环：`0x05` 主要由 ROM read-command 区间的 `0x4006222c` 发起，`0xBB/64` 主要来自应用 segment 5 的 `0x40093b57`；同一 frozen QEMU 的 normal-WDT 仍在 `17.2536 s` reset。没有 matching legacy ELF/MAP，当前仍不能把 issuer PC 命名成精确应用函数或据此关闭启动问题，见[issuer PC 证据](evidence/2026-10-29-core2-ssi-command-pc/README.md)。旧无 NIC 黑帧不再单独作为显示完成路径结论，见[协作 IRQ/RMT 证据](evidence/2026-10-28-cooperative-highint-rmt/README.md)、[VFS/WiFi fixture 校正](evidence/2026-10-28-core2-legacy-vfs-wifi-fixture/README.md)、[dual-SPI panel routing](evidence/2026-10-28-core2-dual-spi-panel-routing/README.md)和[最终接口复测](evidence/2026-10-28-espnow-and-three-board-interface-retest/README.md)。`0075` 表明 RDSR bit0 始终为 `0`，主要预算位于 `0xBB/64` 后的 scheduler/list 跨核锁竞争；failed-CAS slice yield 没有移动 normal-WDT 的 `17.249 s` TG0 stage-1 reset，`RUNTIME-03` 仍 `OPEN`，见 [status/CAS 证据](evidence/2026-10-29-core2-legacy-status-cas/README.md)。`0086` 修正 episode 诊断在 no-I/O translation block 中读取 virtual clock 导致的 `Bad icount read`，并用同一 public SHA 的 normal-WDT/WDT-off 两个 10 秒 freeze 测得 `0x3ffbf2cc` 分别有 `162/166` 个等待区间、累计 `6.743/6.601 s`、最长 `483/581 ms`。控制流与 public ESP-IDF v3.3.5 匹配后，热锁是 `xTaskQueueMutex`，主要 waiter 为 `xTaskIncrementTick`/`vTaskSwitchContext`；失败 CAS yield 在 10 秒降低 task-queue 等待，但 15 秒时总预算转移到 queue mux `0x3ffb7ab0`，normal-WDT reset 和黑帧不变。exact legacy ELF/MAP、host-vCPU 调度延迟与实际 guest 长临界区仍未区分，`RUNTIME-03` 保持 `OPEN`，见[episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)。
 
 `0088` 的同 binary A/B 进一步证明单线程 RR 的 100 ms quantum 会把跨核 spin 放大：5 秒 WDT-off 的 CAS/contended/episode time 从 `1,070,625/984,964/2.240 s` 降到 `91,465/2,702/1.018 s`，SSI 工作近似不变；但 normal-WDT 仍在 `17.248 s` TG0 stage-1 reset。exact legacy ELF/MAP 与启动生命周期仍未闭环，`RUNTIME-03` 保持 `OPEN`，见[episode 证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和[scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
+三次同 SHA、同 QEMU 的 `17.2 s` normal-WDT bounded-stack freeze 均把 CPU0 稳定定位到 `spi_flash_op_block_func` 等待循环，CPU1 则在 IPC、队列和调度路径间变化；BIN 控制流与 public IDF source shape 匹配，但没有 exact legacy ELF/MAP。默认 1024 分频 trace 的 begin/end 不能当作同一 transaction，新增 `--trace-sample` 后短窗全量控制得到 13 对同步 `0 ns` 事务，排除“单个 SSI 事务耗时 0.4 秒”的误读。下一步量化每次 flash handoff 的 CPU0 park time，`RUNTIME-03` 仍 OPEN，见[IPC handoff 证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)。
 
 ## 本轮目标盘点
 

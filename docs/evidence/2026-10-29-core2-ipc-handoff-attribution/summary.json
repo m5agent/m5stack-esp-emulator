@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "kind": "core2-ipc-handoff-attribution",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "qemu_binary_sha256": "75e7fa97424c859c6e1fe918dda203aa2c6509e9c81937893a15d2a4a46b6714",
+    "icount_shift": "5",
+    "wdt_disabled": false,
+    "trace_sample": 1024
+  },
+  "normal_wdt_freezes": {
+    "target_ns": 17200000000,
+    "attempts": 3,
+    "cpu0": {
+      "pcs": [
+        "0x40087988",
+        "0x40087984",
+        "0x4008798e"
+      ],
+      "a0": "0x80088a31",
+      "a9": "0x3ffc7ec8",
+      "a12": "0x3ffbf2cc",
+      "stable_stack_frames": [
+        "0x400889c4",
+        "0x40087950",
+        "0x800840a0"
+      ]
+    },
+    "cpu1_pcs": [
+      "0x40084312",
+      "0x4008448a",
+      "0x40095c5c"
+    ],
+    "serial_bytes": 507,
+    "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+    "trace_sha256": [
+      "737bbab0e3e0104e9e71469e7275c4d00ce792d789d400d7960c13f089bbba37",
+      "e3038fe9f073cf51cd8a94961dc1ed71b01664530468163055b10362ecb5eb50",
+      "94e769f0fb3bd056cba8cfcfcfc89f07bdab26747df6518fa683783f9637da73"
+    ]
+  },
+  "ipc_cross_checks": {
+    "queue_send_freeze": {
+      "cpu1_pc": "0x40094e92",
+      "cpu1_a0": "0x801ec834",
+      "source_shape": "xQueueGenericSend returned into esp_ipc_call_and_wait"
+    },
+    "nonblocking_call_stack": {
+      "returns": [
+        "0x801ec8d4",
+        "0x80087a31"
+      ],
+      "source_shape": "esp_ipc_call after flash-cache block callback dispatch"
+    }
+  },
+  "trace_pairing_control": {
+    "target_ns": 2000000000,
+    "trace_sample": 1,
+    "transaction_begins": 13,
+    "transaction_ends": 13,
+    "receive_data_events": 11,
+    "paired_duration_zero_ns": 13,
+    "trace_sha256": "ef4102672ab897555f7c173f03ed2000fb403b21aac06a6c4c2eaf3c10cee84f"
+  },
+  "classification": {
+    "permanent_two_core_deadlock": "REJECTED",
+    "sampled_begin_end_as_one_transaction": "REJECTED",
+    "cpu0_stable_flash_block_wait_at_17_2s": "OBSERVED",
+    "runtime03": "OPEN"
+  },
+  "source_shape_boundary": "BIN instruction/source-shape matches only; no matching private legacy ELF/MAP.",
+  "boundaries": [
+    "Only virtual-device validation.",
+    "Normal WDT remains enabled.",
+    "WDT-off and extended timeout are not fixes.",
+    "No physical cache, PSRAM, Flash, electrical, RF or hardware equivalence is claimed."
+  ]
+}
