@@ -1635,6 +1635,7 @@ profiles/project snapshot均PASS。该结果是
 仍`NOT RUN`。见[证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)、
 [机器摘要](evidence/2026-10-29-unit-hard-reset-output-boundary/summary.json)和
 [runner](../tests/units/run_relay_reset_probe.py)。
+
 ## 2026-10-29：Core2 legacy contended-CAS hold intervals
 
 新增 `0086-esp32-legacy-cas-episode-profile.patch`，SHA256
@@ -1687,3 +1688,30 @@ reset、startup UI、setup/REPL、完整应用帧和 physical hardware 仍不通
 `RUNTIME-03` 保持 `OPEN`。见
 [证据](evidence/2026-10-29-core2-legacy-cas-episodes/README.md)和
 [机器摘要](evidence/2026-10-29-core2-legacy-cas-episodes/summary.json)。
+
+## 2026-10-29：FlashLight cold constructor 四host
+
+`run_flashlight_route_probe.py` 在 QEMU `e318b2b7…` 上为 CoreS3、AtomS3R、
+StickS3、StopWatch 各创建一个独立 UIFlow-live session，并挂接 U152
+Flash/Torch fixture。每个 guest 在同一 PID 依次运行原厂
+`FlashLightUnit` constructor、`flash(BRIGHTNESS_100,TIME_220MS,False)` 和
+off Run。
+
+四台均在 constructor 后进入可信 `ready-low`：
+`output-known/pad-synchronized/gpio-route-supported=true`，没有借用旧高电平
+或 host 伪造低读数。原 API 后模型观察到一次上升沿并解出
+`100% / 220ms`、`decoded-programs=1`；off Run 后回到 `ready-low`。三次
+execution 保持同 PID，未增加 ESP-ROM reboot banner；每轮均在停止前请求
+evidence 并以 `purge=0` 停止。
+
+四份 evidence ZIP SHA256 分别为 CoreS3 `23b10c5f…`、AtomS3R
+`3e30a300…`、StickS3 `ca96473c…`、StopWatch `5f7ec5b1…`。mounted
+`test_flashlight_unit_web.mjs` 使用 CoreS3 actual QOM snapshots 回放真实
+controller state，输出 `mounted Web=ACTUAL-QOM-SNAPSHOT`；实时轮询会话
+仍 `NOT RUN`。最终平台回归为 `1559 tests OK, 10 skipped`，runtime
+coverage/peripheral catalog/QEMU profiles/project snapshot与两项 Web
+fixture均PASS。该结果关闭 `UNIT-HOST-37` 的 cold constructor/低基线数字
+边界，不关闭动态 S1、EN PWM、完整 OEN/IOMUX、bit-exact 时序、光度/热/
+电气或 physical hardware。见
+[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)和
+[机器摘要](evidence/2026-10-29-flashlight-cold-route-four-host/summary.json)。

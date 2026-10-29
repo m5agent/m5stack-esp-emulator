@@ -27,8 +27,13 @@ CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、ro
 资格；`active=false`而`output-known=false`不代表已知熄灭。原驱动部分长闪
 请求编码错误，超出推荐时序的波形保持unknown；详见
 [分层证据与限制](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。
-`0046/3f1617`已验范围修复OUT_SEL返回旧资格，采用新下降沿及完整低复位，见[路由验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md)。
-`0047/faee96da`的C实现支持无假边沿的新可信低基线；新Unit API/Web及完整矩阵仍NOT RUN，见[冷pad边界](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-cold-pad/README.md)。
+`0046` 已修复 OUT_SEL 返回旧资格；`0047` 进一步支持无假边沿的可信低基线。
+新 `e318b2b7…` 已在 CoreS3、AtomS3R、StickS3、StopWatch 四个独立
+UIFlow-live session 中执行原厂 `FlashLightUnit` constructor、100%/220ms
+flash 与 Run 替换；四台均从 `ready-low` 到 `flash-active` 再回
+`ready-low`，同一 PID 且无 reboot。mounted Web 已用 actual QOM snapshot
+replay 验证，实时 Web 轮询仍 `NOT RUN`；动态 S1、PWM、OEN/IOMUX 和物理
+光电/热不继承。见[四host证据](evidence/2026-10-29-flashlight-cold-route-four-host/README.md)。
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 

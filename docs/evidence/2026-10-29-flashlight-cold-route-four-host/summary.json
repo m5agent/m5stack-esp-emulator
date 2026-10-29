@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "task": "UNIT-HOST-37",
+  "status": "PASS",
+  "unit_id": "flashlight",
+  "qemu_sha256": "e318b2b748d6e982cd2e592a1b991ec930a8e9501cf02a0c19925022a656b373",
+  "guest": {
+    "path": "tests/units/run_flashlight_route_probe.py",
+    "program_mode": "uiflow-live",
+    "flash_mode": true,
+    "programs": [
+      "constructor",
+      "FlashLightUnit.flash(BRIGHTNESS_100,TIME_220MS,False)",
+      "FlashLightUnit.flash(0,TIME_220MS,True)"
+    ]
+  },
+  "hosts": {
+    "cores3": {
+      "status": "PASS",
+      "pins": {"white": 1, "yellow": 2},
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "evidence_zip_sha256": "23b10c5f0d29fe24dfb209bb66705d752a255f2ed8ac08ccab7f47ee495d63a7"
+    },
+    "atoms3r": {
+      "status": "PASS",
+      "pins": {"white": 1, "yellow": 2},
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "evidence_zip_sha256": "3e30a3003d7d362d438191596b79a00117ee63792acc3f99a3d9a4277bffd757"
+    },
+    "sticks3": {
+      "status": "PASS",
+      "pins": {"white": 10, "yellow": 9},
+      "firmware_sha256": "93a547011be37a2b5f062ad7a56da108a95600119d360481adef10c634ed8d76",
+      "evidence_zip_sha256": "ca96473cbe07a718d9f389e8d690cf08deec24036b4add32e46bed0e39e669a7"
+    },
+    "stopwatch": {
+      "status": "PASS",
+      "pins": {"white": 11, "yellow": 10},
+      "firmware_sha256": "869f8a192cbc0392c8905cf69cfa7244482e97221cce977a04e9dc191f46ff21",
+      "evidence_zip_sha256": "5f7ec5b1484e3fbd85b69a99c7e7376ccfcb6535af155e59b4eea545c46b32e9"
+    }
+  },
+  "observations": {
+    "cold_constructor_low_known": true,
+    "initial_program_state": "ready-low",
+    "decoded_flash_level_pct": 100,
+    "decoded_timeout_ms": 220,
+    "decoded_programs": 1,
+    "off_program_state": "ready-low",
+    "same_guest_replacement": true,
+    "guest_reboot_banner_added": false,
+    "evidence_before_purge_zero_stop": true
+  },
+  "mounted_web": {
+    "status": "PASS",
+    "scope": "actual CoreS3 QOM snapshot replay through mounted Unit panel",
+    "live_polling": "NOT RUN",
+    "command_log_sha256": "117340a1d0167f0d805fe824c5e1c4982107dfd7cea473b24474192a74c28cfa"
+  },
+  "limits": [
+    "relative digital Flash code is not photometry",
+    "dynamic S1, EN PWM and full OEN/IOMUX remain NOT RUN",
+    "live mounted Web polling remains NOT RUN",
+    "electrical, optical, thermal and physical hardware remain NOT RUN"
+  ]
+}

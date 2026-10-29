@@ -1,5 +1,6 @@
 // Actual UnitPanel/Picker DOM contracts using synthetic HTTP/controller fixtures.
-// No Device Service, guest, QEMU, firmware, or physical hardware is started.
+// M5_FLASHLIGHT_REAL_STATE may replay one real QOM snapshot set from a completed
+// guest probe. No Device Service, guest, QEMU, firmware, or hardware is started.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
@@ -88,6 +89,24 @@ try {
     window.panel.apply(window.payload());
   });
   assert.deepEqual(await lastCommand(), lamp(true, 1), 'Torch continuous activity uses zero Flash code and no Flash timeout');
+  const realStatePath = process.env.M5_FLASHLIGHT_REAL_STATE;
+  if (realStatePath) {
+    const result = JSON.parse(await readFile(realStatePath, 'utf8'));
+    for (const [name, properties] of [['initial', result.initial], ['after_flash', result.after_flash], ['after_off', result.after_off]]) {
+      assert.ok(properties && typeof properties === 'object', `actual ${name} state is missing`);
+      await page.evaluate(properties => {
+        Object.assign(window.state, {source: 'guest-qom', available: true, errors: {}});
+        Object.assign(window.state.properties, properties);
+        window.panel.apply(window.payload());
+      }, properties);
+      if (name === 'after_flash') assert.deepEqual(await lastCommand(), lamp(true, 1), 'actual 100%/220ms readback mounts an active light');
+      else assert.deepEqual(await lastCommand(), lamp(false, 0), `actual ${name} readback withdraws stale Flash activity`);
+    }
+    await page.evaluate(() => {
+      Object.assign(window.state.properties, {'output-known': true, 'pad-synchronized': true, 'gpio-route-supported': true,
+        'flash-mode': false, 'en-level': true, active: true, 'flash-level-pct': 0, 'timeout-ms': 0});
+    });
+  }
   await page.evaluate(() => window.panel.apply({...window.payload(), units: []}));
   assert.deepEqual(await lastCommand(), unknown, 'missing Unit in the next payload withdraws prior light');
   await page.evaluate(() => window.panel.apply(window.payload()));
@@ -125,7 +144,7 @@ try {
   await page.evaluate(() => {window.panel.dispose(); window.picker.dispose();});
   assert.deepEqual(await lastCommand(), unknown, 'detach withdraws the observed appearance');
   assert.deepEqual(errors, []);
-  console.log('FLASHLIGHT_UNIT_WEB_OK creation-fixture-picker-and-readonly-runtime; synthetic HTTP/controller fixtures; guest/hardware NOT RUN');
+  console.log(`FLASHLIGHT_UNIT_WEB_OK creation-fixture-picker-and-readonly-runtime; synthetic HTTP/controller fixtures; real-state-replay=${realStatePath ? 'ACTUAL-QOM-SNAPSHOT' : 'NOT RUN'}; hardware NOT RUN`);
 } finally {
   await page.close();
   await browser.close();
