@@ -2,14 +2,18 @@
 // All guest execution and MEMFS work belongs to one module DedicatedWorker.
 let connected=false,engine,heldPort,readyTimer;
 let engineWorkersCreated=0,engineOwnerLive=false,engineCloseNotificationReceived=false;
-let engineFallbackTerminations=0,enginePortTransferred=false;
+let engineNormalTerminations=0,engineFallbackTerminations=0,enginePortTransferred=false,engineTerminated=false;
 Object.defineProperty(globalThis,'m5QemuEngineOwnership',{get:()=>Object.freeze({
   engineWorkersCreated,engineOwnerLive,engineCloseNotificationReceived,
-  engineFallbackTerminations,enginePortTransferred,
+  engineNormalTerminations,engineFallbackTerminations,enginePortTransferred,
 })});
+function finalizeOwner() {
+  if (!engineOwnerLive || engineTerminated) return;
+  engineTerminated=true;engineNormalTerminations++;engineOwnerLive=false;engine.terminate();
+}
 function terminateOwner() {
-  if (!engineOwnerLive) return;
-  engineFallbackTerminations++;engineOwnerLive=false;engine.terminate();
+  if (!engineOwnerLive || engineTerminated) return;
+  engineTerminated=true;engineFallbackTerminations++;engineOwnerLive=false;engine.terminate();
 }
 function failBeforeTransfer(error) {
   if (!heldPort) return;
@@ -31,7 +35,7 @@ addEventListener('message', event => {
           enginePortTransferred=true;heldPort=null;
         } catch(error) { failBeforeTransfer(error); }
       } else if (data?.type==='m5-qemu-engine-closing' && enginePortTransferred) {
-        engineCloseNotificationReceived=true;engineOwnerLive=false;
+        engineCloseNotificationReceived=true;finalizeOwner();
       }
     });
     engine.addEventListener('error',event=>{

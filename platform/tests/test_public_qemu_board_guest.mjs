@@ -505,6 +505,7 @@ try {
     && stopped.cleanup?.workersAtExit === 0 && stopped.cleanup?.disposal?.workersTerminatedByDispose === 0
     && stopped.cleanup?.disposal?.workersRemaining === 0 && stopped.cleanup?.explicitWorkerDisposal && stopped.cleanup?.iframeRemoved
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
+    && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
   // Query the browser target graph directly. This proves the engine and five
   // nested pthread Worker targets are gone without depending on delayed
