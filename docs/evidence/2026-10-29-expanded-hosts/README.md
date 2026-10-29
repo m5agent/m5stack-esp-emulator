@@ -35,12 +35,14 @@ Lite 和 Dial 的官方固件关闭 UART REPL，默认日志经 USB CDC。测试
 StickC 25、SE 25、Plus2 29。各自保持准确 Flash SHA，按键经过原厂驱动，
 真实帧逐像素送到模型；Lite 的原 RGB() 经 RMT 解码/只读 QOM 回到模型。
 CDP 观察 engine 与全部 pthread 在 iframe 移除前关闭；无 Device Service
-请求、页面错误或强制终止兜底。新准入后的完整公开导出回归另在 summary 记录。
+请求、页面错误或强制终止兜底。新准入后的完整公开导出回归为 15 款设备、16 个案例、439/439 项通过；18 次 guest 正常停止，104 个唯一 Worker target 在 iframe 移除前已关闭，兜底终止、API 请求和页面错误均为零。逐 case 测试器、固件、运行时与报告哈希另见 summary。
 
 原生 AtomS3 和 Plus2 还分别通过 11 项 `uiflow-live` 验证：同 VM 两次 Run、
 A 键与实际帧、故意 RuntimeError 的 failed 状态、恢复后 DONE、nonce/PID/固件
-保持一致和过期 execution 拒绝。两台均在 ZIP 后停止并释放 Flash；不将此
+保持一致和过期 execution 拒绝。最新 API 1.51 的显式 default-deny 策略下，另通过两板 16 项 ACL 检查和 capacity 正控：仅允许这两板、8 个声明操作及 `main.py` 入口/写路径，禁止未列出的路径/入口而不替换当前执行。此结果只验证 caller Run/package，服务自有 bootstrap/canary 不在 package grant 范围内，也不构成 guest sandbox。两台均在 ZIP 后停止并释放 Flash；不将此
 原生编辑器结果拼接成浏览器 Run 或其它设备的证据。
+
+最终导出修正了十个目录 JSON 中的过期 blocker/验证说明；结构化比较证明其余 2,101 个资产字节不变，包括全部可执行 JS、浏览器 profiles、固件 fixture 源码、QEMU/LittleFS WASM 和模型。已执行站点 manifest `0ca3b8f6…` 与修正说明后的 `98aa3f82…` 分别绑定，不将元数据变更说成另一次整站 guest 回归。
 
 ## 修复与边界
 
@@ -59,6 +61,8 @@ Atom Lite、Atom Matrix 和 Matrix v1.1 各自的准确官方固件，均在独�
 Dial 的显示、触摸、GPIO42 按键和 RTC 已有同 guest 原生结果；首次 5ms
 旋钮边沿试验发生丢步，旋钮功能在完成修复和新运行时复验前保持 partial。详见 [GPIO 回调诊断](dial-rotary.md)。
 浏览器准入与原生结果分别记录，不从本表自动继承。
+
+既有完整原生外设矩阵为 68/68；平台测试和无 `.work` 证据缓存的干净克隆各 1,566 项通过（1,556 通过、10 条件跳过）。同步 main@84bc88ed（PR #31）后的两阶段 Worker 清理补验单独记录，不把新测试器说成已重跑全部 16 个案例。
 
 ## 复现入口
 

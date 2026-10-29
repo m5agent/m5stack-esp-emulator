@@ -1549,9 +1549,14 @@ baseband、物理 cache/PSRAM timing、RF、跨主机迁移或真机。见
 AtomS3、AtomS3 Lite、StickC、StickC Plus SE 和 Plus2 各自原厂固件的原生
 显示/LED、输入及选定外设通过；五款纯浏览器独立验收 117/117，WASM
 `ab1691d6…`；AtomS3/Plus2 同 VM live Run/异常恢复 22/22。正式 native42
-`70bd68ee…` 的既有完整矩阵 68/68；同步 main@39544eff（PR #27）后平台
-1551 项（1541 通过、10 条件跳过）和 Node/来源门禁通过。五款加入默认公开
-准入，共 15 款；最新公开导出的 16 case 整体验收仍在运行，尚不据此授予全门禁 PASS。
+`70bd68ee…` 的既有完整矩阵 68/68；同步 main（PR #28/#29）后平台与干净克隆各
+1566 项（1556 通过、10 条件跳过），Node/来源门禁通过；API 1.51 的两板
+显式 default-deny ACL 16/16 与 capacity 正控通过。五款加入默认公开准入，
+共 15 款；公开导出 16 case 为 439/439，18 次正常停止、104 个 Worker target
+全部关闭，无 fallback、服务请求或页面错误。随后同步 main@84bc88ed（PR #31），
+其两阶段退出检查按 CoreS3、AtomS3、Lite 三类测试器补验 70/70，旧 16 case
+的准确测试器哈希单独保留；最终导出只修正十个目录 JSON 的限制说明，
+其余 2101 个资产不变，已执行与最终元数据 manifest 分别记录。
 经典 Atom 三款启动失败、原 StickC Plus 缺镜像、Dial 旋钮 deferred GPIO
 callback 状态合并继续开放；50ms 操作点不作为修复。所有结果为 virtual-device，
 未部署 Pages、未执行物理硬件验证。详见[限定结果与哈希](evidence/2026-10-29-expanded-hosts/README.md)。

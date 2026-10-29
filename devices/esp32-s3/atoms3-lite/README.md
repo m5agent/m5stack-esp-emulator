@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers.
+- Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open.
 
 ## 文件
 

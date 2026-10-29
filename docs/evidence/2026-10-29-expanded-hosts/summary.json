@@ -881,41 +881,80 @@
   },
   "live_program": {
     "status": "PASS",
-    "report_sha256": "2046aa28ee6458a17dd02fd4c4d3b758cd1fefbfb9bd0c6c0f736291dd421d05",
+    "source_commit": "300d8d2379f40ac156ed46aace99fd4b91d1d610",
+    "report_sha256": "1c916d9acaf2cdb87aff371e55775dee4b62e1790c9cb0c70a40b75121463bf6",
     "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+    "runtime_acl_policy_id": "7ffb5e69634d754cdca92b97bbc6ec5071675b92c947ba0169b1ff668f7ae698",
+    "runtime_acl_scope": {
+      "status": "ENFORCED",
+      "default_effect": "deny",
+      "devices": [
+        "atoms3",
+        "stickc-plus2"
+      ],
+      "operation_count": 8,
+      "entrypoints": [
+        "main.py"
+      ],
+      "package_write_paths": [
+        "main.py"
+      ],
+      "wildcard": false
+    },
+    "capacity_positive_control_pass": true,
+    "live_checks_passed": 22,
+    "acl_checks_passed": 16,
     "owned_service_stopped": true,
     "python_sources_unchanged": true,
     "devices": [
       {
-        "device": "atoms3",
+        "device_id": "atoms3",
         "status": "PASS",
-        "checks": 11,
+        "live_checks_pass": 11,
+        "acl_checks_pass": 8,
         "firmware_sha256": "da6c187ff9e155124ab87b743d8b2f8959f6105b588af47e5b29bb3c774064a1",
-        "same_pid_and_firmware": true,
         "evidence": {
-          "sha256": "3a85092e55134ab8b81867ef16ccac3f8f8ce940569fa0b3c93fb199926011b3",
-          "bytes": 21036
+          "sha256": "cf979317c6d21d24941d8153dd668d243ea727e9f7ce1cd952ab34ec9c6fc44c",
+          "bytes": 23546
         },
-        "stopped": "stopped",
-        "flash_retained": false,
-        "owned_qemu_exited": true
+        "stopped_with_history": true,
+        "final_frame": {
+          "width": 128,
+          "height": 128,
+          "pixel_3_3": [
+            255,
+            206,
+            0
+          ],
+          "sha256": "435e97760a330b8a9d334e9fa073624675ad254e535698be2f2a33c041e4e155"
+        },
+        "flash_retained": false
       },
       {
-        "device": "stickc-plus2",
+        "device_id": "stickc-plus2",
         "status": "PASS",
-        "checks": 11,
+        "live_checks_pass": 11,
+        "acl_checks_pass": 8,
         "firmware_sha256": "65808de5031ec54c744f88e2cec9b4d2314d2d5b23f97952049d121ca4cabd7f",
-        "same_pid_and_firmware": true,
         "evidence": {
-          "sha256": "7c631d2effcbea418f8955cab02765026466c9b7d696132a4496a761e3a4564c",
-          "bytes": 20875
+          "sha256": "2289961cb389c89ad2c74a11fd446c588f0694ae964f9546c0a924e7ad626f1b",
+          "bytes": 23404
         },
-        "stopped": "stopped",
-        "flash_retained": false,
-        "owned_qemu_exited": true
+        "stopped_with_history": true,
+        "final_frame": {
+          "width": 135,
+          "height": 240,
+          "pixel_3_3": [
+            255,
+            206,
+            0
+          ],
+          "sha256": "b8abb05bd0fc1420659e578feb2ab58507109aff7765f75395e31a8bf6150f9f"
+        },
+        "flash_retained": false
       }
     ],
-    "scope": "managed uiflow-live ready; two same-VM button/frame Runs, RuntimeError failure and recovery, nonce/PID/firmware retained and stale execution rejected; 22 checks total"
+    "scope": "two same-VM button/frame Runs, stale generation rejection, RuntimeError failure, main.py package recovery with actual guest file SHA and DONE; nonce/PID/firmware unchanged. Unlisted package path/entrypoint return policy-bound 403 without replacing execution. Trusted bootstrap/canary are outside this package grant; this is not a guest sandbox."
   },
   "public_export": {
     "manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
@@ -939,7 +978,513 @@
       "stickc-plus-se"
     ],
     "published": false,
-    "browser_gate": "RUNNING_AFTER_PR27_SYNC"
+    "browser_gate": "PASS_16_CASES",
+    "browser_acceptance": {
+      "status": "PASS",
+      "evidence_level": "virtual-device browser execution",
+      "site_manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
+      "public_profiles": 15,
+      "executed_cases": 16,
+      "passed_checks": 439,
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "aggregate_report_sha256": "7b2fed78ec224c61ec75312b66912de769c76a3ab5d167be5f6764694d5c33ee",
+      "verified_guest_stops": 18,
+      "observed_unique_dedicated_worker_targets": 104,
+      "all_workers_closed_before_iframe_removal": true,
+      "engine_normal_terminations_total": 18,
+      "engine_fallback_terminations_total": 0,
+      "api_or_user_port_requests_total": 0,
+      "page_errors_total": 0,
+      "test_harness_note": "Per-case runner hashes are retained. PR29 updated the harness version used by the final classic cases; served site bytes stayed identical. PR31 two-phase supplemental checks are separate.",
+      "hardware_validation": "NOT RUN",
+      "post_run_ownership_check": {
+        "owned_static_server_ports_checked": 16,
+        "owned_static_server_listeners_remaining": 0,
+        "aggregate_processes_remaining": 0,
+        "scope": "Only this aggregate and its recorded loopback static ports; unrelated user services were not touched."
+      },
+      "model_selection_retries_used_total": 0,
+      "cases": [
+        {
+          "case": "stopwatch",
+          "device": "stopwatch",
+          "example": null,
+          "status": "PASS",
+          "checks": 23,
+          "report_sha256": "5001746f5d74c4fdf33cc00652eb1cf1bf8f5a90fdcf9b5ae3f71a5a342984cf",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc",
+          "profile": "stopwatch-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "sticks3",
+          "device": "sticks3",
+          "example": null,
+          "status": "PASS",
+          "checks": 24,
+          "report_sha256": "6cd3e25a96cc02c7ff612001ceb36c0122826b293b046fc1e4c3455d4fd171f6",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+          "profile": "sticks3-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "atoms3",
+          "device": "atoms3",
+          "example": null,
+          "status": "PASS",
+          "checks": 24,
+          "report_sha256": "ccce5fbdeaeae5d8a1df6698e46925895467a10e64a7bb6b552b8677b296b3a1",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319",
+          "profile": "atoms3-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "atoms3-lite",
+          "device": "atoms3-lite",
+          "example": null,
+          "status": "PASS",
+          "checks": 14,
+          "report_sha256": "a6a15e20a5d53006f26c2ac90b798981bb111c8f0e0afd9b28ea2a9d49089a18",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_headless_guest.mjs",
+            "sha256": "2d53a7c8ddbef629f9712b05b74cd2728dee7a4ef4a52b4b925eb596cf31a651"
+          },
+          "firmware_sha256": "ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36",
+          "profile": "atoms3-lite-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "atoms3r",
+          "device": "atoms3r",
+          "example": null,
+          "status": "PASS",
+          "checks": 24,
+          "report_sha256": "7901c89591e3fe30476de204c18d421893f4fa3460b93e03e74d8e049d61722a",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+          "profile": "atoms3r-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "cores3-stock-div8",
+          "device": "cores3",
+          "example": "stock-div8",
+          "status": "PASS",
+          "checks": 28,
+          "report_sha256": "8f8de4c40fe5949e2ea70cb5a0c4e4e4113992b20a108577e0b8416e8f078e7a",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_guest.mjs",
+            "sha256": "ce6f1b6bc181713a7662a1efd52537122cdab5d806952ab81a52435163439216"
+          },
+          "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "profile": "cores3-wasm-vm-div8",
+          "clock_divisor": 8,
+          "cdp_observed_final": 12,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 2,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "cores3-wallclock-candidate",
+          "device": "cores3",
+          "example": "wallclock-candidate",
+          "status": "PASS",
+          "checks": 28,
+          "report_sha256": "4a0d98f8d40e94fdc5d9c9f7d43811932cf83f4a7d48815e3efd1c122da82d5f",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_guest.mjs",
+            "sha256": "ce6f1b6bc181713a7662a1efd52537122cdab5d806952ab81a52435163439216"
+          },
+          "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+          "profile": "cores3-wasm-wallclock-sdk-candidate",
+          "clock_divisor": 1,
+          "cdp_observed_final": 12,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 2,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "cardputer-adv",
+          "device": "cardputer-adv",
+          "example": null,
+          "status": "PASS",
+          "checks": 67,
+          "report_sha256": "fea9320d317b98c2adb525ca6d6cecb2c007190bb4693a6f86518f98688767da",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+          "profile": "cardputer-adv-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "stamplc",
+          "device": "stamplc",
+          "example": null,
+          "status": "PASS",
+          "checks": 24,
+          "report_sha256": "94f7263eb26a1521c572de7efb8779e3f00afb1d0e5490aa9e4f13666515d50f",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc",
+          "profile": "stamplc-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "stackchan",
+          "device": "stackchan",
+          "example": null,
+          "status": "PASS",
+          "checks": 23,
+          "report_sha256": "7c68c5d34d8d22496e23d188ae5374af3454a9c14fafae5925f114b1bc242fa5",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "87f453709526d8b70c4951e3c3600f44946fb07a951884170dd1fad7650cae87",
+          "profile": "stackchan-wasm-wallclock",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "papercolor",
+          "device": "papercolor",
+          "example": null,
+          "status": "PASS",
+          "checks": 26,
+          "report_sha256": "090eba60384e0c29898e9579f34dd293139a1af64f727a5a3c9c79ade1cd07cf",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc",
+          "profile": "papercolor-wasm-wallclock-epaper-probe",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "papermono",
+          "device": "papermono",
+          "example": null,
+          "status": "PASS",
+          "checks": 32,
+          "report_sha256": "413298b0e0083ef605a3a1e777715d512cb1122cd05f790b86991d50e857678a",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+          "profile": "papermono-wasm-wallclock-epaper-probe",
+          "clock_divisor": 1,
+          "cdp_observed_final": 6,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "core2",
+          "device": "core2",
+          "example": null,
+          "status": "PASS",
+          "checks": 23,
+          "report_sha256": "7f4ff580b671ac58728642652c7bc0c7e3968c32394abc3c5ab8f1adf02b1e27",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "f4807e33b7c3a99567cbd25e5ac2efeb66d7961bf13278d34c05c961b5115122"
+          },
+          "firmware_sha256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2",
+          "profile": "core2-wasm-deterministic-icount",
+          "clock_divisor": 1,
+          "cdp_observed_final": 5,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "stickc-plus2",
+          "device": "stickc-plus2",
+          "example": null,
+          "status": "PASS",
+          "checks": 29,
+          "report_sha256": "bb662fa400ff5736091e97958f7e94768dc5bf7baff6647015f5920418d2dc06",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "861c9937ba69ba74c360537c7512c0b307f131d91128f7634c03f2e9529cf322"
+          },
+          "firmware_sha256": "bcdcac7a7590153c4d4db05a3ff9f3e4b84d8678740d0dc27851c2425e431f68",
+          "profile": "stickc-plus2-wasm-deterministic-icount",
+          "clock_divisor": 1,
+          "cdp_observed_final": 5,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "stickc",
+          "device": "stickc",
+          "example": null,
+          "status": "PASS",
+          "checks": 25,
+          "report_sha256": "d1baeefed2b4b11db6f3de54772d7b178445142b1d6dc7003d6fb16b34adda28",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "861c9937ba69ba74c360537c7512c0b307f131d91128f7634c03f2e9529cf322"
+          },
+          "firmware_sha256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15",
+          "profile": "stickc-wasm-deterministic-icount",
+          "clock_divisor": 1,
+          "cdp_observed_final": 5,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "case": "stickc-plus-se",
+          "device": "stickc-plus-se",
+          "example": null,
+          "status": "PASS",
+          "checks": 25,
+          "report_sha256": "336b498501217da3d84d5dbf33f51761e188020683385e2859b5695a13fdc2fc",
+          "test_script": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "861c9937ba69ba74c360537c7512c0b307f131d91128f7634c03f2e9529cf322"
+          },
+          "firmware_sha256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc",
+          "profile": "stickc-plus-se-wasm-deterministic-icount",
+          "clock_divisor": 1,
+          "cdp_observed_final": 5,
+          "cdp_live_final": 0,
+          "worker_closure_before_iframe_removal": true,
+          "verified_stop_count": 1,
+          "api_or_user_port_requests": 0,
+          "page_errors": 0
+        }
+      ]
+    },
+    "final_metadata_export": {
+      "status": "PASS_METADATA_ONLY_DELTA",
+      "tested_manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
+      "final_manifest_sha256": "98aa3f82dcb4788ffd7d262d6e30259e7f4eebe7a6623dec6cfff031cafae335",
+      "changed_assets": [
+        "devices/catalog.json",
+        "devices/esp32-lx6/atom-lite/device.json",
+        "devices/esp32-lx6/atom-matrix/device.json",
+        "devices/esp32-lx6/atom-matrix-v11/device.json",
+        "devices/esp32-lx6/stickc/device.json",
+        "devices/esp32-lx6/stickc-plus-se/device.json",
+        "devices/esp32-lx6/stickc-plus2/device.json",
+        "devices/esp32-s3/atoms3/device.json",
+        "devices/esp32-s3/atoms3-lite/device.json",
+        "devices/esp32-s3/dial/device.json"
+      ],
+      "unchanged_assets": 2101,
+      "scope": "Only remaining-work descriptions and Dial validation metadata changed; all executable JS, firmware fixture sources, QEMU/LittleFS WASM, browser profiles and model assets are byte-identical to the 16-case tested export."
+    },
+    "two_phase_supplement": {
+      "status": "PASS",
+      "synced_base_commit": "84bc88edddf13b070be97ed035209ed6442c1c79",
+      "source_commit": "fa8ef74f324c232e1b3e3204bea695296402ba45",
+      "scope": "PR31 two-phase cleanup supplemental execution for each of the three runner types; not a rerun of all 16 cases. Nested targets close while iframe is held, all targets close after its normal removal.",
+      "cases": [
+        {
+          "device": "cores3",
+          "status": "PASS",
+          "checks_passed": 30,
+          "report_sha256": "ddefc4444f594fdb19712f7242eb3fbb1a81f7d5d77ebf726f8eb1df2f1b9830",
+          "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+          "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+          "site_manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
+          "runner_source": {
+            "path": "platform/tests/test_public_qemu_guest.mjs",
+            "sha256": "aed7f723cb686afb87a9c47e65282e91d0f7832b23b492f08a384b370899eb59"
+          },
+          "lifecycle_phases": [
+            {
+              "before_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              },
+              "after_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              }
+            },
+            {
+              "before_removal": {
+                "ok": true,
+                "observed_count": 12,
+                "live_count": 0,
+                "minimum_observed": 12,
+                "source": "Chrome DevTools Target.getTargets"
+              },
+              "after_removal": {
+                "ok": true,
+                "observed_count": 12,
+                "live_count": 0,
+                "minimum_observed": 12,
+                "source": "Chrome DevTools Target.getTargets"
+              }
+            }
+          ],
+          "api_service_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "device": "atoms3",
+          "status": "PASS",
+          "checks_passed": 25,
+          "report_sha256": "0691f9c6c3d05745464d363cc957312b0fc3d831b5457b326021ab6cb6e0d367",
+          "firmware_sha256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319",
+          "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+          "site_manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
+          "runner_source": {
+            "path": "platform/tests/test_public_qemu_board_guest.mjs",
+            "sha256": "398bddcb98fcfdbbc293e4200d974ff1686bebee2443b8829fe35f0277921fd9"
+          },
+          "lifecycle_phases": [
+            {
+              "before_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              },
+              "after_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              }
+            }
+          ],
+          "api_service_requests": 0,
+          "page_errors": 0
+        },
+        {
+          "device": "atoms3-lite",
+          "status": "PASS",
+          "checks_passed": 15,
+          "report_sha256": "84c6a01fb4b8155eb7b7bc717be91452d7a93c55e734e496a64688d399f9ee80",
+          "firmware_sha256": "ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36",
+          "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+          "site_manifest_sha256": "0ca3b8f6d098b3552ac92cb519f7b7a3fddf89fbc97d5c086c73e9db14714e6c",
+          "runner_source": {
+            "path": "platform/tests/test_public_qemu_headless_guest.mjs",
+            "sha256": "94500b1b778daeeb4a8bf12308f815baac355dc815de0ba12066d3614514f58e"
+          },
+          "lifecycle_phases": [
+            {
+              "before_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              },
+              "after_removal": {
+                "ok": true,
+                "observed_count": 6,
+                "live_count": 0,
+                "minimum_observed": 6,
+                "source": "Chrome DevTools Target.getTargets"
+              }
+            }
+          ],
+          "api_service_requests": 0,
+          "page_errors": 0
+        }
+      ]
+    }
   },
   "source_reviews": {
     "visual_commit": "4879ab51eb8bb11ce024e670ae6880529e3d0f42",
@@ -953,16 +1498,28 @@
   "checks": {
     "platform": {
       "status": "PASS",
-      "tests_run": 1551,
+      "tests_run": 1566,
       "skipped": 10,
-      "passed": 1541,
-      "report_sha256": "ec6dd0c1158ac9cefdf503881bc2245c9b092546d4e57e34f75e180411fba503"
+      "passed": 1556,
+      "report_sha256": "c50bba047b84fa5f41a3c508d4f77bea4bc5c86a6b1919ded83bc93c0497cf05",
+      "source_commit": "300d8d2379f40ac156ed46aace99fd4b91d1d610"
     },
     "node_contracts": "PASS",
     "runtime_coverage": "PASS",
     "peripheral_catalog": "PASS",
     "qemu_profiles": "PASS",
-    "project_snapshot": "PENDING_FINAL_REGENERATION"
+    "project_snapshot": "PASS",
+    "fresh_clone": {
+      "status": "PASS",
+      "tests_run": 1566,
+      "skipped": 10,
+      "passed": 1556,
+      "report_sha256": "0614ce9d77ae7498aab1b53a6e68e1178b32548bd87be4645537f913bfdae6d4",
+      "source_commit": "300d8d2379f40ac156ed46aace99fd4b91d1d610",
+      "local_evidence_cache": false,
+      "python_dependencies_only": true
+    },
+    "platform_after_main31": "PENDING_FINAL_CHECKOUT_SUITE"
   },
-  "emulator_base_commit": "39544effb0e266d0463da33d80f347a708c07423"
+  "emulator_base_commit": "84bc88edddf13b070be97ed035209ed6442c1c79"
 }

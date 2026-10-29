@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Exact official image did not reach the Python probe or an RMT output in the independent 55-second native42 test. Board-detection/touch-pad coverage is a hypothesis, not a proven root cause.
+- Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/RGB/IR validation is blocked.
 
 ## 文件
 

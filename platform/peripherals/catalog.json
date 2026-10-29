@@ -8,23 +8,23 @@
         "review_by": "2026-12-31"
       },
       "atoms3": {
-        "reason": "Independent AtomS3 C123 backend candidate; device-local display, GPIO41, MPU6886, RGB and IR evidence must precede a complete-device claim.",
+        "reason": "Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open.",
         "review_by": "2026-12-31"
       },
       "stickc-plus2": {
-        "reason": "Independent StickC Plus2 backend candidate; boot/display/input/IMU/RTC, audio/RMT/LED, battery ADC and power hold/wake require device-local evidence before a complete-device claim.",
+        "reason": "Device-local display, A/B/PWR, MPU6886 vectors and RTC real-I2C write/read/tick passed. Audio, IR/LED, battery ADC, power hold/wake and broader peripheral behavior remain open.",
         "review_by": "2026-12-31"
       },
       "atoms3-lite": {
-        "reason": "Independent AtomS3 Lite backend candidate; Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open.",
         "review_by": "2026-12-31"
       },
       "dial": {
-        "reason": "Independent Dial backend candidate; Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open.",
         "review_by": "2026-12-31"
       },
       "stickc": {
-        "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Device-local official-firmware display, GPIO37 BtnA/frame and one MPU6886 vector passed. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open.",
         "review_by": "2026-12-31"
       },
       "stickc-plus": {
@@ -32,19 +32,19 @@
         "review_by": "2026-12-31"
       },
       "stickc-plus-se": {
-        "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Device-local official-firmware display and GPIO37 BtnA/frame passed; this board has no IMU. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open.",
         "review_by": "2026-12-31"
       },
       "atom-lite": {
-        "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/RGB/IR validation is blocked.",
         "review_by": "2026-12-31"
       },
       "atom-matrix": {
-        "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked.",
         "review_by": "2026-12-31"
       },
       "atom-matrix-v11": {
-        "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.",
+        "reason": "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked.",
         "review_by": "2026-12-31"
       }
     }
@@ -1249,7 +1249,7 @@
         "qom-detents"
       ],
       "data_plane": "QOM physical detent target schedules real GPIO41/40 quadrature edges through the ESP32-S3 GPIO IRQ controller and the unmodified UIFlow2 RotaryIRQ driver.",
-      "blocker": "The quadrature state-machine control passed; device-local GPIO IRQ delivery and official RotaryIRQ guest readback are NOT RUN.",
+      "blocker": "Actual GPIO41/40 edges and original RotaryIRQ callbacks were observed, but deferred callbacks can read the same current state and lose detents. The 50ms slow-input operating point is not a fix; representative-load/reversal validation and a new runtime are required.",
       "tested_devices": []
     },
     "dial-ws1850s": {
@@ -2526,19 +2526,19 @@
       "peripheral_blockers": [
         {
           "model": "gpio-button",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
         },
         {
           "model": "touch-ft5x06",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
         },
         {
           "model": "dial-gpio-encoder",
-          "reason": "The quadrature state-machine control passed; device-local GPIO IRQ delivery and official RotaryIRQ guest readback are NOT RUN."
+          "reason": "Actual GPIO41/40 edges and original RotaryIRQ callbacks were observed, but deferred callbacks can read the same current state and lose detents. The 50ms slow-input operating point is not a fix; representative-load/reversal validation and a new runtime are required."
         },
         {
           "model": "pcf8563",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
         },
         {
           "model": "dial-ws1850s",
@@ -2546,7 +2546,7 @@
         },
         {
           "model": "buzzer",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Device-local buzzer output has no retained PCM/pulse data-plane validation; display/input/RTC results do not cover audio."
         }
       ]
     },

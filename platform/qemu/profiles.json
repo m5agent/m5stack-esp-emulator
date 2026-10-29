@@ -84,7 +84,7 @@
         "Device-local MPU6886, GPIO35 WS2812 and GPIO4 RMT IR validation"
       ],
       "blockers": [
-        "Independent m5atoms3 candidate; no AtomS3 device-local firmware execution has passed yet."
+        "Device-local display, GPIO41 BtnA/frame, MPU6886 vectors and explicit GPIO35 RMT output passed. Default RGB binding, IR, broader peripheral behavior and physical equivalence remain open."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -397,7 +397,7 @@
         "Classic PDM/buzzer/RMT/LED data planes and ADC battery/power hold validation"
       ],
       "blockers": [
-        "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+        "Device-local display, A/B/PWR, MPU6886 vectors and RTC real-I2C write/read/tick passed. Audio, IR/LED, battery ADC, power hold/wake and broader peripheral behavior remain open."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1124,7 +1124,7 @@
         "Official device-local GPIO41, GPIO35 WS2812 and GPIO4 IR validation"
       ],
       "blockers": [
-        "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Device-local official-firmware boot, GPIO41 BtnA and original RGB()/GPIO35 RMT loop passed. USB CDC, IR, broader peripheral behavior and physical optics remain open."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1188,12 +1188,14 @@
         "RFID WS1850S FIFO/CRC data plane"
       ],
       "blockers": [
-        "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 Dial K130 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-display-input-rtc-pass-rotary-partial",
+        "detail": "独立 Dial K130 官方 UIFlow2 同 guest 已验证显示、触摸、GPIO42 按键和 RTC；原 RotaryIRQ 延迟回调丢中间状态，50ms 慢输入点不作为修复。旋钮、WS1850S、蜂鸣器与更广行为仍开放。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -1247,7 +1249,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Device-local official-firmware display, GPIO37 BtnA/frame and one MPU6886 vector passed. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1360,7 +1362,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Device-local official-firmware display and GPIO37 BtnA/frame passed; this board has no IMU. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1405,7 +1407,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/RGB/IR validation is blocked."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1460,7 +1462,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked."
       ],
       "validation": {
         "date": "2026-10-29",
@@ -1515,7 +1517,7 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        "Independent exact official-firmware boot did not reach the Python probe or emit an RMT frame within 55s. The boot cause remains unproven; button/matrix/IMU validation is blocked."
       ],
       "validation": {
         "date": "2026-10-29",

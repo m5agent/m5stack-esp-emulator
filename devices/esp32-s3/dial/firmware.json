@@ -19,11 +19,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "独立 Dial K130 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+      "status": "native-display-input-rtc-pass-rotary-partial",
+      "detail": "独立 Dial K130 官方 UIFlow2 同 guest 已验证显示、触摸、GPIO42 按键和 RTC；原 RotaryIRQ 延迟回调丢中间状态，50ms 慢输入点不作为修复。旋钮、WS1850S、蜂鸣器与更广行为仍开放。",
+      "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      "Device-local display, touch, GPIO42 BtnA and RTC passed. Deferred original Python GPIO callbacks can read identical current pin states and lose rotary steps; the 50ms operating point is not a fix. WS1850S, buzzer and broader peripheral behavior remain open."
     ]
   },
   "cache_path": "platform/.cache/firmware/dial/uiflow2.bin"

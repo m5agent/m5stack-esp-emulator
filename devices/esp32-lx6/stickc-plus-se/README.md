@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers.
+- Device-local official-firmware display and GPIO37 BtnA/frame passed; this board has no IMU. B/power, RTC, audio, IR/LED and broader peripheral behavior remain open.
 
 ## 文件
 

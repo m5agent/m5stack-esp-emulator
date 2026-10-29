@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers.
+- Device-local display, A/B/PWR, MPU6886 vectors and RTC real-I2C write/read/tick passed. Audio, IR/LED, battery ADC, power hold/wake and broader peripheral behavior remain open.
 
 ## 文件
 
