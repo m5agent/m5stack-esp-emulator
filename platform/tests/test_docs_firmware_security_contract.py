@@ -467,13 +467,14 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
             register.count(
                 "| 状态 | `FIXED`（virtual-device validation） |"
             ),
-            2,
+            3,
         )
         self.assertIn("RUNTIME-01", register)
         self.assertIn("RUNTIME-02", register)
         self.assertIn("RUNTIME-03", register)
         self.assertIn("RUNTIME-04", register)
         self.assertIn("RUNTIME-05", register)
+        self.assertIn("RUNTIME-06", register)
         self.assertIn("0029-esp32s3-wpa2-psk-data-plane.patch", register)
         self.assertIn(
             "WPA2-PSK 成对密钥",

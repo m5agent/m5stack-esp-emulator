@@ -234,7 +234,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
-| `RUNTIME-06` | 进行中 | `0067` 完成 controller loopback；`0076` 完成 plaintext；`0077` 完成 CCMP；`0078/0079` 完成 replay window；native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing 与 `0083` PN exhaustion/rekey 已完成；下一项是 loss/retry、channel/rate 与长稳 | 保留 fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion 和物理 controller/RF 分 lane |
+| `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -531,9 +531,18 @@ Core2 在另一侧先删除时看不到回向 PRE；首轮一方向 `pre_synced=
 re-add 和 post-resume。wrapper 在 delete 后有意静默跳过发送，与 native
 `send` 的 `OSError` 行为分开记录。
 
-开放范围：
+`0084-esp32-espnow-loss-channel-rate.patch` 在真实 action frame 外增加
+8-byte channel/rate envelope，RX 在 CCMP/DMA 前校验 envelope。受控 UDP
+proxy 丢弃 StopWatch→StickS3 前两帧后，应用重试恢复双向 payload。两端
+切换 home channel 6 后正控 PASS；channel 1↔6 两端各记录 40 次 drop，
+正常 RX packet 为 `0`。channel 6 上 11/24 Mbps 混合发送时，接收端
+metadata 互见对端 rate。60 秒 soak 中 A/B TX/RX 为 `528/527` 与
+`527/528`，payload matches 为 `526/527`，duplicate、unexpected source
+和 TX error 均为 `0`。direct encrypted、replay、reorder、三 guest
+shared/pairwise fabric、cross-wire 和 PN rekey 回归保持。
 
-- 丢包/重试、channel/rate 和更完整长稳生命周期；
+虚拟验收已关闭。仍独立保留：
+
 - bit-exact controller、RF/antenna 和电气时序。
 
 验收：external plaintext 与 encrypted lane 分开记录，不能在 Python 中合成
@@ -542,8 +551,9 @@ controller 路径并包含错误 key 负控。`0077` 已满足 fixture 路径，
 `0080` 已满足单 peer stock guest key-state 与 rotation，`0081` 已满足
 shared-LMK 三 guest fabric 与 per-source replay，`0082` 已满足 per-peer
 LMK routing 与 cross-wire fail-closed，`0083` 已满足 PN exhaustion 和
-same-LMK fail-closed；`RUNTIME-06` 仍须在 loss/retry 和 channel/rate
-完成后才能关闭。
+same-LMK fail-closed，`0084` 已满足 loss/retry、channel/rate 和 60 秒
+soak；`RUNTIME-06` 的 virtual-device 边界已完成。物理 RF/controller
+等价性仍按独立 gate 记录。
 
 ### RUNTIME-04 Core2 for AWS ATECC608
 

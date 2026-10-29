@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 from pathlib import Path
+import re
 import select
 import socket
 import sys
@@ -23,6 +24,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_guest  # noqa: E402
 
 
+ESPNOW_PEER_WIRE_HEADER_SIZE = 8
+
+
 PAIR_SOURCE = r'''
 import M5
 import espnow
@@ -32,6 +36,7 @@ import time
 
 ROLE = __ROLE__
 PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
+PEER_CHANNEL = __PEER_CHANNEL__
 PEER_PAYLOAD = ("PAIR_PLAINTEXT:" + ROLE).encode()
 EXPECTED_PAYLOAD = ("PAIR_PLAINTEXT:" + ("B" if ROLE == "A" else "A")).encode()
 PMK = __PMK__
@@ -71,15 +76,22 @@ def connect_wifi():
 
 
 M5.begin()
-connect_wifi()
+wlan = connect_wifi()
+if PEER_CHANNEL != 1:
+    wlan.disconnect()
+    wlan.active(False)
+    wlan.active(True)
+    wlan.config(channel=PEER_CHANNEL)
 node = espnow.ESPNow()
 node.active(True)
 node.config(rxbuf=4096, timeout_ms=100)
 if __ENCRYPT__:
     node.set_pmk(PMK)
-    node.add_peer(PEER_MAC, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+    node.add_peer(
+        PEER_MAC, lmk=LMK, channel=PEER_CHANNEL, ifidx=0, encrypt=True
+    )
 else:
-    node.add_peer(PEER_MAC, channel=0, ifidx=0, encrypt=False)
+    node.add_peer(PEER_MAC, channel=PEER_CHANNEL, ifidx=0, encrypt=False)
 peer_count = list(node.peer_count())
 expected_peer_count = [1, 1] if __ENCRYPT__ else [1, 0]
 if peer_count != expected_peer_count:
@@ -92,6 +104,8 @@ emit("READY", role=ROLE)
 
 received = False
 rx_packets = 0
+tx_attempts = 0
+tx_errors = 0
 source_matches = 0
 payload_matches = 0
 last_payload_len = 0
@@ -99,8 +113,9 @@ deadline = time.ticks_add(time.ticks_ms(), 12000)
 while time.ticks_diff(deadline, time.ticks_ms()) > 0:
     try:
         node.send(PEER_MAC, PEER_PAYLOAD, False)
+        tx_attempts += 1
     except OSError:
-        pass
+        tx_errors += 1
     for _ in range(3):
         source, payload = receive(node, 100)
         if source is None:
@@ -119,6 +134,9 @@ emit(
     status="PASS" if received else "EXPECTED_DROP",
     received=received,
     rx_packets=rx_packets,
+    tx_attempts=tx_attempts,
+    tx_errors=tx_errors,
+    peer_channel=PEER_CHANNEL,
     source_matches=source_matches,
     payload_matches=payload_matches,
     last_payload_len=last_payload_len,
@@ -127,6 +145,144 @@ emit(
 )
 emit("DONE", role=ROLE)
 print("ESPNOW_PAIR_DONE " + ROLE)
+node.active(False)
+'''
+
+
+SOAK_SOURCE = r'''
+import M5
+import espnow
+import json
+import network
+import time
+
+ROLE = __ROLE__
+PEER_ROLE = "B" if ROLE == "A" else "A"
+PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
+EXPECTED_PREFIX = ("SOAK:" + PEER_ROLE + ":").encode()
+SOAK_SECONDS = __SOAK_SECONDS__
+PMK = __PMK__
+LMK = __LMK__
+
+
+def emit(kind, **values):
+    values["kind"] = kind
+    print("ESPNOW_SOAK_" + json.dumps(values, separators=(",", ":")))
+
+
+def receive(node, timeout_ms):
+    slot = [None, bytearray(250)]
+    count = node.recvinto(slot, timeout_ms)
+    if not count:
+        return None, b""
+    return bytes(slot[0]), bytes(slot[1][:count])
+
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    deadline = time.ticks_add(time.ticks_ms(), 5000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if any(row[0] == b"myssid" for row in wlan.scan()):
+            break
+        time.sleep_ms(100)
+    else:
+        raise RuntimeError("fixture AP absent")
+    wlan.connect("myssid")
+    deadline = time.ticks_add(time.ticks_ms(), 40000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if wlan.isconnected() and wlan.status() == 1010:
+            return wlan
+        time.sleep_ms(100)
+    raise RuntimeError("guest DHCP timed out")
+
+
+M5.begin()
+connect_wifi()
+node = espnow.ESPNow()
+node.active(True)
+node.config(rxbuf=4096, timeout_ms=100)
+node.set_pmk(PMK)
+node.add_peer(PEER_MAC, lmk=LMK, channel=1, ifidx=0, encrypt=True)
+peer_count = list(node.peer_count())
+registered = peer_count == [1, 1]
+emit(
+    "RESULT",
+    role=ROLE,
+    api="external_peer_registration",
+    status="PASS" if registered else "FAIL",
+    peer_count=peer_count,
+    encryption=True,
+)
+if not registered:
+    raise RuntimeError("soak peer registration failed")
+emit("READY", role=ROLE)
+
+tx_count = 0
+rx_count = 0
+payload_matches = 0
+duplicate_payloads = 0
+unexpected_sources = 0
+tx_errors = 0
+seen = {}
+sequence = 0
+deadline = time.ticks_add(time.ticks_ms(), SOAK_SECONDS * 1000)
+while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+    try:
+        node.send(
+            PEER_MAC,
+            ("SOAK:" + ROLE + ":" + str(sequence)).encode(),
+            False,
+        )
+        tx_count += 1
+    except OSError:
+        tx_errors += 1
+    sequence += 1
+    for _ in range(4):
+        source, payload = receive(node, 100)
+        if source is None:
+            break
+        rx_count += 1
+        if source != PEER_MAC:
+            unexpected_sources += 1
+            continue
+        if not payload.startswith(EXPECTED_PREFIX):
+            continue
+        try:
+            received_sequence = int(payload[len(EXPECTED_PREFIX):])
+        except ValueError:
+            continue
+        if received_sequence in seen:
+            duplicate_payloads += 1
+        else:
+            seen[received_sequence] = 1
+            payload_matches += 1
+    time.sleep_ms(10)
+
+minimum = SOAK_SECONDS * 2
+passed = (
+    tx_count >= minimum
+    and payload_matches >= minimum
+    and duplicate_payloads == 0
+    and unexpected_sources == 0
+    and tx_errors == 0
+)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="external_soak",
+    status="PASS" if passed else "FAIL",
+    duration_seconds=SOAK_SECONDS,
+    peer_count=peer_count,
+    tx_count=tx_count,
+    rx_count=rx_count,
+    payload_matches=payload_matches,
+    duplicate_payloads=duplicate_payloads,
+    unexpected_sources=unexpected_sources,
+    tx_errors=tx_errors,
+)
+emit("DONE", role=ROLE)
+print("ESPNOW_SOAK_DONE " + ROLE)
 node.active(False)
 '''
 
@@ -898,6 +1054,87 @@ class ReorderProxy:
                     self._left_socket.sendto(data, self._left_service)
 
 
+class LossProxy:
+    """Drop a bounded left-to-right burst and forward later retries."""
+
+    def __init__(
+        self,
+        *,
+        left_service_port: int,
+        right_service_port: int,
+        left_proxy_port: int,
+        right_proxy_port: int,
+        drop_count: int = 2,
+    ) -> None:
+        address = "127.0.0.1"
+        self._left_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._right_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._left_socket.bind((address, left_proxy_port))
+        self._right_socket.bind((address, right_proxy_port))
+        self._left_service = (address, left_service_port)
+        self._right_service = (address, right_service_port)
+        self._drop_count = drop_count
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._received = {"left_to_right": 0, "right_to_left": 0}
+        self._forwarded = {"left_to_right": 0, "right_to_left": 0}
+        self._dropped = {"left_to_right": 0, "right_to_left": 0}
+        self._errors: list[str] = []
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def close(self) -> None:
+        self._stop.set()
+        self._thread.join(timeout=2)
+        self._left_socket.close()
+        self._right_socket.close()
+
+    def summary(self) -> dict:
+        return {
+            "received": dict(self._received),
+            "forwarded": dict(self._forwarded),
+            "dropped": dict(self._dropped),
+            "errors": list(self._errors),
+        }
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            try:
+                readable, _, _ = select.select(
+                    [self._left_socket, self._right_socket],
+                    [],
+                    [],
+                    0.1,
+                )
+            except (OSError, ValueError) as error:
+                self._errors.append(type(error).__name__)
+                return
+            for source in readable:
+                if self._stop.is_set():
+                    return
+                try:
+                    data, _ = source.recvfrom(65535)
+                except OSError as error:
+                    self._errors.append(type(error).__name__)
+                    return
+                if source is self._left_socket:
+                    self._received["left_to_right"] += 1
+                    if (
+                        self._received["right_to_left"] > 0
+                        and self._dropped["left_to_right"]
+                        < self._drop_count
+                    ):
+                        self._dropped["left_to_right"] += 1
+                        continue
+                    self._forwarded["left_to_right"] += 1
+                    self._right_socket.sendto(data, self._right_service)
+                else:
+                    self._received["right_to_left"] += 1
+                    self._forwarded["right_to_left"] += 1
+                    self._left_socket.sendto(data, self._left_service)
+
+
 class PeerFabric:
     """Route real action frames between three controller endpoints."""
 
@@ -970,16 +1207,25 @@ class PeerFabric:
                 self._errors.append(type(error).__name__)
                 return
             source_role = self._port_to_role.get(source[1])
-            if source_role is None or len(data) < 24:
+            if (
+                source_role is None
+                or len(data)
+                < ESPNOW_PEER_WIRE_HEADER_SIZE + 24
+            ):
                 self._errors.append("invalid_source")
                 continue
             self._seen.add(source_role)
 
-            receiver = data[4:10]
+            wire = bytearray(data)
+            frame = wire[ESPNOW_PEER_WIRE_HEADER_SIZE:]
+            receiver = bytes(frame[4:10])
             source_mac = self._mac_by_role[source_role]
-            frame = bytearray(data)
             frame[10:16] = source_mac
             frame[16:22] = source_mac
+            wire[
+                ESPNOW_PEER_WIRE_HEADER_SIZE:
+                ESPNOW_PEER_WIRE_HEADER_SIZE + 22
+            ] = frame[:22]
             if receiver == broadcast:
                 target_roles = [
                     role for role in self._role_by_port if role != source_role
@@ -993,7 +1239,7 @@ class PeerFabric:
 
             for target_role in target_roles:
                 self._socket.sendto(
-                    frame,
+                    wire,
                     ("127.0.0.1", self._role_by_port[target_role]),
                 )
                 self._forwarded[source_role][target_role] += 1
@@ -1006,7 +1252,7 @@ class PeerFabric:
                 ):
                     time.sleep(0.05)
                     self._socket.sendto(
-                        frame,
+                        wire,
                         ("127.0.0.1", self._role_by_port[target_role]),
                     )
                     self._duplicate_sent = True
@@ -1027,6 +1273,18 @@ def parse_pair_records(serial: str) -> list[dict]:
             continue
         try:
             records.append(json.loads(line.removeprefix("ESPNOW_PAIR_")))
+        except (TypeError, ValueError):
+            continue
+    return records
+
+
+def parse_soak_records(serial: str) -> list[dict]:
+    records = []
+    for line in serial.splitlines():
+        if not line.startswith("ESPNOW_SOAK_"):
+            continue
+        try:
+            records.append(json.loads(line.removeprefix("ESPNOW_SOAK_")))
         except (TypeError, ValueError):
             continue
     return records
@@ -1083,6 +1341,9 @@ def trace_summary(evidence: Path) -> dict:
             "guest_key_ready": 0,
             "guest_key_cleared": 0,
             "pn_exhaustions": 0,
+            "channel_drops": 0,
+            "tx_channel_rates": [],
+            "delivered_channel_rates": [],
             "sha256": None,
         }
     with zipfile.ZipFile(evidence) as archive:
@@ -1091,6 +1352,20 @@ def trace_summary(evidence: Path) -> dict:
         except KeyError:
             raw = b""
     text = raw.decode(errors="replace")
+    tx_channel_rates = sorted({
+        (int(match.group(1)), int(match.group(2)))
+        for match in re.finditer(
+            r"\[espnow-peer\] TX .*?channel=(\d+) rate=(\d+)",
+            text,
+        )
+    })
+    delivered_channel_rates = sorted({
+        (int(match.group(1)), int(match.group(2)))
+        for match in re.finditer(
+            r"\[espnow-peer\] delivered channel=(\d+) rate=(\d+)",
+            text,
+        )
+    })
     return {
         "tx": text.count("[espnow-peer] TX "),
         "rx": text.count("[espnow-peer] RX "),
@@ -1106,6 +1381,17 @@ def trace_summary(evidence: Path) -> dict:
         "pn_exhaustions": text.count(
             "[espnow-peer] TX drop: CCMP PN exhausted"
         ),
+        "channel_drops": text.count(
+            "[espnow-peer] RX drop: channel mismatch"
+        ),
+        "tx_channel_rates": [
+            {"channel": channel, "rate": rate}
+            for channel, rate in tx_channel_rates
+        ],
+        "delivered_channel_rates": [
+            {"channel": channel, "rate": rate}
+            for channel, rate in delivered_channel_rates
+        ],
         "sha256": hashlib.sha256(raw).hexdigest(),
     }
 
@@ -1136,8 +1422,14 @@ def run_one(
     peer_macs: dict[str, bytes] | None = None,
     peer_lmks: dict[str, bytes] | None = None,
     public_mac: bytes | None = None,
+    peer_channel: int = 1,
+    tx_rate: int = 11,
+    soak_seconds: int = 60,
 ) -> dict:
-    if scenario in {
+    if scenario == "soak":
+        source_template = SOAK_SOURCE
+        done_marker = "ESPNOW_SOAK_DONE " + role
+    elif scenario in {
         "guest-key-pn-rekey",
         "guest-key-pn-stale-rekey",
     }:
@@ -1162,6 +1454,8 @@ def run_one(
         .replace("__ROTATED_LMK__", repr(rotated_lmk))
         .replace("__PEER_MACS__", repr(peer_macs or {}))
         .replace("__PEER_LMKS__", repr(peer_lmks or {}))
+        .replace("__PEER_CHANNEL__", repr(peer_channel))
+        .replace("__SOAK_SECONDS__", str(soak_seconds))
         .replace("__ENCRYPT__", repr(encrypt))
         .replace(
             "__EXPECTED_HASH__",
@@ -1175,9 +1469,11 @@ def run_one(
     source_path = output.parent / ("pair-" + role + ".py")
     source_path.write_text(source, encoding="utf-8")
     runtime_env = {
+        "M5SW_ESPNOW_PEER_CHANNEL": str(peer_channel),
         "M5SW_ESPNOW_PEER_LOCAL_PORT": str(local_port),
         "M5SW_ESPNOW_PEER_REMOTE_PORT": str(remote_port),
         "M5SW_ESPNOW_PEER_TRACE": "1",
+        "M5SW_ESPNOW_PEER_TX_RATE": str(tx_rate),
     }
     if scenario in FABRIC_SCENARIOS:
         runtime_env["M5SW_ESPNOW_PEER_FABRIC"] = "1"
@@ -1232,7 +1528,9 @@ def run_one(
     serial = (
         serial_path.read_text(errors="replace") if serial_path.is_file() else ""
     )
-    if scenario in {"lifecycle", "guest-key-rotation"}:
+    if scenario == "soak":
+        records = parse_soak_records(serial)
+    elif scenario in {"lifecycle", "guest-key-rotation"}:
         records = parse_lifecycle_records(serial)
     elif scenario == "lifecycle-m5espnow":
         records = parse_m5espnow_lifecycle_records(serial)
@@ -1554,6 +1852,11 @@ def main() -> int:
             "wrong-pmk",
             "replay",
             "reorder",
+            "loss-retry",
+            "channel-match",
+            "channel-mismatch",
+            "rate-mixed",
+            "soak",
             "guest-key",
             "guest-key-wrong-lmk",
             "guest-key-rotation",
@@ -1571,11 +1874,14 @@ def main() -> int:
     parser.add_argument("--left-device", default="stopwatch")
     parser.add_argument("--right-device", default="sticks3")
     parser.add_argument("--third-device", default="core2")
+    parser.add_argument("--soak-seconds", type=int, default=60)
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
 
     output = args.out_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    if not 1 <= args.soak_seconds <= 600:
+        parser.error("--soak-seconds must be between 1 and 600")
     if args.scenario in FABRIC_SCENARIOS:
         return run_fabric_mode(args, output)
     encrypt = args.scenario != "plaintext"
@@ -1583,6 +1889,11 @@ def main() -> int:
         "guest-key",
         "guest-key-wrong-lmk",
         "guest-key-rotation",
+        "loss-retry",
+        "channel-match",
+        "channel-mismatch",
+        "rate-mixed",
+        "soak",
         "guest-key-pn-rekey",
         "guest-key-pn-stale-rekey",
     } | FABRIC_SCENARIOS
@@ -1619,11 +1930,20 @@ def main() -> int:
     )
     left_pmk, left_lmk = keys[args.left_device]
     right_pmk, right_lmk = keys[args.right_device]
+    peer_channels = {"A": 1, "B": 1}
+    peer_rates = {"A": 11, "B": 11}
+    if args.scenario in {"channel-match", "rate-mixed"}:
+        peer_channels = {"A": 6, "B": 6}
+    elif args.scenario == "channel-mismatch":
+        peer_channels = {"A": 1, "B": 6}
+    if args.scenario == "rate-mixed":
+        peer_rates = {"A": 11, "B": 24}
     replay_proxy = None
     reorder_proxy = None
+    loss_proxy = None
     left_proxy_port = None
     right_proxy_port = None
-    if args.scenario in {"replay", "reorder"}:
+    if args.scenario in {"replay", "reorder", "loss-retry"}:
         (
             left_port,
             right_port,
@@ -1631,7 +1951,11 @@ def main() -> int:
             right_proxy_port,
         ) = distinct_ports(4)
         proxy_class = (
-            ReplayProxy if args.scenario == "replay" else ReorderProxy
+            ReplayProxy
+            if args.scenario == "replay"
+            else ReorderProxy
+            if args.scenario == "reorder"
+            else LossProxy
         )
         proxy = proxy_class(
             left_service_port=left_port,
@@ -1641,8 +1965,10 @@ def main() -> int:
         )
         if args.scenario == "replay":
             replay_proxy = proxy
-        else:
+        elif args.scenario == "reorder":
             reorder_proxy = proxy
+        else:
+            loss_proxy = proxy
     else:
         left_port, right_port = port_pair()
     left_remote_port = left_proxy_port or right_port
@@ -1662,6 +1988,9 @@ def main() -> int:
             pmk=left_pmk,
             lmk=left_lmk,
             rotated_lmk=rotated_lmk,
+            peer_channel=peer_channels["A"],
+            tx_rate=peer_rates["A"],
+            soak_seconds=args.soak_seconds,
         ),
         dict(
             api=args.api,
@@ -1677,9 +2006,12 @@ def main() -> int:
             pmk=right_pmk,
             lmk=right_lmk,
             rotated_lmk=rotated_lmk,
+            peer_channel=peer_channels["B"],
+            tx_rate=peer_rates["B"],
+            soak_seconds=args.soak_seconds,
         ),
     )
-    test_proxy = replay_proxy or reorder_proxy
+    test_proxy = replay_proxy or reorder_proxy or loss_proxy
     if test_proxy:
         test_proxy.start()
     try:
@@ -1698,6 +2030,12 @@ def main() -> int:
         if row.get("kind") == "RESULT"
         and row.get("api") == "external_payload"
     ]
+    delivery_by_role = {
+        row.get("role"): row for row in delivery_results
+    }
+    trace_by_role = {
+        result["role"]: result["trace"] for result in results
+    }
     cleanup_ok = all(
         result["cleanup"]
         and result["cleanup"].get("terminal_state") == "stopped"
@@ -1722,6 +2060,13 @@ def main() -> int:
         for row in result["records"]
         if row.get("kind") == "RESULT"
         and row.get("api") == pair_registration_api
+    ]
+    soak_results = [
+        row
+        for result in results
+        for row in result["records"]
+        if row.get("kind") == "RESULT"
+        and row.get("api") == "external_soak"
     ]
     lifecycle_results = [
         row
@@ -1761,6 +2106,7 @@ def main() -> int:
     expected_drop = args.scenario in {
         "wrong-lmk",
         "guest-key-wrong-lmk",
+        "channel-mismatch",
     }
     delivery_ok = (
         all(
@@ -1883,6 +2229,103 @@ def main() -> int:
             )
         )
     )
+    loss_retry_ok = (
+        args.scenario != "loss-retry"
+        or (
+            proxy_stats is not None
+            and proxy_stats["dropped"]["left_to_right"] == 2
+            and proxy_stats["forwarded"]["left_to_right"] > 0
+            and proxy_stats["forwarded"]["right_to_left"] > 0
+            and not proxy_stats["errors"]
+            and all(
+                delivery_by_role.get(role, {}).get("status") == "PASS"
+                and delivery_by_role[role].get("tx_attempts", 0) > 2
+                and delivery_by_role[role].get("tx_errors") == 0
+                for role in ("A", "B")
+            )
+        )
+    )
+    soak_ok = (
+        args.scenario != "soak"
+        or (
+            len(soak_results) == 2
+            and all(
+                row.get("status") == "PASS"
+                and row.get("duration_seconds") == args.soak_seconds
+                and row.get("tx_count", 0) >= args.soak_seconds * 2
+                and row.get("payload_matches", 0)
+                >= args.soak_seconds * 2
+                and row.get("duplicate_payloads") == 0
+                and row.get("unexpected_sources") == 0
+                and row.get("tx_errors") == 0
+                for row in soak_results
+            )
+        )
+    )
+    channel_match_ok = (
+        args.scenario != "channel-match"
+        or (
+            all(
+                delivery_by_role.get(role, {}).get("status") == "PASS"
+                and delivery_by_role[role].get("peer_channel") == 6
+                for role in ("A", "B")
+            )
+            and all(
+                {"channel": 6, "rate": 11}
+                in trace_by_role[role]["tx_channel_rates"]
+                for role in ("A", "B")
+            )
+            and all(
+                {"channel": 6, "rate": 11}
+                in trace_by_role[role]["delivered_channel_rates"]
+                for role in ("A", "B")
+            )
+        )
+    )
+    channel_mismatch_ok = (
+        args.scenario != "channel-mismatch"
+        or (
+            len(delivery_results) == 2
+            and all(
+                row.get("status") == "EXPECTED_DROP"
+                and row.get("received") is False
+                and row.get("rx_packets") == 0
+                for row in delivery_results
+            )
+            and all(
+                delivery_by_role[role].get("peer_channel")
+                == peer_channels[role]
+                and trace_by_role[role]["channel_drops"] > 0
+                and trace_by_role[role]["delivered_channel_rates"] == []
+                for role in ("A", "B")
+            )
+        )
+    )
+    rate_mixed_ok = (
+        args.scenario != "rate-mixed"
+        or (
+            all(
+                delivery_by_role.get(role, {}).get("status") == "PASS"
+                for role in ("A", "B")
+            )
+            and all(
+                {
+                    "channel": peer_channels[role],
+                    "rate": peer_rates[role],
+                }
+                in trace_by_role[role]["tx_channel_rates"]
+                for role in ("A", "B")
+            )
+            and {
+                "channel": 6,
+                "rate": peer_rates["B"],
+            } in trace_by_role["A"]["delivered_channel_rates"]
+            and {
+                "channel": 6,
+                "rate": peer_rates["A"],
+            } in trace_by_role["B"]["delivered_channel_rates"]
+        )
+    )
     guest_key_ok = (
         not guest_key
         or all(
@@ -1899,6 +2342,19 @@ def main() -> int:
             )
             for result in results
         )
+    )
+    proxy_key = {
+        "replay": "replay_proxy",
+        "reorder": "reorder_proxy",
+        "loss-retry": "loss_proxy",
+    }.get(args.scenario)
+    proxy_transport = {
+        "replay": "IPv4 loopback UDP replay proxy",
+        "reorder": "IPv4 loopback UDP reorder proxy",
+        "loss-retry": "IPv4 loopback UDP loss/retry proxy",
+    }.get(
+        args.scenario,
+        "IPv4 loopback UDP action-frame bridge",
     )
     status_ok = (
         len(registration_results) == 2
@@ -1917,6 +2373,10 @@ def main() -> int:
                 and pn_rekey_ok
             )
             or (
+                args.scenario == "soak"
+                and soak_ok
+            )
+            or (
                 args.scenario
                 not in {
                     "lifecycle",
@@ -1924,6 +2384,7 @@ def main() -> int:
                     "guest-key-rotation",
                     "guest-key-pn-rekey",
                     "guest-key-pn-stale-rekey",
+                    "soak",
                 }
                 and len(delivery_results) == 2
                 and delivery_ok
@@ -1938,6 +2399,11 @@ def main() -> int:
         and bridge_traffic_ok
         and replay_ok
         and reorder_ok
+        and loss_retry_ok
+        and channel_match_ok
+        and channel_mismatch_ok
+        and rate_mixed_ok
+        and soak_ok
         and guest_key_ok
     )
     summary = {
@@ -1945,6 +2411,11 @@ def main() -> int:
         "validation": "virtual-device validation",
         "hardware_validation": "NOT RUN",
         "scenario": args.scenario,
+        **(
+            {"soak_seconds": args.soak_seconds}
+            if args.scenario == "soak"
+            else {}
+        ),
         "encryption": encrypt,
         "key_source": (
             "guest-controller-key-store"
@@ -1962,28 +2433,16 @@ def main() -> int:
         ),
         "status": "PASS" if status_ok else "FAIL",
         "bridge": {
-            "transport": (
-                "IPv4 loopback UDP replay proxy"
-                if args.scenario == "replay"
-                else (
-                    "IPv4 loopback UDP reorder proxy"
-                    if args.scenario == "reorder"
-                    else "IPv4 loopback UDP action-frame bridge"
-                )
-            ),
+            "transport": proxy_transport,
             "left_local_port": left_port,
             "right_local_port": right_port,
+            "peer_channels": peer_channels,
+            "peer_rates_mbps": peer_rates,
             "bridge_traffic_ok": bridge_traffic_ok,
             "guest_key_ok": guest_key_ok,
             **(
-                {
-                    (
-                        "replay_proxy"
-                        if args.scenario == "replay"
-                        else "reorder_proxy"
-                    ): proxy_stats
-                }
-                if proxy_stats
+                {proxy_key: proxy_stats}
+                if proxy_stats and proxy_key
                 else {}
             ),
         },
@@ -2009,7 +2468,11 @@ def main() -> int:
                             else (
                                 "external_peer_lifecycle_m5espnow"
                                 if args.scenario == "lifecycle-m5espnow"
-                                else "external_payload"
+                                else (
+                                    "external_soak"
+                                    if args.scenario == "soak"
+                                    else "external_payload"
+                                )
                             )
                         )
                     ),

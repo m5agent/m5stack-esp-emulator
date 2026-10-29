@@ -1,0 +1,363 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: validate ESP-NOW channel and rate metadata
+
+Carry an eight-byte channel/rate envelope alongside the real management
+action frame between the controller bridges. RX validates the envelope before
+CCMP and DMA delivery, so a peer configured on another channel is dropped at
+the bridge boundary. RX metadata now reports the delivered frame's envelope
+channel and configured PHY rate. The envelope is trusted test-fixture metadata;
+it is outside CCMP and is not presented as an authenticated security field.
+
+The env values are default-off outside the explicit peer bridge and reject
+unsupported channels/rates. The runner exercises a bounded fault proxy,
+same/different channel controls, mixed 11/24 Mbps traffic and a 60-second
+bidirectional soak. This is virtual link metadata only: it does not model RF
+propagation, antenna behavior or PHY rate adaptation, and it does not prove
+physical controller equivalence.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ include/hw/misc/esp32_wifi.h |   4 ++
+ hw/misc/esp32_wifi.c         | 162 +++++++++++++++++++++++++++++++++++++-----
+ hw/misc/esp32s3_wifi.c       |  10 ++-
+ 3 files changed, 145 insertions(+), 31 deletions(-)
+
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -61,6 +61,10 @@
+     int espnow_peer_local_port;
+     int espnow_peer_remote_port;
+     bool espnow_peer_trace;
++    uint8_t espnow_peer_channel;
++    uint8_t espnow_peer_tx_rate;
++    uint8_t espnow_peer_rx_channel;
++    uint8_t espnow_peer_rx_rate;
+     bool espnow_peer_fabric;
+     bool espnow_peer_public_mac_valid;
+     uint8_t espnow_peer_public_mac[6];
+diff --git a/hw/misc/esp32_wifi.c b/hw/misc/esp32_wifi.c
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -59,6 +59,39 @@
+     return result;
+ }
+ 
++typedef struct QEMU_PACKED Esp32EspNowPeerWireHeader {
++    uint32_t magic;
++    uint8_t version;
++    uint8_t channel;
++    uint8_t rate;
++    uint8_t reserved;
++} Esp32EspNowPeerWireHeader;
++
++#define ESPNOW_PEER_WIRE_MAGIC 0x5745354d
++#define ESPNOW_PEER_WIRE_VERSION 1
++#define ESPNOW_PEER_DEFAULT_CHANNEL 1
++#define ESPNOW_PEER_DEFAULT_RATE 11
++
++static bool espnow_peer_rate_supported(uint8_t rate)
++{
++    switch (rate) {
++    case 1:
++    case 2:
++    case 6:
++    case 9:
++    case 11:
++    case 12:
++    case 18:
++    case 24:
++    case 36:
++    case 48:
++    case 54:
++        return true;
++    default:
++        return false;
++    }
++}
++
+ static bool espnow_peer_parse_hex_key(const char *value, uint8_t key[16])
+ {
+     size_t index;
+@@ -643,14 +676,14 @@
+ 
+ static void espnow_peer_trace(Esp32WifiState *s, const char *direction,
+                               const struct mac80211_frame *frame,
+-                              size_t length)
++                              size_t length, uint8_t channel, uint8_t rate)
+ {
+     if (!s->espnow_peer_trace) {
+         return;
+     }
+     fprintf(stderr,
+             "[espnow-peer] %s local=%d remote=%d len=%zu checksum=%08x "
+-            "encrypted=%d fabric=%d "
++            "encrypted=%d fabric=%d channel=%u rate=%u "
+             "dst=%02x:%02x:%02x:%02x:%02x:%02x "
+             "src=%02x:%02x:%02x:%02x:%02x:%02x "
+             "filter0=%02x:%02x:%02x:%02x:%02x:%02x "
+@@ -660,6 +693,7 @@
+             espnow_peer_checksum((const uint8_t *)frame, length),
+             s->espnow_peer_encrypted,
+             s->espnow_peer_fabric,
++            channel, rate,
+             frame->receiver_address[0], frame->receiver_address[1],
+             frame->receiver_address[2], frame->receiver_address[3],
+             frame->receiver_address[4], frame->receiver_address[5],
+@@ -696,21 +730,78 @@
+     static const uint8_t zero_mac[6] = { 0 };
+ 
+     while (s->espnow_peer_fd >= 0) {
++        struct {
++            Esp32EspNowPeerWireHeader header;
++            struct mac80211_frame frame;
++        } packet;
+         struct mac80211_frame frame;
+         const uint8_t *local_mac = s->macaddr;
+-        ssize_t length = recv(s->espnow_peer_fd, &frame, sizeof(frame), 0);
++        ssize_t packet_length = recv(
++            s->espnow_peer_fd, &packet, sizeof(packet), 0);
++        size_t length;
+ 
+-        if (length < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
++        if (packet_length < 0 &&
++            (errno == EAGAIN || errno == EWOULDBLOCK)) {
+             return;
+         }
+-        if (length < 0) {
++        if (packet_length < 0) {
+             if (s->espnow_peer_trace) {
+                 fprintf(stderr, "[espnow-peer] receive failed: %s\n",
+                         strerror(errno));
+             }
+             return;
+         }
++        if (packet_length < (ssize_t)sizeof(packet.header)) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: truncated wire header\n");
++            }
++            continue;
++        }
++        if (le32_to_cpu(packet.header.magic) !=
++                ESPNOW_PEER_WIRE_MAGIC ||
++            packet.header.version != ESPNOW_PEER_WIRE_VERSION) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: invalid wire header\n");
++            }
++            continue;
++        }
++        length = packet_length - sizeof(packet.header);
++        if (length > sizeof(packet.frame)) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: oversized wire frame\n");
++            }
++            continue;
++        }
++        memcpy(&frame, &packet.frame, length);
++        s->espnow_peer_rx_channel = packet.header.channel;
++        s->espnow_peer_rx_rate = packet.header.rate;
++        if (packet.header.channel != s->espnow_peer_channel) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: channel mismatch "
++                        "local=%u remote=%u\n",
++                        s->espnow_peer_channel, packet.header.channel);
++            }
++            s->espnow_peer_rx_channel = 0;
++            s->espnow_peer_rx_rate = 0;
++            continue;
++        }
++        if (!espnow_peer_rate_supported(packet.header.rate)) {
++            if (s->espnow_peer_trace) {
++                fprintf(stderr,
++                        "[espnow-peer] RX drop: unsupported rate=%u\n",
++                        packet.header.rate);
++            }
++            s->espnow_peer_rx_channel = 0;
++            s->espnow_peer_rx_rate = 0;
++            continue;
++        }
+         if (!espnow_peer_action_frame(&frame, (size_t)length)) {
++            s->espnow_peer_rx_channel = 0;
++            s->espnow_peer_rx_rate = 0;
+             continue;
+         }
+         frame.frame_length = length;
+@@ -778,8 +869,12 @@
+                    (uint8_t[]){0x02, 0, 0, 0, 0, 0x43}, 6);
+         }
+         memcpy(frame.address_3, frame.transmitter_address, 6);
+-        espnow_peer_trace(s, "RX", &frame, length);
++        espnow_peer_trace(
++            s, "RX", &frame, length,
++            s->espnow_peer_rx_channel, s->espnow_peer_rx_rate);
+         Esp32_sendFrame(s, &frame, length, -42);
++        s->espnow_peer_rx_channel = 0;
++        s->espnow_peer_rx_rate = 0;
+     }
+ }
+ 
+@@ -789,6 +884,10 @@
+     const char *remote_value = getenv("M5SW_ESPNOW_PEER_REMOTE_PORT");
+     const char *tx_pn_start_value =
+         getenv("M5SW_ESPNOW_PEER_TX_PN_START");
++    const char *channel_value =
++        getenv("M5SW_ESPNOW_PEER_CHANNEL");
++    const char *tx_rate_value =
++        getenv("M5SW_ESPNOW_PEER_TX_RATE");
+     struct sockaddr_in local = {
+         .sin_family = AF_INET,
+         .sin_addr.s_addr = htonl(INADDR_LOOPBACK),
+@@ -800,11 +899,17 @@
+     uint64_t local_port;
+     uint64_t remote_port;
+     uint64_t tx_pn_start = 0;
++    uint64_t channel = ESPNOW_PEER_DEFAULT_CHANNEL;
++    uint64_t tx_rate = ESPNOW_PEER_DEFAULT_RATE;
+     int fd;
+ 
+     s->espnow_peer_fd = -1;
+     s->espnow_peer_local_port = 0;
+     s->espnow_peer_remote_port = 0;
++    s->espnow_peer_channel = ESPNOW_PEER_DEFAULT_CHANNEL;
++    s->espnow_peer_tx_rate = ESPNOW_PEER_DEFAULT_RATE;
++    s->espnow_peer_rx_channel = 0;
++    s->espnow_peer_rx_rate = 0;
+     s->espnow_peer_fabric =
+         getenv("M5SW_ESPNOW_PEER_FABRIC") != NULL;
+     s->espnow_peer_public_mac_valid = false;
+@@ -839,6 +944,11 @@
+         getenv("M5SW_ESPNOW_PEER_TRACE") != NULL;
+ 
+     if (!local_value && !remote_value) {
++        if (channel_value || tx_rate_value) {
++            error_setg(errp,
++                       "ESP-NOW peer channel/rate require the external "
++                       "peer bridge");
++        }
+         return;
+     }
+     if (!local_value || !remote_value) {
+@@ -853,6 +963,25 @@
+                    "external ESP-NOW peer bridge");
+         return;
+     }
++    if (channel_value &&
++        (parse_uint_full(channel_value, 10, &channel) ||
++         channel < 1 || channel > 14)) {
++        error_setg(errp,
++                   "M5SW_ESPNOW_PEER_CHANNEL must be an integer from 1 to "
++                   "14");
++        return;
++    }
++    if (tx_rate_value &&
++        (parse_uint_full(tx_rate_value, 10, &tx_rate) ||
++         tx_rate > 255 ||
++         !espnow_peer_rate_supported((uint8_t)tx_rate))) {
++        error_setg(errp,
++                   "M5SW_ESPNOW_PEER_TX_RATE must be a supported 802.11 "
++                   "Mbps rate");
++        return;
++    }
++    s->espnow_peer_channel = (uint8_t)channel;
++    s->espnow_peer_tx_rate = (uint8_t)tx_rate;
+     {
+         const char *public_mac = getenv(
+             "M5SW_ESPNOW_PEER_PUBLIC_MAC"
+@@ -954,6 +1083,10 @@
+     s->espnow_peer_guest_key_valid = false;
+     s->espnow_peer_guest_key_slot = 0;
+     s->espnow_peer_tx_pn = 0;
++    s->espnow_peer_channel = 0;
++    s->espnow_peer_tx_rate = 0;
++    s->espnow_peer_rx_channel = 0;
++    s->espnow_peer_rx_rate = 0;
+     s->espnow_peer_fabric = false;
+     s->espnow_peer_public_mac_valid = false;
+     memset(s->espnow_peer_public_mac, 0,
+@@ -990,6 +1123,10 @@
+ void Esp32_ESPNow_peer_send(Esp32WifiState *s,
+                             struct mac80211_frame *frame)
+ {
++    struct {
++        Esp32EspNowPeerWireHeader header;
++        struct mac80211_frame frame;
++    } packet;
+     struct mac80211_frame forwarded;
+     ssize_t sent;
+ 
+@@ -1021,8 +1158,18 @@
+         }
+         return;
+     }
+-    espnow_peer_trace(s, "TX", &forwarded, forwarded.frame_length);
+-    sent = send(s->espnow_peer_fd, &forwarded, forwarded.frame_length, 0);
++    espnow_peer_trace(
++        s, "TX", &forwarded, forwarded.frame_length,
++        s->espnow_peer_channel, s->espnow_peer_tx_rate);
++    packet.header.magic = cpu_to_le32(ESPNOW_PEER_WIRE_MAGIC);
++    packet.header.version = ESPNOW_PEER_WIRE_VERSION;
++    packet.header.channel = s->espnow_peer_channel;
++    packet.header.rate = s->espnow_peer_tx_rate;
++    packet.header.reserved = 0;
++    memcpy(&packet.frame, &forwarded, forwarded.frame_length);
++    sent = send(
++        s->espnow_peer_fd, &packet,
++        sizeof(packet.header) + forwarded.frame_length, 0);
+     if (sent < 0 && s->espnow_peer_trace) {
+         fprintf(stderr, "[espnow-peer] send failed: %s\n", strerror(errno));
+     }
+@@ -1113,14 +1260,20 @@
+     wifi_pkt_rx_ctrl_t *pkt=(wifi_pkt_rx_ctrl_t *)header;
+     *pkt=(wifi_pkt_rx_ctrl_t){
+         .rssi=(signal_strength+(rand()%10)+96),
+-        .rate=11,
++        .rate=s->espnow_peer_rx_rate ? s->espnow_peer_rx_rate : 11,
+         .sig_len=length,
+         .sig_len_copy=length,
+         .legacy_length=length,
+         .noise_floor=-97,
+-        .channel=esp32_wifi_channel,
++        .channel=s->espnow_peer_rx_channel
++            ? s->espnow_peer_rx_channel : esp32_wifi_channel,
+         .timestamp=qemu_clock_get_ns(QEMU_CLOCK_REALTIME)/1000,
+     };
++    if (s->espnow_peer_trace && s->espnow_peer_rx_channel) {
++        fprintf(stderr,
++                "[espnow-peer] delivered channel=%u rate=%u len=%u\n",
++                pkt->channel, pkt->rate, length);
++    }
+     // These 4 bits are set if the mac addresses previously stored at 0x40 and 0x48
+     // match the destination or bssid addresses in the frame
+     if(match_mac_address(frame->receiver_address,(uint8_t *)s->mem+0x40))
+diff --git a/hw/misc/esp32s3_wifi.c b/hw/misc/esp32s3_wifi.c
+--- a/hw/misc/esp32s3_wifi.c
++++ b/hw/misc/esp32s3_wifi.c
+@@ -174,12 +174,18 @@
+     memset(packet, 0, sizeof(packet));
+     *rx = (wifi_pkt_rx_ctrl_s3_t) {
+         .rssi = signal_strength,
+-        .rate = 11,
++        .rate = s->espnow_peer_rx_rate ? s->espnow_peer_rx_rate : 11,
+         .sig_len = frame->frame_length,
+         .noise_floor = -97,
+-        .channel = esp32_wifi_channel,
++        .channel = s->espnow_peer_rx_channel
++            ? s->espnow_peer_rx_channel : esp32_wifi_channel,
+         .timestamp = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / 1000,
+     };
++    if (s->espnow_peer_trace && s->espnow_peer_rx_channel) {
++        fprintf(stderr,
++                "[espnow-peer] delivered channel=%u rate=%u len=%u\n",
++                rx->channel, rx->rate, frame->frame_length);
++    }
+     memcpy(&rx_word0, packet, sizeof(rx_word0));
+     rx_word0 |= (frame->frame_length & 0xfff) << 16;
+     if (!memcmp(frame->receiver_address, BROADCAST, 6)) {
+-- 
+2.43.0

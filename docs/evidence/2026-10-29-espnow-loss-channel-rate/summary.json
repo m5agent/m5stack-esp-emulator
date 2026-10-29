@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "54e7a7f7cd0ff6f5a1d6343c06563388f49c2b0abbca4cafb850876e57ed1254",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0084-esp32-espnow-loss-channel-rate.patch",
+    "sha256": "91ef766541a9802336d5a3efaefc38fd28f5d7ea55107e605e2ec37fdf2594fc"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "f0416d4d2acc396a49a830d507530145af07111563cc8e0184623c4d2c535ef2"
+  },
+  "link_metadata": {
+    "envelope_bytes": 8,
+    "version": 1,
+    "channels": [1, 6],
+    "rates_mbps": [11, 24],
+    "rf_propagation": "NOT RUN",
+    "physical_controller": "NOT RUN"
+  },
+  "scenarios": [
+    {
+      "name": "loss-retry",
+      "status": "PASS",
+      "summary_sha256": "a3ee04e91f4302663b2c093052e7bc995c062daa5f31324877393732dee6eb19",
+      "proxy_drops": 2,
+      "forwarded": {"left_to_right": 56, "right_to_left": 58},
+      "roles": {
+        "stopwatch": {"firmware_sha256": "d6aa776011143f6a435f95140e64db49f3f6714da43af3a5d2a3947d4df3bb01", "tx_attempts": 58, "payload_matches": 57, "tx_errors": 0},
+        "sticks3": {"firmware_sha256": "810c08895b0a5876a426134b3ce463405af35d3c4bd88c536a1d08f361235a74", "tx_attempts": 58, "payload_matches": 56, "tx_errors": 0}
+      }
+    },
+    {
+      "name": "channel-match",
+      "status": "PASS",
+      "summary_sha256": "443187832aaca56e8724b40c95fb8043a1d8214244c8b401fa8ad028f7d7c93d",
+      "channel": 6,
+      "roles": {
+        "stopwatch": {"firmware_sha256": "d0ce3f37dc0ab6151d1fbe08acc3058ab24478c8eee77194a7c80671981be548", "tx": 58, "rx": 58, "payload_matches": 57},
+        "sticks3": {"firmware_sha256": "982a681d057a605c9cbefacef43f11ad707fd1a868515ca9ccf01ba200a03b6a", "tx": 58, "rx": 58, "payload_matches": 58}
+      }
+    },
+    {
+      "name": "channel-mismatch",
+      "status": "PASS",
+      "summary_sha256": "99455c367ecdff78a5d234348cdb54c14be668b269dcad9e296963dee1b5fbf6",
+      "channels": {"stopwatch": 1, "sticks3": 6},
+      "roles": {
+        "stopwatch": {"channel_drops": 40, "rx_packets": 0},
+        "sticks3": {"channel_drops": 40, "rx_packets": 0}
+      }
+    },
+    {
+      "name": "rate-mixed",
+      "status": "PASS",
+      "summary_sha256": "d9a8d1d8fcefc6f841c2f007ccc0bccbc3d45e9519ef5de94bc0da470b023f1a",
+      "channels": {"stopwatch": 6, "sticks3": 6},
+      "rates_mbps": {"stopwatch": 11, "sticks3": 24},
+      "roles": {
+        "stopwatch": {"firmware_sha256": "d0ce3f37dc0ab6151d1fbe08acc3058ab24478c8eee77194a7c80671981be548", "tx": 59, "payload_matches": 58},
+        "sticks3": {"firmware_sha256": "982a681d057a605c9cbefacef43f11ad707fd1a868515ca9ccf01ba200a03b6a", "tx": 59, "payload_matches": 59}
+      }
+    },
+    {
+      "name": "soak-60",
+      "status": "PASS",
+      "summary_sha256": "e1e19308f32b7bb97cb2c5eea81e10b469e91d543908a941411dab2fb7c92160",
+      "duration_seconds": 60,
+      "roles": {
+        "stopwatch": {"firmware_sha256": "c4097d42d71185b3c6aecb83d27999aaa48b94af59059ec33a7521acf90dd61b", "tx": 528, "rx": 527, "payload_matches": 526, "duplicate_payloads": 0, "unexpected_sources": 0, "tx_errors": 0},
+        "sticks3": {"firmware_sha256": "eb825182bfd84dfb66c8937de9b44b7003a1d41bf13340f1ad43a21f94697c21", "tx": 527, "rx": 528, "payload_matches": 527, "duplicate_payloads": 0, "unexpected_sources": 0, "tx_errors": 0}
+      }
+    }
+  ],
+  "regressions": [
+    {"name": "encrypted", "status": "PASS", "summary_sha256": "a27b82066379537a2be406ac257b39e05a65bdf2fb43176a87855227f9a78d0a"},
+    {"name": "replay", "status": "PASS", "summary_sha256": "52895f99299e9f94069c7d07811bed14d78dfb8fe612b2324855408a797ebebf", "replay_drops": 1},
+    {"name": "reorder", "status": "PASS", "summary_sha256": "a2f876af43463b57a4ea59227854fef79cb08b36ccdb602ad9fc72d97e5bc0ff", "replay_drops": 0},
+    {"name": "fabric", "status": "PASS", "summary_sha256": "5c913162be739dcb518087e388bbfaf7ace13cb82b4cf2a8bafe6accbdec195f"},
+    {"name": "fabric-per-peer-key", "status": "PASS", "summary_sha256": "e3120f098856ef48541d428e50a28e38065ec268acaf98ceb3b679164adc050c"},
+    {"name": "fabric-per-peer-key-negative", "status": "PASS", "summary_sha256": "51ce2bde9d47184b44caf1a48b4cadb0c9d3bb22db0989cd5301a0632c1455b9", "expected_links": {"A-B": false, "A-C": true, "B-C": true}},
+    {"name": "guest-key-pn-rekey", "status": "PASS", "summary_sha256": "13f7af834c4ff1d984cab48dd7114979aee53e266319cc22999a4147b5145683", "pn_exhaustions": 65}
+  ],
+  "checks": {
+    "patch_forward_current_reverse": "PASS",
+    "qemu_build": "PASS",
+    "platform_tests": "1526 OK + 1 skipped",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "node_contracts": "PASS",
+    "cleanup": {
+      "terminal_state": "stopped",
+      "runtime_pid_gone": true,
+      "history_preserved": true,
+      "purge": 0
+    }
+  },
+  "not_run": [
+    "bit-exact controller and baseband",
+    "RF propagation, antenna behavior and measured channel/rate",
+    "electrical timing",
+    "physical hardware"
+  ]
+}

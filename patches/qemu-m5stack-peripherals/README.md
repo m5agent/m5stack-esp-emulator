@@ -564,6 +564,16 @@ PNs and observe explicit exhaustion drops. Reinstalling a new guest LMK resets
 that peer's PN chain and the direct pair resumes. Shared-LMK and pairwise-key
 fabric regressions remain separate.
 
+`0084-esp32-espnow-loss-channel-rate.patch` adds an eight-byte bridge envelope
+for the configured channel and PHY-rate metadata. RX validates the envelope
+before CCMP/DMA delivery, rejects frames from another channel, and reports the
+delivered frame's envelope channel/rate in controller RX metadata. The
+envelope is trusted test-fixture metadata outside CCMP, not an authenticated
+security field. The runner uses
+a loss proxy, same/different-channel controls, mixed 11/24 Mbps traffic and a
+60-second bidirectional soak. This is a deterministic virtual-link model, not
+RF propagation, PHY rate adaptation or physical-controller equivalence.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

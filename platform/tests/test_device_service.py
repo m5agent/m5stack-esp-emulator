@@ -1489,6 +1489,32 @@ class DeviceServiceUnitTests(unittest.TestCase):
             orphan_tx_pn_start.exception.code,
             "invalid_runtime_env",
         )
+        with self.assertRaises(ServiceError) as orphan_peer_channel:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_CHANNEL": "6",
+                    },
+                }
+            )
+        self.assertEqual(
+            orphan_peer_channel.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as orphan_peer_rate:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_TX_RATE": "24",
+                    },
+                }
+            )
+        self.assertEqual(
+            orphan_peer_rate.exception.code,
+            "invalid_runtime_env",
+        )
         with self.assertRaises(ServiceError) as same_ports:
             self.service.create_session(
                 {
@@ -1500,6 +1526,36 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(same_ports.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as invalid_peer_channel:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_CHANNEL": "15",
+                    },
+                }
+            )
+        self.assertEqual(
+            invalid_peer_channel.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as invalid_peer_rate:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_TX_RATE": "7",
+                    },
+                }
+            )
+        self.assertEqual(
+            invalid_peer_rate.exception.code,
+            "invalid_runtime_env",
+        )
         with self.assertRaises(ServiceError) as mixed_gate:
             self.service.create_session(
                 {
@@ -1610,11 +1666,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
 
     def test_external_espnow_peer_ports_are_trusted_local_fixtures(self):
         runtime_env = {
+            "M5SW_ESPNOW_PEER_CHANNEL": "6",
             "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
             "M5SW_ESPNOW_PEER_PMK": "0123456789abcdef" * 2,
             "M5SW_ESPNOW_PEER_LMK": "fedcba9876543210" * 2,
             "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
             "M5SW_ESPNOW_PEER_TRACE": "1",
+            "M5SW_ESPNOW_PEER_TX_RATE": "24",
         }
         with mock.patch.object(DeviceSession, "start"):
             result = self.service.create_session(

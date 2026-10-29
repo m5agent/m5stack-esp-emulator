@@ -199,6 +199,7 @@ OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
+    "M5SW_ESPNOW_PEER_CHANNEL",
     "M5SW_ESPNOW_PEER_FABRIC",
     "M5SW_ESPNOW_PEER_LOCAL_PORT",
     "M5SW_ESPNOW_PEER_LMK",
@@ -206,6 +207,7 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_ESPNOW_PEER_PMK",
     "M5SW_ESPNOW_PEER_REMOTE_PORT",
     "M5SW_ESPNOW_PEER_TRACE",
+    "M5SW_ESPNOW_PEER_TX_RATE",
     "M5SW_ESPNOW_PEER_TX_PN_START",
     "M5SW_I2S_DMA_IRQ",
     "M5SW_I2S_PCM_FILE",
@@ -243,6 +245,19 @@ BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_SPI_XFER_TRACE",
 })
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
+ESPNOW_PEER_TX_RATES = frozenset({
+    1,
+    2,
+    6,
+    9,
+    11,
+    12,
+    18,
+    24,
+    36,
+    48,
+    54,
+})
 PLAIN_QEMU_AUDIO_DEVICES = frozenset({
     "cores3",
     "cardputer-adv",
@@ -10573,6 +10588,39 @@ class DeviceService:
                         "invalid_runtime_env",
                         "M5SW_ESPNOW_LOOPBACK cannot be combined with the "
                         "external ESP-NOW peer bridge",
+                        400,
+                    )
+            espnow_channel = runtime_env.get("M5SW_ESPNOW_PEER_CHANNEL")
+            if espnow_channel is not None:
+                if (
+                    espnow_local_port is None
+                    or len(espnow_channel) > 2
+                    or not espnow_channel.isascii()
+                    or not espnow_channel.isdigit()
+                    or not 1 <= int(espnow_channel) <= 14
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_CHANNEL requires the external "
+                        "ESP-NOW peer bridge and an integer from 1 to 14",
+                        400,
+                    )
+            espnow_tx_rate = runtime_env.get(
+                "M5SW_ESPNOW_PEER_TX_RATE"
+            )
+            if espnow_tx_rate is not None:
+                if (
+                    espnow_local_port is None
+                    or len(espnow_tx_rate) > 2
+                    or not espnow_tx_rate.isascii()
+                    or not espnow_tx_rate.isdigit()
+                    or int(espnow_tx_rate) not in ESPNOW_PEER_TX_RATES
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_TX_RATE requires the external "
+                        "ESP-NOW peer bridge and a supported 802.11 Mbps "
+                        "rate",
                         400,
                     )
             if (

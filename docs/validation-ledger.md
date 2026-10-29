@@ -1432,3 +1432,38 @@ lock SHA256 `b39bba5b0dc1aaa51ac9f98210cbaca3ed324db3251d0a3cf2da3bf281a5ef4f`�
 身份、浏览器序列和边界见
 [有界证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) 与
 [机器可读摘要](evidence/2026-10-29-wasm-remaining-xtensa/summary.json)。
+
+## 2026-10-29：ESP-NOW loss/retry、channel/rate 与长稳
+
+新增 `0084-esp32-espnow-loss-channel-rate.patch`，SHA256
+`91ef766541a9802336d5a3efaefc38fd28f5d7ea55107e605e2ec37fdf2594fc`。
+bridge 在真实 action frame 外增加 8-byte、versioned channel/rate
+envelope；RX 在 action/CCMP/DMA 前拒绝截断、错误 magic/version、异 channel
+和不支持的 rate，并把 authenticated frame 的 channel/rate 写入 controller
+RX metadata。最终 QEMU 为
+`54e7a7f7cd0ff6f5a1d6343c06563388f49c2b0abbca4cafb850876e57ed1254`。
+
+第一次测试将 `add_peer(channel=6)` 用在仍连接 channel 1 AP 的 stock
+driver 上，guest 自身以 `Peer channel is not equal to the home channel`
+拒绝发送。最终路径先完成 Wi-Fi 基线，再 disconnect/re-activate STA 到目标
+home channel，随后使用 stock ESP-NOW。该失败 control 保留，不能视为 bridge
+PASS。
+
+受控 UDP proxy 在双向流量建立后丢弃 StopWatch→StickS3 前两帧；应用重试后
+两端 payload PASS，发送各 `58` 次且没有 `OSError`。channel 6 正控两端
+`58/58` TX/RX，channel 1↔6 负控两端各 `40` 次 channel drop 且正常 RX
+packet 为 `0`。channel 6 上以 11/24 Mbps 混合发送，接收端 metadata
+互见对端 rate。60 秒 soak 中 A/B TX/RX 为 `528/527` 和 `527/528`，
+payload matches 为 `526/527`，duplicate、unexpected source 与 TX error
+均为 `0`。
+
+direct encrypted、replay proxy、reorder proxy、shared/pairwise 三 guest
+fabric、B/A cross-wire 与 PN exhaustion/new-LMK rekey 在最终 QEMU 上全部
+重绑 PASS。全部最终 session 使用 `purge=0`、terminal `stopped`、runtime
+PID gone、history retained。patch forward/current-source/reverse PASS。
+
+该结果关闭 `RUNTIME-06` 的 virtual-device loss/retry、channel/rate 与长稳
+边界。bit-exact controller/baseband、RF propagation、天线、实测 channel/rate、
+电气时序和 physical hardware 仍为独立 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-loss-channel-rate/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-loss-channel-rate/summary.json)。
