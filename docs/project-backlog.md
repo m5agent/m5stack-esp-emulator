@@ -234,7 +234,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
-| `RUNTIME-06` | 进行中 | `0067` 完成 controller loopback；`0076` 完成 plaintext；`0077` 完成 key fixture CCMP；`0078/0079` 完成单 peer duplicate drop 与 64-frame reorder window；native 与 M5ESPNow wrapper 完成 lifecycle；`0080` 完成 stock guest key-state 与 key rotation；下一项是多 peer key routing/replay window、PN wrap 与丢包/重试 | 保留 fixture/guest-key、loopback/plaintext/encrypted、wrong-LMK、replay/reorder、native/wrapper lifecycle 和 RF/timing 分 lane；单 peer guest key PASS 不能替代 multi-peer fabric 或物理 controller |
+| `RUNTIME-06` | 进行中 | `0067` 完成 controller loopback；`0076` 完成 plaintext；`0077` 完成 key fixture CCMP；`0078/0079` 完成单 peer duplicate drop 与 64-frame reorder window；native/M5ESPNow lifecycle 与 `0080` stock guest key-state/key rotation 已完成；`0081` 完成三 guest shared-LMK fabric 与 per-source replay 负控；下一项是 per-peer LMK routing、PN wrap 与丢包/重试 | 保留 fixture/guest-key、shared-LMK/per-peer-key、loopback/plaintext/encrypted、wrong-LMK、replay/reorder、lifecycle 和 RF/timing 分 lane；shared-LMK fabric PASS 不能替代 per-peer key routing 或物理 controller |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -497,6 +497,14 @@ re-add/modify 和 key replacement 会重置 active key/replay state。两设备�
 均在不传 runtime-env key 的情况下完成正控，不同 guest LMK 两端均
 `rx_packets=0`，轮换到新共享 LMK 后 post-resume 交付恢复。
 
+`0081-esp32-espnow-peer-fabric.patch` 完成三 guest shared-LMK fabric：
+StopWatch、StickS3 和 Core2 各自在加密前写入 synthetic public MAC，连接
+同一个 IPv4 loopback UDP broker；broker 不再于 CCMP 后改写 transmitter 或
+address3。three-peer 正控中三端 `peer_count=[2,2]`，各自收到另外两个 peer
+的 payload。replay window 按 authenticated source-peer MAC 分片，共 8 个
+slot、每 slot 64 frame；负控重复一帧真实 forwarded frame 后只有目标
+StickS3 记录一次 drop，其它两端为 `0`，三方正常 payload 保持。
+
 原生 `espnow.ESPNow` lifecycle 场景在 StopWatch↔StickS3 与
 Core2↔StopWatch 完成 encrypted `add_peer`、pre-sync、`del_peer`、
 `get_peer`/`send` NOT_FOUND 负控、`add_peer`、`mod_peer` 和 post-resume
@@ -511,16 +519,16 @@ re-add 和 post-resume。wrapper 在 delete 后有意静默跳过发送，与 na
 
 开放范围：
 
-- 多 peer key routing、每 peer replay window、3+ guest fabric 和丢包/重试；
+- per-peer LMK key routing 和错误 peer-key 路由负控；
 - PN wrap 与更完整 key lifecycle；
-- channel/rate、bit-exact controller、RF/antenna 和电气时序。
+- 丢包/重试、channel/rate、bit-exact controller、RF/antenna 和电气时序。
 
 验收：external plaintext 与 encrypted lane 分开记录，不能在 Python 中合成
 payload、CCMP 或 callback；encrypted lane 必须使用实际 key-bound
 controller 路径并包含错误 key 负控。`0077` 已满足 fixture 路径，
-`0080` 已满足单 peer stock guest key-state 与 rotation；`RUNTIME-06`
-仍须在多 peer key routing/replay window、PN wrap 和 loss/retry 完成后才能
-关闭。
+`0080` 已满足单 peer stock guest key-state 与 rotation，`0081` 已满足
+shared-LMK 三 guest fabric 与 per-source replay；`RUNTIME-06` 仍须在
+per-peer key routing、PN wrap 和 loss/retry 完成后才能关闭。
 
 ### RUNTIME-04 Core2 for AWS ATECC608
 

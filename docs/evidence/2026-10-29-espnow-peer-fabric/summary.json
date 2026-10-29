@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "de8d5b07a31861bf3aae0731ad21da772753cb1bd1388f5b678bdcf23a0ef9b1",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0081-esp32-espnow-peer-fabric.patch",
+    "sha256": "b86d3561d503139a4ae8dbda6c4699534b478113ff681784012e562d4d8cf7ca"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "74429e26440c7bbce6c2ad47ef99b03939c1ab62db5daf21da9350dc07e24d97"
+  },
+  "fabric": {
+    "transport": "IPv4 loopback UDP three-guest broker",
+    "encryption": "AES-CCMP",
+    "key_source": "guest-controller-key-store",
+    "key_scope": "shared LMK; per-peer key routing NOT RUN",
+    "public_mac_ready_before_ccmp": true,
+    "rx_source_peer_preserved": true,
+    "replay_window_slots": 8,
+    "replay_window_frames": 64
+  },
+  "scenarios": [
+    {
+      "name": "fabric",
+      "status": "PASS",
+      "run_summary_sha256": "9edc8e3b1c58275c5da75892b8950426166d448a70e864f8ea4cfb581462be14",
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "c55e91542e144b40be3c51a27ad9295b9019894c193cbb74090b0058306b4b52",
+          "tx": 844,
+          "rx": 854,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "peer_count": [2, 2],
+          "payload_matches": {
+            "sticks3": 206,
+            "core2": 220
+          }
+        },
+        "sticks3": {
+          "firmware_sha256": "e61b31f097134e79ba44b543e68f912b47ce14e550af08afd8b08ce03f087798",
+          "tx": 828,
+          "rx": 862,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "peer_count": [2, 2],
+          "payload_matches": {
+            "stopwatch": 210,
+            "core2": 220
+          }
+        },
+        "core2": {
+          "firmware_sha256": "4e1689548d5c9afb3d64bcaa66ebf0bbfcc9412fdba15816ca68cf4a60541f45",
+          "tx": 880,
+          "rx": 352,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "peer_count": [2, 2],
+          "payload_matches": {
+            "stopwatch": 55,
+            "sticks3": 55
+          }
+        }
+      },
+      "broker": {
+        "seen_roles": ["stopwatch", "sticks3", "core2"],
+        "all_directed_paths_forwarded": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "fabric-replay",
+      "status": "PASS",
+      "run_summary_sha256": "18d0bcb04644c1a2687ba52dce0a64409e1ee32c9bc5b39d0cb15711f46ad0af",
+      "duplicate_real_forwarded_frame": true,
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "aef8e63bff46191afacba21bd16a21a0f34a3793a8fe146bdff0ad210f40a3c1",
+          "tx": 848,
+          "rx": 870,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "sticks3": 210,
+            "core2": 224
+          }
+        },
+        "sticks3": {
+          "firmware_sha256": "936dc9b31af0a4dbffc2db0a9e12a49708ed0e90d66da864071d7ce57d142355",
+          "tx": 844,
+          "rx": 873,
+          "guest_key_ready": 2,
+          "replay_drops": 1,
+          "payload_matches": {
+            "stopwatch": 211,
+            "core2": 224
+          }
+        },
+        "core2": {
+          "firmware_sha256": "88e2b9cb0eed491015175e413884a9a3f8464b6b94e1f26e6e4978564a488979",
+          "tx": 896,
+          "rx": 346,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 57,
+            "sticks3": 57
+          }
+        }
+      },
+      "broker": {
+        "seen_roles": ["stopwatch", "sticks3", "core2"],
+        "all_directed_paths_forwarded": true,
+        "errors": []
+      }
+    }
+  ],
+  "regression": {
+    "device_service_tests": "123/123 PASS",
+    "espnow_patch_contract_tests": "7/7 PASS"
+  },
+  "cleanup": {
+    "sessions": 6,
+    "terminal_state": "stopped",
+    "runtime_pid_gone": true,
+    "history_preserved": true,
+    "purge": 0
+  },
+  "not_run": [
+    "per-peer LMK key routing",
+    "PN wrap",
+    "loss and retry",
+    "channel and rate",
+    "bit-exact controller",
+    "RF and antenna behavior",
+    "electrical timing",
+    "physical hardware"
+  ]
+}

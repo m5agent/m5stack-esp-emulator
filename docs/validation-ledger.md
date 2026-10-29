@@ -1318,3 +1318,35 @@ runtime PID 消失并保留 history。最终 QEMU SHA256 为
 RF/antenna、电气时序和真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-guest-key-state/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-guest-key-state/summary.json)。
+
+## 2026-10-29：ESP-NOW 三 guest shared-LMK fabric
+
+新增 `0081-esp32-espnow-peer-fabric.patch`，SHA256
+`b86d3561d503139a4ae8dbda6c4699534b478113ff681784012e562d4d8cf7ca`。
+该 patch 在 QEMU 二进制
+`de8d5b07a31861bf3aae0731ad21da772753cb1bd1388f5b678bdcf23a0ef9b1`
+上增加 opt-in 三 guest UDP broker。每个 controller 在 CCMP 前写入自己的
+synthetic public MAC；broker 在 MIC 后不改写 transmitter/address3，RX
+保留 broker 提供的 source peer。replay window 按 authenticated
+source-peer MAC 分片，共 8 个 slot、每 slot 64 frame，且 MIC 验证先于
+replay 判定。
+
+StopWatch、StickS3、Core2 三端正控均为 PASS：`peer_count=[2,2]`，
+各自收到另外两个 peer 的 payload；TX/RX 分别为 `844/854`、`828/862`、
+`880/352`，各自 `guest_key_ready=2`、`replay_drops=0`。broker 观察到全部
+六个 directed path，错误为 `0`。
+
+replay 负控复制一帧真实 forwarded frame 后，StickS3 精确记录
+`replay_drops=1`，StopWatch 与 Core2 精确为 `0`，三方正常 payload 仍 PASS；
+runner 对这组 `1/0/0` 结果做强断言。
+两轮各三个 session 均 `purge=0` 停止、runtime PID gone、history retained。
+首轮“CCMP 后改写受 AAD 保护的地址”实现造成 MIC 全失败，已丢弃；最终版本
+改为加密前注入 public MAC。readiness 也从独立 barrier 改为与持续 payload
+交换共用同一个循环，避免慢启动 Core2 错过其它两端。
+
+该结果关闭 `RUNTIME-06` 的三 guest shared-LMK fabric、per-source replay
+window 和 fabric replay 负控。任务仍为 `PARTIAL`：per-peer LMK routing、
+PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna、
+电气时序和真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-peer-fabric/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-peer-fabric/summary.json)。
