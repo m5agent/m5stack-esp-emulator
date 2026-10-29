@@ -168,6 +168,7 @@ class WorkerJobQueue:
             "updated_at": _iso_now(self.clock()),
             "jobs": {},
             "idempotency": {},
+            "claim_idempotency": {},
         }
 
     def _load(self) -> dict[str, Any]:
@@ -187,6 +188,13 @@ class WorkerJobQueue:
             or not isinstance(value.get("jobs"), dict)
             or not isinstance(value.get("idempotency"), dict)
         ):
+            raise WorkerQueueError(
+                "worker_queue_invalid",
+                "worker queue schema is unsupported",
+                503,
+            )
+        value.setdefault("claim_idempotency", {})
+        if not isinstance(value.get("claim_idempotency"), dict):
             raise WorkerQueueError(
                 "worker_queue_invalid",
                 "worker queue schema is unsupported",
@@ -243,6 +251,10 @@ class WorkerJobQueue:
         for key, entry in list(idempotency.items()):
             if not isinstance(entry, dict) or entry.get("job_id") in removed:
                 idempotency.pop(key, None)
+        claim_idempotency = self.record["claim_idempotency"]
+        for key, entry in list(claim_idempotency.items()):
+            if not isinstance(entry, dict) or entry.get("job_id") in removed:
+                claim_idempotency.pop(key, None)
 
     def _release_expired_locked(
         self,
@@ -465,24 +477,99 @@ class WorkerJobQueue:
                 "worker instance/generation does not match the directory",
                 409,
             )
-        if not worker.get("accepting_leases"):
-            raise WorkerQueueError(
-                "worker_not_accepting",
-                "worker is not accepting new jobs",
-                409,
-            )
         requested_job_id = payload.get("job_id")
         if requested_job_id is not None:
             requested_job_id = _bounded_string(
                 requested_job_id,
                 "job_id",
             )
+        claim_idempotency_key = payload.get("claim_idempotency_key")
+        if claim_idempotency_key is not None:
+            claim_idempotency_key = _bounded_string(
+                claim_idempotency_key,
+                "claim_idempotency_key",
+                maximum=160,
+            )
+        claim_request_digest = (
+            hashlib.sha256(
+                json.dumps(
+                    {
+                        "identity": identity,
+                        "job_id": requested_job_id,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            ).hexdigest()
+            if claim_idempotency_key is not None
+            else None
+        )
+        claim_key_digest = (
+            hashlib.sha256(
+                json.dumps(
+                    {
+                        "identity": identity,
+                        "claim_idempotency_key": claim_idempotency_key,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            ).hexdigest()
+            if claim_idempotency_key is not None
+            else None
+        )
         capabilities = worker.get("capabilities")
         if not isinstance(capabilities, dict):
             capabilities = {}
         with self._lock:
             now = self.clock()
             expired = self._reconcile_expired_locked(now)
+            if expired:
+                self._write_locked()
+            if claim_key_digest is not None:
+                existing_claim = self.record["claim_idempotency"].get(
+                    claim_key_digest
+                )
+                if isinstance(existing_claim, dict):
+                    if (
+                        existing_claim.get("request_sha256")
+                        != claim_request_digest
+                    ):
+                        raise WorkerQueueError(
+                            "claim_idempotency_conflict",
+                            "claim idempotency key was used for another request",
+                            409,
+                        )
+                    existing_job = self.record["jobs"].get(
+                        existing_claim.get("job_id")
+                    )
+                    existing_lease = (
+                        existing_job.get("lease")
+                        if isinstance(existing_job, dict)
+                        else None
+                    )
+                    if (
+                        isinstance(existing_job, dict)
+                        and existing_job.get("status") == "leased"
+                        and isinstance(existing_lease, dict)
+                        and existing_lease.get("lease_id")
+                        == existing_claim.get("lease_id")
+                        and _identity_matches(identity, existing_lease)
+                    ):
+                        snapshot = self._job_snapshot(existing_job)
+                        snapshot["claim_idempotent_replay"] = True
+                        return snapshot
+                    raise WorkerQueueError(
+                        "claim_idempotency_stale",
+                        "claim idempotency key no longer owns a live lease",
+                        409,
+                    )
+            if not worker.get("accepting_leases"):
+                raise WorkerQueueError(
+                    "worker_not_accepting",
+                    "worker is not accepting new jobs",
+                    409,
+                )
             candidates = sorted(
                 (
                     job
@@ -511,8 +598,6 @@ class WorkerJobQueue:
                 ),
             )
             if not candidates:
-                if expired:
-                    self._write_locked()
                 return None
             job = candidates[0]
             lease_id = f"lease-{uuid.uuid4().hex[:20]}"
@@ -527,8 +612,19 @@ class WorkerJobQueue:
                 "expires_at": _iso_now(now + self.lease_seconds),
             }
             job["updated_at"] = _iso_now(now)
+            if claim_key_digest is not None:
+                self.record["claim_idempotency"][claim_key_digest] = {
+                    "job_id": job["job_id"],
+                    "lease_id": lease_id,
+                    "identity": identity,
+                    "request_sha256": claim_request_digest,
+                    "created_at": _iso_now(now),
+                }
             self._write_locked()
-            return self._job_snapshot(job)
+            snapshot = self._job_snapshot(job)
+            if claim_key_digest is not None:
+                snapshot["claim_idempotent_replay"] = False
+            return snapshot
 
     def _owned_lease(
         self,

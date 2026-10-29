@@ -133,13 +133,34 @@ class TransientResultApi(FakeApi):
 
 
 class TransientClaimApi(FakeApi):
+    def __init__(self):
+        super().__init__()
+        self.claim_failures = 1
+        self.first_claim_key = None
+        self.same_claim_key = False
+
     def json(self, path, *, method="GET", payload=None, timeout=60):
-        if path == "/api/v1/jobs/claim":
+        if path == "/api/v1/jobs/claim" and self.claim_failures:
+            self.claim_failures -= 1
+            self.first_claim_key = payload.get("claim_idempotency_key")
             self.calls.append((method, path, payload))
             raise WorkerAgentError(
                 "stub claim connection lost",
                 transient=True,
             )
+        if path == "/api/v1/jobs/claim":
+            self.same_claim_key = (
+                payload.get("claim_idempotency_key")
+                == self.first_claim_key
+            )
+            response = super().json(
+                path,
+                method=method,
+                payload=payload,
+                timeout=timeout,
+            )
+            response["job"]["claim_idempotent_replay"] = True
+            return response
         return super().json(
             path,
             method=method,
@@ -574,17 +595,16 @@ class WorkerAgentTests(unittest.TestCase):
             control_reconnect_timeout=2,
         )
         unsafe_claim_agent.register()
-        with self.assertRaisesRegex(
-            WorkerAgentError,
-            "claim connection lost",
-        ):
-            unsafe_claim_agent.claim()
+        recovered_claim = unsafe_claim_agent.claim()
+        self.assertEqual(recovered_claim["job_id"], "job-test")
+        self.assertTrue(recovered_claim["claim_idempotent_replay"])
+        self.assertTrue(unsafe_claim_api.same_claim_key)
         self.assertEqual(
             sum(
                 call[1] == "/api/v1/jobs/claim"
                 for call in unsafe_claim_api.calls
             ),
-            1,
+            2,
         )
 
     def test_known_runtime_session_retries_status_and_evidence(self):

@@ -27,6 +27,7 @@ capability and open tasks remain in
 | [`core2_openmac_wifi`](core2_openmac_wifi/README.md) | Core2 OpenMAC scan/DHCP/HTTP path | complete Core2 board or physical RF |
 | [`worker_lifecycle`](worker_lifecycle/README.md) | Local worker heartbeat, drain, resume and abandoned lease classification | remote multi-host scheduling |
 | [`worker_queue`](worker_queue/README.md) | Durable submit/claim/heartbeat/result/cancel and lease expiry | execution of the job |
+| [`worker_claim_idempotency`](worker_claim_idempotency/README.md) | Real HTTP claim-response-loss replay, same job/lease after restart, conflict/stale fail-closed and non-secret mapping | physical cross-host execution, packet blackhole or external side-effect fencing |
 | [`worker_executor`](worker_executor/README.md) | HTTP worker claim, real session, evidence and result | cross-host migration |
 | [`worker_tls`](worker_tls/README.md) | HTTPS/mTLS, worker HMAC, rotation, drain, overlap and real QEMU jobs | production secret manager or physical multi-host PKI |
 | [`worker_discovery`](worker_discovery/README.md) | Authenticated same-domain multicast control discovery and token rotation | Cross-subnet or arbitrary NAT traversal |

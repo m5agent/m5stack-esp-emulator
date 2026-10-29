@@ -33,7 +33,7 @@ stock `espnow.ESPNow` lifecycle runner 在 StopWatch↔StickS3 与 Core2↔StopW
   内组合板级、WiFi、BLE 与 evidence；Core2 使用 `core2-native-hci`；
 - 网络路径包含 controlled DNS/TLS、exact/domain/CNAME answer binding、
   严格 Host authority、有界 IPv4/IPv6 egress、WPA2、断线恢复、双 guest
-  fabric、namespace/container worker 和 pcap。
+  fabric、namespace/container worker、durable claim response-loss idempotency 和 pcap。
   同 guest CNAME→HTTP 与专用测试构建的 IPv6 TCP/HTTP 已覆盖，原厂 UIFlow2 默认未启用
   IPv6 link-local；`RUNTIME-05` 的 S3 WPA2-PSK 成对密钥路径已关闭；
 - 固件入口包含 FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、
@@ -55,7 +55,7 @@ Core2 legacy 旧裸 QEMU 控制同时缺少 matching LittleFS2 VFS 和 `misc.esp
 
 | 目标 | 已经落地 | 当前缺口 | 结论 |
 | --- | --- | --- | --- |
-| 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric 和 worker-local QEMU | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
+| 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU 和 claim response-loss idempotency | `NET-04` 的物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
 | Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳、当前容量并发和 legacy dual-SPI panel routing | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy startup UI 与 normal-WDT 仍未完成，probe 非空帧不等于原厂应用帧 | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
 | FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学，以及 aggregate/image/eFuse understatement、key mismatch 和 secure-version rollback fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
 
@@ -349,7 +349,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | --- | --- | --- | --- |
 | `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff、classic RMT、exact-time state sweep、LVGL wait、UART virtual-clock、pre-boot phase、SSI transaction profile、command correlation 和 command issuer PC 已验证；`0065` 五轮关闭调度诱导双 PC deadlock，`0066` 越过 Neopixel RMT 初始化错误，`0071/0072` 确认 `0xBB/64 → 0x05/1` 循环且 `82.4%` gap 位于下一次 status read 前，`0073` 将主要 issuer 绑定到 ROM `0x4006222c` 与应用 segment 5 `0x40093b57` | 保持 `0065/0066/0071-0073` 回归，在 transaction-bound gap 内结合 matching symbols、IRQ delivery、cache/MMU 和 PC 路径解释 pre-BOARD/APIKEY 工作预算；随后证明 setup/REPL、startup UI、display completion 和非空帧 | WDT-off、RMT 初始化、独立 SPI probe、UIFlow2 设备组、立即切核或 accelerator 都不能继承为 legacy PASS |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
-| `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
+| `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、durable claim response-loss idempotency、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
 | `FW-01`、`FW-02`、`FW-03` 固件审查 | Manifest/WebBurner、capability、文件系统、SD/NVS、SBOM/许可声明、Secure Boot v2 镜像分析 | 运行态 ACL/许可、Live eFuse/生产 key、真实云端业务、更多固件族 | 静态扫描、签名数学和包内摘要自洽不等于运行态授权或设备 trust root |
 | `RUNTIME-02`、`RUNTIME-04` 模型缺口 | C6 Zigbee 与 Core2 ATECC608 已有失败/可行性 evidence；`RUNTIME-01` Flash/PMP 与 `RUNTIME-05` WPA2 已关闭 | commissioning/join 或 ATECC608 fixture | 观察到帧或读取地址不等于完整生命周期 |

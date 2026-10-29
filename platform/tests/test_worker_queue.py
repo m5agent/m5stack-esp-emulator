@@ -62,10 +62,12 @@ class WorkerJobQueueTests(unittest.TestCase):
         payload.update(overrides)
         return self.queue.submit(payload)
 
-    def claim(self, job_id=None):
+    def claim(self, job_id=None, claim_key=None):
         payload = self.identity()
         if job_id is not None:
             payload["job_id"] = job_id
+        if claim_key is not None:
+            payload["claim_idempotency_key"] = claim_key
         return self.queue.claim(payload, [self.worker()])
 
     def test_submit_idempotency_and_persistence(self):
@@ -126,6 +128,89 @@ class WorkerJobQueueTests(unittest.TestCase):
             self.queue.list_jobs(status="queued")["jobs"][0]["job_id"],
             camera["job_id"],
         )
+
+    def test_claim_idempotency_replays_same_lease_across_restart(self):
+        first_job = self.submit(label="first")
+        second_job = self.submit(label="second")
+        claim_key = "claim-response-loss-001"
+        first = self.claim(
+            first_job["job_id"],
+            claim_key=claim_key,
+        )
+        self.assertFalse(first["claim_idempotent_replay"])
+        lease_id = first["lease"]["lease_id"]
+        mapping_text = self.path.read_text()
+        self.assertNotIn(claim_key, mapping_text)
+
+        restored = WorkerJobQueue(
+            self.path,
+            lease_seconds=30,
+            clock=lambda: self.now,
+        )
+        replay = restored.claim(
+            {
+                **self.identity(),
+                "job_id": first_job["job_id"],
+                "claim_idempotency_key": claim_key,
+            },
+            [self.worker(accepting_leases=False)],
+        )
+        self.assertEqual(replay["job_id"], first_job["job_id"])
+        self.assertEqual(replay["lease"]["lease_id"], lease_id)
+        self.assertTrue(replay["claim_idempotent_replay"])
+        self.assertEqual(
+            restored.get_job(second_job["job_id"])["status"],
+            "queued",
+        )
+
+        with self.assertRaises(WorkerQueueError) as conflict:
+            restored.claim(
+                {
+                    **self.identity(),
+                    "job_id": second_job["job_id"],
+                    "claim_idempotency_key": claim_key,
+                },
+                [self.worker()],
+            )
+        self.assertEqual(
+            conflict.exception.code,
+            "claim_idempotency_conflict",
+        )
+
+        self.now += 31
+        with self.assertRaises(WorkerQueueError) as stale:
+            restored.claim(
+                {
+                    **self.identity(),
+                    "job_id": first_job["job_id"],
+                    "claim_idempotency_key": claim_key,
+                },
+                [self.worker()],
+            )
+        self.assertEqual(
+            stale.exception.code,
+            "claim_idempotency_stale",
+        )
+        self.assertEqual(
+            restored.get_job(first_job["job_id"])["status"],
+            "queued",
+        )
+
+    def test_empty_claim_is_not_retained_and_v1_state_migrates(self):
+        self.assertIsNone(self.claim(claim_key="empty-poll"))
+        job = self.submit()
+        claimed = self.claim(job["job_id"], claim_key="empty-poll")
+        self.assertEqual(claimed["job_id"], job["job_id"])
+
+        record = json.loads(self.path.read_text())
+        record.pop("claim_idempotency")
+        self.path.write_text(json.dumps(record))
+        restored = WorkerJobQueue(
+            self.path,
+            lease_seconds=30,
+            clock=lambda: self.now,
+        )
+        self.assertEqual(restored.record["claim_idempotency"], {})
 
     def test_lease_expiry_retries_then_fails(self):
         job = self.submit(max_attempts=2)

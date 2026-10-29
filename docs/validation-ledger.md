@@ -1467,3 +1467,28 @@ PID gone、history retained。patch forward/current-source/reverse PASS。
 电气时序和 physical hardware 仍为独立 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-loss-channel-rate/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-loss-channel-rate/summary.json)。
+
+## 2026-10-29：Worker claim response-loss idempotency
+
+Device Service API/OpenAPI 升至 `1.49.0`。durable queue 的 claim 增加可选
+`claim_idempotency_key`；持久内容只包含 worker identity + key 的 SHA256、
+request hash、job ID 和 lease ID，不保存 raw key。相同 request 在当前 lease
+仍有效时返回原 job/lease 和 `claim_idempotent_replay=true`；相同 key 对应
+不同 request 返回 `409 claim_idempotency_conflict`，lease 过期或 ownership
+改变返回 `409 claim_idempotency_stale`。空 no-job poll 不持久化。
+
+真实 HTTP fixture 注册 worker、提交两个 job，并让真实 `WorkerAgent` 发起
+claim。第一次服务端已签发 lease 后，客户端故意丢弃成功响应；WorkerAgent
+自动重注册并复用同一 key 重试，获得原 job/lease。同一 state directory
+重启后，直接 replay 仍为同一 job/lease，第二个 job 保持 queued；新 key
+才领取第二个 job。`jobs.json` 不含 raw key、mode 为 `0600`，service log
+不含 token。11 项 checks 全部 PASS；平台为 `1529 OK + 1 skipped`，
+runtime coverage、peripheral catalog、QEMU profiles、project snapshot、
+compileall 与 Node contracts 均 PASS。
+
+该结果关闭 `NET-04/SVC-01` 的单 control-plane claim response-loss 子缺口；
+物理跨主机 executor/reattach、跨主机 queue/session/evidence 持久存储、
+真正网络黑障矩阵、QEMU guest/controller 状态和 worker 未拥有的外部 side
+effect 仍 `NOT RUN`。见
+[证据](evidence/2026-10-29-worker-claim-idempotency/README.md)和
+[机器摘要](evidence/2026-10-29-worker-claim-idempotency/summary.json)。

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.48.0
+  version: 1.49.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -19,6 +19,10 @@ info:
     session, and does not report the stale terminal result. This does not
     prove termination of a disconnected remote process or physical side
     effects.
+    Claim responses are recoverable with an identity-bound
+    claim_idempotency_key: an identical retry returns the original job and
+    lease while that lease remains current; replay after expiry or ownership
+    change fails closed. Empty polling responses are not persisted.
     The worker agent retries transient control-plane failures, re-registers
     idempotently after a control-plane restart and reports the original lease
     while the worker-local runtime remains active.
@@ -1041,7 +1045,7 @@ paths:
           $ref: "#/components/responses/Error"
   /jobs/claim:
     post:
-      summary: Claim the oldest matching queued job for a ready worker
+      summary: Claim a compatible job with recoverable response-loss semantics
       requestBody:
         required: true
         content:
@@ -4901,6 +4905,18 @@ components:
               type: string
               minLength: 1
               maxLength: 128
+            claim_idempotency_key:
+              type: string
+              minLength: 1
+              maxLength: 160
+              description: >
+                Optional caller-stable key for safe claim retries. The queue
+                persists only a SHA256 derived from worker identity and this
+                key. An identical retry returns the same job and lease while
+                that lease is still current. Reusing it for another request
+                returns 409 claim_idempotency_conflict; replay after lease
+                expiry or ownership change returns 409
+                claim_idempotency_stale. Empty no-job polls are not retained.
     WorkerJobLeaseRequest:
       allOf:
         - $ref: "#/components/schemas/WorkerJobIdentity"
@@ -5046,6 +5062,11 @@ components:
           additionalProperties: true
         idempotent_replay:
           type: boolean
+        claim_idempotent_replay:
+          type: boolean
+          description: >
+            Present on claim responses. True means the claim idempotency key
+            replayed the same live job and lease.
     WorkerJobList:
       type: object
       required:

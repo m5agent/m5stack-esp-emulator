@@ -623,10 +623,16 @@ class WorkerAgent:
             self.registered = False
 
     def claim(self) -> dict[str, Any] | None:
-        response = self.api.json(
+        claim_idempotency_key = (
+            f"claim-{self.instance_id}-{uuid.uuid4().hex}"
+        )
+        response = self._control_json(
             "/api/v1/jobs/claim",
             method="POST",
-            payload=self.identity,
+            payload={
+                **self.identity,
+                "claim_idempotency_key": claim_idempotency_key,
+            },
         )
         job = response.get("job")
         return job if isinstance(job, dict) else None

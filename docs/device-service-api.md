@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-28`.
+Last reviewed: `2026-10-29`.
 
-Status: local MVP with unified-device runtime contract `1.48.0` and bounded
+Status: local MVP with unified-device runtime contract `1.49.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -612,9 +612,19 @@ curl -sS -X POST http://127.0.0.1:8787/api/v1/jobs/claim \
   -d '{
     "worker_id": "linux-east-1",
     "instance_id": "boot-20261024-a",
-    "generation": 1
+    "generation": 1,
+    "claim_idempotency_key": "claim-boot-20261024-a-000001"
   }'
 ```
+
+`claim_idempotency_key` is optional but required for safe response-loss
+recovery. The queue persists only a SHA256 derived from worker identity and
+this key, plus the request hash, job ID and lease ID. An identical retry
+returns the same job/lease with `claim_idempotent_replay=true` while that lease
+is current. Reusing the key for another `job_id` returns
+`409 claim_idempotency_conflict`; replay after lease expiry or ownership
+change returns `409 claim_idempotency_stale`. Empty no-job polls are not
+persisted.
 
 The claim response includes a `lease_id` and lease expiry. The worker must
 heartbeat with the same identity and lease before expiry, then submit
@@ -640,14 +650,15 @@ the worker-owned process it can still reach. It does not prove remote process
 termination on a physically disconnected host; cross-host external side-effect
 fencing remains open in `NET-04`.
 
-After a job is claimed, `WorkerAgent` retries transient control-plane network
-failures and HTTP 429/5xx for up to `--control-reconnect-timeout` (default 30
-seconds). If the central service restarts, the agent idempotently re-registers
-its unchanged identity/generation, retries heartbeat/result and keeps the
-worker-local runtime session/evidence path unchanged. Claim itself is not
-blindly retried because the job queue has no stable claim-request dedup token;
-a future claim-recovery protocol must add one. This does not restart the
-worker-local runtime.
+After registration, `WorkerAgent` retries transient claim, heartbeat and
+result control-plane failures and HTTP 429/5xx for up to
+`--control-reconnect-timeout` (default 30 seconds). Each logical claim gets a
+new client-side `claim_idempotency_key`; all retries of that claim reuse it, so
+a lost response returns the original lease rather than a second job. If the
+central service restarts, the agent idempotently re-registers its unchanged
+identity/generation and keeps the worker-local runtime session/evidence path
+unchanged. A stale claim replay fails closed and is never converted into a new
+unrelated lease. This does not restart the worker-local runtime.
 
 After a concrete runtime `session_id` exists, `WorkerAgent` also retries
 transient runtime status/evidence/stop requests for

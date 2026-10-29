@@ -1,6 +1,6 @@
 # 网络模拟方案
 
-日期：`2026-10-26`
+日期：`2026-10-29`
 
 本文定义网络数据面、隔离模式、测试要求和安全边界。当前 PASS 计数、具体
 固件结果和未完成 Task 分别由
@@ -102,10 +102,12 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   privileged Linux fixture 用两个独立 subnet、IPv4 forwarding 和
   masquerade 通过重复门禁，同时证明 multicast 不跨 router、错误/旧
   token reject、rotation、NAT 源地址和 cleanup；
-- job claim 后，worker 对 transient control-plane network/429/5xx 做有界
-  heartbeat/result retry；central service 以同一 state dir 重启后，worker
-  自动重注册、继续 heartbeat 并提交原 lease 的 evidence，runtime QEMU
-  session 不被重启。claim 本身没有稳定 dedup token 前不自动盲重试；
+- worker 对 transient control-plane network/429/5xx 做有界 claim、
+  heartbeat/result retry。每个 logical claim 使用新的
+  `claim_idempotency_key`，所有重试复用同 key；central service 以同一
+  state dir 重启后，claim 重放返回原 job/lease，worker 自动重注册并继续
+  heartbeat、提交原 lease 的 evidence，runtime QEMU session 不被重启。
+  lease 已过期或 ownership 改变时 replay fail closed；
 - worker→control blackhole 会受剩余 reconnect budget 约束。真实 Linux
   namespace fixture 在 local runtime session 与 child process 已创建后
   drop control traffic，worker fence、DELETE runtime、reap process、拒绝

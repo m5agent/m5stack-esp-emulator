@@ -20,7 +20,7 @@
 
 | 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
 | --- | --- | --- | --- |
-| 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
+| 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、claim response-loss idempotency、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
 | Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset、`APIKEY` 后黑帧与 LVGL completion；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从 RMT 初始化或虚拟容量外推物理等价 |
 | ESP-NOW | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/new-LMK rekey 和 `0084` loss/retry/channel/rate/60 秒 soak 已通过 | bit-exact controller/baseband、RF/antenna、实测 channel/rate 和电气时序 | `FIXED`（virtual-device validation）；link metadata、loss proxy 与长稳 PASS 不能写成物理 controller/RF 结论 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
@@ -255,7 +255,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `RUNTIME-03` | 保持 `0065` DPORT IRQ 协作与 `0066` classic RMT 回归；从最终 `APIKEY` 状态定位下一个未完成路径。同版本 ELF/MAP 可并行取得 | normal-WDT reset、LVGL completion、`lv_disp_flush_ready`、setup/REPL 和同 SHA 非空应用帧仍 OPEN；RMT 初始化或独立 SPI PASS 不外推 |
-| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
+| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机 queue/session/evidence 存储、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | claim response-loss idempotency、409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
@@ -263,7 +263,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
 | `RUNTIME-04` | ATECC608 测试 slot/config fixture | 安全元件未建模时固件只能得到模型缺口 |
 | `RUNTIME-06` | ESP-NOW loss/retry and long-run stability | controller loopback/plaintext/CCMP/replay/lifecycle、stock key-state、shared-LMK fabric、peer-MAC→pairwise-LMK、cross-wire、PN exhaustion 和 new/same-LMK rekey 已验证；loss/retry、channel/rate、RF 或 long-run timing 仍未覆盖 |
-| `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 idempotency 和连续 evidence 流 | trusted-host 和单机 restart PASS 不能继承 |
+| `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 session/evidence 存储和连续 evidence 流 | durable claim response-loss replay、trusted-host 和单机 restart PASS 不能继承为跨主机 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |
 | `SVC-03` | 拆分 service 的存储、runtime、evidence 和 session 状态机 | 维护边界仍集中在少数大文件 |
 | `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |

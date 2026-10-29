@@ -1,6 +1,6 @@
 # Remote worker durable job queue
 
-Last reviewed: `2026-10-26`
+Last reviewed: `2026-10-29`
 
 This contract slice covers `NET-04` job admission and lease supervision. It
 does not launch a QEMU process, execute a claimed request, upload an evidence
@@ -12,7 +12,11 @@ instance.
 - `jobs.json` is an atomic, mode-`0600` persistent state file.
 - submission is idempotent by `idempotency_key` and canonical request digest;
 - worker capabilities must satisfy the job's declared requirements;
-- `claim` selects the oldest compatible queued job and increments attempts;
+- `claim` selects the oldest compatible queued job, increments attempts and
+  accepts an identity-bound `claim_idempotency_key`;
+- an identical claim retry returns the same live job/lease after response loss
+  or service restart; request mismatch and expired/ownership-changed replay
+  fail closed, while empty no-job polls are not retained;
 - heartbeat extends only the identity-bound current lease;
 - lease expiry or worker stale/stop/missing/generation replacement requeues
   while attempts remain, then marks the job failed;
@@ -44,12 +48,15 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
 
 The retained contract result is
 `evidence-2026-10-24-queue-pass.json`.
+The real HTTP/WorkerAgent response-loss lane is
+[`../worker_claim_idempotency/`](../worker_claim_idempotency/).
 
 ## Boundaries
 
 Queue state is durable, but a claimed job is not proof that a device session
 or evidence bundle exists. This page only covers the queue contract. Separate
 fixtures now cover the independent executor, evidence transfer, local QEMU/QMP
-re-attach, trusted-host companion continuity, network-partition fencing and
-cross-container execution. Physical multi-host scheduling, migration and
-cross-host idempotency remain open. This is not an untrusted-firmware sandbox.
+re-attach, trusted-host companion continuity, network-partition fencing,
+response-loss claim idempotency and cross-container execution. Physical
+multi-host scheduling, migration and cross-host queue/session/evidence
+storage remain open. This is not an untrusted-firmware sandbox.

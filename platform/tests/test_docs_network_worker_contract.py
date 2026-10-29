@@ -301,7 +301,51 @@ class DocsNetworkWorkerContractTests(DocsContractBase):
         self.assertIn("lease_id:", openapi)
         self.assertIn("idempotency_key:", openapi)
         self.assertIn("idempotent_replay:", openapi)
+        self.assertIn("claim_idempotency_key:", openapi)
+        self.assertIn("claim_idempotent_replay:", openapi)
         self.assertIn("session_idempotency_conflict", api)
+
+    def test_worker_claim_response_loss_idempotency(self):
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_claim_idempotency/"
+                "evidence-2026-10-29-worker-claim-idempotency-pass.json"
+            ).read_text()
+        )
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        queue = (ROOT / "platform/tools/worker_queue.py").read_text()
+        agent = (ROOT / "platform/tools/worker_agent.py").read_text()
+        queue_tests = (
+            ROOT / "platform/tests/test_worker_queue.py"
+        ).read_text()
+        agent_tests = (
+            ROOT / "platform/tests/test_worker_agent.py"
+        ).read_text()
+        self.assertIn("claim_idempotency", queue)
+        self.assertIn("claim_idempotency_conflict", queue)
+        self.assertIn("claim_idempotency_stale", queue)
+        self.assertIn("claim_idempotency_key", agent)
+        self.assertIn(
+            "test_claim_idempotency_replays_same_lease_across_restart",
+            queue_tests,
+        )
+        self.assertIn("recovered_claim", agent_tests)
+        self.assertIn("claim_idempotency_key:", openapi)
+        self.assertIn("claim_idempotent_replay", openapi)
+        self.assertIn("Empty no-job polls are not", api)
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(len(evidence["checks"]), 11)
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertTrue(evidence["service_restart"]["same_job"])
+        self.assertTrue(evidence["service_restart"]["same_lease"])
+        self.assertEqual(
+            evidence["source_sha256"]["openapi"],
+            hashlib.sha256(
+                (DOCS / "device-service.openapi.yaml").read_bytes()
+            ).hexdigest(),
+        )
 
     def test_worker_lease_ownership_fencing_is_reconciled(self):
         status = (DOCS / "project-status.md").read_text()

@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-26`
+Date: `2026-10-29`
 
 For the one-page product, code and task overview, start with
 [`engineering-handoff.md`](engineering-handoff.md). This page describes the
@@ -398,14 +398,20 @@ transport should use HTTPS or a trusted private network.
 - `jobs.json` implements idempotent enqueue, capability-matched claim,
   lease heartbeat, expiry retry, terminal result, cancel and stale/stopped
   worker reconciliation;
+- claim requests accept an identity-bound `claim_idempotency_key`; the queue
+  persists only derived key/request hashes and replays the same live
+  job/lease after response loss or service restart. Replay after expiry,
+  ownership change or request mismatch fails closed, while empty no-job
+  polls are not retained;
 - `worker_agent.py` can use separate control and runtime `/api/v1` endpoints:
   it claims/heartbeats on the central service, while the optional runtime
   service creates and owns the QEMU session, provides evidence and performs
   cleanup;
-- after a job is claimed, transient control-plane network/429/5xx failures are
-  retried for a bounded interval; after restart the worker re-registers the
-  same identity/generation and reports the original lease/evidence. Claim
-  itself needs a future stable dedup token before automatic retry;
+- transient control-plane network/429/5xx failures are retried for a bounded
+  interval before and after a claim. A logical claim reuses one stable
+  `claim_idempotency_key`, so response loss cannot allocate a second job;
+  after restart the worker re-registers the same identity/generation and
+  reports the original lease/evidence;
 - after a runtime session ID exists, transient runtime service failures retry
   status/evidence/stop; runtime restart re-attaches the same QEMU PID,
   process-start token, HTTP generation and safely adopted BLE peer before

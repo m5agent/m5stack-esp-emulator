@@ -6158,16 +6158,38 @@ class DeviceServiceHttpTests(unittest.TestCase):
             "instance_id": "instance-a",
             "generation": 1,
         }
+        claim_payload = {
+            **identity_payload,
+            "claim_idempotency_key": "claim-response-loss-contract",
+        }
         status, claimed = self.request(
             "/api/v1/jobs/claim",
             method="POST",
-            data=json.dumps(identity_payload).encode(),
+            data=json.dumps(claim_payload).encode(),
             headers={"Content-Type": "application/json"},
         )
         self.assertEqual(status, 200)
         self.assertEqual(claimed["job"]["job_id"], job_id)
         self.assertEqual(claimed["job"]["status"], "leased")
+        self.assertFalse(
+            claimed["job"]["claim_idempotent_replay"]
+        )
         lease_id = claimed["job"]["lease"]["lease_id"]
+        status, claim_replay = self.request(
+            "/api/v1/jobs/claim",
+            method="POST",
+            data=json.dumps(claim_payload).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(claim_replay["job"]["job_id"], job_id)
+        self.assertEqual(
+            claim_replay["job"]["lease"]["lease_id"],
+            lease_id,
+        )
+        self.assertTrue(
+            claim_replay["job"]["claim_idempotent_replay"]
+        )
 
         status, job_heartbeat = self.request(
             f"/api/v1/jobs/{job_id}/heartbeat",
