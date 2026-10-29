@@ -2051,3 +2051,19 @@ virtual-device validation；物理硬件、cache/PSRAM、RF 和电气测试
 `NOT RUN`。见
 [证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)和
 [机器摘要](evidence/2026-10-30-core2-wifi-irq-cache-gate/summary.json)。
+
+## 2026-10-30：SVC-03 device-spec boundary
+
+继续 `SVC-03` 的无状态边界拆分。新增
+`platform/tools/device_service_specs.py`，移动 `DeviceSpec`、
+`load_device_specs`、catalog/matrix/profile 路径、QEMU backend 路径与
+ROM override、Core2 radio 后端选择和 network/runtime profile constants；
+`device_service.py` 继续 same-object re-export，调用方、HTTP payload、
+session/evidence 字段和 QEMU 行为不变。
+
+新增 `test_device_service_specs.py` 锁定 14 个 catalog entry、Core2/Tab5/
+CardputerZero 边界、绝对/相对 backend path、Core2 radio executable
+fail-closed 和 public symbol identity。定向 `5/5 PASS`。该步骤只移动代码
+边界；QEMU、firmware、runtime、物理硬件、RF 和电气验证均 `NOT RUN/不变`。
+见[证据](evidence/2026-10-30-svc03-device-specs/README.md)和
+[机器摘要](evidence/2026-10-30-svc03-device-specs/summary.json)。
