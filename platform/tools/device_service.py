@@ -948,6 +948,25 @@ def parse_qemu_wifi_security(value: dict) -> dict:
     }
 
 
+def apply_qemu_wifi_environment(
+    env: dict[str, str],
+    nic: str | None,
+    network_config: dict,
+) -> None:
+    if nic not in {"misc.esp32_wifi", "misc.esp32s3.wifi"}:
+        return
+    auth = str(network_config.get("wifi_auth", "open"))
+    env["M5SW_WIFI_SSID"] = str(
+        network_config.get("wifi_ssid", "myssid")
+    )
+    env["M5SW_WIFI_PASSWORD"] = str(
+        network_config.get("wifi_password", "")
+    )
+    env["M5SW_WIFI_AUTH"] = auth
+    if nic == "misc.esp32s3.wifi" and auth == "wpa2-psk":
+        env["M5SW_S3_WIFI_TRACE"] = "1"
+
+
 def parse_network_execution(
     spec: DeviceSpec,
     value: Any,
@@ -5829,18 +5848,11 @@ class DeviceSession:
                 "schema_version": 1, "attachments": self.units,
             })
             env["M5_UNIT_CONFIG"] = str(self.unit_config_path)
-        if nic == "misc.esp32s3.wifi":
-            env["M5SW_WIFI_SSID"] = str(
-                self.network_config.get("wifi_ssid", "myssid")
-            )
-            env["M5SW_WIFI_PASSWORD"] = str(
-                self.network_config.get("wifi_password", "")
-            )
-            env["M5SW_WIFI_AUTH"] = str(
-                self.network_config.get("wifi_auth", "open")
-            )
-            if self.network_config.get("wifi_auth") == "wpa2-psk":
-                env["M5SW_S3_WIFI_TRACE"] = "1"
+        apply_qemu_wifi_environment(
+            env,
+            nic,
+            self.network_config,
+        )
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)

@@ -65,6 +65,8 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0087-unit-hard-reset-output-boundary.patch",
     "patches/qemu-m5stack-peripherals/0091-esp32-timg-feed-reschedule.patch",
     "patches/qemu-m5stack-peripherals/0092-esp32-wifi-irq-cache-gate.patch",
+    "patches/qemu-m5stack-peripherals/0093-esp32-classic-wifi-virtual-time.patch",
+    "patches/qemu-m5stack-peripherals/0094-esp32-classic-wifi-station-data.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

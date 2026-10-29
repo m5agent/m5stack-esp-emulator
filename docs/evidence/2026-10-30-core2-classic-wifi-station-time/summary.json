@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "patches": {
+    "0093-esp32-classic-wifi-virtual-time.patch": "ecf7531849e8cf324d2aef151a4acd1c50689363adaa2426a269cefa029cc770",
+    "0094-esp32-classic-wifi-station-data.patch": "bead73ed6918df1a6cac4e5f40cb69c805a004761cc24bdb03c622f40ddce79e"
+  },
+  "qemu_sha256": "3e61aa644074598e7b37e2cd9d4e7c1e194d2073b453f4fd9fdc5ffce62738f8",
+  "stock_core2_wifi": {
+    "status": "PASS",
+    "attempts": 5,
+    "attempts_passed": 5,
+    "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+    "generated_firmware_sha256": "b57b196fada9cbfd7e41bd1a4e742e8c63935c25dfcc2c0c51b71f1fd5257220",
+    "scan_count": 3,
+    "known_ssid": true,
+    "connected": true,
+    "ipv4": "10.0.2.15",
+    "http_200": true,
+    "evidence_sha256": "b2559537f3e8fa972f4904241df9f4df115fb629488a93af1177b3d35875c908"
+  },
+  "core2_uiflow2_device_group": {
+    "status": "PASS",
+    "cases": 6,
+    "cases_passed": 6,
+    "attempts_per_case": 1,
+    "retry_used": false,
+    "summary_sha256": "3533de10b6e4a24730b06203f25124083d2ff763e7225b5ab00b249aba9b6b02"
+  },
+  "legacy_core2": {
+    "firmware_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+    "runtime": "qemu-wifi",
+    "icount_shift": 2,
+    "max_percpu_ns": 1000,
+    "normal_wdt": {
+      "board_api_key_boot_done": true,
+      "reset": "TG0WDT_SYS_RESET",
+      "frame_nonblack_pixels": 75559,
+      "frame_unique_colors": 512,
+      "frame_sha256": "737df08a0c5d21fe23a46e38f79b7a580508f8dfa7c63c9bc552be19a3106c96",
+      "serial_sha256": "8abafb47b4cfa3f6d0fe65b2b45f084b0d76e7993bb1f315485eff80a8a1d38e"
+    },
+    "wdt_disabled_diagnostic": {
+      "wall_seconds": 600,
+      "last_virtual_ns": 457794095092,
+      "serial_sha256": "f2dfc8140b5d857ab81594966cf58ec66bc5e0a9ee9cd77000960df15b76790c",
+      "frame_nonblack_pixels": 75559,
+      "frame_unique_colors": 512,
+      "frame_sha256": "a8f77474b218113073732d6b6f5e8f3c18b1fac23593054bf209d0d6f6864bf7"
+    }
+  },
+  "boundaries": [
+    "The five-attempt PASS is virtual-device validation only.",
+    "Normal-WDT legacy Core2 still resets and RUNTIME-03 remains OPEN.",
+    "RF, electrical, physical cache/PSRAM timing and hardware validation are NOT RUN."
+  ]
+}

@@ -2136,6 +2136,45 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "qemu_unified_not_supported",
         )
 
+    def test_qemu_wifi_environment_covers_classic_and_s3_models(self):
+        classic = {}
+        device_service_module.apply_qemu_wifi_environment(
+            classic,
+            "misc.esp32_wifi",
+            {
+                "wifi_ssid": "legacy-test",
+                "wifi_password": "",
+                "wifi_auth": "open",
+            },
+        )
+        self.assertEqual(classic["M5SW_WIFI_SSID"], "legacy-test")
+        self.assertEqual(classic["M5SW_WIFI_PASSWORD"], "")
+        self.assertEqual(classic["M5SW_WIFI_AUTH"], "open")
+        self.assertNotIn("M5SW_S3_WIFI_TRACE", classic)
+
+        s3 = {}
+        device_service_module.apply_qemu_wifi_environment(
+            s3,
+            "misc.esp32s3.wifi",
+            {
+                "wifi_ssid": "s3-test",
+                "wifi_password": "test-password",
+                "wifi_auth": "wpa2-psk",
+            },
+        )
+        self.assertEqual(s3["M5SW_WIFI_SSID"], "s3-test")
+        self.assertEqual(s3["M5SW_WIFI_PASSWORD"], "test-password")
+        self.assertEqual(s3["M5SW_WIFI_AUTH"], "wpa2-psk")
+        self.assertEqual(s3["M5SW_S3_WIFI_TRACE"], "1")
+
+        ignored = {}
+        device_service_module.apply_qemu_wifi_environment(
+            ignored,
+            "misc.esp32c6.wifi",
+            {"wifi_ssid": "c6-test"},
+        )
+        self.assertEqual(ignored, {})
+
     def test_qemu_wifi_supports_generic_s3_observe_profile(self):
         parsed = device_service_module.parse_qemu_wifi_execution(
             self.service.specs["atoms3r"],

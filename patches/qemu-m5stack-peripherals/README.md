@@ -662,6 +662,20 @@ flash window, but normal-WDT startup still later resets and `RUNTIME-03`
 remains open. See the
 [WiFi IRQ cache-gate evidence](../../docs/evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md).
 
+`0093-esp32-classic-wifi-virtual-time.patch` moves classic WiFi beacon,
+injected-frame and generated 802.11 timestamp scheduling from QEMU realtime
+to virtual time. Guest scan, association, DHCP and watchdog work all use the
+virtual clock under deterministic icount, so host wall-clock speed no longer
+changes their ordering. The default-off `M5SW_CLASSIC_WIFI_TRACE` stream
+records association state, frame direction and virtual timestamps for
+artifact-bound diagnostics.
+
+`0094-esp32-classic-wifi-station-data.patch` keeps station data on the normal
+WLAN/Ethernet/slirp translation path after association, including the DHCP
+handshake and host-to-station delivery. It removes the synthetic DHCP branch
+that consumed guest frames without forwarding them and the separate
+STA-associated delivery stub.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
