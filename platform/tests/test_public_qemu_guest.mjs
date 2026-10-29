@@ -32,7 +32,10 @@ async function deferIframeRemoval() {
   });
 }
 async function closeWorkersBeforeRemovingIframe(name,total) {
-  const deadline=Date.now()+15000;
+  // Playwright can deliver the engine Worker close event just after the
+  // functional checks finish on shared macOS runners. Keep observing the real
+  // event and leave the iframe alive until it arrives.
+  const deadline=Date.now()+30000;
   while(workers.some(row=>!row.closed_at)&&Date.now()<deadline)await page.waitForTimeout(100);
   const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
     removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
