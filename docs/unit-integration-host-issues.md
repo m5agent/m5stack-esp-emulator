@@ -45,5 +45,6 @@
 | UNIT-HOST-37 | OPEN（FlashLight冷route无边沿观测） | 新Unit模型初始化时GPIO route尚未受验，后续Pin只配置低电平而无pad边沿，output-known保持false；CoreS3首轮实测记录。实际EN高→低及>500us shutdown后可恢复，四host已验 | 不把低pad读数当完整内部状态；仅受验连续GPIO波形可授known。后续补route通知/时间资格而非host伪造，动态S1、EN PWM与硬件光电/热仍独立。证据见[本块](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md) |
 | UNIT-HOST-38 | FIXED（限定OUT_SEL路由历史） | `0046`从真实GPIO MMIO commit通知同layout/EN pin，离开/恢复route均撤旧内部资格、取消三timer并清旧low/deadline，不造edge/decoded；新受支持fall及完整long-low后再由实际driver恢复。旧26case/357checks有152失败，候选0 | 新3f1617冷构建下四host八lane168次同VM执行、CoreS3实际mounted13阶段及清理通过；LEDC73/RMT81/OUT_INV往返无边沿与unsupported低区间偷渡均保持unknown。完整矩阵66/67，Core2旧IMU问题不拼PASS；37冷route、36hard-reset、完整OEN/IOMUX/PWM/S1与硬件仍独立。[修复与分层验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md) |
 
-QEMU/esp-emu 的模型缺口继续维护在 `runtime-model-gap-register.md`；既有
-Core2 legacy WDT、C6 Zigbee、ATECC608 等问题不在本页重复创建新任务。
+QEMU/esp-emu 的模型缺口继续维护在 `runtime-model-gap-register.md`；开放的
+Core2 legacy WDT、C6 Zigbee 等问题不在本页重复创建新任务，已关闭的
+ATECC608 初始化/identity 缺口也不回写到 Unit 结论。

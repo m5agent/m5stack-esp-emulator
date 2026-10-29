@@ -61,7 +61,7 @@ class ServePeripheralApiTests(unittest.TestCase):
     def test_all_peripherals_inventory(self):
         payload = self.get_json("/api/peripherals")
         self.assertEqual(len(payload["devices"]), 24)
-        self.assertEqual(payload["runtime_coverage"]["covered_models"], 60)
+        self.assertEqual(payload["runtime_coverage"]["covered_models"], 61)
         self.assertEqual(
             sum(row["complete"] for row in payload["devices"]),
             13,
@@ -69,7 +69,7 @@ class ServePeripheralApiTests(unittest.TestCase):
 
     def test_runtime_interfaces_api(self):
         payload = self.get_json("/api/peripheral-interfaces")
-        self.assertEqual(payload["model_count"], 68)
+        self.assertEqual(payload["model_count"], 69)
         self.assertEqual(payload["device_count"], 24)
         bmi270 = payload["models"]["bmi270"]
         self.assertTrue(bmi270["interfaces"])

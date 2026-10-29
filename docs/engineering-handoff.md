@@ -59,8 +59,11 @@
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
   物理 PSRAM/cache timing 尚未覆盖；
-- C6 Zigbee/802.15.4、Core2 legacy UIFlow normal-WDT/`APIKEY` 后黑帧和
-  Core2 for AWS ATECC608 仍是明确的 `runtime_model_gap`。Core2 shared I2C、
+- C6 Zigbee/802.15.4 和 Core2 legacy UIFlow normal-WDT/`APIKEY` 后黑帧仍是
+  明确的 `runtime_model_gap`。Core2 for AWS ATECC608 初始化/identity 已由
+  `0085` 以确定性测试 config 和 classic DMA link/DC 修复关闭，三个公开固件
+  session 均产生非空帧；ECDSA、生产 trust root、电气和真机不继承。
+  Core2 shared I2C、
   `CCOMPARE == CCOUNT` equal-deadline timer、TIMG WDT mask、pending SPI
   remap、high-priority DPORT IRQ 协作和 classic RMT 已作为独立模型缺口修复
   或验证。
@@ -261,7 +264,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
-| `RUNTIME-04` | ATECC608 测试 slot/config fixture | 安全元件未建模时固件只能得到模型缺口 |
+| `RUNTIME-04` | 已关闭 Core2 for AWS ATECC608 初始化/identity；ECDSA、生产 slot/trust root、电气和真机独立 | 三个公开固件 session 通过非空帧，但测试 fixture 不代表生产安全元件 |
 | `RUNTIME-06` | ESP-NOW loss/retry and long-run stability | controller loopback/plaintext/CCMP/replay/lifecycle、stock key-state、shared-LMK fabric、peer-MAC→pairwise-LMK、cross-wire、PN exhaustion 和 new/same-LMK rekey 已验证；loss/retry、channel/rate、RF 或 long-run timing 仍未覆盖 |
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 session/evidence 存储和连续 evidence 流 | durable claim response-loss replay、trusted-host 和单机 restart PASS 不能继承为跨主机 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |

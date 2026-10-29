@@ -103,6 +103,29 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 漫游和物理网卡行为仍是 `NOT RUN`。该修复是 WPA2-PSK 成对密钥与单播管理/
 数据路径，不是完整无线安全栈。
 
+### RUNTIME-04：Core2 for AWS ATECC608
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `FIXED`（virtual-device validation） |
+| 影响 | `Core2_For_AWS` 及依赖 ATECC608 初始化、locked config 和 Info revision 的固件 |
+| 原现象 | ATECC608 地址 `0x35` 全部 NACK，`atcab_init` 返回 `f0`，固件随后 `abort()` |
+| 修复 | [`0085-core2-atecc608.patch`](../patches/qemu-m5stack-peripherals/0085-core2-atecc608.patch) 增加 CryptoAuthentication I2C slave、wake/idle/sleep、CRC16、Read 和 Info；同时修正 classic ESP32 DMA descriptor start 与 GPIO DC command/data 分类 |
+| 证据 | [ATECC608 validation](evidence/2026-10-29-core2-atecc608/README.md)、[summary.json](evidence/2026-10-29-core2-atecc608/summary.json) |
+
+同一公开 BIN SHA256
+`22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a`
+连续三个 `/api/v1` session 均从原 `atcab_init` 失败推进到
+`atecc608: ok: 60 02`，并产生一致的 `320x240`、`76,800` nonblack
+pixels、`160` colors 应用帧。每轮 evidence ZIP 有效，停止使用
+`purge=0`，历史保留、QEMU PID 消失、lease 释放。
+
+fixture 使用已锁定的确定 config/data zone、revision `00 00 60 02` 和测试
+serial，不包含生产私钥或证书。`RUNTIME-04` 只关闭初始化/identity 和
+virtual-device 应用帧门禁；ECDSA 生成/签名、生产 slot/trust root、
+side-channel、电气行为和真机仍为独立 `NOT RUN`。样本自身仍因独立 BMI270
+错误和未全验的后续 tab 保持 `PARTIAL`，但不阻塞本模型缺口关闭。
+
 ## 当前缺口
 
 ### RUNTIME-02：C6 Zigbee/802.15.4 运行时未建模
@@ -244,27 +267,13 @@ setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺
 2. loopback、external plaintext、env-key fixture、shared-LMK/per-peer-key fabric、cross-wire 和 PN exhaustion 负控分开记录，不能互相替代；
 3. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论；该独立边界不阻塞当前 virtual-device `FIXED` 状态。
 
-### RUNTIME-04：Core2 for AWS ATECC608 未建模
-
-| 字段 | 当前值 |
-| --- | --- |
-| 状态 | `OPEN` |
-| 影响 | `Core2_For_AWS` 及依赖 ATECC608 安全元件的固件 |
-| 现象 | ATECC608 初始化返回 `atcab_init` 失败，固件随后 `abort()`，无应用帧 |
-| 证据 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json) |
-
-关闭条件：
-
-1. 明确公开固件使用的 ATECC608 I2C 命令和必需配置区；
-2. 提供不从仓库分发生产私钥的测试 slot/config fixture；
-3. 同一固件完成安全元件初始化并进入应用帧，安全芯片结论仍与功能帧分开。
-
 ## 与固件矩阵的关系
 
 跨厂商矩阵的状态语义由
 [热门用户固件矩阵](user-firmware-simulation-matrix.md)定义。S3/C6 的
 18 样本历史快照中有两个缺口进入本页，其中一个现已关闭；当前合并后的
-21 个公开非基线样本还纳入了 Core2 PMIC/AWS 缺口。它们绑定当时的 artifact
+21 个公开非基线样本还纳入了 Core2 PMIC/AWS 历史缺口；AWS ATECC608
+初始化缺口已单独关闭，但该 firmware 仍保持 `PARTIAL`。它们绑定当时的 artifact
 SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能继承历史 FAIL
 或 PARTIAL。其余 `PARTIAL`
 仍按首帧、输入、串口生命周期或

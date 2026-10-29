@@ -462,12 +462,12 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
                 "c6_chip_id_lost_after_software_reset",
             },
         )
-        self.assertEqual(register.count("| 状态 | `OPEN` |"), 3)
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 2)
         self.assertEqual(
             register.count(
                 "| 状态 | `FIXED`（virtual-device validation） |"
             ),
-            3,
+            4,
         )
         self.assertIn("RUNTIME-01", register)
         self.assertIn("RUNTIME-02", register)

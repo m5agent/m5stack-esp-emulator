@@ -40,6 +40,8 @@ Dial 及经典 Atom 等未通过的候选不会随 machine 编译结果进入默
 部署 job 才取得 Pages/OIDC 权限。
 发布构建/验收 job 固定在 `macos-14`，浏览器验收要求使用系统 Chrome 的
 硬件 ANGLE 渲染；若实际 renderer 回退到 SwiftShader/software 会直接失败。
+个别设备模型壳在 ANGLE Metal 下不可用时，页面保留通用屏幕壳并继续通过真实
+按钮与原生 framebuffer 验收；该回退不授予对应设备的 3D 纹理 PASS。
 正常时钟板型同时运行两个客体 CPU 和 3D 模型；受限的 Ubuntu headless
 runner 曾连续两次在 StickS3 按键后触发真实
 `Interrupt wdt timeout on CPU1`，`macos-14` 上的 SwiftShader 也复现了

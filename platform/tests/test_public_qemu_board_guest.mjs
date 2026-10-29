@@ -162,23 +162,34 @@ try {
   }, {device, origin, clockDivisor, publicUI});
   if (publicUI) {
     await page.waitForFunction(() => document.querySelector('#deviceMount')?.dataset.deviceId === 'cores3', {}, {timeout:45000});
-    const shellReady = () => page.waitForFunction(id => document.querySelector('#deviceMount')?.dataset.deviceId === id
-      && globalThis.boardUiShell?.device.id === id, device, {timeout:45000});
+    const shellReady = async () => {
+      await page.waitForFunction(id => {
+        const mount = document.querySelector('#deviceMount');
+        return mount?.dataset.deviceId === id
+          && (globalThis.boardUiShell?.device.id === id || mount.querySelector('[data-renderer-fallback="true"]'));
+      }, device, {timeout:45000});
+      return page.evaluate(id => ({
+        model_shell: globalThis.boardUiShell?.device.id === id,
+        renderer_fallback: !!document.querySelector(`#deviceMount [data-renderer-fallback="true"]`),
+      }), device);
+    };
     await page.locator(`button[data-device-id="${device}"]`).click();
-    try { await shellReady(); }
+    let publicShell;
+    try { publicShell = await shellReady(); }
     catch (error) {
       report.model_shell_selection_retry = {first_error:error.message,
         dom_device:await page.evaluate(() => document.querySelector('#deviceMount')?.dataset.deviceId || null)};
       await page.waitForTimeout(1000);
       await page.locator(`button[data-device-id="${device}"]`).click();
-      await shellReady();
+      publicShell = await shellReady();
     }
-    report.webgl_renderer = await page.evaluate(() => {
+    report.public_shell = publicShell;
+    report.webgl_renderer = publicShell.model_shell ? await page.evaluate(() => {
       const gl = boardUiShell.viewer.renderer.getContext();
       const info = gl.getExtension('WEBGL_debug_renderer_info');
       return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
-    });
-    if (hardwareGPU) assert.doesNotMatch(report.webgl_renderer, /swiftshader|software/i,
+    }) : 'generic-shell-fallback';
+    if (hardwareGPU && publicShell.model_shell) assert.doesNotMatch(report.webgl_renderer, /swiftshader|software/i,
       'hardware WebGL was required but the browser selected software rendering');
     await page.locator('.advanced-options > summary').click();
     await page.locator('#runtimeMode').selectOption('browser');
@@ -187,7 +198,7 @@ try {
     await page.locator('#startBtn').click();
   }
   const textureReadback = async () => {
-    if (!publicUI) return null;
+    if (!publicUI || !report.public_shell?.model_shell) return null;
     const handle = await page.waitForFunction(() => {
       const shell = globalThis.boardUiShell, frame = globalThis.boardRun?.frame;
       if (!shell?.display || !frame || shell.frameSeq !== frame.sequence
@@ -219,10 +230,12 @@ try {
   const dimensions = await page.evaluate(() => boardRun.profile.display);
   const logicalDimensions = await page.evaluate(() => boardRun.profile.fixture.logicalDisplay || boardRun.profile.display);
   check('same-guest-ready-and-display', ready.device === device && ready.width === logicalDimensions.width && ready.height === logicalDimensions.height, ready);
-  if (publicUI) {
+  if (publicUI && report.public_shell.model_shell) {
     const rendering = await page.evaluate(() =>
       ({at_start: boardRun.renderPausedAtStart, at_ready: boardUiShell.viewer.renderingPaused}));
     check('model-rendering-paused-until-guest-ready', rendering.at_start === true && rendering.at_ready === false, rendering);
+  } else if (publicUI) {
+    check('generic-shell-has-no-model-render-loop', boardRun.renderPausedAtStart !== true, report.public_shell);
   }
   if (diagnostic) {
     try { await page.waitForFunction(() => boardRun.frame, {}, {timeout:15000}); } catch { report.shared_first_frame_timeout = true; }
@@ -326,15 +339,15 @@ try {
     marker.count===expectedMarker.width*expectedMarker.height && marker.x2-marker.x1===expectedMarker.width-1
       && marker.y2-marker.y1===expectedMarker.height-1, marker);
   if (publicUI) {
-    await page.waitForFunction(() => globalThis.boardUiShell?.frameSeq > 0
-      && Number(document.querySelector('#deviceMount').dataset.frameSequence) > 0, {}, {timeout:30000});
+    await page.waitForFunction(modelShell => Number(document.querySelector('#deviceMount').dataset.frameSequence) > 0
+      && (!modelShell || globalThis.boardUiShell?.frameSeq > 0), report.public_shell.model_shell, {timeout:30000});
     if(await page.locator('#rawFramePanel').evaluate(panel=>panel.hidden))await page.locator('#nativeScreenBtn').click();
-    check('public-ui-3d-and-visible-native-frame', await page.evaluate(() => {
+    check(report.public_shell.model_shell?'public-ui-3d-and-visible-native-frame':'public-ui-generic-and-visible-native-frame', await page.evaluate(modelShell => {
       const canvas = document.querySelector('#rawFrameCanvas');
-      return boardUiShell.model && boardUiShell.frameSeq > 0 && !document.querySelector('#rawFramePanel').hidden
+      return (!modelShell || boardUiShell.model && boardUiShell.frameSeq > 0) && !document.querySelector('#rawFramePanel').hidden
         && canvas.width === boardRun.frame.width && canvas.height === boardRun.frame.height
         && new Set(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data).size > 1;
-    }));
+    }, report.public_shell.model_shell));
     check('public-ui-native-to-rendered-model-texture-before-input', true, await textureReadback());
     if (!await page.evaluate(() => boardRun.profile.inputs.touch)) {
       await page.locator('#rawFrameCanvas').click();
@@ -410,13 +423,21 @@ try {
   if (publicUI && await page.evaluate(() => boardRun.profile.inputs.touch)) {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
-    const key = await page.evaluate(() => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+    const key = await page.evaluate(modelShell => {
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1',papermono:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
-      return Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0];
-    });
-    assert.ok(key, 'actual 3D button must expose a focused keyboard binding'); report.input_keyboard = key;
-    await page.locator('#deviceMount .three-device-stage canvas').focus(); await page.keyboard.down(key);
+      return {target,key:modelShell
+        ? Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0] : null};
+    }, report.public_shell.model_shell);
+    if (report.public_shell.model_shell) {
+      assert.ok(key.key, 'actual 3D button must expose a focused keyboard binding'); report.input_keyboard = key.key;
+      await page.locator('#deviceMount .three-device-stage canvas').focus(); await page.keyboard.down(key.key);
+    } else {
+      const control=page.locator(`#deviceMount button.device-control[data-control-id="${key.target}"]`);
+      const box=await control.boundingBox();assert.ok(box,'generic shell must expose the native control button');
+      await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+      report.input_pointer_control=key.target;
+    }
   } else await page.evaluate(async () => {
     const id = Object.keys(boardRun.profile.inputs.buttons)[0]||boardRun.profile.inputs.keyboard[0];
     const point=boardRun.profile.fixture.touchPoint||{x:Math.floor(boardRun.profile.display.width/2),y:Math.floor(boardRun.profile.display.height/2)};
@@ -438,7 +459,8 @@ try {
     lastKeyboardFrame=pressedFrame;
   }
   if (publicUI && await page.evaluate(() => boardRun.profile.inputs.touch)) await page.mouse.up();
-  else if (publicUI) await page.keyboard.up(report.input_keyboard);
+  else if (publicUI && report.public_shell.model_shell) await page.keyboard.up(report.input_keyboard);
+  else if (publicUI) await page.mouse.up();
   else await page.evaluate(() => {
     const point=boardRun.profile.fixture.touchPoint||{x:Math.floor(boardRun.profile.display.width/2),y:Math.floor(boardRun.profile.display.height/2)};
     return boardRun.runtime.input(boardRun.profile.inputs.touch ? {type:'touch', ...point, down:false}

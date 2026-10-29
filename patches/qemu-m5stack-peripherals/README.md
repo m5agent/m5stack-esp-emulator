@@ -127,6 +127,8 @@ The peripheral work adds:
   amplifier-enable tracking;
 - INA3221 three-channel power-monitor model with chip-native bus/shunt register
   scaling and QOM physical-value injection;
+- Core2 for AWS ATECC608A Cryptoauth wake/Read/Info/CRC I2C data plane with a
+  deterministic locked test config and no production key material;
 - ESP32-S3 TWAI connection to a reusable QEMU CAN-bus peer for bidirectional
   StamPLC CAN frame tests on G42/G43;
 - StamPLC PWR485 UART2 peer and the IDF UART2 clock-check compatibility mirror
@@ -573,6 +575,17 @@ security field. The runner uses
 a loss proxy, same/different-channel controls, mixed 11/24 Mbps traffic and a
 60-second bidirectional soak. This is a deterministic virtual-link model, not
 RF propagation, PHY rate adaptation or physical-controller equivalence.
+
+`0085-core2-atecc608.patch` adds the Core2 for AWS ATECC608A slave at 7-bit
+address `0x35`. It implements wake/idle/sleep, CryptoAuthentication command
+framing, CRC16, 32-byte config reads, lock-word reads and Info revision against
+a deterministic locked test configuration. It also fixes classic ESP32 DMA
+handling when firmware writes a descriptor address and start bit separately,
+and derives command versus pixel data from the GPIO15 DC level. The public
+factory firmware changes from `atcab_init=f0` plus abort to
+`atecc608: ok: 60 02` and a three-run nonempty `320x240` frame. No production
+private key, certificate, ECDSA signing, live trust root or electrical
+equivalence is claimed; BMI270 errors in the same firmware remain independent.
 
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a

@@ -37,6 +37,20 @@ class PeripheralCatalogTests(unittest.TestCase):
             report["model_status"].get("simulated", 0),
         )
 
+    def test_compatibility_components_are_optional_variants(self):
+        catalog = json.loads(
+            (ROOT / "platform/peripherals/catalog.json").read_text()
+        )
+        components = {
+            component["id"]: component
+            for component in catalog["devices"]["core2"]["components"]
+        }
+        self.assertTrue(
+            components["secure-element-aws-compat"]["compatibility"]
+        )
+        errors, _ = validate()
+        self.assertEqual(errors, [])
+
     def test_unfinished_devices_declare_component_blockers(self):
         catalog = json.loads(
             (ROOT / "platform/peripherals/catalog.json").read_text()

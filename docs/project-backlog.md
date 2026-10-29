@@ -33,6 +33,8 @@
   QEMU，以及 worker-owned process/companion fencing；
 - Core2 native-HCI、WiFi/公网/GATT、重连、active-stop、QOM `8 MiB` PSRAM、
   upper-bank MMU 和当前服务容量内并发；
+- `RUNTIME-04` Core2 for AWS ATECC608 的 wake/Read/Info/CRC 初始化路径、确定性测试
+  config、classic ESP32 DMA link/DC 修复和三次非空应用帧；
 - Cardputer-ADV 当前 UIFlow2 参考固件的 BMI270 `0x69` 初始化、官方
   `Imu.getAccel/getGyro`、QOM 注入回读、串口和可见 frame 闭环；
 - FirmwareManifest/WebBurner、content-stable manifest、unknown required
@@ -214,8 +216,8 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
 4. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
-5. `RUNTIME-02/04/06`、`HW-01`：补 C6 Zigbee、ATECC608、ESP-NOW
-   加密/lifecycle peer 和真机同路径。
+5. `RUNTIME-02/06`、`HW-01`：补 C6 Zigbee、ESP-NOW 加密/lifecycle
+   peer 和真机同路径。
 6. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
 
 ## 依赖与并行原则
@@ -225,7 +227,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | 立即可做 | `RUNTIME-03`、`FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `RUNTIME-03` 触碰 Core2 QEMU 时与 `CORE2-02` 串行；`SVC-03` 先做无语义移动并保持 API/evidence 契约 |
 | 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
 | 需要真机或外部控制面 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、串口、画面、网络和外设观测入口 | `FW-02` 还必须取得 live eFuse/生产 key 流程授权；静态镜像分析不能代填 |
-| 后端/安全元件阻塞 | `RUNTIME-02`、`RUNTIME-04` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF/ATECC608 配置 | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
+| 后端阻塞 | `RUNTIME-02` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
 | 决策或独立后端 | `TAB5-01`、`CZ-01` | P4 backend 重建/扩展决策；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
 
 ## 可执行任务板
@@ -241,7 +243,6 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
-| `RUNTIME-04` | 进行中 | ATECC608 I2C 命令和测试 slot/config fixture | 固件越过安全元件初始化并进入应用帧；不提交生产私钥 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
 | `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
@@ -573,16 +574,6 @@ LMK routing 与 cross-wire fail-closed，`0083` 已满足 PN exhaustion 和
 same-LMK fail-closed，`0084` 已满足 loss/retry、channel/rate 和 60 秒
 soak；`RUNTIME-06` 的 virtual-device 边界已完成。物理 RF/controller
 等价性仍按独立 gate 记录。
-
-### RUNTIME-04 Core2 for AWS ATECC608
-
-当前缺口：公开固件依赖的 ATECC608 安全元件未建模，初始化后主动 abort。
-
-下一项最小交付：实现固件实际使用的 I2C 命令和测试 slot/config fixture；
-生产私钥不得入仓。
-
-验收：安全元件初始化通过并进入非空应用帧；安全元件证据与普通功能证据
-分开记录。
 
 ## P0：真机同路径
 

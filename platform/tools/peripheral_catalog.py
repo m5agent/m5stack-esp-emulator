@@ -268,6 +268,7 @@ def validate() -> tuple[list[str], dict]:
             capabilities = set(model.get("capabilities", []))
             if (
                 capabilities
+                and not component.get("compatibility")
                 and not capabilities.intersection(required)
                 and not capabilities <= DISPLAY_ONLY_CAPABILITIES
             ):
