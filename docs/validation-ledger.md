@@ -1388,3 +1388,31 @@ fail-closed 路径。任务仍为 `PARTIAL`：PN wrap、loss/retry、channel/rat
 bit-exact controller、RF/antenna、电气时序和真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-per-peer-key-routing/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-per-peer-key-routing/summary.json)。
+
+## 2026-10-29：ESP-NOW CCMP PN exhaustion and rekey
+
+新增 `0083-esp32-espnow-ccmp-pn-exhaustion.patch`，SHA256
+`3e9d54b16b0ec3429347bb9d36efe96755935e2cff3d045cf3af3b0b82adcfa9`。
+48-bit CCMP transmit PN 到达 `0xffffffffffff` 后 fail closed，不再编码
+zero PN。测试 seed 从上限前 64 frame 开始，最终 QEMU 为
+`1f3bb7dbbf4b2b32f29e065c02dbe20f08188518c01bd39ec5eb00c724574262`。
+
+StopWatch↔StickS3 先完成 encrypted barrier，再发送 128 个 burn frame。
+两端各记录 65 次 PN exhaustion、0 replay drop；安装新 LMK 后 PN 从
+zero 重启，post payload 分别为 `164/163`。相同 LMK 重写负控中
+`guest_key_ready=1`，各自记录 `183` 次 exhaustion、0 replay drop，
+post payload 均为 `0`，证明只重写相同 key 不会绕过 PN 耗尽。
+
+实现同时修正 key 更新顺序：metadata/LMK 和 valid bit 全部完成后才
+reconcile；相同 metadata/LMK 保留 TX PN 与 replay state，只有实际 key
+变化才清 replay 并从 zero 开始。shared-LMK、pairwise 正控和 B/A
+cross-wire 在最终 QEMU 上全部重绑 PASS。13 个 session 均 `purge=0`、
+terminal `stopped`、runtime PID gone、history retained。ESP-NOW
+controller/patch contracts 为 `51/51 PASS`，patch
+forward/current-source/reverse PASS。
+
+该结果关闭 `RUNTIME-06` 的 PN exhaustion 和 new/same-LMK rekey 语义。
+任务仍为 `PARTIAL`：loss/retry、channel/rate、bit-exact controller、
+RF/antenna、电气时序和真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-ccmp-pn-exhaustion/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-ccmp-pn-exhaustion/summary.json)。

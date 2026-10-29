@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "1f3bb7dbbf4b2b32f29e065c02dbe20f08188518c01bd39ec5eb00c724574262",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0083-esp32-espnow-ccmp-pn-exhaustion.patch",
+    "sha256": "3e9d54b16b0ec3429347bb9d36efe96755935e2cff3d045cf3af3b0b82adcfa9"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "1105cf71e09c3ba2ae69f77fdcdba2a53eea6ba1dfb09cf3ad608e32f513d9db"
+  },
+  "ccmp_pn": {
+    "bits": 48,
+    "max": "0xffffffffffff",
+    "seed": 281474976710591,
+    "wrap_policy": "fail closed",
+    "same_key_reinstall_resets_state": false,
+    "changed_key_resets_state": true
+  },
+  "scenarios": [
+    {
+      "name": "guest-key-pn-rekey",
+      "status": "PASS",
+      "run_summary_sha256": "655bd8581e67b95a9c6da721257daffb6c5d27a2066f5e097ac9a28ab74995d7",
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "90526c075e1ad0f7dd41a1cfe14cee78bf6d4fc3c009a5afa4d1e1807489e937",
+          "tx": 524,
+          "rx": 392,
+          "guest_key_ready": 2,
+          "pn_exhaustions": 65,
+          "replay_drops": 0,
+          "post_payload_matches": 164
+        },
+        "sticks3": {
+          "firmware_sha256": "748db55c2af96a2cf1778f4b20602f5879fc1e827d294ca2f03db7aeac9b315d",
+          "tx": 522,
+          "rx": 394,
+          "guest_key_ready": 2,
+          "pn_exhaustions": 65,
+          "replay_drops": 0,
+          "post_payload_matches": 163
+        }
+      }
+    },
+    {
+      "name": "guest-key-pn-stale-rekey",
+      "status": "PASS",
+      "run_summary_sha256": "d200cafa063424dab59e5c13ff5ebdaf911fc607ff976bc73ce1251d95b62215",
+      "expected_result": "same key does not restore exhausted PN",
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "93e2e8d9a7b6ada10d096d7775034cc12209dc4562957b79ce88987a7d989b3c",
+          "tx": 430,
+          "rx": 64,
+          "guest_key_ready": 1,
+          "pn_exhaustions": 183,
+          "replay_drops": 0,
+          "post_payload_matches": 0
+        },
+        "sticks3": {
+          "firmware_sha256": "8b3168b28f513c90106ad1fa4b3b352a9f8fd1b3e40dff9c8aaae006a3c1f043",
+          "tx": 430,
+          "rx": 64,
+          "guest_key_ready": 1,
+          "pn_exhaustions": 183,
+          "replay_drops": 0,
+          "post_payload_matches": 0
+        }
+      }
+    }
+  ],
+  "regressions": [
+    {
+      "name": "fabric",
+      "status": "PASS",
+      "run_summary_sha256": "f80e13a6ac5b063a32470ffafd684be3576240eac40d95899d8efb337dd160f6"
+    },
+    {
+      "name": "fabric-per-peer-key",
+      "status": "PASS",
+      "run_summary_sha256": "fbaec30a1556d5da68c299dac10ea2e90d38f6b591a0bd99bb2be3813c81253a"
+    },
+    {
+      "name": "fabric-per-peer-key-negative",
+      "status": "PASS",
+      "run_summary_sha256": "8dc45613d79669afea874cc37cec5cf9ebffaaa5b1fe1c8fd23994fc49c59044"
+    }
+  ],
+  "regression": {
+    "espnow_contract_tests": "51/51 PASS",
+    "qemu_build": "PASS",
+    "patch_forward_current_reverse": "PASS"
+  },
+  "cleanup": {
+    "sessions": 13,
+    "terminal_state": "stopped",
+    "runtime_pid_gone": true,
+    "history_preserved": true,
+    "purge": 0
+  },
+  "not_run": [
+    "loss and retry",
+    "channel and rate",
+    "bit-exact controller",
+    "RF and antenna behavior",
+    "electrical timing",
+    "physical hardware"
+  ]
+}

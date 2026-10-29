@@ -3864,7 +3864,9 @@ components:
             M5SW_CORE2_PMIC, M5SW_ESPNOW_LOOPBACK,
             M5SW_ESPNOW_PEER_LOCAL_PORT, M5SW_ESPNOW_PEER_REMOTE_PORT,
             M5SW_ESPNOW_PEER_PMK, M5SW_ESPNOW_PEER_LMK,
-            M5SW_ESPNOW_PEER_TRACE, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
+            M5SW_ESPNOW_PEER_FABRIC, M5SW_ESPNOW_PEER_PUBLIC_MAC,
+            M5SW_ESPNOW_PEER_TX_PN_START, M5SW_ESPNOW_PEER_TRACE,
+            M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
             M5SW_I2S_RX_PCM_FILE, M5SW_I2S_TRACE, M5SW_RMT_TX_FILE,
             M5SW_RMT_RX_FILE, M5SW_RMT_TRACE, M5SW_CAMERA_TRACE and
             M5SW_GDMA_TRACE are accepted. Camera/GDMA/RMT traces accept only
@@ -3879,7 +3881,9 @@ components:
             ESP-NOW peer ports must be supplied as a distinct pair.
             PMK/LMK must also be supplied together as 32 hexadecimal
             characters; their values are redacted from session snapshots and
-            persisted session records.
+            persisted session records. Fabric mode requires the external
+            bridge; the public MAC is 12 hexadecimal characters and redacted.
+            The TX PN start is a decimal 48-bit CCMP PN test seed.
           properties:
             M5SW_CORE2_PMIC:
               type: string
@@ -3901,6 +3905,16 @@ components:
               type: string
               pattern: '^[0-9A-Fa-f]{32}$'
               writeOnly: true
+            M5SW_ESPNOW_PEER_FABRIC:
+              type: string
+              enum: ['1']
+            M5SW_ESPNOW_PEER_PUBLIC_MAC:
+              type: string
+              pattern: '^[0-9A-Fa-f]{12}$'
+              writeOnly: true
+            M5SW_ESPNOW_PEER_TX_PN_START:
+              type: string
+              pattern: '^[0-9]{1,15}$'
             M5SW_ESPNOW_PEER_TRACE:
               type: string
               enum: ['1']
