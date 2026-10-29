@@ -199,6 +199,9 @@ OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
+    "M5SW_ESPNOW_PEER_LOCAL_PORT",
+    "M5SW_ESPNOW_PEER_REMOTE_PORT",
+    "M5SW_ESPNOW_PEER_TRACE",
     "M5SW_I2S_DMA_IRQ",
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
@@ -218,6 +221,7 @@ ALLOWED_RUNTIME_ENV = {
 BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
+    "M5SW_ESPNOW_PEER_TRACE",
     "M5SW_GDMA_TRACE",
     "M5SW_GPSPI_TRACE",
     "M5SW_FT_TRACE",
@@ -650,6 +654,13 @@ def set_s3_efuse_mac(efuse: bytearray, mac: str) -> None:
     if len(raw) != 6 or len(efuse) < 30:
         raise ValueError("ESP32-S3 eFuse MAC fixture is invalid")
     efuse[24:30] = raw[::-1]
+
+
+def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
+    raw = bytes.fromhex(mac.replace(":", ""))
+    if len(raw) != 6 or len(efuse) < 10:
+        raise ValueError("ESP32 eFuse MAC fixture is invalid")
+    efuse[4:10] = raw
 
 
 def parse_int(value: Any, field: str) -> int:
@@ -5846,14 +5857,28 @@ class DeviceSession:
         if "efuse_pkg_version" in self.service.raw_device(self.spec.id):
             pkg = int(self.service.raw_device(self.spec.id)["efuse_pkg_version"])
             efuse_data[36:40] = (pkg << 21).to_bytes(4, "little")
+        espnow_peer_lane = (
+            "M5SW_ESPNOW_PEER_LOCAL_PORT" in self.runtime_env
+            and "M5SW_ESPNOW_PEER_REMOTE_PORT" in self.runtime_env
+        )
+        peer_mac_lane = (
+            espnow_peer_lane
+            and self.spec.backend in {"qemu-esp32s3", "qemu-esp32lx6"}
+        )
         wifi_mac = (
             qemu_station_mac(self.id)
-            if self.spec.backend == "qemu-esp32s3"
-            and self.network_config.get("wifi_auth") == "wpa2-psk"
+            if peer_mac_lane
+            or (
+                self.spec.backend == "qemu-esp32s3"
+                and self.network_config.get("wifi_auth") == "wpa2-psk"
+            )
             else None
         )
         if wifi_mac:
-            set_s3_efuse_mac(efuse_data, wifi_mac)
+            if self.spec.backend == "qemu-esp32s3":
+                set_s3_efuse_mac(efuse_data, wifi_mac)
+            elif self.spec.backend == "qemu-esp32lx6":
+                set_esp32_efuse_mac(efuse_data, wifi_mac)
         if self.spec.backend == "qemu-esp32s3":
             adc_path = None
             adc_raw = None
@@ -10484,6 +10509,54 @@ class DeviceService:
                     + ", ".join(str(key) for key in invalid_env),
                     400,
                 )
+            espnow_local_port = runtime_env.get("M5SW_ESPNOW_PEER_LOCAL_PORT")
+            espnow_remote_port = runtime_env.get("M5SW_ESPNOW_PEER_REMOTE_PORT")
+            if (espnow_local_port is None) != (espnow_remote_port is None):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "M5SW_ESPNOW_PEER_LOCAL_PORT and "
+                    "M5SW_ESPNOW_PEER_REMOTE_PORT must be set together",
+                    400,
+                )
+            if espnow_local_port is not None:
+                if not (
+                    espnow_local_port.isascii()
+                    and espnow_local_port.isdigit()
+                    and espnow_remote_port.isascii()
+                    and espnow_remote_port.isdigit()
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "ESP-NOW peer ports must be decimal integers",
+                        400,
+                    )
+                try:
+                    local_port = int(espnow_local_port)
+                    remote_port = int(espnow_remote_port)
+                except ValueError as error:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "ESP-NOW peer ports must be decimal integers",
+                        400,
+                    ) from error
+                if (
+                    not 1024 <= local_port <= 65535
+                    or not 1024 <= remote_port <= 65535
+                    or local_port == remote_port
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "ESP-NOW peer ports must be distinct values "
+                        "between 1024 and 65535",
+                        400,
+                    )
+                if runtime_env.get("M5SW_ESPNOW_LOOPBACK") is not None:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_LOOPBACK cannot be combined with the "
+                        "external ESP-NOW peer bridge",
+                        400,
+                    )
             core2_pmic = runtime_env.get("M5SW_CORE2_PMIC")
             if core2_pmic is not None:
                 if device_id != "core2":

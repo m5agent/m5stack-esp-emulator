@@ -89,8 +89,10 @@ Core2 A/B/C 的 FT5x06 触控条和 PWR 的 AXP2101 事件路径已在最终 run
 见[Core2 输入证据](evidence/2026-10-28-core2-touch-buttons/README.md)。
 `0067` 已通过 opt-in virtual-peer loopback 验证三台原厂
 `espnow`/`m5espnow` 的 controller TX/RX DMA、unicast、broadcast、receive
-和 IRQ；外部 peer、PMK 加密 payload、跨设备 fabric 与 RF/timing 仍由
-`RUNTIME-06` 跟踪。StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
+和 IRQ；`0076` 又让 StopWatch↔StickS3、Core2↔StopWatch 两对独立 guest
+经正常 TX/RX DMA 完成未加密双向 action-frame exchange。PMK/LMK/CCMP、
+错误 key、完整 peer 生命周期与 RF/timing 仍由 `RUNTIME-06` 跟踪。
+StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
 完整执行；stock 仍保留 Canvas triangle、Image float scale 和 integer
 Spinbox step 三个失败。Core2 candidate 的条带随后定位为 panel DMA 与
 CPU data-register 双写，`0074` 修复后状态 `4/4` 和 triangle/image
@@ -196,7 +198,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
 4. `FW-01/02/03`：补运行态权限/许可、真机安全配置和真实业务覆盖。
 5. `RUNTIME-02/04/06`、`HW-01`：补 C6 Zigbee、ATECC608、ESP-NOW
-   外部/加密 peer 和真机同路径。
+   加密/lifecycle peer 和真机同路径。
 6. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
 
 ## 依赖与并行原则
@@ -206,7 +208,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | 立即可做 | `RUNTIME-03`、`FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `RUNTIME-03` 触碰 Core2 QEMU 时与 `CORE2-02` 串行；`SVC-03` 先做无语义移动并保持 API/evidence 契约 |
 | 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
 | 需要真机或外部控制面 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、串口、画面、网络和外设观测入口 | `FW-02` 还必须取得 live eFuse/生产 key 流程授权；静态镜像分析不能代填 |
-| 后端/外部 peer 阻塞 | `RUNTIME-02`、`RUNTIME-04`、`RUNTIME-06` | 可重建 802.15.4 MAC 路径、公开固件匹配 ELF/ATECC608 配置，或两个独立 guest/外部 ESP-NOW peer | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
+| 后端/外部 peer 阻塞 | `RUNTIME-02`、`RUNTIME-04`、`RUNTIME-06` | 可重建 802.15.4 MAC 路径、公开固件匹配 ELF/ATECC608 配置，或 key-bound/CCMP ESP-NOW controller 路径 | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
 | 决策或独立后端 | `TAB5-01`、`CZ-01` | P4 backend 重建/扩展决策；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
 
 ## 可执行任务板
@@ -215,7 +217,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
-| `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；下一项是外部 peer、PMK 加密 payload、跨设备 fabric 与错误/丢包生命周期 | 两个独立 guest 或受控外部 peer 完成真实 action-frame 交换；保留 loopback、external、encrypted 和 RF/timing 分 lane |
+| `RUNTIME-06` | 进行中 | `0067` 已用 controller TX/RX DMA loopback 验证三台 unicast/broadcast/receive/IRQ；`0076` 已完成 StopWatch↔StickS3 和 Core2↔StopWatch 的独立 guest 明文 exchange；下一项是 PMK/LMK/CCMP、错误 key、peer 生命周期与丢包/重试 | 至少一个 encrypted lane 使用实际 key-bound controller/CCMP 完成正负控；保留 loopback、external plaintext、encrypted 和 RF/timing 分 lane |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -434,7 +436,7 @@ SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-fi
 验收：真实 guest 驱动完成完整生命周期；否则保持 `runtime_model_gap`，
 不承诺所有 C6 固件兼容。
 
-### RUNTIME-06 ESP-NOW 外部/加密 peer
+### RUNTIME-06 ESP-NOW 加密与 peer 生命周期
 
 已满足的前置基线：`0067-esp32-espnow-controlled-peer-loopback.patch`
 在 StopWatch、StickS3 和 Core2 上，用原厂 `espnow`/`m5espnow` 栈完成
@@ -442,15 +444,22 @@ controller TX DMA action frame、虚拟 peer echo、RX DMA 和 IRQ 回调；
 unicast、broadcast、receive、peer table 与状态边界均绑定同一 session。
 该 loopback 默认关闭，只由 `M5SW_ESPNOW_LOOPBACK=1` 显式启用。
 
+`0076-esp32-external-espnow-peer-bridge.patch` 已完成下一层基线：两个
+独立 guest 使用显式配对的 loopback UDP 端口和固定受控 peer
+`02:00:00:00:00:43`，让 StopWatch↔StickS3 与 Core2↔StopWatch 通过正常
+controller TX/RX DMA 双向交换未加密 action frame。四个 session 均保留
+evidence、使用 `purge=0` 停止，并确认 runtime PID 消失。该 bridge 默认
+关闭，拒绝残缺/相同端口和与 `0067` 混用，只转发 management action frame。
+
 开放范围：
 
-- 两个独立 guest 或受控外部 peer 之间的 action-frame 交换；
-- PMK 加密 payload、错误 key、重放/丢包/重试和生命周期；
+- PMK/LMK 加密 payload、CCMP 和错误 key 负控；
+- peer add/update/delete、重放、丢包/重试和生命周期；
 - channel/rate、bit-exact controller、RF/antenna 和电气时序。
 
-验收：外部/加密 lane 与 loopback lane 分开记录，不能在 Python 中合成
-payload 或 callback；无法取得 peer/controller 证据时保持
-`runtime_model_gap`。
+验收：external plaintext 与 encrypted lane 分开记录，不能在 Python 中合成
+payload、CCMP 或 callback；encrypted lane 必须使用实际 key-bound
+controller 路径并包含错误 key 负控，否则保持 `runtime_model_gap`。
 
 ### RUNTIME-04 Core2 for AWS ATECC608
 

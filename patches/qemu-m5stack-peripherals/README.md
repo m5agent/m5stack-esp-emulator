@@ -491,6 +491,15 @@ default scheduling. The included failed-`s32c1i` TCG-slice yield is an explicit
 default-off negative control; enabling it did not move the normal-WDT reset
 boundary and it is not a product fix.
 
+`0076-esp32-external-espnow-peer-bridge.patch` adds a default-off IPv4
+loopback UDP bridge between independent controller instances. A management
+action frame still leaves the sender through the normal controller TX DMA path
+and enters the receiver through the normal RX DMA path; no Python-level payload
+or callback is synthesized. Paired session-derived ports are mandatory, the
+bridge rejects invalid/equal ports and cannot be combined with `0067`'s
+same-guest loopback. This unencrypted external-guest lane does not implement
+PMK/LMK, CCMP, loss/retry, RF, antenna or timing.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
