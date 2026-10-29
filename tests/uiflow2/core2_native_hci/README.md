@@ -31,6 +31,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
+| `CORE2-02` post-reset stop/recovery | `3/3 PASS` | `evidence-2026-10-29-core2-post-reset-stop-recovery-3x.json`; each attempt captures ready-session frame/QOM/network/GATT/pcap evidence, issues `system_reset`, verifies the same QEMU PID remains live, deletes it while reboot is in flight, then verifies companion/PID/lease cleanup and a fresh ready session |
 | `CORE2-02` no-stagger concurrency | `8/8 + 6/6 + 8/8 PASS` | two independent two-instance `4x120s` runs pass `8/8`, two independent three-instance `3x120s` runs pass `6/6`, and two independent four-instance `4x120s` runs pass `8/8`. `0008` preallocates real guest event buffers and ACL mbufs, while `0009` expands the real reserve to 8 event/4 ACL objects. Every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init; peer scan now follows session readiness within 120 seconds |
 | `CORE2-02` four-instance no-stagger gate | `FAIL 1/4 → 8/8 PASS` | one initial four-instance `4x120s` run reached real concurrency 4 but failed aggregate: attempt 2 exposed HLI/preallocation failure and attempts 3/4 panicked in NimBLE `ble_hs_hci_process_ack` after ACK timeout. The peer actually returned Command Complete, identifying exhaustion of the two-packet `0008` reserve. `0009` expands the real guest reserve to 8 events/4 ACLs; two independent four-instance batches then pass `4/4` each (`8/8`) with final QOM depth `8/4`, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic |
 | `CORE2-02` five-instance staggered gate | `10/10 PASS` | two independent `5×120s` batches use a 30-second startup stagger and both pass `5/5`. Every lease completes WiFi/public HTTP, external NUS GATT, sustained PSRAM stress, frame/QOM/pcap/evidence, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic. The runner accepts concurrency up to the service per-device capacity of 8 |
@@ -379,6 +380,11 @@ python3 run_service_teardown.py \
   --linger-seconds 120 \
   --out-dir /tmp/m5-core2-active-stop-recovery
 ```
+
+Use `--stop-mode after-reset` to exercise the same cleanup after a guest
+`system_reset`. This captures the ready-session evidence before reset, verifies
+the same QEMU session remains live during reboot, then stops it while the
+reboot is in flight. The default `active` mode preserves the historical gate.
 
 The committed `3/3` evidence is
 `evidence-2026-10-25-core2-active-stop-recovery-3x.json`. This closes the

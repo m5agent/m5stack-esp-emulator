@@ -21,7 +21,7 @@
 | 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
 | --- | --- | --- | --- |
 | 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、claim/evidence response-loss idempotency、lease-bound central evidence store、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机、同 Docker daemon 或单个 control-plane evidence store 的结果不能写成物理多机/对象存储复制 PASS |
-| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset、`APIKEY` 后黑帧与 LVGL completion；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从 RMT 初始化或虚拟容量外推物理等价 |
+| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、post-reset stop、QOM `8 MiB` PSRAM、upper-bank MMU、high-priority DPORT IRQ 协作、classic RMT 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset、`APIKEY` 后黑帧与 LVGL completion；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和更复杂 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从 RMT 初始化或虚拟容量外推物理等价 |
 | ESP-NOW | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/new-LMK rekey 和 `0084` loss/retry/channel/rate/60 秒 soak 已通过 | bit-exact controller/baseband、RF/antenna、实测 channel/rate 和电气时序 | `FIXED`（virtual-device validation）；link metadata、loss proxy 与长稳 PASS 不能写成物理 controller/RF 结论 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
@@ -135,7 +135,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力和当前容量内并发 | `PILOT` | 大于当前服务容量、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和其他 teardown |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、post-reset stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力和当前容量内并发 | `PILOT` | 大于当前服务容量、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和更复杂 teardown |
 | 通用固件审查 | Manifest/WebBurner 导入选择、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
@@ -256,7 +256,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | --- | --- | --- |
 | `RUNTIME-03` | 保持 `0065` DPORT IRQ 协作与 `0066` classic RMT 回归；从最终 `APIKEY` 状态定位下一个未完成路径。同版本 ELF/MAP 可并行取得 | normal-WDT reset、LVGL completion、`lv_disp_flush_ready`、setup/REPL 和同 SHA 非空应用帧仍 OPEN；RMT 初始化或独立 SPI PASS 不外推 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、queue/session/evidence 的跨主机复制、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | claim/evidence response-loss idempotency、lease-bound central evidence、409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；同 control-plane state-dir、跨容器和同机 subnet/NAT 仍不能替代物理主机/对象存储 |
-| `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
+| `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop/post-reset 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |

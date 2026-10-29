@@ -1519,3 +1519,26 @@ response-loss/persistence 子缺口。物理跨主机 executor、共享文件系
 queue/session/evidence 复制、对象存储持久化、QEMU guest/controller 状态、
 外部 side-effect fence 和 physical hardware 仍 `NOT RUN`。见
 [证据](evidence/2026-10-29-lease-bound-evidence-store/README.md)。
+
+## 2026-10-29：Core2 post-reset teardown
+
+`run_service_teardown.py --stop-mode after-reset` 扩展 `CORE2-02` teardown
+覆盖。每个 attempt 先在 ready session 内冻结 frame、32-node QOM、WiFi/
+public DNS/HTTP、外部 NUS GATT、serial、pcap 和 evidence ZIP，然后向同一
+session 发出 guest `system_reset`。0.25 秒 reboot-in-flight 窗口内 QEMU PID
+和 session 仍为 running，HTTP/BLE companion 仍归属该进程；随后 stop 返回
+`stopped` 且无错误，HTTP/BLE companion 为 terminated，BLE/QEMU PID 消失，
+worker active lease 归零，下一 attempt 仍能创建并完成同样 workload。
+
+三个独立连续 attempt 均 PASS，23/23 checks 每轮一致通过。输入在首次 lease
+前绑定，运行期间 firmware/ELF/QEMU/runners 无漂移：
+
+- firmware `c3eaa35b…`；
+- ELF `5bec056b…`；
+- QEMU `54e7a7f7…`；
+- HLI `45/45`、36 events、9 ACLs、errors/queue/reset/panic 为 `0`；
+- frame SHA256 `fa98d48f…`，QOM `32` nodes，pcap/evidence 每轮保留。
+
+该结果只扩展 virtual-device teardown 模式，不证明 bit-exact controller/
+baseband、物理 cache/PSRAM timing、RF、跨主机迁移或真机。见
+[证据](../tests/uiflow2/core2_native_hci/evidence-2026-10-29-core2-post-reset-stop-recovery-3x.json)。
