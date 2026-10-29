@@ -7,6 +7,7 @@ import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
+import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
 import {DEMO_FIRMWARE,WALLCLOCK_DEMO_FIRMWARE} from '../web/public-demo-firmware.js';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
@@ -20,7 +21,7 @@ const candidate=example==='wallclock-candidate',fixture=candidate?WALLCLOCK_DEMO
 const expectedProfile=candidate?'cores3-wasm-wallclock-sdk-candidate':'cores3-wasm-vm-div8';
 await mkdir(out,{recursive:true});
 const requests=[],errors=[],checks=[],workers=[];
-let server,browser,context,page;
+let server,browser,context,page,workerTargetObserver;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2'};
 const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),example,checks,requests,errors};
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
@@ -32,16 +33,15 @@ async function deferIframeRemoval() {
   });
 }
 async function closeWorkersBeforeRemovingIframe(name,total) {
-  // Playwright can deliver the engine Worker close event just after the
-  // functional checks finish on shared macOS runners. Keep observing the real
-  // event and leave the iframe alive until it arrives.
-  const deadline=Date.now()+30000;
-  while(workers.some(row=>!row.closed_at)&&Date.now()<deadline)await page.waitForTimeout(100);
+  // Playwright can defer Worker close delivery until page teardown on macOS.
+  // The browser target graph is authoritative and must be empty before the
+  // iframe is removed.
+  const targetClose=await workerTargetObserver.waitUntilClosed({minimumObserved:total,timeoutMs:30000});
   const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
     removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
   (report.iframe_removal_controls||=[]).push({...held,removal_deferred_by_harness:true});
-  check(name,workers.length===total&&workers.filter(row=>row.kind==='engine').length===total/6
-    &&workers.every(row=>row.closed_at)&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1);
+  (report.worker_target_lifecycles||=[]).push({name,target_close:targetClose,playwright_worker_events:workers});
+  check(name,targetClose.ok&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1);
   await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
 }
 function exactReceipt(receipt){
@@ -86,6 +86,7 @@ try{
   context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
   await context.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page=await context.newPage();
+  workerTargetObserver=await observeWorkerTargets(browser);
   page.on('pageerror',error=>errors.push(String(error)));
   page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
   context.on('page',child=>child.on('pageerror',error=>errors.push(String(error))));

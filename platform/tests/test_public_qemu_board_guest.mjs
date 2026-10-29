@@ -6,6 +6,7 @@ import {resolve, dirname, extname} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
+import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const site = process.env.M5_PUBLIC_SITE && resolve(process.env.M5_PUBLIC_SITE);
@@ -34,7 +35,7 @@ if(epdOracle)report.epd_oracle={path:epdOraclePath,sha256:createHash('sha256').u
   generator_sha256:createHash('sha256').update(await readFile(resolve(repo,'tests/browser-qemu/board_display/epd_oracle.py'))).digest('hex'),
   evidence_level:'source-derived expectation; actual frame comparison required'};
 const mime = {'.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.json':'application/json', '.wasm':'application/wasm', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.webp':'image/webp', '.woff2':'font/woff2'};
-let server, browser, page;
+let server, browser, page, workerTargets;
 function check(name, ok, details) { checks.push({name, ok, details}); assert.ok(ok, name); console.log(name); }
 async function guest(kind, predicate = () => true, timeout = 180000) {
   const until = Date.now() + timeout;
@@ -78,6 +79,7 @@ try {
     args:['--enable-webgl', '--use-gl=angle', ...(hardwareGPU ? ['--use-angle=metal', '--ignore-gpu-blocklist'] : ['--use-angle=swiftshader'])]});
   report.browser = browser.version(); report.hardware_gpu = hardwareGPU;
   page = await browser.newPage({viewport:{width:1200,height:900}});
+  workerTargets = await observeWorkerTargets(browser);
   await page.route(url => [8787,8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname), route => route.abort('blockedbyclient'));
   page.on('worker', worker => {
     const row={kind:worker.url().includes('/public-qemu-engine.js')?'engine':'nested-pthread',
@@ -504,20 +506,18 @@ try {
     && stopped.cleanup?.disposal?.workersRemaining === 0 && stopped.cleanup?.explicitWorkerDisposal && stopped.cleanup?.iframeRemoved
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  // Playwright can deliver the engine Worker close event several seconds after
-  // the guest confirms self-close on shared macOS runners. Keep observing the
-  // real close event, and keep the iframe alive until it arrives.
-  const workersClosedDeadline=Date.now()+30000;
-  while (workerObservations.some(row=>!row.closed_at) && Date.now()<workersClosedDeadline)
-    await new Promise(resolve=>setTimeout(resolve,100));
+  // Query the browser target graph directly. This proves the engine and five
+  // nested pthread Worker targets are gone without depending on delayed
+  // Playwright Worker close event delivery.
+  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});
+  report.worker_targets=workerClose; report.playwright_worker_events=workerObservations;
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
     removal_requests:boardDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe').length}));
   report.iframe_removal_control={...deferredRemoval,removal_deferred_by_harness:true,
-    scope:'Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close.'};
-  check('engine-and-five-pthreads-close-before-iframe-removal', workerObservations.length===6
-    && workerObservations.filter(row=>row.kind==='engine').length===1
-    && workerObservations.every(row=>row.closed_at) && deferredRemoval.iframe_present
-    && deferredRemoval.removal_requests===1 && deferredRemoval.iframe_count===1, workerObservations);
+    scope:'Real UI stop/quit/dispose with iframe DOM removal deferred until the browser target graph has no live Worker targets.'};
+  check('engine-and-five-pthreads-close-before-iframe-removal', workerClose.ok && deferredRemoval.iframe_present
+    && deferredRemoval.removal_requests===1 && deferredRemoval.iframe_count===1,
+    {worker_targets:workerClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
   await page.evaluate(() => {
     const held=boardDeferredRemoval;held.remove.call(held.frame);delete globalThis.boardDeferredRemoval;
   });
