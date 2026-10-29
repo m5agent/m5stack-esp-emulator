@@ -416,6 +416,141 @@ node.deinit()
 '''
 
 
+THREE_PEER_SOURCE = r'''
+import M5
+import espnow
+import json
+import network
+import time
+
+ROLE = __ROLE__
+PEER_MACS = __PEER_MACS__
+PMK = __PMK__
+LMK = __LMK__
+
+
+def emit(kind, **values):
+    values["kind"] = kind
+    print("ESPNOW_FABRIC_" + json.dumps(values, separators=(",", ":")))
+
+
+def receive(node, timeout_ms):
+    slot = [None, bytearray(250)]
+    count = node.recvinto(slot, timeout_ms)
+    if not count:
+        return None, b""
+    return bytes(slot[0]), bytes(slot[1][:count])
+
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    deadline = time.ticks_add(time.ticks_ms(), 5000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if any(row[0] == b"myssid" for row in wlan.scan()):
+            break
+        time.sleep_ms(100)
+    else:
+        raise RuntimeError("fixture AP absent")
+    wlan.connect("myssid")
+    deadline = time.ticks_add(time.ticks_ms(), 40000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if wlan.isconnected() and wlan.status() == 1010:
+            return wlan
+        time.sleep_ms(100)
+    raise RuntimeError("guest DHCP timed out")
+
+
+M5.begin()
+connect_wifi()
+node = espnow.ESPNow()
+node.active(True)
+node.config(rxbuf=4096, timeout_ms=100)
+node.set_pmk(PMK)
+for peer_role, peer_mac in PEER_MACS.items():
+    node.add_peer(peer_mac, lmk=LMK, channel=0, ifidx=0, encrypt=True)
+
+peer_count = list(node.peer_count())
+registered = (
+    peer_count == [len(PEER_MACS), len(PEER_MACS)]
+    and all(
+        bytes(node.get_peer(peer_mac)[0]) == peer_mac
+        and bool(node.get_peer(peer_mac)[4])
+        for peer_mac in PEER_MACS.values()
+    )
+)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_peer_registration",
+    status="PASS" if registered else "FAIL",
+    peer_count=peer_count,
+    peer_roles=sorted(PEER_MACS),
+)
+if not registered:
+    raise RuntimeError("fabric peer registration failed")
+emit("READY", role=ROLE)
+
+expected = {
+    peer_role: ("FABRIC:" + peer_role + ":" + ROLE).encode()
+    for peer_role in PEER_MACS
+}
+source_roles = {
+    peer_mac: peer_role for peer_role, peer_mac in PEER_MACS.items()
+}
+ready_peers = set()
+payload_matches = {peer_role: 0 for peer_role in PEER_MACS}
+source_matches = {peer_role: 0 for peer_role in PEER_MACS}
+last_payload_len = 0
+deadline = time.ticks_add(time.ticks_ms(), 24000)
+
+while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+    for peer_role, peer_mac in PEER_MACS.items():
+        node.send(peer_mac, ("READY:" + ROLE).encode(), False)
+        node.send(
+            peer_mac,
+            ("FABRIC:" + ROLE + ":" + peer_role).encode(),
+            False,
+        )
+    for _ in range(10):
+        source, payload = receive(node, 100)
+        if source is None:
+            break
+        peer_role = source_roles.get(source)
+        if peer_role is None:
+            continue
+        source_matches[peer_role] += 1
+        if payload.startswith(b"READY:"):
+            ready_peers.add(peer_role)
+        elif payload == expected[peer_role]:
+            payload_matches[peer_role] += 1
+            last_payload_len = len(payload)
+
+ready_ok = len(ready_peers) == len(PEER_MACS)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_ready",
+    status="PASS" if ready_ok else "FAIL",
+    ready_peers=sorted(ready_peers),
+)
+passed = all(payload_matches[peer_role] for peer_role in PEER_MACS)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="fabric_payload",
+    status="PASS" if passed else "FAIL",
+    peer_roles=sorted(PEER_MACS),
+    source_matches=source_matches,
+    payload_matches=payload_matches,
+    last_payload_len=last_payload_len,
+)
+emit("DONE", role=ROLE)
+print("ESPNOW_FABRIC_DONE " + ROLE)
+node.active(False)
+'''
+
+
 def save(path: Path, value: object) -> None:
     path.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n",
@@ -610,6 +745,120 @@ class ReorderProxy:
                     self._left_socket.sendto(data, self._left_service)
 
 
+class PeerFabric:
+    """Route real action frames between three controller endpoints."""
+
+    def __init__(
+        self,
+        *,
+        roles: dict[str, dict],
+        broker_port: int,
+        duplicate_once: bool,
+    ) -> None:
+        self._address = ("127.0.0.1", broker_port)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._socket.bind(self._address)
+        self._role_by_port = {
+            role: row["local_port"] for role, row in roles.items()
+        }
+        self._port_to_role = {
+            row["local_port"]: role for role, row in roles.items()
+        }
+        self._mac_by_role = {
+            role: bytes(row["mac"]) for role, row in roles.items()
+        }
+        self._role_by_mac = {
+            bytes(row["mac"]): role for role, row in roles.items()
+        }
+        self._forwarded = {
+            role: {
+                target: 0 for target in roles if target != role
+            }
+            for role in roles
+        }
+        self._seen: set[str] = set()
+        self._duplicate_once = duplicate_once
+        self._duplicate_sent = False
+        self._errors: list[str] = []
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def close(self) -> None:
+        self._stop.set()
+        self._thread.join(timeout=2)
+        self._socket.close()
+
+    def summary(self) -> dict:
+        return {
+            "forwarded": self._forwarded,
+            "seen_roles": sorted(self._seen),
+            "duplicate_sent": self._duplicate_sent,
+            "errors": list(self._errors),
+        }
+
+    def _run(self) -> None:
+        broadcast = b"\xff" * 6
+        while not self._stop.is_set():
+            try:
+                readable, _, _ = select.select(
+                    [self._socket], [], [], 0.1
+                )
+            except (OSError, ValueError) as error:
+                self._errors.append(type(error).__name__)
+                return
+            if not readable:
+                continue
+            try:
+                data, source = self._socket.recvfrom(65535)
+            except OSError as error:
+                self._errors.append(type(error).__name__)
+                return
+            source_role = self._port_to_role.get(source[1])
+            if source_role is None or len(data) < 24:
+                self._errors.append("invalid_source")
+                continue
+            self._seen.add(source_role)
+
+            receiver = data[4:10]
+            source_mac = self._mac_by_role[source_role]
+            frame = bytearray(data)
+            frame[10:16] = source_mac
+            frame[16:22] = source_mac
+            if receiver == broadcast:
+                target_roles = [
+                    role for role in self._role_by_port if role != source_role
+                ]
+            else:
+                target_role = self._role_by_mac.get(receiver)
+                target_roles = [target_role] if target_role else []
+            if not target_roles:
+                self._errors.append("unknown_destination")
+                continue
+
+            for target_role in target_roles:
+                self._socket.sendto(
+                    frame,
+                    ("127.0.0.1", self._role_by_port[target_role]),
+                )
+                self._forwarded[source_role][target_role] += 1
+                if (
+                    self._duplicate_once
+                    and not self._duplicate_sent
+                    and source_role == "A"
+                    and target_role == "B"
+                    and len(self._seen) == len(self._role_by_port)
+                ):
+                    time.sleep(0.05)
+                    self._socket.sendto(
+                        frame,
+                        ("127.0.0.1", self._role_by_port[target_role]),
+                    )
+                    self._duplicate_sent = True
+
+
 def wifi_profile(device: str) -> str:
     return {
         "sticks3": "uiflow2-sticks3-wifi",
@@ -652,6 +901,20 @@ def parse_m5espnow_lifecycle_records(serial: str) -> list[dict]:
         try:
             records.append(
                 json.loads(line.removeprefix("ESPNOW_M5_LIFECYCLE_"))
+            )
+        except (TypeError, ValueError):
+            continue
+    return records
+
+
+def parse_fabric_records(serial: str) -> list[dict]:
+    records = []
+    for line in serial.splitlines():
+        if not line.startswith("ESPNOW_FABRIC_"):
+            continue
+        try:
+            records.append(
+                json.loads(line.removeprefix("ESPNOW_FABRIC_"))
             )
         except (TypeError, ValueError):
             continue
@@ -705,6 +968,8 @@ def run_one(
     pmk: bytes,
     lmk: bytes,
     rotated_lmk: bytes,
+    peer_macs: dict[str, bytes] | None = None,
+    public_mac: bytes | None = None,
 ) -> dict:
     if scenario in {"lifecycle", "guest-key-rotation"}:
         source_template = LIFECYCLE_SOURCE
@@ -712,6 +977,9 @@ def run_one(
     elif scenario == "lifecycle-m5espnow":
         source_template = M5ESPNOW_LIFECYCLE_SOURCE
         done_marker = "ESPNOW_M5_LIFECYCLE_DONE " + role
+    elif scenario in {"fabric", "fabric-replay"}:
+        source_template = THREE_PEER_SOURCE
+        done_marker = "ESPNOW_FABRIC_DONE " + role
     else:
         source_template = PAIR_SOURCE
         done_marker = "ESPNOW_PAIR_DONE " + role
@@ -720,6 +988,7 @@ def run_one(
         .replace("__PMK__", repr(pmk))
         .replace("__LMK__", repr(lmk))
         .replace("__ROTATED_LMK__", repr(rotated_lmk))
+        .replace("__PEER_MACS__", repr(peer_macs or {}))
         .replace("__ENCRYPT__", repr(encrypt))
         .replace(
             "__EXPECTED_HASH__",
@@ -737,6 +1006,10 @@ def run_one(
         "M5SW_ESPNOW_PEER_REMOTE_PORT": str(remote_port),
         "M5SW_ESPNOW_PEER_TRACE": "1",
     }
+    if scenario in {"fabric", "fabric-replay"}:
+        runtime_env["M5SW_ESPNOW_PEER_FABRIC"] = "1"
+    if public_mac is not None:
+        runtime_env["M5SW_ESPNOW_PEER_PUBLIC_MAC"] = public_mac.hex()
     if encrypt and not guest_key:
         runtime_env.update({
             "M5SW_ESPNOW_PEER_PMK": pmk.hex(),
@@ -785,6 +1058,8 @@ def run_one(
         records = parse_lifecycle_records(serial)
     elif scenario == "lifecycle-m5espnow":
         records = parse_m5espnow_lifecycle_records(serial)
+    elif scenario in {"fabric", "fabric-replay"}:
+        records = parse_fabric_records(serial)
     else:
         records = parse_pair_records(serial)
     return {
@@ -800,6 +1075,216 @@ def run_one(
         "records": records,
         "trace": trace_summary(output / "evidence.zip"),
     }
+
+
+def run_fabric_mode(args: argparse.Namespace, output: Path) -> int:
+    devices = {
+        "A": args.left_device,
+        "B": args.right_device,
+        "C": args.third_device,
+    }
+    macs = {
+        "A": bytes.fromhex("02000000010a"),
+        "B": bytes.fromhex("02000000010b"),
+        "C": bytes.fromhex("02000000010c"),
+    }
+    broker_port, *role_ports = distinct_ports(4)
+    roles = {
+        role: {
+            "device": device,
+            "local_port": role_ports[index],
+            "mac": macs[role],
+        }
+        for index, (role, device) in enumerate(devices.items())
+    }
+    pmk = b"0123456789abcdef"
+    lmk = b"fedcba9876543210"
+    duplicate_once = args.scenario == "fabric-replay"
+    broker = PeerFabric(
+        roles=roles,
+        broker_port=broker_port,
+        duplicate_once=duplicate_once,
+    )
+    jobs = []
+    for role, row in roles.items():
+        jobs.append(
+            dict(
+                api=args.api,
+                token_file=args.token_file,
+                device=row["device"],
+                role=role,
+                local_port=row["local_port"],
+                remote_port=broker_port,
+                output=output / ("role-" + role.lower()),
+                scenario=args.scenario,
+                encrypt=True,
+                guest_key=True,
+                pmk=pmk,
+                lmk=lmk,
+                rotated_lmk=lmk,
+                peer_macs={
+                    peer_role: macs[peer_role]
+                    for peer_role in roles
+                    if peer_role != role
+                },
+                public_mac=macs[role],
+            )
+        )
+
+    broker.start()
+    try:
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(run_one, **job) for job in jobs]
+            results = [future.result() for future in futures]
+    finally:
+        broker.close()
+    broker_stats = broker.summary()
+
+    registration_results = {
+        row["role"]: next(
+            (
+                record
+                for record in row["records"]
+                if record.get("api") == "fabric_peer_registration"
+            ),
+            {},
+        )
+        for row in results
+    }
+    ready_results = {
+        row["role"]: next(
+            (
+                record
+                for record in row["records"]
+                if record.get("api") == "fabric_ready"
+            ),
+            {},
+        )
+        for row in results
+    }
+    payload_results = {
+        row["role"]: next(
+            (
+                record
+                for record in row["records"]
+                if record.get("api") == "fabric_payload"
+            ),
+            {},
+        )
+        for row in results
+    }
+    cleanup_ok = all(
+        result["cleanup"]
+        and result["cleanup"].get("terminal_state") == "stopped"
+        and result["cleanup"].get("runtime_pid_gone") is True
+        and result["cleanup"].get("history_preserved") is True
+        for result in results
+    )
+    registration_ok = all(
+        row.get("status") == "PASS"
+        and row.get("peer_count") == [2, 2]
+        for row in registration_results.values()
+    )
+    ready_ok = all(
+        row.get("status") == "PASS"
+        and sorted(row.get("ready_peers", []))
+        == sorted(set(roles) - {role})
+        for role, row in ready_results.items()
+    )
+    payload_ok = all(
+        payload_results[result["role"]].get("status") == "PASS"
+        and sorted(
+            payload_results[result["role"]].get("payload_matches", {})
+        ) == sorted(set(roles) - {result["role"]})
+        and all(
+            payload_results[result["role"]].get(
+                "payload_matches", {}
+            ).values()
+        )
+        for result in results
+    )
+    guest_key_ok = all(
+        result["trace"]["guest_key_ready"] > 0 for result in results
+    )
+    traffic_ok = all(
+        result["trace"]["tx"] > 0 and result["trace"]["rx"] > 0
+        for result in results
+    )
+    results_by_role = {result["role"]: result for result in results}
+    if duplicate_once:
+        replay_ok = (
+            broker_stats["duplicate_sent"]
+            and results_by_role["B"]["trace"]["replay_drops"] == 1
+            and all(
+                result["trace"]["replay_drops"] == 0
+                for role, result in results_by_role.items()
+                if role != "B"
+            )
+        )
+    else:
+        replay_ok = all(
+            result["trace"]["replay_drops"] == 0 for result in results
+        )
+    status_ok = (
+        len(results) == 3
+        and all(result["returncode"] == 0 for result in results)
+        and cleanup_ok
+        and registration_ok
+        and ready_ok
+        and payload_ok
+        and guest_key_ok
+        and traffic_ok
+        and not broker_stats["errors"]
+        and all(
+            all(counts.values())
+            for counts in broker_stats["forwarded"].values()
+        )
+        and replay_ok
+    )
+    summary = {
+        "schema_version": 1,
+        "validation": "virtual-device validation",
+        "hardware_validation": "NOT RUN",
+        "scenario": args.scenario,
+        "encryption": True,
+        "key_source": "guest-controller-key-store",
+        "key_scope": "shared LMK; per-peer key routing NOT RUN",
+        "status": "PASS" if status_ok else "FAIL",
+        "bridge": {
+            "transport": "IPv4 loopback UDP three-guest fabric broker",
+            "broker_port": broker_port,
+            **broker_stats,
+        },
+        "roles": {
+            role: {
+                **{
+                    key: value
+                    for key, value in row.items()
+                    if key != "mac"
+                }
+            }
+            for role, row in roles.items()
+        },
+        "results": results,
+    }
+    save(output / "summary.json", summary)
+    print(json.dumps({
+        "status": summary["status"],
+        "scenario": args.scenario,
+        "roles": {
+            row["role"]: {
+                "device": row["device"],
+                "returncode": row["returncode"],
+                "guest_key_ready": row["trace"]["guest_key_ready"],
+                "replay_drops": row["trace"]["replay_drops"],
+                "payload": payload_results[row["role"]].get("status"),
+            }
+            for row in results
+        },
+        "broker": broker_stats,
+        "summary": str(output / "summary.json"),
+    }, indent=2))
+    return 0 if status_ok else 1
 
 
 def main() -> int:
@@ -818,6 +1303,8 @@ def main() -> int:
             "guest-key",
             "guest-key-wrong-lmk",
             "guest-key-rotation",
+            "fabric",
+            "fabric-replay",
             "lifecycle",
             "lifecycle-m5espnow",
         ),
@@ -825,16 +1312,21 @@ def main() -> int:
     )
     parser.add_argument("--left-device", default="stopwatch")
     parser.add_argument("--right-device", default="sticks3")
+    parser.add_argument("--third-device", default="core2")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
 
     output = args.out_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    if args.scenario in {"fabric", "fabric-replay"}:
+        return run_fabric_mode(args, output)
     encrypt = args.scenario != "plaintext"
     guest_key = args.scenario in {
         "guest-key",
         "guest-key-wrong-lmk",
         "guest-key-rotation",
+        "fabric",
+        "fabric-replay",
     }
     keys = {
         "stopwatch": (

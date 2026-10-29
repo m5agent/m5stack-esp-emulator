@@ -537,6 +537,17 @@ programming handoff for one external peer; multi-peer key routing, PN wrap,
 loss/retry, channel/rate, RF and physical-controller equivalence remain
 separate.
 
+`0081-esp32-espnow-peer-fabric.patch` adds an opt-in three-guest fabric mode.
+Each controller uses a configured synthetic peer MAC before CCMP encryption,
+so the broker never rewrites authenticated address fields after the MIC is
+computed. RX preserves the broker-supplied transmitter and the 64-frame
+authenticated replay window is selected by source peer MAC, with bounded
+state for up to eight peers. The runner connects StopWatch, StickS3 and Core2
+to one UDP broker, registers two encrypted peers per guest and duplicates one
+real forwarded frame for a per-peer replay negative control. This lane uses a
+shared LMK; per-peer LMK routing, PN wrap, loss/retry, RF and physical
+controller behavior remain separate.
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,

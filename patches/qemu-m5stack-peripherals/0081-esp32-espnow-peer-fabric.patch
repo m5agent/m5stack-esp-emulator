@@ -1,0 +1,324 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 00:00:00 +0800
+Subject: [PATCH] hw/esp32: add multi-peer ESP-NOW fabric replay state
+
+Add an opt-in controller mode used by a three-guest ESP-NOW fabric
+broker. Each controller encrypts with its configured synthetic peer MAC
+before transmission, preserves the broker-supplied transmitter address on
+RX, and keeps the authenticated 64-frame replay window scoped to the
+source peer MAC. The existing direct two-guest bridge keeps its address
+compatibility path and the fabric remains a shared-LMK test lane.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -20,6 +20,7 @@
+ #define ESP32_WIFI_CRYPTO_KEY_STRIDE    40
+ #define ESP32_WIFI_CRYPTO_KEY_OFFSET    8
+ #define ESP32_WIFI_CRYPTO_KEY_LENGTH    16
++#define ESPNOW_PEER_REPLAY_SLOTS        8
+ 
+ typedef struct dma_list_item {
+     unsigned size:12;
+@@ -31,6 +32,14 @@
+     uint32_t next;
+ } QEMU_PACKED dma_list_item;
+ 
++typedef struct Esp32EspNowPeerReplayState {
++    bool valid;
++    uint8_t peer[6];
++    bool rx_pn_valid;
++    uint64_t last_rx_pn;
++    uint64_t rx_pn_bitmap;
++} Esp32EspNowPeerReplayState;
++
+ enum esp32_wifi_wpa_state {
+     ESP32_WIFI_WPA_IDLE,
+     ESP32_WIFI_WPA_WAIT_M2,
+@@ -50,6 +59,9 @@
+     int espnow_peer_local_port;
+     int espnow_peer_remote_port;
+     bool espnow_peer_trace;
++    bool espnow_peer_fabric;
++    bool espnow_peer_public_mac_valid;
++    uint8_t espnow_peer_public_mac[6];
+     bool espnow_peer_encrypted;
+     uint8_t espnow_peer_pmk[16];
+     uint8_t espnow_peer_wrapped_lmk[16];
+@@ -64,9 +76,8 @@
+     uint8_t espnow_peer_guest_key_slot;
+     uint8_t espnow_peer_guest_lmk[16];
+     uint64_t espnow_peer_tx_pn;
+-    bool espnow_peer_rx_pn_valid;
+-    uint64_t espnow_peer_last_rx_pn;
+-    uint64_t espnow_peer_rx_pn_bitmap;
++    Esp32EspNowPeerReplayState
++        espnow_peer_replay[ESPNOW_PEER_REPLAY_SLOTS];
+     uint32_t ap_state;
+     int inject_queue_size;
+     struct mac80211_frame *inject_queue;
+--- a/hw/misc/esp32_wifi.c
++++ b/hw/misc/esp32_wifi.c
+@@ -78,6 +78,25 @@
+     return true;
+ }
+ 
++static bool espnow_peer_parse_hex_mac(const char *value, uint8_t mac[6])
++{
++    size_t index;
++
++    if (!value || strlen(value) != 12) {
++        return false;
++    }
++    for (index = 0; index < 6; index++) {
++        unsigned int high;
++        unsigned int low;
++
++        if (sscanf(value + index * 2, "%1x%1x", &high, &low) != 2) {
++            return false;
++        }
++        mac[index] = (high << 4) | low;
++    }
++    return true;
++}
++
+ static bool espnow_peer_aes_ecb(const uint8_t key[16], bool encrypt,
+                                 const uint8_t input[16], uint8_t output[16])
+ {
+@@ -111,6 +130,12 @@
+     return (uint16_t)(1u << byte);
+ }
+ 
++static void espnow_peer_reset_replay(Esp32WifiState *s)
++{
++    memset(s->espnow_peer_replay, 0,
++           sizeof(s->espnow_peer_replay));
++}
++
+ static void espnow_peer_clear_guest_key(Esp32WifiState *s)
+ {
+     bool was_valid = s->espnow_peer_guest_key_valid;
+@@ -124,9 +149,7 @@
+     }
+     if (was_valid) {
+         s->espnow_peer_tx_pn = 0;
+-        s->espnow_peer_rx_pn_valid = false;
+-        s->espnow_peer_last_rx_pn = 0;
+-        s->espnow_peer_rx_pn_bitmap = 0;
++        espnow_peer_reset_replay(s);
+         if (s->espnow_peer_trace) {
+             fprintf(stderr,
+                     "[espnow-peer] guest-key state=cleared\n");
+@@ -155,9 +178,7 @@
+         s->espnow_peer_guest_key_valid = true;
+         s->espnow_peer_encrypted = true;
+         s->espnow_peer_tx_pn = 0;
+-        s->espnow_peer_rx_pn_valid = false;
+-        s->espnow_peer_last_rx_pn = 0;
+-        s->espnow_peer_rx_pn_bitmap = 0;
++        espnow_peer_reset_replay(s);
+         if (s->espnow_peer_trace) {
+             fprintf(stderr,
+                     "[espnow-peer] guest-key state=ready slot=%u\n",
+@@ -390,33 +411,62 @@
+     return true;
+ }
+ 
+-static bool espnow_peer_accept_rx_pn(Esp32WifiState *s, uint64_t pn)
++static Esp32EspNowPeerReplayState *espnow_peer_replay_state(
++    Esp32WifiState *s, const uint8_t peer[6])
++{
++    Esp32EspNowPeerReplayState *free_state = NULL;
++    unsigned int index;
++
++    for (index = 0; index < ESPNOW_PEER_REPLAY_SLOTS; index++) {
++        Esp32EspNowPeerReplayState *state = &s->espnow_peer_replay[index];
++
++        if (state->valid && !memcmp(state->peer, peer, 6)) {
++            return state;
++        }
++        if (!state->valid && !free_state) {
++            free_state = state;
++        }
++    }
++    if (free_state) {
++        free_state->valid = true;
++        memcpy(free_state->peer, peer, 6);
++    }
++    return free_state;
++}
++
++static bool espnow_peer_accept_rx_pn(Esp32WifiState *s,
++                                     const uint8_t peer[6], uint64_t pn)
+ {
++    Esp32EspNowPeerReplayState *state =
++        espnow_peer_replay_state(s, peer);
+     uint64_t bit;
+     uint64_t delta;
+ 
+-    if (!s->espnow_peer_rx_pn_valid) {
+-        s->espnow_peer_rx_pn_valid = true;
+-        s->espnow_peer_last_rx_pn = pn;
+-        s->espnow_peer_rx_pn_bitmap = 1;
++    if (!state) {
++        return false;
++    }
++    if (!state->rx_pn_valid) {
++        state->rx_pn_valid = true;
++        state->last_rx_pn = pn;
++        state->rx_pn_bitmap = 1;
+         return true;
+     }
+-    if (pn > s->espnow_peer_last_rx_pn) {
+-        delta = pn - s->espnow_peer_last_rx_pn;
+-        s->espnow_peer_rx_pn_bitmap =
+-            delta >= 64 ? 0 : s->espnow_peer_rx_pn_bitmap << delta;
+-        s->espnow_peer_rx_pn_bitmap |= 1;
+-        s->espnow_peer_last_rx_pn = pn;
++    if (pn > state->last_rx_pn) {
++        delta = pn - state->last_rx_pn;
++        state->rx_pn_bitmap =
++            delta >= 64 ? 0 : state->rx_pn_bitmap << delta;
++        state->rx_pn_bitmap |= 1;
++        state->last_rx_pn = pn;
+         return true;
+     }
+-    if (s->espnow_peer_last_rx_pn - pn >= 64) {
++    if (state->last_rx_pn - pn >= 64) {
+         return false;
+     }
+-    bit = 1ULL << (s->espnow_peer_last_rx_pn - pn);
+-    if (s->espnow_peer_rx_pn_bitmap & bit) {
++    bit = 1ULL << (state->last_rx_pn - pn);
++    if (state->rx_pn_bitmap & bit) {
+         return false;
+     }
+-    s->espnow_peer_rx_pn_bitmap |= bit;
++    state->rx_pn_bitmap |= bit;
+     return true;
+ }
+ 
+@@ -455,7 +505,7 @@
+     }
+     fprintf(stderr,
+             "[espnow-peer] %s local=%d remote=%d len=%zu checksum=%08x "
+-            "encrypted=%d "
++            "encrypted=%d fabric=%d "
+             "dst=%02x:%02x:%02x:%02x:%02x:%02x "
+             "src=%02x:%02x:%02x:%02x:%02x:%02x "
+             "filter0=%02x:%02x:%02x:%02x:%02x:%02x "
+@@ -464,6 +514,7 @@
+             s->espnow_peer_remote_port, length,
+             espnow_peer_checksum((const uint8_t *)frame, length),
+             s->espnow_peer_encrypted,
++            s->espnow_peer_fabric,
+             frame->receiver_address[0], frame->receiver_address[1],
+             frame->receiver_address[2], frame->receiver_address[3],
+             frame->receiver_address[4], frame->receiver_address[5],
+@@ -536,7 +587,8 @@
+                 continue;
+             }
+             memset(key, 0, sizeof(key));
+-            if (!espnow_peer_accept_rx_pn(s, pn)) {
++            if (!espnow_peer_accept_rx_pn(
++                    s, frame.transmitter_address, pn)) {
+                 if (s->espnow_peer_trace) {
+                     fprintf(stderr,
+                             "[espnow-peer] RX drop: CCMP PN replay\n");
+@@ -566,9 +618,13 @@
+                 local_mac = zero_mac;
+             }
+         }
+-        if (!memcmp(frame.receiver_address, BROADCAST, 6) ||
+-            !memcmp(frame.receiver_address,
+-                    (uint8_t[]){0x02, 0, 0, 0, 0, 0x43}, 6)) {
++        if (s->espnow_peer_fabric) {
++            if (memcmp(frame.receiver_address, BROADCAST, 6)) {
++                memcpy(frame.receiver_address, local_mac, 6);
++            }
++        } else if (!memcmp(frame.receiver_address, BROADCAST, 6) ||
++                   !memcmp(frame.receiver_address,
++                           (uint8_t[]){0x02, 0, 0, 0, 0, 0x43}, 6)) {
+             memcpy(frame.receiver_address, local_mac, 6);
+             memcpy(frame.transmitter_address,
+                    (uint8_t[]){0x02, 0, 0, 0, 0, 0x43}, 6);
+@@ -598,14 +654,17 @@
+     s->espnow_peer_fd = -1;
+     s->espnow_peer_local_port = 0;
+     s->espnow_peer_remote_port = 0;
++    s->espnow_peer_fabric =
++        getenv("M5SW_ESPNOW_PEER_FABRIC") != NULL;
++    s->espnow_peer_public_mac_valid = false;
++    memset(s->espnow_peer_public_mac, 0,
++           sizeof(s->espnow_peer_public_mac));
+     s->espnow_peer_encrypted = false;
+     s->espnow_peer_use_guest_key = false;
+     s->espnow_peer_guest_key_valid = false;
+     s->espnow_peer_guest_key_slot = 0;
+     s->espnow_peer_tx_pn = 0;
+-    s->espnow_peer_rx_pn_valid = false;
+-    s->espnow_peer_last_rx_pn = 0;
+-    s->espnow_peer_rx_pn_bitmap = 0;
++    espnow_peer_reset_replay(s);
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
+@@ -630,6 +689,25 @@
+         return;
+     }
+     {
++        const char *public_mac = getenv(
++            "M5SW_ESPNOW_PEER_PUBLIC_MAC"
++        );
++
++        if (public_mac) {
++            if (!s->espnow_peer_fabric ||
++                !espnow_peer_parse_hex_mac(
++                    public_mac, s->espnow_peer_public_mac)) {
++                error_setg(
++                    errp,
++                    "M5SW_ESPNOW_PEER_PUBLIC_MAC must be 12 hexadecimal "
++                    "characters with the ESP-NOW peer fabric"
++                );
++                return;
++            }
++            s->espnow_peer_public_mac_valid = true;
++        }
++    }
++    {
+         const char *pmk_value = getenv("M5SW_ESPNOW_PEER_PMK");
+         const char *lmk_value = getenv("M5SW_ESPNOW_PEER_LMK");
+         uint8_t lmk[16];
+@@ -711,9 +789,11 @@
+     s->espnow_peer_guest_key_valid = false;
+     s->espnow_peer_guest_key_slot = 0;
+     s->espnow_peer_tx_pn = 0;
+-    s->espnow_peer_rx_pn_valid = false;
+-    s->espnow_peer_last_rx_pn = 0;
+-    s->espnow_peer_rx_pn_bitmap = 0;
++    s->espnow_peer_fabric = false;
++    s->espnow_peer_public_mac_valid = false;
++    memset(s->espnow_peer_public_mac, 0,
++           sizeof(s->espnow_peer_public_mac));
++    espnow_peer_reset_replay(s);
+     memset(s->espnow_peer_pmk, 0, sizeof(s->espnow_peer_pmk));
+     memset(s->espnow_peer_wrapped_lmk, 0,
+            sizeof(s->espnow_peer_wrapped_lmk));
+@@ -738,9 +818,13 @@
+         return;
+     }
+     memcpy(&forwarded, frame, sizeof(forwarded));
+-    memcpy(forwarded.transmitter_address, s->macaddr,
++    memcpy(forwarded.transmitter_address,
++           s->espnow_peer_public_mac_valid
++               ? s->espnow_peer_public_mac
++               : s->macaddr,
+            sizeof(forwarded.transmitter_address));
+-    memcpy(forwarded.address_3, s->macaddr, sizeof(forwarded.address_3));
++    memcpy(forwarded.address_3, forwarded.transmitter_address,
++           sizeof(forwarded.address_3));
+     if (s->espnow_peer_encrypted) {
+         if (!espnow_peer_encrypt_guest_frame(s, &forwarded)) {
+             if (s->espnow_peer_trace) {

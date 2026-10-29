@@ -1468,6 +1468,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(partial_peer.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as orphan_fabric:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {"M5SW_ESPNOW_PEER_FABRIC": "1"},
+                }
+            )
+        self.assertEqual(orphan_fabric.exception.code, "invalid_runtime_env")
         with self.assertRaises(ServiceError) as same_ports:
             self.service.create_session(
                 {
@@ -1527,6 +1535,49 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(orphan_keys.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as fabric_keys:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_FABRIC": "1",
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_PMK": "0123456789abcdef" * 2,
+                        "M5SW_ESPNOW_PEER_LMK": "fedcba9876543210" * 2,
+                    },
+                }
+            )
+        self.assertEqual(fabric_keys.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as orphan_public_mac:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_PUBLIC_MAC": "02000000010a",
+                    },
+                }
+            )
+        self.assertEqual(
+            orphan_public_mac.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as invalid_public_mac:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {
+                        "M5SW_ESPNOW_PEER_FABRIC": "1",
+                        "M5SW_ESPNOW_PEER_LOCAL_PORT": "18801",
+                        "M5SW_ESPNOW_PEER_REMOTE_PORT": "18802",
+                        "M5SW_ESPNOW_PEER_PUBLIC_MAC": "z" * 12,
+                    },
+                }
+            )
+        self.assertEqual(
+            invalid_public_mac.exception.code,
+            "invalid_runtime_env",
+        )
 
     def test_external_espnow_peer_ports_are_trusted_local_fixtures(self):
         runtime_env = {

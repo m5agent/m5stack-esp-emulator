@@ -199,8 +199,10 @@ OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_ESPNOW_LOOPBACK",
+    "M5SW_ESPNOW_PEER_FABRIC",
     "M5SW_ESPNOW_PEER_LOCAL_PORT",
     "M5SW_ESPNOW_PEER_LMK",
+    "M5SW_ESPNOW_PEER_PUBLIC_MAC",
     "M5SW_ESPNOW_PEER_PMK",
     "M5SW_ESPNOW_PEER_REMOTE_PORT",
     "M5SW_ESPNOW_PEER_TRACE",
@@ -222,11 +224,13 @@ ALLOWED_RUNTIME_ENV = {
 }
 PRIVATE_RUNTIME_ENV = frozenset({
     "M5SW_ESPNOW_PEER_LMK",
+    "M5SW_ESPNOW_PEER_PUBLIC_MAC",
     "M5SW_ESPNOW_PEER_PMK",
 })
 BOOLEAN_RUNTIME_TRACES = frozenset({
     "M5SW_CAMERA_TRACE",
     "M5SW_ESPNOW_LOOPBACK",
+    "M5SW_ESPNOW_PEER_FABRIC",
     "M5SW_ESPNOW_PEER_TRACE",
     "M5SW_GDMA_TRACE",
     "M5SW_GPSPI_TRACE",
@@ -10570,6 +10574,37 @@ class DeviceService:
                         "external ESP-NOW peer bridge",
                         400,
                     )
+            if (
+                runtime_env.get("M5SW_ESPNOW_PEER_FABRIC") is not None
+                and espnow_local_port is None
+            ):
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "M5SW_ESPNOW_PEER_FABRIC requires the external "
+                    "ESP-NOW peer bridge",
+                    400,
+                )
+            espnow_public_mac = runtime_env.get(
+                "M5SW_ESPNOW_PEER_PUBLIC_MAC"
+            )
+            if espnow_public_mac is not None:
+                if (
+                    espnow_local_port is None
+                    or runtime_env.get("M5SW_ESPNOW_PEER_FABRIC") is None
+                    or len(espnow_public_mac) != 12
+                    or not espnow_public_mac.isascii()
+                    or not all(
+                        character in "0123456789abcdefABCDEF"
+                        for character in espnow_public_mac
+                    )
+                ):
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_PUBLIC_MAC requires the "
+                        "ESP-NOW peer fabric and exactly 12 hexadecimal "
+                        "characters",
+                        400,
+                    )
             espnow_pmk = runtime_env.get("M5SW_ESPNOW_PEER_PMK")
             espnow_lmk = runtime_env.get("M5SW_ESPNOW_PEER_LMK")
             if (espnow_pmk is None) != (espnow_lmk is None):
@@ -10580,6 +10615,14 @@ class DeviceService:
                     400,
                 )
             if espnow_pmk is not None:
+                if runtime_env.get("M5SW_ESPNOW_PEER_FABRIC") is not None:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_ESPNOW_PEER_PMK and "
+                        "M5SW_ESPNOW_PEER_LMK cannot be combined with "
+                        "M5SW_ESPNOW_PEER_FABRIC",
+                        400,
+                    )
                 if espnow_local_port is None:
                     raise ServiceError(
                         "invalid_runtime_env",
