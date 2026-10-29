@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "kind": "core2-wifi-irq-cache-gate",
+  "validation": "virtual-device validation",
+  "status": "SEMANTIC_FIX_RUNTIME03_OPEN",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0092-esp32-wifi-irq-cache-gate.patch",
+    "gated_source": "ETS_WIFI_MAC_INTR_SOURCE",
+    "gate": "instruction-cache-ready per CPU",
+    "retained_level": true
+  },
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "original_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4",
+    "effective_sha256": "b30f3014b75f762f50be3284010502e047b3bd0494b0f0b72a673c2756baffd7"
+  },
+  "pre_fix": {
+    "qemu_sha256": "54d31e90e2eff273b17f11388015e9bf16a1cf6877fbf7681c207eb73b68286f",
+    "serial_markers": [
+      "BOARD NAME: M5STACK-CORE2",
+      "CORE2_LEGACY_ORIGINAL_BOOT_START",
+      "CORE2_LEGACY_ORIGINAL_BOOT_DONE"
+    ],
+    "failure": "Cache disabled but cached memory region accessed",
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 0,
+      "unique_colors": 0,
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    }
+  },
+  "post_fix": {
+    "qemu_sha256": "a4cfa2b8c3aa7e62b11423fa456c57ec01da7c7e43086a90bdded0eec6241249",
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac",
+    "icount_shift": 2,
+    "per_cpu_budget": "default",
+    "watchdog": "normal",
+    "serial_markers": [
+      "BOARD NAME: M5STACK-CORE2",
+      "CORE2_LEGACY_ORIGINAL_BOOT_START",
+      "CORE2_LEGACY_ORIGINAL_BOOT_DONE"
+    ],
+    "cache_panic": "NOT OBSERVED",
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "nonblack_pixels": 75559,
+      "unique_colors": 512,
+      "sha256": "737df08a0c5d21fe23a46e38f79b7a580508f8dfa7c63c9bc552be19a3106c96"
+    },
+    "remaining_failure": "TG0WDT_SYS_RESET"
+  },
+  "core2_uiflow2_device_group": {
+    "status": "PASS",
+    "cases": "6/6",
+    "attempts": 1,
+    "retry_used": false,
+    "summary_sha256": "432504a9561a3e3cb4156817edd9c0565848dae8a18f64cb92a09cd2476ac419"
+  },
+  "checks": {
+    "patch_contracts": "3/3 PASS",
+    "docs_contracts": "50/50 PASS",
+    "platform_full_suite": "1599 run, 1598 PASS + 1 skip",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "diff_check": "PASS"
+  },
+  "remaining": [
+    "normal-WDT stable startup",
+    "setup/REPL and user application",
+    "WiFi connection and DHCP completion",
+    "physical cache and PSRAM timing",
+    "physical hardware, RF and electrical validation"
+  ]
+}

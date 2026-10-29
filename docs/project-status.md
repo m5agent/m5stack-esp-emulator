@@ -189,7 +189,7 @@ BOARD/APIKEY、在 `8.50 s` 执行完 matching 原厂 `/flash/boot.py`；但
 `wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`；
 当前下一阻断是 boot.py 之后的 WiFi 配置/UI 线程等待，随后才是 display
 flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复。
-`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset。Core2 `qemu-wifi` 随后增加严格的 legacy `deviceCfg` overlay，只更新 session Flash 副本并记录 hashed SSID/base/effective SHA；同一 effective Flash 在诊断控制下显示真实 `Connecting to myssid`，但默认 WDT 仍在 boot markers 后触发 cache-disabled panic 和黑帧。剩余 blocker 是 normal-WDT 生命周期、setup/REPL 和完整应用帧；`RUNTIME-03` 仍 `OPEN`，见[legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)。
+`0091` 另将 TIMG watchdog arm 的 anticipate 语义改为 `timer_mod_ns()`；同固件 8 秒虚拟时点得到 live frame，而 WiFi 配置 stub 后当前 display/LVGL 路径已渲染完整 `320x240` App/Flow/Setup 菜单（`76,760` nonblack / `417` colors），长窗仍 TG0 stage-1 reset。Core2 `qemu-wifi` 随后增加严格的 legacy `deviceCfg` overlay，只更新 session Flash 副本并记录 hashed SSID/base/effective SHA。`0092` 再把 per-CPU instruction-cache-ready 状态送入 INTMATRIX，在 cache disabled 窗口暂存并恢复后重放 WiFi MAC level；同一原厂固件在默认 budget/normal WDT 下不再出现 cache-disabled panic，boot markers 后渲染 API Key 页面，但随后仍进入 TG0 WDT reset。剩余 blocker 是 normal-WDT 生命周期、setup/REPL、WiFi 连接和完整应用帧；`RUNTIME-03` 仍 `OPEN`，见[legacy WiFi config 证据](evidence/2026-10-30-core2-legacy-wifi-config-overlay/README.md)和[WiFi IRQ cache gate 证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)。
 精确批次、通过率、artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注

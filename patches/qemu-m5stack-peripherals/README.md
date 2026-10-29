@@ -651,6 +651,17 @@ but the original firmware still later hit TG0 stage-1 reset, so `RUNTIME-03`
 remains open. See the
 [feed-reschedule evidence](../../docs/evidence/2026-10-30-core2-timg-feed-reschedule/README.md).
 
+`0092-esp32-wifi-irq-cache-gate.patch` exports the instruction-cache-ready
+state from DPORT to the ESP32 interrupt matrix and holds only the WiFi MAC
+level source while that cache is disabled. The retained input level is
+re-evaluated when the cache is restored, so the WiFi IRQ is delayed rather
+than discarded. Cross-core IRQs, timer sources and the cache-illegal-access
+source remain outside the gate so the flash handoff and exception path can
+progress. This removes the observed cached-ISR access during the legacy Core2
+flash window, but normal-WDT startup still later resets and `RUNTIME-03`
+remains open. See the
+[WiFi IRQ cache-gate evidence](../../docs/evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md).
+
 `0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
 `qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
 functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
