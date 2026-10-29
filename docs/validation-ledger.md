@@ -1791,3 +1791,84 @@ phase 后，新 native `dc98b0fd…` / WASM `8f4e45bc…` 各 8 项通过，三�
 `eed692b4cbdc23269b86c381737fd726d94b3efb95cac316b3cbb39ac03bae64`。
 公网首页/public.js/runtime.json/完整 WASM 的 SHA 全部匹配；本轮未另跑
 部署后的线上 guest，不将 HTTP 制品核验表述为公网功能复测。
+
+## 2026-10-29：Core2 legacy IPC/flash handoff stack attribution
+
+在同一 public `UIFlow_Core2 v1.15.4` SHA、same QEMU
+`75e7fa97…`、`runtime=qemu-wifi`、`icount shift=5` 和 normal WDT
+下，通过三个独立 lease 在 `17.200000 s` 做 bounded register/stack/object
+freeze。三次 serial 均为 507 bytes、SHA256 `e9962765…`，没有
+`BOARD NAME`、`APIKEY` 或 setup/REPL。
+
+CPU0 分别位于 `0x40087988`、`0x40087984`、`0x4008798e`，寄存器
+`A0=0x80088a31`、`A9=0x3ffc7ec8`、`A12=0x3ffbf2cc` 三次一致；
+稳定栈帧含 `0x400889c4`、`0x40087950` 和 `0x800840a0`。BIN 控制流与
+public ESP-IDF `cache_utils.c`/`ipc.c` source shape 匹配为
+`spi_flash_op_block_func` 等 complete flag，并由 `ipc_task` 分发；
+CPU1 三次 PC 分别 `0x40084312`、`0x4008448a`、`0x40095c5c`，另一次
+捕获到 `xQueueGenericSend` 的 `A0=0x801ec834` IPC 返回点。
+
+该结果再次拒绝双核永久 deadlock：CPU0 在每个 flash 操作的 block callback
+中等待，CPU1 继续推进跨核 IPC 和启动工作。由于没有 matching private
+legacy ELF/MAP，函数名只作为 BIN-bound source-shape 结果，不作为 exact
+linker symbol。
+
+同时修正诊断解释：默认 trace 每 1024 个 event 才保留一条，
+`transaction-begin` 与后续采样 `transaction-end` 不能配对。runner 新增
+`--trace-sample` 并在每个 snapshot 记录有效值；2 秒 `sample=1` 控制得到
+13 个 begin、13 个 end、11 个 receive-data，13 对 begin/end 全部为同步
+`0 ns`，从而排除“单个短 Flash 命令事务耗时约 0.4 秒”的误读。
+
+normal-WDT reset、startup UI、setup/REPL、非空应用帧和 physical hardware
+仍未通过，`RUNTIME-03` 保持 OPEN。下一步应直接量化 per-flash-operation
+CPU0 park time 和 CPU1 boot phase，而不是继续猜测匿名 vtable。见
+[证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)和
+[机器摘要](evidence/2026-10-29-core2-ipc-handoff-attribution/summary.json)。
+
+## 2026-10-29：Core2 legacy flash handoff episode budget
+
+`0089-xtensa-handoff-pc-trace-io-boundary.patch` 修复 BIN-bound PC trace
+在 no-I/O translation block 中读取虚拟时钟导致的 `Bad icount read`。匹配
+PC 的 TB 现在通过 `translator_io_start()` 结束，helper 同时保留
+`can_do_io` fail-safe。pre-fix control 在约 `2.351 s` 直接终止；修复版
+QEMU `7d9b1f43…` 完成两次 50 秒 wall-time、normal-WDT 运行。
+
+两次运行都在约 `17.25 s` 触发 `TG0WDT_SYS_RESET`，reset 前分别完成
+`12,645/12,693` 个完整 handoff。CPU1 `spi_flash_op_block_func` wait：
+
+| run | total | mean | p50 | p95 | max | reset budget |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | `9.851852864 s` | `779.110 us` | `782.400 us` | `813.312 us` | `6.655552 ms` | `57.1%` |
+| 2 | `9.828771008 s` | `774.345 us` | `781.824 us` | `804.704 us` | `6.781792 ms` | `57.0%` |
+
+“complete 到下一次 block wait”另占 `5.047361117/5.071124609 s`，两段
+合计约 `86.4%` reset 预算。最大单次 wait 始终小于 `6.8 ms`，而累计
+episode 频率约 `733-736/s`。因此当前不支持“某个 handshake 永久或长时间
+不返回”的解释，下一优化入口是正常 handoff 周期的频率或累计成本。
+
+两次 serial 都没有 `BOARD NAME`、`APIKEY`、setup/REPL，302-byte frame 仍为
+同一黑帧 SHA。该结果是 diagnostic tooling fix 加 virtual-device 预算归因；
+`RUNTIME-03`、startup UI、非空应用帧、物理 cache/Flash timing 和真机仍
+`OPEN/NOT RUN`。见
+[证据](evidence/2026-10-29-core2-handoff-episode-budget/README.md)和
+[机器摘要](evidence/2026-10-29-core2-handoff-episode-budget/summary.json)。
+
+## 2026-10-29：SVC-03 首批无状态解析边界
+
+完成 `SVC-03` 的第一个无语义移动：`ServiceError` 移到
+`platform/tools/device_service_errors.py`；`parse_int`、`parse_size`、
+`parse_capture_pcap`、`is_sha256`/`_is_sha256` 移到
+`platform/tools/device_service_parsing.py`。`device_service.py` 继续
+re-export 同名对象，因此现有调用方和公开导入路径不变。
+
+新增 `test_device_service_parsing.py` 锁定：
+
+- `ServiceError` 的 code/message/status/extra 与 `payload()` 结构；
+- decimal/prefixed integer、size、pcap bool-only parser 行为；
+- lowercase 64-hex SHA256 契约；
+- `device_service.py` 与解析模块的 symbol identity。
+
+该步骤没有修改 `/api/v1` 路由、错误码、session JSON、evidence ZIP、
+历史恢复或运行时参数；也没有改 store、adapter、状态机或 orchestration。
+`SVC-03` 继续 `进行中`，下一项是继续提取其余请求解析、运行参数构造和
+设备规格加载。

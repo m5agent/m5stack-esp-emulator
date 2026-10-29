@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 29 Oct 2026 20:45:00 +0800
+Subject: [PATCH] xtensa: make handoff PC tracing icount-safe
+
+The default-off BIN-bound handoff PC trace reads QEMU_CLOCK_VIRTUAL from
+a helper. With -icount, QEMU aborts with "Bad icount read" when that helper
+runs inside a no-I/O translation block.
+
+End the matching translation block with translator_io_start() before the
+trace helper. Also guard the helper defensively so an unexpected no-I/O
+path skips the observation rather than terminating the VM.
+
+This changes only the optional diagnostic trace. Guest instructions,
+watchdog deadlines, peripheral data planes and default runtime behavior
+remain unchanged.
+---
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -157,8 +157,12 @@ void HELPER(native_hci_trace_pc)(CPUXtensaState *env, uint32_t pc)
+ 
+ void HELPER(handoff_pc_trace)(CPUXtensaState *env, uint32_t pc)
+ {
++    CPUState *cpu = env_cpu(env);
+     uint32_t prid = env->sregs[PRID];
+ 
++    if (cpu->running && !cpu->neg.can_do_io) {
++        return;
++    }
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=%d pc=%08" PRIx32
+@@ -166,7 +170,7 @@ void HELPER(handoff_pc_trace)(CPUXtensaState *env, uint32_t pc)
+             " a=%08" PRIx32 " b=%08" PRIx32
+             " c=%08" PRIx32 " d=%08" PRIx32 "\n",
+             qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+-            env_cpu(env)->cpu_index, pc, prid, env->sregs[PS],
++            cpu->cpu_index, pc, prid, env->sregs[PS],
+             env->sregs[INTENABLE], env->sregs[INTSET]);
+     fflush(stderr);
+ }
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1232,6 +1232,7 @@ static void xtensa_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
+         }
+     }
+     if (xtensa_handoff_pc_trace_match(dc->pc)) {
++        translator_io_start(&dc->base);
+         gen_helper_handoff_pc_trace(
+             tcg_env, tcg_constant_i32(dc->pc));
+     }
+-- 
+2.51.0

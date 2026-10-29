@@ -188,6 +188,20 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   Flash 数据面变慢。候选仍无法阻止 normal-WDT 在 `17.248 s` 触发 TG0
   stage-1 reset，所以 `RUNTIME-03` 继续 OPEN。见
   [scheduler 证据](evidence/2026-10-29-core2-contended-cas-scheduler/README.md)。
+  三次 `17.2 s` normal-WDT bounded-stack freeze 进一步把 CPU0 稳定绑定到
+  `spi_flash_op_block_func` 等待循环，CPU1 则在 IPC/队列/调度路径间变化；
+  同 binary 的 sampled trace 不能把 1024 分频后的 begin/end 当作同一
+  transaction，新增 `--trace-sample` 显式控制后，短窗全量 trace 的 13 对
+  事务均为同步 `0 ns`。下一步量化 per-operation CPU0 park time 与 CPU1
+  启动阶段，而不是继续猜测匿名 vtable。见
+  [IPC handoff 证据](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md)。
+  `0089` 随后修复 PC trace 在 no-I/O TB 中读取虚拟时钟触发的
+  `Bad icount read`，并完成两次 50 秒 wall-time、normal-WDT 复测。固定版
+  QEMU 在 reset 前记录 `12,645/12,693` 次完整 handoff；CPU1 block wait
+  累计 `9.8519/9.8288 s`，约占 reset 预算 `57%`，单次最大仅约
+  `6.7-6.8 ms`。下一项应降低正常 handoff 周期频率或单周期成本，而不是
+  继续寻找一个不存在的长锁超时。见
+  [episode budget 证据](evidence/2026-10-29-core2-handoff-episode-budget/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -265,7 +279,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 session/evidence 持久性 | 重启后接管或明确失败，不产生假 running；claim response-loss 已由 durable queue 覆盖 |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
-| `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
+| `SVC-03` | 进行中 | `ServiceError` 与首批无状态 parser 已移到独立模块并由 `device_service.py` re-export；继续提取其余请求解析/运行参数/设备规格，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
@@ -628,9 +642,11 @@ running。
 HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何拆分都必须
 配套重跑受影响证据，不能让新代码继承旧 PASS。按以下顺序拆：
 
-1. 固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复契约，并记录当前
-   `device_service.py` 的公开符号；
-2. 先移动无状态请求解析、运行参数构造和设备规格加载，保持原模块 re-export；
+1. 已固定 `ServiceError.payload()`、当前 parser 行为及 public re-export，并由
+   `test_device_service_parsing.py` 锁定；
+2. 已移动 `parse_int`、`parse_size`、`parse_capture_pcap` 和 SHA256 检查；
+   继续移动其余无状态请求解析、运行参数构造和设备规格加载，保持原模块
+   re-export；
 3. 拆 content-addressed firmware/artifact store；
 4. 拆 QEMU、Tab5、network runtime adapters；
 5. 拆 evidence collector 和 lifecycle/history repository；

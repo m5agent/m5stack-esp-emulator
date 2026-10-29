@@ -86,6 +86,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
+| `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
@@ -354,7 +356,8 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | `ServiceError`、`DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和请求解析仍集中在同一模块；Core2 并发 evidence 还绑定该文件 SHA | 按 `SVC-03` 先锁契约并计划配套 evidence 重跑，再移无状态配置/解析、存储、runtime adapter、evidence 和 history；不得让新代码借用旧 tool hash |
+| `platform/tools/device_service.py` | `DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和主体请求编排仍集中；Core2 并发 evidence 绑定该文件 SHA | 按 `SVC-03` 继续移无状态配置/解析、存储、runtime adapter、evidence 和 history；任何改变 tool hash 的步骤都要配套重跑受影响证据 |
+| `platform/tools/device_service_errors.py`、`device_service_parsing.py` | `ServiceError`、`parse_int`、`parse_size`、`parse_capture_pcap` 与 SHA256 检查已独立；`device_service.py` 保留同名 re-export | 每个 parser 的行为、错误码和 public symbol identity 由 `test_device_service_parsing.py` 锁定；后续只继续移动无状态边界，不改变 API payload |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -364,8 +367,8 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
-1. 锁定并测试 `/api/v1`、session JSON、evidence ZIP、历史恢复和现有公开符号；
-2. 提取无状态请求解析、运行参数构造与设备规格加载；
+1. 已锁定 `ServiceError.payload()`、首批 parser 行为和 public re-export；
+2. 已提取首批无状态 parser；继续提取其余请求解析、运行参数构造与设备规格加载；
 3. content-addressed firmware/artifact store 与 resumable upload；
 4. session repository、状态机和历史恢复；
 5. QEMU、esp-emu/Tab5、network runtime adapters；
@@ -532,6 +535,8 @@ PASS 比例、轮次、资源数值和哈希都只属于所链接的 evidence；
 | Core2 unified handoff timeline | `include/hw/misc/esp32_handoff_trace.h`、cross-core、DPORT、TIMG、UART、ESP32 SPI；`0037-esp32-handoff-trace.patch`；`tests/firmware/core2_handoff_trace/` | 默认关闭的 `M5SW_ESP32_HANDOFF_TRACE` 统一记录 virtual time、CPU、guest PC 与四个事件值；timeout/int/reset 始终记录，常规事件可采样。早期 normal-WDT 配置观察到最后 feed 后 `800 ms` timeout，WDT-disabled `sample=1024` 与 trace-off Serial 相同；该 `800 ms` 现象已在三次当前 liveness 配置中标记为未复现而不是当前根因。`audit_elf_bin_mapping.py` 证明 local UIFlow2 v2.5.3 ELF 在三个 CPU0 采样地址上与 public legacy v1.15.4 BIN 字节不一致，因此旧 UART/VM 符号映射被拒绝；BIN 自身控制流落在 cross-core/DPORT Flash-cache disable 候选区，精确函数仍未绑定。`0037` 绑定 `0036` 后的目标树，不是裸上游单补丁；它关闭“缺少统一时间轴”前置条件，不关闭 `RUNTIME-03` |
 | Core2 exact-time handoff freeze | `hw/misc/esp32_dport.c`；`0038-esp32-handoff-pause.patch`；`M5SW_ESP32_HANDOFF_PAUSE_NS`；`evidence-2026-10-26-core2-handoff-pause.json` | 在指定 QEMU virtual time 输出 pause marker 后 `SIGSTOP`。14.800 s 早窗口无固定 PC；15.301 s 晚窗口 CPU0 `0x40087980` / CPU1 `0x40084484`，BIN 源码形态匹配 Flash block/cache handshake。不启用 PC sampling，不改变 WDT/controller；仍未证明具体未返回操作 |
 | Core2 exact-time state sweep and phase profile | `0039-esp32-handoff-state-dump.patch`；`run_pause_sweep.py`；`evidence-2026-10-26-core2-handoff-state-sweep.json`；`evidence-2026-10-29-core2-preboot-phase-profile/summary.json` | pause 前直接记录 CPU、DCACHE handoff flag、DPORT cache control、cache-sync、SSI 和 cross-core counters；`PAUSE_ACTION=exit` 允许每个独立 lease 采一个 virtual-time 点。`--capture-frame` 在状态快照后 `SIGCONT` 并立即 QMP screendump；`--pc-sample-ns`、`--uart-trace` 和 `phase_profile` 把 PC 热点、串口虚拟时间及采样 SSI command event 绑定到同一 evidence。早期 14.8/15.3/15.9 s 中 CPU0 等待与 CPU1 变化并存；最新 80 s WDT-off profile 已知 SSI transaction/RX 聚合总数和 108 个采样 begin event，但没有全量 command/length 直方图，不能把采样外推成“约十万次 64-byte read”或把立即切核控制写成修复 |
+| Core2 IPC/flash handoff stack attribution | `run_pause_sweep.py --trace-sample`；`M5SW_ESP32_HANDOFF_STACK_WORDS`；`M5SW_ESP32_HANDOFF_OBJECT_WORDS`；[`evidence`](evidence/2026-10-29-core2-ipc-handoff-attribution/README.md) | 同一 normal-WDT `17.2 s` 三次 freeze 的 CPU0 均位于 `0x40087980..8e` flash block wait，稳定栈匹配 `spi_flash_op_block_func`/`ipc_task` source shape；CPU1 在 IPC 与启动调度路径间变化。`--trace-sample 1` 的 2 秒控制将 13 对 begin/end 绑定为同步 `0 ns`，阻止把 1024 分频后的不同事务误配成 0.4 秒事务。名称仍是 BIN-bound source-shape，不冒充 exact ELF |
+| Core2 flash handoff episode budget | `target/xtensa/op_helper.c`、`target/xtensa/translate.c`；`0089-xtensa-handoff-pc-trace-io-boundary.patch`；`run_pc_trace.py`；[`evidence`](evidence/2026-10-29-core2-handoff-episode-budget/README.md) | 默认关闭的 BIN-bound PC trace 现在在匹配 PC 前调用 `translator_io_start()` 并用 `can_do_io` fail-safe，消除 deterministic `-icount` 的 `Bad icount read`。两次 normal-WDT 运行将四个 setter 配对为 block wait、ready→complete、complete→下一次 block 等阶段；reset 前约 `12.6k` 个正常 handoff，block wait 累计约占 `57%`，单次最大小于 `6.8 ms`，否定单个长 handshake deadlock。仍是诊断工具，不改变 guest/wdt/peripheral 行为 |
 | Core2 handoff setter PC trace | `0040-xtensa-handoff-pc-trace.patch`；`run_pc_trace.py`；`evidence-2026-10-26-core2-handoff-pc-trace.json` | 默认关闭的 `M5SW_XTENSA_PC_TRACE` 只记录显式 BIN-bound PC。complete/can-start set/clear 四个 setter 在首轮 reset 前各命中约 4,377 次，stage-0 WDT 首次 timeout 为 5.913935 s、reset 为 15.914787 s；证明 cache handoff 反复完成，不再支持简单永久 deadlock。该 trace 默认关闭且不绑定 ELF 符号名 |
 | Core2 legacy status/CAS correlation | `include/hw/misc/esp32_handoff_trace.h`、`hw/misc/esp32_dport.c`、`hw/ssi/esp32_spi.c`、`target/xtensa/op_helper.c`、`target/xtensa/translate.c`；`0075-esp32-legacy-status-cas-correlation.patch`；`test_core2_legacy_status_cas.py`；[`evidence`](evidence/2026-10-29-core2-legacy-status-cas/README.md) | 默认关闭的诊断记录 `RDSR` 状态、前序 `0xBB/64`、cache delta、PS/IRQ 和有界 `s32c1i` caller/lock/old-owner/holder-PC。20 秒 WDT-off 控制证明 status bit0 与 illegal cache read 均为 0，主要预算位于 scheduler/list 锁竞争；normal-WDT 与 failed-CAS slice-yield 都在约 17.249 秒触发同一 stage-1 reset。BIN-bound PC 不冒充 legacy 符号 |
 | Core2 contended-CAS episodes | `include/hw/misc/esp32_handoff_trace.h`、`hw/misc/esp32_dport.c`、`target/xtensa/op_helper.c`；`0086-esp32-legacy-cas-episode-profile.patch`；`run_pause_sweep.py`、`test_core2_legacy_status_cas.py`；[`evidence`](evidence/2026-10-29-core2-legacy-cas-episodes/README.md) | 默认关闭 trace 按 CPU/lock 聚合跨核 CAS 的 attempt、duration 和 gap，no-I/O TB 中跳过不安全时钟采样。BIN 控制流与 public IDF 3.3.5 匹配到 `xTaskQueueMutex`、`xTaskIncrementTick`、`vTaskSwitchContext` 和 queue mux；failed-CAS yield 在 10 秒减少 task-queue 等待，但 15 秒时等待转移到 queue mux，WDT reset 不变。名称仅为 source-structure 匹配，不改变 guest 锁语义或默认调度 |

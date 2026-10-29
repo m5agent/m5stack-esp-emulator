@@ -25,10 +25,15 @@ python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
   --image path/to/normalized-core2.bin \
   --qemu path/to/qemu-system-xtensa \
   --pause-seconds 80 --disable-wdt --runtime qemu-wifi \
-  --pc-sample-ns 50000000 --uart-trace \
+  --pc-sample-ns 50000000 --uart-trace --trace-sample 1024 \
   --timeout-seconds 300 \
   --out-dir /tmp/core2-phase-profile
 ```
+
+`--trace-sample 1` records every routine event. Use it only for a short,
+explicit virtual-time window when transaction begin/end pairing is required;
+the default sampled stream cannot pair a retained begin line with its own end
+line. The evidence JSON records the effective `trace_sample` per snapshot.
 
 Each snapshot records `phase_profile` with sampled PC clusters and exact
 controller-side SSI command, RX-length and completion-to-next-command gap
@@ -184,6 +189,7 @@ instructions emit virtual time, CPU, PRID, PS, INTENABLE and INTSET:
 ```bash
 python3 tests/firmware/core2_handoff_trace/run_pc_trace.py \
   --image path/to/normalized-core2.bin \
+  --expected-image-sha256 <normalized-flash-sha256> \
   --qemu path/to/qemu-system-xtensa \
   --observe-seconds 18 \
   --out-dir /tmp/core2-handoff-pc-trace
@@ -195,6 +201,13 @@ Complete-clear/can-start set/clear setters each hit 4,377 times. Serial still
 stopped before setup/REPL and the frame SHA remained the 302-byte black frame.
 The repeated completed handoffs reject the simple permanent-deadlock
 explanation.
+
+The same summary now pairs the four BIN-bound setters to report
+`block_wait`, `clear_to_can_start`, `can_start_to_complete`,
+`complete_to_initiator_prepare`, `initiator_prepare_to_block_clear` and
+`complete_to_block_clear` count/total/mean/p50/p95/max virtual-time durations.
+These durations measure guest handoff phases; they do not prove physical cache
+or Flash timing.
 
 `run_wdt_liveness.py` reconciles the watchdog stages without a PC trace:
 

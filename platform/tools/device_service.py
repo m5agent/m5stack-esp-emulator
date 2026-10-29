@@ -49,6 +49,13 @@ from ble_runtime_limits import (  # noqa: E402
     ble_peer_scan_timeout_seconds,
     reconnect_workload_timeout_seconds,
 )
+from device_service_errors import ServiceError  # noqa: E402
+from device_service_parsing import (  # noqa: E402
+    _is_sha256,
+    parse_capture_pcap,
+    parse_int,
+    parse_size,
+)
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from evidence_store import (  # noqa: E402
     DEFAULT_EVIDENCE_RETENTION_SECONDS,
@@ -720,39 +727,6 @@ def set_qemu_efuse_package(efuse: bytearray, backend: str, package: int) -> None
     word = int.from_bytes(efuse[offset:offset + 4], "little")
     mask = 7 << shift
     efuse[offset:offset + 4] = ((word & ~mask) | (package << shift)).to_bytes(4, "little")
-
-
-def parse_int(value: Any, field: str) -> int:
-    if isinstance(value, int):
-        return value
-    if isinstance(value, str):
-        try:
-            return int(value, 0)
-        except ValueError:
-            pass
-    raise ServiceError("invalid_request", f"{field} must be an integer", 400)
-
-
-def parse_size(value: str | None) -> tuple[int, int] | None:
-    if not value:
-        return None
-    try:
-        width, height = value.lower().split("x", 1)
-        return int(width), int(height)
-    except ValueError:
-        return None
-
-
-def parse_capture_pcap(value: Any, *, default: bool = True) -> bool:
-    if value is None:
-        return default
-    if not isinstance(value, bool):
-        raise ServiceError(
-            "invalid_network",
-            "network.capture_pcap must be a boolean",
-            400,
-        )
-    return value
 
 
 def parse_network_policy(
@@ -1871,18 +1845,6 @@ def parse_qemu_ble_execution(
             else UNIFIED_BLE_IDENTITIES[spec.id][0]
         ),
     }
-
-
-class ServiceError(Exception):
-    def __init__(self, code: str, message: str, status: int = 400, **extra):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.status = status
-        self.extra = extra
-
-    def payload(self) -> dict:
-        return {"error": {"code": self.code, "message": self.message, **self.extra}}
 
 
 def _normalize_management_binding(value: dict) -> dict:
@@ -3184,10 +3146,6 @@ class FirmwareStore:
                 missing_ok=True
             )
         return {"firmware_id": firmware_id, "deleted": True, "record": record}
-
-
-def _is_sha256(value: str) -> bool:
-    return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
 def default_session_ready_timeout(
