@@ -16,6 +16,11 @@ export function validateQemuProfile(profile) {
   check(display && Number.isInteger(display.width) && display.width > 0 && display.width <= 2048 && Number.isInteger(display.height) && display.height > 0 && display.height <= 2048
     && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
   check([1, 8].includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
+  if (profile.accelerator !== undefined) {
+    check(profile.clockDivisor === 1 && profile.accelerator?.kind === 'tcg-icount'
+      && profile.accelerator.thread === 'single' && profile.accelerator.tbSizeMb === 128
+      && profile.accelerator.icountShift === 5, 'Invalid QEMU deterministic accelerator profile');
+  }
   check(profile.readyMarker === null && profile.readyFirmwareSHA256 === null || typeof profile.readyMarker === 'string' && profile.readyMarker.length > 0 && profile.readyMarker.length <= 128
     && !/[\x00-\x1f]/.test(profile.readyMarker) && identity.test(profile.readyFirmwareSHA256), 'Invalid QEMU ready marker');
   const names = profile.chip === 'esp32s3' ? ['esp32s3_rev0_rom.bin'] : ['esp32-v3-rom.bin', 'esp32-v3-rom-app.bin'];
@@ -157,6 +162,9 @@ export function buildQemuArguments(profile) {
   const args = ['-M', profile.board, '-drive', 'file=/flash.bin,if=mtd,format=raw', '-L', '/rom', '-display', 'none',
     '-serial', 'file:/bridge/uart.out', '-serial', 'file:/bridge/serial1', '-qmp', 'stdio'];
   if (profile.efuse) args.push('-drive', 'if=none,id=efuse,file=/efuse.bin,format=raw', '-global', `driver=${profile.efuse.driver},property=drive,value=efuse`);
+  if (profile.accelerator) args.push('-accel',
+    `tcg,thread=${profile.accelerator.thread},tb-size=${profile.accelerator.tbSizeMb}`,
+    '-icount', `shift=${profile.accelerator.icountShift},align=off,sleep=off`);
   return args;
 }
 

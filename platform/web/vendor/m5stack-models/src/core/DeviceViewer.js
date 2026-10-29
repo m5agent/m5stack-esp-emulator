@@ -111,6 +111,7 @@ export class DeviceViewer extends EventEmitter {
   }
 
   #raf = 0;
+  #paused = false;
   #last = 0;
   #needsRender = true;
   #resizeObserver;
@@ -299,7 +300,28 @@ export class DeviceViewer extends EventEmitter {
     this.#needsRender = true;
   }
 
+  pauseRendering() {
+    this.#paused = true;
+    if (this.#raf) {
+      cancelAnimationFrame(this.#raf);
+      this.#raf = 0;
+    }
+  }
+
+  resumeRendering() {
+    if (!this.#paused || this.#disposed) return;
+    this.#paused = false;
+    this.#last = performance.now();
+    this.#raf = requestAnimationFrame(this.#loop);
+  }
+
+  get renderingPaused() {
+    return this.#paused;
+  }
+
   #loop = (now) => {
+    this.#raf = 0;
+    if (this.#paused || this.#disposed) return;
     this.#raf = requestAnimationFrame(this.#loop);
     const dt = Math.min(0.1, Math.max(0, (now - this.#last) / 1000));
     this.#last = now;
@@ -606,7 +628,8 @@ export class DeviceViewer extends EventEmitter {
     if (this.#disposing || this.#disposed) return;
     this.#disposing = true;
     try {
-      cancelAnimationFrame(this.#raf);
+      if (this.#raf) cancelAnimationFrame(this.#raf);
+      this.#raf = 0;
       this.#resizeObserver.disconnect();
       for (const off of this.#listeners) off();
       for (const d of [...this.devices]) this.unmount(d);

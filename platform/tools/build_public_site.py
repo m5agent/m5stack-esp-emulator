@@ -153,7 +153,8 @@ def qemu_site_profiles(root: Path, runtime_manifest: dict, candidates: tuple[str
     for row in selected:
         browser["devices"].append({"id": row["deviceId"], "browser": {
             "board": row["board"], "status": "experimental" if row["admission"] == "public" else "candidate",
-            "description": f"C/QEMU / {row['deviceId']} / vm-div{row['clockDivisor']}",
+            "description": f"C/QEMU / {row['deviceId']} / vm-div{row['clockDivisor']}"
+                           + (f" / {row['accelerator']['kind']} shift{row['accelerator']['icountShift']}" if row.get("accelerator") else ""),
             "limitations": row["limitations"], "reference": {
                 "name": row["reference"]["name"], "url": row["reference"]["url"],
                 "sha256": row["reference"]["sha256"],

@@ -277,6 +277,14 @@ export class ModelDeviceShell {
     });
   }
 
+  pauseRendering() {
+    this.viewer.pauseRendering();
+  }
+
+  resumeRendering() {
+    this.viewer.resumeRendering();
+  }
+
   showOverlay(title, detail = '') {
     this.overlayTitle.textContent = title;
     this.overlayBody.textContent = detail;

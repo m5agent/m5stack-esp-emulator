@@ -1079,8 +1079,14 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "core2-wasm-wallclock",
+      "profile": "core2-wasm-deterministic-icount",
       "clockDivisor": 1,
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      },
       "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
@@ -1117,7 +1123,7 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin",
         "bytes": 16773120,
         "sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
-        "browserValidation": "PASS for the exact composed normal-clock display/input probe with Core2-specific boot preserving the firmware console, public UI local composition, native frame, DOM touch press/release and clean stop; stock-menu and arbitrary-firmware acceptance are not inherited."
+        "browserValidation": "PASS for the exact composed deterministic-icount display/input probe with Core2-specific boot preserving the firmware console, public UI local composition, native frame, DOM touch press/release and clean stop; wall-clock equivalence, stock-menu and arbitrary-firmware acceptance are not inherited."
       },
       "fixture": {
         "vfsOffset": 8519680,
@@ -1148,7 +1154,7 @@
       },
       "limitations": [
         "Browser acceptance covers the fixed Core2-specific console-preserving boot/main display/input probe and the execution profile recorded in its result.",
-        "Normal simulation clock is limited to the fixed display/input probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "Deterministic instruction-count timing (TCG single-thread, tb-size=128, icount shift=5) is limited to the fixed display/input probe; wall-clock and physical timing are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
       "readyFirmwareSHA256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2"

@@ -14,6 +14,10 @@ const device = process.env.M5_QEMU_DEVICE || 'atoms3r', basePath = process.env.M
 const clockDivisor = process.env.M5_QEMU_CLOCK_DIVISOR ? Number(process.env.M5_QEMU_CLOCK_DIVISOR) : undefined;
 const diagnostic = process.env.M5_QEMU_FRAME_DIAGNOSTIC === '1';
 const publicUI = process.env.M5_PUBLIC_UI === '1';
+const hardwareGPU = process.env.M5_WASM_GPU === 'hardware';
+const readyTimeout = Number(process.env.M5_QEMU_READY_TIMEOUT_MS || 180000);
+assert.ok(Number.isInteger(readyTimeout) && readyTimeout >= 30000 && readyTimeout <= 600000,
+  'M5_QEMU_READY_TIMEOUT_MS must be an integer from 30000 to 600000');
 assert.ok(!publicUI || clockDivisor === undefined, 'public UI validation uses the exported default clock');
 assert.ok(clockDivisor === undefined || [1, 8].includes(clockDivisor), 'candidate clock override must be explicit 1 or 8');
 const output = resolve(process.env.M5_PUBLIC_QEMU_OUT || resolve(repo, '.work/public-qemu-board-' + device));
@@ -69,7 +73,10 @@ try {
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}${basePath}`; report.url = origin;
-  browser = await chromium.launch({headless:true, ...(process.env.M5_WASM_CHROME ? {executablePath:process.env.M5_WASM_CHROME} : {}), args:['--enable-webgl', '--use-gl=angle', '--use-angle=swiftshader']}); report.browser = browser.version();
+  browser = await chromium.launch({headless:true,
+    ...(process.env.M5_WASM_CHROME ? {executablePath:process.env.M5_WASM_CHROME} : {}),
+    args:['--enable-webgl', '--use-gl=angle', ...(hardwareGPU ? ['--use-angle=metal', '--ignore-gpu-blocklist'] : ['--use-angle=swiftshader'])]});
+  report.browser = browser.version(); report.hardware_gpu = hardwareGPU;
   page = await browser.newPage({viewport:{width:1200,height:900}});
   await page.route(url => [8787,8830].includes(Number(url.port)) || /\/api\/v1(?:\/|$)/.test(url.pathname), route => route.abort('blockedbyclient'));
   page.on('worker', worker => {
@@ -123,6 +130,7 @@ try {
           this.onError = error => { observedErrors.push(error.message); onError(error); };
           this.input = function(event) { uiInputs.push(structuredClone(event)); return input.call(this, event); };
           globalThis.boardRun = {profile, runtime, errors:observedErrors, uiInputs,
+            renderPausedAtStart: globalThis.boardUiShell?.viewer?.renderingPaused,
             get serial(){return runtime.serial || '';}, get frame(){return runtime.lastFrame;}};
         }
         return start.apply(this, args);
@@ -155,6 +163,13 @@ try {
     await page.locator(`[data-device-id="${device}"]`).click();
     await page.waitForFunction(id => document.querySelector('#deviceMount')?.dataset.deviceId === id
       && globalThis.boardUiShell?.device.id === id, device, {timeout:45000});
+    report.webgl_renderer = await page.evaluate(() => {
+      const gl = boardUiShell.viewer.renderer.getContext();
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    });
+    if (hardwareGPU) assert.doesNotMatch(report.webgl_renderer, /swiftshader|software/i,
+      'hardware WebGL was required but the browser selected software rendering');
     await page.locator('.advanced-options > summary').click();
     await page.locator('#runtimeMode').selectOption('browser');
     await page.locator('input[name="firmwareSource"][value="reference"]').check();
@@ -183,13 +198,18 @@ try {
     }, {}, {timeout:60000, polling:200});
     const result=await handle.jsonValue(); await handle.dispose(); return result;
   };
-  const ready = await guest('ready');
+  const ready = await guest('ready', () => true, readyTimeout);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
   const dimensions = await page.evaluate(() => boardRun.profile.display);
   const logicalDimensions = await page.evaluate(() => boardRun.profile.fixture.logicalDisplay || boardRun.profile.display);
   check('same-guest-ready-and-display', ready.device === device && ready.width === logicalDimensions.width && ready.height === logicalDimensions.height, ready);
+  if (publicUI) {
+    const rendering = await page.evaluate(() =>
+      ({at_start: boardRun.renderPausedAtStart, at_ready: boardUiShell.viewer.renderingPaused}));
+    check('model-rendering-paused-until-guest-ready', rendering.at_start === true && rendering.at_ready === false, rendering);
+  }
   if (diagnostic) {
     try { await page.waitForFunction(() => boardRun.frame, {}, {timeout:15000}); } catch { report.shared_first_frame_timeout = true; }
     const snapshot = async () => {

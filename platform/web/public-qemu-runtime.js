@@ -107,7 +107,8 @@ export class PublicQemuRuntime {
         check(result.size===row.bytes,'ROM 长度错误。');return {name:row.name,bytes:result.bytes,sha256:row.sha256};
       }));active();
       this.frameTransport=manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
-      this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,sourceCommit:QEMU_COMMIT,
+      this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,
+        accelerator:profile.accelerator||null,sourceCommit:QEMU_COMMIT,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,

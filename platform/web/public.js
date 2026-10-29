@@ -505,6 +505,7 @@ async function startRun() {
   const generation = ++state.runGeneration,
     abort = (state.abort = new AbortController());
   state.busy = true;
+  if (kind === 'browser') state.shell?.pauseRendering();
   status('loading', '尚未取得应用首帧');
   updateCapability();
   let run;
@@ -539,7 +540,10 @@ async function startRun() {
         root,profiles:state.qemuProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         onFrame: (frame) => applyBrowserFrame(frame, run),
         onState: (value) => {
-          if (active(run)) status(value.status);
+          if (active(run)) {
+            status(value.status);
+            if (['running', 'paused', 'error', 'stopped'].includes(value.status)) state.shell?.resumeRendering();
+          }
         },
       });
       if (run.controller instanceof PublicQemuRuntime) {
@@ -586,11 +590,13 @@ async function startRun() {
       }
       error(cause);
       status(cause.name === 'AbortError' ? 'stopped' : 'error', '可修改固件或运行选项后重试');
+      state.shell?.resumeRendering();
       state.busy = false;
       updateCapability();
     }
   } finally {
     if (generation === state.runGeneration) {
+      state.shell?.resumeRendering();
       state.busy = false;
       updateCapability();
     }
