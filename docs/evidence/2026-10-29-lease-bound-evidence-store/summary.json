@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-lease-bound-evidence-store",
+  "date": "2026-10-29",
+  "status": "PASS",
+  "scope": "real HTTP worker/control path; no QEMU guest",
+  "source_sha256": {
+    "openapi": "b59304036447986a3009cbd29180dd2af6f9dc331613d2c13e171e866da98319",
+    "evidence_store": "0a9b29e76691e19c06fec0508e6c7386cdca7e1435e2f120e1f486b04cb6950e",
+    "worker_agent": "4972116d9c2a33ba6e7878247f927cad09e6f6240d111b23d84e16e2521cb4df"
+  },
+  "binding": {
+    "job_id_sha256": "d33da4514e48e2c0d8c38bd7a264ac76b38d6cf8c2a942ab0096bd6bf0f65e39",
+    "lease_id_sha256": "82132ea21459e1c7f1a12e3f0bac36f79c6553978f82dce864b72ab9be3ded34",
+    "evidence_id": "5bb0ff3538bfd5a2cc3f185555f91a109268998f0756905575b879bb6d429571"
+  },
+  "archive": {
+    "bytes": 2097444,
+    "content_sha256": "bf04ac516325cbf9c5b81345fdadc316a1ccc065dbd060fc821bdbdfb5025c43",
+    "entry_count": 2
+  },
+  "checks": {
+    "worker_agent_lost_upload_response": true,
+    "replayed_same_evidence_id": true,
+    "lease_bound_job": true,
+    "lease_bound_lease": true,
+    "content_digest": true,
+    "multi_megabyte_zip": true,
+    "metadata_survives_restart": true,
+    "content_survives_restart": true,
+    "different_bytes_conflict": true,
+    "wrong_evidence_id_rejected": true,
+    "result_records_evidence_id": true,
+    "result_records_digest": true,
+    "raw_evidence_not_in_jobs": true,
+    "raw_evidence_not_in_metadata": true,
+    "metadata_mode_0600": true,
+    "blob_mode_0600": true,
+    "token_absent_from_service_log": true
+  },
+  "not_claimed": [
+    "physical cross-host execution",
+    "QEMU guest execution",
+    "external side-effect fencing",
+    "object-store replication",
+    "physical hardware"
+  ]
+}

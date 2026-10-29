@@ -151,6 +151,13 @@ def webburner_package(image: bytes) -> bytes:
     return output.getvalue()
 
 
+def evidence_zip() -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("manifest.json", '{"status":"PASS"}\n')
+    return output.getvalue()
+
+
 def seal_manifest(manifest: dict) -> dict:
     manifest["manifest_id"] = device_service_module.canonical_json_sha256(
         device_service_module.manifest_identity_payload(manifest)
@@ -6317,6 +6324,188 @@ class DeviceServiceHttpTests(unittest.TestCase):
             "worker_identity_mismatch",
         )
 
+    def test_remote_worker_evidence_is_lease_bound_and_required_by_id(self):
+        worker_id = f"evidence-{uuid.uuid4().hex[:12]}"
+        identity = {
+            "worker_id": worker_id,
+            "instance_id": "evidence-instance",
+            "generation": 1,
+        }
+        status, _ = self.request(
+            "/api/v1/workers",
+            method="POST",
+            data=json.dumps(
+                {
+                    **identity,
+                    "stale_after_seconds": 30,
+                    "capabilities": {"evidence_storage": True},
+                    "active_lease_ids": [],
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        status, submitted = self.request(
+            "/api/v1/jobs",
+            method="POST",
+            data=json.dumps(
+                {
+                    "label": "evidence-storage",
+                    "request": {"device_id": "sticks3"},
+                    "required_capabilities": {
+                        "evidence_storage": True
+                    },
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        job_id = submitted["job"]["job_id"]
+        claim_payload = {
+            **identity,
+            "job_id": job_id,
+        }
+        status, claimed = self.request(
+            "/api/v1/jobs/claim",
+            method="POST",
+            data=json.dumps(claim_payload).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        lease_id = claimed["job"]["lease"]["lease_id"]
+        payload = evidence_zip()
+        digest = hashlib.sha256(payload).hexdigest()
+        Handler.api_token = "test-auth-value"
+        try:
+            evidence_headers = {
+                "Authorization": "Bearer test-auth-value",
+                "Content-Type": "application/zip",
+                "X-M5-Job-Id": job_id,
+                "X-M5-Lease-Id": lease_id,
+                "X-M5-Evidence-SHA256": digest,
+                **sign_worker_request(
+                    "test-auth-value",
+                    identity,
+                    "POST",
+                    "/api/v1/evidence",
+                    payload,
+                ),
+            }
+            status, uploaded = self.request(
+                "/api/v1/evidence",
+                method="POST",
+                data=payload,
+                headers=evidence_headers,
+            )
+            self.assertEqual(status, 201)
+            evidence = uploaded["evidence"]
+            evidence_id = evidence["evidence_id"]
+            self.assertEqual(evidence["job_id"], job_id)
+            self.assertEqual(evidence["lease_id"], lease_id)
+            self.assertEqual(evidence["content_sha256"], digest)
+            self.assertFalse(evidence["idempotent_replay"])
+
+            replay_headers = {
+                **evidence_headers,
+                **sign_worker_request(
+                    "test-auth-value",
+                    identity,
+                    "POST",
+                    "/api/v1/evidence",
+                    payload,
+                ),
+            }
+            status, replay = self.request(
+                "/api/v1/evidence",
+                method="POST",
+                data=payload,
+                headers=replay_headers,
+            )
+            self.assertEqual(status, 200)
+            self.assertTrue(replay["evidence"]["idempotent_replay"])
+            self.assertEqual(replay["evidence"]["evidence_id"], evidence_id)
+
+            metadata_request = Request(
+                self.base + f"/api/v1/evidence/{evidence_id}",
+                headers={"Authorization": "Bearer test-auth-value"},
+            )
+            with urlopen(metadata_request, timeout=5) as response:
+                stored = json.load(response)
+            self.assertEqual(stored["evidence"]["evidence_id"], evidence_id)
+            content_request = Request(
+                self.base + f"/api/v1/evidence/{evidence_id}/content",
+                headers={"Authorization": "Bearer test-auth-value"},
+            )
+            with urlopen(content_request, timeout=5) as response:
+                self.assertEqual(response.read(), payload)
+
+            mismatch_payload = {
+                **identity,
+                "lease_id": lease_id,
+                "state": "PASS",
+                "evidence_id": "0" * 64,
+                "evidence_sha256": digest,
+                "summary": {"checks": 1},
+            }
+            mismatch_body = json.dumps(mismatch_payload).encode()
+            mismatch_headers = {
+                "Authorization": "Bearer test-auth-value",
+                "Content-Type": "application/json",
+                **sign_worker_request(
+                    "test-auth-value",
+                    identity,
+                    "POST",
+                    f"/api/v1/jobs/{job_id}/result",
+                    mismatch_body,
+                ),
+            }
+            with self.assertRaises(HTTPError) as caught:
+                self.request(
+                    f"/api/v1/jobs/{job_id}/result",
+                    method="POST",
+                    data=mismatch_body,
+                    headers=mismatch_headers,
+                )
+            self.assertEqual(caught.exception.code, 409)
+            self.assertEqual(
+                json.load(caught.exception)["error"]["code"],
+                "evidence_id_mismatch",
+            )
+
+            result_payload = {
+                **mismatch_payload,
+                "evidence_id": evidence_id,
+            }
+            result_body = json.dumps(result_payload).encode()
+            result_headers = {
+                "Authorization": "Bearer test-auth-value",
+                "Content-Type": "application/json",
+                **sign_worker_request(
+                    "test-auth-value",
+                    identity,
+                    "POST",
+                    f"/api/v1/jobs/{job_id}/result",
+                    result_body,
+                ),
+            }
+            status, completed = self.request(
+                f"/api/v1/jobs/{job_id}/result",
+                method="POST",
+                data=result_body,
+                headers=result_headers,
+            )
+            self.assertEqual(status, 200)
+            self.assertEqual(
+                completed["job"]["result"]["evidence_id"],
+                evidence_id,
+            )
+            self.assertEqual(
+                completed["job"]["result"]["evidence_sha256"],
+                digest,
+            )
+        finally:
+            Handler.api_token = None
+
     def test_reclaimed_lease_rejects_the_previous_worker_result(self):
         worker_id = f"fence-{uuid.uuid4().hex[:12]}"
         identity = {
@@ -6444,6 +6633,7 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, storage = self.request("/api/v1/storage")
         self.assertEqual(status, 200)
         self.assertIn("sessions", storage)
+        self.assertIn("evidence", storage)
         self.assertIn("policy", storage)
         self.assertIn("free_bytes", storage["disk"])
 
@@ -6454,6 +6644,7 @@ class DeviceServiceHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertIn("pruned_sessions", pruned)
+        self.assertIn("records_removed", pruned["evidence"])
         self.assertFalse(pruned["cache"]["freed_bytes"])
 
     def test_artifact_and_firmware_round_trip(self):

@@ -51,7 +51,7 @@ eFuse 或生产 key。
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
 | P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff 和 classic RMT 已修复/验证；legacy Serial 已到 `APIKEY`，但 normal WDT 仍 reset，WDT-off 仍是黑帧 | probe/UIFlow2 PASS、RMT 初始化、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
-| P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
+| P0 | 网络产品化 | 物理跨主机 worker、主文件系统/队列/证据跨主机复制、任意 NAT 和外部 side-effect fence | 单机 namespace/container 和单个 control-plane evidence store 不能替代物理多机或对象存储 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
 | P0 | 真机同路径 | 代表设备同固件 SHA 的 hardware validation | 当前仓库没有可继承的硬件结论 |
@@ -235,7 +235,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
-| `NET-04` | 进行中 | claim response-loss idempotency 已完成；继续物理跨主机 executor/reattach、跨主机 queue/session/evidence 存储、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim response 丢失不重复取 job；ownership 无法确认时 fail closed |
+| `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
@@ -347,12 +347,17 @@ partition fence 已进入状态页与台账。真实 HTTP/WorkerAgent 路径也�
 committed claim response 被客户端丢弃后，同一 identity-bound
 `claim_idempotency_key` 可跨 control-plane restart 返回原 job/lease；
 第二个 queued job 不被误领，异请求与 expired lease fail closed，raw key
-不写入 `jobs.json`。
+不写入 `jobs.json`。真实 WorkerAgent 还可在结果上报前把多 MiB evidence
+ZIP 上传到 HMAC-authenticated、job/lease/generation-bound 的中央内容寻址
+store；丢失上传 response 后同 bytes 重试返回原 evidence ID，不同 bytes
+返回 409，metadata/content 跨 control-plane restart 可读，result 必须匹配
+同一 evidence ID + SHA256。
 
 开放范围：
 
 - 物理跨主机 worker、QEMU executor、迁移、reattach 和持续 evidence 流；
-- 跨主机 queue/session/evidence 持久存储与旧 lease result fence；
+- queue/session/evidence 的跨主机复制/对象存储、共享文件系统之外的持久性
+  与旧 lease result fence；
 - 无 reachable discovery seed 时的任意 NAT traversal；
 - QEMU 内 guest/device-controller 状态和 worker 未拥有的外部 side effect；
 - namespace-managed、Tab5 和 cross-host companion recovery；
@@ -366,6 +371,8 @@ committed claim response 被客户端丢弃后，同一 identity-bound
   running；
 - claim response 丢失、服务重启和同 key 重试保持原 job/lease，不能分配
   第二个 job；
+- evidence 上传 response 丢失、control-plane restart 和同 bytes 重试返回
+  原 evidence ID；异 bytes、旧 lease 或错误 result binding fail closed；
 - 物理多机与单机 namespace/container 结果分层记录。
 
 ## P0：Core2 controller 与物理边界

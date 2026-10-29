@@ -1492,3 +1492,30 @@ compileall 与 Node contracts 均 PASS。
 effect 仍 `NOT RUN`。见
 [证据](evidence/2026-10-29-worker-claim-idempotency/README.md)和
 [机器摘要](evidence/2026-10-29-worker-claim-idempotency/summary.json)。
+
+## 2026-10-29：Lease-bound remote evidence store
+
+Device Service API/OpenAPI 升至 `1.50.0`。认证 worker 的 evidence ZIP
+现在按 job、live lease、worker instance 和 generation 派生 immutable
+evidence ID，并以 ZIP SHA256 内容寻址保存。`POST /evidence` 只接受
+`application/zip`；`X-M5-Job-Id`、`X-M5-Lease-Id` 和
+`X-M5-Evidence-SHA256` 联合绑定 request。相同 bytes/lease 的响应丢失重试
+返回原 evidence ID；不同 bytes 返回 `409 evidence_conflict`。metadata 和
+content 使用 `0600` 原子文件，默认保留 90 天，并进入 `/storage` 和
+`/storage/prune`。
+
+真实 HTTP fixture 使用 2 MiB ZIP：WorkerAgent 第一次已成功上传后被注入
+响应丢失，自动重注册并复用同 bytes 重试，返回原 evidence ID。control-plane
+同 state directory 重启后，metadata 与 content 的 SHA/bytes 仍一致；不同
+bytes 被 409 拒绝。job result 必须同时携带正确 `evidence_id` 和
+`evidence_sha256`，错误 evidence ID 在终态写入前 409 fail closed。queue
+和 metadata 不含 raw ZIP payload，service log 不含 token。17 项 checks
+全部 PASS。平台套件 `1535 OK + 10 skipped`，Node contracts、runtime
+coverage、peripheral catalog、QEMU profiles、project snapshot、OpenAPI/YAML、
+compileall 和 `git diff --check` 均 PASS。
+
+该结果关闭 `NET-04/SVC-01` 中 single control-plane 的 lease-bound evidence
+response-loss/persistence 子缺口。物理跨主机 executor、共享文件系统之外的
+queue/session/evidence 复制、对象存储持久化、QEMU guest/controller 状态、
+外部 side-effect fence 和 physical hardware 仍 `NOT RUN`。见
+[证据](evidence/2026-10-29-lease-bound-evidence-store/README.md)。

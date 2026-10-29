@@ -403,6 +403,10 @@ transport should use HTTPS or a trusted private network.
   job/lease after response loss or service restart. Replay after expiry,
   ownership change or request mismatch fails closed, while empty no-job
   polls are not retained;
+- authenticated workers upload evidence ZIPs to a lease-bound,
+  content-addressed store before reporting a result. Identical replay returns
+  the original evidence ID, different bytes for the same lease fail closed,
+  and result/evidence identity must agree across service restart;
 - `worker_agent.py` can use separate control and runtime `/api/v1` endpoints:
   it claims/heartbeats on the central service, while the optional runtime
   service creates and owns the QEMU session, provides evidence and performs
@@ -430,8 +434,8 @@ transport should use HTTPS or a trusted private network.
   arbitrary NAT traversal when no routable seed is available,
   namespace-managed/Tab5/cross-host
   companion recovery, a continuous external evidence stream, cross-host
-  re-attach, cross-host idempotency storage and production capacity scheduling
-  remain open.
+  re-attach, replicated cross-host queue/evidence storage and production
+  capacity scheduling remain open.
 
 ### Phase S2: warm/cold pool
 

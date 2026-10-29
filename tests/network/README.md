@@ -1,6 +1,6 @@
 # Network and worker test index
 
-Last reviewed: `2026-10-26`
+Last reviewed: `2026-10-29`
 
 These fixtures cover virtual radio data planes, Linux network policy, pcap,
 multi-guest fabric and the distributed worker control/runtime planes. Current
@@ -28,6 +28,7 @@ capability and open tasks remain in
 | [`worker_lifecycle`](worker_lifecycle/README.md) | Local worker heartbeat, drain, resume and abandoned lease classification | remote multi-host scheduling |
 | [`worker_queue`](worker_queue/README.md) | Durable submit/claim/heartbeat/result/cancel and lease expiry | execution of the job |
 | [`worker_claim_idempotency`](worker_claim_idempotency/README.md) | Real HTTP claim-response-loss replay, same job/lease after restart, conflict/stale fail-closed and non-secret mapping | physical cross-host execution, packet blackhole or external side-effect fencing |
+| [`evidence_store`](evidence_store/README.md) | Real HTTP worker upload/retry, lease-bound multi-MiB ZIP persistence across service restart, result evidence binding and content conflict rejection | physical cross-host execution, QEMU guest, object-store replication or external side-effect fencing |
 | [`worker_executor`](worker_executor/README.md) | HTTP worker claim, real session, evidence and result | cross-host migration |
 | [`worker_tls`](worker_tls/README.md) | HTTPS/mTLS, worker HMAC, rotation, drain, overlap and real QEMU jobs | production secret manager or physical multi-host PKI |
 | [`worker_discovery`](worker_discovery/README.md) | Authenticated same-domain multicast control discovery and token rotation | Cross-subnet or arbitrary NAT traversal |

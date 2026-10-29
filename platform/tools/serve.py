@@ -31,6 +31,7 @@ from device_service import (
     DeviceService,
     ServiceError,
 )
+from evidence_store import MAX_EVIDENCE_BYTES
 from peripheral_inventory import build_inventory
 from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
 from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
@@ -400,11 +401,16 @@ class Handler(SimpleHTTPRequestHandler):
             if (
                 self.api_token or self.previous_api_token
             ) and is_worker_auth_path(method, path):
+                auth_body_limit = (
+                    MAX_EVIDENCE_BYTES
+                    if method == "POST" and path == "/api/v1/evidence"
+                    else 1024 * 1024
+                )
                 verified_worker = service.verify_worker_request(
                     self.headers,
                     method,
                     path,
-                    self._read_body(max_bytes=1024 * 1024),
+                    self._read_body(max_bytes=auth_body_limit),
                 )
 
             if method == "GET" and (not parts or parts == ["health"]):
@@ -464,6 +470,27 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             elif method == "GET" and parts == ["artifacts"]:
                 response = {"artifacts": service.artifacts.list()}
+            elif method == "GET" and len(parts) == 2 and parts[0] == "evidence":
+                response = service.get_remote_evidence(parts[1])
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "evidence"
+                and parts[2] == "content"
+            ):
+                data, evidence = service.get_remote_evidence_content(parts[1])
+                self._send_bytes(
+                    data,
+                    "application/zip",
+                    extra_headers={
+                        "X-Request-ID": request_id,
+                        "X-Evidence-SHA256": evidence["content_sha256"],
+                        "Content-Disposition": (
+                            f'attachment; filename="evidence-{parts[1]}.zip"'
+                        ),
+                    },
+                )
+                return
             elif (
                 method == "GET"
                 and len(parts) == 2
@@ -768,6 +795,39 @@ class Handler(SimpleHTTPRequestHandler):
                     ),
                 )
                 status = 201
+            elif method == "POST" and parts == ["evidence"]:
+                if verified_worker is None:
+                    raise ServiceError(
+                        "worker_auth_required",
+                        "evidence upload requires authenticated worker identity",
+                        503,
+                    )
+                data = self._read_body(max_bytes=MAX_EVIDENCE_BYTES)
+                job_id = self.headers.get("X-M5-Job-Id", "")
+                lease_id = self.headers.get("X-M5-Lease-Id", "")
+                claimed_sha256 = self.headers.get(
+                    "X-M5-Evidence-SHA256",
+                    "",
+                )
+                actual_sha256 = hashlib.sha256(data).hexdigest()
+                if not hmac.compare_digest(claimed_sha256, actual_sha256):
+                    raise ServiceError(
+                        "evidence_hash_mismatch",
+                        "X-M5-Evidence-SHA256 does not match the request body",
+                        409,
+                    )
+                response = service.store_remote_evidence(
+                    job_id=job_id,
+                    lease_id=lease_id,
+                    identity=verified_worker,
+                    data=data,
+                    content_type=self.headers.get("Content-Type", ""),
+                )
+                evidence = response["evidence"]
+                status = 200 if evidence.get("idempotent_replay") else 201
+                headers["Location"] = (
+                    f"/api/v1/evidence/{evidence['evidence_id']}"
+                )
             elif method == "POST" and parts == ["firmware", "import"]:
                 response = service.import_firmware_package(self._read_json())
                 status = 201
@@ -955,6 +1015,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.abort_artifact_upload(parts[1])
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
                 response = service.delete_artifact(parts[1])
+            elif method == "DELETE" and len(parts) == 2 and parts[0] == "evidence":
+                response = service.delete_remote_evidence(parts[1])
             elif method == "DELETE" and parts == ["sessions"]:
                 state = query.get("state", [""])[0]
                 if state not in {"stopped", "failed", ""}:

@@ -109,6 +109,24 @@ class WorkerJobQueueTests(unittest.TestCase):
         self.assertEqual(lease["worker_id"], "worker-a")
 
         self.now += 10
+        ownership = self.queue.validate_lease(
+            claimed["job_id"],
+            {
+                **self.identity(),
+                "lease_id": lease["lease_id"],
+            },
+        )
+        self.assertEqual(ownership["lease_id"], lease["lease_id"])
+        self.assertEqual(ownership["worker"], self.identity())
+        with self.assertRaises(WorkerQueueError) as mismatch:
+            self.queue.validate_lease(
+                claimed["job_id"],
+                {
+                    **self.identity(generation=2),
+                    "lease_id": lease["lease_id"],
+                },
+            )
+        self.assertEqual(mismatch.exception.code, "job_lease_mismatch")
         heartbeat = self.queue.heartbeat(
             claimed["job_id"],
             {
@@ -238,12 +256,14 @@ class WorkerJobQueueTests(unittest.TestCase):
                 **self.identity(),
                 "lease_id": claimed["lease"]["lease_id"],
                 "state": "PASS",
+                "evidence_id": "b" * 64,
                 "evidence_sha256": "a" * 64,
                 "summary": {"checks": 12},
             },
         )
         self.assertEqual(completed["status"], "completed")
         self.assertEqual(completed["result"]["state"], "PASS")
+        self.assertEqual(completed["result"]["evidence_id"], "b" * 64)
         self.assertEqual(
             completed["result"]["lease_id"],
             claimed["lease"]["lease_id"],

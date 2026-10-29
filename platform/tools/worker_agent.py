@@ -297,10 +297,16 @@ class Api:
         *,
         method: str = "GET",
         payload: dict[str, Any] | None = None,
+        data: bytes | None = None,
+        headers: dict[str, str] | None = None,
         timeout: float = 60,
     ) -> tuple[int, bytes, str]:
-        headers: dict[str, str] = {}
-        data = None
+        if payload is not None and data is not None:
+            raise WorkerAgentError(
+                "request accepts either payload or raw data, not both"
+            )
+        request_headers = dict(headers or {})
+        request_data = data
         with self._lock:
             credential_reloader = self._credential_reloader
         if credential_reloader is not None:
@@ -310,24 +316,24 @@ class Api:
             ssl_context = self._ssl_context
             worker_identity = self.worker_identity
         if payload is not None:
-            data = json.dumps(payload).encode()
-            headers["Content-Type"] = "application/json"
+            request_data = json.dumps(payload).encode()
+            request_headers["Content-Type"] = "application/json"
         if token:
-            headers["Authorization"] = f"Bearer {token}"
+            request_headers["Authorization"] = f"Bearer {token}"
             if worker_identity is not None and is_worker_auth_path(method, path):
-                headers.update(
+                request_headers.update(
                     sign_worker_request(
                         token,
                         worker_identity,
                         method,
                         path,
-                        data or b"",
+                        request_data or b"",
                     )
                 )
         request = urllib.request.Request(
             self.base_url + path,
-            data=data,
-            headers=headers,
+            data=request_data,
+            headers=request_headers,
             method=method,
         )
         request_options = (
@@ -660,6 +666,7 @@ class WorkerAgent:
         state: str,
         evidence_sha256: str | None,
         summary: dict[str, Any],
+        evidence_id: str | None = None,
     ) -> dict[str, Any]:
         response = self._control_json(
             f"/api/v1/jobs/{job_id}/result",
@@ -668,11 +675,55 @@ class WorkerAgent:
                 **self.identity,
                 "lease_id": lease_id,
                 "state": state,
+                "evidence_id": evidence_id,
                 "evidence_sha256": evidence_sha256,
                 "summary": summary,
             },
         )
         return response["job"]
+
+    def upload_evidence(
+        self,
+        job_id: str,
+        lease_id: str,
+        evidence: bytes,
+        evidence_sha256: str,
+    ) -> dict[str, Any]:
+        if hashlib.sha256(evidence).hexdigest() != evidence_sha256:
+            raise WorkerAgentError(
+                "local evidence hash changed before upload"
+            )
+        headers = {
+            "Content-Type": "application/zip",
+            "X-M5-Job-Id": job_id,
+            "X-M5-Lease-Id": lease_id,
+            "X-M5-Evidence-SHA256": evidence_sha256,
+        }
+
+        def upload(request_timeout: float) -> Any:
+            status, body, _content_type = self.api.request(
+                "/api/v1/evidence",
+                method="POST",
+                data=evidence,
+                headers=headers,
+                timeout=min(120.0, request_timeout),
+            )
+            if status not in {200, 201}:
+                raise WorkerAgentError(
+                    f"evidence upload returned HTTP {status}"
+                )
+            payload = json.loads(body)
+            evidence_record = payload.get("evidence")
+            if not isinstance(evidence_record, dict):
+                raise WorkerAgentError(
+                    "evidence upload response has no evidence object"
+                )
+            return evidence_record
+
+        return self._control_recovery(
+            upload,
+            recover_registration=True,
+        )
 
     def _wait_session(
         self,
@@ -898,6 +949,7 @@ class WorkerAgent:
         heartbeat_stop = threading.Event()
         lease_fence = threading.Event()
         heartbeat_error: list[str] = []
+        evidence_id: str | None = None
 
         def heartbeat_loop() -> None:
             while not heartbeat_stop.wait(self.heartbeat_interval):
@@ -924,6 +976,19 @@ class WorkerAgent:
             if lease_fence.is_set():
                 result["state"] = "FAIL"
                 result["summary"]["lease_fenced"] = True
+            evidence_sha256 = result.get("evidence_sha256")
+            if isinstance(evidence_sha256, str) and not lease_fence.is_set():
+                evidence_path = self.work_dir / job_id / "evidence.zip"
+                evidence = evidence_path.read_bytes()
+                stored = self.upload_evidence(
+                    job_id,
+                    lease_id,
+                    evidence,
+                    evidence_sha256,
+                )
+                evidence_id = str(stored["evidence_id"])
+                result["summary"]["evidence_id"] = evidence_id
+                result["summary"]["evidence_storage"] = "central"
             atomic_write(
                 self.work_dir / job_id / "result.json",
                 (json.dumps(result, indent=2) + "\n").encode(),
@@ -937,6 +1002,7 @@ class WorkerAgent:
                 job_id,
                 lease_id,
                 state=str(result["state"]),
+                evidence_id=evidence_id,
                 evidence_sha256=(
                     result["evidence_sha256"]
                     if isinstance(result.get("evidence_sha256"), str)
