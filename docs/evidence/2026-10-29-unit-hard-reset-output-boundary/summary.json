@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "task": "UNIT-HOST-36",
+  "status": "PASS",
+  "device_id": "atoms3r",
+  "unit_ids": [
+    "relay",
+    "2relay"
+  ],
+  "pins": {
+    "white": 1,
+    "yellow": 2
+  },
+  "firmware_sha256": "ab4dd742a342f85037c3c0cb2c67c037bf5eef7cf429bee131d2227d4a404e3d",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0087-unit-hard-reset-output-boundary.patch",
+    "sha256": "d269d35e83411f2c7170e36a76948531f7a2e6d43611f1adf916ab903aa4f7db"
+  },
+  "bootstrap_forward_ports": {
+    "patches/qemu-unit-runtime/0003-xtensa-high-priority-irq-cooperative-yield.patch": "e4c18e26d3e419328c86009c1533dc92ade724ec968c090640a0603b3548a28e",
+    "patches/qemu-unit-runtime/0004-esp32-classic-rmt-legacy.patch": "a70dc71b3c7af65f30cf4c5df5e4dccd070c058b6d15d4e1c8dd8b7d393e0bfa",
+    "patches/qemu-unit-runtime/0005-esp32-timg-wdt-feed-unprotected.patch": "c18db711421c240178f92893b7cd41d206b9a0e3ed6f5fa43b0b065ebe9103ff",
+    "patches/qemu-unit-runtime/0006-esp32-uart-tx-virtual-clock.patch": "0eb53c32412e52ae7cd9ce9f166cafd39e30b7a83d89cffe6a0f62e13e9edc4e"
+  },
+  "qemu_source_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch_count": 38,
+  "patched_source_files": 119,
+  "pre_fix_qemu_sha256": "9aca9a8db5143ad133510795cd228ed8ac23c388ea197267d7b2b4750e58eb82",
+  "fixed_qemu_sha256": "e318b2b748d6e982cd2e592a1b991ec930a8e9501cf02a0c19925022a656b373",
+  "pre_fix": {
+    "2relay": {
+      "status": "FAIL",
+      "immediately_after_reset": {
+        "levels": [false, false],
+        "transitions": [1, 1]
+      },
+      "evidence_zip_sha256": "cc259eff53bc2ee9132c4aae46503719cd1a0e386c34b66fa085a585f45406c7"
+    },
+    "relay": {
+      "status": "FAIL",
+      "immediately_after_reset": {
+        "level": true,
+        "transitions": 2
+      },
+      "evidence_zip_sha256": "91b176229d55bf9e30e34695b7f7363f0507222c5ae5b87a661db0c76d91cd31"
+    }
+  },
+  "fixed": {
+    "2relay": {
+      "status": "PASS",
+      "immediately_after_reset": {
+        "levels": [false, false],
+        "transitions": [0, 0]
+      },
+      "after_gpio1_high": {
+        "levels": [true, false],
+        "transitions": [1, 0]
+      },
+      "after_gpio2_high": {
+        "levels": [true, true],
+        "transitions": [1, 1]
+      },
+      "evidence_zip_sha256": "67acff27951363b7fe27fe185a6cf78e0f06ce0057ac84868a335c7c8ea428b0"
+    },
+    "relay": {
+      "status": "PASS",
+      "immediately_after_reset": {
+        "level": true,
+        "transitions": 0
+      },
+      "warm_low_baseline_transitions": 1,
+      "gpio1_high_keeps_yellow_transitions": 1,
+      "gpio2_high_transitions": 2,
+      "evidence_zip_sha256": "6ac5a02268a8c9b6230ff784debb57aecd08cc7e4fad518143206c054b9203f3"
+    }
+  },
+  "checks": {
+    "reset_observer_runs_before_legacy_edge_notification": true,
+    "relay_and_relay2_previous_output_rebased_at_reset": true,
+    "relay_and_relay2_transition_counters_cleared_at_reset": true,
+    "post_reset_independent_channel_transitions_observed": true,
+    "evidence_requested_before_purge_zero_stop": true,
+    "process_cleanup_recorded": true
+  },
+  "limits": [
+    "virtual-device validation only",
+    "digital GPIO listener observations are not mechanical relay contacts",
+    "one guest host/model is recorded for this issue closure",
+    "physical hardware, electrical, load and analog behavior remain NOT RUN"
+  ]
+}

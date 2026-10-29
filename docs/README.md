@@ -178,8 +178,9 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [Lease-bound remote evidence store](evidence/2026-10-29-lease-bound-evidence-store/README.md) | 当前 worker evidence 证据 | `2026-10-29` | 真实 HTTP WorkerAgent 上传约 2 MiB ZIP，上传 response 丢失后同 bytes 重试返回原 evidence ID；control-plane restart 后 metadata/content 一致，异 bytes 与错误 result binding 409，`0600` 文件且 raw payload 不进入 queue/log；物理跨主机和对象存储复制仍 NOT RUN |
 | [Device Service runtime ACL](evidence/2026-10-29-runtime-acl/README.md) | 当前 service runtime policy 证据 | `2026-10-29` | 外部 operator JSON 按设备限制 serial/input/reset、program execute/interrupt/read、package write 和 flash read；真实 HTTP 的未授权操作在 console/QMP/flash I/O 前 403，policy hash/有效权限可审计，package deny path 不创建 revision；guest filesystem ACL、native firmware 沙箱、QEMU 和真机仍 NOT RUN |
 | [Core2 for AWS ATECC608](evidence/2026-10-29-core2-atecc608/README.md) | 当前 Core2 runtime-model 证据 | `2026-10-29` | `0085` 在 `0x35` 实现 wake/Read/Info/CRC 和锁定测试 config，并修复 classic ESP32 DMA link-start/DC；公开固件三个独立 session 从 `atcab_init=f0`/abort 推进到 `atecc608: ok: 60 02` 与非空帧；生产 key、ECDSA、电气和真机不继承 |
+| [Unit Relay/Relay2 hard-reset边界](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) | 当前 Unit 复位证据 | `2026-10-29` | `0087` 让共享 GPIO reset 先建立复位后电平/通知 observer，再走正常 listener；AtomS3R 同固件 A/B 中 pre-fix 单 Relay/Relay2 计数跨 reset 泄漏，fixed 在 reset 清零后分别从独立高电平重新计数；数字 GPIO only，机械/电气/其它 Unit reset 不继承 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-29` | `1.51.0`；新增 operator-owned runtime ACL/执行策略，session/capacity 暴露 policy hash 与有效权限；保留 1.50 worker evidence、claim response-loss replay、Unit准入、冻结 schema、lease/evidence 及网络契约 |
-| [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
+| [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-29` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，Relay/Relay2 hard-reset A/B 已限定闭环，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
@@ -206,7 +207,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
 | [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-27` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；完整文件包/纯字节码依赖已接入；其余Unit、AIFlow/Preview/SSE及保存开机仍开放；视觉与功能协议分别验收 |
-| [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-27` | 接入期间发现的主机问题与处理边界 |
+| [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-29` | 接入期间发现的主机问题与处理边界；UNIT-HOST-36 以数字 Relay/Relay2 A/B 关闭 |
 | [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序、QEMU按需共享帧和1.42 Preview/Run基础已实现；限定Web托管消费者已验，SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
 | [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/其它Web组合/GC仍开放 |
 | [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE仍开放；构图限定修复见下一块 |

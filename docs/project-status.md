@@ -201,11 +201,11 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 80款仅视觉；内部协议登记34种，新增U131双GPIO/蓝灯、8Servos HAT/Unit、Joystick2 与 NFC Unit；Scroll及2Relay均保留partial边界；不得继承MCU完整行为、机械或电气等价结论。
 见[外壳与checkpoint证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。新10-patch独立冷构建850426下CoreS3定向7PASS、完整矩阵66/67；Core2 IMU相同marker黑、UART正确，独立单例PASS不回写完整轮，UNIT-HOST-21仍OPEN。34款协议登记可从固定源码栈重建，精确范围见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；视觉和协议保留独立来源。
 
-CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
-浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、
-串口、帧、冻结 Unit contract、停止前 ZIP 和保留历史。显式选择来自 gen7 的
-16 个成功记录与 gen8 的 11 个补测记录；原轮失败、中断和未执行项保留，不能
-称为单次 27 项全绿运行。见[严格选择与范围](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-final-selection-a8fe/README.md)。
+`UNIT-HOST-36`：`0087` 在共享 GPIO reset 建立电平后先通知 Unit observer，再走正常 listener；AtomS3R 同固件 fixed/pre-fix A/B 对单 Relay 和双通道均复现旧计数跨 reset 泄漏并在 fixed 清零，只覆盖数字 GPIO，不表示机械触点/线圈/负载/电气或其它 Unit reset，见[证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)。
+
+CoreS3 的逐型号功能证据现已通过同 guest/controller、真实浏览器和全型号桥契约三层汇总；每个运行例都有实际 PID→QEMU SHA、同固件、串口、帧、冻结 Unit contract、停止前 ZIP 和保留历史。
+显式选择来自 gen7 的 16 个成功记录与 gen8 的 11 个补测记录；原轮失败、中断和未执行项保留，不能称为单次 27 项全绿运行。
+见[严格选择与范围](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-unit-final-selection-a8fe/README.md)。
 该历史选择中 26 款使用原 Unit 驱动路径，IR 只在明确 opt-in 的 custom callback-root
 补丁下闭环；原发布包装驱动的 GC 回调和 uint8/native16 TX 边界仍单列。
 后续更严格的 Buzzer 定时检查发现旧断言会接受稍后的手动关闭；原版 once

@@ -1414,7 +1414,7 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog alone does not authorize a simulated or functional-PASS claim.",
-        "Transition counters count observed listener notifications in a continuous, non-reset execution interval. Shared GPIO hard-reset notification/Unit counter semantics remain open as UNIT-HOST-36."
+        "Patch 0087 rebases previous output from the post-reset GPIO pad and clears both digital transition counters before the normal output listener runs. Counters still do not represent mechanical relay contacts or electrical state."
       ]
     },
     {
@@ -4920,7 +4920,7 @@
       "limitations": [
         "Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests.",
         "No calibrated outer-shell S1 detent binding or LED color temperature measurement.",
-        "UNIT-HOST-36 reset-observer gap remains open; a mismatched pad revokes output-known."
+        "The 0087 Relay/Relay2 reset observer does not grant FlashLight reset semantics; a mismatched pad revokes output-known."
       ]
     },
     {

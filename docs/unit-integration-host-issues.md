@@ -1,6 +1,6 @@
 # Unit 接入期间发现的主机问题
 
-最近核对：2026-10-27。归属 `UNIT-01`，待办仍以 `project-backlog.md` 为准。
+最近核对：2026-10-29。归属 `UNIT-01`，待办仍以 `project-backlog.md` 为准。
 本页保留现象、证据和影响，不把外设接入调查扩展成主机全量整改。
 
 | ID | 状态 | 现象与证据 | 对接入的影响 / 处理 |
@@ -41,9 +41,9 @@
 
 | UNIT-HOST-34 | FIXED（限定Web消费者） | 旧页面未识别management_binding，mutation被409拒绝，Run切换缺客户端fence；本块还复现首次无Token目录401后保存无法恢复、取消慢回执漏掉新意图、ACK丢失/销毁松键丢失 | 共享PreviewClient统一Run/epoch/generation、完整包保留编辑、输入/选定帧隔离和renew/close；reset禁用。独审及真实CoreS3 PIR/Relay完整链路通过，原失败和宿主负控保留；不转授其它Unit/主机、AIFlow或硬件。[限定验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-web-consumer/README.md) |
 | UNIT-HOST-35 | FIXED（限定整装配fit/resize与长dt） | 旧PIR/Relay窄画布横向裁切；初修又在RAF阻塞1200ms后因壁钟快于vendor旋转时钟而裁切，两个可执行负控均保留 | 实例公开fit/resize按主机/Unit/线缆world bounds两轴+深度构图；render(dt)同步相机/旋转时钟。四断点PIR/Relay/HUB、手动方向/zoom/pan、帧/状态零重置/零回声及mount/frame/model回归通过；不转授其它装配遮挡/物理外观保真。[证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md) |
-| UNIT-HOST-36 | OPEN（共享GPIO hard-reset计数边界） | 2Relay接入独审静态发现既有GPIO reset清寄存器但不调用output listener；Unit previous/counter也不随之重置。高电平hard reset后再次拉高可能漏记通知计数，原单Relay亦有该边界；本轮尚未做guest复现 | pad读数仍从当前GPIO取得；transition只能用于未重启的已验执行区间，不作跨hard-reset完整边沿账本。Preview reset当前禁用。后续在共享GPIO reset/lifecycle中补通知/计数语义、可执行负控和受影响矩阵；本块不扩为控制器reset修复 |
+| UNIT-HOST-36 | FIXED（限定Relay/Relay2数字复位边界） | 既有GPIO reset清寄存器但不调用output listener；Unit previous/counter也不随之重置。`0087`在共享GPIO reset建立复位后route/level，先通知reset observer，再发正常line listener；Relay/Relay2从实际pad重定基线并清零transition。新`e318b2b7…`冷构建的AtomS3R同固件A/B中，pre-fix `9aca9a8d…`单Relay reset后计数`2`、Relay2仍`1/1`；fixed在reset观测为`0`/`0,0`，随后双通道分别从`1/0`到`1/1` | transition只表示数字listener观测，不是触点/线圈/负载或电气状态；本块不外推到FlashLight、其它Unit或控制器级reset。Preview reset仍禁用，其它host/model组合另验。[A/B与清理证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md) |
 | UNIT-HOST-37 | OPEN（FlashLight冷route无边沿观测） | 新Unit模型初始化时GPIO route尚未受验，后续Pin只配置低电平而无pad边沿，output-known保持false；CoreS3首轮实测记录。实际EN高→低及>500us shutdown后可恢复，四host已验 | 不把低pad读数当完整内部状态；仅受验连续GPIO波形可授known。后续补route通知/时间资格而非host伪造，动态S1、EN PWM与硬件光电/热仍独立。证据见[本块](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-and-uiflow-base/README.md) |
-| UNIT-HOST-38 | FIXED（限定OUT_SEL路由历史） | `0046`从真实GPIO MMIO commit通知同layout/EN pin，离开/恢复route均撤旧内部资格、取消三timer并清旧low/deadline，不造edge/decoded；新受支持fall及完整long-low后再由实际driver恢复。旧26case/357checks有152失败，候选0 | 新3f1617冷构建下四host八lane168次同VM执行、CoreS3实际mounted13阶段及清理通过；LEDC73/RMT81/OUT_INV往返无边沿与unsupported低区间偷渡均保持unknown。完整矩阵66/67，Core2旧IMU问题不拼PASS；37冷route、36hard-reset、完整OEN/IOMUX/PWM/S1与硬件仍独立。[修复与分层验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md) |
+| UNIT-HOST-38 | FIXED（限定OUT_SEL路由历史） | `0046`从真实GPIO MMIO commit通知同layout/EN pin，离开/恢复route均撤旧内部资格、取消三timer并清旧low/deadline，不造edge/decoded；新受支持fall及完整long-low后再由实际driver恢复。旧26case/357checks有152失败，候选0 | 新3f1617冷构建下四host八lane168次同VM执行、CoreS3实际mounted13阶段及清理通过；LEDC73/RMT81/OUT_INV往返无边沿与unsupported低区间偷渡均保持unknown。完整矩阵66/67，Core2旧IMU问题不拼PASS；37冷route、完整OEN/IOMUX/PWM/S1与硬件仍独立；36的Relay/Relay2数字边界已另由0087关闭，但不转授FlashLight reset。[修复与分层验收](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-flashlight-route-history/README.md) |
 
 QEMU/esp-emu 的模型缺口继续维护在 `runtime-model-gap-register.md`；开放的
 Core2 legacy WDT、C6 Zigbee 等问题不在本页重复创建新任务，已关闭的

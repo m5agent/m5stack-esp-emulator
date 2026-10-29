@@ -1,0 +1,13 @@
+diff --git a/hw/char/esp32_uart.c b/hw/char/esp32_uart.c
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -143,5 +143,8 @@
+             fifo8_push(&s->tx_fifo, byte);
+             if (getenv("M5SW_UART_TRACE")) {
+-                fprintf(stderr, "[uart-tx] %02x\n", byte);
++                fprintf(
++                    stderr, "[uart-tx] now=%" PRId64 " %02x\n",
++                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), byte
++                );
+             }
+             m5_unit_uart_tx(s, byte);

@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-27`。API 契约：`1.47.0`。
+日期：`2026-10-29`。API 契约：`1.47.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
@@ -235,7 +235,12 @@ method 兼容 smoke，不冒称 frozen bytecode 逐字节身份已被证明。
 四主机各七Run，包含四组合、重复写、主机按键/触摸、取消后再跑和精确历史帧
 SHA，见[分层证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)。
 蓝灯只是额定供电假设下的 GPIO 功能指示；触点/线圈时序、负载和电气行为未
-模拟。transition 仅用于连续未重启区间，跨 hard-reset 的通知缺口仍 OPEN。
+模拟。`0087` 已将 GPIO hard-reset 的复位后电平通知接入 Relay/Relay2：
+复位先重定 `previous_output` 并清零 transition，再走正常 listener；AtomS3R
+同固件 fixed/pre-fix A/B 已用真实 UIFlow2 guest 验证单 Relay 与双通道，
+见[hard-reset 证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)。
+该结论只覆盖数字 GPIO 观察，不表示触点在 reset 前仍机械吸合，也不改变
+Preview reset 仍禁用或其它 Unit 的复位语义。
 默认离线计划与显式执行入口见
 [`test_live_relay2_preview_service_browser.mjs`](../platform/tests/test_live_relay2_preview_service_browser.mjs)。
 

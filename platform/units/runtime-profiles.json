@@ -4102,7 +4102,7 @@
         "stopwatch"
       ],
       "model_completeness": "partial",
-      "blocker": "Selected four-host UIFlow2 same-VM Preview paths have device-local evidence. This remains a partial nominal-powered GPIO/LED model: no coil/contact/load/electrical/hardware equivalence; hard-reset transition notifications remain UNIT-HOST-36.",
+      "blocker": "Selected four-host UIFlow2 same-VM Preview paths have device-local evidence. This remains a partial nominal-powered GPIO/LED model: no coil/contact/load/electrical/hardware equivalence. Patch 0087 closes the Relay/Relay2 digital hard-reset previous-output/counter boundary; it does not model retained mechanical contact state or other Units.",
       "inputs": {},
       "state": {
         "output-1-level": {

@@ -1,0 +1,64 @@
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -46,2 +46,28 @@
+ 
++static inline bool esp32_handoff_trace_enabled(void)
++{
++    static int enabled = -1;
++
++    if (enabled < 0) {
++        enabled = getenv("M5SW_ESP32_HANDOFF_TRACE") != NULL;
++    }
++    return enabled;
++}
++
++static void esp32_timg_handoff_trace(Esp32TimgState *s, const char *event,
++                                     uint64_t a, uint64_t b,
++                                     uint64_t c, uint64_t d)
++{
++    if (!esp32_handoff_trace_enabled()) {
++        return;
++    }
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=timg event=%s"
++            " a=%" PRIu64 " b=%" PRIu64 " c=%" PRIu64 " d=%" PRIu64 "\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), event,
++            (uint64_t)s->id, a, b, c, d);
++    fflush(stderr);
++}
++
+ static inline void set_low_word(uint64_t *dst, uint32_t word)
+@@ -258,8 +284,20 @@
+     case A_TIMG_WDTFEED:
+-        if (!esp32_timg_wdt_protected(&s->wdt)) {
+-            if (esp32_timg_trace_enabled()) {
+-                fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+-            }
+-            esp32_timg_wdt_feed(&s->wdt);
++        /*
++         * WDTFEED is intentionally outside the register write-protection
++         * check. ESP-IDF wdt_hal_feed() writes it directly without unlocking
++         * WDTPROTECT, matching the hardware feed register semantics.
++         */
++        if (esp32_handoff_trace_enabled()) {
++            s->wdt.last_feed_ns =
++                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++            ++s->wdt.feed_count;
++        }
++        esp32_timg_handoff_trace(
++            s, "wdt-feed", s->wdt.cur_stage, s->wdt.en,
++            s->wdt.flashboot_en, s->wdt.protect_reg
++        );
++        if (esp32_timg_trace_enabled()) {
++            fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+         }
++        esp32_timg_wdt_feed(&s->wdt);
+         break;
+--- a/include/hw/timer/esp32_timg.h
++++ b/include/hw/timer/esp32_timg.h
+@@ -65,2 +65,4 @@
+     uint64_t ns_base;
++    uint64_t last_feed_ns;
++    uint64_t feed_count;
+     int cur_stage;
