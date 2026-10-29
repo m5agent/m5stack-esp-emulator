@@ -7,6 +7,7 @@ import hashlib
 import json
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -105,6 +106,7 @@ def run_attempt(
     attempt_dir: Path,
     timeout: float,
     linger_seconds: int,
+    stop_mode: str,
 ) -> dict[str, Any]:
     attempt_dir.mkdir(parents=True, exist_ok=True)
     session_id: str | None = None
@@ -126,6 +128,9 @@ def run_attempt(
     frame_status = 0
     evidence_status = 0
     stop_seconds: float | None = None
+    reset_seconds: float | None = None
+    reset_result: dict[str, Any] = {}
+    post_reset_session: dict[str, Any] = {}
     qemu_pid: int | None = None
     ble_pid: int | None = None
 
@@ -185,6 +190,21 @@ def run_attempt(
             f"/api/v1/sessions/{session_id}/evidence"
             "?include=manifest,serial,frames,logs,network,qom"
         )
+        if stop_mode == "after-reset":
+            phase = "reset_before_stop"
+            reset_started = time.monotonic()
+            reset_result = api.json(
+                f"/api/v1/sessions/{session_id}/reset",
+                payload={},
+            )
+            reset_seconds = round(
+                time.monotonic() - reset_started,
+                3,
+            )
+            time.sleep(0.25)
+            post_reset_session = api.json(
+                f"/api/v1/sessions/{session_id}"
+            )
         phase = "active_stop"
         started = time.monotonic()
         stop_result = api.json(
@@ -222,6 +242,10 @@ def run_attempt(
     if final_session:
         (attempt_dir / "final-session.json").write_text(
             json.dumps(final_session, indent=2) + "\n"
+        )
+    if post_reset_session:
+        (attempt_dir / "post-reset-session.json").write_text(
+            json.dumps(post_reset_session, indent=2) + "\n"
         )
 
     network_checks = network.get("checks")
@@ -282,6 +306,20 @@ def run_attempt(
             worker_after.get("active_lease_count") == 0
         ),
         "api_evidence": evidence_status == 200,
+        "reset_before_stop_applied": (
+            stop_mode == "active"
+            or (
+                reset_result.get("reset") is True
+                and reset_result.get("state") == "running"
+            )
+        ),
+        "reset_retained_session_process": (
+            stop_mode == "active"
+            or (
+                post_reset_session.get("pid") == qemu_pid
+                and post_reset_session.get("state") == "running"
+            )
+        ),
     }
     if not qom.get("nodes"):
         checks["api_evidence"] = False
@@ -327,6 +365,14 @@ def run_attempt(
         "qemu_pid_before_stop": qemu_pid,
         "ble_pid_before_stop": ble_pid,
         "stop_seconds": stop_seconds,
+        "stop_mode": stop_mode,
+        "reset_seconds": reset_seconds,
+        "reset_result": reset_result,
+        "post_reset_session": {
+            "state": post_reset_session.get("state"),
+            "pid": post_reset_session.get("pid"),
+            "companions": post_reset_session.get("companions"),
+        },
         "stop_result_state": stop_result.get("state"),
         "final_session": {
             "state": final_session.get("state"),
@@ -362,6 +408,11 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--timeout", type=float, default=300)
     parser.add_argument("--linger-seconds", type=int, default=120)
+    parser.add_argument(
+        "--stop-mode",
+        choices=("active", "after-reset"),
+        default="active",
+    )
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 5:
@@ -410,6 +461,7 @@ def main() -> int:
             args.out_dir / f"attempt-{attempt}",
             effective_timeout,
             args.linger_seconds,
+            args.stop_mode,
         )
         runs.append(run)
         if run["status"] != "PASS":
@@ -444,8 +496,12 @@ def main() -> int:
     } if runs else {}
     evidence = {
         "schema_version": 1,
-        "kind": "m5stack-core2-native-hci-active-stop-recovery",
-        "date": "2026-10-25",
+        "kind": (
+            "m5stack-core2-native-hci-active-stop-recovery"
+            if args.stop_mode == "active"
+            else "m5stack-core2-native-hci-post-reset-stop-recovery"
+        ),
+        "date": datetime.now(timezone.utc).date().isoformat(),
         "stage": "CORE2-02",
         "gate_result": status,
         "status": status,
@@ -471,6 +527,7 @@ def main() -> int:
         "attempts_passed": passed,
         "attempts_failed": len(runs) - passed,
         "ble_linger_seconds": args.linger_seconds,
+        "stop_mode": args.stop_mode,
         "ready_timeout_seconds_effective": effective_timeout,
         "checks_per_attempt": checks_per_attempt,
         "runs": runs,
@@ -479,8 +536,11 @@ def main() -> int:
             "gdb_bridge": False,
             "lifecycle": (
                 "Each attempt deletes an already-ready session while its BLE "
-                "peer is still inside the requested linger window; the next "
-                "attempt creates a new session and QEMU process."
+                "peer is still inside the requested linger window."
+                if args.stop_mode == "active"
+                else "Each attempt issues a guest system reset after capturing "
+                "the ready-session evidence, then deletes the same session "
+                "while reboot is in flight."
             ),
             "not_claimed": [
                 "bit-exact Espressif BT controller/baseband",
