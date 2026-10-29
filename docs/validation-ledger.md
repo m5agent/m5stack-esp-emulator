@@ -1244,3 +1244,25 @@ bridge、key rotation、m5espnow wrapper、多 peer/乱序 replay window、
 loss/retry、channel/rate、bit-exact controller、RF/antenna、电气时序和
 真机均 `NOT RUN`。见[证据](evidence/2026-10-29-espnow-peer-lifecycle/README.md)
 和[机器摘要](evidence/2026-10-29-espnow-peer-lifecycle/summary.json)。
+
+## 2026-10-29：M5ESPNow wrapper peer lifecycle
+
+stock `m5espnow.M5ESPNow` wrapper 在同一 QEMU `be7c3765…` 上完成
+StopWatch↔StickS3 与 Core2↔StopWatch 的 external encrypted peer 生命周期：
+`set_pmk_encrypt`、`set_add_peer`、`get_peer_list(1)`、bidirectional PRE
+barrier、`set_delete_peer`、peer list/count 清空、delete 后 `send_data`
+no-op、re-add、peer list 恢复和 post-resume 双向 payload。
+
+四个 session 的 `initial_count/readded_count=[1,1]`、
+`deleted_count=[0,0]`、`deleted_peer_list_empty`、
+`send_after_delete_noop`、`peer_list_restored`、`pre_synced`、
+`post_resumed` 均为 true。M5ESPNow wrapper 在 peer 缺失时静默跳过
+`send_data`，与 native `send` 的 `OSError` 行为按 API 分开记录。所有
+session 均 `purge=0` 停止、runtime PID 消失并保留 history。
+
+该结果关闭 stock M5ESPNow wrapper 的 peer add/delete/re-add 生命周期，
+但 `RUNTIME-06` 仍为 `PARTIAL`：guest key-state 写入 QEMU bridge、
+key rotation、多 peer/乱序 replay window、loss/retry、channel/rate、
+bit-exact controller、RF/antenna、电气时序和真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-m5espnow-lifecycle/summary.json)。

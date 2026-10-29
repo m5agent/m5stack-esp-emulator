@@ -276,6 +276,145 @@ node.active(False)
 '''
 
 
+M5ESPNOW_LIFECYCLE_SOURCE = r'''
+import M5
+from m5espnow import M5ESPNow
+import json
+import network
+import time
+
+ROLE = __ROLE__
+PEER_MAC = b"\x02\x00\x00\x00\x00\x43"
+PEER_MAC_HEX = "020000000043"
+PMK = __PMK__
+LMK = __LMK__
+
+
+def emit(kind, **values):
+    values["kind"] = kind
+    print("ESPNOW_M5_LIFECYCLE_" + json.dumps(values, separators=(",", ":")))
+
+
+def receive(timeout_ms):
+    mac, payload = node.recv_data(timeout_ms)
+    if mac is None:
+        return None, b""
+    return bytes(mac), bytes(payload)
+
+
+def wait_for_marker(tag, expected, timeout_ms):
+    own = tag + b":" + ROLE.encode()
+    deadline = time.ticks_add(time.ticks_ms(), timeout_ms)
+    matched_at = None
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        node.send_data(1, own)
+        for _ in range(3):
+            source, payload = receive(100)
+            if source == PEER_MAC and payload == expected:
+                if matched_at is None:
+                    matched_at = time.ticks_ms()
+        if (
+            matched_at is not None
+            and time.ticks_diff(time.ticks_ms(), matched_at) >= 1500
+        ):
+            return True
+    return matched_at is not None
+
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    deadline = time.ticks_add(time.ticks_ms(), 5000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if any(row[0] == b"myssid" for row in wlan.scan()):
+            break
+        time.sleep_ms(100)
+    else:
+        raise RuntimeError("fixture AP absent")
+    wlan.connect("myssid")
+    deadline = time.ticks_add(time.ticks_ms(), 40000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        if wlan.isconnected() and wlan.status() == 1010:
+            return wlan
+        time.sleep_ms(100)
+    raise RuntimeError("guest DHCP timed out")
+
+
+M5.begin()
+connect_wifi()
+node = M5ESPNow(0)
+node.set_pmk_encrypt(PMK)
+node.set_add_peer(PEER_MAC_HEX, 1, 0, True, LMK)
+initial_count = list(node.peer_count())
+initial_peers = list(node.get_peer_list(1))
+registration_ok = (
+    initial_count == [1, 1]
+    and PEER_MAC_HEX.upper() in [value.upper() for value in initial_peers]
+)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="external_peer_registration",
+    status="PASS" if registration_ok else "FAIL",
+    peer_count=initial_count,
+    encryption=True,
+    wrapper="m5espnow",
+)
+emit("READY", role=ROLE)
+
+other_role = "B" if ROLE == "A" else "A"
+pre_synced = wait_for_marker(b"PRE", b"PRE:" + other_role.encode(), 12000)
+
+node.set_delete_peer(1)
+deleted_count = list(node.peer_count())
+deleted_peers = list(node.get_peer_list(1))
+send_after_delete_noop = True
+try:
+    node.send_data(1, b"AFTER_DELETE")
+except OSError:
+    send_after_delete_noop = False
+
+time.sleep_ms(600)
+node.set_add_peer(PEER_MAC_HEX, 1, 0, True, LMK)
+readded_count = list(node.peer_count())
+readded_peers = list(node.get_peer_list(1))
+peer_list_restored = (
+    readded_count == [1, 1]
+    and PEER_MAC_HEX.upper() in [value.upper() for value in readded_peers]
+)
+post_resumed = wait_for_marker(
+    b"POST", b"POST:" + other_role.encode(), 12000
+)
+
+passed = (
+    registration_ok
+    and pre_synced
+    and deleted_count == [0, 0]
+    and deleted_peers == []
+    and send_after_delete_noop
+    and peer_list_restored
+    and post_resumed
+)
+emit(
+    "RESULT",
+    role=ROLE,
+    api="external_peer_lifecycle_m5espnow",
+    status="PASS" if passed else "FAIL",
+    initial_count=initial_count,
+    pre_synced=pre_synced,
+    deleted_count=deleted_count,
+    deleted_peer_list_empty=deleted_peers == [],
+    send_after_delete_noop=send_after_delete_noop,
+    readded_count=readded_count,
+    peer_list_restored=peer_list_restored,
+    post_resumed=post_resumed,
+)
+emit("DONE", role=ROLE)
+print("ESPNOW_M5_LIFECYCLE_DONE " + ROLE)
+node.deinit()
+'''
+
+
 def save(path: Path, value: object) -> None:
     path.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n",
@@ -419,6 +558,20 @@ def parse_lifecycle_records(serial: str) -> list[dict]:
     return records
 
 
+def parse_m5espnow_lifecycle_records(serial: str) -> list[dict]:
+    records = []
+    for line in serial.splitlines():
+        if not line.startswith("ESPNOW_M5_LIFECYCLE_"):
+            continue
+        try:
+            records.append(
+                json.loads(line.removeprefix("ESPNOW_M5_LIFECYCLE_"))
+            )
+        except (TypeError, ValueError):
+            continue
+    return records
+
+
 def trace_summary(evidence: Path) -> dict:
     if not evidence.is_file():
         return {"tx": 0, "rx": 0, "replay_drops": 0, "sha256": None}
@@ -452,9 +605,15 @@ def run_one(
     pmk: bytes,
     lmk: bytes,
 ) -> dict:
-    source_template = (
-        LIFECYCLE_SOURCE if scenario == "lifecycle" else PAIR_SOURCE
-    )
+    if scenario == "lifecycle":
+        source_template = LIFECYCLE_SOURCE
+        done_marker = "ESPNOW_LIFECYCLE_DONE " + role
+    elif scenario == "lifecycle-m5espnow":
+        source_template = M5ESPNOW_LIFECYCLE_SOURCE
+        done_marker = "ESPNOW_M5_LIFECYCLE_DONE " + role
+    else:
+        source_template = PAIR_SOURCE
+        done_marker = "ESPNOW_PAIR_DONE " + role
     source = (
         source_template.replace("__ROLE__", repr(role))
         .replace("__PMK__", repr(pmk))
@@ -489,11 +648,7 @@ def run_one(
         timeout=120,
         source=source_path,
         out_dir=output,
-        done_marker=(
-            "ESPNOW_LIFECYCLE_DONE " + role
-            if scenario == "lifecycle"
-            else "ESPNOW_PAIR_DONE " + role
-        ),
+        done_marker=done_marker,
         network={
             "profile": wifi_profile(device),
             "http_fixture": False,
@@ -524,11 +679,12 @@ def run_one(
     serial = (
         serial_path.read_text(errors="replace") if serial_path.is_file() else ""
     )
-    records = (
-        parse_lifecycle_records(serial)
-        if scenario == "lifecycle"
-        else parse_pair_records(serial)
-    )
+    if scenario == "lifecycle":
+        records = parse_lifecycle_records(serial)
+    elif scenario == "lifecycle-m5espnow":
+        records = parse_m5espnow_lifecycle_records(serial)
+    else:
+        records = parse_pair_records(serial)
     return {
         "role": role,
         "device": device,
@@ -557,6 +713,7 @@ def main() -> int:
             "wrong-pmk",
             "replay",
             "lifecycle",
+            "lifecycle-m5espnow",
         ),
         required=True,
     )
@@ -686,6 +843,13 @@ def main() -> int:
         if row.get("kind") == "RESULT"
         and row.get("api") == "external_peer_lifecycle"
     ]
+    m5espnow_lifecycle_results = [
+        row
+        for result in results
+        for row in result["records"]
+        if row.get("kind") == "RESULT"
+        and row.get("api") == "external_peer_lifecycle_m5espnow"
+    ]
     expected_drop = args.scenario == "wrong-lmk"
     delivery_ok = (
         all(
@@ -715,6 +879,24 @@ def main() -> int:
             )
         )
     )
+    m5espnow_lifecycle_ok = (
+        args.scenario != "lifecycle-m5espnow"
+        or (
+            len(m5espnow_lifecycle_results) == 2
+            and all(
+                row.get("status") == "PASS"
+                and row.get("initial_count") == [1, 1]
+                and row.get("pre_synced") is True
+                and row.get("deleted_count") == [0, 0]
+                and row.get("deleted_peer_list_empty") is True
+                and row.get("send_after_delete_noop") is True
+                and row.get("readded_count") == [1, 1]
+                and row.get("peer_list_restored") is True
+                and row.get("post_resumed") is True
+                for row in m5espnow_lifecycle_results
+            )
+        )
+    )
     replay_ok = (
         args.scenario != "replay"
         or (
@@ -736,7 +918,11 @@ def main() -> int:
                 and lifecycle_ok
             )
             or (
-                args.scenario != "lifecycle"
+                args.scenario == "lifecycle-m5espnow"
+                and m5espnow_lifecycle_ok
+            )
+            or (
+                args.scenario not in {"lifecycle", "lifecycle-m5espnow"}
                 and len(delivery_results) == 2
                 and delivery_ok
                 and all(
@@ -787,7 +973,11 @@ def main() -> int:
                         == (
                             "external_peer_lifecycle"
                             if args.scenario == "lifecycle"
-                            else "external_payload"
+                            else (
+                                "external_peer_lifecycle_m5espnow"
+                                if args.scenario == "lifecycle-m5espnow"
+                                else "external_payload"
+                            )
                         )
                     ),
                     None,

@@ -68,6 +68,35 @@ class EspNowExternalPeerLifecycleTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.runner)
 
+    def test_m5espnow_wrapper_uses_documented_api(self):
+        for marker in (
+            "M5ESPNOW_LIFECYCLE_SOURCE",
+            "from m5espnow import M5ESPNow",
+            "node = M5ESPNow(0)",
+            "node.set_pmk_encrypt(PMK)",
+            "node.set_add_peer(PEER_MAC_HEX, 1, 0, True, LMK)",
+            "node.set_delete_peer(1)",
+            "node.get_peer_list(1)",
+            "node.send_data(1, own)",
+            "node.recv_data(timeout_ms)",
+            "node.deinit()",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.runner)
+
+    def test_m5espnow_requires_empty_delete_and_restored_peer_list(self):
+        for marker in (
+            "deleted_peer_list_empty=deleted_peers == []",
+            "send_after_delete_noop = True",
+            "peer_list_restored = (",
+            "row.get(\"deleted_peer_list_empty\") is True",
+            "row.get(\"send_after_delete_noop\") is True",
+            "row.get(\"peer_list_restored\") is True",
+            '"external_peer_lifecycle_m5espnow"',
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.runner)
+
 
 if __name__ == "__main__":
     unittest.main()

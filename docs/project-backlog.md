@@ -106,6 +106,9 @@ MIC 成功后拒绝 equal/older PN，并在 RX DMA 前丢弃；UDP replay proxy
 随后 stock `espnow.ESPNow` lifecycle 在两个设备对完成 encrypted
 add/delete/modify/re-add：删除后 `peer_count=[0,0]`、`get_peer` 与
 `send` 均被拒绝，重新注册后恢复 `[1,1]` 和双向 payload。
+`m5espnow.M5ESPNow` wrapper 也在同样两个设备对完成
+`set_add_peer`/`set_delete_peer`/re-add：删除后 peer list 为空且
+`send_data` 保持 no-op，重加后 peer list 与双向传输恢复。
 StopWatch/Core2 的 28 类、505 个 M5UI 文档方法已
 完整执行；stock 仍保留 Canvas triangle、Image float scale 和 integer
 Spinbox step 三个失败。Core2 candidate 的条带随后定位为 panel DMA 与
@@ -231,7 +234,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | --- | --- | --- | --- |
 | `API-01` | 进行中 | 接续 stock SDK/绑定失败、WDT warm reboot、native build feature、未实现控制器与未选外设；扩展 Cardputer-ADV Unit 准入及同固件更多行为域。`0074` 已关闭 Core2 candidate M5UI frame routing/oracle；Core2 stock BLE NUS 已通过 native-HCI，`Server.get_client` 已有 hash-pinned 候选修复；StopWatch/StickS3 stock controller 仍开放 | 保留失败负控；stock/matching/candidate 分 lane，具体行为/控制器数据与 session/固件/runtime/串口/帧/ZIP/清理绑定，不能用审计数量或局部通过关闭全部接口/硬件范围 |
 | `RUNTIME-03` | 进行中 | `0065` 关闭 high-priority DPORT handoff 调度死锁，`0066` 补 classic RMT，`0068` 将 legacy HSPI/SPI2 与 UIFlow2 VSPI/SPI3 都接到同一 panel sink，`0069` 修正 protected `WDTFEED` 语义；`0071/0072` 精确得到 `0xBB/64 -> 0x05/1 -> 0xBB/64` 主循环；`0073` 绑定主要 issuer；`0075` 排除 RDSR WIP/busy 错误并把成本定位到 scheduler/list 跨核锁竞争，failed-CAS slice yield 无效 | 同固件 SHA 在正常 WDT、真实 Flash 数据面和 WiFi-backed Device Service 路径下渲染完成启动 UI/应用帧并保持运行；DPORT 协作、classic RMT、dual-SPI、stateful SSI、pending SPI remap、protected WDT feed、0071-0073 transaction/issuer profile、0075 status/CAS 关联和最终三设备组保持可重放 |
-| `RUNTIME-06` | 进行中 | `0067` 完成 controller loopback；`0076` 完成 external plaintext；`0077` 完成 key fixture CCMP；`0078` 完成单 peer replay drop；stock guest 完成 encrypted peer add/delete/modify/re-add；下一项是 guest key-state 写入 bridge、key rotation、多 peer/乱序 replay 与丢包/重试 | 保留 loopback、plaintext、encrypted、wrong-LMK、replay、lifecycle 和 RF/timing 分 lane；fixture PASS 不能替代 guest key-state、production replay window 或物理 controller |
+| `RUNTIME-06` | 进行中 | `0067` 完成 controller loopback；`0076` 完成 plaintext；`0077` 完成 key fixture CCMP；`0078` 完成单 peer replay；native 与 M5ESPNow wrapper 均完成 add/delete/re-add 生命周期；下一项是 guest key-state 写入 bridge、key rotation、多 peer/乱序 replay 与丢包/重试 | 保留 loopback、plaintext、encrypted、wrong-LMK、replay、native/wrapper lifecycle 和 RF/timing 分 lane；fixture PASS 不能替代 guest key-state、production replay window 或物理 controller |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -487,10 +490,15 @@ Core2↔StopWatch 完成 encrypted `add_peer`、pre-sync、`del_peer`、
 Core2 在另一侧先删除时看不到回向 PRE；首轮一方向 `pre_synced=false`
 保留为 ignored failure control。
 
+`m5espnow.M5ESPNow` wrapper 同样在两个设备对完成 `set_add_peer`、
+`set_delete_peer`、peer list/count 清空、delete 后 `send_data` no-op、
+re-add 和 post-resume。wrapper 在 delete 后有意静默跳过发送，与 native
+`send` 的 `OSError` 行为分开记录。
+
 开放范围：
 
 - guest key-state 进入 QEMU bridge 的完整传播和 key rotation；
-- 多 peer/乱序 replay window、丢包/重试和更长生命周期；
+- 多 peer/乱序 replay window、丢包/重试和 key lifecycle；
 - channel/rate、bit-exact controller、RF/antenna 和电气时序。
 
 验收：external plaintext 与 encrypted lane 分开记录，不能在 Python 中合成

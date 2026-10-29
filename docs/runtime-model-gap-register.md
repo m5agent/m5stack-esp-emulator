@@ -232,15 +232,15 @@ setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `PARTIAL` |
-| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay 和 native peer add/delete/modify 生命周期；当前不覆盖 guest key-state 进入 QEMU bridge、key rotation 和 RF/timing |
-| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界以 PMK wrapped LMK 执行真实 AES-CCMP/MIC；`0078` 对 MIC 成功的单 peer CCMP PN 执行单调 replay check；stock guest lifecycle runner 使用 `add_peer`/`del_peer`/`get_peer`/`mod_peer` 和正常 TX/RX DMA。Python host 不合成 payload 或 callback |
-| 已验证 | `0067`：QEMU `c3c31403…` 上三台 unicast/broadcast/receive/IRQ。`0076`：QEMU `df0e20f1…` 上 independent-guest plaintext。`0077`：QEMU `5340171c…` 上 CCMP 正负控。`0078`：QEMU `be7c3765…` 上单 peer replay drop。lifecycle runner 在同一 QEMU 上完成 StopWatch↔StickS3 与 Core2↔StopWatch 的 encrypted add/delete/modify/re-add，删除后 `[0,0]`、`get_peer`/`send` 拒绝，重加后 `[1,1]` 与双向 payload 恢复 |
-| 未覆盖 | guest `set_pmk`/`add_peer` key-state 写入 QEMU bridge、key rotation、m5espnow wrapper 同等生命周期、多 peer/乱序 replay window、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
-| 证据 | [`peer lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`lifecycle runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py)、[`CCMP replay 证据`](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)、[`0078 patch`](../patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch)、[`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md)、[`0076 patch`](../patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch) |
+| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay、native add/delete/modify 和 wrapper add/delete/re-add 生命周期；当前不覆盖 guest key-state 进入 QEMU bridge、key rotation 和 RF/timing |
+| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界以 PMK wrapped LMK 执行真实 AES-CCMP/MIC；`0078` 对 MIC 成功的单 peer CCMP PN 执行单调 replay check；stock guest lifecycle runner 分别覆盖 native 与 M5ESPNow wrapper，使用正常 TX/RX DMA。Python host 不合成 payload 或 callback |
+| 已验证 | `0067`：三台 controller loopback。`0076`：independent-guest plaintext。`0077`：CCMP 正负控。`0078`：`be7c3765…` 上单 peer replay drop。native runner 在两个设备对完成 encrypted add/delete/modify/re-add；M5ESPNow wrapper 在同一 QEMU 完成 peer list 清空/no-op send/re-add/post-resume |
+| 未覆盖 | guest `set_pmk`/`add_peer` key-state 写入 QEMU bridge、key rotation、多 peer/乱序 replay window、loss/retry、跨设备 fabric、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`native lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`M5ESPNow lifecycle 证据`](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)、[`lifecycle runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py)、[`CCMP replay 证据`](evidence/2026-10-29-espnow-external-ccmp-replay/README.md)、[`0078 patch`](../patches/qemu-m5stack-peripherals/0078-esp32-espnow-external-ccmp-replay.patch)、[`external CCMP 证据`](evidence/2026-10-29-espnow-external-ccmp/README.md)、[`0076 patch`](../patches/qemu-m5stack-peripherals/0076-esp32-external-espnow-peer-bridge.patch) |
 
 关闭条件：
 
-1. guest key-state 传播、key rotation 和 m5espnow wrapper 同等生命周期可重放；
+1. guest key-state 传播和 key rotation 可重放；
 2. 多 peer/乱序 replay window、key rotation、loss/retry、双 peer 以上 fabric 和 receive/IRQ 生命周期可重放；
 3. loopback、external plaintext 和 encrypted lane 分开记录，不能互相替代；
 4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
