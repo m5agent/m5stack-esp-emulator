@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "runtime_03": "OPEN",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "runtime": "qemu-wifi",
+    "icount_shift": 5,
+    "qemu_sha256": "0a63c37f62752a3020988bb6b087b5eb11f4a6af323255f978ccb7012cb8be73"
+  },
+  "patch": {
+    "name": "0086-esp32-legacy-cas-episode-profile.patch",
+    "sha256": "4e86512c3d19a30c23ffd22824a69fc7d5d2f10d0db5aa7a2e81668090b608f8"
+  },
+  "diagnostic_fix": {
+    "failure": "Bad icount read",
+    "cause": "QEMU_CLOCK_VIRTUAL sampled while the vCPU was in a no-I/O translation block",
+    "behavior": "skip unsafe observation without terminating QEMU or changing CAS outcomes",
+    "verified": true
+  },
+  "normal_wdt_10s": {
+    "evidence_sha256": "13441b476b3feac59afa99a19ab098e328f1c38c42bf71c34f837eea1c506ed7",
+    "qemu_stderr_sha256": "1940898f1e4acdc31d7d4840796451945c746bcca65f746650c58a4bea216eaa",
+    "freeze_ns": 10000000000,
+    "cpu": {
+      "0": "0x40087986",
+      "1": "0x40095c3c"
+    },
+    "episodes": {
+      "count": 238,
+      "duration_ns_total": 9316534114,
+      "duration_ns_max": 631000000,
+      "incomplete": 2
+    },
+    "episode_buckets": {
+      "0": 68,
+      "4": 31,
+      "5": 113,
+      "6": 26
+    },
+    "locks": {
+      "0x3ffbf2cc": {
+        "count": 162,
+        "duration_ns_total": 6743534018,
+        "duration_ns_max": 482823328,
+        "attempts_total": 1001,
+        "attempts_max": 53,
+        "attempt_gap_ns_max": 110034978
+      },
+      "0x3ffb7ab0": {
+        "count": 31,
+        "duration_ns_total": 2559000096,
+        "duration_ns_max": 631000000,
+        "attempts_total": 144,
+        "attempts_max": 32,
+        "attempt_gap_ns_max": 203000000
+      }
+    }
+  },
+  "wdt_off_10s": {
+    "evidence_sha256": "24eaec07ee2a6679e71106e91d951c011707e4574c2a4e4e07a9fece66c86332",
+    "qemu_stderr_sha256": "fc5f0c4d5b0a3687e3bf674b5e88ecdd144921874a97c7ca6fea15ad175c908f",
+    "freeze_ns": 10000000031,
+    "cpu": {
+      "0": "0x4008798b",
+      "1": "0x400871fb"
+    },
+    "episodes": {
+      "count": 253,
+      "duration_ns_total": 7825981502,
+      "duration_ns_max": 581176638,
+      "incomplete": 2
+    },
+    "episode_buckets": {
+      "0": 83,
+      "2": 1,
+      "4": 34,
+      "5": 112,
+      "6": 23
+    },
+    "locks": {
+      "0x3ffbf2cc": {
+        "count": 166,
+        "duration_ns_total": 6600981470,
+        "duration_ns_max": 581176638,
+        "attempts_total": 1145,
+        "attempts_max": 65,
+        "attempt_gap_ns_max": 80997600
+      },
+      "0x3ffb7ab0": {
+        "count": 30,
+        "duration_ns_total": 1133000000,
+        "duration_ns_max": 274000000,
+        "attempts_total": 67,
+        "attempts_max": 7,
+        "attempt_gap_ns_max": 173999968
+      }
+    }
+  },
+  "interpretation": {
+    "diagnostic_abort_fixed": true,
+    "contention_persists_without_watchdog": true,
+    "main_lock": "0x3ffbf2cc",
+    "main_lock_holder_cpu": 1,
+    "malformed_atomic_semantics_proven": false,
+    "matching_legacy_elf_map_available": false
+  },
+  "next_actions": [
+    "Bind the two spinlock sites and 0x3ffbf2cc through matching UIFlow_Core2 v1.15.4 source/ELF/MAP",
+    "Identify the scheduler/list critical section that remains held for hundreds of milliseconds",
+    "Require normal-WDT setup/REPL, non-empty application frame and stable runtime before closing RUNTIME-03"
+  ]
+}
