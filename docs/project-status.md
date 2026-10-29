@@ -6,6 +6,8 @@
 代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。 中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板启动、原 StickC Plus 准确镜像、Dial 旋钮及新板全外设完成度继续开放，详见本轮证据与 Backlog。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
+本轮 [舵机、电源与复位预览](evidence/2026-10-29-motion-power-preview/README.md) 已部署到 fork Pages：StackChan 同 guest UART1 SCS → QOM → 3D 关节、同实例复位与外壳 PWR 长按 6 秒自然关机通过。其余 14 款未重跑本轮新 WASM，不能继承 StackChan 结果；Plus2 HOLD/USB sleep、PM1 ROM 下载及完整共享控制器回归保持开放。
+
 ## 一页结论
 
 UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始化后不重复刷固件；AIFlow/Agent使用Preview/checkpoint/Run协调，普通非托管会话保留`/program`。四款准入主机的

@@ -621,6 +621,10 @@ startup、外部/加密 ESP-NOW、显式 HCI BLE、未准入 RTU/PPP、完整 M5
 [证据](evidence/2026-10-28-three-board-uiflow2-latest-runtime/README.md)
 和[机器摘要](evidence/2026-10-28-three-board-uiflow2-latest-runtime/summary.json)。
 
+## 2026-10-29 舵机与电源预览
+
+固定源 `35ce38c8`、WASM `3880086c…` 与 StackChan 默认固件 `25d0ae3d…`：同 manifest 浏览器窄烟测 9/9，通过真实 present-position → 模型、同实例 reset、新 ready、6 秒 PWR 自然 exit0 与全部 Worker 清理。独立默认显示/触摸用例也通过。Fork Pages [任务 40862804528](https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40862804528)成功，公网 manifest `5c0b933d…` 精确核验；原生 Arduino 八阶段与逐板控制器证据及明确缺口见[本轮摘要](evidence/2026-10-29-motion-power-preview/README.md)。未运行本轮完整 69-case 回归，不作为全设备新版通过。
+
 ## 2026-10-29：Core2 legacy UART 与虚拟时钟对齐
 
 新增 `0070-esp32-uart-tx-virtual-clock.patch`，在默认关闭的

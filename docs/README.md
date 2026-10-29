@@ -140,6 +140,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [CoreS3 C/QEMU 静态网页验收](evidence/2026-10-28-qemu-wasm-pages/README.md) | 历史证据 | `2026-10-28` | 固定源码完整构建、浏览器本地组合、真实 LCD/触摸/PIR及第二场分享启动/清理，Pages 单独记录 |
 | [现有C/QEMU到WASM实验](qemu-wasm-port-research.md) / [构建与浏览器宿主证据](evidence/2026-10-28-qemu-wasm-build/README.md) / [CoreS3 guest证据](evidence/2026-10-28-qemu-wasm-cores3/README.md) | 历史执行研究 | `2026-10-28` | 固定当时完整WASM/CLI/QMP、CPU栈恢复、慢时钟CoreS3帧/触摸/PIR/停止重开；当时默认时钟失败保留，后续显式正常时钟候选、公众准入和部署分别以新证据为准 |
 | [公众模拟器计划](plans/2026-10-28-public-simulator.md) | 进行中计划 | `2026-10-28` | 公众首页、Unit信息层级、新模型、URL分享、静态导出与部署前门禁 |
+| [舵机、电源与复位预览](evidence/2026-10-29-motion-power-preview/README.md) | 限定虚拟设备与部署证据 | `2026-10-29` | StackChan UART/QOM 关节输出、同实例复位、真实 PMIC 关机及 fork Pages；Plus2 与完整回归仍开放 |
 | [公众入口证据](evidence/2026-10-28-public-simulator/README.md) | 当前浏览器证据 | `2026-10-28` | exact WASM/ROM/固件绑定、真实串口/帧/输入/暂停停止；模型与原生桥接分别验证，未部署 |
 | [Unit 源码 PR 精简](plans/2026-10-27-source-pr-cleanup.md) | 收尾计划 | `2026-10-27` | 重建精简分支、去除本机和历史附件隐式依赖，执行干净检出门禁 |
 | [UIFlow2 双主机审计与修复](evidence/2026-10-27-uiflow2-api-sweep/README.md) / [计划](plans/2026-10-27-uiflow2-complete-api-sweep.md) | 当前审计 | `2026-10-28` | UI/硬件/系统/HTTP 逐项状态、原厂与 SDK 候选分 lane；最终完整矩阵 68/68，模型/配置/可选外设及 stock 失败仍保留 |

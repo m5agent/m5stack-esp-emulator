@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-virtual-device-preview-summary",
+  "recorded_at": "2026-10-29T11:08:11.611760+00:00",
+  "source_commit": "35ce38c8b1bbf88fd9ad04fb1288f980987f62c5",
+  "deployment": {
+    "payload_commit": "5a67a30ee3bec27f1cedeaf77cd14844e384e86e",
+    "source_commit": "35ce38c8b1bbf88fd9ad04fb1288f980987f62c5",
+    "manifest_sha256": "5c0b933dbb577e34ceb4ba17bf5df279ff6751b6bec5e14236b9851ac71f2e45",
+    "assets": 2113,
+    "workflow": "https://github.com/yuyun2000/m5stack-esp-emulator/actions/runs/40862804528",
+    "status": "SUCCESS",
+    "public_profiles": 15,
+    "public_url": "https://yuyun2000.github.io/m5stack-esp-emulator/?device=stackchan&mode=browser&v=35ce38c8",
+    "live_http": [
+      {
+        "path": "index.html",
+        "http_status": 200,
+        "bytes": 15224,
+        "sha256": "dc5c58d21a05435fdebd4f1493c58804fd7257cfa08e230813994e651d98e470"
+      },
+      {
+        "path": "public-site-manifest.json",
+        "http_status": 200,
+        "bytes": 426893,
+        "sha256": "5c0b933dbb577e34ceb4ba17bf5df279ff6751b6bec5e14236b9851ac71f2e45"
+      },
+      {
+        "path": "platform/runtime/qemu/runtime.json",
+        "http_status": 200,
+        "bytes": 29497,
+        "sha256": "a6d77dc11e4f5acba193a4e1d14652f7f2152065946d928a24404532fc196d14"
+      }
+    ]
+  },
+  "runtime": {
+    "native_sha256": "79ec2ace57dca1df426a7023689457c6eef9bea022bbfff4bf08674462a15ce0",
+    "wasm_sha256": "3880086c6266f318817d112686dfdf663444990a76e192037f2ec40334bdc529",
+    "wasm_lock_sha256": "a1a33273fe85ba2063bdb191fc7b9993566eaf1a04f93a32ab6ff4e4aeece081",
+    "native_source_layers": 46,
+    "wasm_source_layers": 55
+  },
+  "stackchan_default_browser": {
+    "status": "PASS",
+    "checks": 24,
+    "session_id": "c3565a57-134d-45b4-aeaa-e5be9a55d276",
+    "firmware_sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7",
+    "roms": [
+      {
+        "name": "esp32s3_rev0_rom.bin",
+        "sha256": "b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913"
+      }
+    ],
+    "report_sha256": "9ff780c5a63065e895659999c67c2cc73e8753447a73701b6e22f5f4dd7e16ac",
+    "executed_manifest_sha256": "d0f57cc366a79f288fda440e34f43bf948bb30870e7c117c4f8e907c5c9a0fcb",
+    "serial_and_frame_evidence_sha256": "86135c9ac1d1f8ff71a9ec1007c1d76c28bc55ed866278207bb22c30fc3adb23",
+    "checks_passed": [
+      "pages-service-worker-isolation",
+      "public-ui-selected-board-reference",
+      "same-guest-ready-and-display",
+      "model-rendering-paused-until-guest-ready",
+      "complete-native-red-marker",
+      "public-ui-3d-and-visible-native-frame",
+      "public-ui-native-to-rendered-model-texture-before-input",
+      "hash-pinned-composed-firmware",
+      "exported-default-clock-profile",
+      "actual-physical-frame-dimensions",
+      "guest-button-counter",
+      "guest-button-release",
+      "controller-input-changes-native-frame-marker",
+      "public-ui-native-to-rendered-model-texture-after-input",
+      "unsupported-button-fails-closed",
+      "qmp-pause-freezes-guest",
+      "qmp-resume-fresh-guest-heartbeat",
+      "guest-remains-free-of-panic-or-python-traceback",
+      "clean-guest-stop-and-worker-disposal",
+      "created-pthreads-close-before-iframe-finalization",
+      "engine-and-created-pthreads-close-after-iframe-finalization",
+      "no-leftover-guest-iframe",
+      "no-page-errors",
+      "no-device-service-requests"
+    ]
+  },
+  "stackchan_arduino_native": {
+    "firmware_sha256": "9c9966b37e6b4c0c8ffe59f01e5322ee6acad67ed48fdc79e8bef6164b3c761b",
+    "bsp_commit": "e2f3b02dbe7f28e26a02adc72bef3aa2c545e4a0",
+    "session_id": "4e11944a8e29450a835db8d064e6feac",
+    "report_sha256": "71bf8af5916f9ac75dd6f1a5fc919077098be91d135eacf307ce17fba746b997",
+    "motion_checks": [
+      {
+        "name": "phase-0-present",
+        "ok": true,
+        "positions": [
+          460,
+          620
+        ],
+        "samples": 15
+      },
+      {
+        "name": "phase-1-present",
+        "ok": true,
+        "positions": [
+          604,
+          764
+        ],
+        "samples": 20
+      },
+      {
+        "name": "phase-2-present",
+        "ok": true,
+        "positions": [
+          316,
+          908
+        ],
+        "samples": 19
+      },
+      {
+        "name": "phase-3-present",
+        "ok": true,
+        "positions": [
+          460,
+          620
+        ],
+        "samples": 16
+      },
+      {
+        "name": "phase-4-present",
+        "ok": true,
+        "positions": [
+          460,
+          620
+        ],
+        "samples": 18
+      },
+      {
+        "name": "phase-5-present",
+        "ok": true,
+        "positions": [
+          604,
+          764
+        ],
+        "samples": 20
+      },
+      {
+        "name": "phase-6-present",
+        "ok": true,
+        "positions": [
+          604,
+          764
+        ],
+        "samples": 19
+      },
+      {
+        "name": "phase-7-present",
+        "ok": true,
+        "positions": [
+          460,
+          620
+        ],
+        "samples": 33
+      }
+    ],
+    "si12t_callback_observed": true,
+    "poweroff": {
+      "guest_requested": true,
+      "post_off_return_or_heartbeat": false,
+      "exit_code": 0,
+      "controller_source": "axp2101 reg10-bit0",
+      "service_state": "failed: existing service misclassifies spontaneous exit0; not a controller failure"
+    }
+  },
+  "additional_evidence": [
+    {
+      "path": ".work/board-power-native-service-v3/handoff.json",
+      "sha256": "8532353da310dd4181a9466df4eb7414a425da9e9731e323c1c2cd8c0a2859a3"
+    },
+    {
+      "path": ".work/atom-touch-controller-native-v1/closeout-summary.json",
+      "sha256": "09025907b249bd7ea794affd31a90aef2e54093aa09ea1350d2a330257068e07"
+    },
+    {
+      "path": ".work/stickc-plus-v252-final-native-v1/compact-report.json",
+      "sha256": "cb52c32ed6f37198a6343b3f0eebdf472b5e2b9a2b80a75dd8af1b2b47f27001"
+    }
+  ],
+  "contracts": {
+    "narrow_controller_and_build_tests": {
+      "run": 25,
+      "status": "PASS"
+    },
+    "docs_and_static_export_tests": {
+      "run": 31,
+      "status": "PASS"
+    }
+  },
+  "limits": [
+    "Virtual-device evidence only; no physical servo speed, load, torque or power measurements.",
+    "Only StackChan has new browser functional acceptance on this rebuilt WASM; prior individual admission of the other 14 boards is not an all-board rerun.",
+    "Plus2 discrete HOLD path remains partial: classic ESP32 pad snapshot reports unresolved mux; USB sleep also needs RTC controller work.",
+    "M5PM1 download requests are observable; dynamic ROM download straps are not implemented.",
+    "StopWatch guest Power.powerOff API is not confirmed; guest I2C A1 controller shutdown is proven independently.",
+    "Device Service currently labels natural QEMU exit0 failed; browser lifecycle handles shutdown separately.",
+    "New full 69-case shared-controller regression and final upstream main integration are pending; this is the explicitly requested early fork preview."
+  ],
+  "stackchan_final_browser_motion_reset_power": {
+    "status": "PASS",
+    "checks": 9,
+    "manifest_sha256": "5c0b933dbb577e34ceb4ba17bf5df279ff6751b6bec5e14236b9851ac71f2e45",
+    "report_sha256": "61fc8109eff3d40c141ea7729dc575f7b99e775895d377b22b2cea6d3930f761",
+    "script_sha256": "71d9be088024a9e1a466bc52fe1c17519563459308bddf664aa896bbb0ef0159",
+    "samples": 65,
+    "tick_ranges": [
+      288,
+      179
+    ],
+    "firmware_sha256": "25d0ae3d3a08120b9fc90dbb622d40f4ecc665115d64196f442fd6af3a0d2fb7",
+    "wasm_sha256": "3880086c6266f318817d112686dfdf663444990a76e192037f2ec40334bdc529",
+    "reset_same_iframe": true,
+    "reset_count": 1,
+    "cleanup": {
+      "gracefulExit": true,
+      "exitCode": 0,
+      "workersCreated": 5,
+      "workersAtExit": 0,
+      "disposal": {
+        "workersRemaining": 0,
+        "workersTerminatedByDispose": 0,
+        "workerCountScope": "nested-pthreads",
+        "enginePlacement": "dedicated-worker-v1",
+        "engineWorkersAtAcknowledgement": 1,
+        "selfCloseAfterAcknowledgement": true
+      },
+      "engineOwnership": {
+        "engineWorkersCreated": 1,
+        "engineOwnerLive": false,
+        "engineCloseNotificationReceived": true,
+        "engineNormalTerminations": 1,
+        "engineFallbackTerminations": 0,
+        "enginePortTransferred": true
+      },
+      "engineOwnershipStage": "before-iframe-removal",
+      "explicitWorkerDisposal": true,
+      "iframeRemoved": true
+    },
+    "machine_events": [
+      {
+        "event": "RESET",
+        "reason": "host-qmp-system-reset",
+        "guest": false,
+        "at": "2026-10-29T11:06:15.436Z"
+      },
+      {
+        "event": "SHUTDOWN",
+        "reason": "guest-shutdown",
+        "guest": true,
+        "at": "2026-10-29T11:07:09.567Z"
+      }
+    ],
+    "worker_targets_observed": 6,
+    "live_targets_before": [],
+    "live_targets_after": [],
+    "api_requests": 0,
+    "page_errors": [],
+    "forced_cleanup": false,
+    "url": "http://127.0.0.1:64683/m5stack-esp-emulator/"
+  }
+}
