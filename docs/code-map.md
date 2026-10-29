@@ -87,6 +87,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/check_pr_scope.py` | 对新增Git对象检查源码PR体积与raw evidence预算，包含已删除历史对象 | CI、源码PR收尾 |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/device_service_errors.py` | Device Service 的稳定 `ServiceError` code/message/status/extra 与 HTTP payload | `device_service.py` 及 parser 模块 |
+| `platform/tools/device_service_network.py` | 无状态 network policy 与 CNAME 请求解析，保持 Device Service 错误码和绑定语义 | `device_service.py` 兼容 re-export、network tests |
 | `platform/tools/device_service_parsing.py` | 无状态 integer/size/pcap/SHA256 解析与校验 | `device_service.py` 请求入口 |
 | `platform/tools/device_service_runtime.py` | 无状态 QEMU PSRAM 策略、runtime/firmware PSRAM mismatch 和私有 runtime env 脱敏 | `device_service.py` 兼容 re-export、service tests |
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
@@ -362,6 +363,10 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
+
+`device_service_network.py` 现在承接 network policy 与 CNAME 请求解析；
+`device_service.py` 只保留 same-object re-export。下一步仍按 `SVC-03`
+拆分其余请求解析、设备规格和 runtime/store/evidence 边界。
 
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
 保护时，不做跨文件大重构。

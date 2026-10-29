@@ -683,8 +683,9 @@ HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何�
 2. 已移动 `parse_int`、`parse_size`、`parse_capture_pcap`、SHA256 检查、
    QEMU/runtime 内存策略和私有 runtime env 脱敏；生产 Core2 unified
    service path 已在同一变更中完成三次重绑，并修正 QOM readiness 与 peer
-   write settle。继续移动其余无状态请求解析、运行参数构造和设备规格加载，
-   保持原模块 re-export；
+   write settle。2026-10-30 又移动 network policy 与 CNAME 解析到
+   `device_service_network.py`，由原模块 re-export；继续移动其余无状态
+   请求解析、运行参数构造和设备规格加载，保持原模块 re-export；
 3. 拆 content-addressed firmware/artifact store；
 4. 拆 QEMU、Tab5、network runtime adapters；
 5. 拆 evidence collector 和 lifecycle/history repository；

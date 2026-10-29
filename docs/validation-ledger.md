@@ -1995,3 +1995,21 @@ startup UI、REPL 和用户应用。全部为 virtual-device validation；RF、
 电气和物理硬件 `NOT RUN`。见
 [证据](evidence/2026-10-30-core2-wifi-stub-menu/README.md)和
 [机器摘要](evidence/2026-10-30-core2-wifi-stub-menu/summary.json)。
+
+## 2026-10-30：SVC-03 network parsing boundary
+
+继续 `SVC-03` 的无状态请求解析拆分。新增
+`platform/tools/device_service_network.py`，移动
+`parse_network_policy` 和 `parse_dns_cname_records`；`device_service.py`
+继续 re-export 同名对象，因此调用方、错误码、implicit endpoint merge 和
+bounded CNAME binding 语义不变。
+
+新增 `test_device_service_network.py` 锁定 policy/CNAME 行为及 public
+symbol identity。定向 parser `7/7`、network boundary `6/6`、network
+focused `90/90` PASS；全量平台 `1,589` 项为 `1,588 PASS + 1 skip`，
+runtime coverage、peripheral catalog、QEMU profiles、project snapshot、
+compileall 和 diff check 均 PASS。该步骤没有修改 HTTP、network sandbox、
+session state、evidence 字段或硬件路径；物理硬件、RF 和电气验证仍
+`NOT RUN`。见
+[证据](evidence/2026-10-30-svc03-network-parsing/README.md)和
+[机器摘要](evidence/2026-10-30-svc03-network-parsing/summary.json)。

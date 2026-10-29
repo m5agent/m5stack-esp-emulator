@@ -51,6 +51,10 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from device_service_errors import ServiceError  # noqa: E402
+from device_service_network import (  # noqa: E402
+    parse_dns_cname_records,
+    parse_network_policy,
+)
 from device_service_parsing import (  # noqa: E402
     _is_sha256,
     parse_capture_pcap,
@@ -119,10 +123,6 @@ from network_policy import (  # noqa: E402
     build_sandbox_command,
     namespace_capability,
     qemu_user_netdev,
-)
-from network_sandbox import (  # noqa: E402
-    SandboxError,
-    validate_cname_record_bindings,
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
@@ -633,65 +633,6 @@ def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
     if len(raw) != 6 or len(efuse) < 10:
         raise ValueError("ESP32 eFuse MAC fixture is invalid")
     efuse[4:10] = raw
-
-
-def parse_network_policy(
-    value: Any,
-    *,
-    implicit_endpoints: tuple[EgressEndpoint, ...] = (),
-) -> NetworkPolicy:
-    try:
-        policy = NetworkPolicy.from_mapping(value)
-        if policy.egress == "allowlist" and implicit_endpoints:
-            policy = policy.with_allowed_endpoints(implicit_endpoints)
-        if policy.dns == "controlled" and not policy.allowed_endpoints:
-            raise NetworkPolicyError(
-                "dns=controlled requires at least one allowed endpoint"
-            )
-        return policy
-    except NetworkPolicyError as error:
-        raise ServiceError(
-            "invalid_network_policy",
-            str(error),
-            400,
-        ) from error
-
-
-def parse_dns_cname_records(
-    value: Any,
-    policy: NetworkPolicy,
-) -> dict[str, str]:
-    if value is None:
-        return {}
-    if not isinstance(value, dict):
-        raise ServiceError(
-            "invalid_network",
-            "network.cname_records must be an object",
-            400,
-        )
-    if value and (
-        policy.egress != "allowlist"
-        or policy.dns != "controlled"
-    ):
-        raise ServiceError(
-            "invalid_network",
-            "network.cname_records requires egress=allowlist and "
-            "dns=controlled",
-            400,
-        )
-    try:
-        return validate_cname_record_bindings(
-            value,
-            policy.allowed_hosts,
-            policy.allowed_hosts,
-            policy.allowed_domains,
-        )
-    except SandboxError as error:
-        raise ServiceError(
-            "invalid_network",
-            str(error),
-            400,
-        ) from error
 
 
 def require_allowlist_http_fixture(
