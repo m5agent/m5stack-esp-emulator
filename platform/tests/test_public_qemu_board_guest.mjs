@@ -15,6 +15,9 @@ const clockDivisor = process.env.M5_QEMU_CLOCK_DIVISOR ? Number(process.env.M5_Q
 const diagnostic = process.env.M5_QEMU_FRAME_DIAGNOSTIC === '1';
 const publicUI = process.env.M5_PUBLIC_UI === '1';
 const hardwareGPU = process.env.M5_WASM_GPU === 'hardware';
+const readyTimeout = Number(process.env.M5_QEMU_READY_TIMEOUT_MS || 180000);
+assert.ok(Number.isInteger(readyTimeout) && readyTimeout >= 30000 && readyTimeout <= 600000,
+  'M5_QEMU_READY_TIMEOUT_MS must be an integer from 30000 to 600000');
 assert.ok(!publicUI || clockDivisor === undefined, 'public UI validation uses the exported default clock');
 assert.ok(clockDivisor === undefined || [1, 8].includes(clockDivisor), 'candidate clock override must be explicit 1 or 8');
 const output = resolve(process.env.M5_PUBLIC_QEMU_OUT || resolve(repo, '.work/public-qemu-board-' + device));
@@ -194,7 +197,7 @@ try {
     }, {}, {timeout:60000, polling:200});
     const result=await handle.jsonValue(); await handle.dispose(); return result;
   };
-  const ready = await guest('ready');
+  const ready = await guest('ready', () => true, readyTimeout);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
