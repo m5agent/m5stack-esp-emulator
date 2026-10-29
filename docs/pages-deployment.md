@@ -10,6 +10,14 @@ LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机
 尚无固件执行通路。当前模型目录包含 38 款主机与 184 款 Unit，新增 Atom/Stick
 等型号不会因此自动具备固件兼容性。本轮代码需要重新构建发布；旧站点证据见文末。
 
+当前默认准入 15 款浏览器设备；本轮新增 AtomS3、AtomS3 Lite、StickC、
+StickC Plus SE 和 StickC Plus2，各自准确官方固件的输入与显示/LED 有
+[独立浏览器证据](evidence/2026-10-29-expanded-hosts/README.md)。Lite 无屏，
+使用同 Worker 的 GPIO35 RMT RGB/帧计数及 GPIO41 状态只读回显到模型，
+不申请 framebuffer，不用宿主输入猜测 LED。经典 ESP32 三款采用明确的
+固定 icount；本机整段验收约数分钟，启动仍明显慢于 S3，不能宣称实时性能通过。
+Dial 及经典 Atom 等未通过的候选不会随 machine 编译结果进入默认网页入口。
+
 ## 仓库管理员部署
 
 1. 合并 PR 后，在仓库 **Settings → Pages → Build and deployment → Source**

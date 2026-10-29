@@ -26,13 +26,13 @@
 
 candidate。
 
-- 验证：`candidate-not-validated` (2026-10-29)
+- 验证：`native-boot-failed` (2026-10-29)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 未完成的板级数据面
 
-- Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited.
+- Exact official image did not reach the Python probe or an RMT output in the independent 55-second native42 test. Board-detection/touch-pad coverage is a hypothesis, not a proven root cause.
 
 ## 文件
 

@@ -356,8 +356,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_catalog_enables_tab5_and_excludes_cardputer_zero(self):
         payload = self.service.list_devices()
         rows = {row["device_id"]: row for row in payload["devices"]}
-        self.assertEqual(len(rows), 14)
-        self.assertEqual(sum(row["creatable"] for row in rows.values()), 13)
+        # The blocked Plus lacks an exact admitted reference; Linux remains
+        # discoverable metadata but cannot become a Device Service session.
+        self.assertEqual(len(rows), 23)
+        self.assertNotIn("stickc-plus", rows)
+        self.assertEqual(sum(row["creatable"] for row in rows.values()), 22)
+        self.assertFalse(rows["cardputer-zero"]["creatable"])
+        supported = self.service.list_devices(include_unsupported=False)["devices"]
+        self.assertEqual(len(supported), 22)
+        self.assertNotIn("cardputer-zero", {row["device_id"] for row in supported})
+        for candidate in (
+            "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus-se",
+            "stickc-plus2", "atom-lite", "atom-matrix", "atom-matrix-v11",
+        ):
+            self.assertEqual(rows[candidate]["peripheral_status"], "partial")
+            self.assertFalse(rows[candidate]["coverage"]["complete"])
         self.assertTrue(rows["tab5"]["supported"])
         self.assertTrue(rows["tab5"]["creatable"])
         self.assertEqual(rows["tab5"]["peripheral_status"], "partial")
@@ -6048,7 +6061,11 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, payload = self.request("/api/v1/devices")
         self.assertEqual(status, 200)
         self.assertEqual(payload["api_version"], "v1")
-        self.assertEqual(len(payload["devices"]), 14)
+        self.assertEqual(len(payload["devices"]), 23)
+        rows = {row["device_id"]: row for row in payload["devices"]}
+        self.assertNotIn("stickc-plus", rows)
+        self.assertFalse(rows["cardputer-zero"]["supported"])
+        self.assertFalse(rows["cardputer-zero"]["creatable"])
         status, capacity = self.request("/api/v1/capacity")
         self.assertEqual(status, 200)
         self.assertEqual(

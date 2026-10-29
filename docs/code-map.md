@@ -657,3 +657,11 @@ canary取得会话能力，`platform/tools/uiflow_runtime.py`区分import派发�
 `0016` 的 qcode/矩阵、`0017` 的 WASM systimer deadline 和 `0018` 的 TCA
 CFG0 锁存/W1C 分别由实际 C 控制验证；最终 46 层完整构建另做全部公开 fixture
 的独立 guest 回归。宿主控制、单板准入和正式部署是不同证据层。
+
+
+本轮 Atom / Stick 独立板接线、Flash 修复和限定运行证据：
+[接入总结](evidence/2026-10-29-expanded-hosts/README.md)，
+`patches/qemu-m5stack-peripherals/0085..0089`、
+`tests/uiflow2/atoms3_peripherals`、`stickc_plus2_peripherals` 和各独立 UI probe。
+无屏浏览器输出由 `test_public_qemu_headless_guest.mjs` 检查真实 RMT QOM 读回，
+Dial 转环输入由 `test_public_qemu_encoder.mjs` 检查固定路径和不回声。

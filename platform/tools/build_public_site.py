@@ -276,6 +276,8 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
                         "atoms3-lite": {"main.py": "atoms3_lite_main.py"},
                         "core2": {"boot.py": "core2_boot.py"},
                         "stickc-plus2": {"boot.py": "core2_boot.py", "main.py": "stickc_plus2_main.py"},
+                        "stickc": {"boot.py": "core2_boot.py"},
+                        "stickc-plus-se": {"boot.py": "core2_boot.py"},
                         "dial": {"boot.py": "core2_boot.py"},
                         "stopwatch": {"main.py": "stopwatch_main.py"},
                         "cardputer-adv": {"main.py": "cardputer_adv_main.py"},

@@ -26,13 +26,13 @@
 
 candidate。
 
-- 验证：`candidate-not-validated` (2026-10-29)
+- 验证：`native-display-buttons-imu-rtc-pass` (2026-10-29)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 未完成的板级数据面
 
-- Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN.
+- Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers.
 
 ## 文件
 

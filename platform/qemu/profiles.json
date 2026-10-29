@@ -88,8 +88,10 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 AtomS3 C123 板型候选；官方 UIFlow2 v2.5.3 的 boot、显示、按键和外设尚待同一 Device Service 会话验证。不是 AtomS3R 的别名。"
+        "status": "native-display-input-imu-rgb-pass",
+        "detail": "原版 C123 官方 UIFlow2 v2.5.3 同 guest 通过 128x128 GC9107、GPIO41 按键与帧标记、MPU6886 两组加速度/角速度、显式 GPIO35 RGB 的真实 RMT 输出；默认 RGB() 为 None。IR、网络及物理硬件不由此结果覆盖。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -399,8 +401,10 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
+        "status": "native-display-buttons-imu-rtc-pass",
+        "detail": "独立 K016-P2 官方 UIFlow2 v2.5.3 同 guest 通过 135x240、GPIO37/39/35 的 A/B/PWR down/up、MPU6886 两组六轴输入、PCF8563 真实 I2C1 日期写读和时钟推进。无 AXP192；该官方构建关闭 LVGL，音频/IR/电源等未覆盖。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -1124,8 +1128,10 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 AtomS3 Lite C124 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-button-rmt-rgb-pass",
+        "detail": "C124 官方 UIFlow2 v2.5.3 原 RGB()/BtnA 经 GPIO41 和 GPIO35 RMT 完成双色/释放闭环，无 LCD。固件关闭 UART REPL，测试 boot 通过真实 UART0 dupterm 输出日志；USB CDC、IR、网络和物理光度未验证。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -1245,8 +1251,10 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 StickC K016 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-display-input-imu-pass",
+        "detail": "独立 K016 官方 UIFlow2 同 guest 通过 80x160 ST7735S、GPIO37 原始电平和 BtnA down/up/count、MPU6886 一组六轴值及 64 像素帧变化。B/电源、RTC、音频和其它外设仍需独立验证。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -1356,8 +1364,10 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 StickC Plus SE K016-P-SE 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-display-input-pass",
+        "detail": "独立 K016-P-SE 官方 UIFlow2 同 guest 通过 135x240 ST7789V2、GPIO37 电平与 BtnA down/up/count、64 像素帧变化。SE 未装 IMU；B/电源、RTC、音频和其它外设仍需独立验证。",
+        "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+        "category": "virtual-device"
       }
     },
     {
@@ -1399,8 +1409,8 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 Atom Lite C008 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-boot-failed",
+        "detail": "独立官方固件在正式 native42 的 55 秒窗口内仅到 ROM/bootloader，未观察到 Python probe 或 RMT 帧；没有强制板型或伪造 RGB/IMU。需定位启动路径，尚不能称为可用模拟器。"
       }
     },
     {
@@ -1454,8 +1464,8 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 Atom Matrix C008-B 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        "status": "native-boot-failed",
+        "detail": "独立官方固件在正式 native42 的 55 秒窗口内仅到 ROM/bootloader，未观察到 Python probe 或 RMT 帧；没有强制板型或伪造 RGB/IMU。需定位启动路径，尚不能称为可用模拟器。"
       }
     },
     {
@@ -1509,8 +1519,8 @@
       ],
       "validation": {
         "date": "2026-10-29",
-        "status": "candidate-not-validated",
-        "detail": "独立 Atom Matrix v1.1 C008-B-V11 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。Matrix v1.1依据官方同AtomMatrix固件入口及M5Unified BMI270分支，仍需独立guest验证。"
+        "status": "native-boot-failed",
+        "detail": "独立官方固件在正式 native42 的 55 秒窗口内仅到 ROM/bootloader，未观察到 Python probe 或 RMT 帧；没有强制板型或伪造 RGB/IMU。需定位启动路径，尚不能称为可用模拟器。"
       }
     }
   ]

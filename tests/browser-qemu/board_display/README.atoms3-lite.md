@@ -5,8 +5,10 @@
 display. The RGB word starts at `0x204060`, changes to `0x40A020` after a real
 guest-observed button press, and returns to `0x204060` after release.
 
-Composition uses the minimal `core2_boot.py` run-main flag, this main source and
-the profile's `browser_probe_config.py`. The official v2.5.3 base is firmware
+Composition uses the existing `boot.py` UART0/dupterm observation setup, this
+main source and the profile's `browser_probe_config.py`. UART0 only carries
+original guest serial output; neither UART text nor host input sets RGB state.
+The official v2.5.3 base is firmware
 `2099000000000000004`, SHA256
 `338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c`.
 The VFS is taken from its actual partition table, `0x641000 / 0x1be000`.

@@ -44,8 +44,14 @@ export function validateQemuProfile(profile) {
   const classicEfuse = profile.deviceId === 'stickc-plus2' && profile.board === 'm5stickcplus2'
     && profile.flashMb === 8 && profile.psramMb === 2 && profile.efuse?.driver === 'nvram.esp32.efuse'
     && profile.efuse.bytes === 4096 && profile.efuse.packageVersion === 6;
+  const classicCompactEfuse = (profile.deviceId === 'stickc' && profile.board === 'm5stickc'
+      && display?.width === 80 && display?.height === 160
+    || profile.deviceId === 'stickc-plus-se' && profile.board === 'm5stickcplusse'
+      && display?.width === 135 && display?.height === 240)
+    && profile.flashMb === 4 && profile.psramMb === 0 && profile.efuse?.driver === 'nvram.esp32.efuse'
+    && profile.efuse.bytes === 4096 && profile.efuse.packageVersion === 5;
   const classicNoEfuse = profile.deviceId === 'core2' && profile.board === 'm5core2' && profile.efuse === null;
-  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
+  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
   if (display === null) check(profile.efuse.packageVersion === 0, 'Invalid QEMU headless eFuse package');
   const input = profile.inputs;
   check(input && typeof input.touch === 'boolean' && input.uart === false && input.buttons && typeof input.buttons === 'object'

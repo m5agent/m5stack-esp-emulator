@@ -27,7 +27,7 @@ class AtomS3CandidateTests(unittest.TestCase):
         source = json.loads((ROOT / "devices/catalog.source.json").read_text())
         row = next(row for row in source["devices"] if row["id"] == "atoms3")
         self.assertEqual(row["hardware"]["psram_bytes"], 0)
-        self.assertEqual(row["runtime"]["validation"]["status"], "candidate-not-validated")
+        self.assertEqual(row["runtime"]["validation"]["status"], "native-display-input-imu-rgb-pass")
         self.assertEqual(row["uiflow2"]["firmware"]["firmware_id"], "1897200000000002444")
 
     def test_soc_specific_package_fields_preserve_neighboring_efuses(self):

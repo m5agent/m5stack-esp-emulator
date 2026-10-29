@@ -224,7 +224,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "atoms3-wasm-wallclock",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -290,8 +290,8 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Candidate only: original AtomS3 C123, ESP32-S3FN8, 8 MiB flash and no PSRAM; do not substitute AtomS3R hardware or firmware.",
-        "Browser execution is NOT RUN until the independent m5atoms3 WASM build, fixed composed display/input probe and cleanup are accepted.",
+        "Experimental browser profile: original AtomS3 C123, ESP32-S3FN8, 8 MiB flash and no PSRAM; do not substitute AtomS3R hardware or firmware.",
+        "The exact official-base composed display/input probe passed in the matching source-built WASM, including native-to-model pixels, original button driver and clean Worker teardown.",
         "Native MPU6886, explicit GPIO35 RGB/RMT and other peripherals require their own device-local evidence and do not inherit browser display/input acceptance.",
         "Networking, BLE, audio, Units, physical timing and arbitrary firmware compatibility are unvalidated."
       ],
@@ -311,7 +311,7 @@
       "execution": "browser-qemu-wasm",
       "profile": "atoms3-lite-wasm-wallclock",
       "clockDivisor": 1,
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -377,9 +377,9 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Candidate only: original AtomS3 Lite C124, ESP32-S3FN8, 8 MiB flash, no PSRAM and no display.",
+        "Experimental browser profile: original AtomS3 Lite C124, ESP32-S3FN8, 8 MiB flash, no PSRAM and no display.",
         "Only a fixed read-only QOM path observes GPIO41 pressed state and GPIO35 WS2812 RMT-decoded RGB/frame count in the same browser worker; no synthetic LCD or host LED writes are used.",
-        "Browser guest execution, LED output, button press/release and cleanup are NOT RUN until individually accepted with the matching WASM build.",
+        "The exact official-base RGB/button probe passed in the matching source-built WASM: original RGB()/BtnA, real RMT-decoded colors, model readback and clean Worker teardown.",
         "Visual LED emission communicates the decoded digital RGB word; optical brightness, electrical timing, IR, networking, BLE, audio, Units and arbitrary firmware compatibility are unvalidated."
       ],
       "readyFirmwareSHA256": "ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36",
@@ -1374,7 +1374,7 @@
         "tbSizeMb": 128,
         "icountShift": 5
       },
-      "admission": "candidate",
+      "admission": "public",
       "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
@@ -1449,7 +1449,7 @@
         "layoutSource": "actual-base-partition-table"
       },
       "limitations": [
-        "Candidate only: exact original StickC Plus2 image, ESP32-PICO-V3-02, 8 MiB Flash/2 MiB PSRAM and no AXP192. Browser acceptance is NOT RUN.",
+        "Experimental browser profile: exact original StickC Plus2 image, ESP32-PICO-V3-02, 8 MiB Flash/2 MiB PSRAM and no AXP192. Exact fixed-probe browser input, framebuffer and Worker cleanup are validated; broader firmware behavior is not inherited.",
         "Deterministic TCG single-thread icount shift=5 is scoped to the fixed display/input probe; no wall-clock, physical memory or arbitrary firmware timing claim.",
         "Power/wake, battery ADC, microphone, buzzer, IR, networking/BLE and other peripherals require independent device-local evidence."
       ],
@@ -1551,6 +1551,218 @@
         "No arbitrary firmware, physical timing, optics, RF or electrical equivalence claim."
       ],
       "readyFirmwareSHA256": "c2877fc3727664412acb4d40cf3df497d6ecdaa778b88f5a963a0f804ae2b6a7"
+    },
+    {
+      "deviceId": "stickc",
+      "board": "m5stickc",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 80,
+        "height": 160,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stickc-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      },
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (StickC K016)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002182/2098280813573656577/bin/2098280813573656578.bin",
+        "bytes": 4186112,
+        "sha256": "2463fc362f6acfacccb678a2c40aeb733e470ca793ec4a100d2e077baa641f03",
+        "browserValidation": "NOT RUN: exact official board candidate; native evidence does not grant browser display, original BtnA driver or worker cleanup acceptance."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "51a496d1aeb1193e415574a6372de7b7b53c6476dc679a7389a6a1ee8c284443",
+        "firmwareSHA256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15",
+        "baseFileCount": 44,
+        "preservedFileCount": 42,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental browser profile: exact StickC K016 image, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package 5 eFuse and 80x160 display. Exact fixed-probe browser input, framebuffer and Worker cleanup are validated; broader firmware behavior is not inherited.",
+        "Deterministic TCG single-thread icount shift=5 is scoped to the fixed display/BtnA probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "This board has an AXP192 and MPU6886. BtnB, PMIC power button, power/battery, audio, IR, networking/BLE, Units and other peripherals require independent browser device-local evidence."
+      ],
+      "readyFirmwareSHA256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15"
+    },
+    {
+      "deviceId": "stickc-plus-se",
+      "board": "m5stickcplusse",
+      "chip": "esp32",
+      "imageChipId": 0,
+      "target": "xtensa-softmmu",
+      "flashMb": 4,
+      "psramMb": 0,
+      "bootloaderOffset": 4096,
+      "partitionTableOffset": 32768,
+      "display": {
+        "width": 135,
+        "height": 240,
+        "coordinateSpace": "qemu-physical-frame",
+        "hostRotation": 0
+      },
+      "execution": "browser-qemu-wasm",
+      "profile": "stickc-plus-se-wasm-deterministic-icount",
+      "clockDivisor": 1,
+      "accelerator": {
+        "kind": "tcg-icount",
+        "thread": "single",
+        "tbSizeMb": 128,
+        "icountShift": 5
+      },
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
+      "roms": [
+        {
+          "name": "esp32-v3-rom.bin",
+          "bytes": 455722,
+          "sha256": "9115bbcd03da9f54d3baca5ad94d588a43da54ed332347137ba3dc9010df258b",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom.bin",
+          "bundled": false
+        },
+        {
+          "name": "esp32-v3-rom-app.bin",
+          "bytes": 455722,
+          "sha256": "6d3240e7cdb1ec9c1d683515e0a8578e9fb8ece3e7736cb9a996512c656e8442",
+          "url": "https://raw.githubusercontent.com/espressif/qemu/40edccac415693c5130f91c01d84176ae6008566/pc-bios/esp32-v3-rom-app.bin",
+          "bundled": false
+        }
+      ],
+      "efuse": {
+        "driver": "nvram.esp32.efuse",
+        "bytes": 4096,
+        "packageVersion": 5
+      },
+      "inputs": {
+        "touch": false,
+        "buttons": {
+          "a": "a",
+          "b": "b",
+          "power": "p",
+          "p": "p"
+        },
+        "keyboard": [],
+        "pir": null,
+        "uart": false
+      },
+      "units": {
+        "schema_version": 1,
+        "attachments": []
+      },
+      "reference": {
+        "kind": "official-base",
+        "name": "UIFlow2 v2.5.3 (StickC Plus SE K016-P-SE)",
+        "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003037/2098280835014938626/bin/2098280835014938627.bin",
+        "bytes": 4186112,
+        "sha256": "0c7055bb8e64afe1d8fa4fd4bdc0961ca0d6366351aca5d6c83eaaf72155ee88",
+        "browserValidation": "NOT RUN: exact official board candidate; native evidence does not grant browser display, original BtnA driver or worker cleanup acceptance."
+      },
+      "fixture": {
+        "vfsOffset": 3608576,
+        "vfsSize": 577536,
+        "uiRotation": 0,
+        "input": "key:a",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/core2_boot.py",
+            "bytes": 24,
+            "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "bc1abbccb626638ffce5191ac6c8e6a01dc80946b48340a56bd8dfbc08b97b9f",
+        "firmwareSHA256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc",
+        "baseFileCount": 32,
+        "preservedFileCount": 30,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "layoutSource": "actual-base-partition-table"
+      },
+      "limitations": [
+        "Experimental browser profile: exact StickC Plus SE K016-P-SE image, ESP32-PICO-D4, 4 MiB Flash, no PSRAM, package 5 eFuse and 135x240 display. Exact fixed-probe browser input, framebuffer and Worker cleanup are validated; broader firmware behavior is not inherited.",
+        "Deterministic TCG single-thread icount shift=5 is scoped to the fixed display/BtnA probe; physical timing and arbitrary firmware compatibility are unvalidated.",
+        "This SE board has an AXP192 and no IMU. BtnB, PMIC power button, power/battery, audio, IR, networking/BLE, Units and other peripherals require independent browser device-local evidence."
+      ],
+      "readyFirmwareSHA256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc"
     }
   ]
 }

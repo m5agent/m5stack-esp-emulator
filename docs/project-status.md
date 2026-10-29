@@ -3,7 +3,7 @@
 日期：`2026-10-29`。Unit 历史 PASS 精确绑定旧固件/运行时，raw 归档已外置，读取规则见[证据说明](evidence-retention.md)。
 
 本文是当前能力和边界的权威说明。当前未完成工作只在[项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在[验证证据台账](validation-ledger.md)维护，设备/Task 计数由[自动项目快照](project-snapshot.md)生成。
-代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)，
+代码阅读顺序见[工程交接总览](engineering-handoff.md)，工作流归属见[工作流总台账](workstreams.md)， [Atom / Stick 接入证据](evidence/2026-10-29-expanded-hosts/README.md)记录五款独立设备的原厂固件原生限定通过：AtomS3/Lite、StickC/Plus SE/Plus2；浏览器准入独立取证，不从原生 PASS 继承。 中央运行目录 24 款、视觉主机 38 款，14 款仍仅模型。经典 Atom 三板启动、原 StickC Plus 准确镜像、Dial 旋钮及新板全外设完成度继续开放，详见本轮证据与 Backlog。
 源码与测试入口见[代码与验证入口地图](code-map.md)。
 
 ## 一页结论
@@ -373,7 +373,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
 | Tab5 | `partial` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller 未闭环 |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
-| 设备视觉 | `partial`；38 主机、184 Unit | 固定公开模型 `4879ab51`，新增 Atom 12、Stick 7、Dial/Basic 共 21 款；14 个运行登记和 24 个仅模型主机分开。463 张运行贴图；Basic 两张贴位未确认图片按精确 SHA 排除。文档单独 pin `3681a648`。模型不授予固件、总线或硬件 PASS，StopWatch 仍是唯一参考质量外壳。见[本轮计划](plans/2026-10-29-expanded-host-models.md) |
+| 设备视觉 | `partial`；38 主机、184 Unit | 固定公开模型 `4879ab51`，新增 Atom 12、Stick 7、Dial/Basic 共 21 款；24 个运行登记和 14 个仅模型主机分开。463 张运行贴图；Basic 两张贴位未确认图片按精确 SHA 排除。文档单独 pin `3681a648`。模型不授予固件、总线或硬件 PASS，StopWatch 仍是唯一参考质量外壳。见[本轮计划](plans/2026-10-29-expanded-host-models.md) |
 | 真机验证 | `NOT RUN` | 必须提供同固件路径的 `hardware validation` |
 
 ## 设备矩阵

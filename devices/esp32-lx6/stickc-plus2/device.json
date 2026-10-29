@@ -75,11 +75,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
+      "status": "native-display-buttons-imu-rtc-pass",
+      "detail": "独立 K016-P2 官方 UIFlow2 v2.5.3 同 guest 通过 135x240、GPIO37/39/35 的 A/B/PWR down/up、MPU6886 两组六轴输入、PCF8563 真实 I2C1 日期写读和时钟推进。无 AXP192；该官方构建关闭 LVGL，音频/IR/电源等未覆盖。",
+      "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+      "Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers."
     ]
   },
   "uiflow2": {

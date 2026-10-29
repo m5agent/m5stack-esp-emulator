@@ -9,7 +9,7 @@ import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 const registry = JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json', import.meta.url), 'utf8'));
 validateQemuBrowserProfiles(registry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2']);
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
 assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
@@ -46,8 +46,8 @@ const loaded = await loadQemuBrowserProfiles({root:'https://example.test/sim/', 
 assert.equal(loadedURL, 'https://example.test/sim/platform/web/qemu-browser-profiles.json');
 assert.equal(loaded.profiles.length, registry.profiles.length);
 const originalAtom = pick('atoms3');
-assert.equal(originalAtom.admission, 'candidate');
-assert.equal(getQemuBrowserProfile('atoms3', registry), null, 'native AtomS3 evidence cannot grant browser admission');
+assert.equal(originalAtom.admission, 'public');
+assert.equal(getQemuBrowserProfile('atoms3', registry).fixture.firmwareSHA256, originalAtom.fixture.firmwareSHA256);
 assert.equal(originalAtom.board, 'm5atoms3');
 assert.equal(originalAtom.psramMb, 0);
 assert.equal(originalAtom.efuse.packageVersion, 0);
@@ -57,7 +57,7 @@ assert.equal(originalAtom.fixture.sources['boot.py'].path, 'platform/runtime/qem
 assert.equal(qemuInputCommand(originalAtom, {type:'button',id:'button',down:true}).arguments.events[0].data.key.data, 'a');
 const lite = pick('atoms3-lite');
 assert.equal(lite.display, null); assert.equal(lite.board, 'm5atoms3lite'); assert.equal(lite.psramMb, 0);
-assert.equal(lite.admission, 'candidate'); assert.equal(getQemuBrowserProfile('atoms3-lite', registry), null);
+assert.equal(lite.admission, 'public'); assert.equal(getQemuBrowserProfile('atoms3-lite', registry).display, null);
 assert.equal(lite.reference.sha256, '338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c');
 assert.equal(lite.fixture.id, 'xtensa-board-led-v1');
 assert.equal(lite.fixture.firmwareSHA256, 'ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36');
@@ -76,6 +76,22 @@ assert.equal(validateQemuOnboardState(lite,onboardState),onboardState);
 for(const mutate of [s=>s.path='/machine/other',s=>s.source='host-input-echo',s=>s.device_id='atoms3',s=>s.led_rgb=0x1000000,
   s=>s.led_rgb=-1,s=>s.led_frames=1.5,s=>s.led_frames=Number.MAX_SAFE_INTEGER+1,s=>s.pressed=1,s=>s.value=123]) {
   const changed=structuredClone(onboardState);mutate(changed);assert.throws(()=>validateQemuOnboardState(lite,changed));
+}
+for(const expected of [
+  {id:'stickc',board:'m5stickc',width:80,height:160,base:'2463fc362f6acfacccb678a2c40aeb733e470ca793ec4a100d2e077baa641f03',composed:'ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15'},
+  {id:'stickc-plus-se',board:'m5stickcplusse',width:135,height:240,base:'0c7055bb8e64afe1d8fa4fd4bdc0961ca0d6366351aca5d6c83eaaf72155ee88',composed:'21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc'},
+]){
+  const profile=pick(expected.id);
+  assert.equal(profile.admission,'public');assert.equal(getQemuBrowserProfile(expected.id,registry).board,expected.board);
+  assert.equal(profile.board,expected.board);assert.equal(profile.flashMb,4);assert.equal(profile.psramMb,0);
+  assert.equal(profile.efuse.packageVersion,5);assert.equal(profile.display.width,expected.width);assert.equal(profile.display.height,expected.height);
+  assert.equal(profile.reference.sha256,expected.base);assert.equal(profile.fixture.firmwareSHA256,expected.composed);
+  assert.equal(profile.fixture.sources['boot.py'].path,'platform/runtime/qemu-probe/fixture/core2_boot.py');
+  assert.equal(qemuInputCommand(profile,{type:'button',id:'a',down:true}).arguments.events[0].data.key.data,'a');
+  for(const mutate of [p=>p.efuse.packageVersion=6,p=>p.efuse=null,p=>p.flashMb=8,p=>p.psramMb=2,
+    p=>p.board='m5stickcplus2',p=>p.deviceId='stickc-plus',p=>p.display.width=240]){
+    const changed=structuredClone(profile);mutate(changed);assert.throws(()=>validateQemuBrowserProfiles({...registry,profiles:[changed]}));
+  }
 }
 
 function image(profile) {
@@ -161,8 +177,8 @@ assert.throws(() => qemuProbeVfs(duplicateVfs, probe), /exactly one/);
 console.log('QEMU browser per-board admission, merged image layout, ROM/eFuse, frame coordinates and controller input contracts passed; no guest executed');
 
 const plus2 = pick('stickc-plus2');
-assert.equal(plus2.admission, 'candidate');
-assert.equal(getQemuBrowserProfile('stickc-plus2', registry), null);
+assert.equal(plus2.admission, 'public');
+assert.equal(getQemuBrowserProfile('stickc-plus2', registry).board, 'm5stickcplus2');
 assert.equal(plus2.board, 'm5stickcplus2');
 assert.equal(plus2.psramMb, 2);
 assert.equal(plus2.fixture.firmwareSHA256, 'bcdcac7a7590153c4d4db05a3ff9f3e4b84d8678740d0dc27851c2425e431f68');

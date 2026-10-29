@@ -19,11 +19,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "独立 AtomS3 Lite C124 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+      "status": "native-button-rmt-rgb-pass",
+      "detail": "C124 官方 UIFlow2 v2.5.3 原 RGB()/BtnA 经 GPIO41 和 GPIO35 RMT 完成双色/释放闭环，无 LCD。固件关闭 UART REPL，测试 boot 通过真实 UART0 dupterm 输出日志；USB CDC、IR、网络和物理光度未验证。",
+      "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      "Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers."
     ]
   },
   "cache_path": "platform/.cache/firmware/atoms3-lite/uiflow2.bin"

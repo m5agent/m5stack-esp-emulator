@@ -5,7 +5,7 @@
 
 ## 目标与约束
 
-模拟器已同步 `origin/main@891f79e9`，包含 PR #21 的启动渲染与 Core2 时钟修正。模型来源固定为公开
+模拟器已同步 `origin/main@879732fe（本轮再次同步九个提交）`，包含 PR #21 的启动渲染与 Core2 时钟修正。模型来源固定为公开
 `yuyun2000/m5stack-models@4879ab51eb8bb11ce024e670ae6880529e3d0f42`；
 本轮接入全部 21 个新增主机，主机视觉库存由 17 扩至 38，Unit 保持 184。
 保留完整 Atom/Stick 家族、型号配置、贴图及公开组件交互。
@@ -50,3 +50,14 @@ Viewer 的隐藏 viewport fit 修正、导出和 lazy loader。Basic 的两张�
 身份检查和 `--check` 均通过。140 个真实模型配置案例、463 张贴图和工作台交互已通过；
 这些结果只证明模型接口。原版 AtomS3 独立 GC9107 板胶水与准确官方 v2.5.3 固件已取得，
 编译与真实运行验证进行中。经典 ESP32 板型与其他固件 intake 并行推进。
+
+
+后续真实运行已推进：AtomS3、AtomS3 Lite、StickC、StickC Plus SE 与 Plus2
+完成各自原生限定验证；五款均完成独立纯浏览器闭环。Plus2 的 QIO Flash
+头长度错位已按实际 Flash 修复；Lite/Dial 的 UART 可见性与 USB CDC 配置有关，
+空载 SPI 候选补丁因无因果证据撤销。经典 Atom 三板分别保留启动失败；
+Dial 旋钮首次实测丢步，正在用相同 binary 做真实 GPIO 边沿节奏对照。
+准确执行身份、后续回归与最终准入由[本轮证据](../evidence/2026-10-29-expanded-hosts/README.md)
+和当前 Backlog 维护，不由本计划里的进度句授予通过。
+
+五款共 117 项独立浏览器检查通过，加入默认公开准入；公开库存为 15 款，另做包含 CoreS3 双示例的 16 case 整体导出回归。

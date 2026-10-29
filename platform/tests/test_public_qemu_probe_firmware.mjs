@@ -48,7 +48,7 @@ try {
       if (kind === 'wrong-base') settings.baseBytes[settings.baseBytes.length - 1] ^= 1;
       if (kind === 'changed-layout') settings.profile.fixture.vfsOffset += 4096;
       if (kind === 'changed-source') settings.profile.fixture.sources['main.py'].sha256 = '0'.repeat(64);
-      if (kind === 'changed-boot') settings.profile.fixture.sources['boot.py'].path = 'platform/runtime/qemu-probe/fixture/' + (['atoms3', 'core2', 'stickc-plus2', 'dial'].includes(profile.deviceId) ? 'boot.py' : 'core2_boot.py');
+      if (kind === 'changed-boot') settings.profile.fixture.sources['boot.py'].path = 'platform/runtime/qemu-probe/fixture/' + (['atoms3', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se', 'dial'].includes(profile.deviceId) ? 'boot.py' : 'core2_boot.py');
       if (kind === 'cancelled') { const controller = new AbortController(); controller.abort(); settings.signal = controller.signal; }
       try { await composeQemuProbeFirmware(settings); failures.push({kind,rejected:false}); }
       catch (error) { failures.push({kind,rejected:true,error:error.message}); }

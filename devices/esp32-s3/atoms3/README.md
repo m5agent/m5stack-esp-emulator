@@ -26,13 +26,13 @@
 
 candidate。
 
-- 验证：`candidate-not-validated` (2026-10-29)
+- 验证：`native-display-input-imu-rgb-pass` (2026-10-29)
 - 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
 - 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 未完成的板级数据面
 
-- 独立 m5atoms3 候选尚待官方 AtomS3 固件同会话启动、帧、GPIO41 输入与外设数据面验证；未继承 AtomS3R 结果。
+- Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers.
 
 ## 文件
 

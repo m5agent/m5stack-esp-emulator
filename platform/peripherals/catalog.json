@@ -2286,13 +2286,15 @@
           "id": "button",
           "model": "gpio-button",
           "status": "partial",
-          "gpio": 41
+          "gpio": 41,
+          "qom_path": "/machine/onboard_io"
         },
         {
           "id": "rgb-led",
           "model": "rgb-led",
           "status": "partial",
-          "gpio": 35
+          "gpio": 35,
+          "qom_path": "/machine/onboard_io"
         },
         {
           "id": "ir",
@@ -2304,19 +2306,19 @@
       "peripheral_blockers": [
         {
           "model": "mpu6886",
-          "reason": "AtomS3 C123 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; explicit RGB/RMT, BtnA/frame and two MPU6886 vectors passed. Default RGB binding, IR, broader driver behavior and physical equivalence remain separate."
         },
         {
           "model": "gpio-button",
-          "reason": "AtomS3 C123 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; explicit RGB/RMT, BtnA/frame and two MPU6886 vectors passed. Default RGB binding, IR, broader driver behavior and physical equivalence remain separate."
         },
         {
           "model": "rgb-led",
-          "reason": "AtomS3 C123 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; explicit RGB/RMT, BtnA/frame and two MPU6886 vectors passed. Default RGB binding, IR, broader driver behavior and physical equivalence remain separate."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "AtomS3 C123 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; explicit RGB/RMT, BtnA/frame and two MPU6886 vectors passed. Default RGB binding, IR, broader driver behavior and physical equivalence remain separate."
         }
       ]
     },
@@ -2391,39 +2393,39 @@
       "peripheral_blockers": [
         {
           "model": "mpu6886",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "pcf8563",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "gpio-button",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "pwr-button",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "spm1423",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "buzzer",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "gpio-led",
-          "reason": "StickC Plus2 device-local controller and official UIFlow2 guest validation is NOT RUN; evidence from other boards is not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         },
         {
           "model": "stickc-plus2-battery-adc",
-          "reason": "StickC Plus2 GPIO38 ADC1 channel 2 battery-divider voltage input and the Power API conversion have no device-local model/injection or execution evidence."
+          "reason": "Selected device-local native42 firmware paths are validated; A/B/PWR, display, MPU6886 vectors and RTC real-I2C write/read/tick passed; audio, IR, ADC and power retention remain separate."
         }
       ]
     },
@@ -2459,15 +2461,15 @@
       "peripheral_blockers": [
         {
           "model": "gpio-button",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; default RGB/RMT and BtnA digital loop passed. USB CDC, IR, broader behavior and physical optics remain separate."
         },
         {
           "model": "rgb-led",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; default RGB/RMT and BtnA digital loop passed. USB CDC, IR, broader behavior and physical optics remain separate."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; default RGB/RMT and BtnA digital loop passed. USB CDC, IR, broader behavior and physical optics remain separate."
         }
       ]
     },
@@ -2614,35 +2616,35 @@
       "peripheral_blockers": [
         {
           "model": "mpu6886",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "pcf8563",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "axp192",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "gpio-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "pwr-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "spm1423",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "gpio-led",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame and one MPU6886 vector passed; B/power, RTC, audio and broader behavior remain separate."
         }
       ]
     },
@@ -2818,35 +2820,35 @@
       "peripheral_blockers": [
         {
           "model": "pcf8563",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "axp192",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "gpio-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "pwr-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "spm1423",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "gpio-led",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         },
         {
           "model": "buzzer",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Selected device-local native42 firmware paths are validated; BtnA/frame passed; B/power, RTC, audio and broader behavior remain separate."
         }
       ]
     },
@@ -2882,15 +2884,15 @@
       "peripheral_blockers": [
         {
           "model": "gpio-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "rgb-led",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         }
       ]
     },
@@ -2934,19 +2936,19 @@
       "peripheral_blockers": [
         {
           "model": "mpu6886",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "gpio-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "rgb-led",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         }
       ]
     },
@@ -2992,19 +2994,19 @@
       "peripheral_blockers": [
         {
           "model": "bmi270",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "gpio-button",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "rgb-led",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         },
         {
           "model": "ir-tx-rx",
-          "reason": "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+          "reason": "Independent native42 official-firmware test failed to reach the Python probe or produce an RMT frame within 55s. GPIO/touch board detection remains an unproven hypothesis; no guest values are substituted."
         }
       ]
     }

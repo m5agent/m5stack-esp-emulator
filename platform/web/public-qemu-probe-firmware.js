@@ -55,6 +55,8 @@ const SOURCE_NAMES = Object.freeze({
     "boot.py": "core2_boot.py",
     "main.py": "stickc_plus2_main.py"
   },
+  "stickc": {"boot.py": "core2_boot.py"},
+  "stickc-plus-se": {"boot.py": "core2_boot.py"},
   "dial": {
     "boot.py": "core2_boot.py"
   },

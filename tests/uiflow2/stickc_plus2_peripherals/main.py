@@ -26,7 +26,7 @@ print("STICKCPLUS2P_RTC_WRITTEN", rtc_written)
 rtc_raw = rtc_i2c.readfrom_mem(0x51, 0x02, 7)
 print("STICKCPLUS2P_RTC_ADVANCED_RAW", tuple(rtc_raw))
 display.setCursor(4, 32)
-display.print("RTC write/read/tick OK")
+display.print("RTC R/W + tick OK")
 
 buttons = (M5.BtnA, M5.BtnB, M5.BtnPWR)
 names = ("A", "B", "PWR")
@@ -42,12 +42,12 @@ while True:
         if pressed != previous[index]:
             if pressed:
                 counts[index] += 1
-            print("STICKCPLUS2P_BUTTON", names[index], int(pressed), counts[index])
             display.fillRect(4, 64 + index * 20, 127, 18, 0x000000)
             display.setCursor(4, 66 + index * 20)
             display.print("%s %s count:%d" % (
                 names[index], "DOWN" if pressed else "UP", counts[index]))
             previous[index] = pressed
+            print("STICKCPLUS2P_BUTTON", names[index], int(pressed), counts[index])
     accel = M5.Imu.getAccel()
     gyro = M5.Imu.getGyro()
     sample = (accel, gyro)
@@ -59,5 +59,6 @@ while True:
         display.print("a %.2f %.2f %.2f" % accel)
         display.setCursor(4, 168)
         display.print("g %.1f %.1f %.1f" % gyro)
+        print("STICKCPLUS2P_DRAWN", "%.4f %.4f %.4f %.4f %.4f %.4f" % (accel + gyro))
         last_sample = sample
     time.sleep_ms(50)

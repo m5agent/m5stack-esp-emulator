@@ -43,11 +43,11 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "独立 Atom Lite C008 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      "status": "native-boot-failed",
+      "detail": "独立官方固件在正式 native42 的 55 秒窗口内仅到 ROM/bootloader，未观察到 Python probe 或 RMT 帧；没有强制板型或伪造 RGB/IMU。需定位启动路径，尚不能称为可用模拟器。"
     },
     "blockers": [
-      "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      "Exact official image did not reach the Python probe or an RMT output in the independent 55-second native42 test. Board-detection/touch-pad coverage is a hypothesis, not a proven root cause."
     ]
   },
   "uiflow2": {

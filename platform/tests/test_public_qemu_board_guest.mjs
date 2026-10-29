@@ -203,6 +203,8 @@ try {
   const ready = await guest('ready', () => true, readyTimeout);
   if(device==='stickc-plus2')check('original-plus2-board-and-three-guest-buttons',ready.board===5&&ready.width===135&&ready.height===240
     &&JSON.stringify(ready.buttons)===JSON.stringify(['a','b','power']),ready);
+  if(device==='stickc')check('original-stickc-board',ready.board===3&&ready.width===80&&ready.height===160,ready);
+  if(device==='stickc-plus-se')check('original-stickc-plus-se-board',ready.board===4&&ready.width===135&&ready.height===240,ready);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
@@ -401,7 +403,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(() => {
-      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stamplc:'a',papercolor:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stickc:'a','stickc-plus-se':'a',stamplc:'a',papercolor:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0];
     });
@@ -478,16 +480,18 @@ try {
       const released=await guest('button-released',event=>event.button===item.button&&event.count===1,30000);
       check('plus2-'+item.button+'-original-driver-down-and-up',pressed.pressed===true&&released.pressed===false
         &&pressed.gpio===item.gpio&&released.gpio===item.gpio,{pressed,count,released});
-      await page.waitForFunction(async({index,before})=>{
+      const changed=await page.waitForFunction(async({index,before})=>{
         const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;const pixels=[];
         for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
           const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
         }
         const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
-        return [...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('')!==before.sha256;
+        const sha256=[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('');
+        return sha256!==before.sha256?{sequence:frame.sequence,sha256}:false;
       },{index:item.index,before},{timeout:30000,polling:100});
+      const after=await changed.jsonValue();await changed.dispose();
       check('plus2-'+item.button+'-changes-own-native-counter-pixels',true);
-      report.multi_button_cases.push({...item,keyboard:key,dom_key:domKey,pressed,count,released,before_counter:before,
+      report.multi_button_cases.push({...item,keyboard:key,dom_key:domKey,pressed,count,released,before_counter:before,after_counter:after,
         texture:await textureReadback()});
     }
   }
@@ -513,7 +517,6 @@ try {
   }
   if (publicUI) check('public-ui-native-to-rendered-model-texture-after-input', true, await textureReadback());
   check('unsupported-button-fails-closed', await page.evaluate(async () => {try {await boardRun.runtime.input({type:'button', id:'unmapped-control', down:true}); return false;} catch {return true;}}));
-  await page.screenshot({path:resolve(output, 'native-frame.png'), fullPage:true});
   if (publicUI) { await page.locator('#pauseBtn').click(); await page.waitForFunction(() => boardRun.runtime.status === 'paused'); }
   else await page.evaluate(() => boardRun.runtime.pause());
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -524,6 +527,10 @@ try {
   else await page.evaluate(() => boardRun.runtime.resume());
   await page.waitForFunction(previous => (boardRun.serial.match(/"kind": "heartbeat"/g) || []).length > previous,
     heartbeatCount, {timeout:30000}); check('qmp-resume-fresh-guest-heartbeat', true);
+  // The fixture emits input edges before it finishes drawing text. Capture
+  // after a fresh heartbeat so a screenshot does not stop mid-glyph.
+  if(publicUI)report.final_texture_readback=await textureReadback();
+  await page.screenshot({path:resolve(output, 'native-frame.png'), fullPage:true});
   const completeSerial=await page.evaluate(()=>boardRun.serial);
   check('guest-remains-free-of-panic-or-python-traceback',
     !/Guru Meditation Error|Interrupt wdt timeout|A fatal error occurred|Traceback \(most recent call last\):/.test(completeSerial));
@@ -545,16 +552,20 @@ try {
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
     && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  // Query the browser target graph directly. This proves the engine and five
+  // Query the browser target graph directly. This proves the engine and every
   // nested pthread Worker targets are gone without depending on delayed
   // Playwright Worker close event delivery.
-  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});
+  const expectedWorkerTargets=stopped.cleanup.workersCreated+1;
+  assert.ok(Number.isInteger(expectedWorkerTargets)&&expectedWorkerTargets>=2,'same-run pthread creation count is required');
+  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:expectedWorkerTargets,timeoutMs:30000});
   report.worker_targets=workerClose; report.playwright_worker_events=workerObservations;
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
     removal_requests:boardDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe').length}));
   report.iframe_removal_control={...deferredRemoval,removal_deferred_by_harness:true,
     scope:'Real UI stop/quit/dispose with iframe DOM removal deferred until the browser target graph has no live Worker targets.'};
-  check('engine-and-five-pthreads-close-before-iframe-removal', workerClose.ok && deferredRemoval.iframe_present
+  check('engine-and-created-pthreads-close-before-iframe-removal', workerClose.ok
+    &&workerClose.observed.length===expectedWorkerTargets
+    &&workerClose.observed.filter(target=>target.url.includes('/public-qemu-engine.js')).length===1&&deferredRemoval.iframe_present
     && deferredRemoval.removal_requests===1 && deferredRemoval.iframe_count===1,
     {worker_targets:workerClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
   await page.evaluate(() => {

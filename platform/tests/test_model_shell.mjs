@@ -251,7 +251,7 @@ try {
     }
     const firstKeys = { sticks3: 'a', cores3: 'p', stopwatch: 'a', 'cardputer-adv': 'grave_accent',
       'cardputer-zero': 'f1', papermono: 'a', core2: 'a', papercolor: 'a',
-      nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a' };
+      nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a', stickc:'a', 'stickc-plus-se':'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if(device.id==='cardputer-adv')assert.deepEqual(result.physicalAliases.map(row=>row.events),
       ['compose','shift','meta_l','alt','grave_accent','esc','grave_accent','esc'].map(code=>[[code,true],[code,false]]),'ADV physical matrix aliases and mixed-source Escape holds retain matching input edges');

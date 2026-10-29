@@ -5,6 +5,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {capturePublicQemuProvenance} from './public_qemu_artifacts.mjs';
+import {observeWorkerTargets} from './public_qemu_worker_targets.mjs';
 
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const site=process.env.M5_PUBLIC_SITE&&resolve(process.env.M5_PUBLIC_SITE);
@@ -20,7 +21,7 @@ const {chromium}=await import(pathToFileURL(resolve(modules,'playwright/index.mj
 const checks=[],errors=[],requests=[],workers=[];
 const report={kind:'browser-local-qemu-headless-acceptance',device,public_ui:true,status:'FAIL',
   started_at:new Date().toISOString(),checks,errors,requests,workers};
-let server,browser,page;
+let server,browser,page,workerTargets;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json',
   '.wasm':'application/wasm','.css':'text/css','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml'};
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
@@ -74,6 +75,7 @@ try{
   const origin=`http://127.0.0.1:${server.address().port}${basePath}`;report.url=origin;
   browser=await chromium.launch({headless:true,...(process.env.M5_WASM_CHROME?{executablePath:process.env.M5_WASM_CHROME}:{}),
     args:['--enable-webgl','--use-gl=angle',...(process.env.M5_WASM_GPU==='hardware'?['--use-angle=metal','--ignore-gpu-blocklist']:['--use-angle=swiftshader'])]});
+  workerTargets=await observeWorkerTargets(browser);
   report.browser=browser.version();page=await browser.newPage({viewport:{width:1200,height:900}});
   await page.route(url=>[8787,8830].includes(Number(url.port))||/\/api\/v1(?:\/|$)/.test(url.pathname),route=>route.abort('blockedbyclient'));
   page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
@@ -118,9 +120,15 @@ try{
   await page.waitForFunction(()=>document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{}, {timeout:45000});
   await page.locator(`[data-device-id="${device}"]`).click();
   await page.waitForFunction(()=>globalThis.headlessShell?.device.id==='atoms3-lite',{}, {timeout:45000});
+  report.webgl_renderer=await page.evaluate(()=>{
+    const gl=headlessShell.viewer.renderer.getContext(),info=gl.getExtension('WEBGL_debug_renderer_info');
+    return info?gl.getParameter(info.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);
+  });
+  if(process.env.M5_WASM_GPU==='hardware')assert.doesNotMatch(report.webgl_renderer,/swiftshader|software/i);
   await page.locator('.advanced-options > summary').click();await page.locator('#runtimeMode').selectOption('browser');
   await page.locator('input[name="firmwareSource"][value="reference"]').check();
   check('public-headless-reference-label',(await page.locator('#referenceTitle').textContent()).includes('RGB 与按键示例'));
+  check('public-headless-reference-instructions',!(await page.locator('#referenceDescription').textContent()).includes('屏幕'));
   await page.locator('#startBtn').click();
   const ready=await guest('ready',event=>event.device===device&&event.output==='ws2812-rmt-gpio35');report.ready=ready;
   check('original-lite-board-and-output-route',ready.board===137&&ready.input==='button',ready);
@@ -159,10 +167,11 @@ try{
     &&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.disposal?.workersRemaining===0
     &&stopped.cleanup.disposal?.workersTerminatedByDispose===0&&stopped.cleanup.engineOwnership?.engineCloseNotificationReceived
     &&stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup);
-  const end=Date.now()+15000;while(workers.some(worker=>!worker.closed)&&Date.now()<end)await new Promise(resolve=>setTimeout(resolve,100));
+  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});report.worker_targets=workerClose;
   const held=await page.evaluate(()=>({connected:headlessDeferredRemoval.frame.isConnected,requests:headlessDeferredRemoval.requests}));
-  check('all-workers-close-before-iframe-removal',workers.length===6&&workers.filter(worker=>worker.kind==='engine').length===1
-    &&workers.every(worker=>worker.closed)&&held.connected&&held.requests===1,workers);
+  report.iframe_removal_control={...held,removal_deferred_by_harness:true};
+  check('all-workers-close-before-iframe-removal',workerClose.ok&&held.connected&&held.requests===1,
+    {worker_targets:workerClose,playwright_worker_events:workers,iframe_removal:held});
   await page.evaluate(()=>{const held=headlessDeferredRemoval;held.remove.call(held.frame);delete globalThis.headlessDeferredRemoval;});
   check('no-leftover-iframe',await page.locator('iframe').count()===0);
   check('no-device-service-or-page-errors',errors.length===0&&!requests.some(request=>/\/api\/v1|:8787\b|:8830\b/.test(request.url)),errors);
@@ -176,6 +185,7 @@ try{
   }
 }finally{
   if(page)await page.evaluate(()=>globalThis.headlessRun?.runtime.stop()).catch(()=>{});
+  await workerTargets?.detach();
   await browser?.close();if(server)await new Promise(resolve=>server.close(resolve));
   report.finished_at=new Date().toISOString();await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));

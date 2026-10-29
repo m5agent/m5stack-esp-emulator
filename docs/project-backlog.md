@@ -632,8 +632,15 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 ### UI-01
 
 当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
-14 款有运行登记，其余 24 款仅模型，不能提示连接服务即可运行固件。
+24 款有运行登记，其余 14 款仅模型，不能提示连接服务即可运行固件。
 固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
+本轮 AtomS3/Lite、StickC/SE/Plus2 的原生显示或 LED、输入及选定外设已有
+[限定验证](evidence/2026-10-29-expanded-hosts/README.md)，浏览器逐板准入独立维护。
+继续关闭经典 Atom 三板官方固件启动、原 StickC Plus 准确镜像、Dial 旋钮稳定投送，
+以及已启动设备未覆盖的音频/IR/电源/网络等数据面；不能以编译或另一板 PASS 关闭。
+其它 14 款视觉主机按实际芯片、板修订和准确固件逐个接入，StickV 的 K210、
+StickT2 等异构芯片不使用 ESP32 alias。
+
 加载失败时保留原 renderer 回退；StopWatch 仍是唯一参考质量外壳。
 模型接入不替代逐设备结构尺寸、
 面板开孔、材质、hitbox 和截图阈值的保真验收。

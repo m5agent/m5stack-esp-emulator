@@ -51,7 +51,9 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 编译、文件组合、模型检查与最终单板浏览器准入分开记录，正式部署另验。
 
 模型仓库新增的 21 款主机按[主机模型接入计划](plans/2026-10-29-expanded-host-models.md)
-同步；当前视觉库存为 38 主机、184 Unit。仅模型主机和已登记的运行设备分别标注。
+同步；当前视觉库存为 38 主机、184 Unit，中央运行目录 24 款。
+[逐板原厂固件验证](evidence/2026-10-29-expanded-hosts/README.md)记录输入、控制器与显示/LED，
+仅模型、候选和通过的功能范围分别标注。
 
 ## 按角色继续阅读
 
@@ -128,6 +130,7 @@ SDK 候选见[LVGL 正常时钟证据](evidence/2026-10-29-browser-lvgl-wallcloc
 | [GitHub Pages 虚拟设备部署](pages-deployment.md) | 部署契约 | `2026-10-29` | C/QEMU 逐板准入、两种 CoreS3 示例、共享帧与每次构建的全公开板型门禁；固定源码构建、管理员部署步骤和许可边界 |
 | [WASM 性能与多设备计划](plans/2026-10-29-wasm-performance-devices.md) | 本轮交付计划 | `2026-10-29` | 共享帧、宿主等待、正常时钟候选和四板逐例准入；归档、验证和 PR 交付范围 |
 | [新增主机模型接入](plans/2026-10-29-expanded-host-models.md) | 主机视觉接入计划 | `2026-10-29` | 21 款新增主机、完整 Atom/Stick 系列、型号配置、贴图、实际工作台入口与能力边界 |
+| [Atom / Stick 原厂固件运行接入](evidence/2026-10-29-expanded-hosts/README.md) / [Dial 旋钮诊断](evidence/2026-10-29-expanded-hosts/dial-rotary.md) | 当轮逐板限定验证 | `2026-10-29` | 原厂固件、原生与纯浏览器、GPIO/I2C/RMT、Flash 修复及未完成边界 |
 | [剩余 Xtensa 浏览器接入](plans/2026-10-29-wasm-remaining-xtensa.md) | 后续交付计划 | `2026-10-29` | 六板独立组合、矩阵键盘、EPD QUALITY 抖色与真实输入/帧/清理；新 runtime 逐板验收后才能准入 |
 | [剩余 Xtensa 浏览器准入证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md) | 本地浏览器证据 | `2026-10-29` | 46 层固定源码、独立 engine Worker、矩阵键盘和 TCA W1C、EPD 精确抖色、10 板 11 例最终门禁；正式部署另验 |
 | [浏览器性能与板型证据](evidence/2026-10-29-wasm-performance-devices/README.md) | 本地浏览器证据 | `2026-10-29` | 同固件 CPU 对照、实际动画像素变化与剩余触摸延迟；四板五示例按两个导出清单分别取证，不冒称正式 Pages 已更新 |

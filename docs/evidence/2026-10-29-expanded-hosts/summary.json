@@ -1,0 +1,967 @@
+{
+  "schema_version": 1,
+  "kind": "expanded-host-scoped-validation-summary",
+  "date": "2026-10-29",
+  "category": "virtual-device",
+  "status": "PARTIAL_DEVICE_COVERAGE",
+  "native_runtime": {
+    "sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+    "recipe": "scripts/bootstrap-unit-runtime.py",
+    "patch_layers": 42,
+    "build_boundary": "slirp-disabled functional build; networking not tested"
+  },
+  "wasm_runtime": {
+    "sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+    "source_lock_sha256": "6eeededa22f6928192f1114141fed5d1bb35baeed5ff605a4caf52a81ed51974",
+    "compiled_machine_is_not_admission": true
+  },
+  "native": {
+    "atoms3": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "firmware_sha256": "37d1a4f210ecb6a3aaf4e35493136d6878085f326f6f0020f8cf77e39de0e988",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "atoms3-peripherals-native42-v4",
+      "same_session_input_serial_state": true,
+      "report_sha256": "64259e315056cf90b1eee89134c290ddd49f3e298f856541f1780599774e63b9",
+      "checks": [
+        "MPU6886 two vectors verified via official SDK and actual I2C, register quantization tolerated",
+        "GPIO41 down guest counter and GPIO35 RMT actual output",
+        "GPIO41 up guest counter and GPIO35 RMT actual output",
+        "all64 button count framebuffer pixels red-to-green"
+      ],
+      "evidence_zip_sha256": "2a34459ac921bfb52db562d50eb77ccd5c907d5cd36bb1f15cccae11efd36341",
+      "frame-final_png_sha256": "87e843cb909fca265ccb0d5a6b6f5020ba074d99f5478949efdd9076cfa36503",
+      "serial-complete-final_json_sha256": "ba2d568d21c401a1c68f28c295b8dbfb289c6be0e7ec041420afd29d58772a57",
+      "stop_json_sha256": "4ded7a6f14950301e612abc7813f69bf760c416b48497028416d109f7d224f99",
+      "source_metadata_base_sha256": "3fd3319ec8690344f0e5cb9cc5ccb0f2190fd7ea3bdf61f977fe2da12ee572ec",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "atoms3-lite": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "firmware_sha256": "14b53f58eac6663705cbeadae92644c16ae98a6678ae6e3b49ced2062173024b",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "atoms3-lite-uart-console-v3",
+      "same_session_input_serial_state": true,
+      "report_sha256": "697c3ff7682b0beff92f64eaf87e7ba0f2944b134c2c6483936b891153d08d87",
+      "checks": [
+        "official firmware board137, RGB() and real UART0 dupterm console",
+        "same guest down GPIO41 to M5.BtnA to RGB RMT GPIO35",
+        "same guest up GPIO41 to M5.BtnA to RGB RMT GPIO35"
+      ],
+      "composition_json_sha256": "c5ec70dde710069be1685fdaff8d98ef65c3edff32d50ad784c47fc2222e0a6f",
+      "evidence_zip_sha256": "6035802a1488fa9314f4662a9dc868f195bc1e533cc6d4fd6e48f94539073ea0",
+      "serial-complete-final_json_sha256": "a44086b4e3c1c6ee191cc6c4e953d50309d9479deaae0832249b731eb66d090b",
+      "stop_json_sha256": "dd9e715fac2449ca4af3ce97d162d1ca8193560f821a0afb72ca492dd80fc5c2",
+      "base_sha256": "338baf7f16703b26fff78619d32e593d8ca4f1934bdad63e3c95eef862f3133c",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "stickc": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "firmware_sha256": "40d633bd44f2348968a6782e7e9c4d8c809447112ffc0c454e4eeeeb5198db9f",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "classic-stickc-v2",
+      "same_session_input_serial_state": true,
+      "report_sha256": "ef4b06fe634be4ee37bc30f0f038267e442f415f710df9ed5aa23bdf6fb9c4b9",
+      "checks": {
+        "firmware_build_id": true,
+        "display_dimensions": true,
+        "button_press_count_gpio": true,
+        "button_release_gpio": true,
+        "imu_accel_original_api": true,
+        "imu_gyro_original_api": true,
+        "frame-before_pixels": true,
+        "frame-pressed_pixels": true,
+        "frame-released_pixels": true
+      },
+      "composition_json_sha256": "da835e72306cb672c1ac323c8ed43e0103de89fb7cc4eaea76cc7115be7db487",
+      "evidence_zip_sha256": "c304820b82f7295ba276fdb25f416621a79552ab05a76c58a49f4c8785569037",
+      "serial-complete-final_json_sha256": "f29e61f46928c0e78402d6b16e5478acb4e2bda840e2d82a9f4f212926f5da7f",
+      "stop_json_sha256": "15b7df59d45d0617d5b9eb9cc8071068325ce1713fc1d1fa9fd3541a5e895fa7",
+      "base_sha256": "2463fc362f6acfacccb678a2c40aeb733e470ca793ec4a100d2e077baa641f03",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "stickc-plus-se": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "firmware_sha256": "5cd4cb388bdc71c8d55dbac18f39e1363017e2cbf2233833ca4e9f1eeb98da4b",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "classic-stickc-plus-se-v1",
+      "same_session_input_serial_state": true,
+      "report_sha256": "3909c6661378bbb9610e542f1bdff6d050d5dfe3cc5a8714a25bb2bbbd69d56c",
+      "checks": {
+        "firmware_build_id": true,
+        "display_dimensions": true,
+        "button_press_count_gpio": true,
+        "button_release_gpio": true,
+        "frame-before_pixels": true,
+        "frame-pressed_pixels": true,
+        "frame-released_pixels": true
+      },
+      "composition_json_sha256": "a40fe23291499a0c4423e50dc55782518dba29cb44f3f159cd5ddfe70b962727",
+      "evidence_zip_sha256": "baf43e35069b82bf7b6e89ed1aafb97c616fa264a32e2ba6a5b4d6cc63ec8b16",
+      "serial-complete-final_json_sha256": "fe27b255a4fa7014c0424b2167a2d007e555fc0440f30ccda848138c824a9cc0",
+      "stop_json_sha256": "c10ceca11f05fb61663661d37eb8d6a4608abd4d52dd16955383b92b8b10a6e8",
+      "base_sha256": "0c7055bb8e64afe1d8fa4fd4bdc0961ca0d6366351aca5d6c83eaaf72155ee88",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "stickc-plus2": {
+      "status": "PASS_SELECTED_BEHAVIORS",
+      "firmware_sha256": "e5990819a77149b108dfeea3b53efe5d70ebe70f9b22077da89f65f43e49828b",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "stickc-plus2-native42-peripherals-v2",
+      "same_session_input_serial_state": true,
+      "report_sha256": "e03a059e3dc4d1d7297c323d1eddb6fc5dd4333e9359dc0e6056a8e5a53da15c",
+      "checks": [
+        {
+          "name": "display-135x240",
+          "ok": true,
+          "details": {
+            "width": 135,
+            "height": 240,
+            "sha256": "6e3c56f88effa684ce8eb9824f8109bb2885bf413386d02a72e1b6fd6608684c"
+          }
+        },
+        {
+          "name": "rtc-real-i2c-calendar-write-read-and-tick",
+          "ok": true,
+          "details": {
+            "address": "0x51",
+            "registers": "0x02..0x08",
+            "controller": "I2C1 SDA21/SCL22",
+            "written": "(2026, 10, 22, 6, 7, 8)",
+            "advanced_raw": "(9, 7, 6, 34, 4, 16, 38)"
+          }
+        },
+        {
+          "name": "gpio-a-down-up",
+          "ok": true,
+          "details": {
+            "key": "a",
+            "press_count": 1
+          }
+        },
+        {
+          "name": "gpio-b-down-up",
+          "ok": true,
+          "details": {
+            "key": "b",
+            "press_count": 1
+          }
+        },
+        {
+          "name": "gpio-pwr-down-up",
+          "ok": true,
+          "details": {
+            "key": "p",
+            "press_count": 1
+          }
+        },
+        {
+          "name": "mpu6886-group-1-real-driver-readback",
+          "ok": true,
+          "details": {
+            "input": {
+              "accel": [
+                0.5,
+                -0.25,
+                1.25
+              ],
+              "gyro": [
+                15.0,
+                -30.0,
+                45.0
+              ]
+            },
+            "guest": {
+              "ACCEL": [
+                0.5,
+                -0.25,
+                1.25
+              ],
+              "GYRO": [
+                15.0146,
+                -30.0293,
+                44.9829
+              ],
+              "DRAWN": [
+                0.5,
+                -0.25,
+                1.25,
+                15.0146,
+                -30.0293,
+                44.9829
+              ]
+            },
+            "accel_tolerance_g": 0.025,
+            "gyro_tolerance_dps": 0.25
+          }
+        },
+        {
+          "name": "mpu6886-group-2-real-driver-readback",
+          "ok": true,
+          "details": {
+            "input": {
+              "accel": [
+                -0.75,
+                1.5,
+                -0.5
+              ],
+              "gyro": [
+                -90.0,
+                60.0,
+                120.0
+              ]
+            },
+            "guest": {
+              "ACCEL": [
+                -0.75,
+                1.5,
+                -0.5
+              ],
+              "GYRO": [
+                -90.0269,
+                59.9976,
+                119.9951
+              ],
+              "DRAWN": [
+                -0.75,
+                1.5,
+                -0.5,
+                -90.0269,
+                59.9976,
+                119.9951
+              ]
+            },
+            "accel_tolerance_g": 0.025,
+            "gyro_tolerance_dps": 0.25
+          }
+        }
+      ],
+      "evidence_zip_sha256": "fb5ab4f75a5fbca87765cd1bf9d84a2c26ea30cde5f5d7e594f0872071600ab2",
+      "frame-final_png_sha256": "42f7b3e053e0ed5c0ecf853f45f73dd5dccfe47e85c0b00601c60a4d57b49bbd",
+      "serial-complete-final_json_sha256": "4efdb7e50a433898b0253d2288abaa9afe62b265f87f962ce6487587dcbd1258",
+      "stop_json_sha256": "fe15e3b68206503579663a103b9388d68726b134a05f61ff792fb0466dad4a18",
+      "source_metadata_base_sha256": "6c785ba315d9e139ddc22acb7ed2a6fab4a74f17140fd4fc42c427665fbe32c3",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "dial": {
+      "status": "PARTIAL",
+      "firmware_sha256": "e01290fa124cd2cc5fee68954ae45a55a8df45796b880fca28d12cbe0a1734e4",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "dial-peripherals-uart-v2",
+      "same_session_input_serial_state": true,
+      "report_sha256": "f5b1699f48c4cd2a3305810a19c850319ac4b1a250624d63854278a7522a4f45",
+      "checks": "Dial exact native42 guest, genuine display/RTC/button/touch output retained; encoder drops counts, no rotary PASS",
+      "composition_json_sha256": "6d439ae136b95d5875970ebf82f5f2e00089860ac1b8407cbd436d7e4e21273c",
+      "evidence_zip_sha256": "2dabab4f34c793b347b453a3aef395bdd47951bbfb9c14a555d8ca0bb60ebd10",
+      "frame-inputs_png_sha256": "f0c380084795f4b8e890a2575916f76ef41c19263cccfb50aebc0b5dc6b841ce",
+      "serial-complete-final_json_sha256": "401cfa1ec2a026ba6830f181cc2a97c4c1a337bd949b86261006b5bd80aa05d3",
+      "stop_json_sha256": "79ee08fe5ed03bb895dd5814c4acb78cbc9dc241cbc2caddfca4f1652d85ab11",
+      "base_sha256": "6a0187dad13c491129e9228ca36b9e04adb46ebf9d8d51fca8eca5f9b7332a53",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0
+    },
+    "atom-lite": {
+      "status": "FAIL_BOOT_WINDOW",
+      "firmware_sha256": "331aa775a02cc3c9c305351e1af29285862c554a3142b2428e84176c9bc5b7b7",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "classic-atom-lite-v1",
+      "same_session_input_serial_state": false,
+      "report_sha256": "b13e48559a8ada0b67eabcb7fd53776896b4dc9e5152e18c364332a3122aa7c5",
+      "checks": {},
+      "composition_json_sha256": "adc44b3770643dc83d4366daf95d9ac14455d2c23a3ae98de79dd591505ec8a2",
+      "evidence_zip_sha256": "66de0134447b1da35efff0b0f1d370d6363027f8050dc712d4e380d7c9c492c0",
+      "serial-complete-final_json_sha256": "1769b23df033256b503ba9329f0569070cf7d79dc24fbf0ed54908d84c3ccb67",
+      "stop_json_sha256": "e3e2dae38f30aee6a00a1bfa72e5bccd42ca1c017455f4c02fdf80226fa7e36a",
+      "base_sha256": "8d13d287e18c56a8a27e5bf1617dca81a1c6d847dc302f034f09854753c184d0",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0,
+      "failure": "No Python probe within independent 55s window; RMT frame count zero; touch detection is only a hypothesis."
+    },
+    "atom-matrix": {
+      "status": "FAIL_BOOT_WINDOW",
+      "firmware_sha256": "33f8e652d8ce05453c61ceac8aac4a183017a2b34c75f12123ddf198e2cb9849",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "classic-atom-matrix-v1",
+      "same_session_input_serial_state": false,
+      "report_sha256": "336d14c7039de68dc83d1c0ccfde55e1641ce3577b8001eee6ca40e5de422820",
+      "checks": {},
+      "composition_json_sha256": "085d5bb1d46d3b4dad416fca4c972d23765eca872796dd55ee5f1e14da260ec0",
+      "evidence_zip_sha256": "c9cd03cfc11968da3abf86246f2f5b14cf95e74513f377d2f17d1c2f55b19701",
+      "serial-complete-final_json_sha256": "925ba0fc7a9e67be20c0ef1babea9a0c9701701b06ee07886dcaeb1f04654677",
+      "stop_json_sha256": "778c741a610ff39f67d925c892d52d1b0c70f946911eb5cb205d6aa7ac72f968",
+      "base_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0,
+      "failure": "No Python probe within independent 55s window; RMT frame count zero; touch detection is only a hypothesis."
+    },
+    "atom-matrix-v11": {
+      "status": "FAIL_BOOT_WINDOW",
+      "firmware_sha256": "7de36e8d2193dabb4935461b2472334356c0daaf22d4906737da94ed80abe673",
+      "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+      "trial_alias": "classic-atom-matrix-v11-v1",
+      "same_session_input_serial_state": false,
+      "report_sha256": "2cecf2c50c95005e03565fa2dc8f40d27ce682ede979a6eaa37d6be3d4bea397",
+      "checks": {},
+      "composition_json_sha256": "56b85b285ae2a64ea1650c3f6f60dd5c2d8a84992b484b422747ae44b36547fd",
+      "evidence_zip_sha256": "431b262285927e464663594274854f9fec8e4f174c5fd9b3f27c6577a97a0baf",
+      "serial-complete-final_json_sha256": "7140c2b2c406fa754ea9006f315059a192f23bf76473f6aaea8eedbcb1047118",
+      "stop_json_sha256": "b10ffd637332ee4963b0832cef18f0e754357fe59dc518a9209ade7bb92d3cfe",
+      "base_sha256": "1591382c9b46f10549faa0053b4036aa55f5c8131867b2f039d2650982e7886d",
+      "evidence_requested_before_stop": true,
+      "retained_history_purge": 0,
+      "failure": "No Python probe within independent 55s window; RMT frame count zero; touch detection is only a hypothesis."
+    }
+  },
+  "browser": {
+    "atoms3": {
+      "status": "PASS_FIXED_PROBE",
+      "report_sha256": "52d021f1bed09bb304ddf10e2a3782371136368ac9608cda8788de0340bc3fca",
+      "checks_passed": 24,
+      "firmware_sha256": "1cd37f1eb26c466e4c1bae052a55a5e0be307e3b60f9762a0c8a4d36d4a81319",
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "profile": "atoms3-wasm-wallclock",
+      "clock_divisor": 1,
+      "accelerator": null,
+      "site_manifest_sha256": "88b6244cf00744adfb49273532fadd32df7b8884d867eb09f27bbbc6836dc00a",
+      "browser": "156.0.8078.73",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "worker_targets": {
+        "ok": true,
+        "minimum_observed": 6,
+        "source": "Chrome DevTools Target.getTargets",
+        "observed_count": 6,
+        "live_count": 0
+      },
+      "frame_size": null,
+      "observed_scope": "same browser guest original input driver, actual framebuffer-to-model or RMT-to-model output, graceful exit and CDP worker closure before iframe removal",
+      "api_service_requests": 0,
+      "errors": []
+    },
+    "atoms3-lite": {
+      "status": "PASS_FIXED_PROBE",
+      "report_sha256": "4041beb09c2707d90e2d34e84adea7b01d1e708e2331e098653992aa55896935",
+      "checks_passed": 14,
+      "firmware_sha256": "ad515fce316589d186fbcfb53b409787936f052748323db4b793ef3bc640fa36",
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "profile": "atoms3-lite-wasm-wallclock",
+      "clock_divisor": 1,
+      "accelerator": null,
+      "site_manifest_sha256": "e388857ed42c95b396066d258317e974ff81c663b41b9c907ccbde3ff2e98af6",
+      "browser": "156.0.8078.73",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "worker_targets": {
+        "ok": true,
+        "minimum_observed": 6,
+        "source": "Chrome DevTools Target.getTargets",
+        "observed_count": 6,
+        "live_count": 0
+      },
+      "frame_size": null,
+      "observed_scope": "same browser guest original input driver, actual framebuffer-to-model or RMT-to-model output, graceful exit and CDP worker closure before iframe removal",
+      "api_service_requests": 0,
+      "errors": []
+    },
+    "stickc-plus2": {
+      "status": "PASS_FIXED_PROBE",
+      "report_sha256": "b7ca6618a13d7f80c3e25aac7e9982b84c1eb77dee4d8fbe840938cb7337af34",
+      "checks_passed": 29,
+      "firmware_sha256": "bcdcac7a7590153c4d4db05a3ff9f3e4b84d8678740d0dc27851c2425e431f68",
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "profile": "stickc-plus2-wasm-deterministic-icount",
+      "clock_divisor": 1,
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "site_manifest_sha256": "e49489aea4e3460206ab7f2459e4bffe0afb7a4313a005696f1fec08efe95335",
+      "browser": "156.0.8078.73",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "worker_targets": {
+        "ok": true,
+        "minimum_observed": 5,
+        "source": "Chrome DevTools Target.getTargets",
+        "observed_count": 5,
+        "live_count": 0
+      },
+      "frame_size": null,
+      "observed_scope": "same browser guest original input driver, actual framebuffer-to-model or RMT-to-model output, graceful exit and CDP worker closure before iframe removal",
+      "api_service_requests": 0,
+      "errors": []
+    },
+    "stickc": {
+      "status": "PASS_FIXED_PROBE",
+      "report_sha256": "1f22bfc14b012f2b365712ad696fba073932de5da533ef7f859150b0c22cd990",
+      "checks_passed": 25,
+      "firmware_sha256": "ece54cdc3ba937dbe3e8b30185432d604312b4c4d9961167cf24f08d65902b15",
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "profile": "stickc-wasm-deterministic-icount",
+      "clock_divisor": 1,
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "site_manifest_sha256": "eff5037a176df79a487cf984c04b0de1a9c489f8a2fde81f49d680668a91b0ec",
+      "browser": "156.0.8078.73",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "worker_targets": {
+        "ok": true,
+        "minimum_observed": 5,
+        "source": "Chrome DevTools Target.getTargets",
+        "observed_count": 5,
+        "live_count": 0
+      },
+      "frame_size": null,
+      "observed_scope": "same browser guest original input driver, actual framebuffer-to-model or RMT-to-model output, graceful exit and CDP worker closure before iframe removal",
+      "api_service_requests": 0,
+      "errors": []
+    },
+    "stickc-plus-se": {
+      "status": "PASS_FIXED_PROBE",
+      "report_sha256": "a061063df91695ba5c4805fd076df417bac79fbacf7854ce89835c04d79e38fc",
+      "checks_passed": 25,
+      "firmware_sha256": "21ed0df8f19b9ed2c670f411a6b448a8469a68dbaaca5653e529dbf95e99f2dc",
+      "wasm_sha256": "ab1691d63c2497bbc860f10723d0ebbf723ec4ccdf05650c8c998e7caeb0817f",
+      "profile": "stickc-plus-se-wasm-deterministic-icount",
+      "clock_divisor": 1,
+      "accelerator": {
+        "icountShift": 5,
+        "kind": "tcg-icount",
+        "tbSizeMb": 128,
+        "thread": "single"
+      },
+      "site_manifest_sha256": "eff5037a176df79a487cf984c04b0de1a9c489f8a2fde81f49d680668a91b0ec",
+      "browser": "156.0.8078.73",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "worker_targets": {
+        "ok": true,
+        "minimum_observed": 5,
+        "source": "Chrome DevTools Target.getTargets",
+        "observed_count": 5,
+        "live_count": 0
+      },
+      "frame_size": null,
+      "observed_scope": "same browser guest original input driver, actual framebuffer-to-model or RMT-to-model output, graceful exit and CDP worker closure before iframe removal",
+      "api_service_requests": 0,
+      "errors": []
+    }
+  },
+  "not_claimed": [
+    "physical hardware",
+    "arbitrary firmware compatibility",
+    "all listed peripherals complete",
+    "RF or networking on new boards",
+    "automatic board detection solely from M5.getBoard (a compiled BOARD_ID constant)"
+  ],
+  "full_matrix": {
+    "status": "PASS",
+    "cases": 68,
+    "report_sha256": "8d428c9abe0947f8c894d8beb0186949878cb0f60fcc02c1d755df456a2c0a2e",
+    "xtensa_runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+    "c6_runtime_sha256": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+    "scope": "existing 68-case matrix; the new boards use separate Device Service and browser receipts, not inherited matrix coverage",
+    "cases_by_id": [
+      {
+        "id": "sticks3-peripherals",
+        "status": "PASS",
+        "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "retry_used": false
+      },
+      {
+        "id": "sticks3-audio",
+        "status": "PASS",
+        "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "retry_used": false
+      },
+      {
+        "id": "sticks3-mic",
+        "status": "PASS",
+        "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-sd",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-sd",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-imu",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-keyboard",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-nfc",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-cc1101",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-audio",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-mic",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "atoms3r-peripherals",
+        "status": "PASS",
+        "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "retry_used": false
+      },
+      {
+        "id": "sticks3-ir",
+        "status": "PASS",
+        "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "retry_used": false
+      },
+      {
+        "id": "sticks3-ir-rx",
+        "status": "PASS",
+        "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-peripherals",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-power-transitions",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-usb-hid",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-camera",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-camera",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-audio",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-mic",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-peripherals",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-peripherals",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-peripherals",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-buzzer",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-pdm-mic",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-rgb",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-peripherals",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-sd",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-audio",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-sht4x",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-mic",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-nfc",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "papermono-lora",
+        "status": "PASS",
+        "base_sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-nfc",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-touch",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-rgb",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-audio",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-mic",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-peripherals",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stackchan-servo",
+        "status": "PASS",
+        "base_sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-vibration",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-audio",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-mic",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "atoms3r-lp5562",
+        "status": "PASS",
+        "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "retry_used": false
+      },
+      {
+        "id": "atoms3r-ir",
+        "status": "PASS",
+        "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "retry_used": false
+      },
+      {
+        "id": "cardputer-adv-ir",
+        "status": "PASS",
+        "base_sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-ir",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "core2-peripherals",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "core2-audio",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "core2-mic",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "core2-power-monitor",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-can",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-rs485",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-buzzer",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "core2-imu",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "core2-axp192",
+        "status": "PASS",
+        "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-lm75",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "papercolor-rgb",
+        "status": "PASS",
+        "base_sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
+        "retry_used": false
+      },
+      {
+        "id": "stamplc-onboard-io",
+        "status": "PASS",
+        "base_sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
+        "retry_used": false
+      },
+      {
+        "id": "cores3-aw9523-full",
+        "status": "PASS",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-m5ioe1-full",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "stopwatch-m5pm1-full",
+        "status": "PASS",
+        "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+        "retry_used": false
+      },
+      {
+        "id": "nesso-peripherals",
+        "status": "PASS",
+        "base_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "retry_used": false
+      },
+      {
+        "id": "nesso-imu",
+        "status": "PASS",
+        "base_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "retry_used": false
+      },
+      {
+        "id": "nesso-ir",
+        "status": "PASS",
+        "base_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "retry_used": false
+      },
+      {
+        "id": "nesso-lora",
+        "status": "PASS",
+        "base_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "retry_used": false
+      },
+      {
+        "id": "nesso-buzzer",
+        "status": "PASS",
+        "base_sha256": "49c4a9a669a2bde5b95416fa19ab8e01fc6bdec6a81bb80f2a0fc07480e1444b",
+        "retry_used": false
+      }
+    ]
+  },
+  "live_program": {
+    "status": "PASS",
+    "report_sha256": "2046aa28ee6458a17dd02fd4c4d3b758cd1fefbfb9bd0c6c0f736291dd421d05",
+    "runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+    "owned_service_stopped": true,
+    "python_sources_unchanged": true,
+    "devices": [
+      {
+        "device": "atoms3",
+        "status": "PASS",
+        "checks": 11,
+        "firmware_sha256": "da6c187ff9e155124ab87b743d8b2f8959f6105b588af47e5b29bb3c774064a1",
+        "same_pid_and_firmware": true,
+        "evidence": {
+          "sha256": "3a85092e55134ab8b81867ef16ccac3f8f8ce940569fa0b3c93fb199926011b3",
+          "bytes": 21036
+        },
+        "stopped": "stopped",
+        "flash_retained": false,
+        "owned_qemu_exited": true
+      },
+      {
+        "device": "stickc-plus2",
+        "status": "PASS",
+        "checks": 11,
+        "firmware_sha256": "65808de5031ec54c744f88e2cec9b4d2314d2d5b23f97952049d121ca4cabd7f",
+        "same_pid_and_firmware": true,
+        "evidence": {
+          "sha256": "7c631d2effcbea418f8955cab02765026466c9b7d696132a4496a761e3a4564c",
+          "bytes": 20875
+        },
+        "stopped": "stopped",
+        "flash_retained": false,
+        "owned_qemu_exited": true
+      }
+    ],
+    "scope": "managed uiflow-live ready; two same-VM button/frame Runs, RuntimeError failure and recovery, nonce/PID/firmware retained and stale execution rejected; 22 checks total"
+  },
+  "public_export": {
+    "manifest_sha256": "11d0a7b0f21835b21edc57808d53f1733e8212400bfd83fc4db657de049be0f5",
+    "publication_eligible": true,
+    "candidate_profiles": [],
+    "profiles": [
+      "stopwatch",
+      "sticks3",
+      "atoms3",
+      "atoms3-lite",
+      "atoms3r",
+      "cores3",
+      "cardputer-adv",
+      "stamplc",
+      "stackchan",
+      "papercolor",
+      "papermono",
+      "core2",
+      "stickc-plus2",
+      "stickc",
+      "stickc-plus-se"
+    ],
+    "published": false,
+    "browser_gate": "RUNNING"
+  },
+  "source_reviews": {
+    "visual_commit": "4879ab51eb8bb11ce024e670ae6880529e3d0f42",
+    "visual_source_check": "PASS 1925 files and pinned Three dependency addon",
+    "native_patch_replay": "42 layers / 124 source files",
+    "wasm_patch_replay": "51 layers / 153 source files",
+    "wasm_lock_sha256": "6eeededa22f6928192f1114141fed5d1bb35baeed5ff605a4caf52a81ed51974",
+    "experimental_lite_spi_and_dial_timing_patches_included": false
+  },
+  "redaction": "Derived summary: local origins, ports, session/worker identifiers, raw serial and request/event traces omitted; complete source reports retained locally and bound by SHA256.",
+  "checks": {
+    "platform": {
+      "status": "PASS",
+      "tests_run": 1551,
+      "skipped": 10,
+      "passed": 1541,
+      "report_sha256": "841d2e91fa157cfd6caab12003dce9bca55e396f8d1fb2e9983b8525157d7f95"
+    },
+    "node_contracts": "PASS",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PENDING_FINAL_REGENERATION"
+  }
+}

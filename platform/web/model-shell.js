@@ -21,6 +21,8 @@ const CONTROL_MAPS = {
   atoms3: { button: 'button' },
   'atoms3-lite': { button: 'button' },
   'stickc-plus2': { a: 'a', b: 'b', power: 'power' },
+  stickc: { a: 'a', b: 'b', power: 'power' },
+  'stickc-plus-se': { a: 'a', b: 'b', power: 'power' },
   dial: { wake: 'a' },
   atoms3r: { button: 'button' },
   stamplc: { a: 'key1', b: 'key2', c: 'key3' },

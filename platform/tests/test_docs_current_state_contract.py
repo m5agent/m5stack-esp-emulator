@@ -85,11 +85,9 @@ class DocsCurrentStateContractTests(DocsContractBase):
         # This explicit admission boundary is independent of the imported model
         # inventory: adding a visual host must not silently grant runtime ports.
         self.assertEqual(expected, {
-            "atom-lite", "atom-matrix", "atoms3-lite", "atom-matrix-v11",
-            "atoms3", "atoms3r-ai-chatbot", "atoms3r-cam", "atoms3r-cam-ai-chatbot",
+            "atoms3r-ai-chatbot", "atoms3r-cam", "atoms3r-cam-ai-chatbot",
             "atoms3r-m12", "atoms3r-m12-volcengine-kit", "atoms3r-ext", "atom-echo",
-            "atom-echos3r", "atoms3u", "atomu", "m5stick", "stickv", "stickc",
-            "stickc-plus", "stickc-plus2", "stickc-plus-se", "stickt2", "dial", "basic-v27",
+            "atom-echos3r", "atoms3u", "atomu", "m5stick", "stickv", "stickt2", "basic-v27",
         })
         units = project_snapshot.summarize_units(devices)
         self.assertEqual(set(units["visual_source"]["visual_only_controllers"]), expected)
@@ -100,9 +98,9 @@ class DocsCurrentStateContractTests(DocsContractBase):
             (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "controllers": [*value["controllers"], "unknown-host"]}, "unknown hosts"),
             (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "unknown-host"]}, "invalid visual-only declaration"),
             (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "cores3"]}, "invalid visual-only declaration"),
-            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "atom-lite"]}, "duplicate IDs"),
-            (project_snapshot.UNIT_HOSTS, lambda value: {**value, "hosts": [*value["hosts"], {"device_id": "atom-lite", "ports": []}]}, "registry contains unknown devices"),
-            (project_snapshot.UNIT_PROFILES, lambda value: {**value, "units": {**value["units"], "pir": {**value["units"]["pir"], "hosts": ["atom-lite"]}}}, "references an unknown host"),
+            (project_snapshot.VISUAL_VENDOR, lambda value: {**value, "visual_only_controllers": [*value["visual_only_controllers"], "atom-echo"]}, "duplicate IDs"),
+            (project_snapshot.UNIT_HOSTS, lambda value: {**value, "hosts": [*value["hosts"], {"device_id": "atom-echo", "ports": []}]}, "registry contains unknown devices"),
+            (project_snapshot.UNIT_PROFILES, lambda value: {**value, "units": {**value["units"], "pir": {**value["units"]["pir"], "hosts": ["atom-echo"]}}}, "references an unknown host"),
         )
         for target, mutate, message in mutations:
             with self.subTest(target=target, message=message):

@@ -13,6 +13,14 @@ EXPECTED = {
     "sticks3", "cores3", "stopwatch", "cardputer-adv", "cardputer-zero",
     "papermono", "core2", "papercolor", "nanoc6", "stackchan", "tab5",
     "atoms3r", "nesso-n1", "stamplc",
+    "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
+    "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
+    "atom-matrix-v11",
+}
+CANDIDATES = {
+    "atoms3", "atoms3-lite", "dial", "stickc", "stickc-plus",
+    "stickc-plus-se", "stickc-plus2", "atom-lite", "atom-matrix",
+    "atom-matrix-v11",
 }
 
 
@@ -99,6 +107,7 @@ class CatalogTests(unittest.TestCase):
                 "headless-ready",
                 "boot-capable",
                 "backend-required",
+                "candidate",
             })
             self.assertIn(device["shell"]["preset"], {
                 "watch-round", "stick", "core", "cardputer", "paper", "tab",
@@ -119,6 +128,8 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual("headless-ready", by_id["nanoc6"]["runtime"]["status"])
         self.assertFalse(by_id["cardputer-zero"]["uiflow2"]["supported"])
         self.assertIsNone(by_id["nanoc6"]["hardware"]["display"])
+        for device_id in CANDIDATES:
+            self.assertEqual("candidate", by_id[device_id]["runtime"]["status"])
         for device in self.source["devices"]:
             if device["runtime"]["status"] == "boot-capable":
                 self.assertIn(device["runtime"]["chip"], {"esp32s3", "esp32c6", "esp32p4"})

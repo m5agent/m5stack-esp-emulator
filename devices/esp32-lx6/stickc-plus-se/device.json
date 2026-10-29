@@ -65,11 +65,13 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-29",
-      "status": "candidate-not-validated",
-      "detail": "独立 StickC Plus SE K016-P-SE 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      "status": "native-display-input-pass",
+      "detail": "独立 K016-P-SE 官方 UIFlow2 同 guest 通过 135x240 ST7789V2、GPIO37 电平与 BtnA down/up/count、64 像素帧变化。SE 未装 IMU；B/电源、RTC、音频和其它外设仍需独立验证。",
+      "evidence": "docs/evidence/2026-10-29-expanded-hosts/summary.json",
+      "category": "virtual-device"
     },
     "blockers": [
-      "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      "Selected exact-firmware native behavior passed; full peripheral completion, arbitrary firmware, networking and physical equivalence are not established. See device-local evidence and remaining component blockers."
     ]
   },
   "uiflow2": {
