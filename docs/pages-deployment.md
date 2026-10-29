@@ -84,11 +84,12 @@ Worker 持有；iframe 不执行这些工作。工作台的 DOM、输入和 3D �
 
 正常停止先要求 QMP quit、guest exit code 0 和嵌套 pthread 归零，再执行
 dispose。engine 依次回复私有端口确认、关闭端口、发送 owner closing 通知并
-调用 `self.close()`；确认时 engine 自身仍存在。owner 通知只记录退出意图，
-不是 Worker 已关闭的证明。真实客体验收另在关闭浏览器前观察 engine 和嵌套
-pthread 的 Worker close 事件。初始化失败、错误或 iframe pagehide 的
-`terminate()` 兜底保留，并在 ownership 收据中记录；成功清理门禁要求该兜底
-次数为零，不能把强制回收写成正常退出。
+调用 `self.close()`；owner 收到该通知后显式 finalize 自己的 Worker handle，
+避免 macOS Chrome 把 engine target 保留到 iframe 移除。真实客体验收通过
+Chrome CDP `Target.getTargets` 核对 engine 与全部嵌套 pthread target 均消失，
+不依赖 Playwright 可能延迟到页面收尾的 Worker close 事件。初始化失败、错误
+或 iframe pagehide 的 `terminate()` 兜底保留，并与正常 finalization 分开
+记录；成功清理门禁要求 fallback 次数为零，不能把强制回收写成正常退出。
 
 原生 RGB565 帧同时交给可见原始屏幕和 `model-shell.js` 的显示纹理。
 逐板验收在输入前后等待模型 `frameSeq` 与 native frame sequence 一致，且

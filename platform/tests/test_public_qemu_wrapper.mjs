@@ -34,7 +34,7 @@ function fixture({constructorError,transferError}={}){
 assert.ok(source.includes('m5QemuEngineOwnership'),'the private engine wrapper must expose read-only lifecycle evidence');
 const initial=fixture();
 assert.deepEqual(initial.ownership(),{engineWorkersCreated:0,engineOwnerLive:false,
-  engineCloseNotificationReceived:false,engineFallbackTerminations:0,enginePortTransferred:false});
+  engineCloseNotificationReceived:false,engineNormalTerminations:0,engineFallbackTerminations:0,enginePortTransferred:false});
 const invalidPort=initial.port();
 for(const overrides of [
   {source:{}},{origin:'https://other.test'},{data:{type:'other'}},{ports:[]},{ports:null},{ports:[invalidPort,initial.port()]},
@@ -70,10 +70,11 @@ vm.runInContext('try { globalThis.m5QemuEngineOwnership.engineWorkersCreated=99;
 assert.equal(active.ownership().engineWorkersCreated,1);
 engine.emit('message',{type:'m5-qemu-engine-closing'});
 assert.equal(active.ownership().engineCloseNotificationReceived,true);
+assert.equal(active.ownership().engineNormalTerminations,1);
 assert.equal(active.ownership().engineFallbackTerminations,0);
-assert.equal(engine.terminations,0,'close notification is not a parent terminate operation');
+assert.equal(engine.terminations,1,'cooperative close is finalized by the owning iframe');
 active.dispatch('pagehide',{});active.dispatch('pagehide',{});
-assert.equal(engine.terminations,0,'a cooperative engine close cannot be relabeled as fallback termination');
+assert.equal(engine.terminations,1,'pagehide cannot double-finalize a cooperative engine close');
 assert.equal(active.ownership().engineFallbackTerminations,0);
 assert.equal(active.ownership().engineOwnerLive,false);
 
