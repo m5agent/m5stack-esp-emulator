@@ -515,21 +515,25 @@ try {
     && stopped.cleanup?.engineOwnership?.engineCloseNotificationReceived === true
     && stopped.cleanup?.engineOwnership?.engineNormalTerminations === 1
     && stopped.cleanup?.engineOwnership?.engineFallbackTerminations === 0, stopped.cleanup);
-  // Query the browser target graph directly. This proves the engine and five
-  // nested pthread Worker targets are gone without depending on delayed
-  // Playwright Worker close event delivery.
-  const workerClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});
-  report.worker_targets=workerClose; report.playwright_worker_events=workerObservations;
+  // Verify cleanup in two phases: all five nested pthread targets must exit
+  // while the iframe is held; the remaining engine target must disappear after
+  // the iframe's normal DOM removal.
+  const nestedClose=await workerTargets.waitUntilOnly({minimumObserved:6,
+    allowedUrlPart:'/public-qemu-engine.js',timeoutMs:30000});
   const deferredRemoval=await page.evaluate(() => ({iframe_present:boardDeferredRemoval.frame.isConnected,
     removal_requests:boardDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe').length}));
   report.iframe_removal_control={...deferredRemoval,removal_deferred_by_harness:true,
-    scope:'Real UI stop/quit/dispose with iframe DOM removal deferred until the browser target graph has no live Worker targets.'};
-  check('engine-and-five-pthreads-close-before-iframe-removal', workerClose.ok && deferredRemoval.iframe_present
+    scope:'Real UI stop/quit/dispose; nested pthread targets are checked before iframe DOM removal, then all targets after it.'};
+  check('five-pthreads-close-before-iframe-finalization', nestedClose.ok && deferredRemoval.iframe_present
     && deferredRemoval.removal_requests===1 && deferredRemoval.iframe_count===1,
-    {worker_targets:workerClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
+    {worker_targets:nestedClose,playwright_worker_events:workerObservations,iframe_removal:deferredRemoval});
   await page.evaluate(() => {
     const held=boardDeferredRemoval;held.remove.call(held.frame);delete globalThis.boardDeferredRemoval;
   });
+  const targetClose=await workerTargets.waitUntilClosed({minimumObserved:6,timeoutMs:30000});
+  report.worker_targets={before_removal:nestedClose,after_removal:targetClose};
+  report.playwright_worker_events=workerObservations;
+  check('engine-and-five-pthreads-close-after-iframe-finalization',targetClose.ok,targetClose);
   check('no-leftover-guest-iframe', await page.locator('iframe').count() === 0);
   check('no-page-errors', errors.length === 0, errors);
   check('no-device-service-requests', !requests.some(row => /\/api\/v1|:8787\b|:8830\b/.test(row.url)));
