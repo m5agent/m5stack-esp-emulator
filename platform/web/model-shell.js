@@ -285,6 +285,10 @@ export class ModelDeviceShell {
     this.viewer.resumeRendering();
   }
 
+  focusInput() {
+    return this.viewer.focusInput();
+  }
+
   showOverlay(title, detail = '') {
     this.overlayTitle.textContent = title;
     this.overlayBody.textContent = detail;
