@@ -437,6 +437,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、content-stable `manifest_id`、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要与 anti-rollback version 对照；known/unknown required capability mismatch fail closed，unknown optional 保持 warning；security aggregate 不能被 sdkconfig、signed/invalid image 或 eFuse 的 enabled 证据 understate |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
+| `platform/tools/runtime_acl.py` | 外部 operator policy 解析、设备/操作 allowlist、入口点与 guest package 路径 ACL、policy hash 和 fail-closed 决策 |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/user_firmware_expectations.schema.json` | UI/headless/network-first review expectation v1 schema |
 | `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
