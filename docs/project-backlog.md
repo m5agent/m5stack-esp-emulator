@@ -53,7 +53,7 @@ eFuse 或生产 key。
 | P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask、stateful SSI、pending SPI remap、high-priority DPORT handoff 和 classic RMT 已修复/验证；legacy Serial 已到 `APIKEY`，但 normal WDT 仍 reset，WDT-off 仍是黑帧 | probe/UIFlow2 PASS、RMT 初始化、SPI IRQ level、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
 | P0 | 网络产品化 | 物理跨主机 worker、主文件系统/队列/证据跨主机复制、任意 NAT 和外部 side-effect fence | 单机 namespace/container 和单个 control-plane evidence store 不能替代物理多机或对象存储 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、active-stop/post-reset 之外 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
-| P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
+| P0 | 通用固件安全 | guest filesystem ACL、完整许可、真机安全配置和更多真实业务；service runtime ACL 已完成 | 静态声明、镜像摘要自洽、service ACL 不等于设备文件权限/trust |
 | P0 | 真机同路径 | 代表设备同固件 SHA 的 hardware validation | 当前仓库没有可继承的硬件结论 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计和多机容量 | 当前仍是单机按需执行 |
 | P1 | Tab5 P4 后端 | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 controller touch | 闭源后端缺执行路径 |
@@ -213,7 +213,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
-4. `FW-01/02/03`：补运行态权限/许可、真机安全配置和真实业务覆盖。
+4. `FW-01/02/03`：补 guest filesystem 权限/完整许可、真机安全配置和真实业务覆盖。
 5. `RUNTIME-02/04/06`、`HW-01`：补 C6 Zigbee、ATECC608、ESP-NOW
    加密/lifecycle peer 和真机同路径。
 6. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
@@ -237,7 +237,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `RUNTIME-06` | 已完成（virtual-device） | `0067` loopback、`0076` plaintext、`0077` CCMP、`0078/0079` replay window、native/M5ESPNow lifecycle、`0080` key-state、`0081` shared-LMK fabric、`0082` per-peer routing、`0083` PN exhaustion/rekey 与 `0084` loss/retry/channel/rate/60 秒 soak 均已完成 | fixture/guest-key、shared-LMK/per-peer-key、replay、cross-wire、PN exhaustion、loss 和 channel/rate 分 lane 保留；bit-exact controller/RF/电气/真机继续独立登记，不回写为已完成的物理结论 |
 | `NET-04` | 进行中 | claim response-loss idempotency 与 lease-bound central evidence store 已完成；继续物理跨主机 executor/reattach、queue/session/evidence 跨主机复制、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；claim/evidence response 丢失不重复写入；跨主机节点无法共享同一文件系统时仍能读取确定性证据 |
 | `CORE2-02` | 进行中 | post-reset teardown 已完成；继续大于当前服务容量、持续吞吐、更复杂 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
-| `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
+| `FW-01` | 进行中 | operator-owned runtime ACL/执行策略已完成；继续 guest filesystem 权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性、service ACL 与 guest runtime 分开；unknown 不写成 PASS |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
 | `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 | 真实 guest 驱动完成生命周期；否则保持显式 `runtime_model_gap` |
@@ -403,11 +403,17 @@ evidence。精确结果只在验证台账维护。
 ### FW-01 文件系统、权限与许可
 
 已满足的前置基线：LittleFS/FAT/SPIFFS 只读清单、文件哈希、敏感路径、
-镜像可见权限、SBOM/SPDX 和有界许可 allowlist/denylist 可执行。
+镜像可见权限、SBOM/SPDX 和有界许可 allowlist/denylist 可执行；Device
+Service API `1.51.0` 增加 operator-owned runtime ACL，对 serial/input/reset、
+program execute/interrupt/read、package write 和 flash read 按设备 fail closed，
+入口点与 guest package 路径另有 allow/deny 规则，policy hash 和有效权限进入
+session/capacity；未配置时显式保持兼容模式。
 
 开放范围：
 
-- 固件运行态 ACL、权限和执行策略；
+- 固件自身/guest filesystem 的运行态 ACL、权限和不可变策略；当前 1.51
+  policy 只约束 Device Service 管理的 guest-facing 操作，不是任意 native
+  firmware 沙箱；
 - 生成代码、包外 vendor 依赖和完整源码/依赖许可覆盖；
 - 法律审批工作流。
 

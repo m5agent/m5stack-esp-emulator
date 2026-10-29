@@ -450,6 +450,13 @@ LittleFS/SPIFFS 都不携带 Unix mode；FAT 只有文件属性，没有 POSIX A
 LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
 自动格式化或改写输入镜像。
 
+Device Service API `1.51.0` 另有 operator-owned runtime ACL，可限制
+serial/input/reset、program execute/interrupt/read、package write 和 flash
+read，并对 package entrypoint/path 执行 allow/deny。该策略来自外部 operator
+文件，不从 FirmwareManifest 自报内容推导；它也不等于 guest filesystem 的
+Unix mode/ACL、firmware 内部访问控制或 native firmware 沙箱。验证范围见
+[runtime ACL 证据](evidence/2026-10-29-runtime-acl/README.md)。
+
 ## 可恢复流式上传
 
 Device Service 现在还接受不把完整 artifact 放进 JSON/base64 的 chunk

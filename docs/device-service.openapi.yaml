@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.50.0
+  version: 1.51.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -35,6 +35,14 @@ info:
     The service can be exposed over HTTPS with verified server certificates
     and optional required client certificates (mTLS); worker HMAC remains a
     separate application authentication layer.
+    An optional operator-owned runtime ACL file can restrict serial reads,
+    input/reset operations, program execution and interruption, package file
+    writes and virtual-flash reads per device. When configured, undeclared
+    devices and operations are denied. Every session and capacity response
+    exposes the active policy hash and effective rights; the file is never
+    inferred from guest metadata. SIGHUP validates and reloads the file during
+    the existing drained security reload; invalid content preserves the active
+    policy.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -583,6 +591,8 @@ paths:
                 $ref: "#/components/schemas/ProgramStatus"
         "404":
           $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
     post:
       summary: Interrupt and run source in the existing UIFlow2 guest without flashing or resetting
       description: >
@@ -632,6 +642,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProgramStatus"
         "400":
+          $ref: "#/components/responses/Error"
+        "403":
           $ref: "#/components/responses/Error"
         "404":
           $ref: "#/components/responses/Error"
@@ -747,6 +759,8 @@ paths:
                 type: object
                 additionalProperties: true
         "400":
+          $ref: "#/components/responses/Error"
+        "403":
           $ref: "#/components/responses/Error"
         "404":
           $ref: "#/components/responses/Error"
@@ -1995,6 +2009,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash-snapshot:
     post:
       summary: Store a virtual flash snapshot
@@ -2008,6 +2024,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/flash/diff:
     get:
       summary: Diff two virtual flash snapshots
@@ -2031,6 +2049,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/wait:
     post:
       summary: Wait for running state or a serial marker
@@ -2061,6 +2081,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "403":
+          $ref: "#/components/responses/Error"
         "408":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/serial:
@@ -2088,6 +2110,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerialChunk"
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/logs:
     get:
       summary: Read serial plus runtime log tails
@@ -2115,6 +2139,8 @@ paths:
                       qemu_stderr:
                         type: string
                         deprecated: true
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/frame.png:
     get:
       summary: Capture the current framebuffer
@@ -2215,6 +2241,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/qom:
     post:
       summary: Set a QOM property
@@ -2278,6 +2306,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        "403":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/renew:
     post:
       summary: Extend a lease
@@ -4603,6 +4633,8 @@ components:
           description: For uiflow, contains caller-source JSON artifact IDs, not image SHA256.
           items:
             type: string
+        runtime_acl:
+          $ref: "#/components/schemas/RuntimeACLSession"
         flash:
           type: [object, "null"]
         flash_retained:
@@ -4776,6 +4808,109 @@ components:
       properties:
         worker:
           $ref: "#/components/schemas/WorkerSummary"
+        runtime_acl:
+          $ref: "#/components/schemas/RuntimeACLPolicy"
+    RuntimeACLSession:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - configured
+        - policy_id
+        - device_id
+        - default_effect
+        - allowed_operations
+        - execution_entrypoints
+        - filesystem_write_allow
+        - filesystem_write_deny
+      properties:
+        status:
+          type: string
+          enum: [NOT_CONFIGURED, ENFORCED]
+        configured:
+          type: boolean
+        policy_id:
+          type: [string, "null"]
+          pattern: ^[0-9a-f]{64}$
+        device_id:
+          type: string
+        default_effect:
+          type: string
+          enum: [allow, deny]
+        allowed_operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/RuntimeACLOperation"
+        execution_entrypoints:
+          type: array
+          items:
+            type: string
+            enum: [main.py, main.mpy]
+        filesystem_write_allow:
+          type: array
+          items:
+            type: string
+        filesystem_write_deny:
+          type: array
+          items:
+            type: string
+    RuntimeACLPolicy:
+      type: object
+      additionalProperties: false
+      required: [status, configured, policy_id, default_effect, devices]
+      properties:
+        status:
+          type: string
+          enum: [NOT_CONFIGURED, ENFORCED]
+        configured:
+          type: boolean
+        policy_id:
+          type: [string, "null"]
+          pattern: ^[0-9a-f]{64}$
+        default_effect:
+          type: string
+          enum: [allow, deny]
+        devices:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/RuntimeACLRule"
+    RuntimeACLRule:
+      type: object
+      additionalProperties: false
+      required:
+        - allowed_operations
+        - execution_entrypoints
+        - filesystem_write_allow
+        - filesystem_write_deny
+      properties:
+        allowed_operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/RuntimeACLOperation"
+        execution_entrypoints:
+          type: array
+          items:
+            type: string
+            enum: [main.py, main.mpy]
+        filesystem_write_allow:
+          type: array
+          items:
+            type: string
+        filesystem_write_deny:
+          type: array
+          items:
+            type: string
+    RuntimeACLOperation:
+      type: string
+      enum:
+        - serial.read
+        - input.write
+        - guest.reset
+        - program.read
+        - program.execute
+        - program.interrupt
+        - filesystem.write
+        - flash.read
     WorkerSummary:
       type: object
       additionalProperties: false

@@ -58,7 +58,8 @@ MicroPython 和其他完整 Flash 固件。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
   提供最小执行路径。
   Secure Boot v2 已有镜像数学与包内摘要对照；live trust root、生产 key、
-  运行态 ACL/许可和完整云端业务仍未闭环。
+  guest filesystem ACL、完整许可和完整云端业务仍未闭环。Device Service
+  `1.51.0` 已单独提供 operator-owned runtime ACL/执行策略。
 - 所有 QEMU/esp-emu 结论只标记为 `virtual-device validation`。物理 RF、
   功耗、声学、光学、机械、电气和真机安全配置必须由同路径硬件证据单独证明。
 

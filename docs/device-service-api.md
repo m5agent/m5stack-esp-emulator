@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-29`.
 
-Status: local MVP with unified-device runtime contract `1.50.0` and bounded
+Status: local MVP with unified-device runtime contract `1.51.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, initializes its isolated
@@ -32,6 +32,73 @@ option leaves the guest UART route to the caller. The Live sessions page offers
 an explicit programming checkbox and a per-session editor with execution
 identity checks. A late response never replaces the local source draft.
 
+
+### Runtime ACL and execution policy
+
+API 1.51 adds an optional operator-owned runtime ACL. It is loaded only from
+`--runtime-acl-file` / `M5_SERVICE_RUNTIME_ACL_FILE`; firmware metadata cannot
+grant itself permissions. Without a configured file, the service reports
+`NOT_CONFIGURED` and retains the historical local-control compatibility mode.
+When a file is configured, undeclared devices and operations fail closed with
+HTTP `403 runtime_acl_denied`.
+
+The file is strict UTF-8 JSON, at most 64 KiB, and must be a regular file
+rather than a symlink. Unknown fields, operations, entrypoints, paths and
+devices are rejected before the listener starts. Device-specific rules
+override the optional `"*"` fallback. The supported operations are:
+
+- `serial.read`
+- `input.write`
+- `guest.reset`
+- `program.read`
+- `program.execute`
+- `program.interrupt`
+- `filesystem.write`
+- `flash.read`
+
+`program.execute` additionally requires an explicit `main.py`/`main.mpy`
+entrypoint allowlist. Package execution requires `filesystem.write`; every
+canonical guest path is checked before package publication, with deny rules
+evaluated first. Exact paths are allowed directly, while a trailing `/`
+grants a directory prefix. The service records denied operations as events and
+exposes the semantic policy SHA256 and effective rights in every Session
+snapshot and capacity response.
+
+`SIGHUP` reuses the existing bounded request drain to reload the ACL together
+with token/TLS configuration. The new policy and known-device references are
+fully validated before publication; a malformed or unavailable file leaves the
+previous policy active and logs a reload failure.
+
+Example:
+
+```json
+{
+  "schema_version": 1,
+  "devices": {
+    "*": {
+      "allow": ["serial.read", "program.read"]
+    },
+    "sticks3": {
+      "allow": [
+        "serial.read",
+        "input.write",
+        "program.read",
+        "program.execute",
+        "filesystem.write",
+        "flash.read"
+      ],
+      "execution_entrypoints": ["main.py"],
+      "filesystem_write_allow": ["main.py", "lib/"],
+      "filesystem_write_deny": ["lib/private/"]
+    }
+  }
+}
+```
+
+This is a management-plane runtime policy for guest-facing operations owned by
+the service. It does not sandbox arbitrary native firmware once that firmware
+is running, and it does not turn QEMU into an untrusted-code VM. Firmware-
+authored file ACLs remain a separate guest/system property.
 
 ### Verified main.mpy entrypoints
 
@@ -457,6 +524,7 @@ Storage retention defaults can be changed with:
 | `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
 | `M5_SERVICE_MAX_PROGRAM_REVISIONS` | 256 | immutable source revision count limit; integer `1`–`4096`, also `--max-program-revisions`; `0` is invalid |
 | `M5_SERVICE_MAX_PROGRAM_PACKAGES` | 256 | independent immutable program package count limit; integer `1`–`4096`, also `--max-program-packages`; preserves existing packages when lowered |
+| `M5_SERVICE_RUNTIME_ACL_FILE` | unset | operator-owned runtime ACL JSON, also `--runtime-acl-file`; configured policies fail closed and invalid files stop startup |
 
 Source revisions are retained independently of session history and cache GC.
 They are never automatically reclaimed: a fresh revision returns HTTP `429`

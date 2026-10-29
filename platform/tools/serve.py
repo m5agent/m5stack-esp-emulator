@@ -36,6 +36,7 @@ from peripheral_inventory import build_inventory
 from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
 from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
 from runtime_interfaces import build_interfaces
+from runtime_acl import RuntimeACL, RuntimeACLConfigError
 from unit_runtime import UnitError, UnitRegistry
 from transport_security import (
     TransportSecurityError,
@@ -339,6 +340,13 @@ class Handler(SimpleHTTPRequestHandler):
                     "M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES),
                 )),
                 api_token=os.environ.get("M5_SERVICE_API_TOKEN") or None,
+                runtime_acl=(
+                    RuntimeACL.from_file(
+                        Path(os.environ["M5_SERVICE_RUNTIME_ACL_FILE"])
+                    )
+                    if os.environ.get("M5_SERVICE_RUNTIME_ACL_FILE")
+                    else None
+                ),
             )
         return type(self).service
 
@@ -1236,10 +1244,22 @@ def _read_text_tail(path: Path, limit: int) -> str:
 
 def _wait_for_session(session, payload: dict) -> dict:
     if payload.get("ready") or payload.get("serial_markers") or payload.get("frame_nonblank"):
+        conditions = (
+            payload["ready"]
+            if isinstance(payload.get("ready"), dict)
+            else payload
+        )
+        if conditions.get("serial_markers"):
+            checker = getattr(session, "require_serial_read", None)
+            if checker is not None:
+                checker()
         return session.wait_ready(payload)
     marker = payload.get("ready_marker")
     timeout = float(payload.get("timeout_seconds", 30))
     if marker:
+        checker = getattr(session, "require_serial_read", None)
+        if checker is not None:
+            checker()
         return session.wait_for_marker(str(marker), timeout)
     wait_for_completion = bool(payload.get("wait_for_completion", False))
     deadline = time.time() + timeout
@@ -1294,6 +1314,19 @@ def main() -> None:
         type=int,
         default=os.environ.get("M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES)),
         help="maximum retained immutable program packages (1–4096; default 256)",
+    )
+    parser.add_argument(
+        "--runtime-acl-file",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_RUNTIME_ACL_FILE"])
+            if os.environ.get("M5_SERVICE_RUNTIME_ACL_FILE")
+            else None
+        ),
+        help=(
+            "operator-owned JSON runtime ACL; when omitted, guest-facing "
+            "operations retain local-control compatibility"
+        ),
     )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
@@ -1502,24 +1535,33 @@ def main() -> None:
             initial_api_token
         )
         tls_context = load_tls_context()
-    except (TransportSecurityError, WorkerAuthError) as error:
+        runtime_acl = (
+            RuntimeACL.from_file(args.runtime_acl_file)
+            if args.runtime_acl_file is not None
+            else RuntimeACL.unconfigured()
+        )
+    except (TransportSecurityError, WorkerAuthError, RuntimeACLConfigError) as error:
         parser.error(str(error))
     os.chdir(ROOT)
     mimetypes.add_type("application/wasm", ".wasm")
-    service = DeviceService(
-        state_dir=args.state_dir or DEFAULT_STATE_DIR,
-        max_sessions=args.max_sessions,
-        max_per_device=args.max_per_device,
-        max_program_revisions=args.max_program_revisions,
-        max_program_packages=args.max_program_packages,
-        default_ttl=args.session_ttl,
-        api_token=initial_api_token,
-        previous_api_token=initial_previous_api_token,
-        worker_id=args.worker_id,
-        worker_state_path=args.worker_state,
-        worker_heartbeat_interval=args.worker_heartbeat_interval,
-        worker_stale_after=args.worker_stale_after,
-    )
+    try:
+        service = DeviceService(
+            state_dir=args.state_dir or DEFAULT_STATE_DIR,
+            max_sessions=args.max_sessions,
+            max_per_device=args.max_per_device,
+            max_program_revisions=args.max_program_revisions,
+            max_program_packages=args.max_program_packages,
+            default_ttl=args.session_ttl,
+            api_token=initial_api_token,
+            previous_api_token=initial_previous_api_token,
+            worker_id=args.worker_id,
+            worker_state_path=args.worker_state,
+            worker_heartbeat_interval=args.worker_heartbeat_interval,
+            worker_stale_after=args.worker_stale_after,
+            runtime_acl=runtime_acl,
+        )
+    except RuntimeACLConfigError as error:
+        parser.error(str(error))
     Handler.service = service
     Handler.api_token = initial_api_token
     Handler.previous_api_token = initial_previous_api_token
@@ -1528,7 +1570,14 @@ def main() -> None:
         new_token = load_api_token()
         new_previous_token = load_previous_api_token(new_token)
         new_context = load_tls_context()
+        new_runtime_acl = (
+            RuntimeACL.from_file(args.runtime_acl_file)
+            if args.runtime_acl_file is not None
+            else RuntimeACL.unconfigured()
+        )
+        new_runtime_acl.validate_device_ids(set(service.specs))
         service.set_api_tokens(new_token, new_previous_token)
+        service.runtime_acl = new_runtime_acl
         Handler.api_token = new_token
         Handler.previous_api_token = new_previous_token
         return new_context
@@ -1538,6 +1587,7 @@ def main() -> None:
         or args.api_token_previous_file is not None
         or args.tls_cert is not None
         or args.tls_client_ca_previous is not None
+        or args.runtime_acl_file is not None
     )
     server = ServiceHTTPServer(
         (args.bind, args.port),
