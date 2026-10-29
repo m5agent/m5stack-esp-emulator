@@ -2052,6 +2052,38 @@ virtual-device validation；物理硬件、cache/PSRAM、RF 和电气测试
 [证据](evidence/2026-10-30-core2-wifi-irq-cache-gate/README.md)和
 [机器摘要](evidence/2026-10-30-core2-wifi-irq-cache-gate/summary.json)。
 
+## 2026-10-30：Core2 classic WiFi station timing and data path
+
+`0093-esp32-classic-wifi-virtual-time.patch`（SHA256 `ecf75318…`）将
+classic ESP32 beacon、injected frame 和生成的 802.11 timestamp 从
+QEMU realtime 改为 virtual time；`0094-esp32-classic-wifi-station-data.patch`
+（SHA256 `bead73ed…`）让 `ASSOCIATED`/`STA_DHCP`/`STA_ASSOCIATED`
+station data 统一经过 Ethernet/slirp，host reply 也回到 guest station。
+Device Service 同时将 SSID/password/auth 环境传给 classic 与 S3 WiFi
+模型。
+
+最终 QEMU `3e61aa64…` 上，stock Core2 UIFlow2 WiFi probe 五轮独立首启动
+均为 PASS：scan count 为 `3`、识别 `myssid`、连接成功、DHCP 得到
+`10.0.2.15`、完成 controlled HTTP 并输出
+`CORE2_WIFI_RESULT: PASSED`。`M5SW_CLASSIC_WIFI_TRACE` 记录双向
+`host-tx`/`host-rx` 和 `STA_ASSOCIATED`，证明数据经过控制器模型而不是
+host-side fake。evidence SHA256 为 `b2559537…`。同一 binary 的 Core2
+UIFlow2 设备组 `6/6 PASS`，每例 attempts 1 且无 retry，matrix summary
+SHA256 为 `3533de10…`。
+
+同一 legacy public firmware `4d2d648b…` 在 `shift=2`、诊断 `1 us`
+per-vCPU cap、normal WDT 下到 BOARD/APIKEY/boot start/boot done，并显示
+`320x240`、`75,559` nonblack、`512` colors 的 API Key 页面；随后仍
+`TG0WDT_SYS_RESET`。同一最终 binary 的 WDT-disabled 诊断控制无复位运行到
+guest virtual `457.794095092 s`，保留 `reconnect start/finish` 和同一
+API Key 页面，说明 WiFi/UI 路径本身持续可用；该控制不是产品修复。
+因此该里程碑关闭 classic WiFi station timebase 与双向 DHCP/数据面缺口，
+`RUNTIME-03` 的 normal-WDT/startup/application 验收仍 OPEN。全部为
+virtual-device validation；物理硬件、RF、电气和物理 cache/PSRAM timing
+均 `NOT RUN`。见
+[证据](evidence/2026-10-30-core2-classic-wifi-station-time/README.md)和
+[机器摘要](evidence/2026-10-30-core2-classic-wifi-station-time/summary.json)。
+
 ## 2026-10-30：SVC-03 device-spec boundary
 
 继续 `SVC-03` 的无状态边界拆分。新增
