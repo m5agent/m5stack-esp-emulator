@@ -6,7 +6,7 @@
 - 运行时：`candidate`
 - 外设仿真：`partial`
 - UIFlow2：`支持`，m5ui：`不支持`
-- UIFlow2 固件：不适用
+- UIFlow2 固件：v2.5.2 / `1897200000000003037`
 
 ## 硬件档案
 
@@ -32,7 +32,7 @@ candidate。
 
 ## 未完成的板级数据面
 
-- Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited. A precise official StickC Plus image has not been acquired; service admission is blocked until its board identity and partition map are verified.
+- Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate.
 
 ## 文件
 

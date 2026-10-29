@@ -1,0 +1,706 @@
+Subject: [PATCH] m5stack: implement chip-native board power lifecycle
+
+AXP192/AXP2101 and M5PM1 power/control registers own shutdown and
+reset effects. PWRON timing follows each chip configuration. Plus2
+retention follows its real GPIO4 and explicit USB supply, not a key
+long-press frontend shortcut. StackChan VM_EN resolves the IOE driver
+and configured pulls. Dynamic PM1 boot-strap download remains an
+explicit observable model gap.
+
+Based on native42; apply after the StackChan servo power callback patch.
+Sources: M5Unified 8530f5377d782e4a25a6c482de2e71c3f75ca8eb;
+M5Stack M5PM1 manual and Plus2 schematic; AXP2101 datasheet.
+
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -8,6 +8,7 @@
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
+ #include "qemu/timer.h"
++#include "sysemu/runstate.h"
+ #include "qapi/error.h"
+ #include "hw/i2c/i2c.h"
+ #include "hw/qdev-properties.h"
+@@ -99,6 +100,11 @@
+     bool pm1_pa_enabled;
+     bool axp192_speaker_enabled;
+     bool axp2101_speaker_enabled;
++    QEMUTimer *power_key_timer;
++    int64_t power_key_down_ns, power_key_release_ns;
++    int64_t shutdown_requests, reset_requests, download_requests;
++    bool power_enabled, power_key_down, power_key_long, download_requested;
++    unsigned pm1_clicks;
+     uint8_t command;
+     uint8_t read_start;
+     bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
+@@ -185,6 +191,7 @@
+ static M5swI2CDev *g_keyboard;
+ static M5swI2CDev *g_aw9523;
+ static M5swI2CDev *g_bq27220;
++static M5swI2CDev *g_stackchan_ioe1;
+ static uint8_t g_key_events[16];
+ static unsigned g_key_event_head;
+ static unsigned g_key_event_count;
+@@ -261,6 +268,35 @@
+     uint16_t external = s->m5ioe1_input_bits;
+ 
+     return ((mode & output) | (~mode & external)) >> (bank * 8);
++}
++
++/* StackChan BSP's zero-based PY32 pin 0 is UIFlow's G1: VM_EN.
++ * Resolve its actual driver and configured pulls. An input's default 0x3fff
++ * readback is not evidence of an externally powered servo rail.
++ */
++bool m5sw_stackchan_servo_power_enabled(void)
++{
++    M5swI2CDev *s = g_stackchan_ioe1;
++    bool output, high, open_drain;
++
++    if (!s) {
++        return false;
++    }
++    output = s->regs[0x03] & 1;
++    high = s->regs[0x05] & 1;
++    open_drain = s->regs[0x13] & 1;
++    if (output && (!open_drain || !high)) {
++        return high;
++    }
++    /* Input/open-drain release needs a real, unopposed pull-up. */
++    return (s->regs[0x09] & 1) && !(s->regs[0x0b] & 1);
++}
++
++static void stackchan_power_update(M5swI2CDev *s)
++{
++    if (s == g_stackchan_ioe1) {
++        m5_scs_servo_power_changed(m5sw_stackchan_servo_power_enabled());
++    }
+ }
+ 
+ static void m5ioe1_set_input_bits(M5swI2CDev *s, int64_t value)
+@@ -278,28 +314,286 @@
+     s->regs[0x12] |= (active & enabled) >> 8;
+ }
+ 
++/* These are independent PMIC state machines, driven by the board PWRON
++ * switch and real guest I2C writes. No UIFlow/Python or frontend policy is
++ * involved. Time belongs to the paused/resumed virtual board, not JS timers.
++ * M5Unified 8530f537: AXP2101 10h.0; AXP192 32h.7; M5PM1 0Ch=A1.
++ */
++static void pm1_release_gpio(M5swI2CDev *s, uint8_t keep)
++{
++    for (unsigned pin = 0; pin < 5; pin++) {
++        unsigned reg = pin < 4 ? 0x16 : 0x17;
++        unsigned shift = pin < 4 ? pin * 2 : 0;
++
++        if (keep & BIT(pin)) {
++            continue;
++        }
++        s->regs[0x10] &= ~BIT(pin); /* input */
++        s->regs[0x11] &= ~BIT(pin);
++        s->regs[0x13] |= BIT(pin);  /* default open-drain */
++        s->regs[reg] &= ~(3 << shift); /* ordinary GPIO function */
++        reg = pin < 4 ? 0x14 : 0x15;
++        s->regs[reg] &= ~(3 << shift); /* no pulls */
++    }
++}
++
++static void pmic_power_off(M5swI2CDev *s, const char *source)
++{
++    if (!s->power_enabled) {
++        return;
++    }
++    s->power_enabled = false;
++    s->shutdown_requests++;
++    timer_del(s->power_key_timer);
++    if (s->model == M_PM1) {
++        uint8_t hold = s->regs[0x07];
++
++        s->regs[0x06] &= ~(BIT(1) | BIT(4)); /* SoC DCDC and LED off. */
++        if (!(hold & BIT(5))) {
++            s->regs[0x06] &= ~BIT(2); /* LDO may keep RTC/IMU powered. */
++        }
++        if (!(hold & BIT(6))) {
++            s->regs[0x06] &= ~BIT(3); /* Optional retained 5V boost. */
++        }
++        pm1_release_gpio(s, hold & 0x1f);
++    }
++    fprintf(stderr, "[m5-power] model=%s action=off source=%s virtual_ns=%" PRId64 "\n",
++            s->model_name, source, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
++}
++
++static void pmic_reset_request(M5swI2CDev *s, const char *source)
++{
++    s->reset_requests++;
++    s->pm1_clicks = 0;
++    s->power_key_down = s->power_key_long = false;
++    s->download_requested = false;
++    timer_del(s->power_key_timer);
++    if (s->model == M_PM1) {
++        /* PM1 reset releases its GPIO functions, not its charging supply. */
++        s->regs[0x07] = 0;
++        pm1_release_gpio(s, 0);
++        s->regs[0x06] = 0x16 | (s->regs[0x06] & 1);
++        s->pm1_pa_enabled = false;
++        memset(&s->regs[0x40], 0, 3);
++        s->regs[0x48] &= ~1;
++    }
++    fprintf(stderr, "[m5-power] model=%s action=reset source=%s virtual_ns=%" PRId64 "\n",
++            s->model_name, source, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++}
++
++static int64_t pmic_key_long_ns(M5swI2CDev *s)
++{
++    unsigned setting = s->model == M_PM1 ? (s->regs[0x49] >> 3) & 3
++                       : s->model == M_AXP2101 ? (s->regs[0x27] >> 4) & 3
++                       : (s->regs[0x36] >> 4) & 3;
++    return s->model == M_PM1 ? (setting + 1) * NANOSECONDS_PER_SECOND
++                            : (1000 + setting * 500) * SCALE_MS;
++}
++
++static bool pmic_key_off_enabled(M5swI2CDev *s)
++{
++    return s->model == M_AXP2101 ? (s->regs[0x22] & BIT(1)) != 0
++           : s->model == M_AXP192 && (s->regs[0x36] & BIT(3));
++}
++
++static int64_t pmic_key_off_ns(M5swI2CDev *s)
++{
++    unsigned setting = s->model == M_AXP2101 ? (s->regs[0x27] >> 2) & 3
++                                           : s->regs[0x36] & 3;
++    return (4 + setting * 2) * NANOSECONDS_PER_SECOND;
++}
++
++static int64_t pm1_double_ns(M5swI2CDev *s)
++{
++    return (125 << ((s->regs[0x49] >> 5) & 3)) * SCALE_MS;
++}
++
++static void pmic_key_rearm(M5swI2CDev *s)
++{
++    int64_t deadline = INT64_MAX;
++
++    if (s->power_enabled && s->power_key_down) {
++        if (!s->power_key_long) {
++            deadline = s->power_key_down_ns + pmic_key_long_ns(s);
++        }
++        if (pmic_key_off_enabled(s)) {
++            deadline = MIN(deadline, s->power_key_down_ns + pmic_key_off_ns(s));
++        }
++        if (s->model == M_AXP2101 && (s->regs[0x10] & BIT(2))) {
++            deadline = MIN(deadline, s->power_key_down_ns + 16 * NANOSECONDS_PER_SECOND);
++        }
++    } else if (s->power_enabled && s->model == M_PM1 && s->pm1_clicks) {
++        deadline = s->power_key_release_ns + pm1_double_ns(s);
++    }
++    if (deadline == INT64_MAX) {
++        timer_del(s->power_key_timer);
++    } else {
++        timer_mod(s->power_key_timer,
++                  MAX(deadline, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)));
++    }
++}
++
++static void pmic_download_request(M5swI2CDev *s, const char *source)
++{
++    /* The PM1 requests download, but the SoC currently has no dynamic boot
++     * strap sampler. Retain that observable model gap rather than reset into
++     * ordinary Flash and claim that the ROM downloader was entered.
++     */
++    s->download_requests++;
++    s->download_requested = true;
++    s->pm1_clicks = 0;
++    fprintf(stderr, "[m5-power] model=%s action=download-requested source=%s "
++            "runtime_model_gap=dynamic-boot-strap\n", s->model_name, source);
++}
++
++static void pmic_key_tick(void *opaque)
++{
++    M5swI2CDev *s = opaque;
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++
++    if (!s->power_enabled) {
++        return;
++    }
++    if (s->power_key_down) {
++        int64_t held = now - s->power_key_down_ns;
++
++        if (!s->power_key_long && held >= pmic_key_long_ns(s)) {
++            s->power_key_long = true;
++            if (s->model == M_AXP2101) {
++                s->regs[0x49] |= BIT(2); /* long; short is bit 3 */
++            } else if (s->model == M_AXP192) {
++                s->regs[0x46] |= BIT(0);
++            } else if (!(s->regs[0x49] & BIT(7))) {
++                pmic_download_request(s, "button-long");
++            }
++        }
++        if (pmic_key_off_enabled(s) && held >= pmic_key_off_ns(s)) {
++            if (s->model == M_AXP2101 && (s->regs[0x22] & 1)) {
++                pmic_reset_request(s, "button-offlevel-restart");
++            } else {
++                pmic_power_off(s, "button-offlevel");
++            }
++            return;
++        }
++        if (s->model == M_AXP2101 && (s->regs[0x10] & BIT(2))
++            && held >= 16 * NANOSECONDS_PER_SECOND) {
++            pmic_power_off(s, "button-16s");
++            return;
++        }
++    } else if (s->model == M_PM1 && s->pm1_clicks) {
++        s->pm1_clicks = 0;
++        if (s->regs[0x49] & 1) {
++            s->regs[0x42] |= BIT(0); /* disabled reset becomes click IRQ */
++        } else {
++            pmic_reset_request(s, "button-single");
++            return;
++        }
++    }
++    pmic_key_rearm(s);
++}
++
++static void pmic_key_event(M5swI2CDev *s, bool down)
++{
++    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++
++    if (!s || !s->power_enabled || s->power_key_down == down) {
++        return; /* Keyboard autorepeat must not restart the PMIC deadline. */
++    }
++    if (!down) {
++        /* Account for a deadline at this exact input-sync boundary. */
++        pmic_key_tick(s);
++        if (!s->power_enabled || !s->power_key_down) {
++            return;
++        }
++    }
++    s->power_key_down = down;
++    if (s->model == M_PM1) {
++        s->regs[0x48] = (s->regs[0x48] & ~1) | down;
++    }
++    if (down) {
++        s->power_key_down_ns = now;
++        s->power_key_long = false;
++        if (s->model == M_PM1) {
++            s->regs[0x48] |= 0x80;
++        }
++    } else if (!s->power_key_long) {
++        if (s->model == M_AXP2101) {
++            s->regs[0x49] |= BIT(3);
++        } else if (s->model == M_AXP192) {
++            s->regs[0x46] |= BIT(1);
++        } else {
++            int64_t single = (125 << ((s->regs[0x49] >> 1) & 3)) * SCALE_MS;
++
++            if (now - s->power_key_down_ns <= single) {
++                if (s->pm1_clicks && now - s->power_key_release_ns <= pm1_double_ns(s)) {
++                    s->pm1_clicks = 0;
++                    if (s->regs[0x4a] & 1) {
++                        s->regs[0x42] |= BIT(2);
++                    } else {
++                        pmic_power_off(s, "button-double");
++                    }
++                } else {
++                    s->pm1_clicks = 1;
++                    s->power_key_release_ns = now;
++                }
++            }
++        }
++    } else {
++        s->pm1_clicks = 0;
++    }
++    pmic_key_rearm(s);
++}
++
++/* Return true only for a chip-native power/control register. The I2C
++ * controller still owns address decoding, ACKs and pointer advancement.
++ */
++static bool pmic_write_power_register(M5swI2CDev *s, uint8_t r, uint8_t data)
++{
++    if (s->model == M_PM1 && r == 0x06) {
++        s->regs[r] = data & 0x1f;
++        if (!(data & BIT(1))) {
++            pmic_power_off(s, "pwr-cfg-dcdc-disable");
++        }
++    } else if (s->model == M_PM1 && r == 0x0c) {
++        if (data == 0xa1) {
++            pmic_power_off(s, "sys-cmd");
++        } else if (data == 0xa2) {
++            pmic_reset_request(s, "sys-cmd");
++        } else if (data == 0xa3) {
++            pmic_download_request(s, "sys-cmd");
++        }
++    } else if (s->model == M_AXP2101 && r == 0x10) {
++        s->regs[r] = data & ~3; /* self-clearing off/reset commands */
++        if (data & BIT(0)) {
++            pmic_power_off(s, "reg10-bit0");
++        } else if (data & BIT(1)) {
++            pmic_reset_request(s, "reg10-bit1");
++        }
++        pmic_key_rearm(s);
++    } else if (s->model == M_AXP192 && r == 0x32 && (data & BIT(7))) {
++        s->regs[r] = data & ~BIT(7);
++        pmic_power_off(s, "reg32-bit7");
++    } else if ((s->model == M_AXP192 && r == 0x46)
++               || (s->model == M_AXP2101 && r == 0x49)) {
++        s->regs[r] &= ~data; /* AXP status is write-one-to-clear. */
++    } else if ((s->model == M_PM1 && (r == 0x49 || r == 0x4a))
++               || (s->model == M_AXP2101 && (r == 0x22 || r == 0x27))
++               || (s->model == M_AXP192 && r == 0x36)) {
++        s->regs[r] = data;
++        pmic_key_rearm(s);
++    } else {
++        return false;
++    }
++    return true;
++}
++
+ void m5sw_pwr_button(int pressed)
+ {
+-    if (getenv("M5SW_INPUT_TRACE")) {
+-        fprintf(stderr, "[pwr-button] pressed=%d pm1=%p axp2101=%p\n",
+-                pressed, (void *)g_pm1, (void *)g_axp2101);
+-    }
+-    if (g_pm1) {
+-        if (pressed) {
+-            g_pm1->regs[0x48] |= 0x81;      /* pressed + sticky event */
+-        } else {
+-            g_pm1->regs[0x48] &= ~0x01;      /* sticky bit survives release */
+-        }
+-        if (pressed) {
+-            g_pm1->regs[0x42] |= 0x01;      /* IRQ_STATUS3: short press */
+-        }
+-    }
+-    if (g_axp2101 && pressed) {
+-        g_axp2101->regs[0x49] |= 0x04;      /* AXP2101 short press */
+-    }
+-    if (g_axp192 && pressed) {
+-        g_axp192->regs[0x46] |= 0x02;       /* AXP192 short press */
+-    }
++    pmic_key_event(g_pm1, pressed != 0);
++    pmic_key_event(g_axp2101, pressed != 0);
++    pmic_key_event(g_axp192, pressed != 0);
+ }
+ static int g_touch_pressed, g_touch_x, g_touch_y;
+ 
+@@ -1239,6 +1533,10 @@
+         qemu_log("[%s] wr %02x <- %02x\n", s->model_name, s->ptr, data);
+     }
+     uint8_t r = s->ptr;
++    if (pmic_write_power_register(s, r, data)) {
++        s->ptr++;
++        return 0;
++    }
+     switch (s->model) {
+     case M_GC0308:
+         gc0308_write_reg(s, r, data);
+@@ -1281,6 +1579,7 @@
+             s->regs[0x27] = 3300 & 0xff;
+             s->regs[0x28] = 3300 >> 8;
+             s->m5ioe1_input_bits = 0x3fff;
++            stackchan_power_update(s);
+             s->ptr++;
+             return 0;
+         }
+@@ -1338,11 +1637,6 @@
+             /* Core2 v1.1 uses ALDO3 (bit 3) as the NS4168 enable rail. */
+             s->axp2101_speaker_enabled = !!(data & BIT(3));
+         }
+-        if (r == 0x49) {
+-            s->regs[r] &= ~data;
+-            s->ptr++;
+-            return 0;
+-        }
+         break;
+     case M_INA3221:
+         /* Configuration/limit registers are stored for write/readback. */
+@@ -1455,6 +1749,7 @@
+         break;
+     }
+     s->regs[r] = data;
++    stackchan_power_update(s);
+     s->ptr++;
+     return 0;
+ }
+@@ -1718,6 +2013,8 @@
+         s->regs[0x01] = 0x20;
+         s->regs[0x02] = 0x01;   /* hw rev */
+         s->regs[0x03] = 'A';    /* sw rev */
++        s->regs[0x06] = 0x17;  /* CHG, SoC DCDC, LDO and LED enabled. */
++        s->regs[0x13] = 0x1f;  /* GPIO output drivers default open-drain. */
+         s->regs[0x20] = 3300 & 0xff; s->regs[0x21] = 3300 >> 8;   /* VREF mV */
+         s->regs[0x22] = 4000 & 0xff; s->regs[0x23] = 4000 >> 8;   /* VBAT 4.0 V */
+         s->regs[0x24] = 5000 & 0xff; s->regs[0x25] = 5000 >> 8;   /* VIN 5.0 V (USB) */
+@@ -1732,6 +2029,8 @@
+         s->pm1_temperature_c = 25;
+         s->pm1_wake_source = 0;
+         s->pm1_wdt_timeout = 0;
++        s->regs[0x49] = 0x2a; /* BTN_CFG1: single reset, long download. */
++        s->regs[0x4a] = 0;    /* BTN_CFG2: double power-off enabled. */
+         for (int i = 0; i < 12; i++) {
+             s->pm1_uid[i] = 0x50 + i;
+         }
+@@ -1965,6 +2264,7 @@
+         s->regs[0x03] = 0x03;   /* AXP192 chip ID */
+         s->regs[0x00] = 0x28;
+         s->regs[0x33] = 0x08;
++        s->regs[0x36] = 0x0c; /* PWRON off enabled, 4-second OFFLEVEL. */
+         s->vbat_mv = 4000;
+         s->vin_mv = 5000;
+         s->vinout_mv = 5000;
+@@ -2000,6 +2300,9 @@
+         s->regs[0x18] = 0x06;
+         s->regs[0x90] = 0xBF;
+         s->regs[0x49] = 0;
++        s->regs[0x10] = 0x30;
++        s->regs[0x22] = 0x06; /* Board fixture: temp and PWRON off enabled. */
++        s->regs[0x27] = 0;    /* IRQLEVEL 1 s / OFFLEVEL 4 s. */
+         s->vbat_mv = 4000;
+         s->vin_mv = 5000;
+         s->charging = true;
+@@ -2065,6 +2368,10 @@
+         s->m5ioe1_input_bits = 0x3fff;
+         s->m5ioe1_adc_mv[0] = 1650;
+         s->m5ioe1_temp_raw = 850;
++        if (m5_board == M5_BOARD_STACKCHAN && s->parent_obj.address == 0x6f) {
++            g_stackchan_ioe1 = s;
++            stackchan_power_update(s);
++        }
+         object_property_add(OBJECT(s), "input-bits", "int", prop_get_i64,
+                             prop_set_m5ioe1_input, NULL,
+                             &s->m5ioe1_input_bits);
+@@ -2079,6 +2386,24 @@
+     } else {
+         s->model = M_GENERIC;
+     }
++    if (s->model == M_PM1 || s->model == M_AXP192 || s->model == M_AXP2101) {
++        s->power_enabled = true;
++        s->power_key_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, pmic_key_tick, s);
++        object_property_add(OBJECT(s), "powered", "bool", prop_get_bool,
++                            NULL, NULL, &s->power_enabled);
++        object_property_add(OBJECT(s), "power-key-down", "bool", prop_get_bool,
++                            NULL, NULL, &s->power_key_down);
++        object_property_add(OBJECT(s), "power-key-long", "bool", prop_get_bool,
++                            NULL, NULL, &s->power_key_long);
++        object_property_add(OBJECT(s), "shutdown-requests", "int", prop_get_i64,
++                            NULL, NULL, &s->shutdown_requests);
++        object_property_add(OBJECT(s), "reset-requests", "int", prop_get_i64,
++                            NULL, NULL, &s->reset_requests);
++        object_property_add(OBJECT(s), "download-requests", "int", prop_get_i64,
++                            NULL, NULL, &s->download_requests);
++        object_property_add(OBJECT(s), "download-requested", "bool", prop_get_bool,
++                            NULL, NULL, &s->download_requested);
++    }
+ }
+ 
+ static Property dev_props[] = {
+@@ -2097,11 +2422,35 @@
+     }
+ }
+ 
++static void dev_unrealize(DeviceState *dev)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(dev);
++
++    if (s->power_key_timer) {
++        timer_free(s->power_key_timer);
++        s->power_key_timer = NULL;
++    }
++    if (g_pm1 == s) {
++        g_pm1 = NULL;
++    }
++    if (g_axp192 == s) {
++        g_axp192 = NULL;
++    }
++    if (g_axp2101 == s) {
++        g_axp2101 = NULL;
++    }
++    if (g_stackchan_ioe1 == s) {
++        g_stackchan_ioe1 = NULL;
++        m5_scs_servo_power_changed(false);
++    }
++}
++
+ static void dev_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
+     dc->realize = dev_realize;
++    dc->unrealize = dev_unrealize;
+     device_class_set_legacy_reset(dc, dev_reset);
+     k->event = dev_event;
+     k->recv = dev_recv;
+diff --git a/hw/m5stopwatch/m5stickcplus2.c b/hw/m5stopwatch/m5stickcplus2.c
+--- a/hw/m5stopwatch/m5stickcplus2.c
++++ b/hw/m5stopwatch/m5stickcplus2.c
+@@ -11,9 +11,144 @@
+ #include "qemu/osdep.h"
+ #include "exec/address-spaces.h"
+ #include "hw/xtensa/esp32.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "hw/qdev-properties.h"
+ #include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "sysemu/runstate.h"
+ #include "m5stopwatch.h"
++
++/* Q4/Q7 discrete power retention, not a fictitious I2C PMIC. The default
++ * fixture has USB attached. D21 bypasses the battery switch on real Plus2:
++ * HOLD low alone must not cut USB power. Battery-only tests explicitly remove
++ * that external supply through /machine/power-hold usb-present.
++ */
++#define TYPE_M5STICKCPLUS2_HOLD "m5stickcplus2-power-hold"
++OBJECT_DECLARE_SIMPLE_TYPE(M5StickCPlus2Hold, M5STICKCPLUS2_HOLD)
++
++struct M5StickCPlus2Hold {
++    DeviceState parent_obj;
++    Esp32GpioPadObserver *observer;
++    bool usb_present, armed, known, high, low_driven, powered;
++    int64_t shutdown_requests;
++};
++
++static void plus2_hold_update(M5StickCPlus2Hold *s)
++{
++    if (s->powered && s->armed && s->low_driven && !s->usb_present) {
++        s->powered = false;
++        s->shutdown_requests++;
++        fprintf(stderr, "[m5-power] model=stickc-plus2 action=off "
++                "source=GPIO4-HOLD usb_present=0\n");
++        qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
++    }
++}
++
++static void plus2_hold_observe(void *opaque, const Esp32GpioPadEvent *event)
++{
++    M5StickCPlus2Hold *s = opaque;
++    const Esp32GpioPadSnapshot *pad = &event->after;
++    bool driven = pad->known && !pad->conflict && pad->drive_known
++                  && pad->oe_known && pad->oe;
++
++    s->known = pad->known && !pad->conflict;
++    s->high = pad->level;
++    s->low_driven = driven && !pad->drive_level;
++    if (driven && pad->drive_level) {
++        s->armed = true;
++    }
++    /* GPIO reset, floating input, and the ordinary GPIO35 button are not a
++     * software power-off command. Require the actual held-high -> driven-low
++     * GPIO4 path; the whole VM must not stop merely because a key was held.
++     */
++    plus2_hold_update(s);
++}
++
++static void plus2_get_bool(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    visit_type_bool(v, name, opaque, errp);
++}
++
++static void plus2_set_usb(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5StickCPlus2Hold *s = M5STICKCPLUS2_HOLD(obj);
++    bool value;
++
++    if (visit_type_bool(v, name, &value, errp)) {
++        s->usb_present = value;
++        plus2_hold_update(s);
++    }
++}
++
++static void plus2_get_count(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    visit_type_int64(v, name, opaque, errp);
++}
++
++static void plus2_hold_init(Object *obj)
++{
++    M5StickCPlus2Hold *s = M5STICKCPLUS2_HOLD(obj);
++
++    s->usb_present = s->powered = true;
++    object_property_add(obj, "usb-present", "bool", plus2_get_bool,
++                        plus2_set_usb, NULL, &s->usb_present);
++    object_property_add(obj, "hold-armed", "bool", plus2_get_bool,
++                        NULL, NULL, &s->armed);
++    object_property_add(obj, "hold-known", "bool", plus2_get_bool,
++                        NULL, NULL, &s->known);
++    object_property_add(obj, "hold-high", "bool", plus2_get_bool,
++                        NULL, NULL, &s->high);
++    object_property_add(obj, "powered", "bool", plus2_get_bool,
++                        NULL, NULL, &s->powered);
++    object_property_add(obj, "shutdown-requests", "int", plus2_get_count,
++                        NULL, NULL, &s->shutdown_requests);
++}
++
++static void plus2_hold_realize(DeviceState *dev, Error **errp)
++{
++    M5StickCPlus2Hold *s = M5STICKCPLUS2_HOLD(dev);
++    Esp32GpioPadSnapshot initial;
++
++    s->observer = esp32_gpio_observe_pad(esp32_gpio_get_controller(false), 4,
++                                        plus2_hold_observe, s, &initial, errp);
++    if (s->observer) {
++        s->known = initial.known && !initial.conflict;
++        s->high = initial.level;
++    }
++}
++
++static void plus2_hold_unrealize(DeviceState *dev)
++{
++    M5StickCPlus2Hold *s = M5STICKCPLUS2_HOLD(dev);
++
++    esp32_gpio_unobserve_pad(s->observer);
++    s->observer = NULL;
++}
++
++static void plus2_hold_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++
++    dc->realize = plus2_hold_realize;
++    dc->unrealize = plus2_hold_unrealize;
++}
++
++static const TypeInfo plus2_hold_info = {
++    .name = TYPE_M5STICKCPLUS2_HOLD,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(M5StickCPlus2Hold),
++    .instance_init = plus2_hold_init,
++    .class_init = plus2_hold_class_init,
++};
++
++static void plus2_hold_register(void)
++{
++    type_register_static(&plus2_hold_info);
++}
++type_init(plus2_hold_register)
+ 
+ void m5stickcplus2_board_init(Esp32SocState *s)
+ {
+@@ -44,6 +179,11 @@
+     esp32_gpio_set_input(37, 1);  /* BtnA */
+     esp32_gpio_set_input(39, 1);  /* BtnB */
+     esp32_gpio_set_input(35, 1);  /* BtnPWR, user-facing Button C */
++
++    DeviceState *hold = qdev_new(TYPE_M5STICKCPLUS2_HOLD);
++
++    object_property_add_child(qdev_get_machine(), "power-hold", OBJECT(hold));
++    qdev_realize_and_unref(hold, NULL, &error_fatal);
+ 
+     DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
+ 
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -129,6 +129,8 @@
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
+ void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_scs_servo_attach(DeviceState *uart);
++bool m5sw_stackchan_servo_power_enabled(void);
++void m5_scs_servo_power_changed(bool enabled);
+ void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
+ DeviceState *m5soc_get_uart_device(int index);
+ struct CanBusState *m5_can_bus_create(void);

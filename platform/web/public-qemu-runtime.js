@@ -23,7 +23,8 @@ export class PublicQemuRuntime {
     this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;
   }
   observe() { return {status:this.status,deviceId:this.profile?.deviceId||null,sequence:this.sequence,execution:'browser-qemu-wasm',
-    runtime:this.receipt||null,sessionId:this.sessionId,persistentStorage:false,cleanup:this.cleanupResult||null}; }
+    runtime:this.receipt||null,sessionId:this.sessionId,persistentStorage:false,cleanup:this.cleanupResult||null,
+    resetCount:this.machineEvents?.filter(row=>row.event==='RESET').length||0,machineEvents:this.machineEvents||[]}; }
   state(status) { this.status=status;this.onState(this.observe()); }
   ask(op,value={},transfer=[]) {
     check(this.port,'浏览器设备尚未连接。');const id=++this.id;
@@ -50,8 +51,14 @@ export class PublicQemuRuntime {
     }
     this.waiters.get(data.type)?.resolve(data.value);this.waiters.delete(data.type);
     if(data.type==='serial') {
-      this.serial=(this.serial+data.value).slice(-65536);this.onSerial(data.value);
+      const serial=this.serial+data.value;this.readySerialOffset=Math.max(0,(this.readySerialOffset||0)-Math.max(0,serial.length-65536));
+      this.serial=serial.slice(-65536);this.onSerial(data.value);
       if(this.status==='booting'&&this.guestReady())this.state('running');
+    }
+    if(data.type==='machine-event') {
+      if(!['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN'].includes(data.value?.event))return;
+      this.machineEvents.push({...data.value,at:new Date().toISOString()});if(this.machineEvents.length>50)this.machineEvents.shift();
+      if(data.value.event==='RESET'){this.readySerialOffset=this.serial.length;this.lastDeviceState=null;if(this.status!=='paused')this.state(this.guestReady()?'running':'booting');}
     }
     if(data.type==='diagnostic') { this.diagnostics=(this.diagnostics+data.value+'\n').slice(-32768); }
     if(data.type==='frame') {
@@ -73,7 +80,7 @@ export class PublicQemuRuntime {
   }
   async start({device,firmware,signal,clockDivisor}={}) {
     await this.stop();
-    const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;
+    const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;this.machineEvents=[];this.readySerialOffset=0;
     this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.receipt=null;this.profile=null;this.stoppedAt=null;
     this.sessionId=crypto.randomUUID();this.startedAt=new Date().toISOString();
@@ -146,7 +153,7 @@ export class PublicQemuRuntime {
   }
   guestReady() {
     const p=this.profile;
-    return !p?.readyMarker||this.receipt?.firmwareSha256!==p.readyFirmwareSHA256||this.serial.includes(p.readyMarker);
+    return !p?.readyMarker||this.receipt?.firmwareSha256!==p.readyFirmwareSHA256||this.serial.slice(this.readySerialOffset||0).includes(p.readyMarker);
   }
   readEngineOwnership() {
     try {
@@ -164,17 +171,20 @@ export class PublicQemuRuntime {
       // This read-only owner status also runs while paused, when no frame
       // request could otherwise reveal a fatally terminated engine.
       if(this.engineOwnerFailed(this.readEngineOwnership()))throw new Error('浏览器 QEMU 执行线程异常停止。');
-      if(this.status==='running'&&this.guestReady())await this.ask(this.profile.display===null?'outputs':'frame');
+      if(this.status==='running'&&this.guestReady()){
+        if(this.profile.display!==null)await this.ask('frame');
+        if(this.profile.outputs&&!this.stopping&&!this.exit)await this.ask('outputs');
+      }
     }
-    catch(error){if(generation===this.generation){this.state('error');this.onError(error);await this.stop();}return;}
+    catch(error){if(generation===this.generation&&!this.stopping&&!this.exit){this.state('error');this.onError(error);await this.stop();}return;}
     // One request in flight. Shared snapshots emit only actual display updates.
     if(generation===this.generation)this.frameTimer=setTimeout(()=>this.poll(generation),Math.max(0,(this.profile?.display===null?250:33)-(performance.now()-begin)));
   }
   async pause(){check(this.status==='running','设备未运行。');await this.ask('pause');this.state('paused');return this.observe();}
-  async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state('running');return this.observe();}
-  reset(){check(this.saved,'没有可重启的固件。');return this.start(this.saved);}
+  async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state(this.guestReady()?'running':'booting');return this.observe();}
+  reset(){check(this.status==='running'||this.status==='paused','设备未运行。');return this.input({type:'reset',down:true});}
   async input(event){
-    check(this.status==='running'||this.status==='paused'&&event?.down===false,'请先启动或继续设备。');
+    check(this.status==='running'||this.status==='paused'&&(event?.down===false||event?.type==='reset'),'请先启动或继续设备。');
     qemuInputCommand(this.profile,event); // Validate before crossing the iframe boundary.
     const result=await this.ask('input',event);
     this.inputs.push({at:new Date().toISOString(),...event,result});if(this.inputs.length>200)this.inputs.shift();return {accepted:true,result};
@@ -185,7 +195,7 @@ export class PublicQemuRuntime {
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,
     last_device_state:this.lastDeviceState?{...this.lastDeviceState,observation_sequence:this.outputSequence}:null,
-    cleanup:this.cleanupResult,limits:this.profile?.limitations||[]};}
+    cleanup:this.cleanupResult,machine_events:this.machineEvents||[],limits:this.profile?.limitations||[]};}
   stop(){
     if(this.stopping)return this.stopping;
     if(!this.iframe&&!this.abort)return Promise.resolve(this.observe());

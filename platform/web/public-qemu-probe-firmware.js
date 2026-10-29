@@ -4,6 +4,7 @@ import {sha256Bytes} from './sha256.js';
 
 const SOURCE_COMMIT = '6cb4e86540eca0d9ba62500a298385c9d863c8be';
 const SOURCES = Object.freeze({
+  "main_stackchan.py": {"bytes": 5101, "sha256": "7ad884363bcd574c2ea05820b8225e2a0329bf089aed804b86897f8d1c50753d"},
   "boot.py": {
     "bytes": 214,
     "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
@@ -42,6 +43,7 @@ const SOURCES = Object.freeze({
   }
 });
 const SOURCE_NAMES = Object.freeze({
+  "stackchan": {"main.py":"main_stackchan.py"},
   "atoms3": {
     "boot.py": "core2_boot.py"
   },

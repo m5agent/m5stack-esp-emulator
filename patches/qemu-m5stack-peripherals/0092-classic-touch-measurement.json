@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "path": "hw/m5stopwatch/esp32s3_sens.c",
+  "preimage_sha256": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+  "candidate_sha256": "7da08e71a3b7aa48e99cc148ce46b425baa842a19dcab47f68258b6c1e0f0f52",
+  "patch_sha256": "4f4f5ce3efae5d9f2b25baae61c795fa9e1d982128a2b348363fe1528a7663a0",
+  "status": "CANDIDATE_NOT_BUILT_OR_EXECUTED",
+  "diagnosis": {
+    "stock_runtime_sha256": "70bd68eee6075e186339a8f482f98908b2c4c488f0f28000a2df82304059f0b5",
+    "device": "atom-lite",
+    "firmware_padded_sha256": "c4cdbe1a40494e1898626b8b69fe471b8898231604b5d4fa6853e7ae06ad30a7",
+    "touch_ctrl2_address": "0x3ff48884",
+    "observed_value": "0x44002800",
+    "done_bit_set_reads": 0,
+    "observed_reads": 16267
+  },
+  "input_contract": "QOM /machine classic-touch-padN-input-hz, N is the SENS hardware channel index; all default1000000 Hz. Readout count is frequency*measurement_cycles/8000000, saturating at65535. No BOARD_ID branch or per-model nominal input.",
+  "timing_contract": "Shared measurement and XPD waiting cycles use nominal8MHz QEMU_CLOCK_VIRTUAL. Timer sleep uses selected nominalRTC slow clock. The model consumes SW start pulses and exposes real completion and readonly output registers.",
+  "scope": "Classic ESP32 software-triggered touch measurement controller. Timer gate is checked on SENS accesses and pending callbacks; an otherwise idle gate enable is only discovered by the next SENS access. No IRQ/wakeup, board-PCB/finger capacitance calibration or physical timing claim.",
+  "sources": [
+    "ESP-IDF v5.5.4 components/soc/esp32/register/soc/sens_reg.h",
+    "ESP-IDF v5.5.4 components/hal/esp32/include/hal/touch_sensor_ll.h",
+    "ESP-IDF v5.5.4 components/driver/touch_sensor/esp32/touch_sensor.c"
+  ],
+  "not_implemented": [
+    "asynchronous RTC gate notification without a SENS access or pending timer",
+    "touch IRQ/wakeup delivery",
+    "calibrated capacitance or hardware timing equivalence"
+  ]
+}

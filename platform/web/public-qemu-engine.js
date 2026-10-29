@@ -1,3 +1,4 @@
+import {readQemuServoOutputs} from './public-qemu-servo.js';
 import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 // One dedicated engine Worker owns the Emscripten module, MEMFS and pthreads.
@@ -7,6 +8,7 @@ let port, module, started = false, closed = false, disposeRequested = false, ser
 let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
 let previousOutputs;
 let encoderInputs = Promise.resolve();
+let resetEpoch = 0;
 let workersCreated = 0;
 let relocatedGlueSha256;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
@@ -49,6 +51,10 @@ function output(text) {
         if (!closed) emit('ready', {shared:module.HEAPU8.buffer instanceof SharedArrayBuffer,
           memoryBytes:module.HEAPU8.buffer.byteLength, crossOriginIsolated, relocatedGlueSha256});
       })().catch(fail);
+    }
+    if (['RESET','SHUTDOWN','STOP','RESUME','POWERDOWN'].includes(message.event)) {
+      emit('machine-event', {event:message.event,reason:typeof message.data?.reason === 'string'?message.data.reason:null,guest:message.data?.guest === true});
+      if (message.event==='RESET') {resetEpoch++;previousOutputs=undefined;sourceSequence=0;}
     }
     const item = pending.get(message.id);
     if (item) {
@@ -143,6 +149,9 @@ async function start(config) {
             return count;
           },
           write:(stream,buffer,offset,length) => {
+            // StackChan UART1 is the internal SCS bus, not the user's console.
+            // Its parsed register output is read separately from scs_servo QOM.
+            if(path==='/bridge/serial1'&&boardProfile.deviceId==='stackchan')return length;
             // Chromium rejects SharedArrayBuffer-backed TextDecoder input.
             // FS buffers can be the shared WASM heap: copy before decoding.
             const text = serialDecoder.decode(buffer.slice(offset,offset+length), {stream:true});
@@ -172,6 +181,7 @@ async function request(op, value) {
       enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true};
   }
   if (op === 'frame') {
+    const epoch=resetEpoch;
     if (!boardProfile.display) throw new Error('This headless QEMU device has no framebuffer');
     // Explicit same-guest diagnostic control; never an automatic fallback.
     if(frameTransport==='shared-rgb565-v1'&&value?.diagnosticTransport!=='qmp-screendump'){
@@ -180,14 +190,17 @@ async function request(op, value) {
       sourceSequence=frame.sourceSequence;emit('frame',frame,[frame.pixels.buffer]);return {sourceSequence};
     }
     await qmp('screendump',{filename:'/frame.ppm'});
+    if(epoch!==resetEpoch||closed)return {unchanged:true,reset:true};
     const frame = ppm(module.FS.readFile('/frame.ppm')); module.FS.unlink('/frame.ppm');
     frame.source='qmp-screendump';
     emit('frame', frame, [frame.pixels.buffer]); return;
   }
   if (op === 'outputs') {
+    const epoch=resetEpoch;
     if (value && Object.keys(value).length) throw new Error('QEMU output reads accept no caller path, property or value');
-    const state = await readQemuOnboardOutputs(boardProfile, qmp);
-    if (!state) return {unchanged:true};
+    const state = await (boardProfile.outputs?.kind === 'stackchan-scs-qom-v1'
+      ? readQemuServoOutputs(boardProfile,qmp) : readQemuOnboardOutputs(boardProfile, qmp));
+    if (!state||epoch!==resetEpoch||closed) return {unchanged:true};
     const identity = JSON.stringify(state);
     if (identity === previousOutputs) return {unchanged:true};
     previousOutputs = identity;
@@ -199,6 +212,20 @@ async function request(op, value) {
   if (op === 'input' || op === 'touch' || op === 'pir') {
     const event=op==='input'?value:{...value,type:op};
     const command=qemuInputCommand(boardProfile,event);
+    if (command.bitInput) {
+      const target=command.bitInput;
+      const operation=encoderInputs.then(async()=>{
+        if(closed||disposeRequested)throw new Error('QEMU touch input was disposed');
+        const current=await qmp('qom-get',{path:target.path,property:target.property});
+        if(!Number.isInteger(current)||current<0||current>255)throw new Error('Invalid controller touch state');
+        const value=target.down?current|target.mask:current&~target.mask;
+        await qmp('qom-set',{path:target.path,property:target.property,value});
+        const observed=await qmp('qom-get',{path:target.path,property:target.property});
+        if(observed!==value)throw new Error('QEMU touch target readback mismatch');
+        return {touch_bits:observed,source:'qemu-qom-readback'};
+      });
+      encoderInputs=operation.catch(()=>{});return operation;
+    }
     if (command.readbackResult === 'detents') {
       // Serialize the fixed write/readback pair so a later pointer target
       // cannot overtake the readback for an earlier physical target.

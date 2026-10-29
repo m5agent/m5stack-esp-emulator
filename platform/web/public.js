@@ -8,6 +8,7 @@ import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCL
 import {loadQemuBrowserProfiles,getQemuBrowserProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
 import {qemuOnboardVisualCommands} from './public-qemu-frame.js';
+import {qemuServoVisualCommands} from './public-qemu-servo.js';
 import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
@@ -332,6 +333,8 @@ async function selectDevice(id) {
       ),
   );
   shell.on?.('encoder', event => void deliverEncoderInput(event));
+  shell.on?.('reset', event => void deliverInput({type:'reset', down:true}, event));
+  shell.on?.('capacitive-touch', event => void deliverInput({type:'capacitive-touch', zone:event.zone, down:event.down}, event));
   status(
     'model',
     browserProfile(id) ? '选择固件后即可开始' : row.visual_only ? '此型号目前仅有视觉模型' : '尚未运行固件',
@@ -353,7 +356,12 @@ async function deliverInput(command, original = {}) {
   try {
     if (run.kind === 'browser') {
       if (command.type==='touch' && run.controller instanceof PublicQemuRuntime && !run.controller.profile?.inputs.touch) return;
-      if (command.type === 'button') {
+      if (command.type === 'reset') await releaseInputs(run);
+      if (command.type === 'capacitive-touch') {
+        const key = `capacitive-touch-${command.zone}`;
+        if (command.down) state.holds.set(key, command);
+        else state.holds.delete(key);
+      } else if (command.type === 'button') {
         if (command.down) state.holds.set(command.id, command);
         else state.holds.delete(command.id);
       } else if (command.type === 'touch') {
@@ -361,7 +369,9 @@ async function deliverInput(command, original = {}) {
         else state.holds.delete('touch');
       }
       await run.controller.input(command);
-    } else if (command.type === 'button')
+    } else if (command.type === 'reset')
+      await run.controller.reset();
+    else if (command.type === 'button')
       await run.controller.input({kind: 'key', key: command.id, action: command.down ? 'down' : 'up'});
     else if (command.type === 'touch' && command.down && (!original.action || original.action === 'start'))
       await run.controller.input({kind: 'touch', x: command.x, y: command.y});
@@ -407,7 +417,7 @@ async function stopRun() {
       if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
-      if (run.controller.profile?.display===null) clearBrowserOutputs(run.controller.profile);
+      clearBrowserOutputs(run.controller.profile);
       status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录':'保留最后显示帧');
       message('runProgress');
     } catch (cause) {
@@ -468,16 +478,34 @@ async function firmware(signal, runGeneration) {
 }
 function clearBrowserOutputs(profile) {
   if (!profile?.outputs) return;
-  state.shell?.applyVisualState?.([{type:'led',target:profile.outputs.ledTarget,known:false},
-    {type:'button-state',target:profile.outputs.buttonTarget,pressed:false}]);
+  const commands=profile.outputs.kind==='stackchan-scs-qom-v1'
+    ? ['yaw','pitch'].map(target=>({type:'joint',target,known:false}))
+    : [{type:'led',target:profile.outputs.ledTarget,known:false},
+      {type:'button-state',target:profile.outputs.buttonTarget,pressed:false}];
+  state.shell?.applyVisualState?.(commands);
+  $('deviceMount').dataset.outputKnown='false';
 }
 function applyBrowserDeviceState(value, run) {
   if (!active(run)) return;
-  const commands=qemuOnboardVisualCommands(run.controller.profile,value);
+  const servo=run.controller.profile.outputs?.kind==='stackchan-scs-qom-v1';
+  const commands=servo?qemuServoVisualCommands(run.controller.profile,value)
+    :qemuOnboardVisualCommands(run.controller.profile,value);
   state.shell.applyVisualState(commands);
   state.shell.viewer?.requestRender();
-  $('frameStatus').textContent = `RGB #${value.led_rgb.toString(16).padStart(6,'0').toUpperCase()} · RMT ${value.led_frames} 帧 · 按键${value.pressed?'按下':'松开'}`;
-  $('deviceMount').dataset.outputFrames=String(value.led_frames);
+  const mount=$('deviceMount');
+  mount.dataset.outputKnown='true';
+  if (servo) {
+    const [yaw,pitch]=commands;
+    mount.dataset.servoYawTicks=String(value.servos[0].present_position);
+    mount.dataset.servoPitchTicks=String(value.servos[1].present_position);
+    mount.dataset.servoPowered=String(value.powered);
+    mount.dataset.servoPackets=String(value.packets);
+    mount.dataset.outputLabel=`舵机 · 左右 ${yaw.angleDeg.toFixed(1)}° · 抬头 ${pitch.angleDeg.toFixed(1)}°${value.powered?'':' · 未供电'}`;
+    $('frameStatus').textContent=mount.dataset.outputLabel;
+  } else {
+    $('frameStatus').textContent = `RGB #${value.led_rgb.toString(16).padStart(6,'0').toUpperCase()} · RMT ${value.led_frames} 帧 · 按键${value.pressed?'按下':'松开'}`;
+    mount.dataset.outputFrames=String(value.led_frames);
+  }
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
@@ -519,7 +547,7 @@ function applyBrowserFrame(frame, run) {
     applied = state.shell.setFrame(be, frame.width, frame.height, frame.sequence);
   }
   if (applied !== false) {
-    $('frameStatus').textContent = `实际屏幕 · ${frame.width} × ${frame.height} · 帧 ${frame.sequence}`;
+    $('frameStatus').textContent = `实际屏幕 · ${frame.width} × ${frame.height} · 帧 ${frame.sequence}${run.controller.profile?.outputs?.kind==='stackchan-scs-qom-v1'&&$('deviceMount').dataset.outputKnown==='true'?' · '+$('deviceMount').dataset.outputLabel:''}`;
     $('deviceMount').dataset.frameSequence = frame.sequence;
   } else error(new Error(`固件输出 ${frame.width} × ${frame.height} 与当前模型屏幕不匹配。`));
 }

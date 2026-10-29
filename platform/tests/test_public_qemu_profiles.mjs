@@ -8,6 +8,8 @@ import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 
 const registry = JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json', import.meta.url), 'utf8'));
 validateQemuBrowserProfiles(registry);
+const sortedRegistry=JSON.parse(JSON.stringify(registry,(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value));
+validateQemuBrowserProfiles(sortedRegistry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
 assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3', 'atoms3-lite', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2', 'stickc-plus2', 'stickc', 'stickc-plus-se']);
 const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
@@ -126,6 +128,16 @@ for (const profile of registry.profiles) {
   const overflow = raw.slice(); new DataView(overflow.buffer).setUint32(0x8008, 0xffffffff, true);
   assert.throws(() => validateQemuFirmware(overflow, profile), /Partition/);
 }
+for(const profile of registry.profiles) {
+  assert.deepEqual(qemuInputCommand(profile,{type:'reset',down:true}),{execute:'system_reset',arguments:{}});
+  for(const event of [{type:'reset',down:false},{type:'reset',down:true,path:'/machine/other'}])assert.throws(()=>qemuInputCommand(profile,event));
+}
+const stack=pick('stackchan');
+for(const [zone,mask]of [[1,48],[2,12],[3,3]])for(const down of [true,false])
+  assert.deepEqual(qemuInputCommand(stack,{type:'capacitive-touch',zone,down}),{bitInput:{path:'/machine/si12t',property:'touch-bits',mask,down}});
+for(const event of [{type:'capacitive-touch',zone:0,down:true},{type:'capacitive-touch',zone:1,down:1},
+  {type:'capacitive-touch',zone:1,down:true,mask:255}])assert.throws(()=>qemuInputCommand(stack,event));
+assert.throws(()=>qemuInputCommand(pick('cores3'),{type:'capacitive-touch',zone:1,down:true}));
 const core2 = pick('core2'), s3 = pick('cores3'), atom = pick('atoms3r');
 for (const id of ['atoms3r', 'sticks3']) {
   assert.equal(pick(id).clockDivisor, 1, 'fixed non-LVGL board probes use their admitted normal-clock configuration');

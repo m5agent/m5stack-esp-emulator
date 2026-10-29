@@ -76,6 +76,47 @@ try {
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
 
+  // Reset is an in-place QMP input: no new container, firmware download or Flash.
+  options={};const resetting=create();await resetting.runtime.start({device:'cores3',firmware:firmware()});
+  await until(()=>resetting.runtime.lastFrame);const resetFrame=frames.at(-1),resetId=resetting.runtime.sessionId;
+  const resetDownloads=resetting.downloads.length,resetGeneration=resetting.runtime.generation;
+  resetting.runtime.profile.readyMarker='READY_AFTER_RESET';
+  resetting.runtime.profile.readyFirmwareSHA256=resetting.runtime.receipt.firmwareSha256;
+  resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);
+  await resetting.runtime.reset();
+  assert.deepEqual(resetFrame.calls.at(-1).value,{type:'reset',down:true});
+  assert.equal(resetFrame.calls.at(-1).op,'input');
+  resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false,reason:'host-qmp-system-reset'}},resetGeneration);
+  assert.equal(resetting.runtime.status,'booting');assert.equal(resetting.runtime.guestReady(),false,'old serial marker cannot admit a restarted guest');
+  resetting.runtime.receive({type:'serial',value:'new boot\n'},resetGeneration);assert.equal(resetting.runtime.status,'booting');
+  resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);assert.equal(resetting.runtime.status,'running');
+  await resetting.runtime.pause();await resetting.runtime.reset();
+  resetting.runtime.receive({type:'machine-event',value:{event:'RESET',guest:false}},resetGeneration);
+  assert.equal(resetting.runtime.status,'paused','reset cannot claim a paused CPU resumed');
+  await resetting.runtime.resume();assert.equal(resetting.runtime.status,'booting');
+  resetting.runtime.receive({type:'serial',value:'READY_AFTER_RESET\n'},resetGeneration);
+  assert.equal(resetting.runtime.iframe,resetFrame);assert.equal(resetting.runtime.sessionId,resetId);
+  assert.equal(resetting.runtime.generation,resetGeneration);assert.equal(resetting.downloads.length,resetDownloads);
+  assert.equal(resetFrame.calls.filter(row=>row.op==='start').length,1);assert.equal(resetting.runtime.observe().resetCount,2);
+  resetting.runtime.receive({type:'machine-event',value:{event:'SHUTDOWN',guest:true,reason:'guest-shutdown'}},resetGeneration);
+  resetting.runtime.receive({type:'exit',value:{code:0}},resetGeneration);
+  await until(()=>resetting.runtime.iframe===null);
+  assert.equal(resetting.runtime.cleanupResult.gracefulExit,true);assert.deepEqual(resetting.errors,[]);
+  assert.equal(resetting.runtime.evidence().machine_events.at(-1).event,'SHUTDOWN');
+  assert.equal(resetFrame.calls.filter(row=>row.op==='quit').length,0,'an already exited guest cannot receive quit');
+
+  // A display device can also expose actual servo output; neither replaces the other.
+  const stackProfile=getQemuBrowserProfile('stackchan',profiles);
+  const servoState={schema_version:1,device_id:'stackchan',source:'qemu-uart1-scs-controller',path:'/machine/scs_servo',
+    powered:true,packets:4,rejected_packets:0,motion_model:'command-time-position-v1',pwm_motion_modelled:false,
+    servos:[460,620].map((position,index)=>({id:index+1,present_position:position,goal_position:position,torque:1,mode:'position',moving:false,goal_time_ms:0,goal_speed:0,pwm:0}))};
+  options={outputState:servoState};const stack=create();await stack.runtime.start({device:'stackchan',firmware:firmware(stackProfile)});
+  await until(()=>stack.runtime.lastDeviceState&&stack.runtime.lastFrame);
+  assert.equal(stack.runtime.receipt.outputTransport,'stackchan-scs-qom-v1');
+  assert.ok(frames.at(-1).calls.some(row=>row.op==='frame'));assert.ok(frames.at(-1).calls.some(row=>row.op==='outputs'));
+  assert.deepEqual(stack.runtime.evidence().last_device_state.servos,servoState.servos);
+  await stack.runtime.stop();options={};
+
   // A caller may collect the private acknowledgement before removing the
   // iframe to observe actual Worker close. stop() reuses that receipt instead
   // of sending a second command to the now-closed engine port.

@@ -252,8 +252,12 @@ export class ModelDeviceShell {
     if (event.kind !== 'button' || !['down', 'up'].includes(event.action)) return;
     const component = this.model.find(event.id, 'button');
     if (component?.meta?.electricalBehavior === false) return;
-    if (this.device.id === 'tab5' && event.id === 'reset') {
+    if (event.id === 'reset') {
       if (event.action === 'down') this.emit('reset', event);
+      return;
+    }
+    if (this.device.id === 'stackchan' && /^touch-[123]$/.test(event.id)) {
+      this.emit('capacitive-touch', {zone:Number(event.id.slice(-1)), down:event.action === 'down', source:event.source});
       return;
     }
     let id = CONTROL_MAPS[this.device.id]?.[event.id];
@@ -457,6 +461,15 @@ export class ModelDeviceShell {
           if (command.pressed) button.press('runtime-readback');
           else button.cancel('runtime-readback');
           return button.getState();
+        }
+        if (command.type === 'joint') {
+          if (command.known !== undefined && typeof command.known !== 'boolean') throw new TypeError('Joint known must be boolean');
+          const joint=this.model.find(command.target,'joint');
+          if (!joint) throw new TypeError('Joint component is unavailable');
+          // Unknown output preserves the last observed pose; it is not a home command.
+          const result=command.known===false?joint.getState():this.model.handle(command);
+          joint.runtimeKnown=joint.object3d.userData.runtimeKnown=command.known!==false;
+          return result;
         }
         if (command.type === 'led') {
           if (command.known !== undefined && typeof command.known !== 'boolean') throw new TypeError('LED known must be boolean');

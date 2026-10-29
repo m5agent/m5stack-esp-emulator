@@ -1,8 +1,7 @@
 import M5
 import time
 from M5 import *
-from machine import Pin, UART
-from driver.scs_servo import Scscl
+from hardware.stackchan import StackChan
 
 
 M5.begin()
@@ -15,8 +14,9 @@ d.print("StackChan servo")
 
 status = "init"
 try:
-    uart = UART(1, baudrate=1000000, tx=Pin(6), rx=Pin(7))
-    servo = Scscl(uart, end=1, level=1)
+    stackchan = StackChan(i2c=1, uart=1)
+    stackchan.set_servo_power(enable=True, settle_ms=500)
+    servo = stackchan.servo
     if servo.ping(1) != 1 or servo.ping(2) != 2:
         raise RuntimeError("servo ping failed")
     if not servo.enable_torque(1, 1) or not servo.enable_torque(2, 1):
@@ -25,12 +25,14 @@ try:
         raise RuntimeError("servo X write failed")
     if not servo.write_pos(2, 300, 100, 0):
         raise RuntimeError("servo Y write failed")
-    time.sleep_ms(50)
+    # Position registers follow virtual command time, not the goal write.
+    time.sleep_ms(150)
     x = servo.read_pos(1)
     y = servo.read_pos(2)
     if x != 500 or y != 300:
         raise RuntimeError("servo readback %d/%d" % (x, y))
     d.fillRect(0, 0, 320, 8, d.COLOR.GREEN)
+    print("STACKCHAN_SERVO powered=1 torque=1 present=%d/%d" % (x, y))
     status = "ok"
 except Exception as exc:
     status = "error"

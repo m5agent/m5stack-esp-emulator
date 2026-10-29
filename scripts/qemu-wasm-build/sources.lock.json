@@ -16,7 +16,7 @@
     "ninja": "1.13.2",
     "pycotap": "1.3.1"
   },
-  "native_patch_count": 36,
+  "native_patch_count": 40,
   "patches": [
     {
       "path": "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
@@ -163,6 +163,22 @@
       "sha256": "2541be3309d70776632161ccf7039c28e50679ad66241e7cf83110017e1b6cae"
     },
     {
+      "path": "patches/qemu-unit-runtime/0008-native-core2-atecc608-context.patch",
+      "sha256": "61f16f4a47c43efba74dbfccb1d9bec538968db0aabc3a3775a48bdbd87438cc"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0090-stackchan-scs-motion-observer.patch",
+      "sha256": "aa1ed107ca089d55af81e1aa85b4611032a813d90d521259246cd11db03a9b9b"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0091-board-power-lifecycle.patch",
+      "sha256": "85f5960e5a5d5161ed58aea234db0006cfa8473d11500a0d7bdd95fc51c31e50"
+    },
+    {
+      "path": "patches/qemu-m5stack-peripherals/0092-classic-touch-measurement.patch",
+      "sha256": "4f4f5ce3efae5d9f2b25baae61c795fa9e1d982128a2b348363fe1528a7663a0"
+    },
+    {
       "path": "patches/qemu-wasm-probe/0001-qemu-9.2.2-wasm-tci.patch",
       "sha256": "6754272ea00e1c19b6f7786bd16b95a9eb75bb28be1d60dd5bed7c8e6f55f279"
     },
@@ -246,8 +262,9 @@
     "hw/m5stopwatch/esp32s3_i2c.c": "3eddf0bff342585d932f033aea9518900a4b06721910694723f7ef2f55013d40",
     "hw/m5stopwatch/esp32s3_phy.c": "1763b9e44e64c0ac03dcba91a33843f1dea2a3b9ac0407dca15da0d9a1d2def9",
     "hw/m5stopwatch/esp32s3_regi2c.c": "9524f10cac383c7ca3670746dc81fb292af9c061aa1ef58330053fd3b0c41527",
-    "hw/m5stopwatch/esp32s3_sens.c": "5983b01086efb7710f04de12c3871e93cab41c81d23bd2cf880d08ef3769e5a5",
+    "hw/m5stopwatch/esp32s3_sens.c": "7da08e71a3b7aa48e99cc148ce46b425baa842a19dcab47f68258b6c1e0f0f52",
     "hw/m5stopwatch/esp32s3_soft_i2c.c": "ee46e8b948e5a116fee9ca44cfa1039d54959c7f44614f80b739707779fa03a9",
+    "hw/m5stopwatch/m5_atecc608.c": "40561459536b14cad0e50057da9c0fd5da45e8bc2c8270f68b12df5959470197",
     "hw/m5stopwatch/m5_bcm_spi_panel.c": "0a589a8a7c0306f8bde1aaeef8241be0aa79545c8ca3ef808ba2c9ef78fd8a74",
     "hw/m5stopwatch/m5_board.c": "cd747ef25f7a9ef055763738f0f268da5fe80c4bfbb85ee01b59912324660117",
     "hw/m5stopwatch/m5_can_peer.c": "4d12942dc66af7803b9a543e4dbcadd9a95267249ea7d77e4b2ec28e5bc7b0da",
@@ -259,7 +276,7 @@
     "hw/m5stopwatch/m5_max3421e.c": "1ca1b587bfe1a059cb24b36fedb373d22d6086ef580b9fb85b379e894bfce870",
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a0a59b48f457f34ad66b3d0b8184f70cfb6cdb72024dae9efccd6824fdd93231",
-    "hw/m5stopwatch/m5_scs_servo.c": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
+    "hw/m5stopwatch/m5_scs_servo.c": "830b7e5069441b635e1df9ed343e41eee07754dba330663d0883a67ffd77fe7e",
     "hw/m5stopwatch/m5_spi_panel.c": "c3043cd1ef17c145ce3fae39ea7487cbca594e6d8c25bea370bba9b63734cede",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
@@ -275,7 +292,7 @@
     "hw/m5stopwatch/m5atoms3lite.c": "8e6fae8f6d85ebfd6d19bb3539c506aefaba3fbb5a024a37780a5e169022370c",
     "hw/m5stopwatch/m5atoms3r.c": "05f76278f81d8dd1bc45953ea8c0d5a2da78893ae52f8c572ca01e2a2638560c",
     "hw/m5stopwatch/m5cardputeradv.c": "5b77c693588433f5223810c44bde987d4de70fe96b0c673f5e403e28ee000792",
-    "hw/m5stopwatch/m5core2.c": "9174f969f2940a02038765ddcd7f12b9bcfa8c02f5c72717710a4da4f15ee06d",
+    "hw/m5stopwatch/m5core2.c": "93cc71a8e91537e65bc0199056c6afe3673c743f29d4c169985119ad4cf4c20a",
     "hw/m5stopwatch/m5cores3.c": "3c57f5fd928ff25162bea56c9a01575808c1e074f97b71f05ddd0e354048903d",
     "hw/m5stopwatch/m5dial.c": "223bdbce9c6b267f67dbd098f6886fdaa6cc889ad45e2ce4190543abb732cebe",
     "hw/m5stopwatch/m5papercolor.c": "48c9056ed530834f2bed3fe085e0823b7613efb2aa9059d09f11ff7659d27360",
@@ -283,10 +300,10 @@
     "hw/m5stopwatch/m5stackchan.c": "de2a855d79f18cebb66c7ac59d7a4da51003b8abd597e542c32b6b9f64b5892e",
     "hw/m5stopwatch/m5stamplc.c": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
     "hw/m5stopwatch/m5stickc.c": "eba463b0c124331b3cf5e1315d5c011d7f951eb3c64b2a9e752197fe3d93d790",
-    "hw/m5stopwatch/m5stickcplus2.c": "261531c421f98574826e78746b3cf546004482d4d712aab83f4ddcaef64893ed",
+    "hw/m5stopwatch/m5stickcplus2.c": "e6fda812823277292bdebf35ffc945ae2a50f82bdd30dcbe89cc4ff1f8f945e4",
     "hw/m5stopwatch/m5sticks3.c": "9b7bd9a47a8b47edb9a7db1f640fca7f2d420bdf0baba3b66aec14b7fd7f3d51",
-    "hw/m5stopwatch/m5stopwatch.h": "49a0c114e5145c5d10777341b2e2679f7dc6b4f94fb3738ed28a4c6053297cc1",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "f757fbb0666d4301cc6a1fc05651bed0d57f6e2747a5b3b7ef187e325b7c3084",
+    "hw/m5stopwatch/m5stopwatch.h": "d37445452ce192d899fb863d19b2597628f61eb036f0409a9c12185ac767e3a7",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "c18dd3a9f2902198d9590d9c20654c51c5c409bdbd2896cce911bed251d26c22",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
@@ -320,7 +337,7 @@
     "hw/xtensa/esp32s3.c": "c3a8070f4468362355e07f97d9db9ce3b4dc05b4418fc46827ce93700c2526c3",
     "hw/xtensa/esp32s3_clk.c": "936a8fdc09c128e404a1a89eed924ad04a7e8f7025cff0e1cfbcad97fc0175e2",
     "hw/xtensa/esp32s3_intc.c": "f1e6572447fef505228d6107f4cdd088d690d5fe43f1b7e5581608031abda41e",
-    "hw/xtensa/meson.build": "91eddb1d9632918122e102ec5dd36c55d3707227f4eb7c3710bd63012e8b3224",
+    "hw/xtensa/meson.build": "d8ad56451d22bb1f01ae4309cef540e4a33fc4b4bec3bbeb65d7b2ce4b21727e",
     "include/glib-compat.h": "620b8868a3ce5fda543fc65f46c8257beb84587d4bdc29cdd345eac81961ae9c",
     "include/hw/arm/bcm2835_peripherals.h": "d1f7c2ae990210340fe96a49de571b2cecea7a90a5a74f2eb54b92a9daa9c4d5",
     "include/hw/char/esp32_uart.h": "d0c78e6e59dd8ae221d70b73761f94bf863514bd0c9d3ff8d3309cdafd6af2e6",

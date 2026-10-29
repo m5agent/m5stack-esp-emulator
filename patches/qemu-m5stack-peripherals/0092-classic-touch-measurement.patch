@@ -1,0 +1,246 @@
+--- a/hw/m5stopwatch/esp32s3_sens.c
++++ b/hw/m5stopwatch/esp32s3_sens.c
+@@ -15,6 +15,10 @@
+  */
+ #include "qemu/osdep.h"
+ #include "exec/memory.h"
++#include "exec/address-spaces.h"
++#include "hw/boards.h"
++#include "qemu/timer.h"
++#include "sysemu/reset.h"
+ #include "m5stopwatch.h"
+ #include "m5_unit_runtime.h"
+ 
+@@ -37,7 +41,164 @@
+     bool classic;
+     bool meas1_started;
+     bool meas2_started;
++    QEMUTimer *touch_timer;
++    bool touch_measuring;
++    bool touch_sleeping;
++    uint32_t touch_pending_mask;
++    uint32_t touch_meas_cycles;
++    uint64_t touch_input_hz[10];
+ } M5StopwatchSensState;
++
++/* Classic ESP32 touch charge counters. The input is a nominal per-pad
++ * oscillation frequency, not a board identity or a calibrated capacitance.
++ * All pads default to the same 1 MHz source. Tests may change the QOM input;
++ * PCB/LED loading and physical touch equivalence remain independent evidence.
++ * ESP-IDF touch_sensor_ll.h and soc/sens_reg.h define the register contract. */
++#define TOUCH_CTRL1       0x58
++#define TOUCH_THRESHOLD   0x5c
++#define TOUCH_OUTPUT      0x70
++#define TOUCH_CTRL2       0x84
++#define TOUCH_ENABLE      0x8c
++#define TOUCH_MASK        0x3ffu
++#define TOUCH_DONE        (1u << 10)
++#define TOUCH_FSM_EN      (1u << 11)
++#define TOUCH_START       (1u << 12)
++#define TOUCH_SW          (1u << 13)
++#define TOUCH_CLEAR       (1u << 30)
++#define TOUCH_ABOVE       (1u << 24)
++#define TOUCH_RTC_STATE0   0x3ff48018u
++#define TOUCH_RTC_CLKCONF  0x3ff48070u
++#define TOUCH_RTC_TIMER_EN (1u << 23)
++#define TOUCH_CLOCK_HZ    8000000u
++
++static uint32_t touch_rtc_read(hwaddr address)
++{
++    uint8_t bytes[4] = { 0 };
++
++    if (address_space_read(&address_space_memory, address,
++                           MEMTXATTRS_UNSPECIFIED, bytes, sizeof(bytes)) !=
++        MEMTX_OK) {
++        return 0;
++    }
++    return ldl_le_p(bytes);
++}
++
++static bool touch_timer_mode(M5StopwatchSensState *s)
++{
++    uint32_t ctrl = s->regs[TOUCH_CTRL2 / 4];
++
++    return (ctrl & TOUCH_FSM_EN) && !(ctrl & TOUCH_SW) &&
++        (touch_rtc_read(TOUCH_RTC_STATE0) & TOUCH_RTC_TIMER_EN);
++}
++
++static void touch_begin(M5StopwatchSensState *s)
++{
++    uint32_t mask = s->regs[TOUCH_ENABLE / 4] & TOUCH_MASK;
++    uint32_t timing = s->regs[TOUCH_CTRL1 / 4];
++
++    if (s->touch_measuring || !mask ||
++        !(s->regs[TOUCH_CTRL2 / 4] & TOUCH_FSM_EN)) {
++        return;
++    }
++    s->touch_sleeping = false;
++    s->touch_measuring = true;
++    s->touch_pending_mask = mask;
++    s->touch_meas_cycles = timing & 0xffffu;
++    s->regs[TOUCH_CTRL2 / 4] &= ~(TOUCH_DONE | TOUCH_START);
++    /* Enabled pads share the measurement window and XPD settling wait.
++     * The 8 MHz and RTC slow-clock rates are nominal virtual clocks. */
++    uint64_t cycles = (timing & 0xffffu) + ((timing >> 16) & 0xffu);
++    int64_t duration = MAX(1ULL, (cycles * 1000000000ULL +
++                                  TOUCH_CLOCK_HZ - 1) / TOUCH_CLOCK_HZ);
++    timer_mod(s->touch_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + duration);
++}
++
++static void touch_poll(M5StopwatchSensState *s)
++{
++    if ((s->regs[TOUCH_CTRL2 / 4] & TOUCH_SW) && s->touch_sleeping) {
++        timer_del(s->touch_timer);
++        s->touch_sleeping = false;
++    }
++    if (!(s->regs[TOUCH_CTRL2 / 4] & TOUCH_FSM_EN) ||
++        (!(s->regs[TOUCH_CTRL2 / 4] & TOUCH_SW) && !touch_timer_mode(s))) {
++        timer_del(s->touch_timer);
++        s->touch_measuring = s->touch_sleeping = false;
++        return;
++    }
++    if (!s->touch_measuring && !s->touch_sleeping && touch_timer_mode(s)) {
++        touch_begin(s);
++    }
++}
++
++static void touch_tick(void *opaque)
++{
++    M5StopwatchSensState *s = opaque;
++
++    touch_poll(s);
++    if (s->touch_sleeping) {
++        s->touch_sleeping = false;
++        touch_begin(s);
++        return;
++    }
++    if (!s->touch_measuring) {
++        return;
++    }
++    for (unsigned channel = 0; channel < 10; channel++) {
++        if (!(s->touch_pending_mask & (1u << channel))) {
++            continue;
++        }
++        uint64_t frequency = s->touch_input_hz[channel];
++        uint32_t count = 0;
++        if (s->touch_meas_cycles) {
++            uint64_t max_frequency = (uint64_t)UINT16_MAX * TOUCH_CLOCK_HZ /
++                s->touch_meas_cycles;
++            count = frequency > max_frequency ? UINT16_MAX :
++                frequency * s->touch_meas_cycles / TOUCH_CLOCK_HZ;
++        }
++        unsigned shift = (channel & 1) ? 0 : 16;
++        unsigned output = (TOUCH_OUTPUT + (channel / 2) * 4) / 4;
++        unsigned threshold = (TOUCH_THRESHOLD + (channel / 2) * 4) / 4;
++        uint32_t limit = (s->regs[threshold] >> shift) & 0xffffu;
++        bool touched = (s->regs[TOUCH_CTRL1 / 4] & TOUCH_ABOVE) ?
++            count > limit : count < limit;
++
++        s->regs[output] = (s->regs[output] & ~(0xffffu << shift)) |
++            (count << shift);
++        if (touched) {
++            s->regs[TOUCH_CTRL2 / 4] |= 1u << channel;
++        }
++    }
++    s->touch_measuring = false;
++    s->regs[TOUCH_CTRL2 / 4] |= TOUCH_DONE;
++    if (touch_timer_mode(s)) {
++        uint32_t slow_select = touch_rtc_read(TOUCH_RTC_CLKCONF) >> 30;
++        uint32_t slow_hz = slow_select == 1 ? 32768 :
++            slow_select == 2 ? 31250 : 150000;
++        uint32_t sleep_cycles = (s->regs[TOUCH_CTRL2 / 4] >> 14) & 0xffffu;
++        int64_t duration = MAX(1ULL, ((uint64_t)sleep_cycles * 1000000000ULL +
++                                      slow_hz - 1) / slow_hz);
++        s->touch_sleeping = true;
++        timer_mod(s->touch_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + duration);
++    }
++}
++
++static void sens_reset(void *opaque)
++{
++    M5StopwatchSensState *s = opaque;
++
++    memset(s->regs, 0, sizeof(s->regs));
++    s->meas1_started = s->meas2_started = false;
++    if (s->classic) {
++        timer_del(s->touch_timer);
++        s->touch_measuring = s->touch_sleeping = false;
++        s->touch_pending_mask = s->touch_meas_cycles = 0;
++        s->regs[TOUCH_CTRL1 / 4] = (1u << 25) | (4u << 16) | 0x1000u;
++        s->regs[TOUCH_CTRL2 / 4] = (0x100u << 14) | TOUCH_FSM_EN;
++        s->regs[TOUCH_ENABLE / 4] = 0x3fffffffu;
++    }
++}
+ 
+ static bool sens_started(M5StopwatchSensState *s, hwaddr addr)
+ {
+@@ -59,6 +220,9 @@
+         return 0;
+     }
+ 
++    if (s->classic) {
++        touch_poll(s);
++    }
+     value = s->regs[addr / 4];
+     if (sens_started(s, addr)) {
+         value |= MEAS_DONE_SAR;
+@@ -90,6 +254,26 @@
+         return;
+     }
+ 
++    if (s->classic) {
++        if (addr >= TOUCH_OUTPUT && addr < TOUCH_CTRL2) {
++            return; /* Measurement counters are read-only. */
++        }
++        if (addr == TOUCH_CTRL2) {
++            uint32_t status = s->regs[addr / 4] & (TOUCH_DONE | TOUCH_MASK);
++            if (value & TOUCH_CLEAR) {
++                status &= ~TOUCH_MASK;
++            }
++            s->regs[addr / 4] =
++                (value & ~(TOUCH_CLEAR | TOUCH_DONE | TOUCH_MASK | TOUCH_START)) |
++                status;
++            if ((value & (TOUCH_SW | TOUCH_START | TOUCH_FSM_EN)) ==
++                (TOUCH_SW | TOUCH_START | TOUCH_FSM_EN)) {
++                touch_begin(s);
++            }
++            touch_poll(s);
++            return;
++        }
++    }
+     if (addr == (s->classic ? 0x54 : SENS_MEAS1_CTRL2) && (value & MEAS_START_SAR)) {
+         s->meas1_started = true;
+     }
+@@ -97,6 +281,9 @@
+         s->meas2_started = true;
+     }
+     s->regs[addr / 4] = value;
++    if (s->classic) {
++        touch_poll(s);
++    }
+ }
+ 
+ static const MemoryRegionOps sens_ops = {
+@@ -123,6 +310,20 @@
+     M5StopwatchSensState *s = g_new0(M5StopwatchSensState, 1);
+     MemoryRegion *mr = g_new(MemoryRegion, 1);
+     s->classic = true;
++    s->touch_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, touch_tick, s);
++    for (unsigned channel = 0; channel < 10; channel++) {
++        char name[48];
++        s->touch_input_hz[channel] = 1000000;
++        snprintf(name, sizeof(name), "classic-touch-pad%u-input-hz", channel);
++        object_property_add_uint64_ptr(OBJECT(qdev_get_machine()), name,
++                                      &s->touch_input_hz[channel],
++                                      OBJ_PROP_FLAG_READWRITE);
++        object_property_set_description(OBJECT(qdev_get_machine()), name,
++            "Nominal input frequency in Hz for this SENS hardware pad index; "
++            "all pads default to 1 MHz, without board-specific calibration");
++    }
++    sens_reset(s);
++    qemu_register_reset(sens_reset, s);
+     memory_region_init_io(mr, NULL, &sens_ops, s, "esp32.unit-sens", SENS_SIZE);
+     memory_region_add_subregion_overlap(sys_mem, 0x3ff48800, mr, 2);
+ }

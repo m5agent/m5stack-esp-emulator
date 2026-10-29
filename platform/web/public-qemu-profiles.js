@@ -1,3 +1,4 @@
+import {validateQemuServoOutputProfile,validateQemuServoState} from './public-qemu-servo.js';
 import {assetUrl, siteRoot} from './public-config.js';
 
 export const QEMU_BROWSER_SOURCE_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
@@ -24,7 +25,7 @@ export function validateQemuProfile(profile) {
   } else {
     check(display && Number.isInteger(display.width) && display.width > 0 && display.width <= 2048 && Number.isInteger(display.height) && display.height > 0 && display.height <= 2048
       && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
-    check(profile.outputs === undefined, 'Display profiles cannot acquire an unreviewed QEMU output path');
+    if (profile.outputs !== undefined) validateQemuServoOutputProfile(profile);
   }
   check([1, 8].includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
   if (profile.accelerator !== undefined) {
@@ -54,6 +55,12 @@ export function validateQemuProfile(profile) {
   check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse || classicCompactEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
   if (display === null) check(profile.efuse.packageVersion === 0, 'Invalid QEMU headless eFuse package');
   const input = profile.inputs;
+  check(input?.reset === undefined || input.reset === true, 'Invalid hardware reset admission');
+  if (input?.capacitiveTouch !== undefined) check(profile.deviceId === 'stackchan' && profile.board === 'm5stackchan'
+    && Object.keys(input.capacitiveTouch).length === 3
+    && input.capacitiveTouch.path === '/machine/si12t' && input.capacitiveTouch.property === 'touch-bits'
+    && Array.isArray(input.capacitiveTouch.masks) && input.capacitiveTouch.masks.length === 3
+    && input.capacitiveTouch.masks.every((mask,index) => mask === [48,12,3][index]), 'Invalid StackChan body touch route');
   check(input && typeof input.touch === 'boolean' && input.uart === false && input.buttons && typeof input.buttons === 'object'
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
     && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
@@ -211,6 +218,16 @@ export function buildQemuEfuse(profile) {
 export function qemuInputCommand(profile, event) {
   validateQemuProfile(profile);
   const input = profile.inputs, {width, height} = profile.display || {};
+  if (event?.type === 'reset') {
+    check(input.reset === true && event.down === true && Object.keys(event).sort().join(',') === 'down,type', 'Hardware reset is not admitted');
+    return {execute:'system_reset',arguments:{}};
+  }
+  if (event?.type === 'capacitive-touch') {
+    const touch=input.capacitiveTouch;
+    check(touch && Number.isInteger(event.zone) && event.zone>=1 && event.zone<=3 && typeof event.down === 'boolean'
+      && Object.keys(event).sort().join(',')==='down,type,zone', 'Capacitive touch is not admitted');
+    return {bitInput:{path:touch.path,property:touch.property,mask:touch.masks[event.zone-1],down:event.down}};
+  }
   if (event?.type === 'touch') {
     check(input.touch && Number.isInteger(event.x) && event.x >= 0 && event.x < width && Number.isInteger(event.y) && event.y >= 0 && event.y < height && typeof event.down === 'boolean', 'Touch is unsupported or outside the selected framebuffer');
     return {execute:'input-send-event', arguments:{events:[
@@ -270,6 +287,7 @@ export function qemuOnboardOutputQueries(profile) {
 }
 
 export function validateQemuOnboardState(profile, state) {
+  if (profile.outputs?.kind === 'stackchan-scs-qom-v1') return validateQemuServoState(profile,state);
   qemuOnboardOutputQueries(profile);
   check(state && Object.keys(state).length === 7 && state.schema_version === 1 && state.device_id === profile.deviceId
     && state.source === 'qemu-rmt-qom-readback' && state.path === profile.outputs.path

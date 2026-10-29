@@ -1312,16 +1312,16 @@
         "Device-local exact official firmware validation"
       ],
       "blockers": [
-        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited. A precise official StickC Plus image has not been acquired; service admission is blocked until its board identity and partition map are verified."
+        "Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate."
       ],
       "validation": {
         "date": "2026-10-29",
         "status": "candidate-not-validated",
-        "detail": "独立 StickC Plus K016-P 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        "detail": "已核验原 StickC Plus K016-P 适用的官方 UIFlow2 v2.5.2、ESP32/4MB 与分区身份；独立 guest 显示、按键及 MPU6886 功能待验证，不继承 SE/Plus2 PASS。"
       },
       "service_admission": {
-        "blocked": true,
-        "reason": "No precise official UIFlow2 image is available for the original StickC Plus. The separately identified legacy UIFlow1 image is not yet validated; Plus SE and Plus2 firmware must not substitute for it."
+        "blocked": false,
+        "reason": "Exact official original StickC Plus v2.5.2 identity, ESP32/4MB image and partition map verified; independent device-local functional validation remains pending."
       }
     },
     {

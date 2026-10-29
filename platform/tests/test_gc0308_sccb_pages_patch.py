@@ -86,7 +86,8 @@ class Gc0308SccbPagesPatchTests(unittest.TestCase):
             subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True)
             for patch in bootstrap_stack():
                 if patch == PATCH:
-                    continue
+                    # Reproduce the exact SCCB preimage before later PMIC changes.
+                    break
                 subprocess.run(["git", "apply", "--include=" + SOURCE, str(ROOT / patch)], cwd=root, check=True, capture_output=True)
             before = (root / SOURCE).read_text()
             subprocess.run(["git", "apply", str(ROOT / PATCH)], cwd=root, check=True, capture_output=True)

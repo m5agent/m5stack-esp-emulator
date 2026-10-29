@@ -1,0 +1,351 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later
+ * Test doubles surround the verbatim patched SENS implementation below.
+ */
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+typedef uint64_t hwaddr;
+typedef struct QEMUTimer {
+    void (*cb)(void *);
+    void *opaque;
+    bool pending;
+    int64_t deadline;
+} QEMUTimer;
+static int64_t now_ns;
+static QEMUTimer *active_timer;
+static uint32_t rtc_state0, rtc_clkconf;
+static bool rtc_read_failure;
+static unsigned rtc_reads;
+static int address_space_memory;
+#define MEMTXATTRS_UNSPECIFIED 0
+#define MEMTX_OK 0
+#define QEMU_CLOCK_VIRTUAL 0
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+static int address_space_read(void *space, hwaddr addr, int attr, uint8_t *bytes, size_t size) {
+    (void)space; (void)attr; assert(size == 4); rtc_reads++;
+    if (rtc_read_failure) return 1;
+    uint32_t value;
+    if (addr == 0x3ff48018) value = rtc_state0;
+    else if (addr == 0x3ff48070) value = rtc_clkconf;
+    else return 1;
+    for (unsigned i = 0; i < 4; i++) bytes[i] = value >> (i * 8);
+    return MEMTX_OK;
+}
+static uint32_t ldl_le_p(const uint8_t *p) {
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+static int64_t qemu_clock_get_ns(int clock) { assert(clock == QEMU_CLOCK_VIRTUAL); return now_ns; }
+static void timer_mod(QEMUTimer *timer, int64_t deadline) { assert(timer); timer->pending = true; timer->deadline = deadline; }
+static void timer_del(QEMUTimer *timer) { assert(timer); timer->pending = false; }
+static QEMUTimer *timer_new_ns(int clock, void (*cb)(void *), void *opaque) {
+    assert(clock == QEMU_CLOCK_VIRTUAL);
+    QEMUTimer *timer = calloc(1, sizeof(*timer)); assert(timer);
+    timer->cb = cb; timer->opaque = opaque; active_timer = timer;
+    return timer;
+}
+static void advance_to(int64_t target) {
+    assert(target >= now_ns);
+    unsigned guard = 0;
+    while (active_timer && active_timer->pending && active_timer->deadline <= target) {
+        assert(++guard < 100000);
+        now_ns = active_timer->deadline; active_timer->pending = false;
+        active_timer->cb(active_timer->opaque);
+    }
+    now_ns = target;
+}
+static struct { unsigned calls, adc, channel, atten; bool s3; uint16_t neutral, returned; } adc_spy;
+static uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten, bool s3, uint16_t neutral) {
+    adc_spy.calls++; adc_spy.adc = adc; adc_spy.channel = channel;
+    adc_spy.atten = atten; adc_spy.s3 = s3; adc_spy.neutral = neutral;
+    return adc_spy.returned;
+}
+
+typedef struct MemoryRegion { unsigned marker; } MemoryRegion;
+typedef struct MemoryRegionOps {
+    uint64_t (*read)(void *, hwaddr, unsigned);
+    void (*write)(void *, hwaddr, uint64_t, unsigned);
+    int endianness;
+    struct { unsigned min_access_size, max_access_size; } valid, impl;
+} MemoryRegionOps;
+#define DEVICE_LITTLE_ENDIAN 0
+#define g_new(type,n) ((type *)calloc(n, sizeof(type)))
+#define g_new0(type,n) g_new(type,n)
+#define OBJECT(x) (x)
+#define OBJ_PROP_FLAG_READWRITE 3
+static int machine;
+static void *qdev_get_machine(void) { return &machine; }
+static struct { char names[10][48]; uint64_t *values[10]; unsigned count; } properties;
+static void object_property_add_uint64_ptr(void *obj, const char *name, uint64_t *value, int flags) {
+    assert(obj == &machine); assert(flags == OBJ_PROP_FLAG_READWRITE); assert(properties.count < 10);
+    snprintf(properties.names[properties.count], sizeof(properties.names[0]), "%s", name);
+    properties.values[properties.count++] = value;
+}
+static void object_property_set_description(void *obj, const char *name, const char *description) {
+    assert(obj == &machine); assert(name && *name && description && *description);
+}
+static void (*reset_cb)(void *);
+static void *reset_opaque;
+static void qemu_register_reset(void (*cb)(void *), void *opaque) { reset_cb = cb; reset_opaque = opaque; }
+static struct { MemoryRegion *mr; void *opaque; const MemoryRegionOps *ops; hwaddr base; int overlap; char name[40]; unsigned size; } mapped;
+static void memory_region_init_io(MemoryRegion *mr, void *owner, const MemoryRegionOps *ops, void *opaque, const char *name, unsigned size) {
+    (void)owner; mapped.mr = mr; mapped.opaque = opaque; mapped.ops = ops; mapped.size = size;
+    snprintf(mapped.name, sizeof(mapped.name), "%s", name);
+}
+static void memory_region_add_subregion_overlap(MemoryRegion *sys, hwaddr base, MemoryRegion *mr, int overlap) {
+    (void)sys; assert(mr == mapped.mr); mapped.base = base; mapped.overlap = overlap;
+}
+
+/* EXACT_SENS_IMPLEMENTATION */
+
+#define CHECK(cond) do { if (!(cond)) { fprintf(stderr, "%s:%d failed: %s\n", __func__, __LINE__, #cond); return false; } } while (0)
+static void fresh(M5StopwatchSensState *s, QEMUTimer *timer) {
+    memset(s, 0, sizeof(*s)); memset(timer, 0, sizeof(*timer));
+    memset(&adc_spy, 0, sizeof(adc_spy)); adc_spy.returned = 0x456;
+    now_ns = 0; rtc_state0 = rtc_clkconf = rtc_reads = 0; rtc_read_failure = false;
+    s->classic = true; s->touch_timer = timer;
+    for (unsigned i = 0; i < 10; i++) s->touch_input_hz[i] = 1000000;
+    timer->cb = touch_tick; timer->opaque = s; active_timer = timer;
+    sens_reset(s);
+}
+static uint32_t rd(M5StopwatchSensState *s, unsigned addr) { return sens_read(s, addr, 4); }
+static void wr(M5StopwatchSensState *s, unsigned addr, uint32_t value) { sens_write(s, addr, value, 4); }
+static void configure_sw(M5StopwatchSensState *s, unsigned mask, unsigned cycles, unsigned wait) {
+    wr(s, 0x84, (1u << 11) | (1u << 13));
+    wr(s, 0x8c, mask); wr(s, 0x58, cycles | (wait << 16));
+}
+static void start_sw(M5StopwatchSensState *s) { wr(s, 0x84, (1u << 11) | (1u << 12) | (1u << 13)); }
+
+static bool factory_defaults_and_qom_inputs(void) {
+    MemoryRegion root = {0};
+    memset(&mapped, 0, sizeof(mapped)); memset(&properties, 0, sizeof(properties));
+    now_ns = 0; rtc_state0 = rtc_clkconf = 0; rtc_read_failure = false; reset_cb = NULL;
+    m5_unit_classic_adc_init(&root);
+    M5StopwatchSensState *s = mapped.opaque;
+    CHECK(s && s->classic && s->touch_timer == active_timer);
+    CHECK(mapped.base == 0x3ff48800 && mapped.size == 0x200 && mapped.overlap == 2);
+    CHECK(mapped.ops->read == sens_read && mapped.ops->write == sens_write);
+    CHECK(reset_cb == sens_reset && reset_opaque == s);
+    CHECK(properties.count == 10);
+    for (unsigned i = 0; i < 10; i++) {
+        char expected[48]; snprintf(expected, sizeof(expected), "classic-touch-pad%u-input-hz", i);
+        CHECK(strcmp(properties.names[i], expected) == 0);
+        CHECK(properties.values[i] == &s->touch_input_hz[i] && *properties.values[i] == 1000000);
+    }
+    CHECK(rd(s, 0x58) == 0x02041000);
+    CHECK(rd(s, 0x84) == 0x00400800);
+    CHECK(rd(s, 0x8c) == 0x3fffffff);
+    CHECK(!active_timer->pending && !s->touch_measuring && !s->touch_sleeping);
+    *properties.values[4] = 2000000;
+    configure_sw(s, 1u << 4, 8000, 0); start_sw(s); advance_to(1000000);
+    CHECK((rd(s, 0x78) >> 16) == 2000);
+    reset_cb(reset_opaque);
+    CHECK(s->touch_input_hz[4] == 2000000 && rd(s, 0x78) == 0);
+    free(s->touch_timer); free(s); free(mapped.mr); active_timer = NULL;
+    return true;
+}
+static bool software_timing_pulse_readonly_and_slots(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    configure_sw(&s, (1u << 4) | (1u << 7), 8000, 4);
+    wr(&s, 0x84, (1u << 11) | (1u << 12) | (1u << 13) | (1u << 10) | 0x3ff);
+    /* Both pads share the (8000 + 4) / 8 MHz window: 1,000,500 ns. */
+    CHECK(s.touch_measuring && timer.pending && timer.deadline == 1000500);
+    CHECK(!(rd(&s, 0x84) & ((1u << 12) | (1u << 10) | 0x3ff)));
+    advance_to(1000499); CHECK(!(rd(&s, 0x84) & (1u << 10)));
+    wr(&s, 0x84, (1u << 11) | (1u << 13));
+    CHECK(s.touch_measuring && timer.deadline == 1000500);
+    CHECK(rd(&s, 0x78) == 0 && rd(&s, 0x7c) == 0);
+    advance_to(1000500);
+    CHECK((rd(&s, 0x84) & (1u << 10)) && !s.touch_measuring && !timer.pending);
+    CHECK(rd(&s, 0x78) == (1000u << 16) && rd(&s, 0x7c) == 1000u);
+    CHECK(rd(&s, 0x70) == 0 && rd(&s, 0x74) == 0 && rd(&s, 0x80) == 0);
+    wr(&s, 0x78, 0xffffffff); wr(&s, 0x7c, 0xffffffff);
+    CHECK(rd(&s, 0x78) == (1000u << 16) && rd(&s, 0x7c) == 1000u);
+    wr(&s, 0x84, (1u << 11) | (1u << 13));
+    CHECK(rd(&s, 0x84) & (1u << 10));
+    s.touch_input_hz[4] = 2000000; s.touch_input_hz[7] = 500000;
+    start_sw(&s);
+    CHECK(!(rd(&s, 0x84) & (1u << 10)) && rd(&s, 0x78) == (1000u << 16));
+    advance_to(2001000);
+    CHECK(rd(&s, 0x78) == (2000u << 16) && rd(&s, 0x7c) == 500u);
+    CHECK(adc_spy.calls == 0);
+    return true;
+}
+static bool threshold_status_clear_and_saturation(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    configure_sw(&s, (1u << 4) | (1u << 7), 8000, 0);
+    wr(&s, 0x64, 1200u << 16); wr(&s, 0x68, 900);
+    start_sw(&s); advance_to(1000000);
+    CHECK((rd(&s, 0x84) & 0x3ff) == (1u << 4));
+    wr(&s, 0x84, (1u << 11) | (1u << 13) | (1u << 30));
+    CHECK((rd(&s, 0x84) & 0x3ff) == 0 && (rd(&s, 0x84) & (1u << 10)));
+    CHECK(!(rd(&s, 0x84) & (1u << 30)));
+    wr(&s, 0x58, 8000 | (1u << 24)); start_sw(&s); advance_to(2000000);
+    CHECK((rd(&s, 0x84) & 0x3ff) == (1u << 7));
+    s.touch_input_hz[4] = UINT64_MAX; s.touch_input_hz[7] = 0;
+    wr(&s, 0x58, 65535); start_sw(&s); advance_to(10191875);
+    CHECK(rd(&s, 0x78) == 0xffff0000u && rd(&s, 0x7c) == 0);
+    return true;
+}
+static bool timer_gate_and_repeated_cycles(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    wr(&s, 0x8c, 1u << 4); wr(&s, 0x58, 800);
+    wr(&s, 0x84, (1u << 11) | (150u << 14));
+    CHECK(!timer.pending && !s.touch_measuring);
+    advance_to(1000000); CHECK(!(rd(&s, 0x84) & (1u << 10)));
+    rtc_state0 = 1u << 23;
+    CHECK(!(rd(&s, 0x84) & (1u << 10)) && s.touch_measuring && timer.deadline == 1100000);
+    advance_to(1099999); CHECK(!(rd(&s, 0x84) & (1u << 10)));
+    advance_to(1100000);
+    CHECK((rd(&s, 0x84) & (1u << 10)) && s.touch_sleeping && timer.deadline == 2100000);
+    CHECK(rd(&s, 0x78) == (100u << 16));
+    advance_to(2099999); CHECK(rd(&s, 0x84) & (1u << 10));
+    advance_to(2100000);
+    CHECK(s.touch_measuring && !s.touch_sleeping && timer.deadline == 2200000);
+    CHECK(!(rd(&s, 0x84) & (1u << 10)));
+    advance_to(2200000); CHECK((rd(&s, 0x84) & (1u << 10)) && timer.deadline == 3200000);
+    rtc_state0 = 0;
+    advance_to(3200000);
+    CHECK(!s.touch_measuring && !s.touch_sleeping && !timer.pending);
+    CHECK(rd(&s, 0x84) & (1u << 10));
+    CHECK(rtc_reads > 0);
+    return true;
+}
+static bool rtc_slow_clock_selection(void) {
+    const uint32_t selects[] = {0, 1, 2, 3};
+    const int64_t expected_sleep[] = {213334, 976563, 1024000, 213334};
+    for (unsigned i = 0; i < 4; i++) {
+        M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+        wr(&s, 0x8c, 1u << 4); wr(&s, 0x58, 8);
+        wr(&s, 0x84, (1u << 11) | (32u << 14));
+        rtc_state0 = 1u << 23; rtc_clkconf = selects[i] << 30;
+        (void)rd(&s, 0x84); CHECK(timer.deadline == 1000);
+        advance_to(1000);
+        CHECK(s.touch_sleeping && timer.deadline == 1000 + expected_sleep[i]);
+    }
+    return true;
+}
+static bool timer_to_software_during_sleep_requires_start(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    wr(&s, 0x8c, 1u << 4); wr(&s, 0x58, 800);
+    wr(&s, 0x84, (1u << 11) | (150u << 14)); rtc_state0 = 1u << 23;
+    (void)rd(&s, 0x84); advance_to(100000);
+    CHECK(s.touch_sleeping && timer.deadline == 1100000);
+    wr(&s, 0x84, (1u << 11) | (1u << 13));
+    CHECK(!timer.pending && !s.touch_sleeping && !s.touch_measuring);
+    advance_to(2100000);
+    CHECK(!s.touch_measuring && !timer.pending && (rd(&s, 0x84) & (1u << 10)));
+    start_sw(&s); CHECK(s.touch_measuring && timer.deadline == 2200000);
+    advance_to(2200000); CHECK(!timer.pending && (rd(&s, 0x84) & (1u << 10)));
+    return true;
+}
+static bool timer_to_software_inflight_still_completes(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    wr(&s, 0x8c, 1u << 4); wr(&s, 0x58, 800);
+    wr(&s, 0x84, (1u << 11) | (150u << 14)); rtc_state0 = 1u << 23;
+    (void)rd(&s, 0x84); advance_to(50000);
+    wr(&s, 0x84, (1u << 11) | (1u << 13));
+    CHECK(s.touch_measuring && timer.deadline == 100000);
+    advance_to(100000);
+    CHECK(!s.touch_measuring && !s.touch_sleeping && !timer.pending);
+    CHECK((rd(&s, 0x84) & (1u << 10)) && rd(&s, 0x78) == (100u << 16));
+    return true;
+}
+static bool disable_gate_fsm_and_invalid_starts(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    wr(&s, 0x8c, 1u << 4); wr(&s, 0x58, 800);
+    wr(&s, 0x84, (1u << 11) | (1u << 12));
+    CHECK(!timer.pending && !s.touch_measuring && !(rd(&s, 0x84) & (1u << 12)));
+    wr(&s, 0x84, (1u << 13) | (1u << 12)); CHECK(!timer.pending);
+    configure_sw(&s, 0, 800, 0); start_sw(&s); CHECK(!timer.pending);
+    configure_sw(&s, 1u << 4, 800, 0); start_sw(&s); advance_to(50000);
+    wr(&s, 0x84, 1u << 13); CHECK(!s.touch_measuring && !timer.pending);
+    advance_to(200000); CHECK(rd(&s, 0x78) == 0 && !(rd(&s, 0x84) & (1u << 10)));
+    wr(&s, 0x84, 1u << 11); rtc_state0 = 1u << 23;
+    rtc_read_failure = true; (void)rd(&s, 0x84); CHECK(!timer.pending);
+    rtc_read_failure = false; (void)rd(&s, 0x84); CHECK(s.touch_measuring);
+    rtc_state0 = 0; (void)rd(&s, 0x84); CHECK(!timer.pending && !s.touch_measuring);
+    advance_to(1000000); CHECK(rd(&s, 0x78) == 0);
+    return true;
+}
+static bool latched_workmask_timing_and_results(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    configure_sw(&s, 1u << 4, 8000, 0); start_sw(&s);
+    CHECK(timer.deadline == 1000000);
+    wr(&s, 0x8c, 1u << 7); wr(&s, 0x58, 16000);
+    CHECK(timer.deadline == 1000000 && s.touch_pending_mask == (1u << 4));
+    advance_to(1000000);
+    CHECK(rd(&s, 0x78) == (1000u << 16) && rd(&s, 0x7c) == 0);
+    start_sw(&s); CHECK(timer.deadline == 3000000);
+    advance_to(3000000); CHECK(rd(&s, 0x7c) == 2000);
+    return true;
+}
+static bool reset_cancels_inflight_and_restores_status(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer);
+    configure_sw(&s, (1u << 4) | (1u << 7), 8000, 4); start_sw(&s);
+    advance_to(1000000); s.meas1_started = s.meas2_started = true;
+    s.touch_input_hz[4] = 1234567; sens_reset(&s);
+    CHECK(!timer.pending && !s.touch_measuring && !s.touch_sleeping);
+    CHECK(!s.touch_pending_mask && !s.touch_meas_cycles && !s.meas1_started && !s.meas2_started);
+    CHECK(rd(&s, 0x84) == 0x00400800 && rd(&s, 0x78) == 0 && rd(&s, 0x7c) == 0);
+    CHECK(rd(&s, 0x58) == 0x02041000 && rd(&s, 0x8c) == 0x3fffffff);
+    CHECK(s.touch_input_hz[4] == 1234567);
+    advance_to(10000000); CHECK(!timer.pending && !(rd(&s, 0x84) & (1u << 10)));
+    return true;
+}
+static bool adc_s3_and_classic_regression(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer); s.classic = false;
+    unsigned before_reads = rtc_reads;
+    wr(&s, 0x14, 2u << 6); wr(&s, 0x0c, (1u << 17) | (1u << 22));
+    CHECK((rd(&s, 0x0c) & 0x1ffff) == 0x10456);
+    CHECK(adc_spy.calls == 1 && adc_spy.adc == 0 && adc_spy.channel == 3 && adc_spy.atten == 2);
+    CHECK(adc_spy.s3 && adc_spy.neutral == 0x800 && rtc_reads == before_reads);
+    wr(&s, 0x38, 1u << 4); wr(&s, 0x30, (1u << 17) | (1u << 21));
+    CHECK((rd(&s, 0x30) & 0x1ffff) == 0x10456);
+    CHECK(adc_spy.adc == 1 && adc_spy.channel == 2 && adc_spy.atten == 1 && adc_spy.s3);
+    wr(&s, 0x78, 0x12345678); wr(&s, 0x84, 0xffffffff);
+    CHECK(rd(&s, 0x78) == 0x12345678 && rd(&s, 0x84) == 0xffffffff && !timer.pending);
+    fresh(&s, &timer);
+    wr(&s, 0x34, 3u << 8); wr(&s, 0x54, (1u << 17) | (1u << 23));
+    CHECK((rd(&s, 0x54) & 0x1ffff) == 0x10456);
+    CHECK(adc_spy.adc == 0 && adc_spy.channel == 4 && adc_spy.atten == 3 && !adc_spy.s3);
+    wr(&s, 0x38, 2u << 2); wr(&s, 0x94, (1u << 17) | (1u << 20));
+    CHECK((rd(&s, 0x94) & 0x1ffff) == 0x10456);
+    CHECK(adc_spy.adc == 1 && adc_spy.channel == 1 && adc_spy.atten == 2 && !adc_spy.s3);
+    return true;
+}
+static bool tsens_and_invalid_access_regression(void) {
+    M5StopwatchSensState s; QEMUTimer timer; fresh(&s, &timer); s.classic = false;
+    wr(&s, 0x50, 1u << 22); CHECK(rd(&s, 0x50) == ((1u << 22) | 0x180));
+    wr(&s, 0x50, (1u << 24) | 0x42); CHECK(rd(&s, 0x50) == ((1u << 24) | 0x142));
+    sens_write(&s, 0x50, 0xffffffff, 2); CHECK(rd(&s, 0x50) == ((1u << 24) | 0x142));
+    CHECK(sens_read(&s, 0x50, 2) == 0 && sens_read(&s, 0x200, 4) == 0);
+    sens_write(&s, 0x200, 0xffffffff, 4); CHECK(!timer.pending);
+    return true;
+}
+int main(void) {
+    struct { const char *name; bool (*fn)(void); } tests[] = {
+        {"factory_defaults_and_qom_inputs", factory_defaults_and_qom_inputs},
+        {"software_timing_pulse_readonly_and_slots", software_timing_pulse_readonly_and_slots},
+        {"threshold_status_clear_and_saturation", threshold_status_clear_and_saturation},
+        {"timer_gate_and_repeated_cycles", timer_gate_and_repeated_cycles},
+        {"rtc_slow_clock_selection", rtc_slow_clock_selection},
+        {"timer_to_software_during_sleep_requires_start", timer_to_software_during_sleep_requires_start},
+        {"timer_to_software_inflight_still_completes", timer_to_software_inflight_still_completes},
+        {"disable_gate_fsm_and_invalid_starts", disable_gate_fsm_and_invalid_starts},
+        {"latched_workmask_timing_and_results", latched_workmask_timing_and_results},
+        {"reset_cancels_inflight_and_restores_status", reset_cancels_inflight_and_restores_status},
+        {"adc_s3_and_classic_regression", adc_s3_and_classic_regression},
+        {"tsens_and_invalid_access_regression", tsens_and_invalid_access_regression},
+    };
+    unsigned failures = 0;
+    for (unsigned i = 0; i < sizeof(tests)/sizeof(tests[0]); i++) {
+        bool ok = tests[i].fn(); printf("%s %s\n", ok ? "PASS" : "FAIL", tests[i].name); failures += !ok;
+    }
+    printf("TOTAL %zu FAIL %u\n", sizeof(tests)/sizeof(tests[0]), failures);
+    return failures ? 1 : 0;
+}

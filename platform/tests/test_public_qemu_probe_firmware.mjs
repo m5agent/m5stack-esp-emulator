@@ -20,9 +20,9 @@ const server = http.createServer(async (request, response) => {
     const pathname = new URL(request.url, 'http://localhost').pathname;
     if (pathname === '/') { response.setHeader('content-type', 'text/html'); response.end('<!doctype html><title>QEMU probe composition</title>'); return; }
     if (pathname === '/base.bin') { response.end(base); return; }
-    const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-profiles|public-config|public-firmware|sha256)\.js$/.exec(pathname);
+    const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-servo|public-qemu-profiles|public-config|public-firmware|sha256)\.js$/.exec(pathname);
     if (web) { response.setHeader('content-type', 'text/javascript'); response.end(await fs.readFile(path.join(root, 'platform/web', web[1] + '.js'))); return; }
-    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(boot|main|core2_boot|atoms3_lite_main|stickc_plus2_main|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
+    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(main_stackchan|boot|main|core2_boot|atoms3_lite_main|stickc_plus2_main|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
     if (source) { response.end(await fs.readFile(path.join(root, 'tests/browser-qemu/board_display', source[1] + '.py'))); return; }
     const name = pathname.replace('/platform/runtime/littlefs/', '');
     if (!pathname.startsWith('/platform/runtime/littlefs/') || !allowed.has(name)) { response.writeHead(404).end(); return; }

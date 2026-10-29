@@ -1667,20 +1667,32 @@
         "validation": {
           "date": "2026-10-29",
           "status": "candidate-not-validated",
-          "detail": "独立 StickC Plus K016-P 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+          "detail": "已核验原 StickC Plus K016-P 适用的官方 UIFlow2 v2.5.2、ESP32/4MB 与分区身份；独立 guest 显示、按键及 MPU6886 功能待验证，不继承 SE/Plus2 PASS。"
         },
         "blockers": [
-          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited. A precise official StickC Plus image has not been acquired; service admission is blocked until its board identity and partition map are verified."
+          "Device-local official v2.5.2 display, GPIO/button and MPU6886 functional validation is NOT RUN; results from Plus SE or Plus2 are not inherited. Other board peripherals and physical hardware remain separate."
         ],
         "service_admission": {
-          "blocked": true,
-          "reason": "No precise official UIFlow2 image is available for the original StickC Plus. The separately identified legacy UIFlow1 image is not yet validated; Plus SE and Plus2 firmware must not substitute for it."
+          "blocked": false,
+          "reason": "Exact official original StickC Plus v2.5.2 identity, ESP32/4MB image and partition map verified; independent device-local functional validation remains pending."
         }
       },
       "uiflow2": {
         "supported": true,
         "m5ui": false,
-        "firmware_blocker": "Exact official StickC Plus firmware identity and image are not acquired; no SE/Plus2 substitution is accepted."
+        "firmware": {
+          "version": "v2.5.2",
+          "firmware_id": "1897200000000003037",
+          "version_id": "2094351510644318209",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003037/2094351510644318209/bin/2094351510644318210.bin",
+          "sha256": "6e82447cc87695703dc973a3d2bac00e34619bd5d011970df19f548923241cb2",
+          "bytes": 4186112,
+          "source_type": "OFFICIAL",
+          "supported_device_code": "STICKC_PLUS",
+          "metadata_url": "https://burner.m5stack.com/api/v1/firmwares/1897200000000003037/versions",
+          "official_product_url": "https://docs.m5stack.com/en/core/StickC-Plus",
+          "official_uiflow2_url": "https://docs.m5stack.com/en/uiflow2/m5stickcplus/program"
+        }
       }
     },
     {

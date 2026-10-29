@@ -1,0 +1,487 @@
+From: M5Stack Emulator Contributors
+Subject: [PATCH] stackchan: observe timed SCS motion through the real UART peer
+
+Keep present position separate from commanded position, apply servo rail and
+torque gating, stage REG_WRITE until ACTION, and expose an atomic read-only
+raw-register snapshot for browser geometry. PWM displacement and physical
+speed dynamics remain outside this position-mode implementation.
+
+diff --git a/hw/m5stopwatch/m5_scs_servo.c b/hw/m5stopwatch/m5_scs_servo.c
+--- a/hw/m5stopwatch/m5_scs_servo.c
++++ b/hw/m5stopwatch/m5_scs_servo.c
+@@ -1,13 +1,16 @@
+ /*
+- * Minimal SCS serial servo bus peer for StackChan.
++ * StackChan SCSCL UART1 peer and read-only controller observations.
++ * SPDX-License-Identifier: GPL-2.0-or-later
+  *
+- * The guest UART bytes are parsed as SCSCL packets. Servo ID 1/2 expose the
+- * EEPROM/SRAM fields used by the UIFlow2 driver, including position, torque,
+- * voltage, current and PWM-mode angle limits.
+- *
+- * SPDX-License-Identifier: GPL-2.0-or-later
++ * Positions are raw SCS ticks, never guest logical/NVS-calibrated angles.
++ * Position-mode movement follows the command's time in virtual milliseconds.
++ * Speed-only and PWM mechanics are not a physical servo dynamics model.
+  */
+ #include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "qapi/visitor.h"
++#include "qapi/qmp/qdict.h"
++#include "qapi/qmp/qlist.h"
+ #include "hw/char/esp32_uart.h"
+ #include "m5stopwatch.h"
+ 
+@@ -15,13 +18,28 @@
+ #define SCS_MEM_SIZE 71
+ #define SCS_ID_X 1
+ #define SCS_ID_Y 2
++#define SCS_RAW_MAX 1000
++/* Virtual assembly start pose, pinned to StackChan-BSP e2f3b02d defaults.
++ * This does not read or overwrite the firmware's NVS calibration. */
++#define SCS_NOMINAL_X_POSITION 460
++#define SCS_NOMINAL_Y_POSITION 620
+ 
+ typedef struct M5ScsServoState {
+     ESP32UARTState *uart;
+     uint8_t packet[SCS_MAX_PACKET];
+     uint16_t packet_len;
+     uint8_t mem[3][SCS_MEM_SIZE];
++    uint8_t pending[3][SCS_MEM_SIZE];
++    bool pending_mask[3][SCS_MEM_SIZE];
++    uint16_t origin[3];
++    int64_t started_ms[3];
++    uint16_t duration_ms[3];
++    bool powered;
++    uint64_t packets;
++    uint64_t rejected_packets;
+ } M5ScsServoState;
++
++static M5ScsServoState *scs_peer;
+ 
+ static void scs_put_be16(uint8_t *mem, int addr, uint16_t value)
+ {
+@@ -34,24 +52,82 @@
+     return ((uint16_t)mem[addr] << 8) | mem[addr + 1];
+ }
+ 
+-static void scs_init_mem(M5ScsServoState *s)
++static bool scs_pwm_mode(const uint8_t *mem)
++{
++    return scs_get_be16(mem, 9) == 0 && scs_get_be16(mem, 11) == 0;
++}
++
++static void scs_advance(M5ScsServoState *s, int64_t now)
+ {
+     for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {
+         uint8_t *m = s->mem[id];
+-        memset(m, 0, SCS_MEM_SIZE);
+-        m[3] = 0x01;                         /* version low */
+-        m[4] = 0x01;                         /* version high */
++        if (!s->powered || m[40] != 1 || scs_pwm_mode(m)) {
++            s->duration_ms[id] = 0;
++            m[66] = 0;
++            continue;
++        }
++        if (s->duration_ms[id]) {
++            int64_t elapsed = MAX(0, now - s->started_ms[id]);
++            uint16_t goal = scs_get_be16(m, 42);
++            if (elapsed >= s->duration_ms[id]) {
++                scs_put_be16(m, 56, goal);
++                s->duration_ms[id] = 0;
++                m[66] = 0;
++            } else {
++                int64_t delta = (int)goal - (int)s->origin[id];
++                scs_put_be16(m, 56, s->origin[id] +
++                             delta * elapsed / s->duration_ms[id]);
++                m[66] = 1;
++            }
++        }
++    }
++}
++
++void m5_scs_servo_power_changed(bool enabled)
++{
++    M5ScsServoState *s = scs_peer;
++    if (!s || s->powered == enabled) {
++        return;
++    }
++    scs_advance(s, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL));
++    s->powered = enabled;
++    s->packet_len = 0;
++    if (!enabled) {
++        for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {
++            uint8_t *m = s->mem[id];
++            /* Rail loss resets volatile drive state, retaining the shaft pose. */
++            m[40] = 0;
++            m[66] = 0;
++            scs_put_be16(m, 42, scs_get_be16(m, 56));
++            scs_put_be16(m, 44, 0);
++            scs_put_be16(m, 46, 0);
++            s->duration_ms[id] = 0;
++            memset(s->pending_mask[id], 0, sizeof(s->pending_mask[id]));
++        }
++    }
++}
++
++static void scs_sync_power(M5ScsServoState *s)
++{
++    m5_scs_servo_power_changed(m5sw_stackchan_servo_power_enabled());
++    scs_advance(s, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL));
++}
++
++static void scs_init_mem(M5ScsServoState *s)
++{
++    for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {
++        uint8_t *m = s->mem[id];
++        m[3] = 0x01;
++        m[4] = 0x01;
+         m[5] = id;
+-        m[6] = 1;                            /* baud-rate selector */
+-        scs_put_be16(m, 9, 0);               /* min angle limit */
+-        scs_put_be16(m, 11, 1000);           /* max angle limit */
+-        m[40] = 0;                           /* torque disabled */
+-        scs_put_be16(m, 42, id == SCS_ID_X ? 450 : 125);
+-        scs_put_be16(m, 56, id == SCS_ID_X ? 450 : 125);
+-        m[62] = 120;                         /* 12.0 V */
+-        m[63] = 35;                          /* 35 C */
+-        m[66] = 0;
+-        scs_put_be16(m, 69, 0);
++        m[6] = 1;
++        scs_put_be16(m, 11, SCS_RAW_MAX);
++        scs_put_be16(m, 42, id == SCS_ID_X ? SCS_NOMINAL_X_POSITION :
++                      SCS_NOMINAL_Y_POSITION);
++        scs_put_be16(m, 56, id == SCS_ID_X ? SCS_NOMINAL_X_POSITION :
++                      SCS_NOMINAL_Y_POSITION);
++        m[62] = 120;
++        m[63] = 35;
+     }
+ }
+ 
+@@ -60,15 +136,13 @@
+ {
+     uint8_t out[SCS_MAX_PACKET];
+     uint8_t len = data_len + 2;
+-    uint8_t sum = 0;
++    uint8_t sum = id + len + error;
+     int pos = 0;
+-
+     out[pos++] = 0xff;
+     out[pos++] = 0xff;
+     out[pos++] = id;
+     out[pos++] = len;
+     out[pos++] = error;
+-    sum = id + len + error;
+     for (int i = 0; i < data_len; i++) {
+         out[pos++] = data[i];
+         sum += data[i];
+@@ -83,123 +157,242 @@
+ 
+ static uint8_t *scs_mem_for(M5ScsServoState *s, uint8_t id)
+ {
+-    if (id != SCS_ID_X && id != SCS_ID_Y) {
+-        return NULL;
+-    }
+-    return s->mem[id];
++    return id == SCS_ID_X || id == SCS_ID_Y ? s->mem[id] : NULL;
++}
++
++static void scs_motion_written(M5ScsServoState *s, int id)
++{
++    uint8_t *m = s->mem[id];
++    s->duration_ms[id] = 0;
++    m[66] = 0;
++    if (!s->powered || m[40] != 1 || scs_pwm_mode(m)) {
++        return;
++    }
++    uint16_t goal = scs_get_be16(m, 42);
++    goal = CLAMP(goal, scs_get_be16(m, 9), scs_get_be16(m, 11));
++    scs_put_be16(m, 42, goal);
++    uint16_t present = scs_get_be16(m, 56);
++    if (goal == present) {
++        return;
++    }
++    s->duration_ms[id] = scs_get_be16(m, 44);
++    if (!s->duration_ms[id]) {
++        scs_put_be16(m, 56, goal);
++    } else {
++        s->origin[id] = present;
++        s->started_ms[id] = qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL);
++        m[66] = 1;
++    }
++}
++
++static bool scs_valid_registers(const uint8_t *mem)
++{
++    return mem[40] <= 2 && scs_get_be16(mem, 42) <= SCS_RAW_MAX &&
++           scs_get_be16(mem, 9) <= scs_get_be16(mem, 11) &&
++           scs_get_be16(mem, 11) <= SCS_RAW_MAX;
++}
++
++static bool scs_write(M5ScsServoState *s, int id, uint8_t addr,
++                      const uint8_t *data, unsigned count, bool deferred)
++{
++    uint8_t *m = scs_mem_for(s, id);
++    uint8_t proposed[SCS_MEM_SIZE];
++    /* Do not allow guests to forge present-position/telemetry registers. */
++    if (!m || !count || addr < 5 || (unsigned)addr + count > 49) {
++        return false;
++    }
++    memcpy(proposed, m, sizeof(proposed));
++    if (deferred) {
++        for (int reg = 5; reg < 49; reg++) {
++            if (s->pending_mask[id][reg]) {
++                proposed[reg] = s->pending[id][reg];
++            }
++        }
++    }
++    memcpy(proposed + addr, data, count);
++    if (!scs_valid_registers(proposed)) {
++        return false;
++    }
++    if (deferred) {
++        memcpy(s->pending[id] + addr, data, count);
++        memset(s->pending_mask[id] + addr, 1, count);
++    } else {
++        memcpy(m + addr, data, count);
++        /* Unrelated EEPROM/lock writes do not restart an in-flight move. */
++        if (addr < 48 && (unsigned)addr + count > 40) {
++            scs_motion_written(s, id);
++        }
++    }
++    return true;
+ }
+ 
+ static void scs_handle_packet(M5ScsServoState *s)
+ {
+-    uint8_t id = s->packet[2];
+-    uint8_t len = s->packet[3];
++    uint8_t id = s->packet[2], len = s->packet[3];
+     uint8_t inst = s->packet[4];
+-    uint8_t addr = s->packet[5];
+-    uint8_t data_len;
+     uint8_t *mem = scs_mem_for(s, id);
+-
++    s->packets++;
+     if (getenv("M5SW_SCS_TRACE")) {
+-        fprintf(stderr, "[scs] packet id=%u inst=%02x len=%u addr=%u\n",
+-                id, inst, len, addr);
+-    }
+-
+-    if (inst == 0x01) { /* PING */
+-        if (id != 0xfe) {
++        fprintf(stderr, "[scs] packet id=%u inst=%02x len=%u\n", id, inst, len);
++    }
++    if (inst == 0x01 && len == 2) {
++        if (mem) {
+             scs_send(s, id, 0, NULL, 0);
+         }
+         return;
+     }
+-    if (inst == 0x02) { /* READ */
+-        uint8_t response[SCS_MEM_SIZE];
+-        data_len = s->packet[6];
+-        if (!mem || data_len > sizeof(response) || addr + data_len > SCS_MEM_SIZE) {
++    if (inst == 0x02 && len == 4) {
++        unsigned addr = s->packet[5], count = s->packet[6];
++        if (mem && count && addr + count <= SCS_MEM_SIZE) {
++            scs_send(s, id, 0, mem + addr, count);
+             return;
+         }
+-        memcpy(response, mem + addr, data_len);
+-        scs_send(s, id, 0, response, data_len);
+-        return;
+-    }
+-    if (inst == 0x03 || inst == 0x04) { /* WRITE / REG_WRITE */
+-        data_len = len - 3;
+-        if (mem && data_len && addr + data_len <= SCS_MEM_SIZE) {
+-            memcpy(mem + addr, s->packet + 6, data_len);
+-            if (addr <= 43 && addr + data_len > 42) {
+-                scs_put_be16(mem, 56, scs_get_be16(mem, 42));
+-            }
+-            if (id != 0xfe) {
++    } else if ((inst == 0x03 || inst == 0x04) && len >= 4) {
++        bool written = false;
++        for (int sid = SCS_ID_X; sid <= SCS_ID_Y; sid++) {
++            if (id == sid || id == 0xfe) {
++                written |= scs_write(s, sid, s->packet[5], s->packet + 6,
++                                     len - 3, inst == 0x04);
++            }
++        }
++        if (written) {
++            if (mem) {
+                 scs_send(s, id, 0, NULL, 0);
+             }
+-        }
+-        return;
+-    }
+-    if (inst == 0x05) { /* REG_ACTION */
+-        return;
+-    }
+-    if (inst == 0x83) { /* SYNC_WRITE */
+-        data_len = s->packet[6];
+-        int count = (len - 4) / (data_len + 1);
+-        int pos = 7;
+-        for (int i = 0; i < count; i++) {
+-            uint8_t sid = s->packet[pos++];
+-            uint8_t *sm = scs_mem_for(s, sid);
+-            if (sm && data_len && addr + data_len <= SCS_MEM_SIZE) {
+-                memcpy(sm + addr, s->packet + pos, data_len);
+-                if (addr <= 43 && addr + data_len > 42) {
+-                    scs_put_be16(sm, 56, scs_get_be16(sm, 42));
++            return;
++        }
++    } else if (inst == 0x05 && len == 2) {
++        for (int sid = SCS_ID_X; sid <= SCS_ID_Y; sid++) {
++            if (id == sid || id == 0xfe) {
++                uint8_t proposed[SCS_MEM_SIZE];
++                bool pending = false, motion_pending = false;
++                memcpy(proposed, s->mem[sid], sizeof(proposed));
++                for (int reg = 5; reg < 49; reg++) {
++                    if (s->pending_mask[sid][reg]) {
++                        proposed[reg] = s->pending[sid][reg];
++                        pending = true;
++                        motion_pending |= reg >= 40 && reg < 48;
++                    }
+                 }
+-            }
+-            pos += data_len;
+-        }
+-    }
++                if (pending && scs_valid_registers(proposed)) {
++                    memcpy(s->mem[sid] + 5, proposed + 5, 44);
++                    if (motion_pending) {
++                        scs_motion_written(s, sid);
++                    }
++                }
++                memset(s->pending_mask[sid], 0, sizeof(s->pending_mask[sid]));
++            }
++        }
++        if (mem) {
++            scs_send(s, id, 0, NULL, 0);
++        }
++        return;
++    } else if (inst == 0x83 && id == 0xfe && len >= 6) {
++        unsigned addr = s->packet[5], count = s->packet[6];
++        unsigned bytes = len - 4;
++        if (count && bytes % (count + 1) == 0 && addr >= 5 &&
++            addr + count <= 49) {
++            for (unsigned pos = 7; pos < (unsigned)len + 3;
++                 pos += count + 1) {
++                scs_write(s, s->packet[pos], addr, s->packet + pos + 1,
++                          count, false);
++            }
++            return;
++        }
++    }
++    s->rejected_packets++;
+ }
+ 
+ static void scs_uart_byte(void *opaque, uint8_t byte)
+ {
+     M5ScsServoState *s = opaque;
+-
+-    if (s->packet_len < sizeof(s->packet)) {
+-        s->packet[s->packet_len++] = byte;
+-    } else {
++    scs_sync_power(s);
++    if (!s->powered) {
++        return;
++    }
++    if (s->packet_len >= sizeof(s->packet)) {
+         s->packet_len = 0;
+-        return;
+-    }
+-
+-    if (s->packet_len == 1 && s->packet[0] != 0xff) {
+-        s->packet_len = 0;
+-        return;
+-    }
+-    if (s->packet_len == 2 && s->packet[1] != 0xff) {
+-        s->packet_len = s->packet[1] == 0xff ? 1 : 0;
++        s->rejected_packets++;
++    }
++    s->packet[s->packet_len++] = byte;
++    if (s->packet_len <= 2) {
++        if (byte != 0xff) {
++            s->packet_len = 0;
++        }
+         return;
+     }
+     if (s->packet_len < 4) {
+         return;
+     }
+-
+     uint8_t payload_len = s->packet[3];
+     uint16_t total = payload_len + 4;
+     if (payload_len < 2 || total > sizeof(s->packet)) {
+         s->packet_len = 0;
++        s->rejected_packets++;
+         return;
+     }
+     if (s->packet_len < total) {
+         return;
+     }
+-
+     uint8_t sum = 0;
+     for (int i = 2; i < total - 1; i++) {
+         sum += s->packet[i];
+     }
+     if ((uint8_t)~sum == s->packet[total - 1]) {
+         scs_handle_packet(s);
++    } else {
++        s->rejected_packets++;
+     }
+     s->packet_len = 0;
++}
++
++static void scs_get_state(Object *obj, Visitor *v, const char *name,
++                          void *opaque, Error **errp)
++{
++    M5ScsServoState *s = opaque;
++    scs_sync_power(s);
++    QDict *state = qdict_new();
++    QList *servos = qlist_new();
++    qdict_put_int(state, "schema_version", 1);
++    qdict_put_str(state, "source", "qemu-uart1-scs-controller");
++    qdict_put_bool(state, "powered", s->powered);
++    qdict_put_int(state, "packets", s->packets);
++    qdict_put_int(state, "rejected_packets", s->rejected_packets);
++    qdict_put_str(state, "motion_model", "command-time-position-v1");
++    qdict_put_bool(state, "pwm_motion_modelled", false);
++    for (int id = SCS_ID_X; id <= SCS_ID_Y; id++) {
++        uint8_t *m = s->mem[id];
++        QDict *servo = qdict_new();
++        bool pwm_mode = scs_pwm_mode(m);
++        unsigned pwm = pwm_mode ? scs_get_be16(m, 44) : 0;
++        qdict_put_int(servo, "id", id);
++        qdict_put_int(servo, "present_position", scs_get_be16(m, 56));
++        qdict_put_int(servo, "goal_position", scs_get_be16(m, 42));
++        qdict_put_int(servo, "torque", m[40]);
++        qdict_put_str(servo, "mode", pwm_mode ? "pwm" : "position");
++        qdict_put_bool(servo, "moving", m[66] != 0);
++        qdict_put_int(servo, "goal_time_ms", scs_get_be16(m, 44));
++        qdict_put_int(servo, "goal_speed", scs_get_be16(m, 46));
++        qdict_put_int(servo, "pwm", pwm & 0x400 ? -(int)(pwm & 0x3ff) :
++                      (int)(pwm & 0x3ff));
++        qlist_append_obj(servos, QOBJECT(servo));
++    }
++    qdict_put_obj(state, "servos", QOBJECT(servos));
++    QObject *value = QOBJECT(state);
++    visit_type_any(v, name, &value, errp);
++    qobject_unref(value);
+ }
+ 
+ void m5_scs_servo_attach(DeviceState *uart)
+ {
+     M5ScsServoState *s = g_new0(M5ScsServoState, 1);
+     s->uart = ESP32_UART(uart);
++    scs_peer = s;
+     scs_init_mem(s);
++    Object *observer = object_new("container");
++    object_property_add_child(qdev_get_machine(), "scs_servo", observer);
++    object_property_add(observer, "state", "any", scs_get_state, NULL, NULL, s);
++    object_unref(observer);
++    scs_sync_power(s);
+     esp32_uart_set_tx_byte_callback(s->uart, scs_uart_byte, s);
+ }

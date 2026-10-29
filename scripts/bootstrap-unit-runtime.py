@@ -70,6 +70,10 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0087-atoms3-rgb-and-dial-board.patch",
     "patches/qemu-unit-runtime/0007-native-expanded-atom-rmt-delta.patch",
     "patches/qemu-m5stack-peripherals/0089-esp32-qio-flash-model-header.patch",
+    "patches/qemu-unit-runtime/0008-native-core2-atecc608-context.patch",
+    "patches/qemu-m5stack-peripherals/0090-stackchan-scs-motion-observer.patch",
+    "patches/qemu-m5stack-peripherals/0091-board-power-lifecycle.patch",
+    "patches/qemu-m5stack-peripherals/0092-classic-touch-measurement.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

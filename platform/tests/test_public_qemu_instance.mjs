@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
+import {readQemuServoOutputs} from '../web/public-qemu-servo.js';
 import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
@@ -25,7 +26,7 @@ class TestURL extends URL {
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,
+  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
   self:{postMessage:value=>lifecycle.push(value.type),close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
 vm.runInContext(executableSource,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
@@ -104,6 +105,30 @@ await tick();const wrongSet=commands();respond(wrongSet[0],{});await tick();cons
 assert.match(one.messages.find(message=>message.id===132).error,/target readback mismatch/);
 vm.runInContext('boardProfile=originalEncoderProfile',context);
 
+// RST enters the same QMP machine and reports its real lifecycle event.
+const reset=one.onmessage({data:{id:140,op:'input',value:{type:'reset',down:true}}});
+const resetCommands=commands();assert.equal(resetCommands.length,1);assert.equal(resetCommands[0].execute,'system_reset');
+respond(resetCommands[0],{});await reset;
+vm.runInContext(`output('${JSON.stringify({event:'RESET',data:{guest:false,reason:'host-qmp-system-reset'}})}\\n')`,context);
+assert.equal(one.messages.filter(row=>row.type==='machine-event').at(-1).value.event,'RESET');
+// Two concurrent head touches retain each other's bits, with fixed routes only.
+context.stackProfile=getQemuBrowserProfile('stackchan',registry);
+vm.runInContext('boardProfile=stackProfile',context);
+const front=one.onmessage({data:{id:141,op:'input',value:{type:'capacitive-touch',zone:1,down:true}}});
+const back=one.onmessage({data:{id:142,op:'input',value:{type:'capacitive-touch',zone:3,down:true}}});
+await tick();let batch=commands();assert.equal(batch.length,1);assert.deepEqual(batch[0].arguments,{path:'/machine/si12t',property:'touch-bits'});respond(batch[0],0);
+await tick();batch=commands();assert.equal(batch.length,1);assert.equal(batch[0].arguments.value,48);respond(batch[0],{});
+await tick();batch=commands();respond(batch[0],48);await front;
+await tick();batch=commands();assert.equal(batch.length,1);respond(batch[0],48);
+await tick();batch=commands();assert.equal(batch[0].arguments.value,51);respond(batch[0],{});
+await tick();batch=commands();respond(batch[0],51);await back;
+assert.equal(one.messages.find(row=>row.id===142).value.touch_bits,51);
+const release=one.onmessage({data:{id:143,op:'input',value:{type:'capacitive-touch',zone:1,down:false}}});
+await tick();batch=commands();respond(batch[0],51);await tick();batch=commands();assert.equal(batch[0].arguments.value,3);respond(batch[0],{});
+await tick();batch=commands();respond(batch[0],0);await release;
+assert.match(one.messages.find(row=>row.id===143).error,/readback mismatch/);
+vm.runInContext('boardProfile=originalEncoderProfile',context);
+
 // A synthetic host-side ABI buffer exercises the imported real shared-frame
 // reader through the instance port. It is not firmware/display validation.
 vm.runInContext(`
@@ -150,7 +175,7 @@ process.on('unhandledRejection',onRaceUnhandled);
 try {
   const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-    validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,
+    validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,readQemuServoOutputs,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});

@@ -54,12 +54,16 @@ class NativeRuntimeRecipeTests(unittest.TestCase):
             self.assertTrue((ROOT / name).is_file(), name)
             self.assertNotIn("wasm", name)
             self.assertFalse(re.match(r"00(?:7[1-9]|8[0-4])-", Path(name).name))
-        self.assertEqual(patches[-5:], (
+        self.assertEqual(patches[-9:], (
             PERIPHERAL + "0085-atoms3-and-atoms3-lite-boards.patch",
             PERIPHERAL + "0086-stickc-family-boards.patch",
             PERIPHERAL + "0087-atoms3-rgb-and-dial-board.patch",
             NATIVE + "0007-native-expanded-atom-rmt-delta.patch",
             PERIPHERAL + "0089-esp32-qio-flash-model-header.patch",
+            NATIVE + "0008-native-core2-atecc608-context.patch",
+            PERIPHERAL + "0090-stackchan-scs-motion-observer.patch",
+            PERIPHERAL + "0091-board-power-lifecycle.patch",
+            PERIPHERAL + "0092-classic-touch-measurement.patch",
         ))
         self.assertLess(patches.index(NATIVE + "0004-native-classic-rmt-context.patch"),
                         patches.index(NATIVE + "0007-native-expanded-atom-rmt-delta.patch"))

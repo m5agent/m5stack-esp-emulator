@@ -1,0 +1,376 @@
+diff --git a/hw/m5stopwatch/m5_atecc608.c b/hw/m5stopwatch/m5_atecc608.c
+new file mode 100644
+--- /dev/null
++++ b/hw/m5stopwatch/m5_atecc608.c
+@@ -0,0 +1,333 @@
++/*
++ * Minimal ATECC608A I2C model for the Core2 for AWS factory-firmware path.
++ *
++ * The model implements the CryptoAuthentication command framing, wake/idle
++ * tokens, config reads, lock-state reads and Info. It exposes only a
++ * deterministic test configuration and zero-filled test data. No production
++ * private key or certificate material is present.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/i2c/i2c.h"
++#include "hw/qdev-properties.h"
++#include "m5stopwatch.h"
++
++#define ATECC_CMD_PACKET_MAX 75
++#define ATECC_RESPONSE_MAX   75
++#define ATECC_CONFIG_SIZE    128
++#define ATECC_DATA_SIZE      512
++
++enum {
++    ATCA_OPCODE_INFO  = 0x30,
++    ATCA_OPCODE_READ  = 0x02,
++    ATCA_OPCODE_IDLE  = 0x02,
++    ATCA_OPCODE_SLEEP = 0x01,
++};
++
++struct M5Atecc608State {
++    I2CSlave parent_obj;
++
++    uint8_t config[ATECC_CONFIG_SIZE];
++    uint8_t data[ATECC_DATA_SIZE];
++    uint8_t command[ATECC_CMD_PACKET_MAX];
++    uint8_t response[ATECC_RESPONSE_MAX];
++
++    uint8_t command_len;
++    uint8_t response_len;
++    uint8_t response_index;
++    uint8_t tx_len;
++    uint8_t word_address;
++    bool command_started;
++    bool trace;
++};
++
++static uint16_t atecc_crc16(const uint8_t *data, size_t length)
++{
++    uint16_t crc = 0;
++
++    for (size_t i = 0; i < length; i++) {
++        for (uint8_t bit = 0x01; bit; bit <<= 1) {
++            bool data_bit = data[i] & bit;
++            bool crc_bit = crc >> 15;
++
++            crc <<= 1;
++            if (data_bit != crc_bit) {
++                crc ^= 0x8005;
++            }
++        }
++    }
++    return crc;
++}
++
++static void atecc_finish_crc(uint8_t *packet, uint8_t length)
++{
++    uint16_t crc = atecc_crc16(packet, length - 2);
++
++    packet[length - 2] = crc & 0xff;
++    packet[length - 1] = crc >> 8;
++}
++
++static void atecc_set_response(M5Atecc608State *s, const uint8_t *data,
++                               uint8_t length)
++{
++    s->response[0] = length + 3;
++    memcpy(&s->response[1], data, length);
++    atecc_finish_crc(s->response, s->response[0]);
++    s->response_len = s->response[0];
++    s->response_index = 0;
++}
++
++static void atecc_set_error(M5Atecc608State *s, uint8_t status)
++{
++    s->response[0] = 4;
++    s->response[1] = status;
++    atecc_finish_crc(s->response, 4);
++    s->response_len = 4;
++    s->response_index = 0;
++}
++
++static void atecc_set_wake(M5Atecc608State *s)
++{
++    static const uint8_t wake[4] = { 0x04, 0x11, 0x33, 0x43 };
++
++    memcpy(s->response, wake, sizeof(wake));
++    s->response_len = sizeof(wake);
++    s->response_index = 0;
++}
++
++static bool atecc_read_config(const M5Atecc608State *s, uint16_t address,
++                              bool block_read, uint8_t *out)
++{
++    size_t offset = (address & 0x1f) * 4;
++    size_t length = block_read ? 32 : 4;
++
++    if (offset + length > ATECC_CONFIG_SIZE) {
++        return false;
++    }
++    memcpy(out, &s->config[offset], length);
++    return true;
++}
++
++static bool atecc_read_data(const M5Atecc608State *s, uint16_t address,
++                            bool block_read, uint8_t *out)
++{
++    unsigned slot = (address & 0x78) >> 3;
++    unsigned block = address >> 8;
++    unsigned word = address & 0x07;
++    size_t offset = slot * 32 + block * 32 + word * 4;
++    size_t length = block_read ? 32 : 4;
++
++    if (offset + length > ATECC_DATA_SIZE) {
++        return false;
++    }
++    memcpy(out, &s->data[offset], length);
++    return true;
++}
++
++static void atecc_execute(M5Atecc608State *s)
++{
++    const uint8_t count = s->command[0];
++    const uint8_t opcode = count > 1 ? s->command[1] : 0;
++    const uint8_t param1 = count > 2 ? s->command[2] : 0;
++    const uint16_t param2 = count > 4
++                            ? s->command[3] | ((uint16_t)s->command[4] << 8)
++                            : 0;
++    uint8_t payload[32] = { 0 };
++
++    if (count < 7 || count > ATECC_CMD_PACKET_MAX) {
++        atecc_set_error(s, 0x03);
++        return;
++    }
++    if (atecc_crc16(s->command, count - 2) !=
++        (s->command[count - 2] | ((uint16_t)s->command[count - 1] << 8))) {
++        atecc_set_error(s, 0xff);
++        return;
++    }
++
++    if (s->trace) {
++        fprintf(stderr,
++                "[m5-atecc608] opcode=%02x param1=%02x param2=%04x count=%u\n",
++                opcode, param1, param2, count);
++    }
++
++    switch (opcode) {
++    case ATCA_OPCODE_READ: {
++        bool block_read = param1 & 0x80;
++        uint8_t length = block_read ? 32 : 4;
++        uint8_t zone = param1 & 0x03;
++        bool ok;
++
++        if (zone == 0) {
++            ok = atecc_read_config(s, param2, block_read, payload);
++        } else if (zone == 2) {
++            ok = atecc_read_data(s, param2, block_read, payload);
++        } else {
++            ok = false;
++        }
++        if (!ok) {
++            atecc_set_error(s, 0x03);
++        } else {
++            atecc_set_response(s, payload, length);
++        }
++        break;
++    }
++    case ATCA_OPCODE_INFO:
++        payload[0] = 0x00;
++        payload[1] = 0x00;
++        payload[2] = 0x60; /* ATECC608 */
++        payload[3] = 0x02; /* ATECC608A revision */
++        atecc_set_response(s, payload, 4);
++        break;
++    default:
++        atecc_set_error(s, 0x03);
++        break;
++    }
++
++    if (s->trace) {
++        fprintf(stderr, "[m5-atecc608] response len=%u status=%02x\n",
++                s->response_len, s->response_len == 4 ? s->response[1] : 0);
++    }
++}
++
++static int atecc_event(I2CSlave *i2c, enum i2c_event event)
++{
++    M5Atecc608State *s = M5_ATECC608(i2c);
++
++    if (event == I2C_START_SEND) {
++        s->tx_len = 0;
++        s->command_len = 0;
++        s->command_started = false;
++    } else if (event == I2C_START_RECV) {
++        s->tx_len = 0;
++        if (s->response_len == 0) {
++            atecc_set_wake(s);
++        }
++    } else if (event == I2C_FINISH && s->tx_len == 1) {
++        if (s->word_address == 0x00) {
++            if (s->response_len == 0) {
++                atecc_set_wake(s);
++            }
++            s->response_index = 0;
++        } else if (s->word_address == ATCA_OPCODE_SLEEP) {
++            atecc_set_wake(s);
++        } else if (s->word_address == ATCA_OPCODE_IDLE) {
++            s->response_len = 0;
++            s->response_index = 0;
++        }
++    }
++    return 0;
++}
++
++static uint8_t atecc_recv(I2CSlave *i2c)
++{
++    M5Atecc608State *s = M5_ATECC608(i2c);
++    uint8_t value = 0;
++
++    if (s->response_len == 0) {
++        atecc_set_wake(s);
++    }
++    if (s->response_index < s->response_len) {
++        value = s->response[s->response_index++];
++    }
++    if (s->trace) {
++        fprintf(stderr, "[m5-atecc608] recv[%u]=%02x\n",
++                s->response_index - 1, value);
++    }
++    return value;
++}
++
++static int atecc_send(I2CSlave *i2c, uint8_t value)
++{
++    M5Atecc608State *s = M5_ATECC608(i2c);
++
++    if (s->tx_len++ == 0) {
++        s->word_address = value;
++        s->command_started = value == 0x03;
++        if (s->trace) {
++            fprintf(stderr, "[m5-atecc608] word=%02x\n", value);
++        }
++        return 0;
++    }
++
++    if (!s->command_started) {
++        if (s->trace) {
++            fprintf(stderr, "[m5-atecc608] data=%02x\n", value);
++        }
++        return 0;
++    }
++
++    if (s->command_len < sizeof(s->command)) {
++        s->command[s->command_len++] = value;
++    }
++    if (s->trace) {
++        fprintf(stderr, "[m5-atecc608] cmd[%u]=%02x\n",
++                s->command_len - 1, value);
++    }
++
++    if (s->command_len >= 1 && s->command_len == s->command[0]) {
++        atecc_execute(s);
++        s->command_started = false;
++    }
++    return 0;
++}
++
++static void atecc_reset(DeviceState *dev)
++{
++    M5Atecc608State *s = M5_ATECC608(dev);
++
++    memset(s->command, 0, sizeof(s->command));
++    memset(s->response, 0, sizeof(s->response));
++    memset(s->data, 0, sizeof(s->data));
++    s->command_len = 0;
++    s->response_len = 0;
++    s->response_index = 0;
++    s->tx_len = 0;
++    s->word_address = 0;
++    s->command_started = false;
++}
++
++static void atecc_realize(DeviceState *dev, Error **errp)
++{
++    M5Atecc608State *s = M5_ATECC608(dev);
++    static const uint8_t test_config[ATECC_CONFIG_SIZE] = {
++        [0] = 0x01, [1] = 0x23, [2] = 0x45, [3] = 0x67,
++        [4] = 0x00, [5] = 0x00, [6] = 0x60, [7] = 0x02,
++        [8] = 0x89, [9] = 0xab, [10] = 0xcd, [11] = 0xef,
++        [12] = 0x12,
++        [14] = 0x01,             /* I2C enabled */
++        [16] = 0x6a,             /* ATECC I2C address */
++        [86] = 0x00,             /* data zone locked */
++        [87] = 0x00,             /* configuration zone locked */
++        [88] = 0x00, [89] = 0x00,
++    };
++
++    memcpy(s->config, test_config, sizeof(test_config));
++    s->trace = getenv("M5SW_ATECC608_TRACE") != NULL;
++}
++
++static void atecc_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
++
++    dc->realize = atecc_realize;
++    device_class_set_legacy_reset(dc, atecc_reset);
++    k->event = atecc_event;
++    k->recv = atecc_recv;
++    k->send = atecc_send;
++}
++
++static const TypeInfo atecc_info = {
++    .name = TYPE_M5_ATECC608,
++    .parent = TYPE_I2C_SLAVE,
++    .instance_size = sizeof(M5Atecc608State),
++    .class_init = atecc_class_init,
++};
++
++static void atecc_register_types(void)
++{
++    type_register_static(&atecc_info);
++}
++
++type_init(atecc_register_types)
+diff --git a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -60,6 +60,11 @@
+         qdev_realize_and_unref(d, (BusState *)bus0, &error_fatal);
+     }
+ 
++    DeviceState *atecc = qdev_new(TYPE_M5_ATECC608);
++    qdev_prop_set_uint8(atecc, "address", 0x35);
++    object_property_add_child(qdev_get_machine(), "atecc608", OBJECT(atecc));
++    qdev_realize_and_unref(atecc, (BusState *)bus0, &error_fatal);
++
+     m5stopwatch_soft_i2c_init_pins(bus0, 21, 22);
+     esp32_gpio_set_input(39, 1);
+ 
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -12,6 +12,8 @@
+ OBJECT_DECLARE_SIMPLE_TYPE(Esp32s3GpspiState, ESP32S3_GPSPI)
+ 
+ #define TYPE_M5SW_I2C_DEV "m5sw-i2c-dev"
++#define TYPE_M5_ATECC608 "m5.atecc608"
++OBJECT_DECLARE_SIMPLE_TYPE(M5Atecc608State, M5_ATECC608)
+ #define TYPE_M5SW_IP2315 "m5sw-ip2315"
+ #define TYPE_CO5300 "co5300"
+ OBJECT_DECLARE_SIMPLE_TYPE(Co5300State, CO5300)
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -30,6 +30,7 @@
+   'esp32.c',
+   'esp32_intc.c',
+   'esp32_native_hci.c',
++  '../m5stopwatch/m5_atecc608.c',
+   '../m5stopwatch/m5core2.c',
+   '../m5stopwatch/m5stickcplus2.c',
+   '../m5stopwatch/m5stickc.c',
