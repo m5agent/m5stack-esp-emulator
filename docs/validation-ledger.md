@@ -1350,3 +1350,41 @@ PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna、
 电气时序和真机均 `NOT RUN`。见
 [证据](evidence/2026-10-29-espnow-peer-fabric/README.md)和
 [机器摘要](evidence/2026-10-29-espnow-peer-fabric/summary.json)。
+
+## 2026-10-29：ESP-NOW per-peer LMK routing
+
+新增 `0082-esp32-espnow-per-peer-key-routing.patch`，SHA256
+`5405d62fe3e4b6fff9cd1b41129b32d296a56b8a288e927ac19e1770acb88a6c`。
+匹配的 UIFlow2 ELF 显示 stock `wDev_Insert_KeyEntry` 把 6-byte peer
+address 复制到 key descriptor bytes `3..8`，`hal_crypto_set_key_entry`
+再写成 controller key entry 的前 6 bytes；LMK 仍在 entry offset `8`。
+classic ESP32 与 ESP32-S3 的 stock 函数分别位于 `0x402e2178` 和
+`0x42182fc0`。
+
+最终 QEMU 二进制
+`9c36bb527f441b65acc16aff09728ae66e98ea19957a42fbc8bc087d52c9e5e0`
+只在 valid、8-byte metadata 和 16-byte LMK 全部写入后使用 slot。fabric
+TX 按 receiver peer、RX 按 frame transmitter peer 选择 guest key，每个
+slot 保存独立 TX PN；replay window 继续按 source peer 分片。
+
+shared-LMK 回归仍为三端全路径 PASS。pairwise 正控使用 A-B、A-C、B-C
+三个不同 LMK，三端均把两个 peer 写入 extended slots `23`、`24`，
+`guest_key_ready=2`；六条 directed payload 全部交付。TX/RX 分别为
+`848/878`、`856/874`、`900/370`，全部 `replay_drops=0`。
+
+cross-wire 负控只把 role B 对 A 的 LMK 改成 B-C 的 LMK。broker 仍转发
+全部六条路径，但 A/B 对错误 peer 的 source 和 payload match 均为 `0`，
+A-C/B-C 保持 PASS；A/B trace 分别出现 `470/472` 次 peer-key/CCMP
+validation failure，Core2 为 `0`。runner 同时断言 expected link、source
+和 payload 矩阵，不能把普通掉帧误判为该负控 PASS。
+
+direct `guest-key` StopWatch↔StickS3 回归也保持。四条 lane 共 11 个
+session，全部 `purge=0`、terminal `stopped`、runtime PID gone、history
+retained。ESP-NOW controller/patch contracts 为 `47/47 PASS`，patch
+forward/current-source/reverse 均 PASS。
+
+该结果关闭 `RUNTIME-06` 的 per-peer LMK routing 和错误 peer-key
+fail-closed 路径。任务仍为 `PARTIAL`：PN wrap、loss/retry、channel/rate、
+bit-exact controller、RF/antenna、电气时序和真机均 `NOT RUN`。见
+[证据](evidence/2026-10-29-espnow-per-peer-key-routing/README.md)和
+[机器摘要](evidence/2026-10-29-espnow-per-peer-key-routing/summary.json)。

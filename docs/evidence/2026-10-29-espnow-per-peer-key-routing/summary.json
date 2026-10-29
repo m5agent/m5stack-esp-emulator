@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "runtime_binary_sha256": "9c36bb527f441b65acc16aff09728ae66e98ea19957a42fbc8bc087d52c9e5e0",
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0082-esp32-espnow-per-peer-key-routing.patch",
+    "sha256": "5405d62fe3e4b6fff9cd1b41129b32d296a56b8a288e927ac19e1770acb88a6c"
+  },
+  "runner": {
+    "path": "tests/uiflow2/api_sweep/run_espnow_pair.py",
+    "sha256": "642522e681f23a8fc2c8c6ccf41c1802ebc029b59ecdac39c72e6f049cef44f0"
+  },
+  "controller_key_entry": {
+    "slots": 25,
+    "extended_slots": "4..24",
+    "observed_peer_slots": [23, 24],
+    "stride_bytes": 40,
+    "peer_mac_offset": 0,
+    "lmk_offset": 8,
+    "lmk_length": 16,
+    "s3_hal_crypto_set_key_entry": "0x42182fc0",
+    "classic_hal_crypto_set_key_entry": "0x402e2178"
+  },
+  "scenarios": [
+    {
+      "name": "fabric",
+      "status": "PASS",
+      "key_scope": "shared LMK regression",
+      "run_summary_sha256": "839e0969380805e75800f585a2f67d8ba248d6643fba18d0cd11c60decebe356",
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "07e75742f5c73341c925e558a84434dc451f269cefd6f7265d96fe8ab3dc4ffa",
+          "tx": 844,
+          "rx": 864,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "sticks3": 205,
+            "core2": 225
+          }
+        },
+        "sticks3": {
+          "firmware_sha256": "bdfad42a08b6b7fa806589845d70b41cf58867254757ab38e599ac4314626846",
+          "tx": 828,
+          "rx": 872,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 210,
+            "core2": 225
+          }
+        },
+        "core2": {
+          "firmware_sha256": "d32c8c509c2c9efccefe021d8a1744ea23d74b4d9793e96aa8807c02738f45f0",
+          "tx": 900,
+          "rx": 362,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 56,
+            "sticks3": 56
+          }
+        }
+      }
+    },
+    {
+      "name": "fabric-per-peer-key",
+      "status": "PASS",
+      "key_scope": "three distinct pairwise LMKs",
+      "run_summary_sha256": "16c5978f7d6e9b0de1a584b0e543e41d8fddcd9e62637b684d4cbdb9122103ce",
+      "expected_links": {
+        "A-B": true,
+        "A-C": true,
+        "B-C": true
+      },
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "1618387c73b9867861533a0d962e0fb4ceafec97ca9619b895d333e3738ae582",
+          "tx": 848,
+          "rx": 878,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "sticks3": 213,
+            "core2": 225
+          }
+        },
+        "sticks3": {
+          "firmware_sha256": "aeb36f678646e3cc479e7ec300195c1a2559c07ab3426e0671ad744d7c629377",
+          "tx": 856,
+          "rx": 874,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 211,
+            "core2": 225
+          }
+        },
+        "core2": {
+          "firmware_sha256": "47155317f978ac21f277bdb09ae46006fc72c6700d2b7dd72eff7d41c72d82fb",
+          "tx": 900,
+          "rx": 370,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 56,
+            "sticks3": 56
+          }
+        }
+      }
+    },
+    {
+      "name": "fabric-per-peer-key-negative",
+      "status": "PASS",
+      "key_scope": "role B/A intentionally cross-wired",
+      "run_summary_sha256": "22660f88f97681b0245b49e9c2448fd1fad45dad55070f01a234329ca2f1bbd0",
+      "expected_links": {
+        "A-B": false,
+        "A-C": true,
+        "B-C": true
+      },
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "c8c29febf31d045e019905e8f905b7d6162c4705d5651c2551efcad77d6be7ba",
+          "tx": 948,
+          "rx": 924,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "sticks3": 0,
+            "core2": 226
+          }
+        },
+        "sticks3": {
+          "firmware_sha256": "0705ae57a4eb26011a818f81a117f6ad740c68a9501e1c356e31b8b5d9670e54",
+          "tx": 944,
+          "rx": 924,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 0,
+            "core2": 226
+          }
+        },
+        "core2": {
+          "firmware_sha256": "b6c2e4efc81022097c589dcdcbc4638e81857dd63fc5c38446636bc86a52ad22",
+          "tx": 904,
+          "rx": 366,
+          "guest_key_ready": 2,
+          "replay_drops": 0,
+          "payload_matches": {
+            "stopwatch": 45,
+            "sticks3": 46
+          }
+        }
+      },
+      "key_validation_failures": {
+        "stopwatch": 470,
+        "sticks3": 472,
+        "core2": 0
+      }
+    },
+    {
+      "name": "guest-key",
+      "status": "PASS",
+      "key_scope": "direct pair regression",
+      "run_summary_sha256": "a49e2cae5925d5fb22025210dc304d14b5e25ee86507e4a080f15103d7004fc2",
+      "roles": {
+        "stopwatch": {
+          "firmware_sha256": "85f723c8d75b275ceafa13a714f741a4f9172053d85223e14192162bed65aa83",
+          "tx": 57,
+          "rx": 58,
+          "guest_key_ready": 1,
+          "replay_drops": 0
+        },
+        "sticks3": {
+          "firmware_sha256": "610e0b1bdbff217009ee528d616b27f46f149ab3d479deec7fe11e8023005774",
+          "tx": 58,
+          "rx": 57,
+          "guest_key_ready": 1,
+          "replay_drops": 0
+        }
+      }
+    }
+  ],
+  "regression": {
+    "espnow_contract_tests": "47/47 PASS",
+    "qemu_build": "PASS",
+    "patch_forward_current_reverse": "PASS"
+  },
+  "cleanup": {
+    "sessions": 11,
+    "terminal_state": "stopped",
+    "runtime_pid_gone": true,
+    "history_preserved": true,
+    "purge": 0
+  },
+  "not_run": [
+    "PN wrap",
+    "loss and retry",
+    "channel and rate",
+    "bit-exact controller",
+    "RF and antenna behavior",
+    "electrical timing",
+    "physical hardware"
+  ]
+}

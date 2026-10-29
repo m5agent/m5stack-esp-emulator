@@ -227,23 +227,22 @@ Neopixel RMT translator 初始化失败；最终 WDT-off 控制到达 `APIKEY` �
 setup/REPL、non-empty frame 与稳定运行仍为 `FAIL`。matching ELF/MAP 缺失时
 不得从不同版本固件借用符号；`Core2FactoryTest` 修复后仍未重跑。
 
-### RUNTIME-06：ESP-NOW 三 guest shared-LMK fabric 已验证，per-peer key routing 未闭环
+### RUNTIME-06：ESP-NOW per-peer LMK fabric 已验证，PN wrap 等未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `PARTIAL` |
-| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay、stock guest key-state/rotation、native/wrapper lifecycle 和三 guest shared-LMK fabric；当前不覆盖 per-peer LMK routing、PN wrap、loss/retry、channel/rate 和 RF/timing |
-| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界执行真实 AES-CCMP/MIC；`0078` 拒绝 duplicate PN；`0079` 提供单 peer 64-frame authenticated replay window；`0080` 映射 classic ESP32/S3 controller key store，在没有 runtime-env LMK 时只采用 guest 完整写入且 valid bit 置位的 extended key slot；`0081` 用三 guest UDP broker、加密前 synthetic public MAC 和按 source-peer 分片的 8×64-frame replay state 组成 shared-LMK fabric。Python host 不合成 payload、MIC 或 callback |
-| 已验证 | controller loopback、independent-guest plaintext、CCMP 正负控、duplicate drop、64-frame reorder、native add/delete/modify、M5ESPNow wrapper add/delete/re-add、无 env-key 的 guest LMK 正控、不同 guest LMK 双端 drop、同 key replacement/post-resume，以及 StopWatch/StickS3/Core2 三 guest 双向三端 payload 和 fabric replay 负控均已通过 |
-| 未覆盖 | per-peer LMK key routing、PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
-| 证据 | [`peer fabric 证据`](evidence/2026-10-29-espnow-peer-fabric/README.md)、[`0081 patch`](../patches/qemu-m5stack-peripherals/0081-esp32-espnow-peer-fabric.patch)、[`guest key-state 证据`](evidence/2026-10-29-espnow-guest-key-state/README.md)、[`0080 patch`](../patches/qemu-m5stack-peripherals/0080-esp32-espnow-guest-key-state.patch)、[`replay-window 证据`](evidence/2026-10-29-espnow-external-ccmp-window/README.md)、[`0079 patch`](../patches/qemu-m5stack-peripherals/0079-esp32-espnow-external-ccmp-window.patch)、[`native lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`M5ESPNow lifecycle 证据`](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)、[`lifecycle/fabric runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py) |
+| 影响 | 原厂 `espnow.ESPNow`、`ESPNowBase`、`m5espnow.M5ESPNow` 的 payload、receive、IRQ、independent-guest plaintext/CCMP/replay、stock guest key-state/rotation、native/wrapper lifecycle、三 guest shared-LMK fabric 和 pairwise-LMK routing；当前不覆盖 PN wrap、loss/retry、channel/rate 和 RF/timing |
+| 当前模型 | `0067` 提供同 guest controller loopback；`0076` 用显式配对的 IPv4 loopback UDP 端口连接两个独立 controller；`0077` 在 bridge 边界执行真实 AES-CCMP/MIC；`0078` 拒绝 duplicate PN；`0079` 提供单 peer 64-frame authenticated replay window；`0080` 映射 classic ESP32/S3 controller key store；`0081` 用三 guest UDP broker、加密前 synthetic public MAC 和按 source-peer 分片的 8×64-frame replay state 组成 fabric；`0082` 解析 stock key entry 的 peer MAC metadata，按 receiver/transmitter peer 选择 LMK，并为每个 slot 保存独立 TX PN。Python host 不合成 key、payload、MIC 或 callback |
+| 已验证 | controller loopback、independent-guest plaintext、CCMP 正负控、duplicate drop、64-frame reorder、native add/delete/modify、M5ESPNow wrapper add/delete/re-add、无 env-key 的 guest LMK 正控、不同 guest LMK 双端 drop、key replacement/post-resume、三 guest shared-LMK fabric、三个不同 pairwise LMK 的六方向 payload、B/A cross-wire 负控和 direct guest-key 回归均已通过 |
+| 未覆盖 | PN wrap、loss/retry、channel/rate、bit-exact controller、RF/antenna 和电气时序 |
+| 证据 | [`per-peer key 证据`](evidence/2026-10-29-espnow-per-peer-key-routing/README.md)、[`0082 patch`](../patches/qemu-m5stack-peripherals/0082-esp32-espnow-per-peer-key-routing.patch)、[`peer fabric 证据`](evidence/2026-10-29-espnow-peer-fabric/README.md)、[`0081 patch`](../patches/qemu-m5stack-peripherals/0081-esp32-espnow-peer-fabric.patch)、[`guest key-state 证据`](evidence/2026-10-29-espnow-guest-key-state/README.md)、[`0080 patch`](../patches/qemu-m5stack-peripherals/0080-esp32-espnow-guest-key-state.patch)、[`replay-window 证据`](evidence/2026-10-29-espnow-external-ccmp-window/README.md)、[`0079 patch`](../patches/qemu-m5stack-peripherals/0079-esp32-espnow-external-ccmp-window.patch)、[`native lifecycle 证据`](evidence/2026-10-29-espnow-peer-lifecycle/README.md)、[`M5ESPNow lifecycle 证据`](evidence/2026-10-29-espnow-m5espnow-lifecycle/README.md)、[`lifecycle/fabric runner`](../tests/uiflow2/api_sweep/run_espnow_pair.py) |
 
 关闭条件：
 
-1. 每个 peer 使用不同 LMK 时，bridge 能按 authenticated peer 选择 key，且错误 peer-key 路由 fail closed；
-2. PN wrap、loss/retry 和 receive/IRQ 生命周期可重放；
-3. loopback、external plaintext、env-key fixture、shared-LMK fabric 和 per-peer-key fabric 分开记录，不能互相替代；
-4. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
+1. PN wrap、loss/retry 和更完整 key lifecycle 可重放；
+2. loopback、external plaintext、env-key fixture、shared-LMK fabric、per-peer-key fabric 和 cross-wire 负控分开记录，不能互相替代；
+3. 物理 RF/controller 等价性另行验证，不从 QEMU 结果推论。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 
