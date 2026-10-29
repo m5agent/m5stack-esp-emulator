@@ -209,6 +209,14 @@ The same summary now pairs the four BIN-bound setters to report
 These durations measure guest handoff phases; they do not prove physical cache
 or Flash timing.
 
+`--ipc-phases` adds the BIN-bound `ipc_task` dispatcher/queue/callback PCs and
+reports both initiator directions. `ipc_handoff_phases` separates
+prepare→queue wake, queue wake→callback, callback publication, peer block wait,
+`can_start`→initiator IPC return, Flash work and callback return. Core2's shared
+accelerator configuration defaults `M5_CORE2_ICOUNT_MAX_PERCPU_NS=10000`;
+`0` restores the uncapped control. This cap changes vCPU scheduling granularity
+only and does not extend or disable WDT.
+
 `run_wdt_liveness.py` reconciles the watchdog stages without a PC trace:
 
 ```bash

@@ -123,6 +123,50 @@ class Core2HandoffPcTraceTests(DocsContractBase):
             "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
         )
 
+    def test_ipc_summary_pairs_initiator_and_peer_phases(self) -> None:
+        runner = self.load_runner()
+        base = 1_000_000_000
+        events = [
+            {"now_ns": base + 100, "cpu": 1, "component": "cpu", "event": "pc-trace", "pc": 0x40087A25},
+            {"now_ns": base + 110, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x400889FB},
+            {"now_ns": base + 120, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x40088A2E},
+            {"now_ns": base + 130, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x40087965},
+            {"now_ns": base + 140, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x4008797A},
+            {"now_ns": base + 200, "cpu": 1, "component": "cpu", "event": "pc-trace", "pc": 0x40087A31},
+            {"now_ns": base + 300, "cpu": 1, "component": "cpu", "event": "pc-trace", "pc": 0x40087B02},
+            {"now_ns": base + 350, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x40088A31},
+            {"now_ns": base + 1_100, "cpu": 1, "component": "cpu", "event": "pc-trace", "pc": 0x40087A25},
+            {"now_ns": base + 1_110, "cpu": 0, "component": "cpu", "event": "pc-trace", "pc": 0x400889FB},
+        ]
+        summary = runner.summarize_ipc_handoff_phases(events, None)
+        direction = summary["cpu1_initiator"]
+        self.assertEqual(direction["prepare_events"], 2)
+        self.assertEqual(direction["complete_episodes"], 1)
+        self.assertEqual(direction["incomplete_episodes"], 1)
+        phases = direction["phases"]
+        self.assertEqual(phases["prepare_to_queue_wake"]["total_ns"], 10)
+        self.assertEqual(
+            phases["queue_wake_to_callback_enter"]["total_ns"],
+            10,
+        )
+        self.assertEqual(
+            phases["callback_enter_to_block_clear"]["total_ns"],
+            10,
+        )
+        self.assertEqual(phases["block_clear_to_can_start"]["total_ns"], 10)
+        self.assertEqual(
+            phases["can_start_to_call_return"]["total_ns"],
+            60,
+        )
+        self.assertEqual(
+            phases["call_return_to_complete"]["total_ns"],
+            100,
+        )
+        self.assertEqual(
+            phases["complete_to_callback_return"]["total_ns"],
+            50,
+        )
+
     def test_pc_trace_patch_is_default_off_and_bin_bound(self) -> None:
         patch = PATCH.read_text()
         self.assertIn("M5SW_XTENSA_PC_TRACE", patch)
@@ -145,6 +189,9 @@ class Core2HandoffPcTraceTests(DocsContractBase):
         self.assertIn("complete_to_initiator_prepare", runner)
         self.assertIn("initiator_prepare_to_block_clear", runner)
         self.assertIn("complete_to_block_clear", runner)
+        self.assertIn("ipc_handoff_phases", runner)
+        self.assertIn("summarize_ipc_handoff_phases", runner)
+        self.assertIn("--ipc-phases", runner)
         self.assertIn("--expected-image-sha256", runner)
 
     def test_pc_trace_io_boundary_prevents_bad_icount_read(self) -> None:

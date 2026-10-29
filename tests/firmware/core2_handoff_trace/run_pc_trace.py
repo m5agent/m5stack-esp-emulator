@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_right
 import json
 import os
 import shutil
@@ -41,7 +42,12 @@ DEFAULT_PCS = (
 HANDOFF_BLOCK_CLEAR_PC = 0x40087965
 HANDOFF_BLOCK_READY_PC = 0x4008797A
 HANDOFF_FLASH_RELEASE_PC = 0x40087A25
+HANDOFF_IPC_RETURN_PC = 0x40087A31
 HANDOFF_BLOCK_COMPLETE_PC = 0x40087B02
+IPC_TASK_QUEUE_WAIT_PC = 0x400889EE
+IPC_TASK_QUEUE_WAKE_PC = 0x400889FB
+IPC_TASK_CALLBACK_ENTER_PC = 0x40088A2E
+IPC_TASK_CALLBACK_RETURN_PC = 0x40088A31
 
 
 def first_boot_serial(serial: str) -> str:
@@ -78,6 +84,14 @@ def duration_profile(values: list[int]) -> dict[str, int]:
         "p95_ns": percentile(0.95),
         "max_ns": ordered[-1],
     }
+
+
+def configured_icount_max_percpu_ns() -> int:
+    value = os.environ.get(
+        "M5SW_ICOUNT_MAX_PERCPU_NS",
+        os.environ.get("M5_CORE2_ICOUNT_MAX_PERCPU_NS", "10000"),
+    )
+    return int(value)
 
 
 def summarize_handoff_episodes(
@@ -147,6 +161,115 @@ def summarize_handoff_episodes(
     }
 
 
+def summarize_ipc_handoff_phases(
+    events: list[dict[str, Any]],
+    reset_ns: int | None,
+) -> dict[str, Any]:
+    """Pair initiator and peer IPC-task phases from BIN-bound PCs."""
+    selected = [
+        event
+        for event in events
+        if event["component"] == "cpu"
+        and event["event"] == "pc-trace"
+        and event["now_ns"] > 1_000_000_000
+        and (reset_ns is None or event["now_ns"] <= reset_ns)
+    ]
+    times: dict[tuple[int, int], list[int]] = {}
+    for event in selected:
+        times.setdefault((event["cpu"], event["pc"]), []).append(
+            event["now_ns"]
+        )
+
+    def next_pc(cpu: int, pc: int, after_ns: int) -> int | None:
+        values = times.get((cpu, pc), [])
+        index = bisect_right(values, after_ns)
+        return values[index] if index < len(values) else None
+
+    phase_names = (
+        "prepare_to_queue_wake",
+        "queue_wake_to_callback_enter",
+        "callback_enter_to_block_clear",
+        "block_clear_to_can_start",
+        "can_start_to_call_return",
+        "call_return_to_complete",
+        "complete_to_callback_return",
+    )
+    result: dict[str, Any] = {}
+    for initiator in (0, 1):
+        peer = 1 - initiator
+        durations = {name: [] for name in phase_names}
+        incomplete = 0
+        prepare_times = times.get(
+            (initiator, HANDOFF_FLASH_RELEASE_PC),
+            [],
+        )
+        for prepare_ns in prepare_times:
+            queue_wake_ns = next_pc(
+                peer, IPC_TASK_QUEUE_WAKE_PC, prepare_ns
+            )
+            callback_ns = (
+                next_pc(peer, IPC_TASK_CALLBACK_ENTER_PC, queue_wake_ns)
+                if queue_wake_ns is not None
+                else None
+            )
+            block_clear_ns = (
+                next_pc(peer, HANDOFF_BLOCK_CLEAR_PC, callback_ns)
+                if callback_ns is not None
+                else None
+            )
+            can_start_ns = (
+                next_pc(peer, HANDOFF_BLOCK_READY_PC, block_clear_ns)
+                if block_clear_ns is not None
+                else None
+            )
+            call_return_ns = (
+                next_pc(initiator, HANDOFF_IPC_RETURN_PC, can_start_ns)
+                if can_start_ns is not None
+                else None
+            )
+            complete_ns = (
+                next_pc(initiator, HANDOFF_BLOCK_COMPLETE_PC, call_return_ns)
+                if call_return_ns is not None
+                else None
+            )
+            callback_return_ns = (
+                next_pc(peer, IPC_TASK_CALLBACK_RETURN_PC, complete_ns)
+                if complete_ns is not None
+                else None
+            )
+            chain = (
+                prepare_ns,
+                queue_wake_ns,
+                callback_ns,
+                block_clear_ns,
+                can_start_ns,
+                call_return_ns,
+                complete_ns,
+                callback_return_ns,
+            )
+            if any(value is None for value in chain[1:]):
+                incomplete += 1
+                continue
+            concrete = [int(value) for value in chain]
+            for index, name in enumerate(phase_names):
+                durations[name].append(
+                    concrete[index + 1] - concrete[index]
+                )
+        result[f"cpu{initiator}_initiator"] = {
+            "prepare_events": len(prepare_times),
+            "complete_episodes": len(durations["prepare_to_queue_wake"]),
+            "incomplete_episodes": incomplete,
+            "queue_wait_events": len(
+                times.get((initiator, IPC_TASK_QUEUE_WAIT_PC), [])
+            ),
+            "phases": {
+                name: duration_profile(values)
+                for name, values in durations.items()
+            },
+        }
+    return result
+
+
 def summarize_trace(
     qemu_stderr: str,
     serial: str,
@@ -190,6 +313,10 @@ def summarize_trace(
     first_boot = first_boot_serial(serial)
     complete_count = counts.get("0x40087b02", 0)
     episodes = summarize_handoff_episodes(first_boot_events, first_reset_ns)
+    ipc_phases = summarize_ipc_handoff_phases(
+        first_boot_events,
+        first_reset_ns,
+    )
     return {
         "trace_events": len(events),
         "pc_events": len(pc_events),
@@ -208,6 +335,7 @@ def summarize_trace(
             first_boot_events[-1]["now_ns"] if first_boot_events else None
         ),
         "handoff_episodes": episodes,
+        "ipc_handoff_phases": ipc_phases,
         "serial": {
             "bytes": len(serial.encode()),
             "sha256": sha256_bytes(serial.encode()),
@@ -376,6 +504,11 @@ def main() -> int:
         default=None,
     )
     parser.add_argument(
+        "--ipc-phases",
+        action="store_true",
+        help="add BIN-bound ipc_task dispatch and return PCs",
+    )
+    parser.add_argument(
         "--expected-image-sha256",
         default=EXPECTED_IMAGE_SHA256,
     )
@@ -403,7 +536,19 @@ def main() -> int:
         )
     if args.observe_seconds < 2 or args.observe_seconds > 120:
         parser.error("--observe-seconds must be from 2 to 120")
-    pcs = tuple(args.pc or DEFAULT_PCS)
+    pcs = list(args.pc or DEFAULT_PCS)
+    if args.ipc_phases:
+        for pc in (
+            0x400889C4,
+            IPC_TASK_QUEUE_WAIT_PC,
+            IPC_TASK_QUEUE_WAKE_PC,
+            IPC_TASK_CALLBACK_ENTER_PC,
+            HANDOFF_IPC_RETURN_PC,
+            IPC_TASK_CALLBACK_RETURN_PC,
+        ):
+            if pc not in pcs:
+                pcs.append(pc)
+    pcs = tuple(pcs)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     summary = run(
         args.image,
@@ -432,6 +577,11 @@ def main() -> int:
             "runtime": args.runtime,
             "icount_shift": (
                 args.icount_shift if args.runtime == "qemu-wifi" else None
+            ),
+            "icount_max_percpu_ns": (
+                configured_icount_max_percpu_ns()
+                if args.runtime == "qemu-wifi"
+                else None
             ),
         },
         "summary": summary,
