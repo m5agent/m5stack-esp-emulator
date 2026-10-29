@@ -23,6 +23,23 @@ let server,browser,context,page;
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2'};
 const report={kind:'browser-local-qemu-acceptance',started_at:new Date().toISOString(),example,checks,requests,errors};
 function check(name,ok,details){checks.push({name,ok,details});assert.ok(ok,name);console.log(name);}
+async function deferIframeRemoval() {
+  await page.evaluate(() => {
+    const frame=document.querySelector('iframe[src*="public-qemu-instance.html"]'),remove=frame.remove;
+    globalThis.qemuDeferredRemoval={frame,remove,requests:0};
+    frame.remove=()=>{qemuDeferredRemoval.requests++;};
+  });
+}
+async function closeWorkersBeforeRemovingIframe(name,total) {
+  const deadline=Date.now()+15000;
+  while(workers.some(row=>!row.closed_at)&&Date.now()<deadline)await page.waitForTimeout(100);
+  const held=await page.evaluate(() => ({iframe_present:qemuDeferredRemoval.frame.isConnected,
+    removal_requests:qemuDeferredRemoval.requests,iframe_count:document.querySelectorAll('iframe[src*="public-qemu-instance.html"]').length}));
+  (report.iframe_removal_controls||=[]).push({...held,removal_deferred_by_harness:true});
+  check(name,workers.length===total&&workers.filter(row=>row.kind==='engine').length===total/6
+    &&workers.every(row=>row.closed_at)&&held.iframe_present&&held.removal_requests===1&&held.iframe_count===1);
+  await page.evaluate(() => {const held=qemuDeferredRemoval;held.remove.call(held.frame);delete globalThis.qemuDeferredRemoval;});
+}
 function exactReceipt(receipt){
   return receipt.engine==='qemu-wasm'&&receipt.profile===expectedProfile&&receipt.clockDivisor===(candidate?1:8)
     &&receipt.firmwareSha256===fixture.firmwareSHA256&&(candidate
@@ -67,7 +84,7 @@ try{
   page.on('pageerror',error=>errors.push(String(error)));
   page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
   context.on('page',child=>child.on('pageerror',error=>errors.push(String(error))));
-  page.on('worker',worker=>{const row={url:worker.url(),created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
+  page.on('worker',worker=>{const row={url:worker.url(),kind:worker.url().includes('/public-qemu-engine.js')?'engine':'nested-pthread',created_at:new Date().toISOString()};workers.push(row);worker.on('close',()=>{row.closed_at=new Date().toISOString();});});
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>crossOriginIsolated&&document.querySelector('#deviceMount')?.dataset.deviceId==='cores3',{},{timeout:45000});
   check('pages-service-worker-shared-memory',await page.evaluate(()=>crossOriginIsolated&&typeof SharedArrayBuffer==='function'));
@@ -104,10 +121,14 @@ try{
     await page.screenshot({path:resolve(out,`layout-${width}.png`),fullPage:true});
   }
   await page.setViewportSize({width:1440,height:1000});
+  await deferIframeRemoval();
   await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const stopped=await evidence('stopped-first');
   check('quit-and-container-cleanup',stopped.cleanup.gracefulExit&&stopped.cleanup.exitCode===0&&stopped.cleanup.explicitWorkerDisposal&&stopped.cleanup.iframeRemoved,stopped.cleanup);
+  await closeWorkersBeforeRemovingIframe('first-engine-and-five-pthreads-close-before-iframe-removal',6);
   check('no-instance-frame-after-stop',await page.locator('iframe[src*="public-qemu-instance.html"]').count()===0);
+  check('dedicated-engine-closing-notification-without-owner-fallback',stopped.cleanup.engineOwnership?.engineCloseNotificationReceived===true
+    && stopped.cleanup.engineOwnership?.engineFallbackTerminations===0,stopped.cleanup.engineOwnership);
   check('local-history-retains-hash',await page.locator('#browserHistoryText').textContent().then(text=>text.includes(fixture.firmwareSHA256.slice(0,12))));
   const firstId=stopped.session_id;
   const shared=new URL(url);shared.searchParams.set('device','cores3');shared.searchParams.set('mode','browser');
@@ -118,8 +139,12 @@ try{
   check('shared-reference-restores-example',await page.locator('#referenceExample').inputValue()===example);
   const reopened=await evidence('reopened-running');check('fresh-guest-reopen-from-shared-reference',reopened.session_id!==firstId&&!guestEvents(reopened.serial).some(event=>event.kind==='touch_clicked'));
   check('shared-reference-exact-runtime-variant',exactReceipt(reopened.receipt),reopened.receipt);
+  await deferIframeRemoval();
   await page.locator('#stopBtn').click();await page.waitForFunction(()=>document.querySelector('#runtimeStatus').dataset.status==='stopped',{},{timeout:30000});
   const final=await evidence('stopped-reopened');check('reopen-cleanup',final.cleanup.gracefulExit&&final.cleanup.explicitWorkerDisposal,final.cleanup);
+  await closeWorkersBeforeRemovingIframe('both-engines-and-ten-pthreads-close-before-iframe-removal',12);
+  check('reopened-engine-notification-without-owner-fallback',final.cleanup.engineOwnership?.engineCloseNotificationReceived===true
+    &&final.cleanup.engineOwnership?.engineFallbackTerminations===0,final.cleanup.engineOwnership);
   check('no-service-or-local-emulator-requests',!requests.some(row=>/\/api\/v1|:8787\b|:8830\b/.test(row.url)));
   check('no-javascript-errors',errors.length===0,errors);
   report.result='PASS';report.final_receipt=final.receipt;report.workers=workers;

@@ -22,7 +22,7 @@ const server = http.createServer(async (request, response) => {
     if (pathname === '/base.bin') { response.end(base); return; }
     const web = /^\/platform\/web\/(public-qemu-probe-firmware|public-qemu-profiles|public-config|public-firmware|sha256)\.js$/.exec(pathname);
     if (web) { response.setHeader('content-type', 'text/javascript'); response.end(await fs.readFile(path.join(root, 'platform/web', web[1] + '.js'))); return; }
-    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(boot|main|core2_boot)\.py$/.exec(pathname);
+    const source = /^\/platform\/runtime\/qemu-probe\/fixture\/(boot|main|core2_boot|stopwatch_main|papercolor_main|papermono_main|cardputer_adv_main)\.py$/.exec(pathname);
     if (source) { response.end(await fs.readFile(path.join(root, 'tests/browser-qemu/board_display', source[1] + '.py'))); return; }
     const name = pathname.replace('/platform/runtime/littlefs/', '');
     if (!pathname.startsWith('/platform/runtime/littlefs/') || !allowed.has(name)) { response.writeHead(404).end(); return; }
@@ -56,7 +56,8 @@ try {
     return {sha256:composed.sha256, size:composed.bytes.length, provenance:composed.provenance, failures};
   }, {profile, origin});
   assert.equal(result.sha256, profile.fixture.firmwareSHA256); assert.equal(result.size, profile.flashMb * 1048576);
-  assert.equal(result.provenance.preserved_file_count, 15); assert.equal(result.provenance.source_readback_verified, true);
+  assert.ok(Number.isSafeInteger(result.provenance.preserved_file_count) && result.provenance.preserved_file_count >= 0, 'preserved file count must be explicit');
+  assert.equal(result.provenance.preserved_file_count, profile.fixture.preservedFileCount); assert.equal(result.provenance.source_readback_verified, true);
   assert.ok(result.failures.every(row => row.rejected)); assert.deepEqual(errors, []);
   const report = {kind:'browser-qemu-probe-composition', device:profile.deviceId, browser:browser.version(), guest_execution:'NOT RUN', status:'PASS', ...result};
   if (args.get('--out-dir')) {

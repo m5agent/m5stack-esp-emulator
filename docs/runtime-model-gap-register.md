@@ -1,6 +1,6 @@
 # 运行时模型缺口登记
 
-日期：`2026-10-26`
+日期：`2026-10-29`
 
 本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
 运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
@@ -278,3 +278,25 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
 2. 在本页增加受影响的控制器/复位域、已知边界和关闭条件；
 3. 在 Backlog 建立 Task ID；
 4. 修复后用新 evidence 关闭任务，旧诊断 evidence 不得静默改写。
+
+## 浏览器固定示例的输入边界（2026-10-29）
+
+这些限制由 `UI-02` 继续跟踪，不属于原生设备或物理硬件 PASS：
+
+- PaperMono 的固定 UIFlow2 v2.5.3 基底在 portrait 原始点 `(240,650)` 上，
+  stock `M5.Touch.getX/getY` 实际返回 `(90,400)`。浏览器示例经官方
+  `getTouchPointRaw(0)` 和原 FT/I2C 路径做命中，并保留逻辑坐标和释放缓存
+  标记；这不是 frozen SDK 校准修复。SDK offset 候选只有源码/host C++ 控制，
+  未构建执行对应固件，不授予其 PASS。
+- StopWatch 的 SDK 逻辑尺寸为 468²、当前 QEMU 面板为 466²；圆内显示标记
+  可完整观察，但原始触摸 `(233,233)` 到 guest 逻辑 `(239,239)` 的校准偏差
+  仍开放。显示和触摸不能由相同芯片名称推定为逐坐标精确。
+- Cardputer-ADV 的固定示例通过原 KeyboardI2C 的 FIFO/ASCII decoder 轮询
+  确认按下和释放。`0016` 是明确物理矩阵映射；`0018` 只修 TI SCPS215G
+  规定的默认 `INT_CFG=0` 锁存/W1C 语义。`INT_CFG=1` 的 50 µs 脉冲、
+  `KEY_IEN` 门控、其它中断源、自动 GPIO IRQ 交付和一般 modifier/chord
+  应用仍需各自执行证据，不能从该固定轮询路径继承。
+
+固定源码、官方 API/数据手册来源和范围见
+[逐板浏览器 fixture](../tests/browser-qemu/board_display/README.md) 与
+[QEMU WASM 补丁](../patches/qemu-wasm-probe/README.md)。

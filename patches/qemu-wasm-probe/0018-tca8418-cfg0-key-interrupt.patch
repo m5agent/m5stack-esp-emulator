@@ -1,0 +1,90 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] TCA8418: preserve pending key interrupt across CFG0 W1C
+
+TI SCPS215G sections 8.6.2.1/2/4 require unread key FIFO data to keep
+K_INT asserted when INT_CFG=0. Reading the last key does not acknowledge
+its latched interrupt; only the subsequent INT_STAT W1C can do so.
+
+Cover the original KeyboardI2C driver's drain/new-event/W1C interleave.
+Keep the previous INT_CFG=1 branch unchanged: its 50 us deassert/reassert
+waveform is a separate unsupported timing model, not covered by this patch.
+
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -700,31 +700,34 @@
+         if (r == 0xA6) {
+             return 0x10; /* ILI9342C firmware id */
+         }
+         if (r == 0xA8) {
+             return 0x11; /* M5Stack vendor id */
+         }
+         break;
+     case M_TCA8418:
+         if (r == 0x03) {
+             return g_key_event_count;
+         }
+         if (r == 0x04 && g_key_event_count) {
+             uint8_t event = g_key_events[g_key_event_head];
+             g_key_event_head = (g_key_event_head + 1) % ARRAY_SIZE(g_key_events);
+             g_key_event_count--;
+-            if (!g_key_event_count) {
++            /* INT_CFG=0 keeps K_INT/INT asserted until explicit W1C.
++             * Retain the legacy mode-1 path; its 50 us pulse is not modeled.
++             */
++            if (!g_key_event_count && (s->regs[0x01] & 0x10)) {
+                 esp32_gpio_set_input(11, 1);
+             }
+             return event;
+         }
+         break;
+     case M_PI4IOE:
+         if (r == 0x01) {
+             uint8_t value = s->regs[r];
+             s->regs[r] &= ~0x02;
+             return value;
+         }
+         if (r == 0x0F) {
+             return pi4ioe_input_read(s);
+         }
+         if (r == 0x13) {
+@@ -1245,30 +1248,40 @@
+         s->ptr++;
+         return 0;
+     case M_BMI270:
+         if (r == 0x5E) {          /* INIT_DATA burst: register does not auto-increment */
+             return 0;
+         }
+         if (r == 0x7E && data == 0xB6) {  /* soft reset */
+             s->regs[0x7C] = 0x03;
+             s->ptr++;
+             return 0;
+         }
+         break;
+     case M_TCA8418:
+         if (r == 0x02) {          /* INT_STAT is write-one-to-clear */
+             s->regs[r] &= ~data;
++            if (!(s->regs[0x01] & 0x10)) {
++                /* TI SCPS215G: unread FIFO events prevent clearing K_INT.
++                 * This also closes drain -> new event -> W1C ordering.
++                 * Only INT_CFG=0 key-interrupt behavior is modeled here.
++                 */
++                if (g_key_event_count) {
++                    s->regs[r] |= 0x01;
++                }
++                esp32_gpio_set_input(11, !(s->regs[r] & 0x01));
++            }
+             s->ptr++;
+             return 0;
+         }
+         break;
+     case M_IOE1:
+         if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
+         if (r == 0x06) {
+             s->m5ioe1_pa_enabled = !!(data & BIT(1));
+         } else if (r == 0x15) {
+             s->regs[r] = data & 0x83;
+         } else if (r == 0x18) {
+             s->regs[r] = data & 0x80;
+         } else if (r == 0x11 || r == 0x12) {
+             s->regs[r] &= data;
+             s->ptr++;

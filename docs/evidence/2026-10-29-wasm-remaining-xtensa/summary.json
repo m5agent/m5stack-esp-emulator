@@ -1,0 +1,998 @@
+{
+  "schema_version": 1,
+  "kind": "browser-qemu-remaining-xtensa-admission",
+  "date": "2026-10-29",
+  "status": "PASS_SCOPED_BROWSER_VALIDATION",
+  "category": "browser virtual-device validation",
+  "source_main_base": "96ee9f33a55a565f45a72315d29a91993f69cd46",
+  "hardware_validation": "NOT RUN",
+  "production_pages_deployment": "NOT RUN for this PR; administrator must rebuild and deploy",
+  "runtime": {
+    "wasm_sha256": "9d2db548e3f4b2622d9839b57311cbab7244775a492d4fff660140c19f68ac93",
+    "runtime_manifest_sha256": "10b1b19e41c0ec8ddcdf509949676e1986b4b9f090e57128860667c8ddfedcf7",
+    "source_archive_sha256": "26684a711c711dd29562582f3258e18c609fafac9c52f78e3ece2b00e6ee21a1",
+    "lock_sha256": "b39bba5b0dc1aaa51ac9f98210cbaca3ed324db3251d0a3cf2da3bf281a5ef4f",
+    "all_objects_rebuilt": true,
+    "patch_layers": 46,
+    "patched_files": 147,
+    "emscripten": "3.1.50",
+    "link_audit": {
+      "argv_sha256": "3b36911645c6c8e49dcd8fa18c63a0528d07c374dcce02ad0d8cff47ce7e6258",
+      "effective": {
+        "DEFAULT_PTHREAD_STACK_SIZE": "64KB",
+        "STACK_OVERFLOW_CHECK": "2",
+        "STACK_SIZE": "64KB"
+      },
+      "required_flags": [
+        "-sSTACK_SIZE=64KB",
+        "-sDEFAULT_PTHREAD_STACK_SIZE=64KB",
+        "-sSTACK_OVERFLOW_CHECK=2"
+      ],
+      "source": "ninja-link-command",
+      "verified": true
+    },
+    "engine_placement": "dedicated-worker-v1; original direct UART/MEMFS/QMP and nested pthreads"
+  },
+  "publication_gate": {
+    "status": "PASS",
+    "cases": 11,
+    "devices": 10,
+    "publication_eligible": true,
+    "manifest_sha256": "43b0bdae807376cf72a61bb5a0e2fd712a03101b27c5e3e7fdea0b22e8f194c4",
+    "gate_report_sha256": "2a842a4cc5eab6de3ac884bd6078e9b9b516017f2e2dffa659c5f70408eefe95",
+    "service_url": "",
+    "firmware_bundled": false,
+    "rom_bundled": false,
+    "checks": 313
+  },
+  "executed_web_sha256": {
+    "platform/web/index.html": "1893e4439b12f6dbcd4526d7828f7027abbe33f569dd23a8aa36c949460e678c",
+    "platform/web/public.js": "107df51173456d74b31131254e04f52a18df0abe0a1a93e7bbfd45628e33933d",
+    "platform/web/public.css": "966a57a998656334f11674e2870db9902d835bfbbbe6c7b69288046aad3cc4f6",
+    "platform/web/public-config.js": "14a01bd386a74abc608250495019897069e6984a0e7afc4c702d3ba435f4d679",
+    "platform/web/public-firmware.js": "a7dd6fe5a32e40dab863b3ce1cf3f224337321a09e1a3254a674ca7b1bbae4b4",
+    "platform/web/sha256.js": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+    "platform/web/public-demo-firmware.js": "06c33ff0dab05a38acf4711b12c167346594c21d900e5431d8ec27202a5d96e9",
+    "platform/web/public-coi.js": "75cfb2686e9546103003e472025fae00e6f763cef9eb287fc0a91a5c7e29aad3",
+    "platform/web/public-coi-serviceworker.js": "849ecdeda43bc19d9c37833fbe4a0f76f2f00cc86c2ed075e411f6a36b8600e3",
+    "platform/web/vendor/coi-serviceworker/coi-serviceworker.js": "e97bbac6017322d48aa54a5bc7ce473c725a4b7376ff245002e0ba71c3dcdd7e",
+    "platform/web/public-qemu-runtime.js": "d3424354ed4e2ae7036fb9c2805322fbf29c63d3b34b514005678ef32db82a13",
+    "platform/web/public-qemu-instance.js": "1f9d3189ece2dd2c13bff269586ed24b77760c308dfda3c44d66ccab143ce4c9",
+    "platform/web/public-qemu-engine.js": "8ba048e7ce90d0a1e60d7d66c4367ac0aec7ecce960f5f4177e2b40fdccf2f2c",
+    "platform/web/public-qemu-instance.html": "2b4193dda2256281049071a6fd220d038da073612ed554d74d2c97fd8240e45b",
+    "platform/web/public-qemu-profiles.js": "f1c9b41032ee2c3e7ac6b6e8b9f752ed4642d6f056fd0f619cf88ad207037b1b",
+    "platform/web/qemu-browser-profiles.json": "a55a58461fda2c786527d0be0578b6e0a25621fc1cf4ec50ba36ac3a55365e6a",
+    "platform/web/public-qemu-frame.js": "ee1a52f7ea8c5a8b607d83a16756e554b5382f4bdd1203277fb46f8927f49311",
+    "platform/web/public-qemu-probe-firmware.js": "9ede5a1c14e64796b82ab35d58b6ab08374d52fcd46b212fc8c0382d72bfedb2",
+    "platform/web/model-shell.js": "ad9d7d1c9963567d60194aa02434e23cda5d00d44e380d692cf49d68ab16cc99",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2"
+  },
+  "cases": [
+    {
+      "device": "stopwatch",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 22,
+      "report_sha256": "4e9d1a760dfe3d79b46da6af1fc535ee04814c6c43a552dff340cb86cb5fd493",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "f6b0e468-ed76-4205-9139-964eec063c57",
+      "firmware_sha256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc",
+      "profile": "stopwatch-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "50b552f605c0a748032b4164aae0409557d3887cd568855c951228de3c91554a",
+      "frame_before_sha256": "d79d119d02ef8c42a7e34c6c152ec1e13ca7ae5a4e994cc02cd1493079c6d54c",
+      "frame_after_sha256": "acdb7cb84314eebfd062f9e28602f94317ca5788b06e2edf80ab86d2befa031a",
+      "frame_size": [
+        466,
+        466
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": {
+          "x": 233,
+          "y": 233
+        },
+        "pressed": {
+          "count": 0,
+          "device": "stopwatch",
+          "y": 239,
+          "x": 239,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "stopwatch",
+          "y": 239,
+          "x": 239,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    },
+    {
+      "device": "sticks3",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 23,
+      "report_sha256": "d5dfb7503c296748eebfcf24da67d276f15fe5497fee4dada134b1e99b533d83",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "02cb6e54-9acc-472e-810b-0a3d1bd74e08",
+      "firmware_sha256": "a8a88bf4fd2736d4bfd2f4c629b4040c0d38ca8d1ec54156dd74b34cd5a38632",
+      "profile": "sticks3-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "dd2c6fc33251355ecca7fb15f3309c63a040f01e7ebe28f3e53b3bf271f53d4b",
+      "frame_before_sha256": "60315ddc5320df3c4126747a59a72146001b2aaa696ac21bb7fcf1cef6bacd17",
+      "frame_after_sha256": "0f4efd7eda743907d1063359ced117cc91c60dc7ffaade94f49d5d459e67e8f1",
+      "frame_size": [
+        135,
+        240
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": null,
+        "pressed": {
+          "count": 0,
+          "device": "sticks3",
+          "y": -1,
+          "x": -1,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "sticks3",
+          "y": -1,
+          "x": -1,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    },
+    {
+      "device": "atoms3r",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 23,
+      "report_sha256": "a1e60060ae659e08f7f343b6c526e97c37f54cc30815f7a41ad7a9a3ce0ac987",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "db47d188-d1f5-4394-82b6-7d711cf01c98",
+      "firmware_sha256": "39c8204958c09516407ee6743d532777b7ac81f7650d2fbf7c1038587b361a80",
+      "profile": "atoms3r-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "322ace8263f5c96f65b67cfac1e78964c8df4973eb6defd491747f06acc6e06d",
+      "frame_before_sha256": "a0b4dc103de3365f25dee5bb6cca20ba247935a77b2f3615c54bc21a82a96d73",
+      "frame_after_sha256": "6e0fb3d07c4990c0b3dd44cee513ec934ffe395b141cde1c26373881469469bd",
+      "frame_size": [
+        128,
+        128
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": null,
+        "pressed": {
+          "count": 0,
+          "device": "atoms3r",
+          "y": -1,
+          "x": -1,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "atoms3r",
+          "y": -1,
+          "x": -1,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    },
+    {
+      "device": "cores3",
+      "example": "stock-div8",
+      "status": "PASS",
+      "checks": 28,
+      "report_sha256": "9032d9f5365fc09c8b7dd8592f3aafb925a343e9061a0154b123fbe4209ef3f2",
+      "test_script_sha256": "8922bb227c816d673c1b46932bc2973becdc3ae0adbfbf13db5bca2b6116ce42",
+      "session_id": "8216683e-933a-4a82-bc38-1e903844d160",
+      "firmware_sha256": "78961297e751ec9c743b4cdf89cc2c137e7e2c801dda3ead9df2ea45d59fbd3f",
+      "profile": "cores3-wasm-vm-div8",
+      "clock_divisor": 8,
+      "serial_sha256": "d58e7fa904f0d31f993be5617b1cbff211a57877c2e713ba96b134d184ae720e",
+      "frame_before_sha256": "00bfb9bd3f036e2e4f414dc696e56e1efd47beb90e3d18eaf5666cfe4287bc70",
+      "frame_after_sha256": "2d9930668c45ebdf76b3416c998d2d5bdf44d403db0edc5cd762bb29b34842ad",
+      "frame_size": [
+        320,
+        240
+      ],
+      "input_edges": 6,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 12,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true
+        },
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true
+        }
+      ]
+    },
+    {
+      "device": "cores3",
+      "example": "wallclock-candidate",
+      "status": "PASS",
+      "checks": 28,
+      "report_sha256": "30d1bf032f39b075c6fea94581c30d9c7abd3abb53cc8f7973e807e8ae549b1b",
+      "test_script_sha256": "8922bb227c816d673c1b46932bc2973becdc3ae0adbfbf13db5bca2b6116ce42",
+      "session_id": "8a7caaca-0483-48f5-9cdf-f1f2aea28c7d",
+      "firmware_sha256": "e9500994f4c0e1708ec35f5a46146225ac330d210a2427e1fc537c33635d9554",
+      "profile": "cores3-wasm-wallclock-sdk-candidate",
+      "clock_divisor": 1,
+      "serial_sha256": "1bc0ca821bbc263972f33141e7e5e0344567832a0771cc5eca170097c7bef19b",
+      "frame_before_sha256": "e6e25df75e5562c4dd63fafd34afe69c25c1c4de36ed7a33f231aba1bdc1cc06",
+      "frame_after_sha256": "c9e4abfdb6d19c0ecfe0c95f982906273eef5c78e79dad583487b0878ac7f6f8",
+      "frame_size": [
+        320,
+        240
+      ],
+      "input_edges": 6,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 12,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true
+        },
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true
+        }
+      ]
+    },
+    {
+      "device": "cardputer-adv",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 66,
+      "report_sha256": "4ffd52e78052bddf11ace8655db9af72e32d80e18c389b4bc6461bd752e9307b",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "b47f8a9c-fc76-4292-99dc-138c146ff62e",
+      "firmware_sha256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "1683fcabb62f396b1f9aa3e6723cb761d08279917c6884d296ca33f999e788a9",
+      "frame_before_sha256": "7e3cb9a173bda3d4260f39a067aa8067d3179f9eaecdec7840ac53a211b04b6e",
+      "frame_after_sha256": "57562843fad92927cdf520e8e58638332bcf942c9a15ca7e39047827748cd75c",
+      "frame_size": [
+        240,
+        135
+      ],
+      "input_edges": 22,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": null,
+        "pressed": {
+          "keycode": 97,
+          "row": 2,
+          "driver_pressed": true,
+          "kind": "pressed",
+          "seq": 3,
+          "device": "cardputer-adv",
+          "count": 0,
+          "col": 2
+        },
+        "released": {
+          "keycode": 97,
+          "row": 2,
+          "driver_pressed": false,
+          "kind": "released",
+          "seq": 6,
+          "device": "cardputer-adv",
+          "count": 1,
+          "col": 2
+        }
+      },
+      "keyboard_cases": [
+        {
+          "qcode": "a",
+          "keycode": 97,
+          "row": 2,
+          "col": 2
+        },
+        {
+          "qcode": "z",
+          "keycode": 122,
+          "row": 3,
+          "col": 3
+        },
+        {
+          "qcode": "q",
+          "keycode": 113,
+          "row": 1,
+          "col": 1
+        },
+        {
+          "qcode": "b",
+          "keycode": 98,
+          "row": 3,
+          "col": 7
+        },
+        {
+          "qcode": "n",
+          "keycode": 110,
+          "row": 3,
+          "col": 8
+        },
+        {
+          "qcode": "m",
+          "keycode": 109,
+          "row": 3,
+          "col": 9
+        },
+        {
+          "qcode": "1",
+          "keycode": 49,
+          "row": 0,
+          "col": 1
+        },
+        {
+          "qcode": "0",
+          "keycode": 48,
+          "row": 0,
+          "col": 10
+        },
+        {
+          "qcode": "ret",
+          "keycode": 10,
+          "row": 2,
+          "col": 13
+        },
+        {
+          "qcode": "spc",
+          "keycode": 32,
+          "row": 3,
+          "col": 13
+        },
+        {
+          "qcode": "backspace",
+          "keycode": 8,
+          "row": 0,
+          "col": 13
+        }
+      ]
+    },
+    {
+      "device": "stamplc",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 23,
+      "report_sha256": "a98851ffb4687c4f893ce4a8635e4a0aedda350582ab8022e6a0a197871a806a",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "5d7749d2-e464-408f-be3d-0e9c76b29121",
+      "firmware_sha256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc",
+      "profile": "stamplc-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "04e3b8aef1f5ea96d98d25e8b142e0f9be2bc5b1910f8a993a458d4c57b5e20c",
+      "frame_before_sha256": "07ff179eeac79ceb1364ea2b6f15800291854c46f7f9059c4d91b34e6ec978bf",
+      "frame_after_sha256": "80a26e6423442b8f11b0b89ecf9f822d67ff31c865c5004dde24ebcec6b853a9",
+      "frame_size": [
+        240,
+        135
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": null,
+        "pressed": {
+          "count": 0,
+          "device": "stamplc",
+          "y": -1,
+          "x": -1,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "stamplc",
+          "y": -1,
+          "x": -1,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    },
+    {
+      "device": "stackchan",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 22,
+      "report_sha256": "b2a3d298bb51f954e44c7844d62de7be10189cff7773d031493a369650e621f5",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "3e8185af-71e1-4883-881d-2076ec1fd6ed",
+      "firmware_sha256": "87f453709526d8b70c4951e3c3600f44946fb07a951884170dd1fad7650cae87",
+      "profile": "stackchan-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "36f0bb8c0e9b8e89cd0dd3651e968c0d60022a1a6bb7b1b9d5faf5b3ebfa5e99",
+      "frame_before_sha256": "b8e5f1b821ea87f0f2f6bfbcfa074e3f71a81a671893a0eaf2684d2934690adb",
+      "frame_after_sha256": "b53e85538e2d8792e69d65e577dff65f6ddf1139690422009ba11ed5415ccc80",
+      "frame_size": [
+        320,
+        240
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": {
+          "x": 160,
+          "y": 120
+        },
+        "pressed": {
+          "count": 0,
+          "device": "stackchan",
+          "y": 120,
+          "x": 160,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "stackchan",
+          "y": 120,
+          "x": 160,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    },
+    {
+      "device": "papercolor",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 25,
+      "report_sha256": "5ffc28b0fec1c2466f34565566eaad698d9c7743267ec87011e60c48bcfbe9a2",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "73e8cb9c-ec96-46b0-aaa8-7ebe051d52b9",
+      "firmware_sha256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc",
+      "profile": "papercolor-wasm-wallclock-epaper-probe",
+      "clock_divisor": 1,
+      "serial_sha256": "5bc858cac1b4fc5e319e97482ce74649ea7f68ca323a3037409d24131c9c86bd",
+      "frame_before_sha256": "2f2f92d9c76cdd1c088dd73109290a96e177a2cbb8e7ba2da50fbb9ad6581b5b",
+      "frame_after_sha256": "9e79bf29a528ea45fe5aa1f678ebfbbe39c687b5fc5c367bb9b6d4eaefecb5ef",
+      "frame_size": [
+        400,
+        600
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": null,
+        "pressed": {
+          "count": 0,
+          "device": "papercolor",
+          "y": -1,
+          "x": -1,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "papercolor",
+          "y": -1,
+          "x": -1,
+          "kind": "released",
+          "seq": 6
+        }
+      }
+    },
+    {
+      "device": "papermono",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 31,
+      "report_sha256": "b13daccb5b5cb5735eaac3b8f099f80533dd7a4e4f4c26abbfc577a23dc6c4d4",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "9d958ef0-2146-491b-8f0c-c12f275f327f",
+      "firmware_sha256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+      "profile": "papermono-wasm-wallclock-epaper-probe",
+      "clock_divisor": 1,
+      "serial_sha256": "ae29689a3e3847c97a08e492d7b00e1276eced323ff60b79e50b189c305fc103",
+      "frame_before_sha256": "f4ed642ea2c592e2303b2adf08b010e437a1df6eb59187dc1e3d0280b482c8da",
+      "frame_after_sha256": "be57ca101f6d5547cc9ee8d2adb59a04566bf61a8962457c4b8bbe62bc85b998",
+      "frame_size": [
+        480,
+        800
+      ],
+      "input_edges": 4,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": {
+          "x": 240,
+          "y": 650
+        },
+        "pressed": {
+          "coordinate_source": "official-raw-point",
+          "device": "papermono",
+          "kind": "pressed",
+          "seq": 7,
+          "logical_y": 400,
+          "logical_x": 90,
+          "count": 0,
+          "coordinates_cached": false,
+          "size": 1,
+          "y": 650,
+          "touch_id": 0,
+          "x": 240
+        },
+        "released": {
+          "logical_y": 400,
+          "logical_x": 90,
+          "kind": "released",
+          "device": "papermono",
+          "seq": 9,
+          "coordinates_cached": true,
+          "y": 650,
+          "x": 240,
+          "coordinate_source": "official-raw-point",
+          "count": 1
+        }
+      },
+      "negative_touch_observation": {
+        "pressed": {
+          "coordinate_source": "official-raw-point",
+          "device": "papermono",
+          "kind": "pressed",
+          "seq": 3,
+          "logical_y": 400,
+          "logical_x": 240,
+          "count": 0,
+          "coordinates_cached": false,
+          "size": 1,
+          "y": 400,
+          "touch_id": 0,
+          "x": 240
+        },
+        "ignored": {
+          "coordinate_source": "official-raw-point",
+          "kind": "ignored",
+          "seq": 4,
+          "y": 400,
+          "device": "papermono",
+          "count": 0,
+          "x": 240
+        },
+        "released": {
+          "logical_y": 400,
+          "logical_x": 240,
+          "kind": "released",
+          "device": "papermono",
+          "seq": 5,
+          "coordinates_cached": true,
+          "y": 400,
+          "x": 240,
+          "coordinate_source": "official-raw-point",
+          "count": 0
+        }
+      }
+    },
+    {
+      "device": "core2",
+      "example": "board-display-input",
+      "status": "PASS",
+      "checks": 22,
+      "report_sha256": "3ea289d07e1c953c8a9e00a9b039ae4e779c5abf777b8f80e17b8e0c84b33564",
+      "test_script_sha256": "fb01ec771c3b1818c1233f99e641e998991a271e89d6a22e9959fe1890ff3837",
+      "session_id": "b9b7770f-9834-45cb-b262-f67dbcec095a",
+      "firmware_sha256": "5d252ee60ce0f6a481b13ccdf6f911ac0c41687b888ef273dc7c455e62a5b2c2",
+      "profile": "core2-wasm-wallclock",
+      "clock_divisor": 1,
+      "serial_sha256": "ad31c2e555b7f9efae1b0579f8c5ffb2e5ff2f3f636176d1df50f7889ce28792",
+      "frame_before_sha256": "3225033f1f96b2d60e684c7de59bd11b52ab598c9f01af6f660796b3720e2693",
+      "frame_after_sha256": "569a97e47555a5069ff88a1b54bbe6bca28df5a91edc7ecd1b9eb105d4cbc807",
+      "frame_size": [
+        320,
+        240
+      ],
+      "input_edges": 2,
+      "cleanup": {
+        "gracefulExit": true,
+        "exitCode": 0,
+        "workersCreated": 5,
+        "workersAtExit": 0,
+        "disposal": {
+          "workersRemaining": 0,
+          "workersTerminatedByDispose": 0,
+          "workerCountScope": "nested-pthreads",
+          "enginePlacement": "dedicated-worker-v1",
+          "engineWorkersAtAcknowledgement": 1,
+          "selfCloseAfterAcknowledgement": true
+        },
+        "engineOwnership": {
+          "engineWorkersCreated": 1,
+          "engineOwnerLive": false,
+          "engineCloseNotificationReceived": true,
+          "engineFallbackTerminations": 0,
+          "enginePortTransferred": true
+        },
+        "engineOwnershipStage": "before-iframe-removal",
+        "explicitWorkerDisposal": true,
+        "iframeRemoved": true
+      },
+      "observed_workers_closed": 6,
+      "iframe_removal_deferred_for_close_observation": [
+        {
+          "iframe_present": true,
+          "removal_requests": 1,
+          "iframe_count": 1,
+          "removal_deferred_by_harness": true,
+          "scope": "Real UI stop/quit/dispose with only iframe DOM removal deferred until actual Worker close."
+        }
+      ],
+      "input_observation": {
+        "requested_physical_touch": {
+          "x": 160,
+          "y": 120
+        },
+        "pressed": {
+          "count": 0,
+          "device": "core2",
+          "y": 120,
+          "x": 160,
+          "kind": "pressed",
+          "seq": 3
+        },
+        "released": {
+          "count": 1,
+          "device": "core2",
+          "y": 120,
+          "x": 160,
+          "kind": "released",
+          "seq": 5
+        }
+      }
+    }
+  ],
+  "controls": {
+    "cardputer_45_worker_failure_report_sha256": "f16f138cc9a57dee3ba09fccb3224311dc6b898bb2de4ccc54e0d635f65b49ac",
+    "cardputer_46_candidate_report_sha256": "e870a9984bd452dcb25c28c90b7711a8d25c00e397b0059e00241f6a37d007a0",
+    "cardputer_46_candidate_checks": 66,
+    "worker_stackchan_90s_report_sha256": "932fe2315c52bc57f4141b711bf84019c2d9d3bda006b06d58003c3e1fee0bb7",
+    "metal_direct_uart_control_report_sha256": "1b0af7bf1afee27e59b04cc828cf82d3e0f24d92e232e37a39ada3d5527c1faf",
+    "tca_actual_c_receipt_sha256": "58fe78824c2fcf6a5f8245267aa3702bee0942fd6a1c4207fd55e56abb2bfd24",
+    "ti_scps215g_sha256": "fdd74a30911f0a92a592be42f5f040600ce41609a1ce5d87b287ce435df6a944"
+  },
+  "limits": [
+    "Only the pinned reference fixtures and observed input/serial/frame/cleanup paths passed; no arbitrary firmware, networking, BLE, audio, additional Unit or physical-hardware claim.",
+    "The common engine was moved out of the DOM/3D thread; this is not a new host CPU or GPU performance benchmark.",
+    "PaperMono uses the official raw-point API as a fixed-example workaround; stock logical getX/getY calibration remains incorrect.",
+    "StopWatch touch calibration and logical 468x468 versus physical 466x466 remain bounded gaps.",
+    "Cardputer proves the original KeyboardI2C FIFO/ASCII decoder via polling and 11 selected keys; general GPIO IRQ delivery, Fn/modifier chords, overflow, KEY_IEN gating and INT_CFG=1 50us timing are unvalidated.",
+    "EPD QUALITY palette/marker/count-bit patterns are exact controller-frame checks, not physical refresh, optical or power measurements.",
+    "CoreS3 stock-div8 compatibility remains; only the separate hash-pinned scheduler candidate uses clock divisor1.",
+    "C6 RISC-V, P4 and Linux ARM64 browser execution remain separate unfinished targets.",
+    "The native full peripheral matrix was not rerun: this PR changes the browser source-lock patch series and browser engine; it makes no new native-device or hardware PASS claim."
+  ]
+}

@@ -189,6 +189,18 @@
     {
       "path": "patches/qemu-wasm-probe/0015-wasm-poll-host-wait.patch",
       "sha256": "71bdbe8f22857fcc09cedc941b06ac2d9dfe3bb5eb39acab8077705495252287"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0016-cardputer-keyboard-qcode-map.patch",
+      "sha256": "da8fec1f5c590fce96fbef347f2d650abda7fa5213e0a92af84b4859a0447cb3"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0017-wasm-systimer-periodic-deadline.patch",
+      "sha256": "d9bca0c9f30c3667f16b965dcdf8760a15ea03aedb7ccdddbcb864c11286a1bf"
+    },
+    {
+      "path": "patches/qemu-wasm-probe/0018-tca8418-cfg0-key-interrupt.patch",
+      "sha256": "6ef56523fb5186f66fe968a61482ab671bd4e06e2eb9af94b8423bc02a7f467f"
     }
   ],
   "patched_files": {
@@ -228,7 +240,7 @@
     "hw/m5stopwatch/m5_rmt.c": "5819b45e427469d0b44cf51da717456de114ba0bc82bffce7bdfacf488fa7d76",
     "hw/m5stopwatch/m5_rmt_classic.c": "a277fba4a29c24048141003e5e824dc3a779f30ebf25940f6abd87f2d44bb263",
     "hw/m5stopwatch/m5_scs_servo.c": "74d0b99cf3de2f75eb6f52cbfdbd754f0089dec5a06d399d922cbda01061235e",
-    "hw/m5stopwatch/m5_spi_panel.c": "b6e1100127da06c1d783408b3268bb2cb2512a2aa67aa974dc359751eddfb229",
+    "hw/m5stopwatch/m5_spi_panel.c": "c7b0c88bb6a4a4654a6d578a41a7801a6f90c4347cb2e2ec5c4c7c75391ed868",
     "hw/m5stopwatch/m5_spi_sd.c": "ca209e14c609142028bb97105c59ac850b1c9028a8732894da68f3965ae4d717",
     "hw/m5stopwatch/m5_st25r3916_spi.c": "4337084655a44ed625d738c7ff51af5b8c77d7b9abb37c2998660f064669d2f3",
     "hw/m5stopwatch/m5_sx1262.c": "622a2fa69424d615a948d3629288fea247bdaf81240a1e1eafb109b377e0a850",
@@ -248,7 +260,7 @@
     "hw/m5stopwatch/m5stamplc.c": "0add3e22d1688fa83d504fe7c850c2fe347fba87e5e5f18ab6cf737e4cf48d37",
     "hw/m5stopwatch/m5sticks3.c": "4815e252857db2e00fee5d2dc1a8e40e2304f1f917299cdbb76ae26547ee838d",
     "hw/m5stopwatch/m5stopwatch.h": "8714e8abc86e5463b0448c18da8c43b51bd6a63244d632f1276afe52c36a939f",
-    "hw/m5stopwatch/m5sw_i2c_devs.c": "3858e5eacc0e7091327951c29df057f5e05c4e359b6a5cc7185739dafdda3d6e",
+    "hw/m5stopwatch/m5sw_i2c_devs.c": "f757fbb0666d4301cc6a1fc05651bed0d57f6e2747a5b3b7ef187e325b7c3084",
     "hw/misc/bcm2835_unicam.c": "85fbbb52452e020d020afa1108972fb5cda6a65bd6a88341c15142fe94a3cd00",
     "hw/misc/esp32_ana.c": "00136f6fb2c8ce2c6d3aa368c6da0d9038a14ca3a568998f959a62b612b5d745",
     "hw/misc/esp32_dport.c": "8345c5c4d8e533f1981d75438d0bbf2ae6e49cd7aa1e13e3f508f47227fd2b67",
@@ -274,6 +286,7 @@
     "hw/ssi/esp32s3_spi.c": "440c8086a53b5a74c873fd7070e86348b9a33fd1967274a75858c497db082102",
     "hw/timer/esp32_timg.c": "4dd7194130b905fcc189747a05c33fb9d7c9759553dec1622402a2ab61d2b97f",
     "hw/timer/esp32s3_timg.c": "33c44e520a6b407716b1d95271d3ee88b3332ada37b7d7bde8b950d283e67007",
+    "hw/timer/esp_systimer.c": "599b526d1bbb37590f1ebea3475d4b0b279ac28b1d271862ffb5318611fbe2c7",
     "hw/timer/esp_timg.c": "2bea866b4d46e5074ae7b43423d7731161471f788008ffb284798cc9ed9eff4e",
     "hw/xtensa/esp32.c": "2cdba42a47c09c105902c4a3f366560e0259e69e28f9d86d58c5557baeca3a14",
     "hw/xtensa/esp32_intc.c": "760b86bd07b471b8846e349751cbd30d5374a46ba658cf751ea1b57c363a3574",
@@ -331,12 +344,12 @@
     "target/xtensa/helper.h": "fc79394413882c1fc160230a7bf1405a29c40f28e8132a03767bac2796284ac5",
     "target/xtensa/op_helper.c": "f6b023b7fb14f97a6852df135090f3a7c8331e28e4e6f4b77308273d401074eb",
     "target/xtensa/translate.c": "7a5ca44bd4d351dde6b42526926bd74434d8b0c8221aa5cfa5a9d54c42fd656e",
+    "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
     "ui/ui-qmp-cmds.c": "8b7556a158bc8617d34d09469701a7e1cf0cd4397c86fb58fb15320bb738f8e6",
     "util/cacheflush.c": "285fd60e33d6317da2644493a3a575ca76b67e2a89f8d18931c6038afc4e9a5b",
     "util/coroutine-wasm.c": "9d6623d37889f5096ef06c3646145861da24843800bc5fba39c997b3187f1fa6",
     "util/meson.build": "e96841b868eccd075d748d6b9660cac5bf4922468a6dbd1f8076bbac9680d768",
     "util/oslib-posix.c": "7718037afb9d99aa84e16a6cf92ab096683ee5ebac51ddbbecefcfbde919e9da",
-    "ui/console.c": "a8502037244411eb2cb712b2edee94031ebf2511c3a8a0275c2433cae844c23b",
     "util/qemu-timer.c": "5e5558f822b1c7e3581bf408c52332b50dbaec60d9d08fe2f892e471bd5eefb0"
   },
   "subprojects": [

@@ -1,0 +1,651 @@
+{
+  "schema_version": 1,
+  "evidenceLevel": "source-derived-not-guest",
+  "description": "Exact ROI patterns: fill primary, then overwrite absolute exception coordinates. Histograms are additional checks, not pixel tolerances.",
+  "uiflow2": {
+    "version": "2.5.3",
+    "commit": "50e440780492aa847378c7d3477ab912f7063bac",
+    "m5gfxSubmodule": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+    "url": "https://github.com/m5stack/uiflow-micropython/tree/50e440780492aa847378c7d3477ab912f7063bac"
+  },
+  "sources": [
+    {
+      "repository": "m5stack/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "path": "src/M5GFX.cpp",
+      "sha256": "4d1cf1345a6cb9477c371ce3a12fade45bb32f4e3fe53725a2a81ddb3588c997",
+      "lines": "2120-2136,2327-2342",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/M5GFX.cpp"
+    },
+    {
+      "repository": "m5stack/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "path": "src/lgfx/v1/panel/Panel_ED2208.cpp",
+      "sha256": "095d17534f2b78c37bfb044e6fcba517c63bc3c43ce279386923ee8c49078472",
+      "lines": "31-51,92-141,185-231,425-451",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/panel/Panel_ED2208.cpp"
+    },
+    {
+      "repository": "m5stack/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "path": "src/lgfx/v1/panel/Panel_SSD1677.cpp",
+      "sha256": "c87a4c6a95a24d50d4d2750fe99215c655d673b040337523e3ace13fba093f58",
+      "lines": "36,485-509,616-625,888-906,994-998",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/panel/Panel_SSD1677.cpp"
+    },
+    {
+      "repository": "m5stack/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "path": "src/lgfx/v1/panel/Panel_HasBuffer.cpp",
+      "sha256": "ae27849955f1398682d17ae0e918f42c670b1eb172d317ac90390c6b70e25830",
+      "lines": "75-84,141-173",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/panel/Panel_HasBuffer.cpp"
+    },
+    {
+      "repository": "m5stack/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "path": "src/lgfx/v1/misc/colortype.hpp",
+      "sha256": "f436d81152c145ae97e287c3e3685601b21b9081fc6a4a2fe4638f52f2e9ea25",
+      "lines": "454-469",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/misc/colortype.hpp"
+    }
+  ],
+  "qemuController": {
+    "path": "hw/m5stopwatch/m5_epd_panel.c",
+    "sha256": "34a1b53b7265f7ae7d4d33cd0410bcb650a499979aa80192e76d53576d2d8a89",
+    "lines": "46-81,102-110",
+    "binding": "Source inspected; compiled WASM provenance and actual guest acceptance are separate gates."
+  },
+  "formulas": {
+    "rgb888ToQemuRGB565": "((rgb >> 19 & 31) << 11) | ((rgb >> 10 & 63) << 5) | (rgb >> 3 & 31)",
+    "ssd1677": "gray=(R+2*G+B)>>2; native=(logical_y,479-logical_x); level=clamp((gray+Bayer[(native_x&3)+4*(native_y&3)])>>6,0,3); QUALITY sends inverted planes, QEMU inverts them back.",
+    "ssd1677Bayer": [
+      -30,
+      18,
+      -22,
+      26,
+      -14,
+      2,
+      -6,
+      10,
+      -18,
+      30,
+      -26,
+      22,
+      -2,
+      14,
+      -10,
+      6
+    ],
+    "spectra6": "Native x/y, QUALITY dither=140; phase=(y*6192-(x+1)*3683)%16383; RGB phases differ by 5461. Signed channel bias=(phase*2-16382)*140>>16 plus common(sum signed)*140>>16. Adjacent pair minimizes summed block squared RGB error + individual squared errors, first palette pair wins ties.",
+    "spectra6PaletteOrder": [
+      {
+        "index": 0,
+        "rgb888": 0,
+        "rgb565": 0
+      },
+      {
+        "index": 1,
+        "rgb888": 16777215,
+        "rgb565": 65535
+      },
+      {
+        "index": 2,
+        "rgb888": 16773944,
+        "rgb565": 65415
+      },
+      {
+        "index": 3,
+        "rgb888": 12517376,
+        "rgb565": 47104
+      },
+      {
+        "index": 5,
+        "rgb888": 6570239,
+        "rgb565": 25119
+      },
+      {
+        "index": 6,
+        "rgb888": 4426268,
+        "rgb565": 17475
+      }
+    ]
+  },
+  "rgb888ToRGB565": {
+    "0x000000": 0,
+    "0x438a1c": 17475,
+    "0x505050": 21130,
+    "0x6440ff": 25119,
+    "0xb0b0b0": 46486,
+    "0xbf0000": 47104,
+    "0xfff338": 65415,
+    "0xffffff": 65535
+  },
+  "reproduction": "python3 tests/browser-qemu/board_display/epd_oracle.py --check",
+  "devices": {
+    "papercolor": {
+      "mainPath": "tests/browser-qemu/board_display/papercolor_main.py",
+      "mainSHA256": "c18b09c5290562fcea2071faf5b9e7984f2b36b8a347fa76a85d4fdb2997448a",
+      "uiRotation": 0,
+      "epdMode": "EPD_QUALITY",
+      "scope": "fixed fixture count 0 -> 1",
+      "palette": [
+        {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 32,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 63,
+            "17475": 1
+          },
+          "exceptions": [
+            {
+              "x": 35,
+              "y": 114,
+              "rgb565": 17475
+            }
+          ]
+        },
+        {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 88,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 64
+          },
+          "exceptions": []
+        },
+        {
+          "inputRGB888": 16776960,
+          "rect": {
+            "x": 144,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 65415,
+          "histogram": {
+            "65415": 64
+          },
+          "exceptions": []
+        },
+        {
+          "inputRGB888": 16711680,
+          "rect": {
+            "x": 200,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 47104,
+          "histogram": {
+            "47104": 64
+          },
+          "exceptions": []
+        },
+        {
+          "inputRGB888": 255,
+          "rect": {
+            "x": 256,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 25119,
+          "histogram": {
+            "0": 3,
+            "25119": 61
+          },
+          "exceptions": [
+            {
+              "x": 261,
+              "y": 110,
+              "rgb565": 0
+            },
+            {
+              "x": 260,
+              "y": 113,
+              "rgb565": 0
+            },
+            {
+              "x": 256,
+              "y": 115,
+              "rgb565": 0
+            }
+          ]
+        },
+        {
+          "inputRGB888": 65280,
+          "rect": {
+            "x": 312,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 17475,
+          "histogram": {
+            "17475": 64
+          },
+          "exceptions": []
+        }
+      ],
+      "marker": {
+        "rect": {
+          "x": 16,
+          "y": 16,
+          "width": 16,
+          "height": 16
+        },
+        "before": {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 252,
+            "17475": 4
+          },
+          "exceptions": [
+            {
+              "x": 31,
+              "y": 19,
+              "rgb565": 17475
+            },
+            {
+              "x": 21,
+              "y": 21,
+              "rgb565": 17475
+            },
+            {
+              "x": 19,
+              "y": 26,
+              "rgb565": 17475
+            },
+            {
+              "x": 25,
+              "y": 26,
+              "rgb565": 17475
+            }
+          ]
+        },
+        "after": {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 256
+          },
+          "exceptions": []
+        }
+      },
+      "bit0": {
+        "rect": {
+          "x": 26,
+          "y": 274,
+          "width": 30,
+          "height": 30
+        },
+        "before": {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 26,
+            "y": 274,
+            "width": 30,
+            "height": 30
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 900
+          },
+          "exceptions": []
+        },
+        "after": {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 26,
+            "y": 274,
+            "width": 30,
+            "height": 30
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 891,
+            "17475": 9
+          },
+          "exceptions": [
+            {
+              "x": 55,
+              "y": 282,
+              "rgb565": 17475
+            },
+            {
+              "x": 45,
+              "y": 284,
+              "rgb565": 17475
+            },
+            {
+              "x": 53,
+              "y": 287,
+              "rgb565": 17475
+            },
+            {
+              "x": 49,
+              "y": 289,
+              "rgb565": 17475
+            },
+            {
+              "x": 39,
+              "y": 291,
+              "rgb565": 17475
+            },
+            {
+              "x": 29,
+              "y": 293,
+              "rgb565": 17475
+            },
+            {
+              "x": 37,
+              "y": 296,
+              "rgb565": 17475
+            },
+            {
+              "x": 43,
+              "y": 296,
+              "rgb565": 17475
+            },
+            {
+              "x": 33,
+              "y": 298,
+              "rgb565": 17475
+            }
+          ]
+        }
+      }
+    },
+    "papermono": {
+      "mainPath": "tests/browser-qemu/board_display/papermono_main.py",
+      "mainSHA256": "9ec71a31dfe6ad2d359e48a9bc1bdd9ce5eccb0080271fe819e3cfce109d403e",
+      "uiRotation": 0,
+      "epdMode": "EPD_QUALITY",
+      "scope": "fixed fixture count 0 -> 1",
+      "palette": [
+        {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 32,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 64
+          },
+          "exceptions": []
+        },
+        {
+          "inputRGB888": 5592405,
+          "rect": {
+            "x": 140,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 21130,
+          "histogram": {
+            "0": 12,
+            "21130": 52
+          },
+          "exceptions": [
+            {
+              "x": 141,
+              "y": 110,
+              "rgb565": 0
+            },
+            {
+              "x": 143,
+              "y": 110,
+              "rgb565": 0
+            },
+            {
+              "x": 145,
+              "y": 110,
+              "rgb565": 0
+            },
+            {
+              "x": 147,
+              "y": 110,
+              "rgb565": 0
+            },
+            {
+              "x": 143,
+              "y": 112,
+              "rgb565": 0
+            },
+            {
+              "x": 147,
+              "y": 112,
+              "rgb565": 0
+            },
+            {
+              "x": 141,
+              "y": 114,
+              "rgb565": 0
+            },
+            {
+              "x": 143,
+              "y": 114,
+              "rgb565": 0
+            },
+            {
+              "x": 145,
+              "y": 114,
+              "rgb565": 0
+            },
+            {
+              "x": 147,
+              "y": 114,
+              "rgb565": 0
+            },
+            {
+              "x": 143,
+              "y": 116,
+              "rgb565": 0
+            },
+            {
+              "x": 147,
+              "y": 116,
+              "rgb565": 0
+            }
+          ]
+        },
+        {
+          "inputRGB888": 11184810,
+          "rect": {
+            "x": 248,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 46486,
+          "histogram": {
+            "46486": 52,
+            "65535": 12
+          },
+          "exceptions": [
+            {
+              "x": 249,
+              "y": 111,
+              "rgb565": 65535
+            },
+            {
+              "x": 251,
+              "y": 111,
+              "rgb565": 65535
+            },
+            {
+              "x": 253,
+              "y": 111,
+              "rgb565": 65535
+            },
+            {
+              "x": 255,
+              "y": 111,
+              "rgb565": 65535
+            },
+            {
+              "x": 249,
+              "y": 113,
+              "rgb565": 65535
+            },
+            {
+              "x": 253,
+              "y": 113,
+              "rgb565": 65535
+            },
+            {
+              "x": 249,
+              "y": 115,
+              "rgb565": 65535
+            },
+            {
+              "x": 251,
+              "y": 115,
+              "rgb565": 65535
+            },
+            {
+              "x": 253,
+              "y": 115,
+              "rgb565": 65535
+            },
+            {
+              "x": 255,
+              "y": 115,
+              "rgb565": 65535
+            },
+            {
+              "x": 249,
+              "y": 117,
+              "rgb565": 65535
+            },
+            {
+              "x": 253,
+              "y": 117,
+              "rgb565": 65535
+            }
+          ]
+        },
+        {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 356,
+            "y": 110,
+            "width": 8,
+            "height": 8
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 64
+          },
+          "exceptions": []
+        }
+      ],
+      "marker": {
+        "rect": {
+          "x": 16,
+          "y": 16,
+          "width": 16,
+          "height": 16
+        },
+        "before": {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 256
+          },
+          "exceptions": []
+        },
+        "after": {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 256
+          },
+          "exceptions": []
+        }
+      },
+      "bit0": {
+        "rect": {
+          "x": 26,
+          "y": 274,
+          "width": 30,
+          "height": 30
+        },
+        "before": {
+          "inputRGB888": 16777215,
+          "rect": {
+            "x": 26,
+            "y": 274,
+            "width": 30,
+            "height": 30
+          },
+          "primary": 65535,
+          "histogram": {
+            "65535": 900
+          },
+          "exceptions": []
+        },
+        "after": {
+          "inputRGB888": 0,
+          "rect": {
+            "x": 26,
+            "y": 274,
+            "width": 30,
+            "height": 30
+          },
+          "primary": 0,
+          "histogram": {
+            "0": 900
+          },
+          "exceptions": []
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Source arithmetic predicts controller frames; this file is not browser or hardware PASS.",
+    "Only the pinned sources, rotation 0, full QUALITY refresh, palette ROIs and count 0-to-1 marker/bit0 are covered.",
+    "Counter-text glyph identity is not supplied by this oracle; its separate ROI change check does not prove exact numeral pixels."
+  ]
+}

@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-28`
+日期：`2026-10-29`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -142,9 +142,11 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/bootstrap_browser_runtime.py` | 固定 esp32sim 源码与 lockfile 构建 WASM，校验 ROM 来源、许可和 SHA，生成可审计 runtime manifest | `test_bootstrap_browser_runtime.py`；构建产物仅存 ignored cache / 静态导出 |
 | `platform/tools/bootstrap_qemu_browser_runtime.py`、`scripts/qemu-wasm-build/` | 固定 C/QEMU、Emscripten 及依赖完整源码构建和对应源码归档；默认不打包 ROM/固件 | `test_bootstrap_qemu_browser_runtime.py`；[Pages 部署](pages-deployment.md) |
 | `scripts/browser-littlefs/`、`platform/web/public-demo-firmware.js` | 浏览器下载官方基底后本地组合固定 LVGL/PIR 示例，精确 SHA 和原文件保留校验 | `test_browser_littlefs_build.py`、`test_browser_littlefs.mjs` |
-| `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-coi.js` | 每实例 iframe / pthread、私有 MessageChannel、真实 QMP/UART/帧/输入、本地记录和 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs` |
+| `platform/web/public-qemu-runtime.js`、`public-qemu-instance.js`、`public-qemu-engine.js`、`public-coi.js` | 工作台生命周期与本地记录、同源 iframe 首次 one-port gate、module engine Worker 持有原 factory/MEMFS/直接 UART/QMP/嵌套 pthread，以及 Pages 隔离 | `test_public_qemu_runtime.mjs`、`test_public_qemu_instance.mjs`、`test_public_qemu_wrapper.mjs`、`test_public_qemu_entry.mjs`；真实 guest 为 opt-in `test_public_qemu_guest.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/web/qemu-browser-profiles.json`、`public-qemu-profiles.js` | 逐板 ROM、Flash/eFuse、物理帧坐标、输入与公开/候选准入；完整固件 SHA 绑定执行时钟，不能从 compiled 或原生结果继承公开准入 | `test_public_qemu_profiles.mjs`、`test_public_qemu_board_guest.mjs` |
 | `platform/web/public-qemu-frame.js`、QEMU WASM `0014`/`0015` | 真实显示 surface 的共享快照及序列防撕裂；SDK poll 的宿主线程等待，保留客体时钟 | `test_public_qemu_frame.mjs`、`test_wasm_poll_wait_patch.py`、`tests/browser-qemu/poll_wait/` |
+| `tests/browser-qemu/board_display/`、`platform/web/public-qemu-probe-firmware.js` | 各板固定 boot/main 与实际 VFS 的本地组合、逐文件读回、原文件/VFS 外保留和完整 Flash SHA；源码与官方 API pins 见目录 README | `test_public_qemu_probe_firmware.mjs`、`test_public_qemu_board_guest.mjs` |
+| `platform/tests/fixtures/browser_epd_quality_oracles.json`、`tests/browser-qemu/board_display/epd_oracle.py` | 原 QUALITY 驱动产生的 palette/marker/count bit 空间抖色规则，绑定 guest/驱动/编译控制器源 SHA | `epd_oracle.py --check` 只验推导；实际 EPD 帧与输入由 `test_public_qemu_board_guest.mjs` 另验 |
 | `platform/tests/test_public_qemu_admitted_boards.mjs` | 串行执行本次导出中每个公开板型与 CoreS3 两种示例，失败阻止 Pages 发布 | `.github/workflows/public-site.yml`；性能另由 `test_public_qemu_performance.mjs` 量测 |
 | `platform/web/public.js`、`public.css`、`public-config.js`、`public-firmware.js` | 公众工作台、URL 设备选择、固件下载/取消/SHA 与项目路径 | `test_public_config.mjs`、`test_public_workbench_browser.mjs` |
 | `platform/web/public-browser-runtime.js`、`browser-profiles.json` | 独立 Worker/WASM browser backend、真实 RGB565 LE 帧与输入；不继承 native 或 Unit 准入 | `test_public_browser_runtime.mjs`；opt-in `test_public_browser_guest.mjs` 运行官方固件 |
@@ -160,6 +162,56 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 LVGL/触摸/PIR与停止重开；`0009`修主CPU jump的C栈恢复，`0010`提供显式离线慢时钟，`0012`将浏览器stdio QMP绑定已有main-loop context（无OOB）。后续共享帧/host等待及显式正常时钟 SDK 候选见[本轮证据](evidence/2026-10-29-wasm-performance-devices/README.md)；stock SDK 第一层 C Timer coalescing、触摸延迟与其它异常路径仍开放。
 独立Fiber/SjLj最小C对照见`tests/browser-qemu/fiber_sjlj/`，固定guest源码见
 `tests/browser-qemu/cores3_lvgl_pir/`；均为显式opt-in，不纳普通CI执行。
+
+浏览器执行与工作台渲染分开：`public-qemu-instance.js` 只接受直接父窗口、
+同源且恰好一个 MessagePort 的首次连接，将端口交给
+`public-qemu-engine.js` module DedicatedWorker。原 Emscripten factory、
+MEMFS、直接 UART 字符设备、QMP 和嵌套 pthread 在 engine 内执行，DOM 与
+3D 留在工作台。初始化还要等 QMP `query-status` running 和匹配固件的
+guest ready marker，不能从 QMP greeting 提前开始帧轮询。
+`test_public_qemu_instance.mjs` 检查端口独占、原 UART UTF-8 与帧解析隔离、
+待处理 QMP 在 dispose 时撤销，以及初始化期间 dispose 后无迟到 ready/error；
+这些 JS factory/ABI fixture 不执行客体。
+
+清理区分三层：QMP quit 后的 guest exit code 与嵌套 pthread 计数；engine
+dispose 确认、端口关闭和 owner closing 通知；浏览器实际观察到的 Worker close。
+通知仅是退出意图，确认时 engine 仍活着。逐板真实验收延后 iframe DOM 移除，独立
+观察一个 engine 和五个嵌套 pthread 均已关闭后才真正移除 iframe；不能把 owner 布尔值或 iframe
+移除当成同一证明。初始化/错误/pagehide 的 `terminate()` 兜底仍存在，成功
+门禁要求 fallback termination 为零。实现与复现流程见
+[Pages 部署](pages-deployment.md#执行渲染与退出证据)。
+
+逐板 fixture 映射如下；本轮 10 板/11 例的公开准入身份见文末有界证据，正式部署另验。
+
+| 板型 | `tests/browser-qemu/` 下源码 | 输入与画面门禁 |
+| --- | --- | --- |
+| CoreS3 | `cores3_lvgl_pir/`；`cores3_lvgl_wallclock/candidate_lvgl_loop.py` | stock-div8 与正常时钟调度候选分别验证 LVGL、触摸与 PIR |
+| Core2 | `board_display/main.py`、`core2_boot.py` | 原 console 和 `M5.Touch`，S3 UART boot 不适用 |
+| AtomS3R、StickS3 | `board_display/main.py`、`boot.py` | 原 `M5.BtnA`、完整 8×8 红/绿标记；AtomS3R 两行偏移另列校准边界 |
+| StopWatch | `board_display/stopwatch_main.py` | 原触摸、圆屏内标记；逻辑 468×468、可见 466×466 与 offset/crop 分别核对 |
+| StamPLC | `board_display/main.py` | rotation 1、240×135、原 `M5.BtnA` |
+| StackChan | `board_display/main.py` | rotation 1、320×240、屏幕触摸，不涵盖 Si12T 机身触摸 |
+| PaperColor | `board_display/papercolor_main.py` | 400×600、原 Spectra 6 QUALITY EPD、`M5.BtnA` |
+| PaperMono | `board_display/papermono_main.py` | 480×800、原 SSD1677 四灰 QUALITY EPD、官方 raw-point hitbox workaround |
+| Cardputer-ADV | `board_display/cardputer_adv_main.py` | 原 KeyboardI2C/TCA8418 FIFO；11 键 keycode、计数与按下/松开像素 |
+
+PaperMono 的固定示例保留原逻辑坐标输出，正点 raw `(240,650,1,0)` 与
+logical `(90,400)` 同场记录，负点 `(240,400)` 不得改变计数/计数区像素；
+release 明确使用缓存按下坐标。它没有修复 stock logical calibration。
+独立 SDK offset 候选只有 host C++ 证明，未构建/运行候选固件。
+StopWatch 不可从触摸 count 推定校准完成，也不可按假定比例换算原驱动坐标。
+Cardputer-ADV 的 `a/z/q/b/n/m/1/0/Enter/Space/Backspace` 逐键要求原 FIFO
+解码和真实帧变化；轮询 IRQ handler 不证明 GPIO interrupt delivery、Fn 或
+同时 modifier。EPD 门禁逐像素检查原驱动 QUALITY 抖色 palette、marker 与
+count bit 的固定空间规则，直方图不能替代；计数字符 ROI 变化不证明精确字形。
+完整固定源码与边界见
+[逐板说明](../tests/browser-qemu/board_display/README.md)。
+
+`public.js` 将 native RGB565 同时送入原始屏幕与 `model-shell.js` 纹理。
+`test_public_qemu_board_guest.mjs` 在输入前后等待模型 frame sequence 与 native
+frame 相等，并由 viewer render 事件观察对应序列，再全像素核对转换后的
+纹理缓冲区（含声明的 native raster rotation）。这比只看到 frameSeq 递增多一层
+render 顺序证据，仍不等同于 GPU 像素或光学/硬件验证。
 
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、
@@ -597,3 +649,9 @@ canary取得会话能力，`platform/tools/uiflow_runtime.py`区分import派发�
 历史工具来源的离线digest索引在`platform/tests/fixtures/historical_tool_provenance.json`；
 `tests/units/verify_historical_tool_provenance.py`对独立历史Git检出执行逐blob校验，
 普通docs CI不下载旧source或运行时附件，详见[保留规则](evidence-retention.md)。
+
+剩余 Xtensa 本轮最终身份与 10 板/11 例门禁见
+[浏览器准入证据](evidence/2026-10-29-wasm-remaining-xtensa/README.md)。
+`0016` 的 qcode/矩阵、`0017` 的 WASM systimer deadline 和 `0018` 的 TCA
+CFG0 锁存/W1C 分别由实际 C 控制验证；最终 46 层完整构建另做全部公开 fixture
+的独立 guest 回归。宿主控制、单板准入和正式部署是不同证据层。

@@ -8,8 +8,9 @@ import {qemuProbeVfs} from '../web/public-qemu-probe-firmware.js';
 const registry = JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json', import.meta.url), 'utf8'));
 validateQemuBrowserProfiles(registry);
 const pick = id => getQemuBrowserProfile(id, registry, {allowCandidateProfiles:true});
-assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['sticks3', 'atoms3r', 'cores3', 'core2']);
-assert.equal(getQemuBrowserProfile('stopwatch', registry), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
+assert.deepEqual(registry.profiles.filter(p => p.admission === 'public').map(p => p.deviceId), ['stopwatch', 'sticks3', 'atoms3r', 'cores3', 'cardputer-adv', 'stamplc', 'stackchan', 'papercolor', 'papermono', 'core2']);
+const withheld = structuredClone(registry); withheld.profiles.find(row => row.deviceId === 'stopwatch').admission = 'candidate';
+assert.equal(getQemuBrowserProfile('stopwatch', withheld), null, 'a compiled board without independent browser acceptance remains unavailable publicly');
 assert.equal(getQemuBrowserProfile('nanoc6', registry, {allowCandidateProfiles:true}), null);
 assert.equal(getQemuBrowserProfile('tab5', registry, {allowCandidateProfiles:true}), null);
 const detached = pick('cores3'); detached.display.width = 1;
@@ -21,6 +22,21 @@ for (const mutate of [p => p.target = 'riscv32-softmmu', p => p.roms[0].url = 'h
   p => p.efuse.packageVersion = 2, p => p.reference.sha256 = 'unknown']) {
   const broken = structuredClone(registry); mutate(broken.profiles.find(p => p.deviceId === 'cores3'));
   assert.throws(() => validateQemuBrowserProfiles(broken));
+}
+for (const [id, mutate] of [
+  ['papercolor', p => p.fixture.frameOracle.rect.x = p.display.width],
+  ['papercolor', p => p.fixture.frameOracle.after = p.fixture.frameOracle.before],
+  ['papercolor', p => p.fixture.frameOracle.before = 65536],
+  ['papercolor', p => p.fixture.frameOracle.encoding = 'unreviewed'],
+  ['stopwatch', p => p.fixture.logicalDisplay.width = 0],
+  ['papermono', p => p.fixture.touchPoint.y = p.display.height],
+  ['papermono', p => p.inputs.touch = false],
+  ['papermono', p => p.fixture.coordinateSource = 'host-fabricated'],
+  ['papermono', p => p.fixture.logicalTouchStatus = 'fixed'],
+  ['papermono', p => p.fixture.releaseCoordinates = 'current-logical'],
+]) {
+  const broken = structuredClone(registry); mutate(broken.profiles.find(p => p.deviceId === id));
+  assert.throws(() => validateQemuBrowserProfiles(broken), /Invalid QEMU/);
 }
 let loadedURL;
 const loaded = await loadQemuBrowserProfiles({root:'https://example.test/sim/', fetchImpl:async (url, options) => {
@@ -40,6 +56,10 @@ function image(profile) {
   return bytes;
 }
 for (const profile of registry.profiles) {
+  if (profile.fixture?.id === 'xtensa-board-display-v1') {
+    assert.ok(Number.isSafeInteger(profile.fixture.preservedFileCount));
+    assert.equal(profile.fixture.preservedFileCount, profile.fixture.baseFileCount - 2);
+  }
   const raw = image(profile), before = raw.slice(), flash = validateQemuFirmware(raw, profile);
   assert.equal(flash.length, profile.flashMb * 1048576); assert.deepEqual(raw, before);
   assert.deepEqual(flash.subarray(0, raw.length), raw); assert.equal(flash.at(-1), 255);

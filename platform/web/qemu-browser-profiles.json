@@ -25,10 +25,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "stopwatch-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "stopwatch-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -65,21 +65,52 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002172/2113079049317601281/bin/2113079049317601282.bin",
         "bytes": 16773120,
         "sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 8519680,
         "vfsSize": 8253440,
         "uiRotation": 0,
-        "input": "touch:233,348",
-        "layoutSource": "actual-base-partition-table"
+        "input": "touch:233,233",
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "touch",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/stopwatch_main.py",
+            "bytes": 1732,
+            "sha256": "67daad6cd3680fda6379d5fb79b6c18bf42feda2d38fdb1197a42ecba4814406"
+          }
+        },
+        "configSHA256": "637118bc946e010a0a64323e363cbee53ddf45acf22afff1e29e8245b6ad86fb",
+        "firmwareSHA256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "logicalDisplay": {
+          "width": 468,
+          "height": 468
+        },
+        "logicalMarker": {
+          "x": 120,
+          "y": 88,
+          "width": 8,
+          "height": 8
+        }
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
-        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Normal simulation clock is used for the fixed display/input probe; no physical timing or arbitrary firmware claim.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
+        "The SDK logical display is 468x468 while the QEMU panel is 466x466. Stock touch calibration remains offset: physical (233,233) was observed as logical (239,239)."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "7300ee10e6dbb0e45af8b322d50e09176331cbf916f06ae52ff7be46f60999cc"
     },
     {
       "deviceId": "sticks3",
@@ -380,10 +411,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "cardputer-adv-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "cardputer-adv-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -428,6 +459,16 @@
           "x",
           "y",
           "z",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
           "ret",
           "spc",
           "tab",
@@ -435,7 +476,29 @@
           "left",
           "right",
           "up",
-          "down"
+          "down",
+          "esc",
+          "delete",
+          "grave_accent",
+          "minus",
+          "equal",
+          "bracket_left",
+          "bracket_right",
+          "backslash",
+          "semicolon",
+          "apostrophe",
+          "comma",
+          "dot",
+          "slash",
+          "shift",
+          "shift_r",
+          "ctrl",
+          "ctrl_r",
+          "meta_l",
+          "meta_r",
+          "alt",
+          "alt_r",
+          "compose"
         ],
         "pir": null,
         "uart": false
@@ -450,21 +513,143 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000936/2113079532912463874/bin/2113079532912463875.bin",
         "bytes": 8384512,
         "sha256": "38b308769e35fe3393bde711e67d27403c32166cf62c10951c19d684fdb38631",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 6623232,
         "vfsSize": 1761280,
-        "uiRotation": 0,
+        "uiRotation": 1,
         "input": "key:a",
-        "layoutSource": "actual-base-partition-table"
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "keyboard",
+        "firmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b",
+        "configSHA256": "f4e015d2c0c706049593ddaf354c4ebb29581b071c4a711e8c73f5e5c30f79f7",
+        "baseFileCount": 17,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/cardputer_adv_main.py",
+            "bytes": 3320,
+            "sha256": "ff2d229274ac7b59ff70ef702b26a3c26415573063e4a31203f4024eed4ef6b8"
+          }
+        },
+        "keyboardOracle": {
+          "receiveMode": "official-driver-fifo-poll",
+          "stateMarker": {
+            "x": 228,
+            "y": 2,
+            "width": 8,
+            "height": 8,
+            "pressedRGB888": 16763972,
+            "releasedRGB888": 2193151
+          },
+          "cases": [
+            {
+              "qcode": "a",
+              "domKey": "KeyA",
+              "keycode": 97,
+              "row": 2,
+              "col": 2
+            },
+            {
+              "qcode": "z",
+              "domKey": "KeyZ",
+              "keycode": 122,
+              "row": 3,
+              "col": 3
+            },
+            {
+              "qcode": "q",
+              "domKey": "KeyQ",
+              "keycode": 113,
+              "row": 1,
+              "col": 1
+            },
+            {
+              "qcode": "b",
+              "domKey": "KeyB",
+              "keycode": 98,
+              "row": 3,
+              "col": 7
+            },
+            {
+              "qcode": "n",
+              "domKey": "KeyN",
+              "keycode": 110,
+              "row": 3,
+              "col": 8
+            },
+            {
+              "qcode": "m",
+              "domKey": "KeyM",
+              "keycode": 109,
+              "row": 3,
+              "col": 9
+            },
+            {
+              "qcode": "1",
+              "domKey": "Digit1",
+              "keycode": 49,
+              "row": 0,
+              "col": 1
+            },
+            {
+              "qcode": "0",
+              "domKey": "Digit0",
+              "keycode": 48,
+              "row": 0,
+              "col": 10
+            },
+            {
+              "qcode": "ret",
+              "domKey": "Enter",
+              "keycode": 10,
+              "row": 2,
+              "col": 13
+            },
+            {
+              "qcode": "spc",
+              "domKey": "Space",
+              "keycode": 32,
+              "row": 3,
+              "col": 13
+            },
+            {
+              "qcode": "backspace",
+              "domKey": "Backspace",
+              "keycode": 8,
+              "row": 0,
+              "col": 13
+            }
+          ]
+        },
+        "preservedFileCount": 15
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
-        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Explicit qcode-to-physical-matrix translation is required; the fixture decodes all received presses and releases through the official KeyboardI2C driver and guest I2C FIFO polling. GPIO IRQ delivery and additional simultaneous Fn/modifier chords require separate validation.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
+        "The TCA8418 interrupt fix covers default INT_CFG=0 FIFO/W1C semantics. INT_CFG=1 50us timing, KEY_IEN gating and other interrupt sources are unvalidated."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "9ca3d53adf8bc81013a1062461961c27ae0450c1ee5e5b1ece6c21753818623b"
     },
     {
       "deviceId": "stamplc",
@@ -483,10 +668,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "stamplc-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "stamplc-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -525,21 +710,41 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001222/2098280653347049473/bin/2098280653347049474.bin",
         "bytes": 8384512,
         "sha256": "ab684b9d79d5fc5527be9450c18bee46171ae1b93716492be8aeeede50511470",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 6557696,
         "vfsSize": 1826816,
-        "uiRotation": 0,
+        "uiRotation": 1,
         "input": "key:a",
-        "layoutSource": "actual-base-partition-table"
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "54407fa2d7c01138cbdd1ab3c20907db6b825de079336930e88738306ec25b11",
+        "firmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Normal simulation clock is used for the fixed display/input probe; no physical timing or arbitrary firmware claim.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "56b2fb1ce84b9fdde53b8e71737913bcf154e39b633b4311c26f2b3fd6e700bc"
     },
     {
       "deviceId": "stackchan",
@@ -558,10 +763,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "stackchan-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "stackchan-wasm-wallclock",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -593,21 +798,41 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002716/2098280583558025217/bin/2098280583558025218.bin",
         "bytes": 16121856,
         "sha256": "9e6e8066ee317691556c4758911a0345ed4e62398f461b364bb90a147c6db5f9",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 11141120,
         "vfsSize": 4980736,
         "uiRotation": 1,
-        "input": "longpress:160,183,1.0",
-        "layoutSource": "actual-base-partition-table"
+        "input": "touch:160,120",
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "touch",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/main.py",
+            "bytes": 1692,
+            "sha256": "4dd53fcb19394ac43ea606e414baf8720b64c69c8caf3cda452fb2a805d1aed0"
+          }
+        },
+        "configSHA256": "a492005df5b8f3a15338754ad15e38e55bd6ecc9a3f74e648c19e798bb7ca6bf",
+        "firmwareSHA256": "87f453709526d8b70c4951e3c3600f44946fb07a951884170dd1fad7650cae87",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Normal simulation clock is used for the fixed display/input probe; no physical timing or arbitrary firmware claim.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "87f453709526d8b70c4951e3c3600f44946fb07a951884170dd1fad7650cae87"
     },
     {
       "deviceId": "papercolor",
@@ -626,10 +851,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "papercolor-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "papercolor-wasm-wallclock-epaper-probe",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -670,21 +895,53 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002033/2098280498975690753/bin/2098280498975690754.bin",
         "bytes": 16773120,
         "sha256": "166dbd7cfccda4ade1b2284774176955776d24a6fb08434b7ef1d8fca5897816",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 8519680,
         "vfsSize": 8253440,
         "uiRotation": 0,
         "input": "key:a",
-        "layoutSource": "actual-base-partition-table"
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "button",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/papercolor_main.py",
+            "bytes": 2826,
+            "sha256": "c18b09c5290562fcea2071faf5b9e7984f2b36b8a347fa76a85d4fdb2997448a"
+          }
+        },
+        "configSHA256": "a470a91fc5fa0c9109ba4789a32c44cb43b2168d972c10d59f8ffd8960f5c2c5",
+        "firmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "frameOracle": {
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "before": 0,
+          "after": 65535,
+          "encoding": "sdk-quality-pattern-v1"
+        }
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Normal VM clock divisor 1; no physical ePaper waveform, refresh latency, optical, power or hardware equivalence claim.",
+        "Low-frequency full-page EPD quality refresh uses original guest driver; other refresh modes and partial-window semantics are unvalidated.",
         "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "2ecc41a9ab58c8c8e83d4bea25012460c0e3aaf5a5ebdb339e4590a0a30821bc"
     },
     {
       "deviceId": "papermono",
@@ -703,10 +960,10 @@
         "hostRotation": 0
       },
       "execution": "browser-qemu-wasm",
-      "profile": "papermono-wasm-vm-div8",
-      "clockDivisor": 8,
-      "admission": "candidate",
-      "readyMarker": null,
+      "profile": "papermono-wasm-wallclock-epaper-probe",
+      "clockDivisor": 1,
+      "admission": "public",
+      "readyMarker": "\"kind\": \"ready\"",
       "roms": [
         {
           "name": "esp32s3_rev0_rom.bin",
@@ -745,21 +1002,65 @@
         "url": "https://m5burner-cdn.m5stack.com/community/1/2089633464953118721/2098280529426337794/bin/2098280529426337795.bin",
         "bytes": 16773120,
         "sha256": "f3da049b65b5a3899d3484594e3bede92a0928e5217fa260925951a777447b05",
-        "browserValidation": "NOT RUN"
+        "browserValidation": "Hash-pinned browser display/input reference; every rebuilt public export must pass the all-admitted-board guest gate. See docs/evidence/2026-10-29-wasm-remaining-xtensa/summary.json."
       },
       "fixture": {
         "vfsOffset": 8519680,
         "vfsSize": 8253440,
         "uiRotation": 0,
         "input": "longpress:240,650,1.0",
-        "layoutSource": "actual-base-partition-table"
+        "layoutSource": "actual-base-partition-table",
+        "id": "xtensa-board-display-v1",
+        "inputMode": "touch",
+        "sources": {
+          "boot.py": {
+            "path": "platform/runtime/qemu-probe/fixture/boot.py",
+            "bytes": 214,
+            "sha256": "8fc4849761e7bdc252c71759006736f1e5dba98ed486bd934031ac4a08647c33"
+          },
+          "main.py": {
+            "path": "platform/runtime/qemu-probe/fixture/papermono_main.py",
+            "bytes": 4297,
+            "sha256": "9ec71a31dfe6ad2d359e48a9bc1bdd9ce5eccb0080271fe819e3cfce109d403e"
+          }
+        },
+        "configSHA256": "1a1f1426d29bdb022ff86c20d98a32bafd86b30dfa1ba1bd0700a034b0838a78",
+        "firmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70",
+        "baseFileCount": 17,
+        "preservedFileCount": 15,
+        "baseDiskVersion": 131072,
+        "derivedDiskVersion": 131073,
+        "frameOracle": {
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+          },
+          "before": 0,
+          "after": 65535,
+          "encoding": "sdk-quality-pattern-v1"
+        },
+        "touchPoint": {
+          "x": 240,
+          "y": 650
+        },
+        "negativeTouchPoint": {
+          "x": 240,
+          "y": 400
+        },
+        "coordinateSource": "official-raw-point",
+        "logicalTouchStatus": "known-sdk-calibration-gap",
+        "releaseCoordinates": "last-pressed-raw-point"
       },
       "limitations": [
-        "Browser board acceptance required; native results cannot be inherited.",
-        "Virtual time is 1/8 wall-clock time; no physical timing claim.",
-        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated."
+        "Experimental fixed browser display/input reference; no arbitrary firmware or physical-hardware equivalence claim.",
+        "Normal VM clock divisor 1; no physical ePaper waveform, refresh latency, optical, power or hardware equivalence claim.",
+        "Low-frequency full-page EPD quality refresh uses original guest driver; other refresh modes and partial-window semantics are unvalidated.",
+        "Networking, BLE, audio, other Units and arbitrary firmware compatibility are unvalidated.",
+        "The fixed fixture uses the official read-only M5.Touch.getTouchPointRaw(0) portrait FT point for hit-testing after M5.update; it records original logical getX/getY and does not repair or grant PASS to their stock calibration. Release coordinates explicitly retain the last pressed raw point."
       ],
-      "readyFirmwareSHA256": null
+      "readyFirmwareSHA256": "2b7311756055a6b508da9d4717b023149e3d2d1634ae54712aa1786486002f70"
     },
     {
       "deviceId": "core2",

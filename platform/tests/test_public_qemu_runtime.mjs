@@ -28,14 +28,20 @@ const mockDocument={
       frame.calls.push(data);
       if(config.ignore?.includes(data.op))return;
       if(data.op==='start'&&config.rejectStart){port.postMessage({id:data.id,error:'contract start rejection'});return;}
+      if(data.op==='dispose'&&config.rejectDispose){
+        if(config.failedEngineOnDispose)frame.contentWindow.m5QemuEngineOwnership=config.failedEngineOnDispose;
+        port.postMessage({id:data.id,error:'contract dispose rejection'});return;
+      }
       if(data.op==='start')frame.profile=data.value.profile;
-      port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}:data.op==='dispose'?{workersRemaining:0}:undefined});
+      port.postMessage({id:data.id,value:data.op==='input'&&data.value.type==='pir'?{motion:data.value.motion}:data.op==='dispose'?{workersRemaining:0,...(config.engineDisposal?{enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true}:{})}:undefined});
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
     };
     port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
-  }}};frames.push(frame);return frame;},
+  }}};
+  if(config.engineDisposal)frame.contentWindow.m5QemuEngineOwnership={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:true,engineFallbackTerminations:0,enginePortTransferred:true};
+  frames.push(frame);return frame;},
   body:{append(frame){if(!options.ignoreLoad)queueMicrotask(()=>frame.onload?.());}},
 };
 const oldDocument=Object.getOwnPropertyDescriptor(globalThis,'document'),oldIsolation=Object.getOwnPropertyDescriptor(globalThis,'crossOriginIsolated');
@@ -68,6 +74,46 @@ try {
   normal.runtime.receive({type:'frame',value:{width:1,height:1,pixels:new Uint8Array(2)}},generation-1);assert.equal(normal.runtime.sequence,frameCount);
   await normal.runtime.stop();assert.equal(normal.runtime.pending.size,0);assert.equal(normal.runtime.waiters.size,0);assert.equal(normal.runtime.iframe,null);assert.equal(normal.runtime.port,null);
   assert.equal(normal.runtime.cleanupResult.exitCode,0);assert.equal(normal.runtime.cleanupResult.explicitWorkerDisposal,true);assert.equal(browserQemuHistory(normal.runtime.storage).length,1);assert.ok(normal.runtime.evidence().last_frame.sha256);
+
+  // A caller may collect the private acknowledgement before removing the
+  // iframe to observe actual Worker close. stop() reuses that receipt instead
+  // of sending a second command to the now-closed engine port.
+  options={engineDisposal:true};const dedicated=create();await dedicated.runtime.start({device:'cores3',firmware:firmware()});
+  await dedicated.runtime.pause();const dedicatedFrame=frames.at(-1);
+  const disposal=await dedicated.runtime.ask('dispose');assert.equal(disposal.engineWorkersAtAcknowledgement,1);
+  await dedicated.runtime.stop();
+  assert.equal(dedicatedFrame.calls.filter(row=>row.op==='dispose').length,1);
+  assert.equal(dedicated.runtime.cleanupResult.disposal.enginePlacement,'dedicated-worker-v1');
+  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineCloseNotificationReceived,true);
+  assert.equal(dedicated.runtime.cleanupResult.engineOwnership.engineFallbackTerminations,0);
+  assert.equal(dedicatedFrame.removed,true);
+
+  const failedEngine={engineWorkersCreated:1,engineOwnerLive:false,engineCloseNotificationReceived:false,
+    engineFallbackTerminations:1,enginePortTransferred:true};
+  options={};const pausedFailure=create();await pausedFailure.runtime.start({device:'cores3',firmware:firmware()});
+  await pausedFailure.runtime.pause();const pausedFailureFrame=frames.at(-1),beforeFailureCalls=pausedFailureFrame.calls.length;
+  pausedFailureFrame.contentWindow.m5QemuEngineOwnership=failedEngine;
+  await until(()=>pausedFailure.runtime.status==='stopped');
+  assert.equal(pausedFailure.errors.length,1);assert.match(pausedFailure.errors[0],/执行线程异常停止/);
+  assert.ok(pausedFailure.states.includes('error'),'a paused engine failure must immediately enter the error path');
+  assert.equal(pausedFailureFrame.calls.length,beforeFailureCalls,'a dead engine cannot receive frame/quit/dispose commands');
+  assert.deepEqual(pausedFailure.runtime.cleanupResult.engineOwnership,failedEngine);
+  assert.equal(pausedFailure.runtime.cleanupResult.engineOwnershipStage,'before-iframe-removal');
+  assert.equal(pausedFailure.runtime.cleanupResult.explicitWorkerDisposal,false);
+  assert.equal(pausedFailure.runtime.cleanupResult.disposal,null);
+  assert.equal(browserQemuHistory(pausedFailure.runtime.storage)[0].cleanup.engineOwnership.engineFallbackTerminations,1);
+  assert.equal(pausedFailureFrame.removed,true);
+
+  options={rejectDispose:true,failedEngineOnDispose:failedEngine};const rejectedDispose=create();
+  await rejectedDispose.runtime.start({device:'cores3',firmware:firmware()});await rejectedDispose.runtime.pause();
+  const rejectedDisposeFrame=frames.at(-1),beforeRejectedStop=rejectedDisposeFrame.calls.length;
+  await rejectedDispose.runtime.stop();
+  assert.deepEqual(rejectedDisposeFrame.calls.slice(beforeRejectedStop).map(row=>row.op),['quit','dispose']);
+  assert.deepEqual(rejectedDispose.runtime.cleanupResult.engineOwnership,failedEngine,'failed dispose must retain the latest owner failure without an acknowledgement');
+  assert.equal(rejectedDispose.runtime.cleanupResult.engineOwnershipStage,'before-iframe-removal');
+  assert.equal(rejectedDispose.runtime.cleanupResult.disposal,null);
+  assert.equal(rejectedDispose.runtime.cleanupResult.explicitWorkerDisposal,false);
+  assert.equal(rejectedDisposeFrame.removed,true);
 
   options={};const frameSources=create({fetchImpl:async(url)=>{assert.equal(url,root+'platform/runtime/qemu/runtime.json');return new Response(JSON.stringify({...manifest,frame_transport:{kind:'shared-rgb565-v1'}}));}});
   await frameSources.runtime.start({device:'cores3',firmware:firmware()});await until(()=>frameSources.runtime.lastFrame);await frameSources.runtime.pause();

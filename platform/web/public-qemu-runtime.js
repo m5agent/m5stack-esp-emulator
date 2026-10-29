@@ -29,7 +29,7 @@ export class PublicQemuRuntime {
     check(this.port,'浏览器设备尚未连接。');const id=++this.id;
     return new Promise((resolve,reject)=>{
       const timer=setTimeout(()=>{this.pending.delete(id);reject(new Error(`浏览器命令 ${op} 超时。`));},this.requestTimeout);
-      this.pending.set(id,{resolve,reject,timer});
+      this.pending.set(id,{resolve,reject,timer,op});
       try { this.port.postMessage({id,op,value},transfer); }
       catch(error) { clearTimeout(timer);this.pending.delete(id);reject(error); }
     });
@@ -44,7 +44,9 @@ export class PublicQemuRuntime {
     if(generation!==this.generation)return;
     if(data.id) {
       const item=this.pending.get(data.id);if(!item)return;
-      this.pending.delete(data.id);clearTimeout(item.timer);data.error?item.reject(new Error(data.error)):item.resolve(data.value);return;
+      this.pending.delete(data.id);clearTimeout(item.timer);
+      if(!data.error&&item.op==='dispose'&&data.value?.enginePlacement==='dedicated-worker-v1')this.engineDisposal=data.value;
+      data.error?item.reject(new Error(data.error)):item.resolve(data.value);return;
     }
     this.waiters.get(data.type)?.resolve(data.value);this.waiters.delete(data.type);
     if(data.type==='serial') {
@@ -66,7 +68,7 @@ export class PublicQemuRuntime {
   async start({device,firmware,signal,clockDivisor}={}) {
     await this.stop();
     const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;
-    this.inputs=[];this.lastFrame=null;this.exit=null;this.cleanupResult=null;
+    this.inputs=[];this.lastFrame=null;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.receipt=null;this.profile=null;this.stoppedAt=null;
     this.sessionId=crypto.randomUUID();this.startedAt=new Date().toISOString();
     const bootAbort=this.abort=new AbortController();
@@ -138,10 +140,24 @@ export class PublicQemuRuntime {
     const p=this.profile;
     return !p?.readyMarker||this.receipt?.firmwareSha256!==p.readyFirmwareSHA256||this.serial.includes(p.readyMarker);
   }
+  readEngineOwnership() {
+    try {
+      const ownership=this.iframe?.contentWindow?.m5QemuEngineOwnership;
+      return ownership?{...ownership}:null;
+    } catch { return null; }
+  }
+  engineOwnerFailed(ownership) {
+    return ownership?.engineOwnerLive===false&&ownership.engineFallbackTerminations>0;
+  }
   async poll(generation) {
-    if(generation!==this.generation||!this.port)return;
+    if(generation!==this.generation||!this.port||this.stopping)return;
     const begin=performance.now();
-    try{if(this.status==='running'&&this.guestReady())await this.ask('frame');}
+    try{
+      // This read-only owner status also runs while paused, when no frame
+      // request could otherwise reveal a fatally terminated engine.
+      if(this.engineOwnerFailed(this.readEngineOwnership()))throw new Error('浏览器 QEMU 执行线程异常停止。');
+      if(this.status==='running'&&this.guestReady())await this.ask('frame');
+    }
     catch(error){if(generation===this.generation){this.state('error');this.onError(error);await this.stop();}return;}
     // One request in flight. Shared snapshots emit only actual display updates.
     if(generation===this.generation)this.frameTimer=setTimeout(()=>this.poll(generation),Math.max(0,33-(performance.now()-begin)));
@@ -167,19 +183,37 @@ export class PublicQemuRuntime {
     this.stopping=(async()=>{
       clearTimeout(this.frameTimer);this.abort?.abort();this.signalCleanup?.();this.signalCleanup=null;
       let graceful=this.exit?.code===0,disposed=false,disposal=null;
-      if(this.port){
+      let engineOwnership=this.readEngineOwnership();
+      if(this.port&&!this.engineOwnerFailed(engineOwnership)){
         if(!this.exit&&this.status!=='loading'){
           const exit=this.waitFor('exit',6000).then(value=>value.code===0,()=>false);
           this.ask('quit').catch(()=>{});graceful=await exit;
         }
-        try{disposal=await this.ask('dispose');disposed=true;}catch{}
+        engineOwnership=this.readEngineOwnership()||engineOwnership;
+        if(!this.engineOwnerFailed(engineOwnership)){
+          try{disposal=this.engineDisposal||await this.ask('dispose');disposed=true;}catch{}
+        }
       }
+      engineOwnership=this.readEngineOwnership()||engineOwnership;
+      if(disposal?.enginePlacement==='dedicated-worker-v1'){
+        // The notification precedes engine self.close. Only an external Worker
+        // close observation proves its actual exit; this avoids pagehide racing
+        // the ordinary acknowledgement/notification delivery.
+        const deadline=performance.now()+2000;
+        while((engineOwnership=this.readEngineOwnership()||engineOwnership)){
+          if(engineOwnership.engineCloseNotificationReceived||this.engineOwnerFailed(engineOwnership)||performance.now()>deadline)break;
+          await new Promise(resolve=>setTimeout(resolve,10));
+        }
+      }
+      // Preserve failed-dispose/fallback ownership too. This snapshot is taken
+      // before DOM removal and never claims the Worker was observed closed.
+      engineOwnership=this.readEngineOwnership()||engineOwnership;
       this.generation++;this.port?.close();this.port=null;this.iframe?.remove();this.iframe=null;this.abort=null;
       for(const item of this.pending.values()){clearTimeout(item.timer);item.reject(new DOMException('设备已停止','AbortError'));}this.pending.clear();
       for(const item of this.waiters?.values()||[])item.reject(new DOMException('设备已停止','AbortError'));this.waiters?.clear();
       this.stoppedAt=new Date().toISOString();this.cleanupResult={gracefulExit:graceful,exitCode:this.exit?.code??null,
         workersCreated:this.exit?.workersCreated??null,workersAtExit:this.exit?.workersRemaining??null,
-        disposal,explicitWorkerDisposal:disposed,iframeRemoved:true};
+        disposal,engineOwnership,engineOwnershipStage:'before-iframe-removal',explicitWorkerDisposal:disposed,iframeRemoved:true};
       if(this.receipt){const rows=browserQemuHistory(this.storage).filter(row=>row.session_id!==this.sessionId);
         rows.unshift({session_id:this.sessionId,started_at:this.startedAt,stopped_at:this.stoppedAt,receipt:this.receipt,
           serial:this.serial,frame_sha256:this.lastFrame?sha256Bytes(this.lastFrame.pixels):null,cleanup:this.cleanupResult});
