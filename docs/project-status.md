@@ -180,17 +180,17 @@ TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   首 reset。因此后续问题已经从“未知 late object”收敛到 display
   flush -> SPI interrupt -> completion 链。
 
-当前工作假设是 legacy 应用先经历约 44 秒的大量 Flash/cache handoff，随后
-进入 LVGL 双缓冲 flush completion wait；TG1 feed 并非当前配置下的停摆点。
-高频采样下
-的固定 UART/VM PC 簇不再成立；“单次 cache restore 未返回”被
-`0039/0040` 否定；历史 `800 ms` TG1 gap 在三次当前配置中为
-`NOT_REPRODUCED`，不能继续作为首要根因。下一步是确认 SPI interrupt
-在 guest intmatrix/ISR 中的实际投递和 queue/status 更新，直到
-`0x40174884` 完成 callback 与 `lv_disp_flush_ready()` 可观测。
-v1.15.4 ELF/MAP 仍可并行取得，但不再是理解该 loop 的必要条件。
-精确批次、通过率、
-artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
+2026-10-30 的 deterministic `-icount` timing sweep 把当前首失败点继续向后推进：
+`shift=2` + `1 us` fairness cap 在 normal WDT 下于 `4.66 s` 输出
+BOARD/APIKEY、在 `8.50 s` 执行完 matching 原厂 `/flash/boot.py`；但
+`shift=3`/`shift=2` 的 `1 us` 控制都没有产生启动 UI。WDT-off 15/20 秒两份结果都停在双核 Waiti，
+最后一次 Flash/cache 同步在 `9.36 s`，而 FRC timer 仍继续回调，因此“无终点 Flash scan”和“全部 timer 停止”都不再支持。
+显式 UART 诊断在 guest virtual `9.27 s` 捕获到
+`wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`；
+当前下一阻断是 boot.py 之后的 WiFi 配置/UI 线程等待，随后才是 display
+flush completion。`shift=2/3` + `1 us` 只是诊断控制，不是产品修复。
+`RUNTIME-03`、normal-WDT 启动、factory UI、REPL 和非空应用帧仍 `OPEN`。
+精确批次、通过率、artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、

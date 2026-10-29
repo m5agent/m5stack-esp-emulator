@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "4d2d648bd8707a1789d540366015a1b90dc816b66a04163048626ea29e333ed4"
+  },
+  "runtime": {
+    "qemu_sha256": "568079f3b9e818ef1cc29b9e7cd1c5c036af19196668a12174ed79ec96c262ed",
+    "runtime": "qemu-wifi",
+    "profile": "core2-openmac"
+  },
+  "controls": [
+    {
+      "icount_shift": 2,
+      "max_percpu_ns": 1000,
+      "watchdog": "normal",
+      "board_ns": 4659620404,
+      "apikey_ns": 4660179256,
+      "legacy_boot_start_ns": 8340878020,
+      "legacy_boot_done_ns": 8504887849,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "readiness": "boot.py-pass-ui-open",
+      "evidence_sha256": "2335c80d9d6bd0c68fb9199456137bc4ba00ea8d3b2cf9358422099f4bf59eeb"
+    },
+    {
+      "icount_shift": 2,
+      "max_percpu_ns": 1000,
+      "watchdog": "disabled-diagnostic",
+      "pause_ns": 20000000000,
+      "serial_sha256": "923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d",
+      "last_cache_sync_ns": 9358926093,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "evidence_sha256": "c7dd1ccdce8fcc08a5ce44a7fe3f344e01d616f7ecc9cee02d0fe198eda5e2ea"
+    },
+    {
+      "icount_shift": 3,
+      "max_percpu_ns": 1000,
+      "watchdog": "normal",
+      "board_ns": 8384395696,
+      "apikey_ns": 8385523896,
+      "legacy_boot_start_ns": 14191426034,
+      "legacy_boot_done_ns": 14380873848,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "evidence_sha256": "3431323166046b5a45ecd7ad9edd3496d5b389f98ab7dcf5725299ea213826cd"
+    }
+  ],
+  "uart_stack": {
+    "interrupt_virtual_ns": 9267433433,
+    "frames": [
+      "wifiWebCfg.py:84 _thread_task",
+      "menu/wifi.py:22 __init__",
+      "m5stack_ui.py:526 __init__"
+    ],
+    "evidence_sha256": "b80c94c00453b0f78bb4e94b5fc44eb367c6c55a45ec445fad2afb69683749e9"
+  },
+  "timer_control": {
+    "frc_callbacks_observed": true,
+    "last_observed_callback_ns": 9277506536,
+    "trace_sha256": "235886ed1e35aaddc1cf621e505f83813de8562621edfe8923002cd2b20c08b0"
+  },
+  "classification": {
+    "runtime03": "OPEN",
+    "factory_ui": "NOT REACHED",
+    "repl": "NOT REACHED",
+    "application_frame": "BLACK",
+    "first_current_blocker": "wifiWebCfg/menu-wifi/m5stack_ui initialization"
+  }
+}

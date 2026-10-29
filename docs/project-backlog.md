@@ -215,6 +215,15 @@ Core2 legacy 另由 `0065` 关闭 high-priority DPORT handoff 调度死锁，由
   下一项应继续解释其余 guest 工作预算，而不继续压 RR 参数；见
   [issuer/phase 证据](evidence/2026-10-29-core2-handoff-issuer-phases/README.md)
   和[per-vCPU budget 证据](evidence/2026-10-29-core2-icount-percpu-budget/README.md)。
+  2026-10-30 的 timing sweep 进一步区分了“启动预算”和“启动后等待”：
+  `shift=2` + `1 us` 在 normal WDT 下 `4.66 s` 到 BOARD/APIKEY、
+  `8.50 s` 执行完原厂 boot.py；`shift=3` + `1 us` 分别约 `8.38/14.38 s`。
+  两者都没有 factory UI，默认产品 lane 仍保持 `shift=5` + `10 us`。
+  `shift=2` 的 WDT-off 15/20 秒快照均双核 Waiti，Flash/cache 最后活动在
+  `9.36 s`，而 FRC timer 仍有 callback；UART 诊断栈位于
+  `wifiWebCfg.py::_thread_task -> menu/wifi.py -> m5stack_ui.py:526`。
+  下一项应解释 boot.py 后的 WiFi 配置/UI 线程等待，再检查 display flush
+  completion。见[post-boot wait 证据](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md)。
 
 此前用户要求先完成 `API-01`：CoreS3（LVGL）与 Cardputer-ADV（无 LVGL）的
 全部 UIFlow2 接口盘点、实际执行、选定 Unit 联合测试和 Device Service API
@@ -363,8 +372,9 @@ pending SPI remap、high-priority IRQ 协作和 classic RMT 均可重放。
    仍不能解除 normal-WDT reset。下一步结合 matching symbols、tick/IRQ
    rate 与最长锁持有区间解释 `0x05` 前的 transaction-bound gap；
 3. 保持 `0064` 的 pending SPI remap、`TRANS_DONE && TRANS_INTEN` 与 guest
-   callback 回归；在 WiFi-backed 系统菜单初始化中定位下一个未完成路径，
-   再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；
+   callback 回归；当前 UART 栈已把 boot.py 后的首等待定位到
+   `wifiWebCfg/menu-wifi/m5stack_ui`，应先解释该 WiFi 配置/UI 线程停止的
+   原因，再决定 display completion/`lv_disp_flush_ready` 是否仍是当前阻断；
    保留 `0036` stateful SSI 数据面，不使用 `blk_pread` bypass；
 4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase
    放回同一条启动时间线，解释 reset 与 late state 的关系；
