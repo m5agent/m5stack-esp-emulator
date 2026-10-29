@@ -1,0 +1,198 @@
+Subject: [native] re-anchor cooperative IRQ scheduling on reconstructed source
+
+Context port of peripheral 0065 (SHA256
+f03b988372c17147f1b5f8c2fa2dc46366df362626d69b48febe45d48ab35560).
+The reconstructed bootstrap omits the optional handoff/IRQ/CAS diagnostics
+used as context by the historical patch. Preserve the same added C logic and
+icount guards without importing those diagnostics. Apply in place of 0065,
+after the existing 0064 layer. No runtime or hardware validation is implied.
+
+--- a/accel/tcg/tcg-accel-ops-icount.c
++++ b/accel/tcg/tcg-accel-ops-icount.c
+@@ -33,6 +33,34 @@
+ #include "tcg-accel-ops.h"
+ #include "tcg-accel-ops-icount.h"
+ #include "tcg-accel-ops-rr.h"
++
++static unsigned icount_high_priority_irq_cpus;
++
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++    unsigned mask = 1U << cpu_index;
++
++    if (!icount_enabled()) {
++        return;
++    }
++    if (active) {
++        icount_high_priority_irq_cpus |= mask;
++    } else {
++        icount_high_priority_irq_cpus &= ~mask;
++    }
++}
++
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++    if (icount_enabled() && icount_high_priority_irq_cpus) {
++        cpu_exit(cpu);
++    }
++}
++
++bool icount_high_priority_irq_active(void)
++{
++    return icount_enabled() && icount_high_priority_irq_cpus != 0;
++}
+ 
+ static int64_t icount_get_limit(void)
+ {
+--- a/include/sysemu/cpu-timers.h
++++ b/include/sysemu/cpu-timers.h
+@@ -68,6 +68,14 @@
+ /* used by tcg vcpu thread to calc icount budget */
+ int64_t icount_round(int64_t count);
+ 
++/*
++ * Fine-grained round-robin scheduling is required while an Xtensa
++ * high-priority interrupt handler waits on state produced by another vCPU.
++ */
++void icount_note_high_priority_irq(int cpu_index, bool active);
++void icount_yield_for_high_priority_irq(CPUState *cpu);
++bool icount_high_priority_irq_active(void);
++
+ /* if the CPUs are idle, start accounting real time to virtual clock. */
+ void icount_start_warp_timer(void);
+ void icount_account_warp_timer(void);
+--- a/stubs/icount.c
++++ b/stubs/icount.c
+@@ -18,6 +18,16 @@
+     abort();
+     return 0;
+ }
++void icount_note_high_priority_irq(int cpu_index, bool active)
++{
++}
++void icount_yield_for_high_priority_irq(CPUState *cpu)
++{
++}
++bool icount_high_priority_irq_active(void)
++{
++    return false;
++}
+ void icount_start_warp_timer(void)
+ {
+     abort();
+--- a/target/xtensa/cpu.c
++++ b/target/xtensa/cpu.c
+@@ -35,6 +35,7 @@
+ #include "qemu/module.h"
+ #include "migration/vmstate.h"
+ #include "hw/qdev-clock.h"
++#include "sysemu/cpu-timers.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "exec/memory.h"
+ #endif
+@@ -105,6 +106,7 @@
+         xcc->parent_phases.hold(obj, type);
+     }
+ 
++    icount_note_high_priority_irq(cs->cpu_index, false);
+     env->pc = env->config->exception_vector[EXC_RESET0 + env->static_vectors];
+     env->sregs[LITBASE] &= ~1;
+ #ifndef CONFIG_USER_ONLY
+--- a/target/xtensa/exc_helper.c
++++ b/target/xtensa/exc_helper.c
+@@ -33,6 +33,7 @@
+ #include "qemu/host-utils.h"
+ #include "qemu/atomic.h"
+ #include "exec/exec-all.h"
++#include "sysemu/cpu-timers.h"
+ 
+ void HELPER(exception)(CPUXtensaState *env, uint32_t excp)
+ {
+@@ -216,6 +217,9 @@
+     CPUXtensaState *env = cpu_env(cs);
+ 
+     if (cs->exception_index == EXC_IRQ) {
++        if (env->pending_irq_level >= 4) {
++            icount_note_high_priority_irq(cs->cpu_index, true);
++        }
+         qemu_log_mask(CPU_LOG_INT,
+                       "%s(EXC_IRQ) level = %d, cintlevel = %d, "
+                       "pc = %08x, a0 = %08x, ps = %08x, "
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -28,6 +28,8 @@
+ DEF_HELPER_2(intclear, void, env, i32)
+ DEF_HELPER_3(check_atomctl, void, env, i32, i32)
+ DEF_HELPER_4(check_exclusive, void, env, i32, i32, i32)
++DEF_HELPER_1(high_priority_irq_return, void, env)
++DEF_HELPER_2(high_priority_irq_yield, void, env, i32)
+ DEF_HELPER_2(wsr_memctl, void, env, i32)
+ 
+ DEF_HELPER_2(itlb_hit_test, void, env, i32)
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -33,6 +33,7 @@
+ #include "exec/exec-all.h"
+ #include "qemu/atomic.h"
+ #include "qemu/timer.h"
++#include "sysemu/cpu-timers.h"
+ 
+ #ifndef CONFIG_USER_ONLY
+ 
+@@ -209,6 +210,22 @@
+     }
+ }
+ 
++void HELPER(high_priority_irq_return)(CPUXtensaState *env)
++{
++    if (xtensa_get_cintlevel(env) == 4) {
++        icount_note_high_priority_irq(env_cpu(env)->cpu_index, false);
++    }
++}
++
++void HELPER(high_priority_irq_yield)(CPUXtensaState *env, uint32_t handler_only)
++{
++    if (!icount_high_priority_irq_active()
++        || (handler_only && xtensa_get_cintlevel(env) < 4)) {
++        return;
++    }
++    icount_yield_for_high_priority_irq(env_cpu(env));
++}
++
+ void HELPER(wsr_memctl)(CPUXtensaState *env, uint32_t v)
+ {
+     if (xtensa_option_enabled(env->config, XTENSA_OPTION_ICACHE)) {
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1820,6 +1820,7 @@
+ static void translate_memw(DisasContext *dc, const OpcodeArg arg[],
+                            const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(1));
+     tcg_gen_mb(TCG_BAR_SC | TCG_MO_ALL);
+ }
+ 
+@@ -2050,6 +2051,7 @@
+                      cpu_SR[WINDOW_START], tmp);
+     tcg_gen_movi_i32(tmp, dc->pc);
+     tcg_gen_deposit_i32(tmp, tmp, cpu_R[0], 0, 30);
++    gen_helper_high_priority_irq_yield(tcg_env, tcg_constant_i32(0));
+     gen_helper_retw(tcg_env, cpu_R[0]);
+     gen_jump(dc, tmp);
+ }
+@@ -2063,6 +2065,7 @@
+ static void translate_rfe(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_andi_i32(cpu_SR[PS], cpu_SR[PS], ~PS_EXCM);
+     gen_jump(dc, cpu_SR[EPC1]);
+ }
+@@ -2070,6 +2073,7 @@
+ static void translate_rfi(DisasContext *dc, const OpcodeArg arg[],
+                           const uint32_t par[])
+ {
++    gen_helper_high_priority_irq_return(tcg_env);
+     tcg_gen_mov_i32(cpu_SR[PS], cpu_SR[EPS2 + arg[0].imm - 2]);
+     gen_jump(dc, cpu_SR[EPC1 + arg[0].imm - 1]);
+ }

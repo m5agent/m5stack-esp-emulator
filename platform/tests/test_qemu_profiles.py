@@ -287,25 +287,39 @@ class QemuProfileTest(unittest.TestCase):
             for row in self.registry["devices"]
             if row["backend"].startswith(("qemu-esp32", "esp-emulator"))
             and row["id"] != "cardputer-zero"
+            and not row.get("service_admission", {}).get("blocked", False)
         }
         self.assertEqual(matrix_ids, esp32_ids | {"cardputer-zero"})
+        blocked = {row["id"]: row for row in self.registry["devices"]
+                   if row.get("service_admission", {}).get("blocked", False)}
+        self.assertEqual(set(blocked), {"stickc-plus"})
+        for device_id, row in blocked.items():
+            self.assertNotIn(device_id, matrix_ids)
+            self.assertEqual(row["qemu_status"], "backend-pending")
+            self.assertEqual(row["validation"]["status"], "candidate-not-validated")
+            self.assertTrue(row["service_admission"]["reason"].strip())
+        source = json.loads((ROOT / "devices/catalog.source.json").read_text())
+        original_plus = next(row for row in source["devices"] if row["id"] == "stickc-plus")
+        self.assertNotIn("firmware", original_plus["uiflow2"])
+        self.assertEqual(original_plus["runtime"]["service_admission"], blocked["stickc-plus"]["service_admission"])
+        self.assertIn("legacy UIFlow1", blocked["stickc-plus"]["service_admission"]["reason"])
 
     def test_group_counts(self):
         groups = {}
         for row in self.registry["devices"]:
             groups[row["group"]] = groups.get(row["group"], 0) + 1
-        self.assertEqual(groups["esp32-s3"], 9)
+        self.assertEqual(groups["esp32-s3"], 12)
         self.assertEqual(groups["esp32-c6"], 2)
         self.assertEqual(groups["esp32-p4"], 1)
-        self.assertEqual(groups["esp32-lx6"], 1)
+        self.assertEqual(groups["esp32-lx6"], 8)
         self.assertEqual(groups["linux-arm64"], 1)
         qemu_count = sum(
             row["backend"].startswith("qemu-esp32")
             for row in self.registry["devices"]
         )
         summary = self.registry["validation_matrix"]["result"]
-        self.assertEqual(qemu_count, 12)
-        self.assertIn("12 QEMU-backed ESP32", summary)
+        self.assertEqual(qemu_count, 22)
+        self.assertIn("22 QEMU-backed ESP32", summary)
         self.assertIn("Tab5 through esp-emu", summary)
         self.assertNotIn("13 QEMU ESP32", summary)
 

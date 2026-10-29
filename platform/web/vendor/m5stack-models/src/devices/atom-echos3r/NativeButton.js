@@ -1,0 +1,27 @@
+/** MIT.Own exact-source U-slot flexures.All native faces remain;hinge/root and fixed shell remain fixed. */
+import {Button} from '../../core/index.js';
+import {THREE,FACE} from './geometry.js';
+import {spec} from './dimensions.js';
+import {weightedInputHit} from '../../modeling/weighted-input.js';
+export class NativeButton extends Button{
+ constructor(kind,shell){
+  const main=kind==='button',cfg=spec[kind],target=new THREE.Mesh(new THREE.PlaneGeometry(main?10:3.5,main?10:3.4),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));target.name='Own '+kind+' input proxy;physical input is unchanged native tongue';
+  super({id:kind,label:main?'Native programmable main key G'+cfg.gpio:'Native independent side Reset input',mesh:target,position:cfg.position,quaternion:main?FACE.front:FACE.left,travel:cfg.travelMm,longPressMs:0,meta:{role:'visual-control',gpio:cfg.gpio,visualMotion:'own source connected native tongue',scope:'Input intent and native flexure only;no firmware/boot/reset/audio effect',travelSource:'Inferred visual travel,not measured switch threshold'}});
+  this.shell=shell;this.main=main;this.rest=shell.geometry.attributes.position.array.slice();this.restNormal=shell.geometry.attributes.normal.array.slice();this.lastDepth=0;this.weights=new Float32Array(this.rest.length/3);this.slopes=new Float32Array(this.weights.length);
+  const nodes=new Map(),keys=[],source=shell.geometry.attributes.sourceFaceIndex,eligible=n=>main?n.y<cfg.sourceHingeY-1e-5:n.x< -9.9&&n.z>cfg.sourceHingeZ+1e-5;
+  for(let i=0;i<this.weights.length;i++){const k=i*3,key=[this.rest[k],this.rest[k+1],this.rest[k+2]].map(x=>Math.round(x*1e5)).join(',');keys.push(key);if(!nodes.has(key))nodes.set(key,{x:this.rest[k]+shell.position.x,y:this.rest[k+1],z:this.rest[k+2],indices:[],near:new Set()});nodes.get(key).indices.push(i);}
+  for(let i=0;i<this.weights.length;i+=3)for(let j=0;j<3;j++)for(let l=0;l<3;l++)if(eligible(nodes.get(keys[i+j]))&&eligible(nodes.get(keys[i+l])))nodes.get(keys[i+j]).near.add(keys[i+l]);
+  const seed=Array.from(source.array).findIndex((face,i)=>face===(main?7948:3973)&&eligible(nodes.get(keys[i])));if(seed<0)throw new Error('Own native tongue source seed missing');
+  const seen=new Set(),queue=[keys[seed]],span=main?cfg.sourceHingeY-cfg.sourceFreeY:cfg.sourceFreeZ-cfg.sourceHingeZ;
+  for(let j=0;j<queue.length;j++){const key=queue[j];if(seen.has(key))continue;seen.add(key);const node=nodes.get(key),t=THREE.MathUtils.clamp(main?(cfg.sourceHingeY-node.y)/span:(node.z-cfg.sourceHingeZ)/span,0,1);for(const i of node.indices){this.weights[i]=t*t*(3-2*t);this.slopes[i]=6*t*(1-t)/span;}queue.push(...node.near);}
+  this.meta.connectedTongueUniqueVertices=seen.size;this.meta.movingNativeVertices=this.weights.filter(x=>x>0).length;this.meta.fixedSourceRoot=main?{axis:'y',value:cfg.sourceHingeY}:{axis:'z',value:cfg.sourceHingeZ};this.hit(shell,h=>weightedInputHit(this,shell,h));
+ }
+ bindFollower(follower,origin,direction,gap){
+  const p=this.shell.geometry.attributes.position,sf=this.shell.geometry.attributes.sourceFaceIndex,ray=new THREE.Ray(new THREE.Vector3(...origin).sub(this.shell.position),new THREE.Vector3(...direction)),v=i=>new THREE.Vector3().fromBufferAttribute(p,i);let nearest=null;
+  for(let i=0;i<p.count;i+=3){const a=v(i),b=v(i+1),c=v(i+2),point=ray.intersectTriangle(a,b,c,true,new THREE.Vector3());if(!point)continue;const distance=ray.origin.distanceTo(point);if(nearest&&distance>=nearest.distance)continue;const bary=THREE.Triangle.getBarycoord(point,a,b,c,new THREE.Vector3());nearest={distance,point:point.clone().add(this.shell.position).toArray(),sourceFace:sf.getX(i),indices:[i,i+1,i+2],barycentric:bary.toArray(),weight:bary.x*this.weights[i]+bary.y*this.weights[i+1]+bary.z*this.weights[i+2]};}
+  if(!nearest||nearest.weight<=0)throw new Error('Own follower requires actual moving inner-wall source anchor');
+  const size=new THREE.Box3().setFromObject(follower).getSize(new THREE.Vector3());this.follower=follower;this.followerNativeAnchor=nearest;this.followerWeight=nearest.weight;const axis=this.main?'z':'x';follower.position[axis]=nearest.point[this.main?2:0]+(this.main?-1:1)*(size[axis]/2+gap);this.followerRest=follower.position[axis];this.followerGap=gap;
+ }
+ update(dt){const changed=super.update(dt),depth=this.getActuationState().depthMm;if(depth===this.lastDepth)return changed;const p=this.shell.geometry.attributes.position,n=this.shell.geometry.attributes.normal;for(let i=0;i<this.weights.length;i++){if(!this.weights[i])continue;const k=i*3;if(depth===0){p.setXYZ(i,this.rest[k],this.rest[k+1],this.rest[k+2]);n.setXYZ(i,this.restNormal[k],this.restNormal[k+1],this.restNormal[k+2]);continue;}let x=this.rest[k],y=this.rest[k+1],z=this.rest[k+2],nx=this.restNormal[k],ny=this.restNormal[k+1],nz=this.restNormal[k+2];if(this.main){z-=depth*this.weights[i];ny-=depth*this.slopes[i]*nz;}else{x+=depth*this.weights[i];nz-=depth*this.slopes[i]*nx;}const length=Math.hypot(nx,ny,nz);p.setXYZ(i,x,y,z);n.setXYZ(i,nx/length,ny/length,nz/length);}p.needsUpdate=true;n.needsUpdate=true;this.shell.geometry.computeBoundingBox();this.shell.geometry.computeBoundingSphere();if(this.follower)this.follower.position[this.main?'z':'x']=this.followerRest+depth*this.followerWeight*(this.main?-1:1);this.lastDepth=depth;return true;}
+ dispose(){super.dispose();this.shell=null;this.rest=null;this.restNormal=null;this.weights=null;this.slopes=null;this.follower=null;this.followerNativeAnchor=null;}
+}

@@ -16,6 +16,14 @@ const SOURCES = Object.freeze({
     "bytes": 24,
     "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
   },
+  "atoms3_lite_main.py": {
+    "bytes": 1085,
+    "sha256": "b686ad8c42f14c0df2bec244e2a96f2cfde00195b640d7be765d082c5f890ca3"
+  },
+  "stickc_plus2_main.py": {
+    "bytes": 2341,
+    "sha256": "3d8cbeb1b05cf6e205294798c728e94e90ecfbe97903138c5b748d332a89551a"
+  },
   "stopwatch_main.py": {
     "bytes": 1732,
     "sha256": "67daad6cd3680fda6379d5fb79b6c18bf42feda2d38fdb1197a42ecba4814406"
@@ -34,7 +42,20 @@ const SOURCES = Object.freeze({
   }
 });
 const SOURCE_NAMES = Object.freeze({
+  "atoms3": {
+    "boot.py": "core2_boot.py"
+  },
+  "atoms3-lite": {
+    "main.py": "atoms3_lite_main.py"
+  },
   "core2": {
+    "boot.py": "core2_boot.py"
+  },
+  "stickc-plus2": {
+    "boot.py": "core2_boot.py",
+    "main.py": "stickc_plus2_main.py"
+  },
+  "dial": {
     "boot.py": "core2_boot.py"
   },
   "stopwatch": {
@@ -94,7 +115,7 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
   signal, fetchImpl = globalThis.fetch, onProgress = () => {}} = {}) {
   validateQemuProfile(profile); abort(signal);
   const fixture = profile.fixture;
-  check(fixture?.id === 'xtensa-board-display-v1' && ['button', 'touch', 'keyboard'].includes(fixture.inputMode)
+  check(fixture?.id === (profile.display===null?'xtensa-board-led-v1':'xtensa-board-display-v1') && ['button', 'touch', 'keyboard'].includes(fixture.inputMode)
     && Number.isInteger(fixture.uiRotation) && fixture.uiRotation >= 0 && fixture.uiRotation <= 3
     && /^[a-f0-9]{64}$/.test(fixture.firmwareSHA256), 'This board has no reviewed browser probe fixture');
   const options = {signal, fetchImpl};
@@ -150,7 +171,7 @@ export async function composeQemuProbeFirmware({profile, baseBytes, root = siteR
     call('_m5_lfs_unmount'); mounted = false;
     image.set(engine.HEAPU8.subarray(region, region + vfs.size), vfs.offset);
     const digest = sha256Bytes(image); check(digest === fixture.firmwareSHA256, 'Probe composed firmware SHA256 mismatch'); abort(signal);
-    return {bytes:image, sha256:digest, fileName:`${profile.deviceId}-browser-display-probe.bin`, provenance:{kind:'browser-local-littlefs-composition', fixture:fixture.id,
+    return {bytes:image, sha256:digest, fileName:`${profile.deviceId}-browser-${profile.display===null?'led':'display'}-probe.bin`, provenance:{kind:'browser-local-littlefs-composition', fixture:fixture.id,
       base_sha256:profile.reference.sha256, firmware_sha256:digest, composer_commit:SOURCE_COMMIT, composer_wasm_sha256:manifest.assets.wasm.sha256,
       files:Object.fromEntries(files.map(([name, bytes]) => [name, sha256Bytes(bytes)])), source_readback_verified:true,
       preserved_file_count:fixture.preservedFileCount, outside_vfs_unchanged:true, disk_version_before:beforeVersion, disk_version_after:fixture.derivedDiskVersion}};

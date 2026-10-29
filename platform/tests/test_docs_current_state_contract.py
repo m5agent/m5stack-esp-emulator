@@ -82,7 +82,15 @@ class DocsCurrentStateContractTests(DocsContractBase):
         vendor = load_json(project_snapshot.VISUAL_VENDOR)
         expected = set(vendor["controllers"]) - devices
         self.assertEqual(set(vendor["visual_only_controllers"]), expected)
-        self.assertEqual(expected, {"atom-lite", "atom-matrix", "atoms3-lite"})
+        # This explicit admission boundary is independent of the imported model
+        # inventory: adding a visual host must not silently grant runtime ports.
+        self.assertEqual(expected, {
+            "atom-lite", "atom-matrix", "atoms3-lite", "atom-matrix-v11",
+            "atoms3", "atoms3r-ai-chatbot", "atoms3r-cam", "atoms3r-cam-ai-chatbot",
+            "atoms3r-m12", "atoms3r-m12-volcengine-kit", "atoms3r-ext", "atom-echo",
+            "atom-echos3r", "atoms3u", "atomu", "m5stick", "stickv", "stickc",
+            "stickc-plus", "stickc-plus2", "stickc-plus-se", "stickt2", "dial", "basic-v27",
+        })
         units = project_snapshot.summarize_units(devices)
         self.assertEqual(set(units["visual_source"]["visual_only_controllers"]), expected)
         self.assertFalse(expected & {host["device_id"] for host in units["hosts"]})

@@ -1,7 +1,7 @@
 import {assetUrl, siteRoot} from './public-config.js';
 import {downloadFirmware} from './public-firmware.js';
 import {sha256Bytes} from './sha256.js';
-import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, validateQemuFirmware, qemuInputCommand} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles, getQemuBrowserProfile, resolveQemuFirmwareProfile, validateQemuFirmware, qemuInputCommand, validateQemuOnboardState} from './public-qemu-profiles.js';
 
 const QEMU_COMMIT = '40edccac415693c5130f91c01d84176ae6008566';
 const ROM_SHA = 'b5c7090cc22efce51c1323cef31ca96fcd673a5b1d1b1017e219d393f2659913';
@@ -15,10 +15,10 @@ export function browserQemuHistory(storage) {
   try { const rows=JSON.parse((storage || globalThis.localStorage).getItem(HISTORY_KEY)||'[]'); return Array.isArray(rows)?rows:[]; } catch { return []; }
 }
 export class PublicQemuRuntime {
-  constructor({onSerial=()=>{},onFrame=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
+  constructor({onSerial=()=>{},onFrame=()=>{},onDeviceState=()=>{},onState=()=>{},onError=()=>{},root=siteRoot(),fetchImpl=globalThis.fetch,
     requestTimeout=20000,storage,downloadImpl=downloadFirmware,profiles,allowCandidateProfiles=false}={}) {
     try { storage ||= globalThis.localStorage; } catch { storage = null; }
-    Object.assign(this,{onSerial,onFrame,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,allowCandidateProfiles});
+    Object.assign(this,{onSerial,onFrame,onDeviceState,onState,onError,root:new URL(root),fetchImpl,requestTimeout,storage,downloadImpl,profiles,allowCandidateProfiles});
     this.fetchImpl=(...args)=>fetchImpl(...args);
     this.status='stopped';this.generation=0;this.pending=new Map();this.id=0;this.sequence=0;
   }
@@ -55,7 +55,13 @@ export class PublicQemuRuntime {
     }
     if(data.type==='diagnostic') { this.diagnostics=(this.diagnostics+data.value+'\n').slice(-32768); }
     if(data.type==='frame') {
+      if(this.profile?.display===null){this.receive({type:'error',value:'Headless QEMU device emitted an unadmitted framebuffer'},generation);return;}
       this.lastFrame={...data.value,sequence:++this.sequence};this.onFrame(this.lastFrame);
+    }
+    if(data.type==='device-state') {
+      try { validateQemuOnboardState(this.profile,data.value); }
+      catch(error){this.receive({type:'error',value:error.message},generation);return;}
+      this.lastDeviceState=structuredClone(data.value);this.outputSequence++;this.onDeviceState(this.lastDeviceState);
     }
     if(data.type==='exit') { this.exit=data.value; if(!this.stopping){this.state('stopped');void this.stop();} }
     if(data.type==='error') {
@@ -68,7 +74,7 @@ export class PublicQemuRuntime {
   async start({device,firmware,signal,clockDivisor}={}) {
     await this.stop();
     const generation=++this.generation;this.waiters=new Map();this.serial='';this.diagnostics='';this.sequence=0;
-    this.inputs=[];this.lastFrame=null;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
+    this.inputs=[];this.lastFrame=null;this.lastDeviceState=null;this.outputSequence=0;this.exit=null;this.cleanupResult=null;this.engineDisposal=null;
     this.receipt=null;this.profile=null;this.stoppedAt=null;
     this.sessionId=crypto.randomUUID();this.startedAt=new Date().toISOString();
     const bootAbort=this.abort=new AbortController();
@@ -106,12 +112,13 @@ export class PublicQemuRuntime {
         const result=await this.downloadImpl(row.url,{signal:bootAbort.signal,expectedSha256:row.sha256,maxBytes:row.bytes,fetchImpl:this.fetchImpl});
         check(result.size===row.bytes,'ROM 长度错误。');return {name:row.name,bytes:result.bytes,sha256:row.sha256};
       }));active();
-      this.frameTransport=manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
+      this.frameTransport=profile.display===null?null:manifest.frame_transport?.kind==='shared-rgb565-v1'?'shared-rgb565-v1':'qmp-screendump';
       this.receipt={engine:'qemu-wasm',deviceId,board:profile.board,profile:profile.profile,clockDivisor:profile.clockDivisor,
         accelerator:profile.accelerator||null,sourceCommit:QEMU_COMMIT,
         javascriptSha256:manifest.assets.javascript.sha256,workerSha256:manifest.assets.worker.sha256,
         wasmSha256:manifest.assets.wasm.sha256,romSha256:roms[0].sha256,roms:roms.map(({name,sha256})=>({name,sha256})),
         firmwareSha256:firmwareSHA256,firmwareVariant:profile.firmwareVariant||null,build:manifest.build,frameTransport:this.frameTransport,
+        outputTransport:profile.outputs?.kind||null,
         controller:'same-origin-iframe-message-channel',persistentFlash:false};
       const iframe=document.createElement('iframe');this.iframe=iframe;
       iframe.title=`Local ${deviceId} QEMU`;iframe.setAttribute('aria-hidden','true');
@@ -157,11 +164,11 @@ export class PublicQemuRuntime {
       // This read-only owner status also runs while paused, when no frame
       // request could otherwise reveal a fatally terminated engine.
       if(this.engineOwnerFailed(this.readEngineOwnership()))throw new Error('浏览器 QEMU 执行线程异常停止。');
-      if(this.status==='running'&&this.guestReady())await this.ask('frame');
+      if(this.status==='running'&&this.guestReady())await this.ask(this.profile.display===null?'outputs':'frame');
     }
     catch(error){if(generation===this.generation){this.state('error');this.onError(error);await this.stop();}return;}
     // One request in flight. Shared snapshots emit only actual display updates.
-    if(generation===this.generation)this.frameTimer=setTimeout(()=>this.poll(generation),Math.max(0,33-(performance.now()-begin)));
+    if(generation===this.generation)this.frameTimer=setTimeout(()=>this.poll(generation),Math.max(0,(this.profile?.display===null?250:33)-(performance.now()-begin)));
   }
   async pause(){check(this.status==='running','设备未运行。');await this.ask('pause');this.state('paused');return this.observe();}
   async resume(){check(this.status==='paused','设备未暂停。');await this.ask('resume');this.state('running');return this.observe();}
@@ -177,6 +184,7 @@ export class PublicQemuRuntime {
     last_frame:this.lastFrame?{width:this.lastFrame.width,height:this.lastFrame.height,sequence:this.lastFrame.sequence,
       format:this.lastFrame.format,source:this.lastFrame.source,source_sequence:this.lastFrame.sourceSequence??null,
       source_updates:this.lastFrame.sourceUpdates??null,sha256:sha256Bytes(this.lastFrame.pixels),pixels:Array.from(this.lastFrame.pixels)}:null,
+    last_device_state:this.lastDeviceState?{...this.lastDeviceState,observation_sequence:this.outputSequence}:null,
     cleanup:this.cleanupResult,limits:this.profile?.limitations||[]};}
   stop(){
     if(this.stopping)return this.stopping;
@@ -217,7 +225,7 @@ export class PublicQemuRuntime {
         disposal,engineOwnership,engineOwnershipStage:'before-iframe-removal',explicitWorkerDisposal:disposed,iframeRemoved:true};
       if(this.receipt){const rows=browserQemuHistory(this.storage).filter(row=>row.session_id!==this.sessionId);
         rows.unshift({session_id:this.sessionId,started_at:this.startedAt,stopped_at:this.stoppedAt,receipt:this.receipt,
-          serial:this.serial,frame_sha256:this.lastFrame?sha256Bytes(this.lastFrame.pixels):null,cleanup:this.cleanupResult});
+          serial:this.serial,frame_sha256:this.lastFrame?sha256Bytes(this.lastFrame.pixels):null,last_device_state:this.lastDeviceState,cleanup:this.cleanupResult});
         try{this.storage.setItem(HISTORY_KEY,JSON.stringify(rows.slice(0,5)));}catch{}}
       this.state('stopped');return this.observe();
     })().finally(()=>{this.stopping=null;});return this.stopping;

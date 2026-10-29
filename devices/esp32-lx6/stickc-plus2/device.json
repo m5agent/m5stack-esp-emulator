@@ -1,0 +1,97 @@
+{
+  "id": "stickc-plus2",
+  "name": "StickC Plus2",
+  "sku": "K016-P2",
+  "group": "esp32-lx6",
+  "category": "stick",
+  "hardware": {
+    "soc": "ESP32-PICO-V3-02",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 8388608,
+    "psram_bytes": 2097152,
+    "display": {
+      "type": "ips",
+      "width": 135,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ST7789v2",
+      "touch": false,
+      "diagonal_in": 1.14
+    },
+    "controls": [
+      {
+        "id": "a",
+        "type": "button",
+        "label": "A",
+        "gpio": 37
+      },
+      {
+        "id": "b",
+        "type": "button",
+        "label": "B",
+        "gpio": 39
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR",
+        "gpio": 35
+      }
+    ],
+    "sensors": [
+      "imu:mpu6886",
+      "rtc:bm8563",
+      "microphone:spm1423",
+      "buzzer",
+      "ir",
+      "led-output:gpio19",
+      "battery:adc38"
+    ],
+    "power": {
+      "hold_gpio": 4,
+      "battery_adc_gpio": 38,
+      "charger": "TP4057",
+      "pmic": null
+    },
+    "dimensions_mm": [
+      48.0,
+      24.0,
+      13.5
+    ],
+    "weight_g": 16.7
+  },
+  "shell": {
+    "preset": "stick",
+    "accent": "#f58220",
+    "screen_scale": 1.05,
+    "body_theme": "orange"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-st7789",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
+    },
+    "blockers": [
+      "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+    ]
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000000742",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000742/2098280860075905026/bin/2098280860075905027.bin"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/stickc-plus2",
+  "status_label": "candidate"
+}

@@ -99,7 +99,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/frame_cache.py` | QEMU预览显式按需single-flight/TTL样本、采集身份和失效门禁；默认fresh取证不进入缓存 | `preview_frame`、条件GET与Live sessions |
 | `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
 | `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |
-| `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单 | 外壳更新、来源复核 |
+| `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单；38 主机目录和 visual-only 差集由导入生成，未确认贴位资产按精确 SHA 排除 | 外壳更新、来源复核；[新增主机计划](plans/2026-10-29-expanded-host-models.md) |
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |

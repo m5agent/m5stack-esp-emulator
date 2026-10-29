@@ -5,8 +5,10 @@ GitHub Pages 只托管静态文件；C/QEMU、客体 CPU、板级控制器、
 LVGL 和 PIR 在访问者浏览器内运行，不需要 Device Service 或本机 Node 服务。
 逐设备准入由 `platform/web/qemu-browser-profiles.json` 的 `admission` 定义，
 并与本次 runtime 的 `compiled_profiles` 取交集。已编入二进制的 machine、
-候选预览或原生验证均不能自动获得公开准入。未准入的设备可浏览模型或连接
-独立 HTTPS Device Service。本轮代码需要重新构建发布；旧站点证据见文末。
+候选预览或原生验证均不能自动获得公开准入。已有运行登记但未获浏览器准入的
+设备可连接独立 HTTPS Device Service；仅有视觉模型的主机可浏览外观和交互，
+尚无固件执行通路。当前模型目录包含 38 款主机与 184 款 Unit，新增 Atom/Stick
+等型号不会因此自动具备固件兼容性。本轮代码需要重新构建发布；旧站点证据见文末。
 
 ## 仓库管理员部署
 

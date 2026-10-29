@@ -203,8 +203,6 @@ def validate() -> tuple[list[str], dict]:
         external_ids = group.get("external", [])
         assigned_matrix_cases.extend(matrix_ids)
         assigned_external_cases.extend(external_ids)
-        if not matrix_ids and not external_ids:
-            errors.append(f"device {device_id}: runtime case group is empty")
         group_models = set(group.get("models", []))
         simulated_models = {
             component["model"]
@@ -214,6 +212,19 @@ def validate() -> tuple[list[str], dict]:
                 catalog["models"][component["model"]]["status"],
             ) == "simulated"
         }
+        candidate = group.get("status") == "candidate"
+        blocker = group.get("blocker")
+        if candidate and (not isinstance(blocker, str) or not blocker.strip()):
+            errors.append(f"device {device_id}: candidate case group needs a concrete blocker")
+        if candidate and simulated_models:
+            errors.append(f"device {device_id}: candidate case group cannot cover simulated components")
+        # An onboarding candidate has no execution evidence yet. Keep that
+        # explicit instead of manufacturing an external evidence record or
+        # borrowing another board's cases. Existing simulated devices still
+        # require non-empty, device-local cases below.
+        unvalidated_candidate = candidate and not simulated_models and isinstance(blocker, str) and bool(blocker.strip())
+        if not matrix_ids and not external_ids and not unvalidated_candidate:
+            errors.append(f"device {device_id}: runtime case group is empty")
         measured_models: set[str] = set()
         for case_id in matrix_ids + external_ids:
             measured_models.update(case_models.get(case_id, []))

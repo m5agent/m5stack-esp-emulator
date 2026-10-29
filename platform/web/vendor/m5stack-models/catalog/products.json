@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "scope": "visual-only",
   "products": [
     {
@@ -30056,7 +30056,7 @@
             "axis": [
               0.9999967377,
               -0.0025543413,
-              8.3046e-7
+              8.3046e-07
             ],
             "limitsDeg": [
               -20,
@@ -44592,6 +44592,1783 @@
         "Conformity image retains native402x146 resolution;private source metadata and vectors are not included."
       ],
       "nextAction": "Review visible appearance when requested;retain modeled until actual visual acceptance."
+    },
+    {
+      "id": "dial",
+      "category": "controller",
+      "name": "Dial",
+      "sku": "K130",
+      "scope": "visual-only",
+      "nominalMm": [
+        51,
+        51,
+        32.3
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/dial/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/M5Dial/img-25a09e85-7d7b-4f34-abab-c8fa97f55b8f.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/M5Dial",
+      "research": "docs/research/dial/sources.json",
+      "display": {
+        "type": "tft",
+        "width": 240,
+        "height": 240,
+        "shape": "round",
+        "driver": "GC9A01",
+        "touch": true,
+        "effective_mm": [
+          32.512,
+          32.512
+        ]
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "初版 Dial K130 · 完整装配",
+          "options": {}
+        }
+      ],
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "btnA": "wake",
+          "reset": "reset",
+          "boot": "boot"
+        },
+        "rotaryTarget": "rotation"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "初版K130、StampS3；原生9件与重复散件逐面记账，未缩放。",
+        "灰色外圈可拖转；橙色前框和显示组按压、背部RST原生弹舌、GPIO0独立输入；行程及隐藏配合为外观推导。",
+        "圆形240×240 framebuffer与触屏；无电气、RFID/RTC、编码器脉冲、固件或实机模拟。",
+        "同版官图重绘StampS3普通PNG，省略不可辨认证号与微字。"
+      ],
+      "nextAction": "已接入目录并检查网页选择、显示、实体按键/旋钮及Grove连接；继续逐面外观与隐藏尺寸精修，保持modeled。",
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "originalsDistributed": false,
+        "review": "docs/research/dial/modeling.md"
+      },
+      "browserEvidence": "artifacts/host-families-2026-10-28/browser-checks.json"
+    },
+    {
+      "id": "stickc-plus2",
+      "emulatorId": "stickc-plus2",
+      "category": "controller",
+      "name": "M5StickC Plus2",
+      "sku": "K016-P2",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        13.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickc-plus2/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/M5StickC%20PLUS2/6.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickC-Plus2",
+      "research": "docs/research/stickc-plus2/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14,
+        "effective_mm": [
+          14.75,
+          24.95
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "power": "power"
+        },
+        "externalRuntime": "provided-by-consumer"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "Complete M5StickC Plus2",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "本款官方照片与官方页明确链接的共享尺寸图参数化原创重建；没有借用相近型号CAD或原生精度声明",
+        "隐藏PCB/封装/壁厚/接口深度与键行程仍为视觉推导；不代表制造公差、实际配合或电气/固件",
+        "正面M5完整厚舌弯曲与左右B/C实体按放、135×240外驱屏幕、红LED、Grove四芯连接已实现；绿色睡眠灯/IR/麦克风/蜂鸣器只保留被动结构",
+        "后标签按本款清晰官图重绘普通PNG，省略认证编号/微字/唯一标识；已完成网页基础操作检查；逐面精细视觉验收继续保留"
+      ],
+      "nextAction": "已接入目录并检查网页选择、显示、实体按键/旋钮及Grove连接；继续逐面外观与隐藏尺寸精修，保持modeled。",
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/research/stickc-plus2/modeling.md"
+      },
+      "browserEvidence": "artifacts/host-families-2026-10-28/browser-checks.json"
+    },
+    {
+      "id": "atoms3",
+      "emulatorId": "atoms3",
+      "category": "controller",
+      "name": "AtomS3",
+      "sku": "C123",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        12.9
+      ],
+      "cadEnvelopeMm": [
+        24.000019073486328,
+        24.00000008393355,
+        12.899999856948853
+      ],
+      "visualEnvelopeMm": [
+        24.000019073486328,
+        24.16999997615814,
+        12.899999856948853
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3",
+      "research": "docs/research/atoms3/sources.json",
+      "display": {
+        "type": "ips",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "driver": "GC9107",
+        "touch": false,
+        "diagonal_in": 0.85,
+        "effective_mm": [
+          15.27,
+          15.27
+        ]
+      },
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        },
+        "displayTarget": "lcd"
+      },
+      "ports": [
+        "usb",
+        "grove",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [],
+      "displays": [
+        "lcd"
+      ],
+      "joints": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Only ink toggles. Native shells, LCD stack, physical label carriers, connectors and both controls remain."
+        }
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "完整本体与贴纸",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": "docs/research/atoms3/smoke.json",
+        "visual": null
+      },
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "pngCount": 3,
+        "panelCount": 3,
+        "kind": "reference-redraw",
+        "physicalCarriersRetainedWithoutInk": true,
+        "originalsDistributed": false
+      },
+      "limitations": [
+        "Exact C123 original AtomS3;independent own native shells,not C124 or C126 geometry.",
+        "Concealed boards,packages,supports,connector fit and visual travels are photo/CAD-space inferences;not manufacturing dimensions.",
+        "Current GC9107 rear label reference redraw;the supplied ST7735 print revision is documented separately.",
+        "External framebuffer and mechanical input/connection only;no firmware,bus,sensing,touch or automatic reset effects.",
+        "CPU geometry/API/Viewer fixtures and actual browser basics passed;physical-device fit and exhaustive visual acceptance remain separate."
+      ],
+      "nextAction": "已接入目录并检查网页选择、显示、实体按键/旋钮及Grove连接；继续逐面外观与隐藏尺寸精修，保持modeled。",
+      "browserEvidence": "artifacts/host-families-2026-10-28/browser-checks.json"
+    },
+    {
+      "id": "basic-v27",
+      "category": "controller",
+      "name": "Basic v2.7",
+      "sku": "K001-V27",
+      "revision": "v2.7",
+      "scope": "visual-only",
+      "nominalMm": [
+        54,
+        54,
+        17
+      ],
+      "cadEnvelopeMm": [
+        54.1925106048584,
+        54.000003814697266,
+        17.000000190734863
+      ],
+      "visualEnvelopeMm": [
+        54.29999998807907,
+        54.04000190734864,
+        17.27000000357628
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/basic-v27/index.js",
+      "export": "Model",
+      "officialDocs": "https://docs.m5stack.com/en/core/basic_v2.7",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/basic_v2.7/basic_v2.7_01.webp",
+      "research": "docs/research/basic-v27/sources.json",
+      "constructionRoute": "Own immutable K001-V27 Middle Frame and four button instances plus original revised rear base/glass/supported physical assembly reconstruction",
+      "verification": {
+        "geometry": "docs/research/basic-v27/smoke.json",
+        "visual": null
+      },
+      "display": {
+        "type": "ips",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ILI9342C",
+        "touch": false,
+        "diagonal_in": 2
+      },
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "c": "c",
+          "power": "power",
+          "power-switch": "power-switch"
+        },
+        "displayTarget": "lcd"
+      },
+      "ports": [
+        {
+          "id": "usb",
+          "connector": "usb-c",
+          "position": [
+            -27,
+            0,
+            0.75
+          ]
+        },
+        {
+          "id": "grove",
+          "connector": "grove",
+          "position": [
+            -27,
+            -14,
+            -0.3
+          ],
+          "pins": [
+            "GND",
+            "5V",
+            "G21",
+            "G22"
+          ]
+        },
+        {
+          "id": "micro-sd",
+          "connector": "micro-sd",
+          "position": [
+            -6.5,
+            -27,
+            0.7
+          ]
+        },
+        {
+          "id": "mbus",
+          "connector": "m5.bus.30",
+          "position": [
+            21,
+            0,
+            -4.35
+          ],
+          "pins": [
+            "GND",
+            "G35",
+            "GND",
+            "G36",
+            "GND",
+            "EN",
+            "G23",
+            "G25",
+            "G19",
+            "G26",
+            "G18",
+            "3V3",
+            "G3",
+            "G1",
+            "G16",
+            "G17",
+            "G21",
+            "G22",
+            "G2",
+            "G5",
+            "G12",
+            "G13",
+            "G15",
+            "G0",
+            "HPWR",
+            "G34",
+            "HPWR",
+            "5V",
+            "HPWR",
+            "BAT"
+          ]
+        }
+      ],
+      "controls": [
+        "a",
+        "b",
+        "c",
+        "power",
+        "power-switch"
+      ],
+      "externalLeds": [],
+      "displays": [
+        "lcd"
+      ],
+      "joints": [],
+      "sensors": [],
+      "defaults": {
+        "artwork": true,
+        "base": "installed"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "Basic v2.7 · 完整电池底座",
+          "options": {}
+        },
+        {
+          "id": "base-removed",
+          "name": "Basic v2.7 · 底座拆下",
+          "options": {
+            "base": "removed"
+          }
+        }
+      ],
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;physical substrates,glass,native source arrays,switch,ports and motion remain"
+        },
+        "base": {
+          "type": "enum",
+          "values": [
+            "installed",
+            "removed"
+          ],
+          "default": "installed",
+          "meaning": "Default complete battery base;removed exposes the actual host M-Bus and rear PCB. Separate battery base is omitted,not an electrically simulated module."
+        }
+      },
+      "exports": [
+        "Model",
+        "spec",
+        "defaults",
+        "configurations",
+        "configurationSchema"
+      ],
+      "defaultExport": "Model",
+      "artwork": {
+        "ordinaryPngCount": 7,
+        "actualPanelCount": 5,
+        "panelCountBaseRemoved": 1,
+        "unplacedKnownRasters": 2,
+        "sourceKinds": [
+          "official-raster"
+        ],
+        "physicalCarriersRetainedWithoutInk": true,
+        "review": "docs/research/basic-v27/artwork.json"
+      },
+      "limitations": [
+        "Rear base is an original K001-V27 photo/CAD-reference reconstruction:its supplied OBJ omits the photographed bottom switch and has open embossed-text edges;it is not relabeled old-Core geometry.",
+        "Native Middle Frame and four native button instances retain source position,stored normals,face IDs,attribute words and identity index;B/C are rigidly translated copies of the exact supplied front-button part.",
+        "Glass registration,LCD active area,hidden PCB/supports,connector internals,rear-shell wall thickness and button travel are appearance estimates;not manufacturing dimensions.",
+        "M-Bus and side-access contacts are visual mechanical geometry;protocol/electrical compatibility,firmware,power/reset,battery,audio and storage behavior are external.",
+        "Supplied compliance/care PNGs are available but not placed on an unconfirmed housing land."
+      ],
+      "nextAction": "已接入目录并检查网页选择、显示、实体按键/旋钮及Grove连接；继续逐面外观与隐藏尺寸精修，保持modeled。",
+      "browserEvidence": "artifacts/host-families-2026-10-28/browser-checks.json"
+    },
+    {
+      "id": "atom-matrix-v11",
+      "category": "controller",
+      "name": "Atom Matrix v1.1",
+      "sku": "C008-B-V11",
+      "revision": "v1.1",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        13.9
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        13.800000190734863
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atom-matrix-v11/index.js",
+      "export": "Model",
+      "officialDocs": "https://docs.m5stack.com/en/core/Atom-Matrix_v1.1",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1228/C008-B-V11-Atom-Matrix-v1.1-main-pictures_01.webp",
+      "research": "docs/research/atom-matrix-v11/sources.json",
+      "constructionRoute": "Own exact-SKU immutable native shell plus supported original assembly;BMI270 on current daughterboard and own approved raster labels",
+      "verification": {
+        "geometry": "docs/research/atom-matrix-v11/smoke.json",
+        "visual": null
+      },
+      "ports": [
+        "grove",
+        "usb",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "led8",
+        "led9",
+        "led10",
+        "led11",
+        "led12",
+        "led13",
+        "led14",
+        "led15",
+        "led16",
+        "led17",
+        "led18",
+        "led19",
+        "led20",
+        "led21",
+        "led22",
+        "led23",
+        "led24"
+      ],
+      "displays": [],
+      "joints": [],
+      "sensors": [],
+      "defaults": {
+        "artwork": true,
+        "labelPierced": false
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "Atom Matrix v1.1 · BMI270",
+          "options": {}
+        },
+        {
+          "id": "mount-open",
+          "name": "M2 安装位已穿透贴膜",
+          "options": {
+            "labelPierced": true
+          }
+        }
+      ],
+      "configurationSchema": {
+        "labelPierced": {
+          "type": "boolean",
+          "default": false,
+          "meaning": "Physical installation preparation:open only the real thin adhesive film over the unchanged native M2 blind bore;independent of ink"
+        },
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;all original native source arrays,glass,carriers,PCB,contacts,lenses,real sockets and motion remain"
+        }
+      },
+      "exports": [
+        "Model",
+        "spec",
+        "defaults",
+        "configurations",
+        "configurationSchema"
+      ],
+      "defaultExport": "Model",
+      "integration": {
+        "displayTarget": null,
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        },
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "artwork": {
+        "ordinaryPngCount": 2,
+        "actualPanelCount": 2,
+        "kinds": [
+          "official-raster"
+        ],
+        "originalsDistributed": false,
+        "physicalCarriersRetainedWithoutInk": true
+      },
+      "limitations": [
+        "Exact C008-B-V11 revision with BMI270;not the MPU6886 original.",
+        "Own v1.1 official CAD is byte-identical to original Matrix CAD;this is explicitly recorded,not an independent-revision CAD claim. Current nominal13.9mm and native13.8mm differ;no source scaling.",
+        "Native front/rear shell faces retained;glass/PCB/supports and travel are visual estimates. No manufacturing/electrical/firmware or physical-device proof.",
+        "25 individual RGB outputs are visual row-major;physical electrical chain numbering is not inferred from the grid.",
+        "Approved supplied flat ordinary PNGs retain their native raster resolution;private table/vector/names/URLs are not distributed."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "m5stick",
+      "category": "controller",
+      "name": "M5Stick",
+      "sku": "K016",
+      "scope": "visual-only",
+      "nominalMm": [
+        25.5,
+        48.2,
+        13.7
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/m5stick/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/static/assets/img/product_pics/core/minicore/m5stick/m5stick_03.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/M5Stick",
+      "research": "docs/research/m5stick/modeling.md",
+      "display": {
+        "type": "oled",
+        "width": 64,
+        "height": 128,
+        "driver": "SH1107",
+        "touch": false,
+        "diagonal_in": 1.3
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "btnA": "a",
+          "btnPWR": "power"
+        }
+      },
+      "configurations": [
+        {
+          "id": "gray",
+          "name": "Gray · MPU9250 hardware revision",
+          "options": {
+            "version": "gray"
+          }
+        },
+        {
+          "id": "white",
+          "name": "White · no IMU hardware revision",
+          "options": {
+            "version": "white"
+          }
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Official page dimensions48.2×25.5×13.7 are reordered to X25.5,Y48.2,Z13.7;source axes documented.",
+        "Own photographs and dimensions,original reconstruction;not later StickC CAD. Hidden stack,button travel and apertures photo-inferred.",
+        "Gray MPU9250 and no-IMU white own-photo revisions separated;page calls no-IMU variant black while own photo says white. White full rear print not independently resolved;optional IMU block omitted.",
+        "Own gray rear-photo readable large blocks reference-redrawn;unreadable microprint omitted. No audio,IR,IMU,electrical or firmware emulation."
+      ],
+      "artwork": {
+        "status": "reference-redraw-readable-content",
+        "originalsDistributed": false,
+        "review": "docs/research/m5stick/modeling.md"
+      },
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "stickv",
+      "category": "controller",
+      "name": "M5StickV",
+      "sku": "K027",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        22
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickv/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/m5stickv/m5stickv_03.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickV",
+      "research": "docs/research/stickv/modeling.md",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "driver": "ST7789",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "btnA": "a",
+          "btnPWR": "power",
+          "btnB": "b"
+        }
+      },
+      "configurations": [
+        {
+          "id": "blue-pcb",
+          "name": "Blue PCB · I2C IMU",
+          "options": {
+            "pcb": "blue"
+          }
+        },
+        {
+          "id": "black-pcb",
+          "name": "Black PCB · revised microphone board",
+          "options": {
+            "pcb": "black"
+          }
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Own K027 photographs and stated48×24×22mm,original reconstruction;not StickC geometry and not ESP32.",
+        "Two PCB revisions exposed as visual configurations;official BOM/MPU6886/SH200Q and flash references vary historically,not collapsed into fabricated runtime capability.",
+        "Camera,RGBW physical optic,speaker,USB-C,Grove,microSD and keys included. Camera/audio/SD/IMU are passive visible structure;no emulated sensor or firmware.",
+        "Own photos show a plain blue molded case and physical key ribs,not a rear pinout sticker;no photo crop or invented sticker added."
+      ],
+      "artwork": {
+        "status": "own-photos-no-paper-sticker",
+        "originalsDistributed": false,
+        "review": "docs/research/stickv/modeling.md"
+      },
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3r-ai-chatbot",
+      "category": "controller",
+      "name": "AtomS3R-AI Chatbot",
+      "sku": "K147",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        22.9
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-ai-chatbot/index.js",
+      "export": "Model",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1149/K147_04.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-AI_Chatbot",
+      "research": "docs/research/atoms3r-ai-chatbot/modeling.md",
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "AtomS3R-AI Chatbot · with Atomic Voice Base",
+          "options": {}
+        }
+      ],
+      "integration": {
+        "controlMap": {
+          "btnA": "button",
+          "reset": "reset"
+        },
+        "displayTarget": "lcd"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Exact named controller plus Atomic Voice Base A149;not a standalone host alias. Each exact kit contributes its own native base geometry.",
+        "Official base drawing:24×24×14.14mm including4.14mm mating pins;10mm enclosure adds10mm to the parent assembled depth. Rigid source translation only,no scaling/remeshing.",
+        "Assembled contact insertion is inferred from real socket stops,with sampled0.20mm positive tip clearance;4.14mm is the documented unmated projection. PCB/speaker/codec envelopes and exposed5P2mm pitch are constrained visual inferences,not rated connector/manufacturing/electrical data.",
+        "Approved user-supplied ordinary PNGs use current Voice Base wording;older own kit photographs say Echo Base. This print revision difference is explicit.",
+        "Visible camera/speaker/microphone are passive physical parts;no camera/audio,AI,cloud,firmware or sensor simulation."
+      ],
+      "artwork": {
+        "status": "approved-ordinary-raster-integrated",
+        "originalsDistributed": false,
+        "review": "docs/research/atoms3r-ai-chatbot/artwork.json"
+      },
+      "display": {
+        "type": "ips",
+        "width": 128,
+        "height": 128,
+        "driver": "GC9107",
+        "touch": false
+      },
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3r-cam",
+      "emulatorId": "atoms3r-cam",
+      "category": "controller",
+      "name": "AtomS3R-CAM",
+      "sku": "C126-CAM",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        13.5
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        13.5
+      ],
+      "visualEnvelopeMm": [
+        24,
+        24.52,
+        13.880000000000003
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-cam/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R%20Cam/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-CAM",
+      "research": "docs/research/atoms3r-cam/sources.json",
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "reset": "reset"
+        }
+      },
+      "ports": [
+        "usb",
+        "grove",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "reset"
+      ],
+      "externalLeds": [
+        "camera-led"
+      ],
+      "displays": [],
+      "joints": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;glass,optics,physical substrates,contacts and Reset motion retained"
+        }
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "完整相机主机与贴纸",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": "docs/research/atoms3r-cam/smoke.json",
+        "visual": null
+      },
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "pngCount": 3,
+        "panelCount": 3,
+        "kind": "reference-redraw",
+        "physicalCarriersRetainedWithoutInk": true,
+        "originalsDistributed": false
+      },
+      "limitations": [
+        "Hidden PCBs,package envelopes,supports,optical stack,connector fit and visual travel are own-photo/CAD-space appearance inferences,not manufacturing dimensions.",
+        "External input/LED/connection only;no firmware,bus,sensing,camera stream or automatic Reset effects.",
+        "CPU actual geometry/API/Viewer fixture passed;browser pixels and physical-device fit are separate evidence."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3r-cam-ai-chatbot",
+      "category": "controller",
+      "name": "AtomS3R-CAM AI Chatbot",
+      "sku": "K147-CAM",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        23.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-cam-ai-chatbot/index.js",
+      "export": "Model",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1148/K147-CAM_04.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-CAM_AI_Chatbot",
+      "research": "docs/research/atoms3r-cam-ai-chatbot/modeling.md",
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "AtomS3R-CAM AI Chatbot · with Atomic Voice Base",
+          "options": {}
+        }
+      ],
+      "integration": {
+        "controlMap": {
+          "reset": "reset"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Exact named controller plus Atomic Voice Base A149;not a standalone host alias. Each exact kit contributes its own native base geometry.",
+        "Official base drawing:24×24×14.14mm including4.14mm mating pins;10mm enclosure adds10mm to the parent assembled depth. Rigid source translation only,no scaling/remeshing.",
+        "Assembled contact insertion is inferred from real socket stops,with sampled0.20mm positive tip clearance;4.14mm is the documented unmated projection. PCB/speaker/codec envelopes and exposed5P2mm pitch are constrained visual inferences,not rated connector/manufacturing/electrical data.",
+        "Approved user-supplied ordinary PNGs use current Voice Base wording;older own kit photographs say Echo Base. This print revision difference is explicit.",
+        "Visible camera/speaker/microphone are passive physical parts;no camera/audio,AI,cloud,firmware or sensor simulation."
+      ],
+      "artwork": {
+        "status": "approved-ordinary-raster-integrated",
+        "originalsDistributed": false,
+        "review": "docs/research/atoms3r-cam-ai-chatbot/artwork.json"
+      },
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3r-m12",
+      "emulatorId": "atoms3r-m12",
+      "category": "controller",
+      "name": "AtomS3R-M12",
+      "sku": "C126-M12",
+      "scope": "visual-only",
+      "nominalMm": [
+        26.4,
+        24,
+        22.5
+      ],
+      "cadEnvelopeMm": [
+        26.400001525878906,
+        24,
+        22
+      ],
+      "visualEnvelopeMm": [
+        26.400001525878906,
+        24.52,
+        22.380000000000003
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-m12/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R-M12/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-M12",
+      "research": "docs/research/atoms3r-m12/sources.json",
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "reset": "reset"
+        }
+      },
+      "ports": [
+        "usb",
+        "grove",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "reset"
+      ],
+      "externalLeds": [
+        "camera-led"
+      ],
+      "displays": [],
+      "joints": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;glass,optics,physical substrates,contacts and Reset motion retained"
+        }
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "完整相机主机与贴纸",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": "docs/research/atoms3r-m12/smoke.json",
+        "visual": null
+      },
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "pngCount": 2,
+        "panelCount": 2,
+        "kind": "reference-redraw",
+        "physicalCarriersRetainedWithoutInk": true,
+        "originalsDistributed": false
+      },
+      "limitations": [
+        "Hidden PCBs,package envelopes,supports,optical stack,connector fit and visual travel are own-photo/CAD-space appearance inferences,not manufacturing dimensions.",
+        "External input/LED/connection only;no firmware,bus,sensing,camera stream or automatic Reset effects.",
+        "CPU actual geometry/API/Viewer fixture passed;browser pixels and physical-device fit are separate evidence.",
+        "Official dimension conflict:hero 24x24x23.8,prose 24x24x22.1,current table26.4x24x22.5;own native envelope26.4x24x22 retained without scaling."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3r-m12-volcengine-kit",
+      "category": "controller",
+      "name": "AtomS3R-M12 Volcengine Kit",
+      "sku": "D062-M12",
+      "scope": "visual-only",
+      "nominalMm": [
+        26.4,
+        24,
+        32.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-m12-volcengine-kit/index.js",
+      "export": "Model",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1146/D062-M12_04.jpg",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-M12_Volcengine_Kit",
+      "research": "docs/research/atoms3r-m12-volcengine-kit/modeling.md",
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "AtomS3R-M12 Volcengine Kit · with Atomic Voice Base",
+          "options": {}
+        }
+      ],
+      "integration": {
+        "controlMap": {
+          "reset": "reset"
+        }
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Exact named controller plus Atomic Voice Base A149;not a standalone host alias. Each exact kit contributes its own native base geometry.",
+        "Official base drawing:24×24×14.14mm including4.14mm mating pins;10mm enclosure adds10mm to the parent assembled depth. Rigid source translation only,no scaling/remeshing.",
+        "Assembled contact insertion is inferred from real socket stops,with sampled0.20mm positive tip clearance;4.14mm is the documented unmated projection. PCB/speaker/codec envelopes and exposed5P2mm pitch are constrained visual inferences,not rated connector/manufacturing/electrical data.",
+        "Approved user-supplied ordinary PNGs use current Voice Base wording;older own kit photographs say Echo Base. This print revision difference is explicit.",
+        "Visible camera/speaker/microphone are passive physical parts;no camera/audio,AI,cloud,firmware or sensor simulation."
+      ],
+      "artwork": {
+        "status": "approved-ordinary-raster-integrated",
+        "originalsDistributed": false,
+        "review": "docs/research/atoms3r-m12-volcengine-kit/artwork.json"
+      },
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "stickc",
+      "emulatorId": "stickc",
+      "category": "controller",
+      "name": "M5StickC",
+      "sku": "K016-C",
+      "scope": "visual-only",
+      "nominalMm": [
+        25.5,
+        48.2,
+        13.7
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickc/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/m5stickc/m5stickc_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickC",
+      "research": "docs/research/stickc/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 80,
+        "height": 160,
+        "shape": "rect",
+        "driver": "ST7735SV / ST7735S",
+        "touch": false,
+        "diagonal_in": 0.96,
+        "effective_mm": [
+          10.9,
+          21.8
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "power": "power"
+        },
+        "externalRuntime": "provided-by-consumer"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "Complete M5StickC",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Official current table says 48.2x25.5x13.7mm, own CAD unscaled shells assemble to24x48x13.5mm;nominal and runtime envelope retained separately.",
+        "Official prose names ST7735SV;pinmap names ST7735S;both retained.",
+        "Native source has twelve four-way edges, no degree-1 boundary;all source arrays retained, without claiming strict two-edge manifold.",
+        "Hidden installation and normalized travel inferred;no manufacturing/electrical/firmware acceptance",
+        "Own label reference redraw,omitted microtext and registration IDs;browser pixels require root integration"
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。",
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/research/stickc/modeling.md"
+      }
+    },
+    {
+      "id": "stickc-plus",
+      "emulatorId": "stickc-plus",
+      "category": "controller",
+      "name": "M5StickC Plus",
+      "sku": "K016-P",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        13.5
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickc-plus/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/m5stickc_plus/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickC-Plus",
+      "research": "docs/research/stickc-plus/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14,
+        "effective_mm": [
+          14.75,
+          24.95
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "power": "power"
+        },
+        "externalRuntime": "provided-by-consumer"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "Complete M5StickC Plus",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Two additional translated native shell previews are excluded with face correspondence;all other arrays and original IDs retained.",
+        "Hidden installation and normalized travel inferred;no manufacturing/electrical/firmware acceptance",
+        "Own label reference redraw,omitted microtext and registration IDs;browser pixels require root integration"
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。",
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/research/stickc-plus/modeling.md"
+      }
+    },
+    {
+      "id": "atoms3r-ext",
+      "emulatorId": "atoms3r-ext",
+      "category": "controller",
+      "name": "AtomS3R-Ext",
+      "sku": "C126-Ext",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        12
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        12
+      ],
+      "visualEnvelopeMm": [
+        24,
+        24.52,
+        12.380000000000003
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3r-ext/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R%20Ext/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R-Ext",
+      "research": "docs/research/atoms3r-ext/sources.json",
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "reset": "reset"
+        }
+      },
+      "ports": [
+        "usb",
+        "grove",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "reset"
+      ],
+      "externalLeds": [],
+      "displays": [],
+      "joints": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;prototype board,FPC,physical substrates,contacts and Reset motion retained"
+        }
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "完整原型扩展主机与贴纸",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": "docs/research/atoms3r-ext/smoke.json",
+        "visual": null
+      },
+      "artwork": {
+        "status": "reference-redraw-integrated",
+        "pngCount": 3,
+        "panelCount": 3,
+        "kind": "reference-redraw",
+        "physicalCarriersRetainedWithoutInk": true,
+        "originalsDistributed": false
+      },
+      "limitations": [
+        "Hidden PCBs,package envelopes,supports,optical stack,connector fit and visual travel are own-photo/CAD-space appearance inferences,not manufacturing dimensions.",
+        "External input/LED/connection only;no firmware,bus,sensing,camera stream or automatic Reset effects.",
+        "CPU actual geometry/API/Viewer fixture passed;browser pixels and physical-device fit are separate evidence.",
+        "Prototype board is a fixed seated visual assembly with30 independent through-hole pads;no invented hinge,signal or powered circuit simulation.",
+        "Official dimension conflict:hero12.9mm,current table12mm;own native12mm retained."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "stickc-plus-se",
+      "emulatorId": "stickc-plus-se",
+      "category": "controller",
+      "name": "M5StickC Plus SE",
+      "sku": "K016-P-SE",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        13.52
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickc-plus-se/index.js",
+      "export": "Model",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1234/K016-P-SE-StickC-Plus_SE_main_pictures_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickC-Plus_SE",
+      "research": "docs/research/stickc-plus-se/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789V2",
+        "touch": false,
+        "diagonal_in": 1.14,
+        "effective_mm": [
+          14.8,
+          24.86
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "power": "power"
+        },
+        "externalRuntime": "provided-by-consumer"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "Complete M5StickC Plus SE",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Own SE mechanical drawing dimension13.52mm conflicts with prose8.4mm;runtime follows drawing,table is retained separately.",
+        "No native SE CAD linked;original analytic enclosure follows its own six views,without borrowing Plus/Plus2 meshes.",
+        "Hidden PCB/BOM positions,material opacity,wall thickness,contacts andnormalized keytravel remain photo-derived or connector-family estimates.",
+        "No built-in IMU;no sensor,firmware,electrical or audio emulation",
+        "Own approved ordinary raster only;private sources remain outside repository;browser pixels require root integration"
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。",
+      "artwork": {
+        "status": "approved-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/research/stickc-plus-se/modeling.md"
+      }
+    },
+    {
+      "id": "atom-echo",
+      "category": "controller",
+      "name": "Atom Voice (Atom Echo)",
+      "sku": "C008-C",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        16.8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        16.799999237060547
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atom-echo/index.js",
+      "export": "Model",
+      "officialDocs": "https://docs.m5stack.com/en/atom/Atom_Voice",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/676/C008-C_01.jpg",
+      "research": "docs/research/atom-echo/sources.json",
+      "constructionRoute": "Own exact-SKU immutable complete native shell plus supported original internal/audio/connector reconstruction and approved flat PNG labels",
+      "verification": {
+        "geometry": "docs/research/atom-echo/smoke.json",
+        "visual": null
+      },
+      "ports": [
+        "grove",
+        "usb",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [
+        "led"
+      ],
+      "displays": [],
+      "joints": [],
+      "sensors": [],
+      "defaults": {
+        "artwork": true,
+        "labelPierced": false
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "Atom Voice (Atom Echo)",
+          "options": {}
+        },
+        {
+          "id": "mount-open",
+          "name": "M2安装贴膜已穿透",
+          "options": {
+            "labelPierced": true
+          }
+        }
+      ],
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;all physical structure/motion/carriers remain"
+        },
+        "labelPierced": {
+          "type": "boolean",
+          "default": false,
+          "meaning": "Physical M2 film preparation only;independent of ink"
+        }
+      },
+      "exports": [
+        "Model",
+        "spec",
+        "defaults",
+        "configurations",
+        "configurationSchema"
+      ],
+      "defaultExport": "Model",
+      "integration": {
+        "displayTarget": null,
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        },
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "artwork": {
+        "ordinaryPngCount": 2,
+        "actualPanelCount": 2,
+        "kinds": [
+          "official-raster"
+        ],
+        "originalsDistributed": false,
+        "physicalCarriersRetainedWithoutInk": true
+      },
+      "limitations": [
+        "Exact C008-C own official CAD used;C008-C and C126-ECHO have the same shell blob but different electronics and graphics.",
+        "24x24x16.8mm native/table reference retained without scale;legacy Echo hero rounds depth to17mm.",
+        "Both native closed halves kept. Internal audio/PCB/fasteners/supports and key travel are visual reconstructions from own official multi-view;no manufacturing validation.",
+        "Native U-slot key and side Reset deform only their own connected tongues;no automatic LED/audio/boot/reset/electrical behavior.",
+        "G19/G22/G23/G33 physically exist on the 5-pin bank but are occupied by onboard audio;no electrical reuse is promised.",
+        "Only approved ordinary raster labels are public;private table/vector/names/URLs remain external."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atom-echos3r",
+      "category": "controller",
+      "name": "Atom VoiceS3R (Atom EchoS3R)",
+      "sku": "C126-ECHO",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        24,
+        16.8
+      ],
+      "cadEnvelopeMm": [
+        24,
+        24,
+        16.799999237060547
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atom-echos3r/index.js",
+      "export": "Model",
+      "officialDocs": "https://docs.m5stack.com/en/core/Atom_VoiceS3R",
+      "reference": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1182/Atom_EchoS3R_01.webp",
+      "research": "docs/research/atom-echos3r/sources.json",
+      "constructionRoute": "Own exact-SKU immutable complete native shell plus supported original internal/audio/connector reconstruction and approved flat PNG labels",
+      "verification": {
+        "geometry": "docs/research/atom-echos3r/smoke.json",
+        "visual": null
+      },
+      "ports": [
+        "grove",
+        "usb",
+        "ext-5p",
+        "ext-4p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [],
+      "displays": [],
+      "joints": [],
+      "sensors": [],
+      "defaults": {
+        "artwork": true,
+        "labelPierced": false
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "Atom VoiceS3R (Atom EchoS3R)",
+          "options": {}
+        },
+        {
+          "id": "mount-open",
+          "name": "M2安装贴膜已穿透",
+          "options": {
+            "labelPierced": true
+          }
+        }
+      ],
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;all physical structure/motion/carriers remain"
+        },
+        "labelPierced": {
+          "type": "boolean",
+          "default": false,
+          "meaning": "Physical M2 film preparation only;independent of ink"
+        }
+      },
+      "exports": [
+        "Model",
+        "spec",
+        "defaults",
+        "configurations",
+        "configurationSchema"
+      ],
+      "defaultExport": "Model",
+      "integration": {
+        "displayTarget": null,
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        },
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "artwork": {
+        "ordinaryPngCount": 2,
+        "actualPanelCount": 2,
+        "kinds": [
+          "official-raster"
+        ],
+        "originalsDistributed": false,
+        "physicalCarriersRetainedWithoutInk": true
+      },
+      "limitations": [
+        "Exact C126-ECHO own official CAD used;C008-C and C126-ECHO have the same shell blob but different electronics and graphics.",
+        "24x24x16.8mm native/table reference retained without scale;legacy Echo hero rounds depth to17mm.",
+        "Both native closed halves kept. Internal audio/PCB/fasteners/supports and key travel are visual reconstructions from own official multi-view;no manufacturing validation.",
+        "Native U-slot key and side Reset deform only their own connected tongues;no automatic LED/audio/boot/reset/electrical behavior.",
+        "Only approved ordinary raster labels are public;private table/vector/names/URLs remain external."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "atoms3u",
+      "emulatorId": "atoms3u",
+      "category": "controller",
+      "name": "AtomS3U",
+      "sku": "K125",
+      "scope": "visual-only",
+      "nominalMm": [
+        20,
+        53,
+        10.3
+      ],
+      "cadEnvelopeMm": [
+        20.706867218017578,
+        40.32127244770527,
+        10.300000429153442
+      ],
+      "visualEnvelopeMm": [
+        20.706867218017578,
+        54.019999999999996,
+        10.300000429153451
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/atoms3u/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/AtomS3U/img-82d5d251-1bfd-4133-9324-404242e5acc7.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3U",
+      "research": "docs/research/atoms3u/sources.json",
+      "integration": {
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        }
+      },
+      "ports": [
+        "usb",
+        "grove",
+        "ext-6p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [
+        "rgb"
+      ],
+      "displays": [],
+      "joints": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Only printed ink;native shells,adhesive carrier,physical RGB/microphone/IR,connectors and both inputs retained"
+        }
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "完整USB主机与贴纸",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": "docs/research/atoms3u/smoke.json",
+        "visual": null
+      },
+      "artwork": {
+        "status": "approved-ordinary-raster-integrated",
+        "pngCount": 1,
+        "panelCount": 1,
+        "kind": "approved-ordinary-raster",
+        "physicalCarriersRetainedWithoutInk": true,
+        "originalsDistributed": false
+      },
+      "limitations": [
+        "Hidden PCBs,package envelopes,supports,optical stack,connector fit and visual travel are own-photo/CAD-space appearance inferences,not manufacturing dimensions.",
+        "External input/LED/connection only;no firmware,bus,sensing,camera stream or automatic Reset effects.",
+        "CPU actual geometry/API/Viewer fixture passed;browser pixels and physical-device fit are separate evidence.",
+        "USB-A male metal plug and hidden board are reconstructed from own photos;own native body excludes this plug.",
+        "Official microphone DAT/CLK mapping conflicts between prose and schematic;no PDM behavior registered."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
+    },
+    {
+      "id": "stickt2",
+      "emulatorId": "stickt2",
+      "category": "controller",
+      "name": "M5StickT2",
+      "sku": "K016-T2",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        48,
+        24
+      ],
+      "stage": "modeled",
+      "entry": "src/devices/stickt2/index.js",
+      "export": "Model",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/m5stickt/m5stickt_01.webp",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickT2",
+      "research": "docs/research/stickt2/modeling.md",
+      "display": {
+        "type": "tft",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789",
+        "touch": false,
+        "diagonal_in": 1.14,
+        "effective_mm": [
+          14.8,
+          24.86
+        ]
+      },
+      "integration": {
+        "displayTarget": "lcd",
+        "controlMap": {
+          "a": "a",
+          "b": "b",
+          "power": "power",
+          "press": "press"
+        },
+        "externalRuntime": "provided-by-consumer"
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "label": "Complete M5StickT2",
+          "options": {}
+        }
+      ],
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "limitations": [
+        "Official24mm width excludes own CAD30.4mm ear envelope;raw native depth23.9mm and nominal24mm retained separately.",
+        "Native front shell contains two closed inward negative-volume interior boundaries;source arrays retained without reversal or repair.",
+        "Own raw source does not identify the2021 smaller-wheel hardware revision;wheel and concealed mechanism are exact-product photo/source-opening inferences,not measured production CAD.",
+        "No encoder detent count,pulse synthesis,thermal acquisition,temperature conversion,power/electrical or firmware behavior inferred.",
+        "Added hidden installation and normalized travel inferred;no physical-fit/electrical/firmware acceptance",
+        "Passive Lepton optics only;temperature/thermal acquisition and image generation external",
+        "Own native M5 and grip grooves retained;no independent adhesive sticker shown in exact-model references"
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。",
+      "artwork": {
+        "status": "native-shell-marking-no-separate-label",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/research/stickt2/modeling.md"
+      }
+    },
+    {
+      "id": "atomu",
+      "category": "controller",
+      "name": "AtomU",
+      "sku": "K117",
+      "scope": "visual-only",
+      "nominalMm": [
+        20,
+        53,
+        10.3
+      ],
+      "cadEnvelopeMm": null,
+      "stage": "modeled",
+      "entry": "src/devices/atomu/index.js",
+      "export": "Model",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomU",
+      "reference": "https://static-cdn.m5stack.com/resource/docs/products/core/ATOM U/img-70ca8b36-bd91-4760-af0b-ae247bbb30b7.webp",
+      "research": "docs/research/atomu/sources.json",
+      "constructionRoute": "Own dimension drawing and multi-view/bare-board photo constrained original complete physical reconstruction;no own native CAD",
+      "verification": {
+        "geometry": "docs/research/atomu/smoke.json",
+        "visual": null
+      },
+      "ports": [
+        "grove",
+        "usb",
+        "ext-6p"
+      ],
+      "controls": [
+        "button",
+        "reset"
+      ],
+      "externalLeds": [
+        "led"
+      ],
+      "displays": [],
+      "joints": [],
+      "sensors": [],
+      "defaults": {
+        "artwork": true
+      },
+      "configurations": [
+        {
+          "id": "complete",
+          "name": "AtomU K117 · USB-A",
+          "options": {}
+        }
+      ],
+      "configurationSchema": {
+        "artwork": {
+          "type": "boolean",
+          "default": true,
+          "meaning": "Ink only;full physical label carrier,geometry,contacts and dynamics remain"
+        }
+      },
+      "exports": [
+        "Model",
+        "spec",
+        "defaults",
+        "configurations",
+        "configurationSchema"
+      ],
+      "defaultExport": "Model",
+      "integration": {
+        "displayTarget": null,
+        "moduleExport": null,
+        "controlMap": {
+          "button": "button",
+          "reset": "reset"
+        },
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "artwork": {
+        "ordinaryPngCount": 1,
+        "actualPanelCount": 1,
+        "kinds": [
+          "reference-redraw"
+        ],
+        "originalsDistributed": false,
+        "physicalCarriersRetainedWithoutInk": true
+      },
+      "limitations": [
+        "Exact K117 original reconstruction from its own official dimension drawing,multi-view and bare-board photos;no own Hardware CAD found in pinned public tree.",
+        "Mechanical drawing/table53x20x10.3mm controls body40+USB13 andR3;legacy hero52x20x10 conflicts and is not silently scaled.",
+        "Hidden supports,wall thickness,USB assembly detail,key flexure and travel are visual estimates;not manufacturing/electrical/firmware proof.",
+        "One externally commanded RGB and two independent physical input intents;no automatic audio/reset/boot/IR behavior or invented sensor readings.",
+        "Own clear official rear label is redrawn as full ordinary PNG;unreadable microtext omitted,not guessed;no source photograph cropped as texture."
+      ],
+      "nextAction": "已完成目录接入、专项/共享检查及网页加载；继续逐面视觉验收和推导尺寸核实，保持modeled。"
     }
   ],
   "artworkPolicy": "Only reviewed raster stickers are distributed. CSV, private source mappings, vector originals and vector intermediates remain outside the repository. Photographic sticker crops remain disabled. Official physical adhesive films may span factory recesses; artwork must not substitute for missing assembly geometry."

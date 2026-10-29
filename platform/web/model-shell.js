@@ -18,6 +18,10 @@ const CONTROL_MAPS = {
   papermono: { key1: 'key1', key2: 'key2', power: 'power' },
   papercolor: { key1: 'key1', key2: 'key2', key3: 'key3', power: 'power' },
   nanoc6: { button: 'button' },
+  atoms3: { button: 'button' },
+  'atoms3-lite': { button: 'button' },
+  'stickc-plus2': { a: 'a', b: 'b', power: 'power' },
+  dial: { wake: 'a' },
   atoms3r: { button: 'button' },
   stamplc: { a: 'key1', b: 'key2', c: 'key3' },
 };
@@ -118,6 +122,7 @@ export class ModelDeviceShell {
       this.display = model.find('lcd', 'display');
       // No demo or made-up sensor/frame values. Wait for the real runtime.
       if (this.display) this.display.fill('#000000');
+      if (device.id === 'atoms3-lite') this.applyVisualState({type:'led',target:'rgb',known:false});
       this.offInput = model.on('input', event => this.handleInput(event));
       this.viewer.setView('front', { duration: 0 });
       this.viewer.fit({ padding: 1.15, duration: 0 });
@@ -233,6 +238,13 @@ export class ModelDeviceShell {
     }
     if (event.kind === 'display') {
       this.emit('touch', { ...event, x: event.x, y: event.y, down: event.action !== 'end' });
+      return;
+    }
+    if (this.device.id === 'dial' && event.kind === 'joint' && event.id === 'rotation' && event.action === 'rotate') {
+      const ring = this.model.find(event.id, 'joint');
+      if (ring?.meta?.role === 'visual-rotary-input' && ring.meta.detentsPerTurn === 16
+        && Number.isFinite(event.deltaDeg) && Math.abs(event.deltaDeg) <= 180)
+        this.emit('encoder', {deltaDegrees:event.deltaDeg, source:event.source});
       return;
     }
     if (event.kind !== 'button' || !['down', 'up'].includes(event.action)) return;

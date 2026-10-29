@@ -1,0 +1,374 @@
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -73,6 +73,10 @@
+     M5_BOARD_CORE2,
+     M5_BOARD_ATOMS3,
+     M5_BOARD_ATOMS3_LITE,
++    M5_BOARD_STICKC_PLUS2,
++    M5_BOARD_STICKC,
++    M5_BOARD_STICKC_PLUS,
++    M5_BOARD_STICKC_PLUS_SE,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -169,6 +173,8 @@
+                              struct ESPGdmaState *gdma);
+ struct Esp32SocState;
+ void m5core2_board_init(struct Esp32SocState *s);
++void m5stickcplus2_board_init(struct Esp32SocState *s);
++void m5stickc_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+ void m5_unit_runtime_init(bool s3);
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -30,6 +30,8 @@
+   'esp32_intc.c',
+   'esp32_native_hci.c',
+   '../m5stopwatch/m5core2.c',
++  '../m5stopwatch/m5stickcplus2.c',
++  '../m5stopwatch/m5stickc.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1029,6 +1029,12 @@
+ 
+     if (m5_board == M5_BOARD_CORE2) {
+         m5core2_board_init(ss);
++    } else if (m5_board == M5_BOARD_STICKC_PLUS2) {
++        m5stickcplus2_board_init(ss);
++    } else if (m5_board == M5_BOARD_STICKC
++               || m5_board == M5_BOARD_STICKC_PLUS
++               || m5_board == M5_BOARD_STICKC_PLUS_SE) {
++        m5stickc_board_init(ss);
+     }
+ 
+     /* Need MMU initialized prior to ELF loading,
+@@ -1179,3 +1185,136 @@
+ }
+ 
+ type_init(m5core2_machine_type_init);
++
++
++/* M5StickC Plus2: ESP32-PICO-V3-02, 2 MiB PSRAM and ST7789v2. */
++static void m5stickcplus2_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_STICKC_PLUS2;
++    esp32_machine_init(machine);
++}
++
++static void m5stickcplus2_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5StickC Plus2 (ESP32-PICO-V3-02, ST7789v2 135x240)";
++    mc->init = m5stickcplus2_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 2 * MiB;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stickcplus2_info = {
++    .name = MACHINE_TYPE_NAME("m5stickcplus2"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stickcplus2_machine_class_init,
++};
++
++static void m5stickcplus2_machine_type_init(void)
++{
++    type_register_static(&m5stickcplus2_info);
++}
++
++type_init(m5stickcplus2_machine_type_init);
++
++
++static void m5stickc_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_STICKC;
++    esp32_machine_init(machine);
++}
++
++static void m5stickc_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5StickC (ESP32-PICO-D4, ST7735S 80x160)";
++    mc->init = m5stickc_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stickc_info = {
++    .name = MACHINE_TYPE_NAME("m5stickc"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stickc_machine_class_init,
++};
++
++static void m5stickc_machine_type_init(void)
++{
++    type_register_static(&m5stickc_info);
++}
++
++type_init(m5stickc_machine_type_init);
++
++
++static void m5stickcplus_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_STICKC_PLUS;
++    esp32_machine_init(machine);
++}
++
++static void m5stickcplus_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5StickC Plus (ESP32-PICO-D4, ST7789 135x240)";
++    mc->init = m5stickcplus_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stickcplus_info = {
++    .name = MACHINE_TYPE_NAME("m5stickcplus"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stickcplus_machine_class_init,
++};
++
++static void m5stickcplus_machine_type_init(void)
++{
++    type_register_static(&m5stickcplus_info);
++}
++
++type_init(m5stickcplus_machine_type_init);
++
++
++static void m5stickcplusse_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_STICKC_PLUS_SE;
++    esp32_machine_init(machine);
++}
++
++static void m5stickcplusse_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "M5StickC Plus SE (ESP32-PICO-D4, ST7789 135x240, no IMU)";
++    mc->init = m5stickcplusse_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5stickcplusse_info = {
++    .name = MACHINE_TYPE_NAME("m5stickcplusse"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5stickcplusse_machine_class_init,
++};
++
++static void m5stickcplusse_machine_type_init(void)
++{
++    type_register_static(&m5stickcplusse_info);
++}
++
++type_init(m5stickcplusse_machine_type_init);
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -50,7 +50,7 @@
+     bool pixel_mode;
+     uint8_t pix_hi;
+     bool pix_half;
+-    uint32_t key_a_pin, key_b_pin;
++    uint32_t key_a_pin, key_b_pin, key_power_pin;
+     uint32_t read_id;
+     uint32_t glass_rotation;
+     bool apply_madctl;
+@@ -614,8 +614,17 @@
+         case Q_KEY_CODE_B: case Q_KEY_CODE_RIGHT: case Q_KEY_CODE_2:
+             esp32_gpio_set_input(s->key_b_pin, !down);
+             break;
++        case Q_KEY_CODE_C:
++            if (s->key_power_pin < 40) {
++                esp32_gpio_set_input(s->key_power_pin, !down);
++            }
++            break;
+         case Q_KEY_CODE_P: case Q_KEY_CODE_3:
+-            m5sw_pwr_button(down);
++            if (s->key_power_pin < 40) {
++                esp32_gpio_set_input(s->key_power_pin, !down);
++            } else {
++                m5sw_pwr_button(down);
++            }
+             break;
+         default:
+             break;
+@@ -695,6 +704,7 @@
+     DEFINE_PROP_UINT32("offset-y", M5SpiPanelState, off_y, 40),
+     DEFINE_PROP_UINT32("key-a-pin", M5SpiPanelState, key_a_pin, 10),
+     DEFINE_PROP_UINT32("key-b-pin", M5SpiPanelState, key_b_pin, 9),
++    DEFINE_PROP_UINT32("key-power-pin", M5SpiPanelState, key_power_pin, UINT32_MAX),
+     DEFINE_PROP_UINT32("read-id", M5SpiPanelState, read_id, 0x00007683),
+     DEFINE_PROP_UINT32("glass-rotation", M5SpiPanelState, glass_rotation, 0),
+     DEFINE_PROP_BOOL("apply-madctl", M5SpiPanelState, apply_madctl, true),
+--- /dev/null
++++ b/hw/m5stopwatch/m5stickcplus2.c
+@@ -0,0 +1,71 @@
++/*
++ * M5StickC Plus2 board wiring: ESP32-PICO-V3-02, 2 MiB PSRAM,
++ * ST7789v2, MPU6886 and BM8563. There is no AXP192 on this board.
++ *
++ * Pin sources: official M5StickC Plus2 product comparison and the UIFlow2
++ * v2.5.3 M5Unified/M5GFX submodule revisions in source-receipt.json.
++ * This glue reuses controller models; execution remains a separate gate.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5stickcplus2_board_init(Esp32SocState *s)
++{
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++    static const struct {
++        const char *model;
++        uint8_t address;
++    } devices[] = {
++        { "mpu6886", 0x68 },
++        { "pcf8563", 0x51 },
++    };
++
++    /* Both controller blocks may be routed to the GPIO21/22 board bus. */
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus);
++    for (unsigned i = 0; i < ARRAY_SIZE(devices); i++) {
++        DeviceState *dev = qdev_new(TYPE_M5SW_I2C_DEV);
++
++        qdev_prop_set_string(dev, "model", devices[i].model);
++        qdev_prop_set_uint8(dev, "address", devices[i].address);
++        object_property_add_child(qdev_get_machine(), devices[i].model,
++                                  OBJECT(dev));
++        qdev_realize_and_unref(dev, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init_pins(bus, 21, 22);
++
++    /* All three switches are externally pulled up and active low. */
++    esp32_gpio_set_input(37, 1);  /* BtnA */
++    esp32_gpio_set_input(39, 1);  /* BtnB */
++    esp32_gpio_set_input(35, 1);  /* BtnPWR, user-facing Button C */
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++
++    qdev_prop_set_uint32(panel, "mem-width", 240);
++    qdev_prop_set_uint32(panel, "mem-height", 320);
++    qdev_prop_set_uint32(panel, "vis-width", 135);
++    qdev_prop_set_uint32(panel, "vis-height", 240);
++    qdev_prop_set_uint32(panel, "offset-x", 52);
++    qdev_prop_set_uint32(panel, "offset-y", 40);
++    qdev_prop_set_uint32(panel, "read-id", 0x00000085);
++    qdev_prop_set_uint32(panel, "key-a-pin", 37);
++    qdev_prop_set_uint32(panel, "key-b-pin", 39);
++    qdev_prop_set_uint32(panel, "key-power-pin", 35);
++    qdev_prop_set_bit(panel, "immediate-update", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++
++    /* Autodetect probes SPI3; the initialized display uses SPI2. D/C is G14.
++     * Physical board pins: SCK13, MOSI15, CS5, reset12, backlight27. */
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 14);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 14);
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}
+--- /dev/null
++++ b/hw/m5stopwatch/m5stickc.c
+@@ -0,0 +1,74 @@
++/*
++ * Original M5StickC / StickC Plus / StickC Plus SE board wiring.
++ * PICO-D4, 4 MiB flash, AXP192 and BM8563; SE omits the MPU6886.
++ * These boards have no PSRAM in their official board configurations.
++ * Sources: M5Stack product schematics and pinned UIFlow2 v2.5.3 libraries.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5stickc_board_init(Esp32SocState *s)
++{
++    bool plus = m5_board != M5_BOARD_STICKC;
++    bool has_imu = m5_board != M5_BOARD_STICKC_PLUS_SE;
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++    static const struct {
++        const char *model;
++        uint8_t address;
++    } devices[] = {
++        { "axp192", 0x34 },
++        { "pcf8563", 0x51 },
++        { "mpu6886", 0x68 },
++    };
++
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus);
++    for (unsigned i = 0; i < ARRAY_SIZE(devices); i++) {
++        DeviceState *dev;
++
++        if (!has_imu && devices[i].address == 0x68) {
++            continue;
++        }
++        dev = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(dev, "model", devices[i].model);
++        qdev_prop_set_uint8(dev, "address", devices[i].address);
++        object_property_add_child(qdev_get_machine(), devices[i].model,
++                                  OBJECT(dev));
++        qdev_realize_and_unref(dev, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init_pins(bus, 21, 22);
++
++    esp32_gpio_set_input(37, 1);  /* BtnA */
++    esp32_gpio_set_input(39, 1);  /* BtnB */
++    esp32_gpio_set_input(35, 1);  /* MPU6886 INT idles high */
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++
++    qdev_prop_set_uint32(panel, "mem-width", plus ? 240 : 132);
++    qdev_prop_set_uint32(panel, "mem-height", plus ? 320 : 162);
++    qdev_prop_set_uint32(panel, "vis-width", plus ? 135 : 80);
++    qdev_prop_set_uint32(panel, "vis-height", plus ? 240 : 160);
++    qdev_prop_set_uint32(panel, "offset-x", plus ? 52 : 26);
++    qdev_prop_set_uint32(panel, "offset-y", plus ? 40 : 1);
++    qdev_prop_set_uint32(panel, "glass-rotation", plus ? 0 : 2);
++    qdev_prop_set_uint32(panel, "read-id", plus ? 0x00000085 : 0x0000007c);
++    qdev_prop_set_uint32(panel, "key-a-pin", 37);
++    qdev_prop_set_uint32(panel, "key-b-pin", 39);
++    qdev_prop_set_bit(panel, "immediate-update", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    object_property_add_child(qdev_get_machine(), "m5-panel", OBJECT(panel));
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++
++    /* SPI3 probe, SPI2 application display. SCK13/MOSI15/CS5/RST18,
++     * GPIO23 D/C; AXP192 LDO2/LDO3 supply backlight and LCD logic. */
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[2]), panel, 23);
++    esp32_spi_attach_m5_panel(DEVICE(&s->spi[3]), panel, 23);
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}

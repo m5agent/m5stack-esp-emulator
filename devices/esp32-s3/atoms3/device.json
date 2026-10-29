@@ -1,0 +1,75 @@
+{
+  "id": "atoms3",
+  "name": "AtomS3",
+  "sku": "C123",
+  "group": "esp32-s3",
+  "category": "atom",
+  "hardware": {
+    "soc": "ESP32-S3FN8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 8388608,
+    "psram_bytes": 0,
+    "display": {
+      "type": "ips",
+      "width": 128,
+      "height": 128,
+      "shape": "rect",
+      "driver": "GC9107",
+      "touch": false,
+      "diagonal_in": 0.85
+    },
+    "controls": [
+      {
+        "id": "button",
+        "type": "button",
+        "label": "USER",
+        "gpio": 41
+      }
+    ],
+    "sensors": [
+      "imu:mpu6886",
+      "rgb-led",
+      "ir"
+    ],
+    "dimensions_mm": [
+      24.0,
+      24.0,
+      12.9
+    ],
+    "weight_g": 6.9
+  },
+  "shell": {
+    "preset": "atom",
+    "accent": "#3b82f6",
+    "screen_scale": 1.15,
+    "body_theme": "white"
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-gc9107",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 AtomS3 C123 板型候选；官方 UIFlow2 v2.5.3 的 boot、显示、按键和外设尚待同一 Device Service 会话验证。不是 AtomS3R 的别名。"
+    },
+    "blockers": [
+      "独立 m5atoms3 候选尚待官方 AtomS3 固件同会话启动、帧、GPIO41 输入与外设数据面验证；未继承 AtomS3R 结果。"
+    ]
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002444",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002444/2098279922749624321/bin/2098279922749624322.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/atoms3",
+  "status_label": "candidate"
+}

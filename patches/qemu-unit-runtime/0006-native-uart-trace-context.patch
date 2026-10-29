@@ -1,0 +1,21 @@
+Subject: [native] timestamp UART trace around the Unit callback
+
+Context port of peripheral 0070 (SHA256
+43e7771613dd4a1dbcb66056961ed8c6bfa496d6128b019b4113e5e9e989ea40).
+Preserve its virtual-clock trace formatting while retaining the reconstructed
+Unit UART callback directly below it. Apply in place of 0070.
+
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -142,7 +142,10 @@
+             uint8_t byte = value & 0xff;
+             fifo8_push(&s->tx_fifo, byte);
+             if (getenv("M5SW_UART_TRACE")) {
+-                fprintf(stderr, "[uart-tx] %02x\n", byte);
++                fprintf(
++                    stderr, "[uart-tx] now=%" PRId64 " %02x\n",
++                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), byte
++                );
+             }
+             m5_unit_uart_tx(s, byte);
+             if (s->tx_byte_cb) {

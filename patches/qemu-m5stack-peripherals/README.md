@@ -865,3 +865,36 @@ by BLE controller startup, and the CO5300 accepts both
 `[op, 00, cmd, 00]` and `[op, cmd, 00, 00]` QSPI address phase layouts. The
 same StopWatch image now produces the MotoNav link page while the reference
 UIFlow2 image still renders normally.
+
+`0085-atoms3-and-atoms3-lite-boards.patch` adds separate C123 AtomS3 and
+C124 AtomS3 Lite machines after the browser recipe's 31-layer native base.
+The C123 GC9107 uses DC33/CS15 and MPU6886 on SDA38/SCL39, with no PSRAM.
+The screenless Lite reuses the physical single-button/WS2812 component on
+GPIO41/GPIO35 and the real RMT/GPIO-matrix data plane. Its nominal GPIO4
+input load does not establish analogue leakage or charge-retention accuracy.
+
+`0086-stickc-family-boards.patch` follows `0085` and registers independent
+StickC, Plus, Plus SE and Plus2 machines with their own panel, memory and
+power topology. An optional panel power-key GPIO defaults to disabled, so
+older boards retain their PMIC key path. These two patches apply to native
+source before the WASM suffix. WASM keyboard patch `0016` is context-ported
+to preserve its unchanged keyboard logic beside the new power-key branch.
+The recipe's locked source replay and compilation are separate from each
+exact board/firmware functional test; machine registration grants no PASS.
+
+`0087-atoms3-rgb-and-dial-board.patch` adds C123's documented GPIO35
+WS2812 and the independent K130 Dial with GC9A01, FT3267/BM8563 and a
+GPIO41/40 quadrature encoder. Physical detents produce timed GPIO edges;
+the original guest RotaryIRQ still owns counting. RFID remains partial.
+
+`0088-classic-atom-rmt-boards.patch` adds Atom Lite, Matrix and Matrix v1.1
+with independent board/IMU identity, GPIO39 key and GPIO27 WS2812. It moves
+the native ESP32 RMT implementation out of the WASM-only context patch and
+adds FIFO/threshold interrupt acknowledgement, refill/wrap and complete-frame
+capture. The S3 RMT route remains a separate wrapper.
+
+`0089-esp32-qio-flash-model-header.patch` selects the real SSI flash model's
+QIOR header count: GigaDevice/Winbond use five mode/dummy bytes; ISSI uses
+three. The board configures this before realization, and the phase bridge
+applies only to flash CS0, preserving the independent PSRAM CS1 route.
+These source registrations do not inherit functional PASS between devices.

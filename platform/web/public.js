@@ -5,8 +5,9 @@ import {PublicDeviceService} from './public-service.js';
 import {PublicBrowserRuntime, getBrowserProfile} from './public-browser-runtime.js';
 import {PublicQemuRuntime, browserQemuHistory} from './public-qemu-runtime.js';
 import {composeDemoFirmware, composeWallclockDemoFirmware, DEMO_FIRMWARE, WALLCLOCK_DEMO_FIRMWARE} from './public-demo-firmware.js';
-import {loadQemuBrowserProfiles,getQemuBrowserProfile} from './public-qemu-profiles.js';
+import {loadQemuBrowserProfiles,getQemuBrowserProfile,advanceQemuEncoderTarget} from './public-qemu-profiles.js';
 import {composeQemuProbeFirmware} from './public-qemu-probe-firmware.js';
+import {qemuOnboardVisualCommands} from './public-qemu-frame.js';
 import {ensurePublicIsolation} from './public-coi.js';
 import {PublicSessionController} from './public-session-controller.js';
 import {createDeviceShell} from './device-shell-factory.js';
@@ -64,7 +65,8 @@ function browserProfile(id) {
 }
 function reference(device = state.selected) {
   const profile=browserProfile(device?.id);
-  if (profile?.fixture?.id==='xtensa-board-display-v1') return {name:`${device.name} 屏幕与输入示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
+  if (['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile?.fixture?.id)) return {
+    name:`${device.name} ${profile.display===null?'RGB 与按键':'屏幕与输入'}示例`,composedProbe:true,sha256:profile.fixture.firmwareSHA256};
   if (device?.id === 'cores3' && state.config.browser_runtime_engine === 'qemu-wasm') {
     if (state.config.browser_wallclock_example && $('referenceExample').value !== 'stock-div8')
       return {name:'CoreS3 LVGL + PIR（正常速度，候选修复）',composed:true,wallclockCandidate:true,
@@ -126,7 +128,7 @@ function status(status, detail) {
     !state.run || state.run.kind !== 'browser' || state.run.controller instanceof PublicQemuRuntime || !['running', 'paused'].includes(status);
   $('pauseBtn').hidden = !state.run || state.run.kind !== 'browser' || !['running', 'paused'].includes(status);
   $('pauseBtn').textContent = status === 'paused' ? '继续' : '暂停';
-  $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime);
+  $('nativeScreenBtn').hidden = !(state.run?.controller instanceof PublicQemuRuntime && state.run.controller.profile?.display);
   $('browserPirPanel').hidden = !(state.run?.controller instanceof PublicQemuRuntime && !!state.run.controller.profile?.inputs.pir);
   $('browserPir').disabled = status !== 'running';
   $('browserEvidenceBtn').hidden = !state.lastBrowserController?.receipt;
@@ -144,9 +146,11 @@ function updateCapability() {
         ? '通过仿真服务运行'
         : selectedLane === 'model'
           ? '仅浏览模型'
-          : supported
-            ? '请选择浏览器运行'
-            : '此设备需要仿真服务';
+          : device?.visual_only
+            ? '仅浏览模型'
+            : supported
+              ? '请选择浏览器运行'
+              : '此设备需要仿真服务';
   $('capabilityText').textContent =
     selectedLane === 'browser'
       ? '固件在当前浏览器中执行，屏幕与串口来自模拟器。不同固件的兼容性仍有边界。'
@@ -154,17 +158,20 @@ function updateCapability() {
         ? '固件运行在你连接的原生设备服务中，画面与输入绑定本次会话。'
         : selectedLane === 'model'
           ? '可旋转、缩放并探索模型；本模式不执行固件。'
-          : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
+          : device?.visual_only
+            ? '本型号尚未接入固件运行。可旋转、缩放并探索模型。'
+            : '现在可以浏览 3D 模型。连接兼容服务后，可启动此设备的固件。';
   if (selectedLane === 'browser' && state.config.browser_runtime_engine==='qemu-wasm') {
     const p=browserProfile(device?.id);
     const wallclock=source()==='reference'&&reference()?.wallclockCandidate;
     $('capabilityText').textContent=`C/QEMU 在浏览器执行 ${device.name}。${p?.admission==='candidate'?'候选预览，尚未公开准入。':''}${wallclock?'本示例采用正常时钟和 LVGL 调度候选修复。':p?.clockDivisor===8?'虚拟时间与看门狗按 1/8 慢放。':'采用正常虚拟时钟。'}刷新不保存 Flash。`;
+    if (p?.display===null) $('capabilityText').textContent += '无屏设备，RGB 与按键状态从本次模拟器读取。';
   }
   if ($('runtimeMode').value === 'browser' && selectedAttachments().length) {
     $('capabilityTitle').textContent = '所选 Unit 需要服务运行';
     $('capabilityText').textContent = '浏览器内核尚未接入这些 Unit。请选择自动或服务运行，或取消已连接的 Unit。';
   }
-  $('openServiceBtn').hidden = !!selectedLane || $('runtimeMode').value === 'browser';
+  $('openServiceBtn').hidden = !!selectedLane || !!device?.visual_only || $('runtimeMode').value === 'browser';
   $('startBtn').disabled = state.busy || state.stopUnconfirmed || !device || !state.shell || !selectedLane;
   $('startBtn').textContent =
     selectedLane === 'model' ? '浏览设备模型 →' : state.busy ? '正在加载…' : state.run ? '重新运行 →' : '开始运行 →';
@@ -320,6 +327,7 @@ async function selectDevice(id) {
         event,
       ),
   );
+  shell.on?.('encoder', event => void deliverEncoderInput(event));
   status(
     'model',
     browserProfile(id) ? '选择固件后即可开始' : row.visual_only ? '此型号目前仅有视觉模型' : '尚未运行固件',
@@ -357,6 +365,19 @@ async function deliverInput(command, original = {}) {
     if (active(run)) error(cause);
   }
 }
+async function deliverEncoderInput(event) {
+  const run = state.run;
+  if (!active(run) || state.busy || run.kind !== 'browser' || !(run.controller instanceof PublicQemuRuntime)
+    || !run.controller.profile?.inputs.encoder) return;
+  try {
+    const next = advanceQemuEncoderTarget(run.controller.profile,
+      run.encoderGesture || {target:0, remainderDegrees:0}, event.deltaDegrees);
+    // This is pointer intent only. Observed guest counts remain serial/frame
+    // data from the original RotaryIRQ; acknowledgements never set a count.
+    run.encoderGesture = next.state;
+    if (next.command) await run.controller.input(next.command);
+  } catch (cause) { if (active(run)) error(cause); }
+}
 async function stopRun() {
   if (state.stopping) return state.stopping;
   const generation = ++state.runGeneration;
@@ -382,7 +403,8 @@ async function stopRun() {
       if (run.controller instanceof PublicQemuRuntime) renderBrowserHistory();
       if (state.run === run) state.run = null;
       state.stopUnconfirmed = false;
-      status('stopped', '保留最后显示帧');
+      if (run.controller.profile?.display===null) clearBrowserOutputs(run.controller.profile);
+      status('stopped', run.controller.profile?.display===null?'无屏设备已停止，末次输出保留在运行记录':'保留最后显示帧');
       message('runProgress');
     } catch (cause) {
       state.stopUnconfirmed = true;
@@ -439,6 +461,19 @@ async function firmware(signal, runGeneration) {
   if (signal.aborted) throw new DOMException('已取消加载', 'AbortError');
   if (expected && expected !== sha256) throw new Error('固件 SHA-256 与预期不一致，未加载固件。');
   return {bytes: await file.arrayBuffer(), name: file.name, size: file.size, sha256};
+}
+function clearBrowserOutputs(profile) {
+  if (!profile?.outputs) return;
+  state.shell?.applyVisualState?.([{type:'led',target:profile.outputs.ledTarget,known:false},
+    {type:'button-state',target:profile.outputs.buttonTarget,pressed:false}]);
+}
+function applyBrowserDeviceState(value, run) {
+  if (!active(run)) return;
+  const commands=qemuOnboardVisualCommands(run.controller.profile,value);
+  state.shell.applyVisualState(commands);
+  state.shell.viewer?.requestRender();
+  $('frameStatus').textContent = `RGB #${value.led_rgb.toString(16).padStart(6,'0').toUpperCase()} · RMT ${value.led_frames} 帧 · 按键${value.pressed?'按下':'松开'}`;
+  $('deviceMount').dataset.outputFrames=String(value.led_frames);
 }
 function applyBrowserFrame(frame, run) {
   if (!active(run)) return;
@@ -515,6 +550,7 @@ async function startRun() {
     $('rawFramePanel').hidden = true;
     $('deviceMount').classList.remove('has-raw-frame');
     state.shell.display?.fill('#000000');
+    clearBrowserOutputs(browserProfile(state.selected.id));
     state.shell.viewer?.requestRender();
     state.serial = '';
     state.serialBytes = 0;
@@ -539,9 +575,11 @@ async function startRun() {
         ...callbacks,
         root,profiles:state.qemuProfiles,allowCandidateProfiles:state.config.publication_eligible===false,
         onFrame: (frame) => applyBrowserFrame(frame, run),
+        onDeviceState: (value) => applyBrowserDeviceState(value, run),
         onState: (value) => {
           if (active(run)) {
             status(value.status);
+            if (value.status==='stopped'||value.status==='error') clearBrowserOutputs(run.controller.profile);
             if (['running', 'paused', 'error', 'stopped'].includes(value.status)) state.shell?.resumeRendering();
           }
         },

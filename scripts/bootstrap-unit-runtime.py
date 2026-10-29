@@ -24,6 +24,9 @@ QEMU_TAG = "esp-develop-9.2.2-20260417"
 QEMU_COMMIT = "40edccac415693c5130f91c01d84176ae6008566"
 SLIRP_URL = "https://gitlab.freedesktop.org/slirp/libslirp.git"
 SLIRP_COMMIT = "26be815b86e8d49add8c9a8b320239b9594ff03d"
+# Historical 0065/0066/0069/0070 need context-only ports on this reconstructed
+# Unit-enabled source. Native 0007 is the 0088 delta after the existing 0066.
+# Keep 0071-0084 out of this recipe until individually integrated and validated.
 PATCHES = (
     "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch",
     "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch",
@@ -56,12 +59,17 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0062-esp32s3-i2s-continuous-dma-completion.patch",
     "patches/qemu-m5stack-peripherals/0063-core2-touch-buttons.patch",
     "patches/qemu-m5stack-peripherals/0064-esp32-intmatrix-pending-irq-remap.patch",
-    "patches/qemu-m5stack-peripherals/0065-xtensa-high-priority-irq-cooperative-yield.patch",
-    "patches/qemu-m5stack-peripherals/0066-esp32-classic-rmt-legacy.patch",
+    "patches/qemu-unit-runtime/0003-native-high-priority-irq-context.patch",
+    "patches/qemu-unit-runtime/0004-native-classic-rmt-context.patch",
     "patches/qemu-m5stack-peripherals/0067-esp32-espnow-controlled-peer-loopback.patch",
     "patches/qemu-m5stack-peripherals/0068-core2-dual-spi-panel-routing.patch",
-    "patches/qemu-m5stack-peripherals/0069-esp32-timg-wdt-feed-unprotected.patch",
-    "patches/qemu-m5stack-peripherals/0070-esp32-uart-tx-virtual-clock.patch",
+    "patches/qemu-unit-runtime/0005-native-wdt-feed-context.patch",
+    "patches/qemu-unit-runtime/0006-native-uart-trace-context.patch",
+    "patches/qemu-m5stack-peripherals/0085-atoms3-and-atoms3-lite-boards.patch",
+    "patches/qemu-m5stack-peripherals/0086-stickc-family-boards.patch",
+    "patches/qemu-m5stack-peripherals/0087-atoms3-rgb-and-dial-board.patch",
+    "patches/qemu-unit-runtime/0007-native-expanded-atom-rmt-delta.patch",
+    "patches/qemu-m5stack-peripherals/0089-esp32-qio-flash-model-header.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

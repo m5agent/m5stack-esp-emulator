@@ -22,14 +22,31 @@ import posixpath
 import re
 import subprocess
 import tarfile
+import tempfile
 import urllib.request
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 DESTINATION = ROOT / "platform/web/vendor/m5stack-models"
 RUNTIME_DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
-PINNED_COMMIT = 'c48940c3aad3f2e8e9b8906b82071a88f2a3de1e'
+PINNED_COMMIT = '4879ab51eb8bb11ce024e670ae6880529e3d0f42'
 PUBLIC_REPOSITORY = "https://github.com/yuyun2000/m5stack-models"
+REVIEWED_LOCAL_RUNTIME_PATCHES = ({
+    "id": "device-viewer-pause-rendering-v1",
+    "source_commit": PINNED_COMMIT,
+    "target": "src/core/DeviceViewer.js",
+    "upstream_sha256": "ef10a9f80d618b6d70fb147c65735916ef68b0865ff307beccd501a9fc7be70d",
+    "effective_sha256": "2d6a70f3fe06a106eba19d78b4bcfb056e5244f4539cd4e3ceb6e57c92174657",
+    "patch": "patches/visual-models/0001-device-viewer-pause-rendering.patch",
+    "patch_sha256": "0a0f5c9f16f350370175740f1c662d1d6a52f1e0d2d5661a163f2ddb9382acb1",
+    "adapted_from": {
+        "repository": "https://github.com/m5agent/m5stack-esp-emulator",
+        "commit": "3de27e88edf4e8897f8408c5f6b82ef2b881d421",
+        "path": "platform/web/vendor/m5stack-models/src/core/DeviceViewer.js",
+        "sha256": "fc32ef6e6acb328403d08450b0d503fdcda09d9437b4c393457ab7797d11eda4",
+    },
+    "scope": "Preserve mainline boot-time pause/resume/dispose rendering on the upstream hidden-viewport fit fix; no model, resource or firmware admission changes",
+},)
 THREE_ADDON = "examples/jsm/utils/BufferGeometryUtils.js"
 THREE_DESTINATION = ROOT / "platform/web/vendor/three/addons/utils/BufferGeometryUtils.js"
 THREE_ADDONS = {
@@ -41,17 +58,50 @@ RASTER_SOURCE_COMMIT = PINNED_COMMIT
 # Guides remain a separately reviewed documentation snapshot. New visual models
 # do not pull upstream raw/browser evidence into this source distribution.
 GUIDE_SOURCE_COMMIT = '3681a6482aff96501d44659ba5a1603246f1fe1f'
-RASTER_NOTICE_SHA256 = 'ada400c9e83a9cf8bb92adc6e8312e453e757e827a6949364442ab31a83455db'
+RASTER_NOTICE_SHA256 = '955a8b63544ca1816c4f59e6d91775ea265cb56fe98fab4f68c544448a4989fd'
 # Exact public Git objects reviewed with the provider-permission notice above.
 # New source commits/assets require an explicit review of this allowlist.
-REVIEWED_RUNTIME_PNGS = {'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e2d4f048418b2264ad8514f5af624ad216f1a2e3b112d8f6a5b86f5',
+REVIEWED_RUNTIME_PNGS = {'src/devices/atom-echo/artwork/compliance.png': 'e065c851da4496ef789cad6e56e2f69fd6dd8d1be858994a08ba016fca31ffcf',
+ 'src/devices/atom-echo/artwork/rear.png': '046bb3eceb8b6f046e7f1540feb98726540ae46b348a337a5f19a1d54cd1699b',
+ 'src/devices/atom-echos3r/artwork/compliance.png': '707a79a7c5a196688a851212974c9bccb20ba3d2a67ee5537b562fe7e93c8886',
+ 'src/devices/atom-echos3r/artwork/rear.png': 'bf0bf751cac84b5ec3287efb83cd3ab606419420b8574216acb6c4a5dca4ea92',
+ 'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e2d4f048418b2264ad8514f5af624ad216f1a2e3b112d8f6a5b86f5',
  'src/devices/atom-lite/artwork/compliance.png': '3a7661a742eeebb012e5be6f7276c0255cdd7875042d0da916abc3fca87c734a',
+ 'src/devices/atom-matrix-v11/artwork/compliance.png': '7fed7bde77281d09ccab2f957f1e38db4aaae2319eaf3077e47ff78bd09e3598',
+ 'src/devices/atom-matrix-v11/artwork/rear.png': '9225a657a5b1d44248cb064ababf327390e07d696bf701abc851ba3f11ca4a4b',
  'src/devices/atom-matrix/artwork/compliance.png': '753400d885ee1b4aca284204a8203eacff6dfebfe22ffde65225749e931411a0',
  'src/devices/atom-matrix/artwork/rear.png': 'e605b10db38874727fe42a40f0e97285513cbaaa1cfe5f913c7a1f10034beb48',
  'src/devices/atoms3-lite/artwork/bottom.png': 'e75498e292397fc4f4a141dde6db3ec23c572407d5a32005fc3e9a6307204ca3',
  'src/devices/atoms3-lite/artwork/compliance.png': '271e0911cf7f079259b3310f603f5898277d7d22474574e7daf0611e88995ba3',
+ 'src/devices/atoms3/artwork/compliance.png': '015882d3cc887941d1d9cf7f67baa0f99d38883239a5e80ee3544312b1e15ac6',
+ 'src/devices/atoms3/artwork/lcd-flex.png': '9d96b3b3de0068e491491cf428f30504763ff7e9eea43789bd5ee99576270817',
+ 'src/devices/atoms3/artwork/rear.png': 'a18bb78ef6562276e30fbf9e7dcda26eafb203b467094305e30e79c5fc1172d5',
+ 'src/devices/atoms3r-ai-chatbot/artwork/base-bottom.png': '98d08ebfd31da46dea0ad568a263a3e9149f09f9b651dd33aca0c9c235c87d4f',
+ 'src/devices/atoms3r-ai-chatbot/artwork/base-front.png': '7e3dab4ca7512bb7b9cc165390c4a2beaa1640405795e6cb6e8d6e61558674f8',
+ 'src/devices/atoms3r-ai-chatbot/artwork/base-mic.png': '4be8ad8f1c60a5e51001081629f91e554ee7637b4fa179725cddce8ae61eafce',
+ 'src/devices/atoms3r-cam-ai-chatbot/artwork/base-bottom.png': '98d08ebfd31da46dea0ad568a263a3e9149f09f9b651dd33aca0c9c235c87d4f',
+ 'src/devices/atoms3r-cam-ai-chatbot/artwork/base-front.png': '7e3dab4ca7512bb7b9cc165390c4a2beaa1640405795e6cb6e8d6e61558674f8',
+ 'src/devices/atoms3r-cam-ai-chatbot/artwork/base-mic.png': '4be8ad8f1c60a5e51001081629f91e554ee7637b4fa179725cddce8ae61eafce',
+ 'src/devices/atoms3r-cam/artwork/camera.png': 'ccef95d89402f1fd4c5391e628dff16720157f7905a26219d438059c7c0fb049',
+ 'src/devices/atoms3r-cam/artwork/compliance.png': '367c665e8f431bbe568b7385f29705dc8d9d38d2cd31d759ee3369c8514d5ceb',
+ 'src/devices/atoms3r-cam/artwork/rear.png': '934f223edcceeb953888fd303edaab10fd5bb30d23f5787c1d69b008c8299f7c',
+ 'src/devices/atoms3r-ext/artwork/compliance.png': '5c8aad0cb8abad5066592b9263f12d1dd2d783943b8bf68fc51fc8925f348aba',
+ 'src/devices/atoms3r-ext/artwork/prototype.png': 'c00353796de37f9e5434c8470c6a2906781b21cb9cfaca2bcf259cad7a1c0c46',
+ 'src/devices/atoms3r-ext/artwork/rear.png': '6bf6c7e2b6675b2163791cb9bbc2e12db1ddd81f7b736e4b3f2fa489e89d8778',
+ 'src/devices/atoms3r-m12-volcengine-kit/artwork/base-bottom.png': '98d08ebfd31da46dea0ad568a263a3e9149f09f9b651dd33aca0c9c235c87d4f',
+ 'src/devices/atoms3r-m12-volcengine-kit/artwork/base-front.png': '7e3dab4ca7512bb7b9cc165390c4a2beaa1640405795e6cb6e8d6e61558674f8',
+ 'src/devices/atoms3r-m12-volcengine-kit/artwork/base-mic.png': '4be8ad8f1c60a5e51001081629f91e554ee7637b4fa179725cddce8ae61eafce',
+ 'src/devices/atoms3r-m12/artwork/compliance.png': '16ee6368326da6a1a72f1e637901b42d87c393c82a35fddf91ce37e57bc92e27',
+ 'src/devices/atoms3r-m12/artwork/rear.png': '00b9ab901fabdd49a2fafd6bc5831eccbf6fed7abd97a384acc778dc7d4a6634',
  'src/devices/atoms3r/artwork/certification.png': 'a8c9adb7c4d0675c47584cbd6a9c3762fbf943bbc0366093a5c6f8ea348e1990',
  'src/devices/atoms3r/artwork/rear-main.png': 'f4559ab19c552641a26ee56d96cb52700afe1a28af1e6dd5f75617fb15b0e463',
+ 'src/devices/atoms3u/artwork/rear.png': '203e6fcb7414cd041a43298f088ba8759ffcf50785536e5caed61471a623db2d',
+ 'src/devices/atomu/artwork/rear.png': 'ac788ead6873d3a92825fcecc0c3609736d36eb1dcdc89cb4f7c5a2d2b8f3a3a',
+ 'src/devices/basic-v27/artwork/pcb.png': '4796431e86b8a83fb26658f704684452a8b102cccfb9a37005f741f0e5ec625b',
+ 'src/devices/basic-v27/artwork/rear-bottom.png': '4ea21063b8bcfdf0ee61e9adf1eb0e6d45348c8b128d7c5d2464819dacf7c087',
+ 'src/devices/basic-v27/artwork/rear-left.png': '4dc63dea6d9a231d43f9d6997f8790c60d6a51fa47b71ab8af329c777464f2c8',
+ 'src/devices/basic-v27/artwork/rear-right.png': 'fbdc5577a9d51e92d19d978343011eff2d76cbaea637df8c18201b62138a74bc',
+ 'src/devices/basic-v27/artwork/rear-top.png': '183e75126f95bec836ee56ae2524db39ad5973ab5f29013f56d0274f2e7c88a8',
  'src/devices/cardputer-adv/artwork/back.png': 'd35128e9e158873df01d32d31bd230c20a5135fc6074ef3cfa4083e19f1db1ca',
  'src/devices/cardputer-adv/artwork/front-name.png': '05062fdb2753812e0e281fe0d8a5148ea2658f69d85548b9f46ac1bdd6dae431',
  'src/devices/cardputer-adv/artwork/grove-side.png': 'b6f7df4b1aad2d7125b6fe9da21acbea329d8a766396bed9aff645ddf1da1f0a',
@@ -84,6 +134,9 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e
  'src/devices/cores3/artwork/port-c.png': '9244524465e35a8d870192641653c636f4c55237725e43a2ac21bd30c24f6154',
  'src/devices/cores3/artwork/rear.png': '8663eeb85a1b09d6564d8cc1ac60cce8ec7fd1a0f8de9e95103cc2e7da3e9d15',
  'src/devices/cores3/artwork/reference-redraw-din-pcb.png': '1d05fc40067f5f7d7c37777e1bf88cc92b40b6f7afa906aebfeb2ef0f3f5b267',
+ 'src/devices/dial/artwork/stamp-label.png': '212c32eef6f17d2e15d8a4e063751e4c4e85b871780b237283548fbf13059274',
+ 'src/devices/m5stick/artwork/rear-gray.png': 'ef0cef7be23f53cb9a14ad32ec8ce98e0d2a4d02813d686f80cf7ffcf7447a30',
+ 'src/devices/m5stick/artwork/rear-white.png': '60ef5670fe76b0325e914582366c1fabb8daac0d3128ecefe5173a0a3e765a8f',
  'src/devices/nanoc6/artwork/reference-redraw-ce.png': '894a432552847c0e1b8ab322fd3a6e4764cf045f6f9a25dc252b7be7b85e4556',
  'src/devices/nanoc6/artwork/reference-redraw-rear.png': '7c1f827b1947a4f6a3a9e48a921dd7a5e15c6c749b9734e1ffc9392e2760d860',
  'src/devices/nanoc6/artwork/reference-redraw-weee.png': 'd1e751c181d1943c4f1b0d8141f14ff9ac00e290a1f5809d035f2184deb6635a',
@@ -103,6 +156,10 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e
  'src/devices/stamplc/artwork/reference-redraw-front-main.png': 'b7d449329954fe2cbaa183b6dbe82e417320935737a283cc96ef1830b65f2ee5',
  'src/devices/stamplc/artwork/reference-redraw-front-note.png': 'a24dba1b2acb11288dd79751916cc0023ce5a650345ac52459b32bd4b11b6fdd',
  'src/devices/stamplc/artwork/reference-redraw-front-relays.png': '059aa92d37cfa7fcab365ff233966cd29e4b84789d2bad3746b5f1aff935ddb7',
+ 'src/devices/stickc-plus-se/artwork/rear.png': '4e35e91fd8366af4fc3d0ac2e217b252974743d804361f485f93cf96839d6d2b',
+ 'src/devices/stickc-plus/artwork/rear-reference-redraw.png': '41029bc91e6d508863223bc67884bf7b59cf833290b8bfc31a9d3192ccf334ad',
+ 'src/devices/stickc-plus2/artwork/rear-reference-redraw.png': 'eea414ebf0de2d0aa4abbb255c711cc42b4c109e1b01839a6b76ef6714cbc2de',
+ 'src/devices/stickc/artwork/rear-reference-redraw.png': '3061c0e1580edbd1060dfa2539651bc4ba2ebc2f9b4eeb8652c54d6e4ae99d7f',
  'src/devices/sticks3/artwork/rear.png': '3355803393cf98bc6d8c07f173173c1228bd69c81320ba166710e5dc78cd7fe9',
  'src/devices/sticks3/artwork/side.png': '672ea111bf918e6f4bfda888a0d863fd494c4f01be58f99008aca31579637194',
  'src/devices/stopwatch/artwork/rear.png': '6904bb6fca8b8d3ca153a439ade9b58ec0c065c35b7ca4abc072227590602b39',
@@ -467,7 +524,20 @@ REVIEWED_RUNTIME_PNGS = {'src/devices/atom-lite/artwork/bottom.png': '3f95fcdb3e
  'src/units/weight/reference-redraw-front.png': '4a5e6862bc9cafbabd9ff5d0256b0deaead624831344230da8b90c852e942e97',
  'src/units/zigbee/reference-redraw-back.png': '3133315d418b42d0e784ab4c4e46c7b80d920bd6d756ae23742910e84059c180',
  'src/units/zigbee/reference-redraw-front.png': '86be7e2cbbe3e0dc21de73e938f1d38b3d320ac8ce15ae27bbbef33d751a144a'}
-REVIEWED_RUNTIME_LICENSES = {'src/devices/atoms3-lite/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea'}
+# These two Basic labels have no confirmed mounting location or runtime reference.
+# Authenticate the public Git objects, but never redistribute unused artwork.
+REVIEWED_UNMOUNTED_PNGS = {'src/devices/basic-v27/artwork/care.png': '15b4094abf62c85e711ed02ef71e320ef109126dad7e529e24a82136eadba35d',
+ 'src/devices/basic-v27/artwork/compliance.png': '7efa3a35c6eac5e211137687ab770b92ba8b4e6598aba3d495ee5bc9fe0dbcfd'}
+REVIEWED_RUNTIME_LICENSES = {'src/devices/atoms3-lite/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/atoms3/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/atoms3r-cam/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/atoms3r-ext/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/atoms3r-m12/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/atoms3u/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/dial/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/stickc-plus/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/stickc/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea',
+ 'src/devices/stickt2/LICENSE-M5-Hardware.txt': '44611d917bece311f5c8eeffce83d8bf9e9ca3f815d262f694ff4a7996af50ea'}
 # Exact public text closure reviewed at GUIDE_SOURCE_COMMIT. Never glob docs,
 # research or artifacts: additions require source/hash/content/link review.
 REVIEWED_GUIDE_FILES = {'artifacts/accel-op90-op180-expansion/progress.json': '16e2f3117ef495d07b5646e8fc1daba9ca1c3d95c4731de21e1108c8032d5868',
@@ -655,18 +725,23 @@ def git(source: Path, *arguments: str) -> bytes:
     return subprocess.check_output(["git", "-C", str(source), *arguments])
 
 
-def reviewed_runtime_assets(commit: str, names: list[str], files: dict[str, bytes]) -> None:
+def reviewed_runtime_assets(commit: str, names: list[str], files: dict[str, bytes],
+                            unmounted: dict[str, bytes] | None = None) -> None:
     assets = {name for name in names if name.startswith("src/") and name.endswith(".png")}
     if not assets:
         return
-    if commit != RASTER_SOURCE_COMMIT or assets != set(REVIEWED_RUNTIME_PNGS):
+    unmounted = unmounted or {}
+    if unmounted and set(unmounted) != set(REVIEWED_UNMOUNTED_PNGS):
+        raise ValueError("unmounted runtime PNGs differ from the explicitly reviewed allowlist")
+    if commit != RASTER_SOURCE_COMMIT or assets != set(REVIEWED_RUNTIME_PNGS) | set(unmounted):
         raise ValueError("runtime PNGs differ from the explicitly reviewed commit/allowlist")
     notice = hashlib.sha256(files["THIRD_PARTY_NOTICES.md"]).hexdigest()
     if notice != RASTER_NOTICE_SHA256:
         raise ValueError("runtime PNG redistribution notice differs from the reviewed notice")
     for name in sorted(assets):
-        data = files[name]
-        if hashlib.sha256(data).hexdigest() != REVIEWED_RUNTIME_PNGS[name]:
+        data = unmounted[name] if name in unmounted else files[name]
+        expected = REVIEWED_UNMOUNTED_PNGS[name] if name in unmounted else REVIEWED_RUNTIME_PNGS[name]
+        if hashlib.sha256(data).hexdigest() != expected:
             raise ValueError(f"runtime PNG differs from reviewed Git object: {name}")
         if not data.startswith(b"\x89PNG\r\n\x1a\n") or data[12:16] != b"IHDR":
             raise ValueError(f"reviewed runtime asset is not a PNG: {name}")
@@ -842,6 +917,57 @@ process.stdout.write(JSON.stringify(result));"""
             "template_scope": "All matching reviewed files; browser execution validates expression results"}
 
 
+def apply_local_runtime_patches(files: dict[str, bytes], commit: str) -> list[dict]:
+    """Apply only reviewed patches to exact upstream bytes, never local edits."""
+    receipts = []
+    for row in REVIEWED_LOCAL_RUNTIME_PATCHES:
+        name, patch_name = row["target"], row["patch"]
+        if commit != row["source_commit"]:
+            raise ValueError("local runtime patch requires its reviewed upstream commit")
+        if (not name.startswith("src/") or not name.endswith(".js")
+                or any(part in {"", ".", ".."} for part in name.split("/"))
+                or not patch_name.startswith("patches/visual-models/")
+                or any(part in {"", ".", ".."} for part in patch_name.split("/"))):
+            raise ValueError("invalid local runtime patch target/path")
+        before = files.get(name)
+        if before is None or hashlib.sha256(before).hexdigest() != row["upstream_sha256"]:
+            raise ValueError(f"local runtime patch upstream preimage differs: {name}")
+        patch_path = ROOT / patch_name
+        if patch_path.is_symlink() or not patch_path.is_file():
+            raise ValueError("local runtime patch is absent or a symlink")
+        patch = patch_path.read_bytes()
+        if hashlib.sha256(patch).hexdigest() != row["patch_sha256"]:
+            raise ValueError("local runtime patch differs from its reviewed hash")
+        paths = subprocess.run(["git", "apply", "--numstat", "-"], input=patch,
+                               capture_output=True, check=False)
+        changed = [line.split("\t")[-1] for line in paths.stdout.decode().splitlines()]
+        if paths.returncode or changed != [name]:
+            raise ValueError("local runtime patch changes an unreviewed target")
+        with tempfile.TemporaryDirectory(prefix="m5-model-runtime-patch-") as directory:
+            root = Path(directory)
+            target = root / name
+            target.parent.mkdir(parents=True)
+            target.write_bytes(before)
+            for arguments in (["--check"], []):
+                result = subprocess.run(["git", "apply", *arguments, "--whitespace=error-all", "-"],
+                                        input=patch, cwd=root, capture_output=True, check=False)
+                if result.returncode:
+                    raise ValueError("reviewed local runtime patch does not apply cleanly")
+            actual = {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file() or path.is_symlink()}
+            if actual != {name} or target.is_symlink():
+                raise ValueError("local runtime patch changed the closed file inventory")
+            after = target.read_bytes()
+        if hashlib.sha256(after).hexdigest() != row["effective_sha256"]:
+            raise ValueError("local runtime patch effective file differs from its reviewed hash")
+        files[name] = after
+        receipts.append({"id": row["id"], "patch": patch_name, "patch_sha256": row["patch_sha256"],
+                         "target": name, "scope": row["scope"], "adapted_from": row["adapted_from"],
+                         "upstream": {"commit": commit, "sha256": row["upstream_sha256"], "bytes": len(before),
+                                      "source_url": f"{PUBLIC_REPOSITORY}/blob/{commit}/{name}"},
+                         "effective": {"sha256": row["effective_sha256"], "bytes": len(after)}})
+    return receipts
+
+
 def snapshot(source: Path, commit: str) -> dict[str, bytes]:
     resolved = git(source, "rev-parse", "--verify", f"{commit}^{{commit}}").decode().strip()
     if resolved != commit:
@@ -857,7 +983,9 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
     if missing:
         raise ValueError(f"public snapshot is missing required files: {sorted(missing)}")
     files = {name: git(source, "show", f"{commit}:{name}") for name in selected}
-    reviewed_runtime_assets(commit, names, files)
+    unmounted = {name: git(source, "show", f"{commit}:{name}")
+                 for name in REVIEWED_UNMOUNTED_PNGS}
+    reviewed_runtime_assets(commit, names, files, unmounted)
     for name, expected in REVIEWED_RUNTIME_LICENSES.items():
         if name not in files or hashlib.sha256(files[name]).hexdigest() != expected:
             raise ValueError(f"runtime license differs from reviewed Git object: {name}")
@@ -869,6 +997,8 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
     else:
         guide_names = names
     reviewed_guide_texts(guide_commit, guide_names, files)
+    upstream_closure = resource_closure(files)
+    local_patches = apply_local_runtime_patches(files, commit)
     closure = resource_closure(files)
     guide_closure = guide_resource_closure(files)
     products = json.loads(files["catalog/products.json"])["products"]
@@ -885,6 +1015,9 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
         "visual_only_controllers": sorted(set(visual_controllers) - runtime_devices),
         "units": [item["id"] for item in products if item["category"] == "unit"],
         "resource_closure": closure,
+        "upstream_resource_closure": upstream_closure,
+        "local_runtime_patches": local_patches,
+        "file_hash_scope": "files records effective vendored bytes; local_runtime_patches separately pins upstream preimages, patch bytes and effective results",
         "documentation_source_commit": guide_commit,
         "documentation_closure": guide_closure,
         "reviewed_guide_texts": {
@@ -902,6 +1035,10 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
                              "source_url": f"{PUBLIC_REPOSITORY}/blob/{commit}/{name}"}
                       for name in sorted(files) if name.endswith(".png")},
         },
+        "excluded_runtime_assets": {
+            name: {"sha256": expected, "reason": "Basic label mounting location unconfirmed; no runtime reference"}
+            for name, expected in REVIEWED_UNMOUNTED_PNGS.items()
+        },
         "files": {name: {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
                   for name, data in sorted(files.items())},
     }
@@ -918,8 +1055,12 @@ def snapshot(source: Path, commit: str) -> dict[str, bytes]:
     files["UPSTREAM.md"] = (
         "# Public visual model snapshot\n\n"
         f"Source: {PUBLIC_REPOSITORY}\n\nCommit: `{commit}`\n\n"
-        "Copied from Git objects with explicit file/hash allowlists. Local changes and "
-        "private research are never copied. Reviewed public guide/provenance texts "
+        "Copied from Git objects with explicit file/hash allowlists. Upstream worktree changes and "
+        "private research are never copied. A separate reviewed local runtime patch layer preserves "
+        "mainline pause/resume rendering on the upstream hidden-viewport fit fix. "
+        "`vendor-manifest.json.local_runtime_patches` pins each upstream preimage, patch file "
+        "and effective result; `files` hashes the effective bytes. Both upstream and patched "
+        "runtime resource closures are checked. Reviewed public guide/provenance texts "
         f"remain pinned separately at `{guide_commit}` and preserve their source bytes "
         "and close relative links in the bundled guides. "
         "`vendor-manifest.json` records each source file and the reviewed guide closure. "

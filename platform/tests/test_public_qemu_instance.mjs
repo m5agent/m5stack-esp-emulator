@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
-import {readSharedQemuFrame} from '../web/public-qemu-frame.js';
+import {readSharedQemuFrame,readQemuOnboardOutputs} from '../web/public-qemu-frame.js';
 
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
 const profile=getQemuBrowserProfile('cores3',registry);
@@ -25,7 +25,7 @@ class TestURL extends URL {
 const source=await readFile(new URL('../web/public-qemu-engine.js',import.meta.url),'utf8');
 const executableSource=source.replace(/^import .+;\r?\n/gm,'');
 const context=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,
+  validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,
   self:{postMessage:value=>lifecycle.push(value.type),close:()=>lifecycle.push('engine-closed')},
   addEventListener:(name,handler)=>callbacks.set(name,handler)});
 vm.runInContext(executableSource,context,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});
@@ -85,6 +85,25 @@ assert.equal(touchCommands[0].arguments.events[0].data.value,32767);assert.equal
 const pir=one.onmessage({data:{id:12,op:'input',value:{type:'pir',motion:true}}});
 const pirSet=commands();assert.equal(pirSet.length,1);assert.equal(pirSet[0].execute,'qom-set');assert.equal(pirSet[0].arguments.path,'/machine/units/pir');respond(pirSet[0],{});await tick();
 const pirGet=commands();assert.equal(pirGet.length,1);assert.equal(pirGet[0].execute,'qom-get');respond(pirGet[0],true);await pir;assert.equal(one.messages.at(-1).value.motion,true);
+// Dial writes one fixed physical target and observes QOM, never a host count.
+context.originalEncoderProfile=profile;
+context.dialProfile=getQemuBrowserProfile('dial',registry,{allowCandidateProfiles:true});
+vm.runInContext('boardProfile=dialProfile',context);
+const firstEncoder=one.onmessage({data:{id:130,op:'input',value:{type:'encoder',detents:3}}});
+const secondEncoder=one.onmessage({data:{id:131,op:'input',value:{type:'encoder',detents:-2}}});
+await tick();const firstSet=commands();assert.equal(firstSet.length,1);assert.equal(firstSet[0].execute,'qom-set');
+assert.deepEqual(firstSet[0].arguments,{path:'/machine/encoder',property:'detents',value:3});respond(firstSet[0],{});
+await tick();const firstGet=commands();assert.equal(firstGet.length,1);assert.equal(firstGet[0].execute,'qom-get');
+assert.deepEqual(firstGet[0].arguments,{path:'/machine/encoder',property:'detents'});respond(firstGet[0],3);
+await firstEncoder;assert.equal(one.messages.find(message=>message.id===130).value.detents,3);
+await tick();const secondSet=commands();assert.equal(secondSet.length,1);assert.equal(secondSet[0].arguments.value,-2);respond(secondSet[0],{});
+await tick();const secondGet=commands();assert.equal(secondGet.length,1);respond(secondGet[0],-2);await secondEncoder;
+assert.equal(one.messages.find(message=>message.id===131).value.source,'qemu-qom-readback');
+const wrongEncoder=one.onmessage({data:{id:132,op:'input',value:{type:'encoder',detents:4}}});
+await tick();const wrongSet=commands();respond(wrongSet[0],{});await tick();const wrongGet=commands();respond(wrongGet[0],5);await wrongEncoder;
+assert.match(one.messages.find(message=>message.id===132).error,/target readback mismatch/);
+vm.runInContext('boardProfile=originalEncoderProfile',context);
+
 // A synthetic host-side ABI buffer exercises the imported real shared-frame
 // reader through the instance port. It is not firmware/display validation.
 vm.runInContext(`
@@ -96,6 +115,23 @@ vm.runInContext(`
 await one.onmessage({data:{id:20,op:'frame'}});
 const sharedFrames=one.messages.filter(item=>item.type==='frame');assert.equal(sharedFrames.length,1);assert.equal(sharedFrames[0].value.source,'qemu-display-surface-shared');assert.equal(sharedFrames[0].value.sourceSequence,2);assert.equal(sharedFrames[0].value.pixels[0],0x34);
 await one.onmessage({data:{id:21,op:'frame'}});assert.equal(one.messages.at(-1).value.unchanged,true);assert.equal(one.messages.filter(item=>item.type==='frame').length,1);assert.equal(commands().length,0,'shared frames must not fall back to screendump QMP');
+context.headlessProfile=getQemuBrowserProfile('atoms3-lite',registry,{allowCandidateProfiles:true});
+vm.runInContext('boardProfile=headlessProfile;frameTransport=null',context);
+await one.onmessage({data:{id:23,op:'frame'}});assert.match(one.messages.at(-1).error,/no framebuffer/);
+await one.onmessage({data:{id:24,op:'outputs',value:{path:'/machine/other'}}});assert.match(one.messages.at(-1).error,/accept no caller/);
+assert.equal(commands().length,0,'headless frame/path rejection cannot queue QMP');
+const readOutputs=one.onmessage({data:{id:25,op:'outputs'}});
+const beforeLed=commands();assert.equal(beforeLed.length,1);assert.deepEqual(beforeLed[0].arguments,{path:'/machine/onboard_io',property:'led-frames'});respond(beforeLed[0],1);await tick();
+const values=commands();assert.deepEqual(values.map(command=>command.arguments.property),['led-rgb','pressed']);
+respond(values[0],0x204060);respond(values[1],true);await tick();
+const afterLed=commands();assert.equal(afterLed.length,1);assert.equal(afterLed[0].execute,'qom-get');respond(afterLed[0],1);await readOutputs;
+const observed=one.messages.find(item=>item.type==='device-state').value;
+assert.equal(observed.led_rgb,0x204060);assert.equal(observed.led_frames,1);assert.equal(observed.pressed,true);assert.equal(observed.source,'qemu-rmt-qom-readback');
+assert.equal(one.messages.filter(item=>item.type==='frame').length,1,'headless output must not synthesize LCD frames');
+const unstable=one.onmessage({data:{id:26,op:'outputs'}});respond(commands()[0],1);await tick();
+const unstableValues=commands();respond(unstableValues[0],0x40a020);respond(unstableValues[1],false);await tick();respond(commands()[0],2);await unstable;
+assert.equal(one.messages.at(-1).value.unchanged,true);assert.equal(one.messages.filter(item=>item.type==='device-state').length,1,'a concurrent LED update must drop the mixed snapshot');
+context.displayProfile=profile;vm.runInContext('boardProfile=displayProfile',context);
 const lateInput=one.onmessage({data:{id:22,op:'input',value:{type:'touch',x:1,y:1,down:false}}});
 assert.equal(commands().length,1);
 await one.onmessage({data:{id:2,op:'dispose'}});await lateInput;assert.equal(one.messages.at(-1).id,2);assert.equal(one.messages.at(-1).value.workersRemaining,0);assert.equal(one.closed,true);
@@ -114,7 +150,7 @@ process.on('unhandledRejection',onRaceUnhandled);
 try {
   const raceContext=vm.createContext({Worker,TextEncoder,TextDecoder:BrowserTextDecoder,Uint8Array,Map,Set,URL:TestURL,Blob:TestBlob,ArrayBuffer,Number,JSON,Error,Promise,setTimeout,clearTimeout,
     location:{origin},crossOriginIsolated:true,SharedArrayBuffer,crypto:globalThis.crypto,performance:globalThis.performance,
-    validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,
+    validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand,readSharedQemuFrame,readQemuOnboardOutputs,
     self:{postMessage:value=>raceLifecycle.push(value.type),close:()=>raceLifecycle.push('engine-closed')},
     addEventListener:(name,handler)=>raceCallbacks.set(name,handler)});
   vm.runInContext(executableSource,raceContext,{importModuleDynamically:vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER});

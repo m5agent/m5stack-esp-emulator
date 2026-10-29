@@ -20,7 +20,7 @@ class RuntimeCoverageTests(unittest.TestCase):
             report["covered_models"],
             report["simulated_models"],
         )
-        self.assertEqual(report["device_case_groups"], 14)
+        self.assertEqual(report["device_case_groups"], 24)
         self.assertEqual(report["assigned_matrix_cases"], 68)
         self.assertEqual(report["assigned_external_cases"], 19)
         self.assertEqual(report["case_model_groups"], 87)

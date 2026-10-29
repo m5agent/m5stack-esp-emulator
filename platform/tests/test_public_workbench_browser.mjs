@@ -191,6 +191,9 @@ try {
     await page.waitForFunction(() => document.querySelector('#deviceMount').dataset.deviceId === 'atoms3-lite');
     assert.equal(await page.locator('#startBtn').isDisabled(), true);
     assert.match(await page.locator('#frameStatus').textContent(), /仅有视觉模型/);
+    assert.equal(await page.locator('#capabilityTitle').textContent(), '仅浏览模型');
+    assert.match(await page.locator('#capabilityText').textContent(), /本型号尚未接入固件运行/);
+    assert.equal(await page.locator('#openServiceBtn').isVisible(), false);
     await page.locator('#search').fill('');
     await page.locator('[data-device-filter="browser"]').click();
     assert.deepEqual(

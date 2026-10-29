@@ -1,0 +1,5 @@
+/** Own K001-V27 native parts, MIT M5Stack CAD; see research/basic-v27/native-map.json. */
+import * as THREE from 'three';
+import data from './native-data.js';
+function decode(s,Type){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new Type(bytes.buffer);}
+export function nativeMesh(id,material){const p=data.find(p=>p.id===id);if(!p)throw new RangeError('Unknown K001-V27 native part');const g=new THREE.BufferGeometry();for(const[name,Type,size]of[['position',Float32Array,3],['normal',Float32Array,3],['sourceFaceIndex',Uint32Array,1],['sourceAttributeWord',Uint16Array,1]])g.setAttribute(name,new THREE.BufferAttribute(decode(p[name],Type),size));g.setIndex(new THREE.BufferAttribute(decode(p.index,Uint32Array),1));g.computeBoundingBox();g.computeBoundingSphere();const m=new THREE.Mesh(g,material);m.name='K001-V27 native '+id;m.userData={role:'physical-native-part',sourcePart:id,sourceFaces:p.faces,sourceRoute:'Own unchanged binary-STL arrays;rigid placement only'};m.rotation.x=Math.PI/2;m.position.z=.2;return m;}

@@ -46,7 +46,14 @@ def write_json(path: Path, value) -> None:
 
 def load_lock(root: Path = ROOT) -> dict:
     lock = json.loads((root / "scripts/qemu-wasm-build/sources.lock.json").read_text())
-    if lock.get("schema_version") != 1 or lock.get("native_patch_count") != 31:
+    patches = lock.get("patches", [])
+    native_count = lock.get("native_patch_count")
+    if (lock.get("schema_version") != 1 or type(native_count) is not int
+            or not 0 < native_count < len(patches)
+            or any(not row.get("path", "").startswith(("patches/qemu-unit-runtime/", "patches/qemu-m5stack-peripherals/"))
+                   for row in patches[:native_count])
+            or any(not row.get("path", "").startswith("patches/qemu-wasm-probe/")
+                   for row in patches[native_count:])):
         raise ValueError("unsupported QEMU source lock")
     for row in lock["patches"] + lock["dependency_patches"]:
         path = root / row["path"]
@@ -448,6 +455,8 @@ def runtime_files(directory: Path, *, allow_incremental: bool = False) -> tuple[
     if set(manifest.get("assets", {})) != set(ASSET_NAMES): raise ValueError("unexpected runtime assets")
     if rebuilt is False:
         reference = lock["reference_runtime"]
+        if reference.get("source_lock_compatible") is False:
+            raise ValueError("historical incremental reference is incompatible with the added board source lock; rebuild QEMU")
         if build.get("reference_build_receipt_sha256") != reference["build_receipt_sha256"]:
             raise ValueError("incremental reference receipt mismatch")
         for key in ["javascript", "wasm", "worker"]:
@@ -488,7 +497,7 @@ def export_runtime(builder: Builder, output: Path, report: dict, *, runtime_dire
     builder.source_bundle(output / ASSET_NAMES["source"])
     (output / "NOTICE").write_text("M5Stack browser QEMU source build\n\nQEMU is GPL-2.0; its COPYING and per-file licenses, the complete modified host source, linked dependencies, dependency patches and build recipe are in corresponding-source.tar.xz served beside this executable. This archive is part of the runtime export and must be preserved on redistribution. Individual libraries retain their own licenses (GLib/libgcrypt/libgpg-error LGPL, libffi/pixman/zlib/PCRE2 permissive terms); source archives include their exact license texts. Emscripten linked support/library sources and license texts are also included.\n\nROM and UIFlow2 firmware are not bundled. Their public availability is not treated as redistribution permission. Obtain the exact required ROM and firmware separately from authoritative upstream or user files; verify SHA-256 in the browser. The reviewed offline CoreS3 vm-div8 fixture does not establish physical timing, other firmware/device coverage or full hardware equivalence.\n", encoding="utf-8")
     lock = builder.lock
-    manifest = {"schema_version": 1, "kind": RUNTIME_KIND, "engine": "qemu-wasm", "source": {**lock["qemu"], "native_patch_count": 31, "patches": lock["patches"], "patched_files_sha256": lock["patched_files"]},
+    manifest = {"schema_version": 1, "kind": RUNTIME_KIND, "engine": "qemu-wasm", "source": {**lock["qemu"], "native_patch_count": lock["native_patch_count"], "patches": lock["patches"], "patched_files_sha256": lock["patched_files"]},
         "build": {"kind": "source-build", "all_objects_rebuilt": report["all_objects_rebuilt"], "emscripten": "3.1.50", "recipe_sha256": builder.recipe_sha, "lock_sha256": builder.lock_sha, "commands_sha256": sha(builder.cache / "commands.json"), "guest_execution": "NOT RUN by builder", **({"link_audit": report["link_audit"]} if "link_audit" in report else {}), **({"reference_build_receipt_sha256": report["reference_build_receipt_sha256"], "reference_note": "Reviewed incremental source build; inherited object/library identities are in its original receipt. This is not a fresh full-object build."} if "reference_build_receipt_sha256" in report else {})},
         "profiles": ["cores3"], "compiled_profiles": lock.get("compiled_profiles", ["cores3"]), "frame_transport": lock.get("frame_transport"), "execution_profile": {"id": "cores3-wasm-vm-div8", "clock_divisor": 8, "scope": "offline-lvgl-pir"}, "assets": {key: {"path": name, "bytes": (output / name).stat().st_size, "sha256": sha(output / name)} for key, name in ASSET_NAMES.items()},
         "required_rom": lock["required_rom"], "firmware_bundled": False}
@@ -500,6 +509,8 @@ def export_runtime(builder: Builder, output: Path, report: dict, *, runtime_dire
 def package_reference(builder: Builder, directory: Path, output: Path) -> dict:
     """Explicit local packaging of the exact reviewed incremental artifact."""
     reference = builder.lock["reference_runtime"]
+    if reference.get("source_lock_compatible") is False:
+        raise ValueError("historical incremental reference is incompatible with the added board source lock; rebuild QEMU")
     receipt = directory / "build-receipt.json"
     if sha(receipt) != reference["build_receipt_sha256"]:
         raise ValueError("reviewed reference build receipt mismatch")
@@ -532,7 +543,7 @@ def main() -> None:
     try:
         lock = load_lock()
         if args.check:
-            print(json.dumps({"status": "PASS", "patch_count": len(lock["patches"]), "native_patch_count": 31, "patched_files": len(lock["patched_files"]), "rom_bundled": False, "firmware_bundled": False})); return
+            print(json.dumps({"status": "PASS", "patch_count": len(lock["patches"]), "native_patch_count": lock["native_patch_count"], "patched_files": len(lock["patched_files"]), "rom_bundled": False, "firmware_bundled": False})); return
         builder = Builder(args.cache, jobs=args.jobs, sdk=args.sdk_dir, downloads=args.downloads, reuse_dependencies=args.reuse_dependencies)
         if args.reference_runtime:
             if not args.sdk_dir: raise ValueError("--reference-runtime requires --sdk-dir for matching library sources")

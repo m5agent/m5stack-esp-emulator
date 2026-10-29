@@ -201,6 +201,8 @@ try {
     const result=await handle.jsonValue(); await handle.dispose(); return result;
   };
   const ready = await guest('ready', () => true, readyTimeout);
+  if(device==='stickc-plus2')check('original-plus2-board-and-three-guest-buttons',ready.board===5&&ready.width===135&&ready.height===240
+    &&JSON.stringify(ready.buttons)===JSON.stringify(['a','b','power']),ready);
   const rawTouch = await page.evaluate(() => boardRun.profile.fixture.coordinateSource === 'official-raw-point');
   if (rawTouch) check('official-raw-touch-fixture-identity', ready.coordinate_source === 'official-raw-point'
     && ready.logical_touch_status === 'known-sdk-calibration-gap', ready);
@@ -399,7 +401,7 @@ try {
     await touchAt(touchPoint); await page.mouse.down();
   } else if (publicUI) {
     const key = await page.evaluate(() => {
-      const target = {atoms3r:'button',sticks3:'btnA',stamplc:'a',papercolor:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
+      const target = {atoms3:'button',atoms3r:'button',sticks3:'btnA','stickc-plus2':'a',stamplc:'a',papercolor:'key1','cardputer-adv':'key-KeyA'}[boardRun.profile.deviceId];
       if(!target)throw new Error('No reviewed public model input binding for this board');
       return Object.entries(boardUiShell.model.keymap).find(([,path]) => path === target)?.[0];
     });
@@ -452,6 +454,42 @@ try {
   if(firstPanelPage){
     const changed=await panelPage(1,firstPanelPage.counter);
     check('epd-refresh-changes-count-text-and-count-bit',changed.sha256!==firstPanelPage.sha256,{counter_sha256:changed.sha256});
+  }
+  if(device==='stickc-plus2'&&publicUI){
+    report.multi_button_cases=[{button:'a',gpio:37,pressed:firstPress,count:firstCount,released:firstRelease}];
+    for(const item of [{button:'b',gpio:39,index:1},{button:'power',gpio:35,index:2}]){
+      const before=await page.evaluate(async index=>{
+        const frame=boardRun.frame,pixels=[];
+        for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
+          const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
+        }
+        const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
+        return {sequence:frame.sequence,sha256:[...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('')};
+      },item.index);
+      const key=await page.evaluate(target=>Object.entries(boardUiShell.model.keymap).find(([,path])=>path===target)?.[0],item.button);
+      assert.ok(key,'original model button must expose its own keyboard binding');
+      const domKey=/^Key[A-Z]$/.test(key)?key.slice(3).toLowerCase():key;
+      await page.locator('#deviceMount .three-device-stage canvas').focus();await page.keyboard.down(domKey);
+      let count,pressed;
+      try{
+        count=await guest('button-count',event=>event.button===item.button&&event.count===1,30000);
+        pressed=await guest('button-pressed',event=>event.button===item.button&&event.seq===count.seq-1,30000);
+      }finally{await page.keyboard.up(domKey);}
+      const released=await guest('button-released',event=>event.button===item.button&&event.count===1,30000);
+      check('plus2-'+item.button+'-original-driver-down-and-up',pressed.pressed===true&&released.pressed===false
+        &&pressed.gpio===item.gpio&&released.gpio===item.gpio,{pressed,count,released});
+      await page.waitForFunction(async({index,before})=>{
+        const frame=boardRun.frame;if(frame.sequence<=before.sequence)return false;const pixels=[];
+        for(let y=72+index*36;y<96+index*36;y++)for(let x=8;x<frame.width-8;x++){
+          const at=(y*frame.width+x)*2;pixels.push(frame.pixels[at],frame.pixels[at+1]);
+        }
+        const hash=await crypto.subtle.digest('SHA-256',new Uint8Array(pixels));
+        return [...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,'0')).join('')!==before.sha256;
+      },{index:item.index,before},{timeout:30000,polling:100});
+      check('plus2-'+item.button+'-changes-own-native-counter-pixels',true);
+      report.multi_button_cases.push({...item,keyboard:key,dom_key:domKey,pressed,count,released,before_counter:before,
+        texture:await textureReadback()});
+    }
   }
   if(keyboardOracle&&publicUI){
     report.keyboard_cases=[{...keyboardOracle.cases[0],count:firstCount,release:firstRelease,counter_sha256:lastKeyboardFrame.sha256}];

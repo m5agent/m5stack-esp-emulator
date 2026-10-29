@@ -1,0 +1,382 @@
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -77,6 +77,7 @@
+     M5_BOARD_STICKC,
+     M5_BOARD_STICKC_PLUS,
+     M5_BOARD_STICKC_PLUS_SE,
++    M5_BOARD_DIAL,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -153,6 +154,9 @@
+                    struct ESPGdmaState *gdma);
+ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
++void m5atoms3_onboard_io_init(void);
++void m5dial_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                       struct ESPGdmaState *gdma);
+ void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                              struct ESPGdmaState *gdma);
+ void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+--- a/hw/m5stopwatch/m5atoms3.c
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -78,4 +78,7 @@
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 33);
+     esp32s3_gpspi_set_panel_cs_pin(spi, 15);
++
++    /* C123 U3 WS2812 and GPIO41 key share the real RMT/GPIO component. */
++    m5atoms3_onboard_io_init();
+ }
+--- a/hw/m5stopwatch/m5atoms3lite.c
++++ b/hw/m5stopwatch/m5atoms3lite.c
+@@ -18,7 +18,7 @@
+ #include "m5stopwatch.h"
+ #include "m5_unit_runtime.h"
+ 
+-static void atoms3lite_input(DeviceState *dev, QemuConsole *src,
++static void atoms3_input(DeviceState *dev, QemuConsole *src,
+                              InputEvent *evt)
+ {
+     if (evt->type != INPUT_EVENT_KIND_KEY) {
+@@ -32,11 +32,38 @@
+     }
+ }
+ 
+-static const QemuInputHandler atoms3lite_input_handler = {
+-    .name = "AtomS3 Lite GPIO41 button",
++static const QemuInputHandler atoms3_input_handler = {
++    .name = "AtomS3 family GPIO41 button",
+     .mask = INPUT_EVENT_MASK_KEY,
+-    .event = atoms3lite_input,
++    .event = atoms3_input,
+ };
++
++/* C123 and C124 both wire one WS2812 to GPIO35 and their key to GPIO41. */
++void m5atoms3_onboard_io_init(void)
++{
++    M5Unit *io = M5_UNIT(qdev_new(TYPE_M5_UNIT));
++    io->kind = UNIT_GPIO;
++    io->unit_id = g_strdup("key");
++    io->s3 = true;
++    io->yellow = 35;
++    io->white = 41;
++    object_property_add_child(qdev_get_machine(), "onboard_io", OBJECT(io));
++    qdev_realize_and_unref(DEVICE(io), NULL, &error_fatal);
++    m5_unit_gpio_initial_complete(io);
++    QemuInputHandlerState *keys = qemu_input_handler_register(
++        DEVICE(io), &atoms3_input_handler);
++    /* Keep QMP/GUI key ownership on the component that also exposes pressed.
++     * The display handler remains registered for non-key event classes.
++     */
++    qemu_input_handler_activate(keys);
++
++    /* The IR output transistor loads GPIO4 low when used as an input.
++     * This nominal external load preserves M5Unified's no-display detection
++     * path; GPIO output drive still takes precedence in the controller.
++     * It is not a measured analogue leakage/capacitance model.
++     */
++    esp32_gpio_set_input(4, 0);
++}
+ 
+ void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                             ESPGdmaState *gdma)
+@@ -59,21 +86,5 @@
+     sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
+         qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
+ 
+-    M5Unit *io = M5_UNIT(qdev_new(TYPE_M5_UNIT));
+-    io->kind = UNIT_GPIO;
+-    io->unit_id = g_strdup("key");
+-    io->s3 = true;
+-    io->yellow = 35;
+-    io->white = 41;
+-    object_property_add_child(qdev_get_machine(), "onboard_io", OBJECT(io));
+-    qdev_realize_and_unref(DEVICE(io), NULL, &error_fatal);
+-    m5_unit_gpio_initial_complete(io);
+-    qemu_input_handler_register(DEVICE(io), &atoms3lite_input_handler);
+-
+-    /* The IR output transistor loads GPIO4 low when used as an input.
+-     * This nominal external load preserves M5Unified's no-display detection
+-     * path; GPIO output drive still takes precedence in the controller.
+-     * It is not a measured analogue leakage/capacitance model.
+-     */
+-    esp32_gpio_set_input(4, 0);
++    m5atoms3_onboard_io_init();
+ }
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -89,6 +89,9 @@
+     case M5_BOARD_STICKS3:
+         m5sticks3_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_DIAL:
++        m5dial_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3_LITE:
+         m5atoms3lite_board_init(sys_mem, intmatrix, gdma);
+         break;
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1444,3 +1444,35 @@
+ }
+ 
+ type_init(m5atoms3lite_machine_type_init);
++
++/* K130 M5Dial: original ESP32-S3FN8 with no PSRAM. */
++static void m5dial_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_DIAL;
++    esp32s3_machine_init(machine);
++}
++
++static void m5dial_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack Dial K130 (ESP32-S3FN8, GC9A01, FT3267, GPIO encoder)";
++    mc->init = m5dial_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5dial_info = {
++    .name = MACHINE_TYPE_NAME("m5dial"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5dial_machine_class_init,
++};
++
++static void m5dial_machine_type_init(void)
++{
++    type_register_static(&m5dial_info);
++}
++
++type_init(m5dial_machine_type_init);
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -48,6 +48,7 @@
+   '../m5stopwatch/m5atoms3r.c',
+   '../m5stopwatch/m5atoms3.c',
+   '../m5stopwatch/m5atoms3lite.c',
++  '../m5stopwatch/m5dial.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',
+   '../m5stopwatch/m5stamplc.c',
+--- /dev/null
++++ b/hw/m5stopwatch/m5dial.c
+@@ -0,0 +1,213 @@
++/*
++ * K130 M5Dial: ESP32-S3FN8, 8 MiB Flash and no PSRAM.
++ * GC9A01 SPI2 DC4/CS7/MOSI5/SCLK6/RST8, FT3267-compatible first-touch
++ * registers at 0x38 (INT14), PCF8563 at 0x51, and A41/B40 quadrature.
++ *
++ * Sources: M5GFX 6e53f9bfcf7dae34e7c7c089cfd66db977793e17,
++ * M5Unified 565a499675b4cbbf897451d7f9ef66890e2cbb90, and UIFlow2
++ * hardware/rotary.py + driver/rotary at 64c3ce1346ceb4d404c1c3d74e66fed7eadb4d90.
++ * RFID WS1850S, buzzer, power retention and RGB are separate open models.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "m5stopwatch.h"
++
++#define TYPE_M5_DIAL_ENCODER "m5-dial-quadrature"
++OBJECT_DECLARE_SIMPLE_TYPE(M5DialEncoder, M5_DIAL_ENCODER)
++
++struct M5DialEncoder {
++    DeviceState parent_obj;
++    QEMUTimer *timer;
++    int64_t target, delivered;
++    int direction;
++    unsigned phase;
++    uint64_t edges;
++};
++
++static void dial_encoder_step(void *opaque)
++{
++    M5DialEncoder *s = opaque;
++    /* clk<<1 | dt. The original guest full-step decoder returns +1 for
++     * 11 -> 10 -> 00 -> 01 -> 11; every transition changes one real pin.
++     */
++    static const unsigned pins[] = { 3, 2, 0, 1 };
++    if (!s->phase) {
++        if (s->target == s->delivered) {
++            return;
++        }
++        s->direction = s->target > s->delivered ? 1 : -1;
++    }
++    s->phase = (s->phase + (s->direction > 0 ? 1 : 3)) & 3;
++    unsigned value = pins[s->phase];
++    esp32_gpio_set_input(41, (value >> 1) & 1);
++    esp32_gpio_set_input(40, value & 1);
++    s->edges++;
++    if (!s->phase) {
++        s->delivered += s->direction;
++    }
++    if (s->phase || s->target != s->delivered) {
++        /* Re-arm from now: late host scheduling must not burst old edges
++         * into one guest IRQ delivery or directly fabricate a count.
++         */
++        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++    }
++}
++
++static void dial_encoder_get(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    int64_t value = !strcmp(name, "detents") ? s->target : s->delivered;
++    visit_type_int64(v, name, &value, errp);
++}
++
++static void dial_encoder_set(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    int64_t target;
++    if (!visit_type_int64(v, name, &target, errp)) {
++        return;
++    }
++    if (target < -4096 || target > 4096) {
++        error_setg(errp, "Dial physical detents must be within -4096..4096");
++        return;
++    }
++    s->target = target;
++    if (!timer_pending(s->timer) && (s->phase || s->target != s->delivered)) {
++        timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 5);
++    }
++}
++
++static void dial_encoder_edges(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    uint64_t value = M5_DIAL_ENCODER(obj)->edges;
++    visit_type_uint64(v, name, &value, errp);
++}
++
++static void dial_encoder_reset(DeviceState *dev)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(dev);
++    timer_del(s->timer);
++    s->target = s->delivered = 0;
++    s->phase = s->edges = 0;
++    s->direction = 1;
++    esp32_gpio_set_input(41, 1);
++    esp32_gpio_set_input(40, 1);
++}
++
++static void dial_encoder_init(Object *obj)
++{
++    M5DialEncoder *s = M5_DIAL_ENCODER(obj);
++    s->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, dial_encoder_step, s);
++    object_property_add(obj, "detents", "int", dial_encoder_get,
++                        dial_encoder_set, NULL, NULL);
++    object_property_add(obj, "delivered-detents", "int", dial_encoder_get,
++                        NULL, NULL, NULL);
++    object_property_add(obj, "gpio-edges", "uint64", dial_encoder_edges,
++                        NULL, NULL, NULL);
++}
++
++static void dial_encoder_finalize(Object *obj)
++{
++    timer_free(M5_DIAL_ENCODER(obj)->timer);
++}
++
++static void dial_encoder_class_init(ObjectClass *klass, void *data)
++{
++    device_class_set_legacy_reset(DEVICE_CLASS(klass), dial_encoder_reset);
++}
++
++static const TypeInfo dial_encoder_info = {
++    .name = TYPE_M5_DIAL_ENCODER,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(M5DialEncoder),
++    .instance_init = dial_encoder_init,
++    .instance_finalize = dial_encoder_finalize,
++    .class_init = dial_encoder_class_init,
++};
++
++static void dial_encoder_register(void)
++{
++    type_register_static(&dial_encoder_info);
++}
++
++type_init(dial_encoder_register);
++
++void m5dial_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                       ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0), 1);
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
++    static const struct { const char *model; uint8_t address; } parts[] = {
++        { "ft5x06", 0x38 },
++        { "pcf8563", 0x51 },
++    };
++    for (unsigned i = 0; i < ARRAY_SIZE(parts); i++) {
++        DeviceState *part = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(part, "model", parts[i].model);
++        qdev_prop_set_uint8(part, "address", parts[i].address);
++        object_property_add_child(qdev_get_machine(), parts[i].model, OBJECT(part));
++        qdev_realize_and_unref(part, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init_pins(bus, 11, 12);
++
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi_mr, 1);
++    MemoryRegion *alias = g_new(MemoryRegion, 1);
++    memory_region_init_alias(alias, NULL, "m5dial.spi3-alias", spi_mr,
++                             0, memory_region_size(spi_mr));
++    memory_region_add_subregion_overlap(sys_mem, 0x60025000, alias, 1);
++    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                              ETS_SPI3_INTR_SOURCE);
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 240);
++    qdev_prop_set_uint32(panel, "mem-height", 240);
++    qdev_prop_set_uint32(panel, "vis-width", 240);
++    qdev_prop_set_uint32(panel, "vis-height", 240);
++    qdev_prop_set_uint32(panel, "offset-x", 0);
++    qdev_prop_set_uint32(panel, "offset-y", 0);
++    qdev_prop_set_uint32(panel, "read-id", 0x00019a00);
++    qdev_prop_set_uint32(panel, "key-a-pin", 42);
++    qdev_prop_set_uint32(panel, "key-b-pin", 0);
++    qdev_prop_set_uint32(panel, "touch-int-pin", 14);
++    qdev_prop_set_bit(panel, "touch", true);
++    qdev_prop_set_bit(panel, "invert", true);
++    qdev_prop_set_bit(panel, "infer-command", false);
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
++    esp32s3_gpspi_set_dc_pin(spi, 4);
++    esp32s3_gpspi_set_panel_cs_pin(spi, 7);
++    DeviceState *encoder = qdev_new(TYPE_M5_DIAL_ENCODER);
++    object_property_add_child(qdev_get_machine(), "encoder", OBJECT(encoder));
++    qdev_realize_and_unref(encoder, NULL, &error_fatal);
++    /* Board contacts idle high; reset repeats this state after VM reset. */
++    esp32_gpio_set_input(41, 1);
++    esp32_gpio_set_input(40, 1);
++}

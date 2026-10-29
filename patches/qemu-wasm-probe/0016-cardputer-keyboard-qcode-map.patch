@@ -4,32 +4,12 @@ Subject: [PATCH] Cardputer ADV: map symbolic QKeyCodes to the physical matrix
 QAPI enum ordering is not alphabetical. Preserve the real TCA8418 FIFO and
 map each physical key explicitly, including Fn navigation press/release.
 COMPOSE is the board-specific carrier for the physical Fn matrix key.
+Context includes native layer 0086 optional GPIO power-button routing;
+keyboard helper behavior is unchanged.
 
-diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
-index d97f972f..dd57f4a1 100644
 --- a/hw/m5stopwatch/m5_spi_panel.c
 +++ b/hw/m5stopwatch/m5_spi_panel.c
-@@ -398,260 +398,324 @@ static uint32_t m5_panel_pixel_rgb(M5SpiPanelState *s, uint32_t x, uint32_t y)
-         mx = s->off_x + s->vis_w - 1 - x;
-         my = s->off_y + s->vis_h - 1 - y;
-         break;
-     case 3:
-         mx = s->off_x + s->vis_h - 1 - y;
-         my = s->off_y + x;
-         break;
-     default:
-         break;
-     }
- 
-     uint16_t p = s->mem[my * s->mem_w + mx];
-     bool on = s->disp_on && !s->sleep;
-     bool invert = s->physical_invert ^ s->controller_invert;
-     if (invert) {
-         p = ~p;
-     }
-     uint32_t r = ((p >> 11) & 0x1f) * 255 / 31;
-     uint32_t g = ((p >> 5) & 0x3f) * 255 / 63;
-     uint32_t b = (p & 0x1f) * 255 / 31;
+@@ -418,220 +418,284 @@
      if (!on) {
          r = g = b = 0;
      }
@@ -122,25 +102,6 @@ index d97f972f..dd57f4a1 100644
 -        *col = index < 10 ? 2 + index : 3 + index - 10;
 -        return true;
 -    }
--    switch (qcode) {
--    case Q_KEY_CODE_RET:
--        *row = 2;
--        *col = 13;
--        return true;
--    case Q_KEY_CODE_SPC:
--        *row = 3;
--        *col = 13;
--        return true;
--    case Q_KEY_CODE_TAB:
--        *row = 1;
--        *col = 0;
--        return true;
--    case Q_KEY_CODE_BACKSPACE:
--        *row = 0;
--        *col = 13;
--        return true;
--    default:
--        return false;
 +    static const struct {
 +        int qcode;
 +        uint8_t row;
@@ -214,14 +175,58 @@ index d97f972f..dd57f4a1 100644
 +            *col = keys[i].col;
 +            return true;
 +        }
-     }
++    }
 +    return false;
- }
- 
- static void m5_panel_keyboard_event(int qcode, bool down)
- {
-     int row, col;
- 
++}
++
++static void m5_panel_keyboard_event(int qcode, bool down)
++{
++    int row, col;
++
+     switch (qcode) {
+-    case Q_KEY_CODE_RET:
+-        *row = 2;
+-        *col = 13;
+-        return true;
+-    case Q_KEY_CODE_SPC:
+-        *row = 3;
+-        *col = 13;
+-        return true;
+-    case Q_KEY_CODE_TAB:
+-        *row = 1;
+-        *col = 0;
+-        return true;
+-    case Q_KEY_CODE_BACKSPACE:
+-        *row = 0;
+-        *col = 13;
+-        return true;
++    case Q_KEY_CODE_ESC:
++        row = 0; col = 0;
++        break;
++    case Q_KEY_CODE_DELETE:
++        row = 0; col = 13;
++        break;
++    case Q_KEY_CODE_LEFT:
++        row = 3; col = 10;
++        break;
++    case Q_KEY_CODE_DOWN:
++        row = 3; col = 11;
++        break;
++    case Q_KEY_CODE_RIGHT:
++        row = 3; col = 12;
++        break;
++    case Q_KEY_CODE_UP:
++        row = 2; col = 11;
++        break;
+     default:
+-        return false;
+-    }
+-}
+-
+-static void m5_panel_keyboard_event(int qcode, bool down)
+-{
+-    int row, col;
+-
 -    if (qcode == Q_KEY_CODE_LEFT || qcode == Q_KEY_CODE_RIGHT ||
 -        qcode == Q_KEY_CODE_UP || qcode == Q_KEY_CODE_DOWN) {
 -        int fn_raw = tca8418_event(2, 0, down);
@@ -242,26 +247,6 @@ index d97f972f..dd57f4a1 100644
 -        } else {
 -            m5sw_keyboard_event(direction_raw);
 -            m5sw_keyboard_event(fn_raw);
-+    switch (qcode) {
-+    case Q_KEY_CODE_ESC:
-+        row = 0; col = 0;
-+        break;
-+    case Q_KEY_CODE_DELETE:
-+        row = 0; col = 13;
-+        break;
-+    case Q_KEY_CODE_LEFT:
-+        row = 3; col = 10;
-+        break;
-+    case Q_KEY_CODE_DOWN:
-+        row = 3; col = 11;
-+        break;
-+    case Q_KEY_CODE_RIGHT:
-+        row = 3; col = 12;
-+        break;
-+    case Q_KEY_CODE_UP:
-+        row = 2; col = 11;
-+        break;
-+    default:
 +        if (tca8418_key_pos(qcode, &row, &col)) {
 +            m5sw_keyboard_event(tca8418_event(row, col, down));
          }
@@ -340,8 +325,17 @@ index d97f972f..dd57f4a1 100644
          case Q_KEY_CODE_B: case Q_KEY_CODE_RIGHT: case Q_KEY_CODE_2:
              esp32_gpio_set_input(s->key_b_pin, !down);
              break;
+         case Q_KEY_CODE_C:
+             if (s->key_power_pin < 40) {
+                 esp32_gpio_set_input(s->key_power_pin, !down);
+             }
+             break;
          case Q_KEY_CODE_P: case Q_KEY_CODE_3:
-             m5sw_pwr_button(down);
+             if (s->key_power_pin < 40) {
+                 esp32_gpio_set_input(s->key_power_pin, !down);
+             } else {
+                 m5sw_pwr_button(down);
+             }
              break;
          default:
              break;
@@ -352,32 +346,3 @@ index d97f972f..dd57f4a1 100644
          InputMoveEvent *m = evt->u.abs.data;
          int v = qemu_input_scale_axis(m->value, INPUT_EVENT_ABS_MIN,
                                        INPUT_EVENT_ABS_MAX, 0, s->vis_w - 1);
-         if (m->axis == INPUT_AXIS_X) {
-             s->mouse_x = v;
-         } else if (m->axis == INPUT_AXIS_Y) {
-             s->mouse_y = qemu_input_scale_axis(m->value, INPUT_EVENT_ABS_MIN,
-                                                INPUT_EVENT_ABS_MAX, 0, s->vis_h - 1);
-         }
-         break;
-     }
-     case INPUT_EVENT_KIND_BTN: {
-         InputBtnEvent *b = evt->u.btn.data;
-         if (b->button == INPUT_BUTTON_LEFT) {
-             s->mouse_btn = b->down;
-         }
-         break;
-     }
-     default:
-         break;
-     }
- }
- 
- static void m5_panel_input_sync(DeviceState *dev)
- {
-     M5SpiPanelState *s = M5_SPI_PANEL(dev);
-     if (s->touch) {
-         m5sw_ft_touch_set_pin(s->mouse_btn, s->mouse_x, s->mouse_y,
-                               s->touch_int_pin);
-     }
- }
- 

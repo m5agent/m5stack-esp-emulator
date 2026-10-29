@@ -272,7 +272,11 @@ def build_site(root: Path, output: Path, *, base_path: str = "/", service_url: s
             for profile in registry["profiles"]:
                 for name, row in profile.get("fixture", {}).get("sources", {}).items():
                     source_names = {
+                        "atoms3": {"boot.py": "core2_boot.py"},
+                        "atoms3-lite": {"main.py": "atoms3_lite_main.py"},
                         "core2": {"boot.py": "core2_boot.py"},
+                        "stickc-plus2": {"boot.py": "core2_boot.py", "main.py": "stickc_plus2_main.py"},
+                        "dial": {"boot.py": "core2_boot.py"},
                         "stopwatch": {"main.py": "stopwatch_main.py"},
                         "cardputer-adv": {"main.py": "cardputer_adv_main.py"},
                         "papercolor": {"main.py": "papercolor_main.py"},

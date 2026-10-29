@@ -198,7 +198,12 @@ def replay(root, current=True):
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(data)
-    patches = [name for name in bootstrap_stack() if current or name != PATCH]
+    patches = bootstrap_stack()
+    if not current:
+        # The historical negative control ends immediately before 0047.
+        # Later board/RMT changes are based on the fixed cold-pad source;
+        # applying them while deleting their prerequisite is not a valid tree.
+        patches = patches[:patches.index(PATCH)]
     for name in patches:
         if not patch_paths(name) & set(REPLAY_FILES):
             continue

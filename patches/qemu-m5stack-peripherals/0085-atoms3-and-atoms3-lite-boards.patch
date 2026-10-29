@@ -1,0 +1,284 @@
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -71,6 +71,8 @@
+     M5_BOARD_PAPERMONO,
+     M5_BOARD_PAPERCOLOR,
+     M5_BOARD_CORE2,
++    M5_BOARD_ATOMS3,
++    M5_BOARD_ATOMS3_LITE,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -147,6 +149,10 @@
+                    struct ESPGdmaState *gdma);
+ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
++void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                             struct ESPGdmaState *gdma);
++void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                         struct ESPGdmaState *gdma);
+ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                           struct ESPGdmaState *gdma);
+ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -89,6 +89,12 @@
+     case M5_BOARD_STICKS3:
+         m5sticks3_board_init(sys_mem, intmatrix, gdma);
+         break;
++    case M5_BOARD_ATOMS3_LITE:
++        m5atoms3lite_board_init(sys_mem, intmatrix, gdma);
++        break;
++    case M5_BOARD_ATOMS3:
++        m5atoms3_board_init(sys_mem, intmatrix, gdma);
++        break;
+     case M5_BOARD_ATOMS3R:
+         m5atoms3r_board_init(sys_mem, intmatrix, gdma);
+         break;
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -1380,3 +1380,67 @@
+ 
+ type_init(m5papercolor_machine_type_init);
+ 
++
++/* Original C123 AtomS3: ESP32-S3FN8 (QFN56), 8 MiB Flash, no PSRAM. */
++static void m5atoms3_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMS3;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atoms3_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack AtomS3 C123 (ESP32-S3FN8, GC9107 128x128, MPU6886)";
++    mc->init = m5atoms3_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atoms3_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atoms3_machine_class_init,
++};
++
++static void m5atoms3_machine_type_init(void)
++{
++    type_register_static(&m5atoms3_info);
++}
++
++type_init(m5atoms3_machine_type_init);
++
++/* C124 AtomS3 Lite: ESP32-S3FN8, 8 MiB Flash, no PSRAM, no LCD. */
++static void m5atoms3lite_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOMS3_LITE;
++    esp32s3_machine_init(machine);
++}
++
++static void m5atoms3lite_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++    mc->desc = "M5Stack AtomS3 Lite C124 (ESP32-S3FN8, WS2812, GPIO41 button)";
++    mc->init = m5atoms3lite_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32s3_fixup_ram_size;
++}
++
++static const TypeInfo m5atoms3lite_info = {
++    .name = MACHINE_TYPE_NAME("m5atoms3lite"),
++    .parent = TYPE_ESP32S3_MACHINE,
++    .instance_size = sizeof(Esp32s3MachineState),
++    .class_init = m5atoms3lite_machine_class_init,
++};
++
++static void m5atoms3lite_machine_type_init(void)
++{
++    type_register_static(&m5atoms3lite_info);
++}
++
++type_init(m5atoms3lite_machine_type_init);
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -44,6 +44,8 @@
+   '../m5stopwatch/co5300.c',
+   '../m5stopwatch/m5sticks3.c',
+   '../m5stopwatch/m5atoms3r.c',
++  '../m5stopwatch/m5atoms3.c',
++  '../m5stopwatch/m5atoms3lite.c',
+   '../m5stopwatch/m5cores3.c',
+   '../m5stopwatch/m5cardputeradv.c',
+   '../m5stopwatch/m5stamplc.c',
+--- /dev/null
++++ b/hw/m5stopwatch/m5atoms3.c
+@@ -0,0 +1,81 @@
++/*
++ * Original M5Stack AtomS3 C123 board wiring.
++ *
++ * ESP32-S3FN8, 8 MiB Flash, no PSRAM; MPU6886 at 0x68 on SDA38/SCL39;
++ * GC9107 128x128 controller on SPI3 (MOSI21, SCLK17, CS15,
++ * DC33, RST34), GPIO16 PWM backlight, and active-low GPIO41 button.
++ * This is a separate board, not an AtomS3R machine alias.
++ *
++ * Wiring evidence: m5stack/M5GFX 6e53f9bfcf7dae34e7c7c089cfd66db977793e17
++ * src/M5GFX.cpp AtomS3 probe; m5stack/M5Unified
++ * 565a499675b4cbbf897451d7f9ef66890e2cbb90 src/M5Unified.inl pin tables.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "m5stopwatch.h"
++
++void m5atoms3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                        ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0), 1);
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
++    DeviceState *imu = qdev_new(TYPE_M5SW_I2C_DEV);
++    qdev_prop_set_string(imu, "model", "mpu6886");
++    qdev_prop_set_uint8(imu, "address", 0x68);
++    object_property_add_child(qdev_get_machine(), "mpu6886", OBJECT(imu));
++    qdev_realize_and_unref(imu, (BusState *)bus, &error_fatal);
++    m5stopwatch_soft_i2c_init_pins(bus, 38, 39);
++
++    DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
++    MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
++    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
++    memory_region_init_alias(spi2_alias, NULL, "m5atoms3.spi2-alias",
++        spi_mr, 0, memory_region_size(spi_mr));
++    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
++    esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++        ETS_SPI3_INTR_SOURCE);
++
++    DeviceState *panel = qdev_new(TYPE_M5_SPI_PANEL);
++    qdev_prop_set_uint32(panel, "mem-width", 128);
++    qdev_prop_set_uint32(panel, "mem-height", 160);
++    qdev_prop_set_uint32(panel, "vis-width", 128);
++    qdev_prop_set_uint32(panel, "vis-height", 128);
++    qdev_prop_set_uint32(panel, "offset-x", 0);
++    qdev_prop_set_uint32(panel, "offset-y", 32);
++    qdev_prop_set_uint32(panel, "key-a-pin", 41);
++    qdev_prop_set_uint32(panel, "key-b-pin", 41);
++    qdev_prop_set_uint32(panel, "read-id", 0x00079100);
++    qdev_prop_set_uint32(panel, "glass-rotation", 0);
++    qdev_prop_set_bit(panel, "apply-madctl", true);
++    qdev_prop_set_bit(panel, "infer-command", false);
++    qdev_prop_set_bit(panel, "invert", false);
++    qdev_realize_and_unref(panel, NULL, &error_fatal);
++    esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
++    esp32s3_gpspi_set_dc_pin(spi, 33);
++    esp32s3_gpspi_set_panel_cs_pin(spi, 15);
++}
+--- /dev/null
++++ b/hw/m5stopwatch/m5atoms3lite.c
+@@ -0,0 +1,79 @@
++/*
++ * C124 AtomS3 Lite: no display, GPIO41 active-low button and one WS2812 on
++ * GPIO35. Reuse the existing single-button/single-LED physical component;
++ * it observes the real RMT APB memory/FIFO, interrupt completion and GPIO
++ * matrix channel routing. There is no host-side LED setter or dummy LCD.
++ *
++ * Official sources: M5Unified 565a499675b4cbbf897451d7f9ef66890e2cbb90,
++ * src/M5Unified.inl GPIO41 button and GPIO35 RGB pin tables; UIFlow board
++ * M5STACK_AtomS3_Lite at 64c3ce1346ceb4d404c1c3d74e66fed7eadb4d90.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "hw/dma/esp_gdma.h"
++#include "qapi/error.h"
++#include "ui/input.h"
++#include "m5stopwatch.h"
++#include "m5_unit_runtime.h"
++
++static void atoms3lite_input(DeviceState *dev, QemuConsole *src,
++                             InputEvent *evt)
++{
++    if (evt->type != INPUT_EVENT_KIND_KEY) {
++        return;
++    }
++    InputKeyEvent *key = evt->u.key.data;
++    int code = qemu_input_key_value_to_qcode(key->key);
++    if (code == Q_KEY_CODE_A || code == Q_KEY_CODE_1) {
++        object_property_set_bool(OBJECT(dev), "pressed", key->down,
++                                 &error_abort);
++    }
++}
++
++static const QemuInputHandler atoms3lite_input_handler = {
++    .name = "AtomS3 Lite GPIO41 button",
++    .mask = INPUT_EVENT_MASK_KEY,
++    .event = atoms3lite_input,
++};
++
++void m5atoms3lite_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                            ESPGdmaState *gdma)
++{
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60013000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0), 1);
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++
++    M5Unit *io = M5_UNIT(qdev_new(TYPE_M5_UNIT));
++    io->kind = UNIT_GPIO;
++    io->unit_id = g_strdup("key");
++    io->s3 = true;
++    io->yellow = 35;
++    io->white = 41;
++    object_property_add_child(qdev_get_machine(), "onboard_io", OBJECT(io));
++    qdev_realize_and_unref(DEVICE(io), NULL, &error_fatal);
++    m5_unit_gpio_initial_complete(io);
++    qemu_input_handler_register(DEVICE(io), &atoms3lite_input_handler);
++
++    /* The IR output transistor loads GPIO4 low when used as an input.
++     * This nominal external load preserves M5Unified's no-display detection
++     * path; GPIO output drive still takes precedence in the controller.
++     * It is not a measured analogue leakage/capacitance model.
++     */
++    esp32_gpio_set_input(4, 0);
++}

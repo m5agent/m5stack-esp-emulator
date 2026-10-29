@@ -631,8 +631,11 @@ USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络
 
 ### UI-01
 
-当前缺口：14 款主机已接入固定版本模型外壳，加载失败时保留原 renderer
-回退；StopWatch 仍是唯一参考质量外壳。模型接入不替代逐设备结构尺寸、
+当前视觉库存为 38 款主机，包含本轮新增的完整 Atom/Stick 系列及 Dial、Basic；
+14 款有运行登记，其余 24 款仅模型，不能提示连接服务即可运行固件。
+固定来源、配置及验收见[新增主机计划](plans/2026-10-29-expanded-host-models.md)。
+加载失败时保留原 renderer 回退；StopWatch 仍是唯一参考质量外壳。
+模型接入不替代逐设备结构尺寸、
 面板开孔、材质、hitbox 和截图阈值的保真验收。
 
 ## P2：CardputerZero

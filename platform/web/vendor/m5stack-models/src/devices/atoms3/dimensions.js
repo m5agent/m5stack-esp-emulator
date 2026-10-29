@@ -1,0 +1,6 @@
+// MIT. Original AtomS3 C123. Nominal dimensions conflict by revision; own STL is 12.9 mm deep.
+export const spec=Object.freeze({id:'atoms3',name:'AtomS3',sku:'C123',nominalMm:[24,24,12.9],nativeMm:[24.000019073486328,24.00000008393355,12.899999856948853],soc:'ESP32-S3FN8',scope:'visual-only',lcd:{width:128,height:128,diagonalInch:.85,activeMm:15.27,documentedDriver:'GC9107'},grovePins:['GND','5V','G2','G1'],header5Pins:['3V3','G5','G6','G7','G8'],header4Pins:['G39','G38','5V','GND'],userGpio:'G41',travelMm:{button:.18,reset:.15},reset:{rootZ:-4.75,freeZ:3.057141697703628,seedSourceFace:1536},printRevision:'reference-redraw current C123 own photos; supplied ST7735 revision excluded'});
+export const defaults=Object.freeze({artwork:true});
+export const configurations=Object.freeze([{id:'complete',name:'完整本体与贴纸',options:{}}]);
+export const configurationSchema=Object.freeze({artwork:{type:'boolean',default:true,meaning:'Only ink toggles. Native shells, LCD stack, physical label carriers, connectors and both controls remain.'}});
+export const DIM=Object.freeze({usb:[0,-12.02,1.6],grove:[0,-12.02,-3.2],header5:[7.62,-2.7,-6.33],header4:[-7.62,-3.97,-6.33],lcd:[0,0,6.31],rearLabel:[0,3,-6.26],compliance:[1.3,11.805,.3]});

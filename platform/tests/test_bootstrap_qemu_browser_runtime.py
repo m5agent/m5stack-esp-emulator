@@ -9,6 +9,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("qemu_builder_test", ROOT / "scripts/qemu-wasm-build/build.py")
@@ -49,13 +50,29 @@ class RuntimeDistributionTests(unittest.TestCase):
     def write(self, value): (self.root / "runtime.json").write_text(json.dumps(value))
 
     def test_fixed_patch_order_and_runtime_source_boundary(self):
-        self.assertEqual(len(self.lock["patches"]), 46)
-        self.assertEqual(len(self.lock["patched_files"]), 147)
+        native_count = self.lock["native_patch_count"]
+        self.assertEqual(native_count, 36)
+        self.assertEqual(len(self.lock["patches"]), native_count + 15)
+        for name in ["m5atoms3.c", "m5atoms3lite.c", "m5stickc.c", "m5stickcplus2.c", "m5dial.c", "m5atomclassic.c", "m5_rmt_classic.c"]:
+            self.assertIn("hw/m5stopwatch/" + name, self.lock["patched_files"])
         self.assertTrue(self.lock["patches"][30]["path"].endswith("0064-esp32-intmatrix-pending-irq-remap.patch"))
-        suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:]]
+        self.assertEqual([Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][31:native_count]], ["0085", "0086", "0087", "0088", "0089"])
+        suffix = [Path(row["path"]).name.split("-")[0] for row in self.lock["patches"][native_count:]]
         self.assertEqual(suffix, ["0001", "0004", "0005", "0006", "0009", "0010", "0008", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018"])
         self.assertFalse(self.lock["required_rom"]["bundled"])
         self.assertIsNone(self.lock["required_rom"]["path"])
+
+    def test_native_partition_rejects_nonintegers_and_misclassified_layers(self):
+        target = self.root / "scripts/qemu-wasm-build/sources.lock.json"
+        target.parent.mkdir(parents=True)
+        native_count = self.lock["native_patch_count"]
+        for count in [True, "36", 0, -1, native_count - 1, native_count + 1, len(self.lock["patches"])]:
+            with self.subTest(count=count):
+                value = copy.deepcopy(self.lock)
+                value["native_patch_count"] = count
+                target.write_text(json.dumps(value))
+                with self.assertRaisesRegex(ValueError, "unsupported QEMU source lock"):
+                    builder.load_lock(self.root)
 
     def test_exact_allowlist_returns_source_and_no_rom(self):
         self.manifest()
@@ -139,9 +156,17 @@ class RuntimeDistributionTests(unittest.TestCase):
     def test_incremental_requires_opt_in_and_reviewed_artifact_pins(self):
         value = self.manifest(); value["build"]["all_objects_rebuilt"] = False; self.write(value)
         with self.assertRaisesRegex(ValueError, "full source build"): builder.runtime_files(self.root)
-        with self.assertRaisesRegex(ValueError, "reference receipt"): builder.runtime_files(self.root, allow_incremental=True)
-        value["build"]["reference_build_receipt_sha256"] = self.lock["reference_runtime"]["build_receipt_sha256"]; self.write(value)
-        with self.assertRaisesRegex(ValueError, "reference artifact"): builder.runtime_files(self.root, allow_incremental=True)
+        with self.assertRaisesRegex(ValueError, "historical incremental reference is incompatible"):
+            builder.runtime_files(self.root, allow_incremental=True)
+        compatible = copy.deepcopy(self.lock)
+        compatible["reference_runtime"]["source_lock_compatible"] = True
+        with mock.patch.object(builder, "load_lock", return_value=compatible):
+            with self.assertRaisesRegex(ValueError, "reference receipt"):
+                builder.runtime_files(self.root, allow_incremental=True)
+            value["build"]["reference_build_receipt_sha256"] = self.lock["reference_runtime"]["build_receipt_sha256"]
+            self.write(value)
+            with self.assertRaisesRegex(ValueError, "reference artifact"):
+                builder.runtime_files(self.root, allow_incremental=True)
 
     def test_owned_cache_and_source_location_guards(self):
         (self.root / "unrelated.txt").write_text("retain")

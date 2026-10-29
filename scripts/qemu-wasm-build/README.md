@@ -24,8 +24,8 @@ completed, hash-verified library outputs from this exact source lock. QEMU still
 gets a new source/build directory and every QEMU object is compiled there. CI
 does not need this option and builds the dependency sources itself.
 
-`sources.lock.json` freezes the Espressif QEMU commit, **31 explicit native
-layers**, nine QEMU WASM patches, dependency patches/archives, subprojects,
+`sources.lock.json` freezes the Espressif QEMU commit, **36 explicit native
+layers**, 15 QEMU WASM patches, dependency patches/archives, subprojects,
 Emscripten 3.1.50 and host tool versions. It never imports the mutable native
 bootstrap patch list. Patches 0065/0066 are context-ported through 0011;
 0008 instrumentation is included in the reviewed source sequence; 0007's
@@ -34,8 +34,25 @@ historical 2 MiB stack expansion is excluded. Link flags explicitly select
 preserve the complete Emscripten link list and take precedence over QEMU's
 later cross file. Before compiling, the builder checks the actual Ninja link
 command for missing or conflicting stack settings and records its argument
-hash in the build receipt and runtime manifest. The 144 affected source-file
+hash in the build receipt and runtime manifest. The 153 affected source-file
 hashes bind this recipe to the final reviewed source.
+
+Native layers `0085` through `0089` register separate AtomS3, AtomS3 Lite,
+StickC, StickC Plus, StickC Plus SE, StickC Plus2, Dial, Atom Lite, Atom Matrix
+and Atom Matrix v1.1 machines. AtomS3 uses
+the documented GC9107 wiring and MPU6886; Lite has no display and observes
+its GPIO35 WS2812 through RMT, with the GPIO41 button reaching the guest
+through the GPIO controller. Classic Atom GPIO27 WS2812 output uses the original ESP32 RMT controller and
+GPIO-matrix route; Dial uses GPIO41/40 quadrature edges, GC9A01 and FT3267.
+The ESP32 flash QIOR phase bridge selects the attached flash model's mode/dummy
+count while keeping the PSRAM route separate. The Stick variants retain their own panel,
+power-controller, memory and IMU topology. These source registrations and
+`compiled_profiles` do not grant browser admission or device functional PASS.
+The builder validates the native/WASM patch boundary from the lock rather
+than assuming a fixed number of native patches. Keyboard patch `0016` keeps
+the same C changes with updated context so it composes with the optional
+StickC Plus2 GPIO power button. The historical incremental reference predates
+these machines and cannot be repackaged as this source lock; rebuild QEMU.
 
 Every object is built from that prepared source. A fresh Linux/macOS build
 records its own WASM hash: it is not claimed byte-identical to the historical

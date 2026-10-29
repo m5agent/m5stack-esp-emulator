@@ -1,0 +1,33 @@
+Subject: [native] unprotect WDTFEED without optional handoff diagnostics
+
+Context port of peripheral 0069 (SHA256
+53b6557f0db174d8b0a280f354fbba42152f8c2918edfaf27b71de65c9cd04a8).
+The reconstructed source lacks optional feed counters/handoff tracing. Keep
+the identical functional change: WDTFEED reaches the timer while WDTPROTECT
+is locked. Keep the existing opt-in timer trace; add no synthetic state.
+Apply in place of 0069. Source replay is not firmware/hardware validation.
+
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -256,12 +256,15 @@
+         break;
+     }
+     case A_TIMG_WDTFEED:
+-        if (!esp32_timg_wdt_protected(&s->wdt)) {
+-            if (esp32_timg_trace_enabled()) {
+-                fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+-            }
+-            esp32_timg_wdt_feed(&s->wdt);
+-        }
++        /*
++         * WDTFEED is intentionally outside the register write-protection
++         * check. ESP-IDF wdt_hal_feed() writes it directly without unlocking
++         * WDTPROTECT, matching the hardware feed register semantics.
++         */
++        if (esp32_timg_trace_enabled()) {
++            fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
++        }
++        esp32_timg_wdt_feed(&s->wdt);
+         break;
+     case A_TIMG_WDTPROTECT:
+         if (esp32_timg_trace_enabled()) {

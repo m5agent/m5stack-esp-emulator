@@ -8,6 +8,7 @@ import * as config from '../web/public-config.js';
 import * as firmware from '../web/public-firmware.js';
 import * as demoFirmware from '../web/public-demo-firmware.js';
 import * as qemuProfiles from '../web/public-qemu-profiles.js';
+import * as qemuFrame from '../web/public-qemu-frame.js';
 import {PublicQemuRuntime,QEMU_BROWSER_PROFILE} from '../web/public-qemu-runtime.js';
 
 const pageRoot='https://example.test/showcase/';
@@ -17,12 +18,16 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const defaultExample=html.match(/id="referenceExample"[^>]*>\s*<option value="([^"]+)"/)[1];
 const source=await readFile(new URL('../web/public.js',import.meta.url),'utf8');
 const imports=[...source.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)];
-assert.equal(imports.length,14,'review the harness if the entry module dependency boundary changes');
+assert.equal(imports.length,15,'review the harness if the entry module dependency boundary changes');
 assert.ok(source.endsWith('void init().catch(error);\n'));
 const body=source.replace(/^import \{[^}]+\} from '[^']+';\n/gm,'').replace(/void init\(\)\.catch\(error\);\n$/,'');
 const required=imports.flatMap(match=>match[1].split(',').map(name=>name.trim()));
 const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
 const catalog=JSON.parse(await readFile(new URL('../../devices/catalog.json',import.meta.url),'utf8'));
+// A candidate may precede native catalog admission; the real entry also merges
+// these hosts from the pinned visual catalog. Keep that boundary in this mock.
+const visualCandidates=registry.profiles.filter(profile=>!catalog.devices.some(device=>device.id===profile.deviceId))
+  .map(profile=>({id:profile.deviceId,name:profile.deviceId,category:'controller',display:profile.display}));
 
 async function entry({search='',isolationError,registryFailure=false,publicationEligible=true,wallclockExample=false,isolation={isolated:true,reloading:false}}={}){
   const elements=new Map(),events=[],clipboard=[];
@@ -41,13 +46,13 @@ async function entry({search='',isolationError,registryFailure=false,publication
   const fetchFixture=async url=>{
     if(url.endsWith('qemu-browser-profiles.json')){events.push('registry');return new Response(JSON.stringify(registry),{status:registryFailure?503:200});}
     if(url.endsWith('devices/catalog.json'))return new Response(JSON.stringify(catalog));
-    if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:[]}));
+    if(url.endsWith('catalog/products.json'))return new Response(JSON.stringify({products:visualCandidates}));
     if(url.endsWith('browser-profiles.json'))return new Response(JSON.stringify({devices:[]}));
     if(url.endsWith('site-config.json'))return new Response(JSON.stringify({browser_runtime_engine:'qemu-wasm',browser_board_execution:true,publication_eligible:publicationEligible,browser_wallclock_example:wallclockExample}));
     throw new Error('Unexpected fetch '+url);
   };
   const dependencies=Object.fromEntries(required.map(name=>[name,()=>{throw new Error(`Unexpected execution boundary ${name}`);} ]));
-  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,{
+  Object.assign(dependencies,config,firmware,demoFirmware,qemuProfiles,qemuFrame,{
     siteRoot:()=>new URL(pageRoot),
     ensurePublicIsolation:async()=>{events.push('isolation');if(isolationError)throw isolationError;return isolation;},
     getBrowserProfile:()=>null,QEMU_BROWSER_PROFILE,PublicQemuRuntime,browserQemuHistory:()=>[],
@@ -73,7 +78,7 @@ async function entry({search='',isolationError,registryFailure=false,publication
 for(const code of ['coi_unavailable','coi_insecure_context','coi_storage_unavailable']){
   const app=await entry({search:'?device=cores3&mode=service&service=https://service.example.test&autostart=0',isolationError:Object.assign(new Error(code),{code})});
   assert.equal(app.state.browserUnavailable,true);assert.equal(app.browserProfile('cores3'),null);
-  assert.equal(app.state.devices.length,catalog.devices.length);assert.equal(app.state.selected.id,'cores3');
+  assert.equal(app.state.devices.length,catalog.devices.length+visualCandidates.length);assert.equal(app.state.selected.id,'cores3');
   assert.ok(app.events.includes('render-devices')&&app.events.includes('render-units'));
   assert.ok(app.events.includes('connect-service'));assert.equal(app.lane(),'service');
   app.element('runtimeMode').value='model';assert.equal(app.lane(),'model');
@@ -124,8 +129,9 @@ for(const profile of registry.profiles){
   app.state.run={kind:'browser',generation:app.state.runGeneration,controller};app.status('running');
   assert.equal(app.element('serialInput').disabled,true,'QEMU output-only UART cannot become a send UI');
   assert.equal(app.element('browserPirPanel').hidden,!profile.inputs.pir,'PIR controls must follow the selected actual profile');
+  assert.equal(app.element('nativeScreenBtn').hidden,profile.display===null,'headless devices cannot offer a fabricated flat screen');
   const reference=app.reference();
-  if(profile.fixture?.id==='xtensa-board-display-v1'){
+  if(['xtensa-board-display-v1','xtensa-board-led-v1'].includes(profile.fixture?.id)){
     assert.equal(reference.composedProbe,true);assert.equal(reference.sha256,profile.fixture.firmwareSHA256);
     await app.share();const link=new URL(app.clipboard[0]);assert.equal(link.searchParams.get('device'),profile.deviceId);assert.equal(link.searchParams.get('sha256'),profile.fixture.firmwareSHA256);assert.equal(link.searchParams.has('firmware'),false);
     const reopenedProbe=await entry({publicationEligible:false,search:link.search});assert.ok(reopenedProbe.events.includes('start:browser'));

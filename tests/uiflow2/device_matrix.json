@@ -59,6 +59,29 @@
       "efuse_pkg_version": 1
     },
     {
+      "id": "atoms3",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5atoms3",
+      "base": "platform/.cache/firmware/atoms3/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atoms3_ui_test",
+      "vfs_offset": "0x641000",
+      "vfs_size": "0x1BE000",
+      "flash_size": "0x800000",
+      "expected_size": "128x128",
+      "input": "key:a",
+      "post_frame_color": "3,3,00FF00",
+      "efuse_pkg_version": 0,
+      "memory": "0",
+      "serial_expect": [
+        "ATOMS3_MAIN_START",
+        "ATOMS3_M5_BEGIN_OK",
+        "ATOMS3_DISPLAY 128 128",
+        "ATOMS3_BTN_A 1"
+      ]
+    },
+    {
       "id": "atoms3r",
       "backend": "qemu-esp32s3",
       "network_status": "validated",
@@ -162,8 +185,7 @@
       "post_input_wait": 2,
       "post_frame_color": "270,160,000000",
       "efuse_pkg_version": 0,
-      "wait": 10,
-      "post_input_wait": 2
+      "wait": 10
     },
     {
       "id": "papermono",
@@ -178,11 +200,10 @@
       "flash_size": "0x1000000",
       "expected_size": "480x800",
       "input": "longpress:240,650,1.0",
-      "post_input_wait": 0.8,
+      "post_input_wait": 2,
       "post_frame_color": "440,30,000000",
       "efuse_pkg_version": 0,
-      "wait": 10,
-      "post_input_wait": 2
+      "wait": 10
     },
     {
       "id": "core2",
@@ -205,6 +226,33 @@
       "deterministic": true
     },
     {
+      "id": "stickc-plus2",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5stickcplus2",
+      "base": "platform/.cache/firmware/stickc-plus2/uiflow2.bin",
+      "files_dir": "tests/uiflow2/stickc_plus2_ui_test",
+      "vfs_offset": "0x641000",
+      "vfs_size": "0x1BE000",
+      "flash_size": "0x800000",
+      "expected_size": "135x240",
+      "api_size": "135x240",
+      "ui_rotation": 0,
+      "input": "key:a",
+      "post_frame_color": "3,3,00FF00",
+      "efuse_pkg_version": 6,
+      "efuse_driver": "nvram.esp32.efuse",
+      "memory": "2",
+      "deterministic": true,
+      "serial_expect": [
+        "STICKCPLUS2_MAIN_START",
+        "STICKCPLUS2_M5_BEGIN_OK",
+        "STICKCPLUS2_DISPLAY 135 240",
+        "STICKCPLUS2_BTN_A 1"
+      ]
+    },
+    {
       "id": "nesso-n1",
       "backend": "qemu-esp32c6",
       "network_console": "usb-jtag",
@@ -218,10 +266,9 @@
       "flash_size": "0x1000000",
       "expected_size": "135x240",
       "input": "longpress:67,160,1.0",
-      "post_input_wait": 0.8,
+      "post_input_wait": 2,
       "post_frame_color": "2,2,00FF00",
-      "wait": 15,
-      "post_input_wait": 2
+      "wait": 15
     },
     {
       "id": "nanoc6",
@@ -273,6 +320,124 @@
       "backend": "linux-arm64",
       "mode": "excluded",
       "reason": "Raspberry Pi CM0/Linux target; explicitly excluded from the ESP32 UIFlow2 virtual-host scope."
+    },
+    {
+      "id": "atoms3-lite",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atoms3lite",
+      "base": "platform/.cache/firmware/atoms3-lite/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atoms3_lite_ui_test",
+      "vfs_offset": "0x641000",
+      "vfs_size": "0x1be000",
+      "flash_size": "0x800000",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "serial_expect": [
+        "ATOMS3_LITE_MAIN_START",
+        "ATOMS3_LITE_M5_BEGIN_OK"
+      ]
+    },
+    {
+      "id": "dial",
+      "backend": "qemu-esp32s3",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5dial",
+      "base": "platform/.cache/firmware/dial/uiflow2.bin",
+      "files_dir": "tests/uiflow2/dial_ui_test",
+      "vfs_offset": "0x740000",
+      "vfs_size": "0xc0000",
+      "flash_size": "0x800000",
+      "memory": "0",
+      "efuse_pkg_version": 0,
+      "expected_size": "240x240",
+      "input": "key:a",
+      "serial_expect": [
+        "DIAL_MAIN_START",
+        "DIAL_M5_BEGIN_OK",
+        "DIAL_DISPLAY 240 240"
+      ]
+    },
+    {
+      "id": "stickc",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5stickc",
+      "base": "platform/.cache/firmware/stickc/uiflow2.bin",
+      "files_dir": "tests/uiflow2/stickc_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "expected_size": "80x160",
+      "input": "key:a",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse"
+    },
+    {
+      "id": "stickc-plus-se",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "ui",
+      "machine": "m5stickcplusse",
+      "base": "platform/.cache/firmware/stickc-plus-se/uiflow2.bin",
+      "files_dir": "tests/uiflow2/stickc_plus_se_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "expected_size": "135x240",
+      "input": "key:a",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse"
+    },
+    {
+      "id": "atom-lite",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atomlite",
+      "base": "platform/.cache/firmware/atom-lite/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atom_lite_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse"
+    },
+    {
+      "id": "atom-matrix",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atommatrix",
+      "base": "platform/.cache/firmware/atom-matrix/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atom_matrix_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse"
+    },
+    {
+      "id": "atom-matrix-v11",
+      "backend": "qemu-esp32lx6",
+      "network_status": "unverified",
+      "mode": "console",
+      "machine": "m5atommatrixv11",
+      "base": "platform/.cache/firmware/atom-matrix-v11/uiflow2.bin",
+      "files_dir": "tests/uiflow2/atom_matrix_v11_ui_test",
+      "vfs_offset": "0x371000",
+      "vfs_size": "0x8d000",
+      "flash_size": "0x400000",
+      "memory": "0",
+      "efuse_pkg_version": 5,
+      "efuse_driver": "nvram.esp32.efuse"
     }
   ]
 }

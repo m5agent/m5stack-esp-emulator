@@ -1,6 +1,8 @@
 // Shared display ABI contracts only. Synthetic host buffers do not run a guest.
 import assert from 'node:assert/strict';
-import {readSharedQemuFrame} from '../web/public-qemu-frame.js';
+import {readFile} from 'node:fs/promises';
+import {readSharedQemuFrame,readQemuOnboardOutputs,qemuOnboardVisualCommands} from '../web/public-qemu-frame.js';
+import {getQemuBrowserProfile} from '../web/public-qemu-profiles.js';
 
 function fixture(){
   const heap=new Uint8Array(new SharedArrayBuffer(256)),words=new Uint32Array(heap.buffer,32,8);
@@ -40,6 +42,22 @@ for(const sequence of [3,4]){
   test.heap.subarray=function(...args){Atomics.store(test.words,1,sequence);return subarray.apply(this,args);};
   assert.equal(read(test),null,'a writer beginning or finishing while pixels are copied must discard the snapshot');
 }
+const registry=JSON.parse(await readFile(new URL('../web/qemu-browser-profiles.json',import.meta.url),'utf8'));
+const lite=getQemuBrowserProfile('atoms3-lite',registry,{allowCandidateProfiles:true});
+const reads=[];
+const output=await readQemuOnboardOutputs(lite,async(execute,args)=>{
+  reads.push({execute,...args});return {'led-rgb':0x204060,'led-frames':3,pressed:true}[args.property];
+});
+assert.equal(reads.length,4);assert.ok(reads.every(row=>row.execute==='qom-get'&&row.path==='/machine/onboard_io'));
+assert.deepEqual(qemuOnboardVisualCommands(lite,output),[
+  {type:'led',target:'rgb',known:true,color:0x204060,brightness:1,on:true},
+  {type:'button-state',target:'button',pressed:true},
+]);
+assert.equal(qemuOnboardVisualCommands(lite,{...output,led_frames:0})[0].known,false,'no received RMT frame leaves LED output unknown');
+assert.throws(()=>qemuOnboardVisualCommands(lite,{...output,pressed:'true'}),/Invalid QEMU/);
+await assert.rejects(readQemuOnboardOutputs(lite,async()=>{throw new Error('QOM unavailable');}),/QOM unavailable/);
+await assert.rejects(readQemuOnboardOutputs(lite,async()=> '1'),/Invalid QEMU RMT frame counter/);
+assert.throws(()=>readSharedQemuFrame(fixture().module,0,null),/headless/);
 // Interleave a writer immediately after the initial even sequence load, before
 // bounds validation. Invalid in-flight metadata is a retry, not a fatal ABI gap.
 {

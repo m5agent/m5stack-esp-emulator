@@ -213,6 +213,33 @@ units. The original historical patches have not been rewritten.
 
 ## Local bootstrap
 
+The current product recipe is the `PATCHES` tuple in
+`scripts/bootstrap-unit-runtime.py`. Its 2026-10-29 integration retains the
+previous 37 logical layers and adds the five expanded-board layers
+`0085`–`0089`, for 42 applied patches. Historical `0065`, `0066`, `0069` and
+`0070` were based on a different diagnostic/Unit context and did not replay on
+the reconstructed source. Native `0003`–`0006` preserve their functional C
+changes while re-anchoring those contexts. Native `0007` applies the `0088`
+Atom board and RMT improvements after the existing `0066` implementation;
+it does not create the same controller, declaration, SoC call or Meson entry
+twice. Its final classic RMT source matches portable `0088` byte for byte.
+
+The already-excluded historical `0071`–`0084` files are not silently added by
+this integration. Their presence in the patch directory does not make them
+part of the product recipe or grant their functionality to this build.
+The browser recipe uses a different native prefix and explicit WASM suffix;
+its patch count and runtime validation must be reported separately.
+
+The isolated source-only replay on the pinned `40edccac` source passed all
+42 forward and reverse checks, returned to a clean upstream tree, and
+reproduced the same 124 patched-file hashes. Offline checks additionally
+compare the context-port changes, replay the RMT delta against `0066`, and
+execute the native protected-WDT-feed branch. This establishes source
+integration only. A local native build with `--disable-slirp` also compiles;
+that configuration is a functional-test candidate with no SLiRP networking.
+Its own Device Service regression remains required before replacing an
+existing runtime or transferring a guest PASS from a different recipe.
+
 Use Python 3.10 or newer:
 
 ```bash
@@ -253,11 +280,15 @@ may produce a different executable hash.
 ```bash
 M5_QEMU_XTENSA="$PWD/.work/unit-runtime-source/qemu/build/qemu-system-xtensa" \
 M5_QEMU_XTENSA_ROM_DIR="$PWD/.work/unit-runtime-source/qemu/pc-bios" \
-python3 platform/tools/serve.py 8787
+python3 platform/tools/serve.py 18879 \
+  --state-dir .work/unit-runtime-service \
+  --api-token-file .work/unit-runtime-service.token
 ```
 
-Service Python dependencies and compatible reference/uploaded firmware must be
-prepared separately. Firmware execution and input tests must use visible
+Prepare a separate private token file and check that the selected port is
+available. Port `8787` belongs to the user's testing service. Service Python
+dependencies and compatible reference/uploaded firmware must be prepared
+separately. Firmware execution and input tests must use visible
 Device Service sessions, collect evidence before stop, and retain history with
 `purge=0`. Building, source replay, or `--version` is not a firmware PASS.
 

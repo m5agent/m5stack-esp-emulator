@@ -1,0 +1,66 @@
+{
+  "id": "atom-matrix-v11",
+  "name": "Atom Matrix v1.1",
+  "sku": "C008-B-V11",
+  "group": "esp32-lx6",
+  "category": "atom",
+  "hardware": {
+    "soc": "ESP32-PICO-D4",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 4194304,
+    "psram_bytes": 0,
+    "display": null,
+    "controls": [
+      {
+        "id": "button",
+        "type": "button",
+        "label": "USER",
+        "gpio": 39
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "rgb-led",
+      "ir"
+    ],
+    "led_matrix": {
+      "width": 5,
+      "height": 5,
+      "count": 25
+    }
+  },
+  "shell": {
+    "preset": "atom",
+    "accent": "#3b82f6",
+    "screen_scale": 1.05,
+    "body_theme": "white"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": null,
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 Atom Matrix v1.1 C008-B-V11 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。Matrix v1.1依据官方同AtomMatrix固件入口及M5Unified BMI270分支，仍需独立guest验证。"
+    },
+    "blockers": [
+      "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+    ]
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "2099000000000000002",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/atom-matrix-v11",
+  "status_label": "candidate"
+}

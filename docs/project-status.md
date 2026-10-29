@@ -196,7 +196,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 ## 当前工作与下一门禁
 
-`UNIT-01` 外壳固定更新至公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：
+`UNIT-01` 的历史外壳验证固定于公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：
 14主机/113视觉Unit及287张许可PNG通过独立完整浏览器检查，默认配置不外推83项变体；
 80款仅视觉；内部协议登记34种，新增U131双GPIO/蓝灯、8Servos HAT/Unit、Joystick2 与 NFC Unit；Scroll及2Relay均保留partial边界；不得继承MCU完整行为、机械或电气等价结论。
 见[外壳与checkpoint证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。新10-patch独立冷构建850426下CoreS3定向7PASS、完整矩阵66/67；Core2 IMU相同marker黑、UART正确，独立单例PASS不回写完整轮，UNIT-HOST-21仍OPEN。34款协议登记可从固定源码栈重建，精确范围见[本块证据](https://github.com/m5agent/m5stack-esp-emulator/blob/a37342f61c05964c060719a6e35c2d568c828e84/docs/evidence/2026-10-27-preview-controls-and-2relay/README.md)；视觉和协议保留独立来源。
@@ -373,7 +373,7 @@ CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、lease-bound evidence store、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT、evidence 对象存储复制和生产调度未完成 |
 | Tab5 | `partial` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller 未闭环 |
 | CardputerZero | `partial` | 独立 Linux 后端；完整系统/时序/真机回归未闭环 |
-| 设备视觉 | `partial` | StopWatch 是唯一参考质量外壳 |
+| 设备视觉 | `partial`；38 主机、184 Unit | 固定公开模型 `4879ab51`，新增 Atom 12、Stick 7、Dial/Basic 共 21 款；14 个运行登记和 24 个仅模型主机分开。463 张运行贴图；Basic 两张贴位未确认图片按精确 SHA 排除。文档单独 pin `3681a648`。模型不授予固件、总线或硬件 PASS，StopWatch 仍是唯一参考质量外壳。见[本轮计划](plans/2026-10-29-expanded-host-models.md) |
 | 真机验证 | `NOT RUN` | 必须提供同固件路径的 `hardware validation` |
 
 ## 设备矩阵

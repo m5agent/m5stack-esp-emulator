@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "device_id": "stickc-plus2",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000000742",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000742/2098280860075905026/bin/2098280860075905027.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-st7789",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
+    },
+    "blockers": [
+      "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+    ]
+  },
+  "cache_path": "platform/.cache/firmware/stickc-plus2/uiflow2.bin"
+}

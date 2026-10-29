@@ -13,8 +13,19 @@ export function validateQemuProfile(profile) {
   check([4, 8, 16].includes(profile.flashMb) && [0, 2, 4, 8].includes(profile.psramMb), 'Invalid QEMU browser memory profile');
   check(profile.bootloaderOffset === (profile.chip === 'esp32s3' ? 0 : 0x1000) && profile.partitionTableOffset === 0x8000, 'Invalid QEMU merged-image layout');
   const display = profile.display;
-  check(display && Number.isInteger(display.width) && display.width > 0 && display.width <= 2048 && Number.isInteger(display.height) && display.height > 0 && display.height <= 2048
-    && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
+  if (display === null) {
+    const output = profile.outputs;
+    check(profile.deviceId === 'atoms3-lite' && profile.board === 'm5atoms3lite' && profile.chip === 'esp32s3'
+      && profile.flashMb === 8 && profile.psramMb === 0 && output && Object.keys(output).length === 5
+      && output.kind === 'single-ws2812-qom-v1' && output.path === '/machine/onboard_io'
+      && Array.isArray(output.properties) && output.properties.length === 3
+      && output.properties.every((property, index) => property === ['led-rgb', 'led-frames', 'pressed'][index])
+      && output.ledTarget === 'rgb' && output.buttonTarget === 'button', 'Invalid QEMU headless output profile');
+  } else {
+    check(display && Number.isInteger(display.width) && display.width > 0 && display.width <= 2048 && Number.isInteger(display.height) && display.height > 0 && display.height <= 2048
+      && display.coordinateSpace === 'qemu-physical-frame' && display.hostRotation === 0, 'Invalid QEMU framebuffer coordinate profile');
+    check(profile.outputs === undefined, 'Display profiles cannot acquire an unreviewed QEMU output path');
+  }
   check([1, 8].includes(profile.clockDivisor) && /^[a-z0-9-]+$/.test(profile.profile) && ['public', 'candidate'].includes(profile.admission), 'Invalid QEMU execution profile');
   if (profile.accelerator !== undefined) {
     check(profile.clockDivisor === 1 && profile.accelerator?.kind === 'tcg-icount'
@@ -30,11 +41,25 @@ export function validateQemuProfile(profile) {
     check(rom.name === names[index] && identity.test(rom.sha256) && Number.isSafeInteger(rom.bytes) && rom.bytes > 0 && rom.bytes <= 1024 * 1024
       && url.href === `https://raw.githubusercontent.com/espressif/qemu/${QEMU_BROWSER_SOURCE_COMMIT}/pc-bios/${rom.name}` && rom.bundled === false, 'Invalid QEMU ROM identity');
   }
-  check(profile.chip === 'esp32' ? profile.efuse === null : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
+  const classicEfuse = profile.deviceId === 'stickc-plus2' && profile.board === 'm5stickcplus2'
+    && profile.flashMb === 8 && profile.psramMb === 2 && profile.efuse?.driver === 'nvram.esp32.efuse'
+    && profile.efuse.bytes === 4096 && profile.efuse.packageVersion === 6;
+  const classicNoEfuse = profile.deviceId === 'core2' && profile.board === 'm5core2' && profile.efuse === null;
+  check(profile.chip === 'esp32' ? classicNoEfuse || classicEfuse : profile.efuse?.driver === 'nvram.esp32s3.efuse' && profile.efuse.bytes === 4096 && [0, 1].includes(profile.efuse.packageVersion), 'Invalid QEMU eFuse profile');
+  if (display === null) check(profile.efuse.packageVersion === 0, 'Invalid QEMU headless eFuse package');
   const input = profile.inputs;
   check(input && typeof input.touch === 'boolean' && input.uart === false && input.buttons && typeof input.buttons === 'object'
     && !Array.isArray(input.buttons) && Object.values(input.buttons).every(code => /^[a-z0-9]+$/.test(code)) && Array.isArray(input.keyboard)
     && input.keyboard.every(code => /^[a-z0-9_]+$/.test(code)), 'Invalid QEMU input profile');
+  if (display === null) check(!input.touch && input.pir === null && input.keyboard.length === 0
+    && Object.keys(input.buttons).sort().join(',') === 'a,button' && Object.values(input.buttons).every(code => code === 'a'), 'Invalid QEMU headless input profile');
+  if (input.encoder !== undefined) {
+    const encoder = input.encoder;
+    check(profile.deviceId === 'dial' && profile.board === 'm5dial' && profile.chip === 'esp32s3'
+      && profile.flashMb === 8 && profile.psramMb === 0 && encoder && Object.keys(encoder).length === 4
+      && encoder.path === '/machine/encoder' && encoder.property === 'detents'
+      && encoder.minimum === -4096 && encoder.maximum === 4096, 'Invalid QEMU encoder endpoint');
+  }
   check(input.pir === null || input.pir?.path === '/machine/units/pir' && input.pir.property === 'motion', 'Invalid QEMU Unit endpoint');
   check(profile.units?.schema_version === 1 && Array.isArray(profile.units.attachments)
     && profile.units.attachments.length === (input.pir ? 1 : 0), 'Invalid QEMU Unit wiring');
@@ -49,7 +74,7 @@ export function validateQemuProfile(profile) {
     && identity.test(reference.sha256) && Number.isSafeInteger(reference.bytes) && reference.bytes > 0 && reference.bytes <= profile.flashMb * MIB, 'Invalid QEMU reference firmware');
   if(profile.fixture?.frameOracle!==undefined){
     const oracle=profile.fixture.frameOracle,r=oracle?.rect;
-    check(r && ['x','y','width','height'].every(key=>Number.isInteger(r[key]))
+    check(display && r && ['x','y','width','height'].every(key=>Number.isInteger(r[key]))
       && r.x>=0 && r.y>=0 && r.width>0 && r.height>0 && r.x+r.width<=display.width && r.y+r.height<=display.height
       && [oracle.before,oracle.after].every(color=>Number.isInteger(color)&&color>=0&&color<=65535)
       && oracle.before!==oracle.after,'Invalid QEMU panel frame oracle');
@@ -172,13 +197,14 @@ export function buildQemuEfuse(profile) {
   validateQemuProfile(profile);
   if (!profile.efuse) return null;
   const bytes = new Uint8Array(profile.efuse.bytes);
-  new DataView(bytes.buffer).setUint32(36, profile.efuse.packageVersion << 21, true); return bytes;
+  const offset = profile.chip === 'esp32' ? 12 : 36, shift = profile.chip === 'esp32' ? 9 : 21;
+  new DataView(bytes.buffer).setUint32(offset, profile.efuse.packageVersion << shift, true); return bytes;
 }
 
 /** Coordinates are already in the QEMU physical frame; do not rotate twice. */
 export function qemuInputCommand(profile, event) {
   validateQemuProfile(profile);
-  const input = profile.inputs, {width, height} = profile.display;
+  const input = profile.inputs, {width, height} = profile.display || {};
   if (event?.type === 'touch') {
     check(input.touch && Number.isInteger(event.x) && event.x >= 0 && event.x < width && Number.isInteger(event.y) && event.y >= 0 && event.y < height && typeof event.down === 'boolean', 'Touch is unsupported or outside the selected framebuffer');
     return {execute:'input-send-event', arguments:{events:[
@@ -196,9 +222,52 @@ export function qemuInputCommand(profile, event) {
     check(code && typeof down === 'boolean', 'Keyboard/button input is not admitted by the selected profile');
     return {execute:'input-send-event',arguments:{events:[{type:'key',data:{down,key:{type:'qcode',data:code}}}]}};
   }
+  if (event?.type === 'encoder') {
+    const endpoint = input.encoder;
+    check(endpoint && Object.keys(event).sort().join(',') === 'detents,type'
+      && Number.isInteger(event.detents) && event.detents >= endpoint.minimum
+      && event.detents <= endpoint.maximum, 'Encoder target is not admitted by the selected QEMU profile');
+    const target = {path:endpoint.path, property:endpoint.property};
+    return {execute:'qom-set', arguments:{...target, value:event.detents},
+      readback:{execute:'qom-get', arguments:target}, readbackResult:'detents'};
+  }
   if (event?.type === 'pir') {
     check(input.pir && typeof event.motion === 'boolean', 'PIR is not attached to the selected profile');
     return {execute:'qom-set',arguments:{...input.pir,value:event.motion},readback:{execute:'qom-get',arguments:{...input.pir}}};
   }
   throw new Error('Input is not admitted by the selected QEMU browser profile');
+}
+
+/** Convert the reviewed visual Dial ring gesture to a physical input target.
+ * The 16 positions per turn are the model's UI gesture scale, not measured
+ * encoder waveform timing. The guest alone owns its RotaryIRQ counter.
+ */
+export function advanceQemuEncoderTarget(profile, state, deltaDegrees) {
+  validateQemuProfile(profile);
+  const endpoint = profile.inputs.encoder, degreesPerPosition = 360 / 16;
+  check(endpoint && state && Object.keys(state).sort().join(',') === 'remainderDegrees,target'
+    && Number.isInteger(state.target) && state.target >= endpoint.minimum && state.target <= endpoint.maximum
+    && Number.isFinite(state.remainderDegrees) && Math.abs(state.remainderDegrees) < degreesPerPosition
+    && Number.isFinite(deltaDegrees) && Math.abs(deltaDegrees) <= 180, 'Invalid QEMU encoder gesture');
+  const angle = state.remainderDegrees + deltaDegrees, steps = Math.trunc(angle / degreesPerPosition);
+  const target = state.target + steps;
+  check(target >= endpoint.minimum && target <= endpoint.maximum, 'QEMU encoder gesture exceeds its physical target range');
+  return {state:{target, remainderDegrees:angle - steps * degreesPerPosition},
+    command:steps ? {type:'encoder', detents:target} : null};
+}
+
+/** A fixed read-only observation path; callers cannot supply QOM paths or properties. */
+export function qemuOnboardOutputQueries(profile) {
+  validateQemuProfile(profile);
+  check(profile.display === null && profile.outputs, 'This QEMU profile has no admitted onboard output readback');
+  return profile.outputs.properties.map(property => ({execute:'qom-get', arguments:{path:profile.outputs.path, property}}));
+}
+
+export function validateQemuOnboardState(profile, state) {
+  qemuOnboardOutputQueries(profile);
+  check(state && Object.keys(state).length === 7 && state.schema_version === 1 && state.device_id === profile.deviceId
+    && state.source === 'qemu-rmt-qom-readback' && state.path === profile.outputs.path
+    && Number.isSafeInteger(state.led_rgb) && state.led_rgb >= 0 && state.led_rgb <= 0xFFFFFF
+    && Number.isSafeInteger(state.led_frames) && state.led_frames >= 0 && typeof state.pressed === 'boolean', 'Invalid QEMU onboard output state');
+  return state;
 }

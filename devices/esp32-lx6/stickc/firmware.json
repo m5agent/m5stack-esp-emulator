@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "device_id": "stickc",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002182",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002182/2098280813573656577/bin/2098280813573656578.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": "spi-st7735s",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 StickC K016 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+    },
+    "blockers": [
+      "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+    ]
+  },
+  "cache_path": "platform/.cache/firmware/stickc/uiflow2.bin"
+}

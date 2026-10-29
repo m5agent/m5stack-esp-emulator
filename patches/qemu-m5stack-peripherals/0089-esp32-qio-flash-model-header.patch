@@ -1,0 +1,66 @@
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -30,6 +30,7 @@
+     uint32_t mosi_dlen_reg;
+     uint32_t miso_dlen_reg;
+     uint32_t pin_reg;
++    uint32_t flash_qio_header_bytes;
+     uint32_t m5_dma_out_link;
+     uint32_t trans_done;
+     uint32_t trans_inten;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -411,15 +411,18 @@
+             t.addr = bswap32(s->addr_reg);
+             if (t.cmd == 0xeb && t.addr_bytes > 3) {
+                 /*
+-                 * ESP-IDF uses QIOR (0xEB) and packs one mode byte into the
+-                 * high address byte.  QEMU's ISSI flash model expects three
+-                 * dummy bytes after the 24-bit address.  Apply the missing
+-                 * bytes only when the flash CS is active; the PSRAM shares
+-                 * the controller but uses a different QIOR timing.
++                 * ESP-IDF packs a mode byte into the address phase.
++                 * m25p80 serializes mode/dummy clocks as bytes: ISSI expects
++                 * three bytes after the 24-bit address, while GigaDevice
++                 * and Winbond expect five. Match the actual attached flash
++                 * model; a fixed ISSI count shifts GigaDevice reads by two.
++                 * Limit this SSI phase bridge to CS0: the shared PSRAM has
++                 * its own QIOR command timing.
+                  */
+                 if ((s->pin_reg & 1) == 0) {
+                     int sent_dummy = t.addr_bytes - 3;
+-                    t.extra_dummy_bytes = MAX(0, 3 - sent_dummy);
++                    t.extra_dummy_bytes = MAX(
++                        0, (int)s->flash_qio_header_bytes - sent_dummy);
+                 }
+             }
+         }
+@@ -485,6 +488,8 @@
+ }
+ 
+ static Property esp32_spi_properties[] = {
++    DEFINE_PROP_UINT32("flash-qio-header-bytes", Esp32SpiState,
++                       flash_qio_header_bytes, 3),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -997,6 +997,17 @@
+ 
+     if (blk) {
+         ss->dport.flash_blk = blk;
++        /* Keep the SSI QIOR bridge aligned with the flash model chosen
++         * by esp32_machine_init_spi_flash(): gd25q32/gd25q64 and
++         * w25x16 use mode+dummy=5; is25lp128 uses 3. Configure before
++         * SoC realization, and never apply this count to PSRAM CS1. */
++        int64_t flash_size = blk_getlength(blk);
++        uint32_t qio_header_bytes =
++            (flash_size == 2 * MiB || flash_size == 4 * MiB ||
++             flash_size == 8 * MiB) ? 5 : 3;
++
++        qdev_prop_set_uint32(DEVICE(&ss->spi[1]),
++                             "flash-qio-header-bytes", qio_header_bytes);
+     }
+     qdev_prop_set_chr(DEVICE(ss), "serial0", serial_hd(0));
+     qdev_prop_set_chr(DEVICE(ss), "serial1", serial_hd(1));

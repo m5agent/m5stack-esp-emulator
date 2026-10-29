@@ -1,0 +1,625 @@
+Subject: [native] apply expanded Atom boards after the existing classic RMT
+
+Native full-stack variant of peripheral 0088 (SHA256
+23d152309b13acea3aabd5fa7e3a1c1ec3fe27a159f547467fa356caeb948bb7).
+The product recipe already applied 0066. Keep its existing source, header,
+SoC call and Meson entry; apply the actual 0088 RMT algorithm delta and all
+new board/Unit additions. The resulting RMT C bytes exactly match 0088.
+No 0071-0084 historical layers are introduced. Apply after 0085-0087.
+
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -78,6 +78,9 @@
+     M5_BOARD_STICKC_PLUS,
+     M5_BOARD_STICKC_PLUS_SE,
+     M5_BOARD_DIAL,
++    M5_BOARD_ATOM_LITE,
++    M5_BOARD_ATOM_MATRIX,
++    M5_BOARD_ATOM_MATRIX_V11,
+ } M5Board;
+ 
+ extern M5Board m5_board;
+@@ -179,6 +183,7 @@
+ void m5core2_board_init(struct Esp32SocState *s);
+ void m5stickcplus2_board_init(struct Esp32SocState *s);
+ void m5stickc_board_init(struct Esp32SocState *s);
++void m5atomclassic_board_init(struct Esp32SocState *s);
+ 
+ /* Session-scoped external Units; hardware transactions stay in C. */
+ void m5_unit_runtime_init(bool s3);
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -32,6 +33,7 @@
+   '../m5stopwatch/m5core2.c',
+   '../m5stopwatch/m5stickcplus2.c',
+   '../m5stopwatch/m5stickc.c',
++  '../m5stopwatch/m5atomclassic.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -1035,6 +1034,10 @@
+                || m5_board == M5_BOARD_STICKC_PLUS
+                || m5_board == M5_BOARD_STICKC_PLUS_SE) {
+         m5stickc_board_init(ss);
++    } else if (m5_board == M5_BOARD_ATOM_LITE
++               || m5_board == M5_BOARD_ATOM_MATRIX
++               || m5_board == M5_BOARD_ATOM_MATRIX_V11) {
++        m5atomclassic_board_init(ss);
+     }
+ 
+     /* Need MMU initialized prior to ELF loading,
+@@ -1318,3 +1321,102 @@
+ }
+ 
+ type_init(m5stickcplusse_machine_type_init);
++
++
++static void m5atomlite_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOM_LITE;
++    esp32_machine_init(machine);
++}
++
++static void m5atomlite_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "Atom Lite (ESP32-PICO-D4, one WS2812 LED)";
++    mc->init = m5atomlite_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5atomlite_info = {
++    .name = MACHINE_TYPE_NAME("m5atomlite"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5atomlite_machine_class_init,
++};
++
++static void m5atomlite_machine_type_init(void)
++{
++    type_register_static(&m5atomlite_info);
++}
++
++type_init(m5atomlite_machine_type_init);
++
++
++static void m5atommatrix_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOM_MATRIX;
++    esp32_machine_init(machine);
++}
++
++static void m5atommatrix_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "Atom Matrix (ESP32-PICO-D4, 25 WS2812 LEDs, MPU6886)";
++    mc->init = m5atommatrix_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5atommatrix_info = {
++    .name = MACHINE_TYPE_NAME("m5atommatrix"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5atommatrix_machine_class_init,
++};
++
++static void m5atommatrix_machine_type_init(void)
++{
++    type_register_static(&m5atommatrix_info);
++}
++
++type_init(m5atommatrix_machine_type_init);
++
++
++static void m5atommatrixv11_machine_init(MachineState *machine)
++{
++    m5_board = M5_BOARD_ATOM_MATRIX_V11;
++    esp32_machine_init(machine);
++}
++
++static void m5atommatrixv11_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "Atom Matrix v1.1 (ESP32-PICO-D4, 25 WS2812 LEDs, BMI270)";
++    mc->init = m5atommatrixv11_machine_init;
++    mc->max_cpus = 2;
++    mc->default_cpus = 2;
++    mc->default_ram_size = 0;
++    mc->fixup_ram_size = esp32_fixup_ram_size;
++}
++
++static const TypeInfo m5atommatrixv11_info = {
++    .name = MACHINE_TYPE_NAME("m5atommatrixv11"),
++    .parent = TYPE_ESP32_MACHINE,
++    .instance_size = sizeof(Esp32MachineState),
++    .class_init = m5atommatrixv11_machine_class_init,
++};
++
++static void m5atommatrixv11_machine_type_init(void)
++{
++    type_register_static(&m5atommatrixv11_info);
++}
++
++type_init(m5atommatrixv11_machine_type_init);
+--- a/hw/m5stopwatch/m5_unit_runtime.h
++++ b/hw/m5stopwatch/m5_unit_runtime.h
+@@ -15,6 +15,7 @@
+     int yellow, white;
+     bool pressed;
+     bool s3;
++    unsigned onboard_led_count;
+     double temperature_c, humidity_pct, pressure_pa;
+     uint64_t transactions, read_bytes, written_bytes, input_events;
+     uint64_t output_transitions;
+@@ -38,6 +39,8 @@
+ uint16_t m5_unit_adc_sample(unsigned adc, unsigned channel, unsigned atten, bool s3, uint16_t fallback);
+ void m5_unit_pwm_observe(bool s3, unsigned channel, uint32_t timer, uint32_t duty, uint32_t conf);
+ void m5_unit_rmt_tx(unsigned channel, const uint32_t *symbols, unsigned count, double tick_hz);
++void m5_unit_rmt_tx_routed(unsigned channel, const uint32_t *symbols, unsigned count, double tick_hz, bool s3);
++uint32_t m5_unit_gpio_rgb_value(M5Unit *unit, unsigned index);
+ void m5_unit_rmt_rx_arrived(void);
+ unsigned m5_unit_rmt_rx(unsigned channel, uint32_t *symbols, unsigned capacity, double tick_hz);
+ struct ESPUARTState;
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -22,7 +22,7 @@
+     unsigned pwm_signal;
+     QEMUTimer *hold_timer;
+     int64_t hold_until;
+-    uint32_t rgb[3];
++    uint32_t rgb[25];
+     unsigned leds;
+     uint64_t frames, incomplete_frames, adc_samples;
+     uint32_t rx_pulses[192], tx_pulses[192];
+@@ -772,11 +772,14 @@
+     }
+ }
+ 
+-void m5_unit_rmt_tx(unsigned channel, const uint32_t *symbols,
+-                     unsigned count, double tick_hz)
+-{
++void m5_unit_rmt_tx_routed(unsigned channel, const uint32_t *symbols,
++                            unsigned count, double tick_hz, bool s3)
++{
++    unsigned signal = (s3 ? 81 : 87) + channel;
++
+     for (GPIOUnit *g = gpio_units; g; g = g->next) {
+-        if (esp32_gpio_matrix_out_signal(g->unit->yellow, true) != 81 + channel) { continue; }
++        if (g->s3 != s3 || esp32_gpio_matrix_out_signal(
++                g->unit->yellow, s3) != signal) { continue; }
+         if (!strcmp(g->unit->unit_id, "ir")) {
+             g->tx_count = 0;
+             for (unsigned i = 0; i < count && g->tx_count + 1 < 192; i++) {
+@@ -801,6 +804,20 @@
+     }
+ }
+ 
++void m5_unit_rmt_tx(unsigned channel, const uint32_t *symbols,
++                     unsigned count, double tick_hz)
++{
++    m5_unit_rmt_tx_routed(channel, symbols, count, tick_hz, true);
++}
++
++uint32_t m5_unit_gpio_rgb_value(M5Unit *unit, unsigned index)
++{
++    for (GPIOUnit *g = gpio_units; g; g = g->next) {
++        if (g->unit == unit && index < g->leds) { return g->rgb[index]; }
++    }
++    return 0;
++}
++
+ unsigned m5_unit_rmt_rx(unsigned channel, uint32_t *symbols,
+                          unsigned capacity, double tick_hz)
+ {
+@@ -881,8 +898,10 @@
+ 
+ void m5_unit_gpio_realize(M5Unit *unit, bool s3, Error **errp)
+ {
+-    if (!s3 && (!strcmp(unit->unit_id, "rgb") || !strcmp(unit->unit_id, "key") ||
+-                !strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485"))) {
++    if (unit->onboard_led_count > 25) {
++        error_setg(errp, "onboard RGB count must not exceed 25"); return;
++    }
++    if (!s3 && (!strcmp(unit->unit_id, "ir") || !strcmp(unit->unit_id, "rs485"))) {
+         error_setg(errp, "this Unit requires the S3 RMT/UART controller path"); return;
+     }
+     GPIOUnit *g = g_new0(GPIOUnit, 1);
+@@ -927,7 +946,8 @@
+         object_property_add(o, "tx-hex", "str", hex_get, NULL, NULL, g);
+     }
+     if (!strcmp(id, "rgb") || !strcmp(id, "key")) {
+-        g->leds = !strcmp(id, "key") ? 1 : 3;
++        g->leds = unit->onboard_led_count ? unit->onboard_led_count :
++                  !strcmp(id, "key") ? 1 : 3;
+         object_property_add(o, "led-rgb", g->leds == 1 ? "uint32" : "any", led_get, NULL, NULL, g);
+         object_property_add(o, "led-frames", "uint64", count_get, NULL, NULL, &g->frames);
+         object_property_add(o, "incomplete-frames", "uint64", count_get, NULL, NULL, &g->incomplete_frames);
+--- a/hw/m5stopwatch/m5_rmt_classic.c
++++ b/hw/m5stopwatch/m5_rmt_classic.c
+@@ -14,6 +14,8 @@
+ #include "hw/sysbus.h"
+ #include "hw/xtensa/esp32_intc.h"
+ #include "m5stopwatch.h"
++#include "m5_unit_runtime.h"
++#include "qapi/visitor.h"
+ 
+ #define TYPE_M5_RMT_CLASSIC "m5.rmt-classic"
+ 
+@@ -21,6 +23,7 @@
+ #define RMT_CLASSIC_MEM_SIZE     0x800
+ #define RMT_CLASSIC_CHANNELS     8
+ #define RMT_CLASSIC_SYMBOLS_CH   64
++#define RMT_CLASSIC_MAX_TX_SYMBOLS 4096
+ 
+ #define RMT_CLASSIC_CH0CONF0     0x020
+ #define RMT_CLASSIC_CH0CONF1     0x024
+@@ -49,6 +52,11 @@
+     uint32_t int_ena;
+     uint32_t int_raw;
+     uint32_t active_mask;
++    uint32_t tx_wait_mask;
++    uint32_t tx_cursor[8], tx_count[8], tx_since_threshold[8];
++    uint32_t tx_frame[8][RMT_CLASSIC_MAX_TX_SYMBOLS];
++    uint64_t tx_symbols, tx_thresholds, tx_completions, tx_errors;
++    uint64_t tx_last_tick_hz;
+     QEMUTimer *tx_timer;
+     FILE *tx_file;
+     bool trace;
+@@ -80,43 +88,93 @@
+     qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
+ }
+ 
+-static unsigned classic_rmt_valid_symbols(M5ClassicRmtState *s,
+-                                          unsigned channel,
+-                                          unsigned capacity)
++static double classic_rmt_tick_hz(M5ClassicRmtState *s, unsigned channel)
++{
++    /* ESP32 CONF1 bit17 selects APB=80 MHz or REF_TICK=1 MHz. */
++    double source = (classic_rmt_conf1(s, channel) & BIT(17))
++        ? 80000000.0 : 1000000.0;
++    unsigned divider = classic_rmt_conf0(s, channel) & 0xff;
++
++    return source / (divider ? divider : 256U);
++}
++
++static void classic_rmt_complete_tx(M5ClassicRmtState *s, unsigned channel,
++                                    bool error)
++{
++    unsigned count = s->tx_count[channel];
++    double tick_hz = classic_rmt_tick_hz(s, channel);
++
++    s->active_mask &= ~BIT(channel);
++    s->tx_wait_mask &= ~BIT(channel);
++    s->regs[(RMT_CLASSIC_STATUS_CH0 + channel * 4) / 4] =
++        RMT_CLASSIC_STATUS_EMPTY;
++    if (error) {
++        s->tx_errors++;
++        s->int_raw |= BIT(channel * 3 + 2);
++        return;
++    }
++    s->tx_last_tick_hz = tick_hz;
++    m5_unit_rmt_tx_routed(channel, s->tx_frame[channel], count, tick_hz, false);
++    if (!s->tx_file) {
++        const char *path = getenv("M5SW_RMT_TX_FILE");
++
++        if (path) { s->tx_file = fopen(path, "wb"); }
++    }
++    if (s->tx_file && count) {
++        fwrite(s->tx_frame[channel], sizeof(uint32_t), count, s->tx_file);
++        fflush(s->tx_file);
++    }
++    if (s->trace) {
++        fprintf(stderr, "[rmt-classic] tx channel=%u symbols=%u\n", channel, count);
++    }
++    s->tx_completions++;
++    s->int_raw |= BIT(channel * 3);
++}
++
++static void classic_rmt_progress_tx(M5ClassicRmtState *s, unsigned channel)
+ {
+     unsigned base = channel * RMT_CLASSIC_SYMBOLS_CH;
+-    unsigned count;
+-
+-    for (count = 0; count < capacity; count++) {
+-        uint32_t symbol = s->symbols[base + count];
+-
+-        if ((symbol & 0x7fff) == 0
+-            && ((symbol >> 16) & 0x7fff) == 0) {
+-            break;
++    unsigned capacity = MIN(MAX((classic_rmt_conf0(s, channel) >> 24) & 0xf, 1U)
++        * RMT_CLASSIC_SYMBOLS_CH, ARRAY_SIZE(s->symbols) - base);
++    unsigned threshold = s->regs[(RMT_CLASSIC_TX_LIM_CH0 + channel * 4) / 4] & 0x1ff;
++    uint32_t event = BIT(RMT_CLASSIC_TX_THRESHOLD_BIT(channel));
++
++    /* Pause at each enabled threshold until the guest ISR has acknowledged
++     * it and refilled the consumed half of RMTMEM. Accumulate the entire
++     * transaction so 25 RGB LEDs are not truncated to one 64-word block. */
++    if (s->tx_wait_mask & BIT(channel)) {
++        if (s->int_raw & event) { return; }
++        s->tx_wait_mask &= ~BIT(channel);
++    }
++    while (s->active_mask & BIT(channel)) {
++        if (s->tx_cursor[channel] >= capacity) {
++            if (s->regs[RMT_CLASSIC_APB_CONF / 4] & BIT(1)) {
++                s->tx_cursor[channel] = 0;
++            } else {
++                classic_rmt_complete_tx(s, channel, false);
++                return;
++            }
+         }
+-    }
+-    return count;
+-}
+-
+-static void classic_rmt_capture_tx(M5ClassicRmtState *s, unsigned channel,
+-                                   unsigned count)
+-{
+-    const char *path;
+-
+-    if (!s->tx_file) {
+-        path = getenv("M5SW_RMT_TX_FILE");
+-        if (path) {
+-            s->tx_file = fopen(path, "wb");
++        uint32_t symbol = s->symbols[base + s->tx_cursor[channel]++];
++        unsigned first = symbol & 0x7fff, second = (symbol >> 16) & 0x7fff;
++
++        if (!first) { classic_rmt_complete_tx(s, channel, false); return; }
++        if (s->tx_count[channel] == RMT_CLASSIC_MAX_TX_SYMBOLS) {
++            classic_rmt_complete_tx(s, channel, true);
++            return;
+         }
+-    }
+-    if (s->tx_file && count) {
+-        fwrite(&s->symbols[channel * RMT_CLASSIC_SYMBOLS_CH],
+-               sizeof(uint32_t), count, s->tx_file);
+-        fflush(s->tx_file);
+-    }
+-    if (s->trace) {
+-        fprintf(stderr, "[rmt-classic] tx channel=%u symbols=%u\n",
+-                channel, count);
++        s->tx_frame[channel][s->tx_count[channel]++] = symbol;
++        s->tx_symbols++;
++        if (!second) { classic_rmt_complete_tx(s, channel, false); return; }
++        if (threshold && ++s->tx_since_threshold[channel] >= threshold) {
++            s->tx_since_threshold[channel] = 0;
++            s->tx_thresholds++;
++            s->int_raw |= event;
++            if (s->int_ena & event) {
++                s->tx_wait_mask |= BIT(channel);
++                return;
++            }
++        }
+     }
+ }
+ 
+@@ -124,42 +182,13 @@
+ {
+     M5ClassicRmtState *s = opaque;
+     uint32_t active = s->active_mask;
+-    bool reschedule = false;
+ 
+     for (unsigned channel = 0; channel < RMT_CLASSIC_CHANNELS; channel++) {
+-        uint32_t conf0;
+-        uint32_t capacity;
+-        uint32_t threshold_bit;
+-        unsigned count;
+-
+-        if (!(active & BIT(channel))) {
+-            continue;
+-        }
+-        conf0 = classic_rmt_conf0(s, channel);
+-        capacity = MAX(
+-            (conf0 >> RMT_CLASSIC_MEM_SIZE_SHIFT)
+-            & RMT_CLASSIC_MEM_SIZE_MASK,
+-            1U
+-        ) * RMT_CLASSIC_SYMBOLS_CH;
+-        count = classic_rmt_valid_symbols(s, channel, capacity);
+-        threshold_bit = RMT_CLASSIC_TX_THRESHOLD_BIT(channel);
+-
+-        if (count == capacity && (s->int_ena & BIT(threshold_bit))) {
+-            s->int_raw |= BIT(threshold_bit);
+-            reschedule = true;
+-        } else {
+-            classic_rmt_capture_tx(s, channel, count);
+-            s->int_raw |= BIT(channel * 3);
+-            s->active_mask &= ~BIT(channel);
+-            s->regs[(RMT_CLASSIC_STATUS_CH0
+-                     + channel * sizeof(uint32_t)) / sizeof(uint32_t)] =
+-                RMT_CLASSIC_STATUS_EMPTY;
+-        }
++        if (active & BIT(channel)) { classic_rmt_progress_tx(s, channel); }
+     }
+     classic_rmt_update_irq(s);
+-    if (reschedule) {
+-        timer_mod(s->tx_timer,
+-                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++    if (s->active_mask) {
++        timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
+     }
+ }
+ 
+@@ -218,6 +247,10 @@
+ 
+         classic_rmt_set_conf1(s, channel, v & ~RMT_CLASSIC_TX_START);
+         if (!was_started && (v & RMT_CLASSIC_TX_START)) {
++            s->tx_cursor[channel] = 0;
++            s->tx_count[channel] = 0;
++            s->tx_since_threshold[channel] = 0;
++            s->tx_wait_mask &= ~BIT(channel);
+             s->active_mask |= BIT(channel);
+             timer_mod(s->tx_timer,
+                       qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
+@@ -248,8 +281,22 @@
+     s->int_ena = 0;
+     s->int_raw = 0;
+     s->active_mask = 0;
++    s->tx_wait_mask = 0;
++    memset(s->tx_cursor, 0, sizeof(s->tx_cursor));
++    memset(s->tx_count, 0, sizeof(s->tx_count));
++    memset(s->tx_since_threshold, 0, sizeof(s->tx_since_threshold));
++    s->tx_symbols = s->tx_thresholds = s->tx_completions = s->tx_errors = 0;
++    s->tx_last_tick_hz = 0;
+     timer_del(s->tx_timer);
+     qemu_irq_lower(s->irq);
++}
++
++static void classic_rmt_count_get(Object *obj, Visitor *v, const char *name,
++                                   void *opaque, Error **errp)
++{
++    uint64_t value = *(uint64_t *)opaque;
++
++    visit_type_uint64(v, name, &value, errp);
+ }
+ 
+ static void classic_rmt_init(Object *obj)
+@@ -269,6 +316,11 @@
+     sysbus_init_mmio(sbd, &s->mem);
+     sysbus_init_irq(sbd, &s->irq);
+     s->trace = getenv("M5SW_RMT_TRACE") != NULL;
++    object_property_add(obj, "tx-symbols", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_symbols);
++    object_property_add(obj, "tx-threshold-events", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_thresholds);
++    object_property_add(obj, "tx-completions", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_completions);
++    object_property_add(obj, "tx-errors", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_errors);
++    object_property_add(obj, "tx-last-tick-hz", "uint64", classic_rmt_count_get, NULL, NULL, &s->tx_last_tick_hz);
+     s->tx_timer = timer_new_ms(
+         QEMU_CLOCK_VIRTUAL, classic_rmt_tx_timer, s
+     );
+--- /dev/null
++++ b/hw/m5stopwatch/m5atomclassic.c
+@@ -0,0 +1,124 @@
++/* Classic ESP32 Atom Lite/Matrix board wiring. GPL-2.0-or-later. */
++#include "qemu/osdep.h"
++#include "exec/address-spaces.h"
++#include "hw/xtensa/esp32.h"
++#include "hw/qdev-properties.h"
++#include "qapi/error.h"
++#include "qemu/timer.h"
++#include "ui/console.h"
++#include "ui/input.h"
++#include "m5stopwatch.h"
++#include "m5_unit_runtime.h"
++
++typedef struct M5AtomClassicDisplay {
++    M5Unit *io;
++    QemuConsole *console;
++    QEMUTimer *timer;
++    unsigned side;
++} M5AtomClassicDisplay;
++
++static void m5atomclassic_update(void *opaque)
++{
++    M5AtomClassicDisplay *s = opaque;
++    DisplaySurface *surface = qemu_console_surface(s->console);
++
++    if (!surface || surface_bits_per_pixel(surface) != 32 ||
++        surface_width(surface) != s->side || surface_height(surface) != s->side) {
++        surface = qemu_create_displaysurface(s->side, s->side);
++        dpy_gfx_replace_surface(s->console, surface);
++    }
++    uint32_t *pixels = (uint32_t *)surface_data(surface);
++    unsigned stride = surface_stride(surface) / sizeof(uint32_t);
++
++    /* Diagnostic LED surface: pixels are the actual RMT-decoded chain, not
++     * a firmware framebuffer. It exposes all 25 LEDs in wire order. */
++    for (unsigned y = 0; y < s->side; y++) {
++        for (unsigned x = 0; x < s->side; x++) {
++            pixels[y * stride + x] = 0xff000000u |
++                m5_unit_gpio_rgb_value(s->io, y * s->side + x);
++        }
++    }
++    dpy_gfx_update(s->console, 0, 0, s->side, s->side);
++}
++
++static void m5atomclassic_refresh(void *opaque)
++{
++    M5AtomClassicDisplay *s = opaque;
++
++    m5atomclassic_update(s);
++    timer_mod(s->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 16);
++}
++
++static const GraphicHwOps m5atomclassic_graphics = {
++    .gfx_update = m5atomclassic_update,
++};
++
++static void m5atomclassic_input(DeviceState *dev, QemuConsole *console,
++                              InputEvent *event)
++{
++    if (event->type == INPUT_EVENT_KIND_KEY) {
++        InputKeyEvent *key = event->u.key.data;
++        int qcode = qemu_input_key_value_to_qcode(key->key);
++
++        if (qcode == Q_KEY_CODE_A || qcode == Q_KEY_CODE_1 ||
++            qcode == Q_KEY_CODE_SPC) {
++            object_property_set_bool(OBJECT(dev), "pressed", key->down,
++                                     &error_abort);
++        }
++    }
++}
++
++static QemuInputHandler m5atomclassic_input_handler = {
++    .name = "M5Atom classic button",
++    .mask = INPUT_EVENT_MASK_KEY,
++    .event = m5atomclassic_input,
++};
++
++void m5atomclassic_board_init(Esp32SocState *s)
++{
++    bool matrix = m5_board != M5_BOARD_ATOM_LITE;
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
++
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus);
++    if (matrix) {
++        const char *imu_model = m5_board == M5_BOARD_ATOM_MATRIX_V11
++            ? "bmi270" : "mpu6886";
++        DeviceState *imu = qdev_new(TYPE_M5SW_I2C_DEV);
++
++        qdev_prop_set_string(imu, "model", imu_model);
++        qdev_prop_set_uint8(imu, "address", 0x68);
++        object_property_add_child(qdev_get_machine(), imu_model, OBJECT(imu));
++        qdev_realize_and_unref(imu, (BusState *)bus, &error_fatal);
++        m5stopwatch_soft_i2c_init_pins(bus, 25, 21);
++    }
++
++    M5Unit *io = M5_UNIT(qdev_new(TYPE_M5_UNIT));
++
++    io->kind = UNIT_GPIO;
++    io->unit_id = g_strdup("key");
++    io->s3 = false;
++    io->yellow = 27;
++    io->white = 39;
++    io->onboard_led_count = matrix ? 25 : 1;
++    object_property_add_child(qdev_get_machine(), "onboard_io", OBJECT(io));
++    qdev_realize_and_unref(DEVICE(io), NULL, &error_fatal);
++    m5_unit_gpio_initial_complete(io);
++
++    M5AtomClassicDisplay *display = g_new0(M5AtomClassicDisplay, 1);
++
++    display->io = io;
++    display->side = matrix ? 5 : 1;
++    display->console = graphic_console_init(DEVICE(io), 0,
++                                            &m5atomclassic_graphics, display);
++    qemu_console_resize(display->console, display->side, display->side);
++    display->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++                                  m5atomclassic_refresh, display);
++    timer_mod(display->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 16);
++    QemuInputHandlerState *handler = qemu_input_handler_register(
++        DEVICE(io), &m5atomclassic_input_handler);
++
++    qemu_input_handler_activate(handler);
++    m5_unit_runtime_init(false);
++    m5_unit_classic_adc_init(get_system_memory());
++}

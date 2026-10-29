@@ -1,6 +1,9 @@
+import {qemuOnboardOutputQueries, validateQemuOnboardState} from './public-qemu-profiles.js';
+
 // Copy only stable, real QEMU display updates from the shared snapshot ABI.
 // No guest pixels, clocks or frame counters are synthesized here.
 export function readSharedQemuFrame(module, previousSequence, display) {
+  if (!display) throw new Error('A headless QEMU profile has no framebuffer');
   if (typeof module._m5_wasm_frame_state !== 'function') throw new Error('QEMU framebuffer ABI is unavailable');
   const pointer = module._m5_wasm_frame_state() >>> 0, heap = module.HEAPU8;
   if (!(heap.buffer instanceof SharedArrayBuffer) || pointer % 4 || pointer + 32 > heap.length)
@@ -20,4 +23,25 @@ export function readSharedQemuFrame(module, previousSequence, display) {
   if (Atomics.load(words, 1) !== before) return null;
   if (width !== display.width || height !== display.height) throw new Error('QEMU framebuffer does not match the selected board');
   return {width, height, pixels, format:'rgb565le', source:'qemu-display-surface-shared', sourceSequence:before, sourceUpdates:updates};
+}
+
+/** Read real RMT-decoded output, dropping snapshots spanning an LED update. */
+export async function readQemuOnboardOutputs(profile, qmp) {
+  const [rgb, frames, pressed] = qemuOnboardOutputQueries(profile);
+  const before = await qmp(frames.execute, frames.arguments);
+  if (!Number.isSafeInteger(before) || before < 0) throw new Error('Invalid QEMU RMT frame counter');
+  const [color, down] = await Promise.all([qmp(rgb.execute, rgb.arguments), qmp(pressed.execute, pressed.arguments)]);
+  const after = await qmp(frames.execute, frames.arguments);
+  if (!Number.isSafeInteger(after) || after < 0) throw new Error('Invalid QEMU RMT frame counter');
+  if (before !== after) return null;
+  return validateQemuOnboardState(profile, {schema_version:1,device_id:profile.deviceId,
+    source:'qemu-rmt-qom-readback',path:profile.outputs.path,led_rgb:color,led_frames:after,pressed:down});
+}
+
+/** Output-only model commands from a validated same-worker QOM observation. */
+export function qemuOnboardVisualCommands(profile, state) {
+  validateQemuOnboardState(profile, state);
+  return [{type:'led',target:profile.outputs.ledTarget,known:state.led_frames > 0,
+    color:state.led_rgb,brightness:1,on:state.led_rgb !== 0},
+  {type:'button-state',target:profile.outputs.buttonTarget,pressed:state.pressed}];
 }

@@ -103,6 +103,114 @@
       }
     },
     {
+      "id": "atom-lite",
+      "name": "Atom Lite",
+      "sku": "C008",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "atom",
+      "path": "esp32-lx6/atom-lite",
+      "shell": "atom",
+      "display": null,
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 Atom Lite C008 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002571",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002571/2098279874229915649/bin/2098279874229915650.bin"
+        }
+      }
+    },
+    {
+      "id": "atom-matrix",
+      "name": "Atom Matrix",
+      "sku": "C008-B",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "atom",
+      "path": "esp32-lx6/atom-matrix",
+      "shell": "atom",
+      "display": null,
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 Atom Matrix C008-B 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "2099000000000000002",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin"
+        }
+      }
+    },
+    {
+      "id": "atom-matrix-v11",
+      "name": "Atom Matrix v1.1",
+      "sku": "C008-B-V11",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "atom",
+      "path": "esp32-lx6/atom-matrix-v11",
+      "shell": "atom",
+      "display": null,
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 Atom Matrix v1.1 C008-B-V11 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。Matrix v1.1依据官方同AtomMatrix固件入口及M5Unified BMI270分支，仍需独立guest验证。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "2099000000000000002",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000002/2098279897621549057/bin/2098279897621549058.bin"
+        }
+      }
+    },
+    {
       "id": "core2",
       "name": "Core2",
       "sku": "K010-V11",
@@ -143,6 +251,182 @@
           "version": "v2.5.3",
           "firmware_id": "1897200000000003470",
           "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin"
+        }
+      }
+    },
+    {
+      "id": "stickc",
+      "name": "StickC",
+      "sku": "K016",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "stick",
+      "path": "esp32-lx6/stickc",
+      "shell": "stick",
+      "display": {
+        "type": "ips",
+        "width": 80,
+        "height": 160,
+        "shape": "rect",
+        "driver": "ST7735S",
+        "touch": false,
+        "diagonal_in": 0.96
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-st7735s",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 StickC K016 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002182",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002182/2098280813573656577/bin/2098280813573656578.bin"
+        }
+      }
+    },
+    {
+      "id": "stickc-plus",
+      "name": "StickC Plus",
+      "sku": "K016-P",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "stick",
+      "path": "esp32-lx6/stickc-plus",
+      "shell": "stick",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789v2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-st7789v2",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 StickC Plus K016-P 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited. A precise official StickC Plus image has not been acquired; service admission is blocked until its board identity and partition map are verified."
+        ],
+        "service_admission": {
+          "blocked": true,
+          "reason": "No precise official UIFlow2 image is available for the original StickC Plus. The separately identified legacy UIFlow1 image is not yet validated; Plus SE and Plus2 firmware must not substitute for it."
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware_blocker": "Exact official StickC Plus firmware identity and image are not acquired; no SE/Plus2 substitution is accepted."
+      }
+    },
+    {
+      "id": "stickc-plus-se",
+      "name": "StickC Plus SE",
+      "sku": "K016-P-SE",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "stick",
+      "path": "esp32-lx6/stickc-plus-se",
+      "shell": "stick",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789v2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-st7789v2",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 StickC Plus SE K016-P-SE 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000003037",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003037/2098280835014938626/bin/2098280835014938627.bin"
+        }
+      }
+    },
+    {
+      "id": "stickc-plus2",
+      "name": "StickC Plus2",
+      "sku": "K016-P2",
+      "group": "esp32-lx6",
+      "group_label": "ESP32 LX6",
+      "category": "stick",
+      "path": "esp32-lx6/stickc-plus2",
+      "shell": "stick",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789v2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-st7789",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
+        },
+        "blockers": [
+          "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000000742",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000742/2098280860075905026/bin/2098280860075905027.bin"
         }
       }
     },
@@ -192,6 +476,86 @@
           "version": "v2.5.3",
           "firmware_id": "1897200000000002379",
           "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002379/2098280943676772353/bin/2098280943676772354.bin"
+        }
+      }
+    },
+    {
+      "id": "atoms3",
+      "name": "AtomS3",
+      "sku": "C123",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "atom",
+      "path": "esp32-s3/atoms3",
+      "shell": "atom",
+      "display": {
+        "type": "ips",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "driver": "GC9107",
+        "touch": false,
+        "diagonal_in": 0.85
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-gc9107",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 AtomS3 C123 板型候选；官方 UIFlow2 v2.5.3 的 boot、显示、按键和外设尚待同一 Device Service 会话验证。不是 AtomS3R 的别名。"
+        },
+        "blockers": [
+          "独立 m5atoms3 候选尚待官方 AtomS3 固件同会话启动、帧、GPIO41 输入与外设数据面验证；未继承 AtomS3R 结果。"
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002444",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002444/2098279922749624321/bin/2098279922749624322.bin"
+        }
+      }
+    },
+    {
+      "id": "atoms3-lite",
+      "name": "AtomS3 Lite",
+      "sku": "C124",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "atom",
+      "path": "esp32-s3/atoms3-lite",
+      "shell": "atom",
+      "display": null,
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": null,
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 AtomS3 Lite C124 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "2099000000000000004",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2099000000000000004/2098279947072393217/bin/2098279947072393218.bin"
         }
       }
     },
@@ -312,6 +676,50 @@
           "version": "v2.5.3",
           "firmware_id": "1897200000000001950",
           "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2102696305989775362/bin/2102696305989775363.bin"
+        }
+      }
+    },
+    {
+      "id": "dial",
+      "name": "Dial",
+      "sku": "K130",
+      "group": "esp32-s3",
+      "group_label": "ESP32-S3",
+      "category": "dial",
+      "path": "esp32-s3/dial",
+      "shell": "watch-round",
+      "display": {
+        "type": "ips",
+        "width": 240,
+        "height": 240,
+        "shape": "round",
+        "driver": "GC9A01",
+        "touch": true,
+        "diagonal_in": 1.28
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "candidate",
+        "peripheral_status": "partial",
+        "display_protocol": "spi-gc9a01",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-29",
+          "status": "candidate-not-validated",
+          "detail": "独立 Dial K130 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+        },
+        "blockers": [
+          "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+        ]
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000000879",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000879/2098280307254054914/bin/2098280307254054915.bin"
         }
       }
     },

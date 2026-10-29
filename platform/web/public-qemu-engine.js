@@ -1,10 +1,12 @@
 import {validateQemuProfile,buildQemuArguments,buildQemuEfuse,qemuInputCommand} from './public-qemu-profiles.js';
-import {readSharedQemuFrame} from './public-qemu-frame.js';
+import {readSharedQemuFrame,readQemuOnboardOutputs} from './public-qemu-frame.js';
 // One dedicated engine Worker owns the Emscripten module, MEMFS and pthreads.
 // The iframe transfers one private port; no window control channel is used.
 // workersCreated/workersRemaining count nested pthreads, excluding this engine.
 let port, module, started = false, closed = false, disposeRequested = false, serial = '', qmpLine = '';
 let nextId = 0, boardProfile, frameTransport, sourceSequence = 0;
+let previousOutputs;
+let encoderInputs = Promise.resolve();
 let workersCreated = 0;
 let relocatedGlueSha256;
 const pending = new Map(), qmpInput = [], uartInput = [], workers = new Set(), urls = [];
@@ -128,7 +130,7 @@ async function start(config) {
       const efuse=buildQemuEfuse(boardProfile);if(efuse)m.FS.writeFile('/efuse.bin',efuse);
       m.FS.writeFile('/units.json',JSON.stringify(boardProfile.units));
       if (!m.ENV) throw new Error('QEMU build must export ENV');
-      Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
+      Object.assign(m.ENV, {M5_WASM_VM_CLOCK_DIVISOR:String(boardProfile.clockDivisor), M5_WASM_FRAMEBUFFER:boardProfile.display&&frameTransport==='shared-rgb565-v1'?'1':'0', M5_UNIT_CONFIG:'/units.json'});
       for (const [index,path] of ['/bridge/uart.in','/bridge/uart.out','/bridge/serial1'].entries()) {
         const dev = m.FS.makedev(64,index);
         const serialDecoder = new TextDecoder();
@@ -170,6 +172,7 @@ async function request(op, value) {
       enginePlacement:'dedicated-worker-v1',engineWorkersAtAcknowledgement:1,selfCloseAfterAcknowledgement:true};
   }
   if (op === 'frame') {
+    if (!boardProfile.display) throw new Error('This headless QEMU device has no framebuffer');
     // Explicit same-guest diagnostic control; never an automatic fallback.
     if(frameTransport==='shared-rgb565-v1'&&value?.diagnosticTransport!=='qmp-screendump'){
       const frame=readSharedQemuFrame(module,sourceSequence,boardProfile.display);
@@ -181,12 +184,34 @@ async function request(op, value) {
     frame.source='qmp-screendump';
     emit('frame', frame, [frame.pixels.buffer]); return;
   }
+  if (op === 'outputs') {
+    if (value && Object.keys(value).length) throw new Error('QEMU output reads accept no caller path, property or value');
+    const state = await readQemuOnboardOutputs(boardProfile, qmp);
+    if (!state) return {unchanged:true};
+    const identity = JSON.stringify(state);
+    if (identity === previousOutputs) return {unchanged:true};
+    previousOutputs = identity;
+    emit('device-state', state); return {observed:true};
+  }
   if (op === 'pause') return qmp('stop');
   if (op === 'resume') return qmp('cont');
   if (op === 'quit') return qmp('quit');
   if (op === 'input' || op === 'touch' || op === 'pir') {
     const event=op==='input'?value:{...value,type:op};
     const command=qemuInputCommand(boardProfile,event);
+    if (command.readbackResult === 'detents') {
+      // Serialize the fixed write/readback pair so a later pointer target
+      // cannot overtake the readback for an earlier physical target.
+      const operation = encoderInputs.then(async () => {
+        if (closed || disposeRequested) throw new Error('QEMU encoder input was disposed');
+        await qmp(command.execute, command.arguments);
+        const target = await qmp(command.readback.execute, command.readback.arguments);
+        if (!Number.isInteger(target) || target !== command.arguments.value) throw new Error('QEMU encoder target readback mismatch');
+        return {detents:target, source:'qemu-qom-readback'};
+      });
+      encoderInputs = operation.catch(() => {});
+      return operation;
+    }
     const result=await qmp(command.execute,command.arguments);
     if(command.readback)return {motion:await qmp(command.readback.execute,command.readback.arguments)};
     return result;

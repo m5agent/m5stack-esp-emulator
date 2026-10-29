@@ -11,7 +11,7 @@ import re
 
 from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 
-LIVE_PROGRAM_DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2")
+LIVE_PROGRAM_DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch", "cardputer-adv", "core2", "atoms3", "stickc-plus2")
 LIVE_READY_MARKER = "M5EMU_UART_REPL_READY"
 
 
@@ -22,10 +22,10 @@ def live_bootstrap_files(device_id: str = "cores3") -> dict[str, str]:
     These files are packaged by the existing source composer, never host-exec'd.
     Native UART-REPL boards require separate admission, not this bootstrap.
     """
-    if device_id == "core2":
-        # The ESP32 UIFlow2 build already owns UART0 with the REPL. Calling
-        # os.dupterm on that same UART raises EPERM, so leave the native route
-        # intact and only suppress application main while exposing readiness.
+    if device_id in {"core2", "atoms3", "stickc-plus2"}:
+        # These exact UIFlow2 builds already own UART0 with the REPL. Leave
+        # that native route intact and only suppress application main while
+        # exposing readiness; reinitializing UART0 fails on these builds.
         boot = (
             "_uiflow_run_main = False\n"
             f"print({LIVE_READY_MARKER!r})\n"

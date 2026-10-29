@@ -37,6 +37,7 @@ const mockDocument={
       if(data.op==='start')queueMicrotask(()=>port.postMessage({type:'ready',value:{shared:true,crossOriginIsolated:true,memoryBytes:268435456}}));
       if(data.op==='quit')queueMicrotask(()=>port.postMessage({type:'exit',value:{code:config.exitCode??0}}));
       if(data.op==='frame'){const {width,height}=frame.profile.display;port.postMessage({type:'frame',value:{width,height,pixels:new Uint8Array(width*height*2),format:'rgb565le',source:'contract-fixture'}});}
+      if(data.op==='outputs')port.postMessage({type:'device-state',value:config.outputState||{schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x204060,led_frames:1,pressed:false}});
     };
     port.start();if(!config.ignoreConnect)port.postMessage({type:'connected',value:{}});
   }}};
@@ -49,11 +50,11 @@ Object.defineProperty(globalThis,'document',{value:mockDocument,configurable:tru
 const unhandled=[];const unhandledListener=error=>unhandled.push(error);process.on('unhandledRejection',unhandledListener);
 const runtimes=[];
 function create(overrides={}){
-  const downloads=[],states=[],errors=[];
-  const runtime=new PublicQemuRuntime({root,profiles,storage:storage(),requestTimeout:100,onState:value=>states.push(value.status),onError:error=>errors.push(error.message),
+  const downloads=[],states=[],errors=[],outputs=[];
+  const runtime=new PublicQemuRuntime({root,profiles,storage:storage(),requestTimeout:100,onState:value=>states.push(value.status),onError:error=>errors.push(error.message),onDeviceState:value=>outputs.push(value),
     fetchImpl:async function(url){assert.equal(this,undefined,'native fetch receiver must stay unbound');assert.ok([root+'platform/runtime/qemu/runtime.json',root+'platform/web/qemu-browser-profiles.json'].includes(url));return new Response(JSON.stringify(url.endsWith('qemu-browser-profiles.json')?profiles:manifest));},
     downloadImpl:async(url,config)=>{downloads.push({url,...config});const size=roms.get(url)?.bytes??8;return {bytes:new ArrayBuffer(size),size,sha256:config.expectedSha256};},...overrides});
-  runtimes.push(runtime);return {runtime,downloads,states,errors};
+  runtimes.push(runtime);return {runtime,downloads,states,errors,outputs};
 }
 try {
   const normal=create();await normal.runtime.start({device:'cores3',firmware:firmware()});await until(()=>normal.runtime.lastFrame);
@@ -148,6 +149,30 @@ try {
   assert.equal(candidate.runtime.receipt.roms.length,2);assert.equal(candidate.runtime.receipt.deviceId,'core2');
   await candidate.runtime.input({type:'touch',x:160,y:184,down:true});await assert.rejects(candidate.runtime.input({type:'button',id:'a',down:true}),/not admitted/);await assert.rejects(candidate.runtime.input({type:'pir',motion:true}));await candidate.runtime.stop();
   const unadmitted=create({profiles:candidateProfiles});await assert.rejects(unadmitted.runtime.start({device:'core2',firmware:firmware(core2)}),/准入/);assert.equal(unadmitted.downloads.length,0);
+
+  options={};const headlessProfile=getQemuBrowserProfile('atoms3-lite',profiles,{allowCandidateProfiles:true});
+  const headless=create({allowCandidateProfiles:true});await headless.runtime.start({device:'atoms3-lite',firmware:firmware(headlessProfile)});
+  await until(()=>headless.runtime.lastDeviceState);const headlessFrame=frames.at(-1);
+  assert.equal(headless.runtime.receipt.frameTransport,null);assert.equal(headless.runtime.receipt.outputTransport,'single-ws2812-qom-v1');
+  assert.equal(headlessFrame.calls.some(call=>call.op==='frame'),false,'a headless guest must never poll a framebuffer');
+  assert.equal(headless.runtime.lastFrame,null);assert.equal(headless.outputs.length,1);
+  await headless.runtime.input({type:'button',id:'button',down:true});
+  assert.equal(headless.runtime.lastDeviceState.pressed,false,'input acknowledgement must not fabricate readback');
+  await headless.runtime.pause();
+  const readback={schema_version:1,device_id:'atoms3-lite',source:'qemu-rmt-qom-readback',path:'/machine/onboard_io',led_rgb:0x40A020,led_frames:2,pressed:true};
+  headless.runtime.receive({type:'device-state',value:readback},headless.runtime.generation);
+  assert.equal(headless.outputs.length,2);assert.equal(headless.runtime.evidence().last_device_state.led_rgb,0x40A020);
+  const outputCount=headless.runtime.outputSequence;
+  headless.runtime.receive({type:'device-state',value:{...readback,led_rgb:0}},headless.runtime.generation-1);
+  assert.equal(headless.runtime.outputSequence,outputCount,'stale worker output cannot enter a later session');
+  await headless.runtime.stop();const stoppedCalls=headlessFrame.calls.length;await new Promise(resolve=>setTimeout(resolve,300));
+  assert.equal(headlessFrame.calls.length,stoppedCalls,'stop must cancel headless polling');
+  assert.equal(headless.runtime.iframe,null);assert.equal(headless.runtime.port,null);assert.equal(headless.runtime.pending.size,0);
+  assert.equal(headless.runtime.evidence().last_frame,null);assert.equal(browserQemuHistory(headless.runtime.storage)[0].last_device_state.led_rgb,0x40A020);
+
+  const invalidHeadless=create({allowCandidateProfiles:true});await invalidHeadless.runtime.start({device:'atoms3-lite',firmware:firmware(headlessProfile)});
+  await invalidHeadless.runtime.pause();invalidHeadless.runtime.receive({type:'device-state',value:{...readback,path:'/machine/other'}},invalidHeadless.runtime.generation);
+  await until(()=>invalidHeadless.runtime.status==='stopped');assert.match(invalidHeadless.errors[0],/Invalid QEMU onboard output state/);
 
   const profileFetch=deferred(),profileCancel=new AbortController();let profileSignal;
   const profileLoading=create({profiles:undefined,fetchImpl:async(url,config)=>{assert.ok(url.endsWith('qemu-browser-profiles.json'));profileSignal=config.signal;return profileFetch.promise;}});

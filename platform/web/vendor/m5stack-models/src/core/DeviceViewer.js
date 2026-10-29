@@ -115,6 +115,7 @@ export class DeviceViewer extends EventEmitter {
   #last = 0;
   #needsRender = true;
   #resizeObserver;
+  #fitAfterResize = false;
   #captures = new Map(); // pointerId → { component }
   #drags = new Map(); // pointerId → { x, y, sx, sy, pan, device }
   #pinch = null;
@@ -209,6 +210,13 @@ export class DeviceViewer extends EventEmitter {
 
   /** Frame all devices. */
   fit({ padding = 1.35, duration = 0 } = {}) {
+    // Hidden panels can report zero width while a lazy model finishes loading.
+    // Wait for a real viewport instead of fitting against the 1px fallback.
+    if (this.container.clientWidth < 2 || this.container.clientHeight < 2) {
+      this.#fitAfterResize = { padding, duration };
+      return;
+    }
+    this.#fitAfterResize = false;
     const f = this.#fitParams(padding);
     if (!f) return;
     if (duration) this.#animateCamera(f.target, f.distance, duration);
@@ -359,6 +367,10 @@ export class DeviceViewer extends EventEmitter {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    if (this.#fitAfterResize && w > 1 && h > 1) {
+      const options = this.#fitAfterResize;
+      this.fit(options);
+    }
     this.requestRender();
   }
 

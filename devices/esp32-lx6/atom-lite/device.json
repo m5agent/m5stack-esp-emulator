@@ -1,0 +1,65 @@
+{
+  "id": "atom-lite",
+  "name": "Atom Lite",
+  "sku": "C008",
+  "group": "esp32-lx6",
+  "category": "atom",
+  "hardware": {
+    "soc": "ESP32-PICO-D4",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 4194304,
+    "psram_bytes": 0,
+    "display": null,
+    "controls": [
+      {
+        "id": "button",
+        "type": "button",
+        "label": "USER",
+        "gpio": 39
+      }
+    ],
+    "sensors": [
+      "rgb-led",
+      "ir"
+    ],
+    "led_matrix": {
+      "width": 1,
+      "height": 1,
+      "count": 1
+    }
+  },
+  "shell": {
+    "preset": "atom",
+    "accent": "#3b82f6",
+    "screen_scale": 1.05,
+    "body_theme": "white"
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "candidate",
+    "peripheral_status": "partial",
+    "display_protocol": null,
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-29",
+      "status": "candidate-not-validated",
+      "detail": "独立 Atom Lite C008 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+    },
+    "blockers": [
+      "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+    ]
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002571",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002571/2098279874229915649/bin/2098279874229915650.bin"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/atom-lite",
+  "status_label": "candidate"
+}

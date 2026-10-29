@@ -701,6 +701,23 @@ def set_esp32_efuse_mac(efuse: bytearray, mac: str) -> None:
     efuse[4:10] = raw
 
 
+def set_qemu_efuse_package(efuse: bytearray, backend: str, package: int) -> None:
+    """Encode the exact SoC package field without modifying adjacent eFuses."""
+    if type(package) is not int or not 0 <= package <= 7:
+        raise ValueError("QEMU eFuse package must be an integer from 0 to 7")
+    if backend == "qemu-esp32s3":
+        offset, shift = 36, 21  # ESP32-S3 BLOCK1 PKG_VERSION, bits 119:117.
+    elif backend == "qemu-esp32lx6":
+        offset, shift = 12, 9  # ESP32 BLOCK0 word3 package, bits 11:9.
+    else:
+        raise ValueError(f"No package eFuse encoding for backend {backend}")
+    if len(efuse) < offset + 4:
+        raise ValueError("QEMU eFuse fixture is too short for its package field")
+    word = int.from_bytes(efuse[offset:offset + 4], "little")
+    mask = 7 << shift
+    efuse[offset:offset + 4] = ((word & ~mask) | (package << shift)).to_bytes(4, "little")
+
+
 def parse_int(value: Any, field: str) -> int:
     if isinstance(value, int):
         return value
@@ -2160,7 +2177,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             reference_path=reference,
             qemu=qemu,
             rom_dir=rom_dir,
-            efuse_driver=backend.get("efuse_driver"),
+            efuse_driver=row.get("efuse_driver", backend.get("efuse_driver")),
             memory=SERVICE_MEMORY_OVERRIDES.get(device_id, row.get("memory")),
             env=row.get("env", {}),
             mode=row["mode"],
@@ -5890,11 +5907,13 @@ class DeviceSession:
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
         efuse_data = bytearray(4096)
-        # The device matrix uses the same package-version encoding as the
-        # existing profile runner.
+        # The device matrix declares the exact package of this board. Classic
+        # ESP32 and ESP32-S3 store this field in different eFuse blocks.
         if "efuse_pkg_version" in self.service.raw_device(self.spec.id):
-            pkg = int(self.service.raw_device(self.spec.id)["efuse_pkg_version"])
-            efuse_data[36:40] = (pkg << 21).to_bytes(4, "little")
+            set_qemu_efuse_package(
+                efuse_data, self.spec.backend,
+                self.service.raw_device(self.spec.id)["efuse_pkg_version"],
+            )
         espnow_peer_lane = (
             "M5SW_ESPNOW_PEER_LOCAL_PORT" in self.runtime_env
             and "M5SW_ESPNOW_PEER_REMOTE_PORT" in self.runtime_env
@@ -6030,9 +6049,9 @@ class DeviceSession:
                 "-gdb",
                 f"tcp::{self.gdb_port}",
             ]
-        if self.spec.id == "core2":
-            # Ordinary board sessions run the same dual-core guest and timers
-            # as radio sessions; both need the deterministic LX6 clock.
+        if self.spec.backend == "qemu-esp32lx6":
+            # Classic LX6 boards share the dual-core CPU/controller clock.
+            # Use the same deterministic clock as the existing Core2 path.
             command.extend(core2_accel_args())
         if self.storage_config:
             if not self.sd_card_image.is_file():

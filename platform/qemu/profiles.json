@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-10-24",
-    "result": "12 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; the latest peripheral matrix is 67/67 cases and 274/274 checks with no retry; CardputerZero uses a separate ARM64 Linux backend"
+    "result": "22 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; AtomS3 and StickC Plus2 are unvalidated candidates. The previous validated peripheral matrix is 67/67 cases and 274/274 checks; CardputerZero uses a separate ARM64 Linux backend."
   },
   "backends": {
     "qemu-esp32s3": {
@@ -40,6 +40,58 @@
     }
   },
   "devices": [
+    {
+      "id": "atoms3",
+      "name": "AtomS3",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atoms3",
+      "display_model": "spi-gc9107",
+      "display": {
+        "driver": "GC9107",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "mpu6886",
+        "rgb-led",
+        "ir"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
+      "board_work": [
+        "Official AtomS3 C123 firmware boot/display/input in one Device Service session",
+        "Device-local MPU6886, GPIO35 WS2812 and GPIO4 RMT IR validation"
+      ],
+      "blockers": [
+        "Independent m5atoms3 candidate; no AtomS3 device-local firmware execution has passed yet."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 AtomS3 C123 板型候选；官方 UIFlow2 v2.5.3 的 boot、显示、按键和外设尚待同一 Device Service 会话验证。不是 AtomS3R 的别名。"
+      }
+    },
     {
       "id": "atoms3r",
       "name": "AtomS3R",
@@ -285,6 +337,70 @@
         "date": "2026-10-28",
         "status": "display-input-peripherals-wifi-ble-pass",
         "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP, public DNS/HTTP and stock-firmware external BLE GATT in one m5core2 guest. The canonical Device Service profile core2-native-hci passes the HCI-4 functional baseline, bounded native-HCI holds, active-stop and current-service-capacity concurrency. Three independent leases complete 121 reconnect cycles with HLI 3405/3405; an artifact-bound tb-size=128 7200s active-BLE WiFi/public-network/GATT hold remains functionally PASS with bounded host memory. The eight-instance gate was rebound to the current tool hash after manifest/capability/security changes. The m5core2 machine exposes an 8 MiB PSRAM device and models DRAM1 32 KiB MMU pages. Legacy UIFlow now has replayable shared-I2C, CCOMPARE, TIMG WDT-mask, QIO/stateful-SSI, unified handoff, exact-time, setter-trace, WDT-liveness, WDT-off late-state, pending-SPI-remap and dual-SPI panel-routing evidence. Patch 0068 attaches one panel sink to both HSPI/SPI2 and VSPI/SPI3; the SPI3-only control had no panel DMA writes, while the dual-SPI legacy m5stack/lcd probe renders 1422 nonblack pixels. The original startup UI, a complete application frame and the normal-WDT path still fail. The old CPU1 0x40100049 LVGL wait is not reproduced in this corrected lane and requires a new same-lane binding. The legacy core2-native-vhci profile remains diagnostic. Physical cache/PSRAM equivalence, more-than-eight-instance stability, sustained throughput, teardown modes beyond active-stop, a completed legacy application frame and a bit-exact Espressif BT baseband/controller remain open."
+      }
+    },
+    {
+      "id": "stickc-plus2",
+      "name": "StickC Plus2",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-V3-02",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 5,
+      "board_model": "m5stickcplus2",
+      "display_model": "spi-st7789",
+      "display": {
+        "driver": "ST7789v2",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-buttons",
+        "pwr-button"
+      ],
+      "peripherals": [
+        "mpu6886",
+        "pcf8563",
+        "spm1423",
+        "buzzer",
+        "ir-tx-rx",
+        "gpio-led",
+        "stickc-plus2-battery-adc"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/pcf8563",
+          "properties": [
+            "unix-time"
+          ]
+        }
+      },
+      "board_work": [
+        "Official UIFlow2 v2.5.3 boot/display/A/B/PWR in one dedicated Device Service session",
+        "Device-local MPU6886 and BM8563 reads with same-session QOM injection",
+        "Classic PDM/buzzer/RMT/LED data planes and ADC battery/power hold validation"
+      ],
+      "blockers": [
+        "Independent m5stickcplus2 candidate; official firmware boot, frame, GPIO37/39/35 and peripheral evidence are NOT RUN."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 StickC Plus2 K016-P2 板型候选；官方 UIFlow2 v2.5.3 的 boot、135x240 显示、A/B/PWR 和 MPU6886/RTC 尚待同一 Device Service 会话验证。无 AXP192，不继承 Core2/StickS3 结果；此官方构建关闭 LVGL。"
       }
     },
     {
@@ -967,6 +1083,434 @@
         "date": "2026-10-22",
         "status": "display-touch-rs485-pass-peripherals-partial",
         "detail": "UIFlow2 P4 firmware boots through esp-emu 0.50.0 with the C6 ESP-Hosted bridge, renders a 1280x720 landscape frame from the real M5GFX framebuffer, and redraws after touch. P4 I2C scans Tab5 devices; INA226 preload reaches Power as 8000mV/1248mA/87%, direct machine.I2C write/read reaches RX8130 registers, PI4IOE output writeback passes, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. UART1 RS-485 half-duplex TX/RX passes against a host peer on G20/G21 with direction G34. RTC progression, dynamic BMI270/time/I2C injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial."
+      }
+    },
+    {
+      "id": "atoms3-lite",
+      "name": "AtomS3 Lite",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atoms3lite",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Official device-local GPIO41, GPIO35 WS2812 and GPIO4 IR validation"
+      ],
+      "blockers": [
+        "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 AtomS3 Lite C124 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "dial",
+      "name": "Dial",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5dial",
+      "display_model": "spi-gc9a01",
+      "display": {
+        "type": "ips",
+        "width": 240,
+        "height": 240,
+        "shape": "round",
+        "driver": "GC9A01",
+        "touch": true,
+        "diagonal_in": 1.28
+      },
+      "input": [
+        "gpio-button",
+        "touch",
+        "gpio-encoder"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "touch-ft5x06",
+        "dial-gpio-encoder",
+        "pcf8563",
+        "dial-ws1850s",
+        "buzzer"
+      ],
+      "runtime_state": {
+        "encoder": {
+          "path": "/machine/encoder",
+          "properties": [
+            "detents",
+            "delivered-detents",
+            "gpio-edges"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/pcf8563",
+          "properties": [
+            "unix-time"
+          ]
+        }
+      },
+      "board_work": [
+        "Official device-local firmware validation",
+        "RFID WS1850S FIFO/CRC data plane"
+      ],
+      "blockers": [
+        "Device-local official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 Dial K130 原生板型候选；精确官方 UIFlow2 v2.5.3 的同会话启动、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "stickc",
+      "name": "StickC",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5stickc",
+      "display_model": "spi-st7735s",
+      "display": {
+        "type": "ips",
+        "width": 80,
+        "height": 160,
+        "shape": "rect",
+        "driver": "ST7735S",
+        "touch": false,
+        "diagonal_in": 0.96
+      },
+      "input": [
+        "gpio-button",
+        "pmic-key"
+      ],
+      "peripherals": [
+        "mpu6886",
+        "pcf8563",
+        "axp192",
+        "gpio-button",
+        "pwr-button",
+        "spm1423",
+        "ir-tx-rx",
+        "gpio-led"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 StickC K016 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "stickc-plus",
+      "name": "StickC Plus",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5stickcplus",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789v2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "input": [
+        "gpio-button",
+        "pmic-key"
+      ],
+      "peripherals": [
+        "mpu6886",
+        "pcf8563",
+        "axp192",
+        "gpio-button",
+        "pwr-button",
+        "spm1423",
+        "ir-tx-rx",
+        "gpio-led",
+        "buzzer"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited. A precise official StickC Plus image has not been acquired; service admission is blocked until its board identity and partition map are verified."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 StickC Plus K016-P 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      },
+      "service_admission": {
+        "blocked": true,
+        "reason": "No precise official UIFlow2 image is available for the original StickC Plus. The separately identified legacy UIFlow1 image is not yet validated; Plus SE and Plus2 firmware must not substitute for it."
+      }
+    },
+    {
+      "id": "stickc-plus-se",
+      "name": "StickC Plus SE",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5stickcplusse",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "type": "ips",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "driver": "ST7789v2",
+        "touch": false,
+        "diagonal_in": 1.14
+      },
+      "input": [
+        "gpio-button",
+        "pmic-key"
+      ],
+      "peripherals": [
+        "pcf8563",
+        "axp192",
+        "gpio-button",
+        "pwr-button",
+        "spm1423",
+        "ir-tx-rx",
+        "gpio-led",
+        "buzzer"
+      ],
+      "runtime_state": {},
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 StickC Plus SE K016-P-SE 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "atom-lite",
+      "name": "Atom Lite",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atomlite",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 Atom Lite C008 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "atom-matrix",
+      "name": "Atom Matrix",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atommatrix",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "mpu6886",
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 Atom Matrix C008-B 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。"
+      }
+    },
+    {
+      "id": "atom-matrix-v11",
+      "name": "Atom Matrix v1.1",
+      "group": "esp32-lx6",
+      "soc": "ESP32-PICO-D4",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "backend-pending",
+      "peripheral_status": "partial",
+      "priority": 1,
+      "board_model": "m5atommatrixv11",
+      "display_model": null,
+      "display": null,
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "bmi270",
+        "gpio-button",
+        "rgb-led",
+        "ir-tx-rx"
+      ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "onboard-io": {
+          "path": "/machine/onboard_io",
+          "properties": [
+            "led-rgb",
+            "led-frames",
+            "pressed",
+            "input-level"
+          ]
+        }
+      },
+      "board_work": [
+        "Device-local exact official firmware validation"
+      ],
+      "blockers": [
+        "Device-local exact official-firmware boot, input and peripheral data-plane validation is NOT RUN; results from another board are not inherited."
+      ],
+      "validation": {
+        "date": "2026-10-29",
+        "status": "candidate-not-validated",
+        "detail": "独立 Atom Matrix v1.1 C008-B-V11 板型候选；精确官方 UIFlow2 固件的同会话启动、显示/LED、输入及外设尚待验证，未继承其它型号 PASS。Matrix v1.1依据官方同AtomMatrix固件入口及M5Unified BMI270分支，仍需独立guest验证。"
       }
     }
   ]

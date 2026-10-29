@@ -1,0 +1,13 @@
+// MIT. C126-CAM own-source placement and physical insert helpers; no source meshes are cut or remeshed.
+import * as THREE from 'three';
+import {materials} from '../../core/index.js';
+import {roundedRect} from '../../core/geometry.js';
+export {THREE,materials};
+export {FACE,portQuaternion} from '../../modeling/parts.js';
+export function mesh(parent,geometry,material,position,name,meta={}){const o=new THREE.Mesh(geometry,Array.isArray(material)?material.map(m=>m.clone()):material.clone());o.position.fromArray(position);o.name=name;o.userData={role:'physical-assembly',inferred:true,...meta};parent.add(o);return o;}
+export function box(parent,size,p,material,name){return mesh(parent,new THREE.BoxGeometry(...size),material,p,name);}
+export function plate(parent,w,h,depth,p,material,name,{radius=.2,holes=[]}={}){const shape=roundedRect(w,h,radius);for(const hole of holes){if(hole.radius){const path=new THREE.Path();path.absarc(hole.x??0,hole.y??0,hole.radius,0,Math.PI*2,true);shape.holes.push(path);}else shape.holes.push(roundedRect(hole.w,hole.h,hole.r??.03,{cx:hole.x??0,cy:hole.y??0,path:new THREE.Path(),clockwise:true}));}return mesh(parent,new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false,curveSegments:24}),material,p,name);}
+export function cylinder(parent,r,h,p,material,name,axis='z'){const g=new THREE.CylinderGeometry(r,r,h,40);if(axis==='z')g.rotateX(Math.PI/2);if(axis==='x')g.rotateZ(Math.PI/2);return mesh(parent,g,material,p,name);}
+export function annulus(parent,outer,inner,depth,p,material,name){const shape=new THREE.Shape();shape.absarc(0,0,outer,0,Math.PI*2,false);const hole=new THREE.Path();hole.absarc(0,0,inner,0,Math.PI*2,true);shape.holes.push(hole);return mesh(parent,new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false,curveSegments:48}),material,p,name);}
+function decode(s,T){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new T(bytes.buffer);}
+export function ownNative(host,data){const parts={};for(const p of data){const g=new THREE.BufferGeometry();for(const [name,T,n]of [['position',Float32Array,3],['normal',Float32Array,3],['sourceFaceIndex',Uint32Array,1],['sourceAttributeWord',Uint16Array,1]])g.setAttribute(name,new THREE.BufferAttribute(decode(p[name],T),n));g.setIndex(new THREE.BufferAttribute(decode(p.index,Uint32Array),1));g.computeBoundingBox();const o=mesh(host.body,g,materials.plastic(0xf0f1ec,{roughness:.68,clearcoat:.025}),p.translation,'C126-CAM native '+p.name,{source:'official-native-C126-CAM',nativePart:p.name,inferred:false,sourceFaceCount:p.faceCount,closedAtRest:true});o.rotation.fromArray(p.rotation??[0,0,0]);parts[p.name]=o;}host.parts=parts;return parts;}
