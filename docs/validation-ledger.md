@@ -1926,3 +1926,31 @@ TG0 stage-1 reset，serial 没有 `BOARD NAME`/`APIKEY`/REPL，frame 仍是
 它不关闭 `RUNTIME-03` 的正常启动、显示、REPL、非空应用帧或物理边界。
 见[证据](evidence/2026-10-29-core2-icount-percpu-budget/README.md)和
 [机器摘要](evidence/2026-10-29-core2-icount-percpu-budget/summary.json)。
+
+## 2026-10-30：Core2 legacy boot budget 与 WiFi/UI wait
+
+在 public `UIFlow_Core2 v1.15.4` normalized SHA `4d2d648b…`、最终 QEMU
+`568079f3…`、matching VFS、`runtime=qemu-wifi/profile=core2-openmac` 下，
+只调整 deterministic `-icount` 与既有 per-vCPU cap。`shift=3` + `1 us`
+在 normal WDT 下于 `8.384395696/8.385523896 s` 输出 BOARD/APIKEY，
+`14.191426034-14.380873848 s` 执行原厂 boot.py；`shift=2` + `1 us`
+提前到 `4.659620404/4.660179256 s` 和 `8.340878020-8.504887849 s`。
+两者仍未进入 factory UI，frame 均为 `57580743…` 302-byte black PNG。
+默认 `shift=5` + `10 us` 保持 `17.242875841 s` normal-WDT reset 边界，
+因此 timing 控制没有作为产品配置修改。
+
+`shift=2` + `1 us` 的两个 WDT-off 控制分别在 15/20 秒停在双核 Waiti
+`0x4026306e`，serial SHA 均为
+`923380826ceb9be6107e6437dcb690be6a67bdccaade80164ab6537b7f458d0d`；
+20 秒快照的最后 Flash/cache sync 为 `9.358926093 s`，SSI/cache counter
+不再增长。FRC timer trace 仍记录到 `9.277506536 s` callback，排除全局
+timer 停止。
+
+显式 UART 诊断在 guest virtual `9.267433433 s` 捕获
+`wifiWebCfg.py:84 _thread_task -> menu/wifi.py:22 -> m5stack_ui.py:526`
+的现有等待栈。该输入只用于采样已存在的等待状态，不是产品路径。当前首
+阻断因此从 Flash handoff 改为 boot.py 后的 WiFi 配置/UI 生命周期等待；
+`RUNTIME-03`、factory UI、REPL 和非空应用帧仍 `OPEN`。全部为
+virtual-device validation，真机、RF、物理 cache/PSRAM 和电气边界 `NOT RUN`。
+见[证据](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/README.md)和
+[机器摘要](evidence/2026-10-30-core2-legacy-boot-to-ui-wait/summary.json)。
