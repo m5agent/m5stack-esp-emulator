@@ -10,8 +10,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = (
     ROOT
-    / "patches/qemu-m5stack-peripherals/"
-    "0069-esp32-timg-wdt-feed-unprotected.patch"
+    / "patches/qemu-unit-runtime/"
+    "0005-esp32-timg-wdt-feed-unprotected.patch"
 )
 
 
@@ -23,6 +23,9 @@ def hunk_postimage(marker: str) -> str:
     if start < 0:
         raise AssertionError("TIMG patch hunk header is missing")
     end = section.find("\n@@ ", at)
+    next_file = section.find("\n--- a/", at)
+    if next_file >= 0 and (end < 0 or next_file < end):
+        end = next_file
     lines = section[start:end if end >= 0 else None].splitlines()[1:]
     return "\n".join(
         line[1:] for line in lines if line[:1] in {" ", "+"}
@@ -36,7 +39,7 @@ STUBS = r"""
 #include <stdio.h>
 
 #define QEMU_CLOCK_VIRTUAL 0
-enum { A_TIMG_WDTFEED = 0x60 };
+enum { A_TIMG_WDTFEED = 0x60, A_TIMG_WDTPROTECT = 0x64 };
 typedef uint64_t hwaddr;
 typedef uint64_t uint64;
 typedef struct {

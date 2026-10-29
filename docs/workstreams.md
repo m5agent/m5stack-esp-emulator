@@ -76,7 +76,7 @@
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和视觉回归 |
 | `UI-02` | 进行中 | 公众工作台、Pages 分享与浏览器执行可行性；边界见[调研](browser-runtime-feasibility.md)，范围见 Backlog |
-| `UNIT-01` | 进行中 | 外壳固定版本、Unit 控制器与主机端口、Web 双向状态及逐型号证据 |
+| `UNIT-01` | 进行中 | 外壳固定版本、Unit 控制器与主机端口、Web 双向状态及逐型号证据；Relay/Relay2 数字 hard-reset 边界已由 `0087` 的 AtomS3R 单机/双通道 A/B 闭合 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 Task 的依赖、下一项最小交付和验收条件只在

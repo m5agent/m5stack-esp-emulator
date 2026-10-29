@@ -7,8 +7,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = (
     ROOT
-    / "patches/qemu-m5stack-peripherals/"
-    "0070-esp32-uart-tx-virtual-clock.patch"
+    / "patches/qemu-unit-runtime/"
+    "0006-esp32-uart-tx-virtual-clock.patch"
 )
 
 

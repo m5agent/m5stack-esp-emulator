@@ -1608,3 +1608,30 @@ Core2 legacy `RUNTIME-03` 不继承。见
 [证据](evidence/2026-10-29-core2-atecc608/README.md)、
 [机器摘要](evidence/2026-10-29-core2-atecc608/summary.json)和
 [runner](../tests/firmware/core2_atecc608/run_service.py)。
+
+## 2026-10-29：Unit Relay/Relay2 hard-reset 输出边界
+
+新增 `0087-unit-hard-reset-output-boundary.patch`。共享 ESP32/ESP32-S3 GPIO
+hold reset 现在先清寄存器并建立复位后route/电平，再通知 reset observer，
+最后才通过既有 output listener/IRQ 发布变化；Relay/Relay2 从实际post-reset
+pad重定previous level并清零transition。顺序保证 high→hard-reset-low 不会
+被记成新的 guest edge，Unit-local reset与GPIO reset无论先后都保持同一基线。
+
+同一 AtomS3R UIFlow2 guest `ab4dd742…` 在 pre-fix QEMU `9aca9a8d…` 与
+fixed QEMU `e318b2b7…` 上做 A/B。pre-fix单Relay reset后transition仍为`2`，
+Relay2仍为`1/1`；fixed reset观测为单Relay `0`、Relay2 `0/0`，随后
+gpio-1由`0/0`到`1/0`，gpio-2再到`1/1`。fixed/pre-fix每路均在停止前请求
+evidence并以`purge=0`停止；fixed Relay2证据SHA256为`67acff27…`，pre-fix
+为`cc259eff…`；fixed/pre-fix单Relay分别为`6ac5a022…`与`91b17622…`。
+
+为使该Unit runtime能从干净源重建，同一轮在
+`patches/qemu-unit-runtime/0003`–`0006` 增加 `0065/0066/0069/0070` 的窄范围
+forward port；历史Core2诊断patch保持原字节。新源码 receipt、forward/reverse
+apply与完整 `xtensa-softmmu`构建均通过；最终平台回归为
+`1558 tests OK, 10 skipped`，runtime coverage/peripheral catalog/QEMU
+profiles/project snapshot均PASS。该结果是
+`virtual-device validation`，只关闭Relay/Relay2数字GPIO hard-reset边界；
+机械触点、线圈、负载、电气、FlashLight reset、其它Unit及physical hardware
+仍`NOT RUN`。见[证据](evidence/2026-10-29-unit-hard-reset-output-boundary/README.md)、
+[机器摘要](evidence/2026-10-29-unit-hard-reset-output-boundary/summary.json)和
+[runner](../tests/units/run_relay_reset_probe.py)。

@@ -198,7 +198,8 @@ def replay(root, current=True):
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(data)
-    patches = [name for name in bootstrap_stack() if current or name != PATCH]
+    stack = bootstrap_stack()
+    patches = stack if current else stack[:stack.index(PATCH)]
     for name in patches:
         if not patch_paths(name) & set(REPLAY_FILES):
             continue

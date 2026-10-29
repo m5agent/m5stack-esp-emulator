@@ -1,0 +1,156 @@
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -46,6 +46,11 @@
+     void *opaque;
+ } g_listeners[GPIO_NPINS][GPIO_MAX_LISTENERS];
+ static uint8_t g_listener_count[GPIO_NPINS];
++static struct {
++    esp32_gpio_reset_cb cb;
++    void *opaque;
++} g_reset_listeners[GPIO_NPINS][GPIO_MAX_LISTENERS];
++static uint8_t g_reset_listener_count[GPIO_NPINS];
+ static int g_trace_last_level = -1;
+ 
+ static uint64_t gpio_line64(void);
+@@ -489,6 +494,21 @@
+     g_listeners[pin][slot].opaque = opaque;
+ }
+ 
++void esp32_gpio_add_reset_listener(int pin, esp32_gpio_reset_cb cb,
++                                   void *opaque)
++{
++    if (pin < 0 || pin >= GPIO_NPINS || !cb) {
++        return;
++    }
++    if (g_reset_listener_count[pin] >= GPIO_MAX_LISTENERS) {
++        fprintf(stderr, "[gpio] reset listener overflow pin=%d\n", pin);
++        return;
++    }
++    unsigned slot = g_reset_listener_count[pin]++;
++    g_reset_listeners[pin][slot].cb = cb;
++    g_reset_listeners[pin][slot].opaque = opaque;
++}
++
+ 
+ void esp32_gpio_set_open_drain(int pin, bool enable)
+ {
+@@ -644,6 +664,20 @@
+     }
+ }
+ 
++static void gpio_notify_reset(void)
++{
++    for (int pin = 0; pin < GPIO_NPINS; pin++) {
++        int level = esp32_gpio_get_line(pin);
++        for (int slot = 0; slot < g_reset_listener_count[pin]; slot++) {
++            if (g_reset_listeners[pin][slot].cb) {
++                g_reset_listeners[pin][slot].cb(
++                    g_reset_listeners[pin][slot].opaque, pin, level
++                );
++            }
++        }
++    }
++}
++
+ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+@@ -760,6 +794,7 @@
+ {
+     Esp32GpioState *s = ESP32_GPIO(obj);
+     assert(!g_pad_dispatch_depth);
++    uint64_t before = gpio_line64();
+     Esp32GpioPadSnapshot observed[GPIO_NPINS];
+     esp32_gpio_capture_pads(s, observed);
+     memset(g_regs, 0, sizeof(g_regs));
+@@ -773,6 +808,10 @@
+     }
+     g_pad_epoch++;
+     esp32_gpio_notify_pads(s, observed, ESP32_GPIO_PAD_RESET);
++    gpio_notify_reset();
++    uint64_t after = gpio_line64();
++    gpio_notify(before, after);
++    gpio_transition_irq(before, after);
+     gpio_update_irq();
+ }
+ 
+--- a/hw/m5stopwatch/m5_unit_runtime.c
++++ b/hw/m5stopwatch/m5_unit_runtime.c
+@@ -155,6 +155,36 @@
+     }
+ }
+ 
++static void reset_observed_outputs(M5Unit *unit)
++{
++    if (unit->kind == UNIT_RELAY) {
++        unit->previous_output = esp32_gpio_get_line(unit->yellow);
++        unit->output_transitions = 0;
++    } else if (unit->kind == UNIT_RELAY2) {
++        unit->relay2_previous[0] = esp32_gpio_get_line(unit->white);
++        unit->relay2_previous[1] = esp32_gpio_get_line(unit->yellow);
++        unit->relay2_transitions[0] = 0;
++        unit->relay2_transitions[1] = 0;
++        unit->output_transitions = 0;
++    }
++}
++
++static void output_reset(void *opaque, int pin, int level)
++{
++    M5Unit *unit = opaque;
++    (void)level;
++    if ((unit->kind == UNIT_RELAY && pin == unit->yellow) ||
++        (unit->kind == UNIT_RELAY2 &&
++         (pin == unit->white || pin == unit->yellow))) {
++        reset_observed_outputs(unit);
++    }
++}
++
++static void unit_reset(DeviceState *dev)
++{
++    reset_observed_outputs(M5_UNIT(dev));
++}
++
+ static uint8_t sht_crc(const uint8_t *bytes, size_t count)
+ {
+     uint8_t crc = 0xff;
+@@ -340,6 +370,7 @@
+         object_property_add(OBJECT(u), "output-level", "bool", get_output, NULL, NULL, NULL);
+         u->previous_output = esp32_gpio_get_line(u->yellow);
+         esp32_gpio_add_out_listener(u->yellow, output_changed, u);
++        esp32_gpio_add_reset_listener(u->yellow, output_reset, u);
+     } else if (u->kind == UNIT_RELAY2) {
+         /* Schematic R3/R6 bias undriven inputs low. Digital bias only. */
+         esp32_gpio_set_input(u->white, 0);
+@@ -354,6 +385,7 @@
+                                 get_u64, NULL, NULL, &u->relay2_transitions[channel]);
+             u->relay2_previous[channel] = esp32_gpio_get_line(*pins[channel]);
+             esp32_gpio_add_out_listener(*pins[channel], relay2_output_changed, u);
++            esp32_gpio_add_reset_listener(*pins[channel], output_reset, u);
+         }
+     } else if (u->kind == UNIT_GPIO) {
+         m5_unit_gpio_realize(u, u->s3, errp);
+@@ -379,7 +411,9 @@
+ 
+ static void unit_class_init(ObjectClass *klass, void *data)
+ {
+-    DEVICE_CLASS(klass)->realize = unit_realize;
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    dc->realize = unit_realize;
++    device_class_set_legacy_reset(dc, unit_reset);
+ }
+ 
+ static void sensor_class_init(ObjectClass *klass, void *data)
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -77,8 +77,11 @@
+ 
+ /* GPIO glue (implemented in hw/gpio/esp32_gpio.c) */
+ typedef void (*esp32_gpio_out_cb)(void *opaque, int pin, int level);
++typedef void (*esp32_gpio_reset_cb)(void *opaque, int pin, int level);
+ void esp32_gpio_set_input(int pin, int level);
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
++void esp32_gpio_add_reset_listener(int pin, esp32_gpio_reset_cb cb,
++                                   void *opaque);
+ void esp32_gpio_set_open_drain(int pin, bool enable);
+ void esp32_gpio_force_line(int pin, int level);
+ int esp32_gpio_get_line(int pin);
